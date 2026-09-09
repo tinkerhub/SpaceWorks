@@ -267,7 +267,7 @@ def test_bootstrap_publishes_request_access_when_account_less_requests_are_on():
     400 on a space that advertises "no account needed"."""
     makerspace = make_space("platform-request-access-anyone")
     makerspace.enabled_modules = ["public_inventory", "request_workflow"]
-    makerspace.anonymous_requests_enabled = True
+    makerspace.public_request_mode = "anyone"
     makerspace.save()
 
     response = APIClient().get(f"/api/v1/bootstrap?slug={makerspace.slug}")
@@ -281,7 +281,7 @@ def test_bootstrap_withholds_request_access_when_membership_makes_it_impossible(
     backup) must not advertise account-less submission the view would refuse."""
     makerspace = make_space("platform-request-access-impossible")
     makerspace.enabled_modules = ["public_inventory", "request_workflow", "membership"]
-    makerspace.anonymous_requests_enabled = True
+    makerspace.public_request_mode = "anyone"
     makerspace.save()
 
     response = APIClient().get(f"/api/v1/bootstrap?slug={makerspace.slug}")

@@ -53,6 +53,7 @@ MACHINE_SERVICE_ACTIONS = {
     'admin-machine-service-request-complete',
     'admin-machine-service-request-fail',
     'admin-machine-service-request-collect',
+    'admin-machine-service-request-record-manual-payment',
     'admin-machine-service-file-presign',
     'admin-machine-service-file-finalize',
 }

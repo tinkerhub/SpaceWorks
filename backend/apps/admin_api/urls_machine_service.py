@@ -5,6 +5,7 @@ from apps.admin_api.views_machine_service import (
     MachineServiceCollectView,
     MachineServiceCompleteView,
     MachineServiceFailView,
+    MachineServiceRecordManualPaymentView,
     MachineServiceRejectView,
     MachineServiceRequestDetailView,
     MachineServiceRequestListCreateView,
@@ -74,6 +75,11 @@ urlpatterns = [
         "machine-service/requests/<int:pk>/collect",
         MachineServiceCollectView.as_view(),
         name="admin-machine-service-request-collect",
+    ),
+    path(
+        "machine-service/requests/<int:pk>/record-manual-payment",
+        MachineServiceRecordManualPaymentView.as_view(),
+        name="admin-machine-service-request-record-manual-payment",
     ),
     *_separable(
         "payments",

@@ -53,6 +53,14 @@ POLICY_OVERRIDE_ALLOWLIST = {
     # makerspace behind one NAT would rate-limit its own signed-in members by egress IP.
     "apps.hardware_requests.throttles.AnonymousRequestIpBurstThrottle": {"get_cache_key"},
     "apps.hardware_requests.throttles.AnonymousRequestIpHourThrottle": {"get_cache_key"},
+    # Check-in lookup uses complementary IP/member key hooks so anonymous callers are
+    # not charged twice. `CheckinMidThrottle` returns None until the view verifies a mid.
+    "apps.checkin.throttles.CheckinLookupIpBurstThrottle": {"get_cache_key"},
+    "apps.checkin.throttles.CheckinLookupIpHourThrottle": {"get_cache_key"},
+    "apps.checkin.throttles.CheckinLookupMemberThrottle": {
+        "_tier", "allow_request", "get_cache_key"
+    },
+    "apps.checkin.throttles.CheckinMidThrottle": {"get_cache_key"},
     "apps.machines.permissions.IsActiveRequester": {"has_permission"},
     "apps.accounts.views_device.IsDeviceAccessToken": {"has_permission"},
     "apps.makerspaces.throttles.MemberImagePresignThrottle": {"get_cache_key"},

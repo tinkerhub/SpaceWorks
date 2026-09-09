@@ -38,7 +38,8 @@ TenantBootstrapSerializer = inline_serializer(
                 # every other deployment keeps a byte-for-byte identical payload. Absent
                 # means an account is required.
                 "request_access": serializers.ChoiceField(
-                    choices=[("anyone", "anyone")], required=False
+                    choices=[("anyone", "anyone"), ("checked_in", "checked_in")],
+                    required=False,
                 ),
             },
         ),

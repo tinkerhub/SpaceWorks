@@ -1,13 +1,17 @@
 from django.conf import settings
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotAuthenticated, ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.apiclients.throttling import MemberPrincipalRateThrottle
 from apps.audit import services as audit
-from apps.hardware_requests import self_checkout_workflow
+from apps.checkin.principal import resolve_request_principal
+from apps.checkin.throttles import CheckinMidUploadThrottle
+from apps.hardware_requests import checkin_submit, self_checkout_workflow
+from apps.hardware_requests.public_view_helpers import _enforce_throttles
 from apps.hardware_requests.self_checkout_serializers import (
     PublicToolCheckoutSerializer,
     PublicToolEvidenceUrlRequestSerializer,
@@ -21,23 +25,24 @@ from apps.evidence.serializers import EvidenceUrlResponseSerializer
 from apps.evidence.storage import StorageUnavailable, evidence_object_key, presigned_upload
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.guards import require_feature
+from apps.makerspaces.request_access import checkin_requests_allowed
 from apps.presence.guard import require_active_member_presence
 from apps.openapi import (
     PUBLIC_API_AUTH_PARAMETERS,
     PUBLIC_TOOL_CHECKOUT_EXAMPLE,
     PUBLIC_TOOL_SCAN_EXAMPLE,
 )
-from rest_framework.exceptions import ValidationError
 
 
 class PublicToolEvidenceUploadUrlView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     throttle_classes = [MemberPrincipalRateThrottle]
     throttle_scope = "public_tool_checkout"
 
     @extend_schema(
         tags=["Public requests"],
         summary="Create a public self-checkout evidence upload URL",
+        auth=[{"jwtAuth": []}, {}],
         parameters=PUBLIC_API_AUTH_PARAMETERS,
         request=PublicToolEvidenceUrlRequestSerializer,
         responses={201: EvidenceUrlResponseSerializer, **PUBLIC_ERROR_RESPONSES},
@@ -45,12 +50,38 @@ class PublicToolEvidenceUploadUrlView(APIView):
     def post(self, request, makerspace_slug, *args, **kwargs):
         makerspace = get_public_makerspace(makerspace_slug)
         require_feature(makerspace, "inventory.self_checkout")
-        require_active_member_presence(request.user, makerspace)
-        serializer = PublicToolEvidenceUrlRequestSerializer(data=request.data)
+        checkin_submission = checkin_requests_allowed(makerspace)
+        if not checkin_submission:
+            if not request.user.is_authenticated:
+                raise NotAuthenticated()
+            require_active_member_presence(request.user, makerspace)
+        serializer = PublicToolEvidenceUrlRequestSerializer(
+            data=request.data,
+            context={"checkin_submission": checkin_submission},
+        )
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         if data["content_type"] not in settings.EVIDENCE_ALLOWED_MIME:
             raise ValidationError({"content_type": "Unsupported evidence content type."})
+        if checkin_submission:
+            checkin_mid = checkin_submit.require_mid(data)
+            checkin_submit.charge_mid_throttle(
+                request,
+                self,
+                makerspace,
+                checkin_mid,
+                _enforce_throttles,
+                throttles=(CheckinMidUploadThrottle,),
+            )
+        else:
+            checkin_mid = None
+        principal = resolve_request_principal(
+            makerspace,
+            request,
+            mid=checkin_mid,
+            typed_name=data.get("name", ""),
+        )
+        actor = principal.user if principal is not None else request.user
         object_key = evidence_object_key(makerspace.id, data["evidence_type"])
         try:
             upload = presigned_upload(object_key, data["content_type"])
@@ -62,10 +93,10 @@ class PublicToolEvidenceUploadUrlView(APIView):
             object_key=object_key,
             content_type=data["content_type"],
             size_bytes=data.get("size_bytes"),
-            uploaded_by=request.user,
+            uploaded_by=actor,
         )
         audit.record(
-            request.user,
+            actor,
             "evidence.upload_url_issued",
             makerspace=makerspace,
             target=photo,
@@ -84,13 +115,14 @@ class PublicToolEvidenceUploadUrlView(APIView):
 
 
 class PublicToolCheckoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     throttle_classes = [MemberPrincipalRateThrottle]
     throttle_scope = "public_tool_checkout"
 
     @extend_schema(
         tags=["Public requests"],
         summary="Check out a public tool by QR",
+        auth=[{"jwtAuth": []}, {}],
         parameters=PUBLIC_API_AUTH_PARAMETERS,
         request=PublicToolCheckoutSerializer,
         responses={201: PublicToolLoanSerializer, **PUBLIC_ERROR_RESPONSES},
@@ -99,27 +131,51 @@ class PublicToolCheckoutView(APIView):
     def post(self, request, makerspace_slug, *args, **kwargs):
         makerspace = get_public_makerspace(makerspace_slug)
         require_feature(makerspace, "inventory.self_checkout")
-        require_active_member_presence(request.user, makerspace)
-        serializer = PublicToolCheckoutSerializer(data=request.data)
+        checkin_submission = checkin_requests_allowed(makerspace)
+        if not checkin_submission:
+            if not request.user.is_authenticated:
+                raise NotAuthenticated()
+            require_active_member_presence(request.user, makerspace)
+        serializer = PublicToolCheckoutSerializer(
+            data=request.data,
+            context={"checkin_submission": checkin_submission},
+        )
         serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        if checkin_submission:
+            checkin_mid = checkin_submit.require_mid(data)
+            checkin_submit.charge_mid_throttle(
+                request, self, makerspace, checkin_mid, _enforce_throttles
+            )
+        else:
+            checkin_mid = None
+        principal = resolve_request_principal(
+            makerspace,
+            request,
+            mid=checkin_mid,
+            typed_name=data.get("name", ""),
+        )
+        actor = principal.user if principal is not None else request.user
         loan = self_checkout_workflow.checkout_tool(
             makerspace,
-            request.user,
-            serializer.validated_data["payload"],
-            evidence_id=serializer.validated_data["evidence_id"],
-            remark=serializer.validated_data.get("remark", ""),
+            actor,
+            data.get("payload"),
+            qr_payloads=data.get("qr_payloads"),
+            evidence_id=data["evidence_id"],
+            remark=data.get("remark", ""),
         )
         return Response(PublicToolLoanSerializer(loan).data, status=status.HTTP_201_CREATED)
 
 
 class PublicToolReturnView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     throttle_classes = [MemberPrincipalRateThrottle]
     throttle_scope = "public_tool_return"
 
     @extend_schema(
         tags=["Public requests"],
         summary="Return a public tool by QR",
+        auth=[{"jwtAuth": []}, {}],
         parameters=PUBLIC_API_AUTH_PARAMETERS,
         request=PublicToolScanSerializer,
         responses={200: PublicToolLoanSerializer, **PUBLIC_ERROR_RESPONSES},
@@ -128,17 +184,39 @@ class PublicToolReturnView(APIView):
     def post(self, request, makerspace_slug, *args, **kwargs):
         makerspace = get_public_makerspace(makerspace_slug)
         require_feature(makerspace, "inventory.self_checkout")
-        require_active_member_presence(request.user, makerspace)
-        serializer = PublicToolScanSerializer(data=request.data)
+        checkin_submission = checkin_requests_allowed(makerspace)
+        if not checkin_submission:
+            if not request.user.is_authenticated:
+                raise NotAuthenticated()
+            require_active_member_presence(request.user, makerspace)
+        serializer = PublicToolScanSerializer(
+            data=request.data,
+            context={"checkin_submission": checkin_submission},
+        )
         serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        if checkin_submission:
+            checkin_mid = checkin_submit.require_mid(data)
+            checkin_submit.charge_mid_throttle(
+                request, self, makerspace, checkin_mid, _enforce_throttles
+            )
+        else:
+            checkin_mid = None
+        principal = resolve_request_principal(
+            makerspace,
+            request,
+            mid=checkin_mid,
+            typed_name=data.get("name", ""),
+        )
+        actor = principal.user if principal is not None else request.user
         loan = self_checkout_workflow.return_tool(
             makerspace,
-            request.user,
-            serializer.validated_data["payload"],
-            evidence_id=serializer.validated_data["evidence_id"],
-            remark=serializer.validated_data["remark"],
-            report_problem=serializer.validated_data["report_problem"],
-            problem_note=serializer.validated_data["problem_note"],
+            actor,
+            data["payload"],
+            evidence_id=data["evidence_id"],
+            remark=data["remark"],
+            report_problem=data["report_problem"],
+            problem_note=data["problem_note"],
         )
         return Response(PublicToolLoanSerializer(loan).data)
 

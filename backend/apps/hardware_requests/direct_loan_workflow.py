@@ -11,12 +11,14 @@ from apps.evidence.finalization import charge_storage_once
 from apps.hardware_requests.models import HardwareRequest, PublicToolLoan
 from apps.hardware_requests.direct_loan_audit import record_item_logs
 from apps.hardware_requests.direct_loan_returns import return_direct_loan, validate_evidence_upload
-from apps.hardware_requests.self_checkout_workflow import (
+from apps.hardware_requests.self_checkout_helpers import (
     _checkout_target,
     _issue_product,
     _issued_request,
-    qr_has_active_loan,
+    _locked_qrs_for_payloads,
+    _reject_overlapping_checkout_targets,
 )
+from apps.hardware_requests.self_checkout_workflow import qr_has_active_loan
 from apps.hardware_requests.workflow_errors import (
     InvalidTransition,
     RequestValidationError,
@@ -52,7 +54,6 @@ def issue_direct_loan(
         EvidencePhoto.objects.select_for_update().get(pk=evidence.pk)
         if HardwareRequest.objects.filter(issue_evidence=evidence).exists():
             raise RequestValidationError("Evidence already used.")
-        charge_storage_once(evidence, finalized.size)
         container = None
         if container_id is not None:
             container = (
@@ -104,13 +105,11 @@ def issue_direct_loan(
         qrs = _locked_qrs_for_payloads(makerspace, qr_payloads)
         loan_container = container
 
-        seen_qr_ids = set()
+        if len({qr.id for qr in qrs}) != len(qrs):
+            raise InvalidTransition("The same QR code was scanned more than once.")
+        _reject_overlapping_checkout_targets(qrs)
+        charge_storage_once(evidence, finalized.size)
         for qr in qrs:
-            if qr.id in seen_qr_ids:
-                # Same physical QR scanned twice in one handout would decrement
-                # stock twice for one item; reject before any mutation.
-                raise InvalidTransition("The same QR code was scanned more than once.")
-            seen_qr_ids.add(qr.id)
             if qr.target_type == QrCode.TargetType.BOX and container is not None:
                 if container.id != qr.target_id:
                     raise InvalidTransition("Scanned box does not match the selected container.")
@@ -188,26 +187,6 @@ def issue_direct_loan(
             )
         record_item_logs(actor, "admin_direct.checked_out", makerspace, request, loan)
         return loan
-
-
-def _locked_qrs_for_payloads(makerspace, payloads):
-    if not payloads:
-        return []
-
-    unique_payloads = set(payloads)
-    qrs_by_payload = {
-        qr.payload: qr
-        for qr in QrCode.objects.select_for_update()
-        .filter(
-            payload__in=unique_payloads,
-            makerspace=makerspace,
-            status=QrCode.Status.ACTIVE,
-        )
-        .order_by("pk")
-    }
-    if len(qrs_by_payload) != len(unique_payloads):
-        raise RequestValidationError("QR code is not active for this makerspace.")
-    return [qrs_by_payload[payload] for payload in payloads]
 
 
 def _container_subtree_ids(makerspace, container):

@@ -83,9 +83,25 @@ def build_user_closure(rows, makerspace_id, capture_id, *, using="default"):
     ).values("user_id", "makerspace_id"):
         memberships[row["user_id"]].add(row["makerspace_id"])
 
+    CheckinIdentity = apps.get_model("checkin.CheckinIdentity")
+    checkin_principal_ids = set(
+        CheckinIdentity._base_manager.using(using)
+        .filter(makerspace_id=makerspace_id, user_id__in=user_ids)
+        .values_list("user_id", flat=True)
+    )
+
     included, stubbed = [], []
     for pk in sorted(user_ids, key=str):
-        exclusive = memberships[pk] == {int(makerspace_id)}
+        # A check-in principal deliberately has no membership and its one-to-one
+        # identity belongs to this tenant alone. Stubbing it would make the target
+        # reject that person from every checked-in workflow, including a return.
+        membership_less_checkin_principal = (
+            not memberships[pk] and pk in checkin_principal_ids
+        )
+        exclusive = (
+            memberships[pk] == {int(makerspace_id)}
+            or membership_less_checkin_principal
+        )
         if exclusive:
             included.append(
                 _entry(capture_id, pk, "tenant_exclusive", references[pk], emitted=pk)

@@ -9,46 +9,20 @@ import QrScanner from "../../components/ui/QrScanner";
 import { featureEnabled } from "../../lib/features";
 import { useTenant, useTenantPath } from "../../lib/tenant";
 import { formatSlug } from "./PublicInventoryParts";
+import { CheckinIdentityStep } from "./CheckinIdentityStep";
+import { PendingToolCheckoutControls } from "./PendingToolCheckoutControls";
 import { PublicEvidenceUpload } from "./PublicEvidenceUpload";
+import type { CheckinMatch } from "./api";
 import { checkoutTool, returnTool } from "./selfCheckoutApi";
-import type { PublicToolLoanResult } from "./selfCheckoutApi";
+import { PublicSelfCheckoutResult } from "./PublicSelfCheckoutResult";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
 import { useTenantBootstrap } from "./usePublicInventory";
 
 type Mode = "checkout" | "return";
 
-type MutationInput = {
-  payload: string;
-};
-
-function formatStatus(status: string) {
-  const normalized = status.replace(/_/g, " ");
-  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
-}
-
-function ResultCard({ result }: { result: PublicToolLoanResult }) {
-  return (
-    <div className="rounded-xl border border-success bg-success px-3 py-3 text-on-success dark:bg-success/15 dark:text-success-ink">
-      <p className="eyebrow text-on-success dark:text-success-ink">
-        {formatStatus(result.status)}
-      </p>
-      <h2 className="title-panel mt-1 text-on-success dark:text-success-ink">
-        {result.items.map((item) => item.product_name).join(", ") || "Tool loan"}
-      </h2>
-      <div className="mt-3 space-y-2">
-        {result.items.map((item) => (
-          <div
-            className="flex items-center justify-between gap-3 rounded-lg border border-on-success/20 bg-panel/80 px-3 py-2 text-sm"
-            key={item.product_name}
-          >
-            <span>{item.product_name}</span>
-            <span className="font-mono font-semibold">x{item.quantity}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+type MutationInput =
+  | { operation: "checkout"; payloads: string[] }
+  | { operation: "return"; payload: string };
 
 export function PublicSelfCheckoutPage() {
   const queryClient = useQueryClient();
@@ -57,9 +31,13 @@ export function PublicSelfCheckoutPage() {
   const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
   const tenantPath = useTenantPath(makerspaceSlug);
   const [mode, setMode] = useState<Mode>("checkout");
+  const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(
+    null,
+  );
   const [issueEvidenceId, setIssueEvidenceId] = useState<number | null>(null);
   const [returnEvidenceId, setReturnEvidenceId] = useState<number | null>(null);
   const [returnRemark, setReturnRemark] = useState("");
+  const [pendingPayloads, setPendingPayloads] = useState<string[]>([]);
   const [uploadKey, setUploadKey] = useState(0);
   const [scannerOpen, setScannerOpen] = useState(false);
 
@@ -72,22 +50,33 @@ export function PublicSelfCheckoutPage() {
     formatSlug(makerspaceSlug) ||
     "Makerspace";
   const enabled = featureEnabled(features, "inventory.self_checkout");
+  const requiresCheckin = bootstrap?.makerspace.request_access === "checked_in";
+  const identityReady = !requiresCheckin || confirmedCheckin !== null;
+  const checkinPayload =
+    requiresCheckin && confirmedCheckin
+      ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
+      : {};
 
   const loanMutation = useMutation({
-    mutationFn: ({ payload }: MutationInput) =>
-      mode === "checkout"
+    mutationFn: (input: MutationInput) =>
+      input.operation === "checkout"
         ? checkoutTool(makerspaceSlug, {
-            payload,
+            ...(input.payloads.length === 1
+              ? { payload: input.payloads[0] }
+              : { qr_payloads: input.payloads }),
             evidence_id: issueEvidenceId as number,
+            ...checkinPayload,
           })
         : returnTool(makerspaceSlug, {
-            payload,
+            payload: input.payload,
             evidence_id: returnEvidenceId as number,
             remark: returnRemark.trim(),
+            ...checkinPayload,
           }),
-    onSuccess: () => {
+    onSuccess: (_, input) => {
       invalidatePublicInventory(queryClient, makerspaceSlug);
-      if (mode === "checkout") {
+      if (input.operation === "checkout") {
+        setPendingPayloads([]);
         setIssueEvidenceId(null);
       } else {
         setReturnEvidenceId(null);
@@ -96,18 +85,24 @@ export function PublicSelfCheckoutPage() {
       setUploadKey((key) => key + 1);
     },
   });
-  const canScan =
-    mode === "checkout"
-      ? issueEvidenceId !== null
-      : returnEvidenceId !== null &&
-        returnRemark.trim().length > 0;
+  const canSubmitCheckout =
+    identityReady && issueEvidenceId !== null && pendingPayloads.length > 0;
+  const canReturn =
+    identityReady && returnEvidenceId !== null && returnRemark.trim().length > 0;
 
   function scanTool(payload: string) {
-    if (!canScan) {
+    const normalized = payload.trim();
+    if (!normalized) {
       return;
     }
     setScannerOpen(false);
-    loanMutation.mutate({ payload });
+    if (mode === "checkout") {
+      setPendingPayloads((current) =>
+        current.includes(normalized) ? current : [...current, normalized],
+      );
+    } else if (canReturn) {
+      loanMutation.mutate({ operation: "return", payload: normalized });
+    }
   }
 
   return (
@@ -168,6 +163,21 @@ export function PublicSelfCheckoutPage() {
 
         {!bootstrapQuery.isLoading && !bootstrapQuery.isError && enabled ? (
           <Card>
+            {requiresCheckin ? (
+              <div className="mb-4">
+                <CheckinIdentityStep
+                  makerspaceSlug={makerspaceSlug}
+                  confirmed={confirmedCheckin}
+                  onConfirm={(match) => {
+                    setConfirmedCheckin(match);
+                    setIssueEvidenceId(null);
+                    setReturnEvidenceId(null);
+                    setUploadKey((key) => key + 1);
+                  }}
+                  disabled={loanMutation.isPending}
+                />
+              </div>
+            ) : null}
             <div
               aria-label="Checkout mode"
               className="desk-panel mt-4 flex gap-1 p-1"
@@ -204,7 +214,10 @@ export function PublicSelfCheckoutPage() {
                   key={`issue-${uploadKey}`}
                   slug={makerspaceSlug}
                   evidenceType="issue"
-                  disabled={loanMutation.isPending}
+                  checkinIdentity={
+                    requiresCheckin ? confirmedCheckin ?? undefined : undefined
+                  }
+                  disabled={!identityReady || loanMutation.isPending}
                   onUploaded={setIssueEvidenceId}
                 />
               ) : (
@@ -213,7 +226,10 @@ export function PublicSelfCheckoutPage() {
                     key={`return-${uploadKey}`}
                     slug={makerspaceSlug}
                     evidenceType="return"
-                    disabled={loanMutation.isPending}
+                    checkinIdentity={
+                      requiresCheckin ? confirmedCheckin ?? undefined : undefined
+                    }
+                    disabled={!identityReady || loanMutation.isPending}
                     onUploaded={setReturnEvidenceId}
                   />
                   <label className="mt-3 block">
@@ -231,14 +247,33 @@ export function PublicSelfCheckoutPage() {
               )}
             </div>
 
-            <button
-              className="desk-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!canScan || loanMutation.isPending}
-              type="button"
-              onClick={() => setScannerOpen(true)}
-            >
-              {loanMutation.isPending ? "Submitting..." : "Scan QR"}
-            </button>
+            {mode === "checkout" ? (
+              <PendingToolCheckoutControls
+                payloads={pendingPayloads}
+                isPending={loanMutation.isPending}
+                submitDisabled={!canSubmitCheckout}
+                showScanWhenEmpty
+                pendingLabel="Submitting..."
+                onRemove={(payload) =>
+                  setPendingPayloads((current) =>
+                    current.filter((item) => item !== payload),
+                  )
+                }
+                onScanAnother={() => setScannerOpen(true)}
+                onSubmit={() =>
+                  loanMutation.mutate({ operation: "checkout", payloads: pendingPayloads })
+                }
+              />
+            ) : (
+              <button
+                className="desk-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!canReturn || loanMutation.isPending}
+                type="button"
+                onClick={() => setScannerOpen(true)}
+              >
+                {loanMutation.isPending ? "Submitting..." : "Scan QR"}
+              </button>
+            )}
 
             {loanMutation.isError ? (
               <p className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -248,7 +283,7 @@ export function PublicSelfCheckoutPage() {
 
             {loanMutation.isSuccess ? (
               <div className="mt-4">
-                <ResultCard result={loanMutation.data} />
+                <PublicSelfCheckoutResult result={loanMutation.data} />
               </div>
             ) : null}
           </Card>

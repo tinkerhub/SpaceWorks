@@ -131,6 +131,7 @@ urlpatterns = [
     path("api/v1/", include("apps.makerspaces.urls")),
     *separable("payments", "api/v1/member/", "apps.payments.urls_member"),
     path("api/v1/", include("apps.hardware_requests.urls")),
+    path("api/v1/", include("apps.checkin.urls")),
     path("api/v1/auth/", include("apps.accounts.urls")),   # staff auth surface
     path("api/v1/admin/", include("apps.admin_api.urls")),
     # Mounted at admin_api's own prefix so the paths and route names are unchanged by

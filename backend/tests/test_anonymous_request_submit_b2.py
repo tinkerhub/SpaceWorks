@@ -31,7 +31,7 @@ def _space(slug, *, anonymous=True):
         slug=slug,
         enabled_modules=profile_modules(RECOMMENDED),
         enabled_features=["inventory.self_checkout"],
-        anonymous_requests_enabled=anonymous,
+        public_request_mode="anyone" if anonymous else "disabled",
     )
 
 

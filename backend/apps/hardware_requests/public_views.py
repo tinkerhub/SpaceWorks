@@ -37,7 +37,20 @@ from apps.inventory.models import InventoryProduct
 from apps.makerspaces.anonymous_requesters import get_or_create_anonymous_requester
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.platform import module_enabled
-from apps.makerspaces.request_access import anonymous_requests_allowed
+from apps.makerspaces.request_access import (
+    anonymous_requests_allowed,
+    checkin_requests_allowed,
+)
+from apps.hardware_requests import checkin_submit
+from apps.hardware_requests.public_view_helpers import (
+    _anonymous_payload_fingerprint,
+    _enforce_throttles,
+    _honeypot_filled,
+    _honeypot_response,
+    _idempotency_fingerprint,
+    _require_module,
+    _requestable_products,
+)
 from apps.makerspaces.servability import servable_queryset
 from apps.presence.guard import require_active_account, require_active_member_presence
 from apps.openapi import (
@@ -92,8 +105,32 @@ class RequestSubmitView(APIView):
     )
     def post(self, request, makerspace_slug, *args, **kwargs):
         makerspace = get_public_makerspace(makerspace_slug)
-        anonymous_submission = not request.user.is_authenticated
-        if anonymous_submission:
+        unauthenticated = not request.user.is_authenticated
+        # `checked_in` and `anyone` are mutually exclusive stored modes, so at most
+        # one of these is ever true. Both take their branch BEFORE any membership
+        # guard, which is exactly why `request_access` makes the pair unrepresentable.
+        checked_in_policy = checkin_requests_allowed(makerspace)
+        authenticated_member = bool(
+            checked_in_policy
+            and not unauthenticated
+            and request.user.pk
+            and request.user.makerspace_memberships.filter(
+                makerspace=makerspace, status="active"
+            ).exists()
+        )
+        if authenticated_member:
+            # Membership bypasses only the public roster, never the account-state
+            # guard. Restricted, suspended, or inactive users remain blocked.
+            require_active_account(request.user, makerspace)
+        # A deployment-wide account is not tenant membership; only an active member
+        # may bypass the roster selected by this makerspace.
+        checkin_submission = checked_in_policy and not authenticated_member
+        anonymous_submission = unauthenticated and not checkin_submission
+        if checkin_submission:
+            if _honeypot_filled(request.data):
+                return _honeypot_response()
+            _require_module(makerspace, "request_workflow")
+        elif anonymous_submission:
             if not anonymous_requests_allowed(makerspace):
                 # Raising DRF's own exception preserves the previous IsAuthenticated
                 # response body as well as its 401 status for every non-opted-in space.
@@ -125,7 +162,10 @@ class RequestSubmitView(APIView):
 
         serializer = RequestSubmitSerializer(
             data=request.data,
-            context={"anonymous_submission": anonymous_submission},
+            context={
+                "anonymous_submission": anonymous_submission,
+                "checkin_submission": checkin_submission,
+            },
         )
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -133,24 +173,26 @@ class RequestSubmitView(APIView):
 
         idempotency_key_fingerprint = ""
         payload_fingerprint = ""
-        if anonymous_submission:
+        checkin_mid = None
+        if checkin_submission:
+            checkin_mid = checkin_submit.require_mid(data)
+            checkin_submit.charge_mid_throttle(
+                request, self, makerspace, checkin_mid, _enforce_throttles
+            )
+            idempotency_key_fingerprint = _idempotency_fingerprint(request)
+            payload_fingerprint = checkin_submit.payload_fingerprint(data, checkin_mid)
+            replay = anonymous_idempotency_replay(
+                makerspace, idempotency_key_fingerprint, payload_fingerprint
+            )
+            if replay is not None:
+                return Response(
+                    RequestSubmitResponseSerializer(replay).data,
+                    status=status.HTTP_201_CREATED,
+                )
+        elif anonymous_submission:
             request.anonymous_contact_email = data["contact_email"]
             _enforce_throttles(request, self, (AnonymousRequestEmailThrottle,))
-            idempotency_key = str(request.headers.get("Idempotency-Key", "")).strip()
-            if not idempotency_key:
-                raise ValidationError(
-                    {"idempotency_key": "This header is required for anonymous submissions."}
-                )
-            if len(idempotency_key) > settings.ANONYMOUS_REQUEST_IDEMPOTENCY_KEY_MAX_LENGTH:
-                raise ValidationError(
-                    {
-                        "idempotency_key": (
-                            "Ensure this header has no more than "
-                            f"{settings.ANONYMOUS_REQUEST_IDEMPOTENCY_KEY_MAX_LENGTH} characters."
-                        )
-                    }
-                )
-            idempotency_key_fingerprint = fingerprint(idempotency_key)
+            idempotency_key_fingerprint = _idempotency_fingerprint(request)
             payload_fingerprint = _anonymous_payload_fingerprint(data)
             replay = anonymous_idempotency_replay(
                 makerspace,
@@ -170,7 +212,15 @@ class RequestSubmitView(APIView):
                 {"items": "One or more products are unavailable for request."}
             )
 
-        if anonymous_submission:
+        if checkin_submission:
+            # The only upstream call, and only for a genuinely new request.
+            entry, identity = checkin_submit.verify_and_resolve(
+                makerspace, mid=checkin_mid, typed_name=data.get("name", ""),
+            )
+            requester_principal = identity.user
+            contact_snapshot = checkin_submit.snapshot(entry, identity)
+            audit_actor = identity.user
+        elif anonymous_submission:
             requester_principal = get_or_create_anonymous_requester(makerspace)
             contact_snapshot = RequesterSnapshot(
                 username="",
@@ -213,39 +263,6 @@ class RequestSubmitView(APIView):
         )
 
 
-def _honeypot_response():
-    decoy = SimpleNamespace(
-        public_token=uuid.uuid4(),
-        status=HardwareRequest.Status.PENDING_APPROVAL,
-    )
-    return Response(
-        RequestSubmitResponseSerializer(decoy).data,
-        status=status.HTTP_201_CREATED,
-    )
-
-
-def _enforce_throttles(request, view, throttle_types):
-    waits = []
-    for throttle_type in throttle_types:
-        throttle = throttle_type()
-        if not throttle.allow_request(request, view):
-            waits.append(throttle.wait())
-    if waits:
-        durations = [wait for wait in waits if wait is not None]
-        raise Throttled(wait=max(durations) if durations else None)
-
-
-def _anonymous_payload_fingerprint(data):
-    canonical = {
-        "contact_email": data["contact_email"],
-        "contact_name": data["contact_name"].strip(),
-        "contact_phone": data.get("contact_phone", ""),
-        "items": sorted(data["items"], key=lambda item: item["product_id"]),
-        "requested_for": data["requested_for"],
-    }
-    return fingerprint(json.dumps(canonical, sort_keys=True, separators=(",", ":")))
-
-
 class RequestStatusView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     throttle_classes = [ClientTierRateThrottle]
@@ -268,30 +285,3 @@ class RequestStatusView(generics.RetrieveAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
-
-
-def _honeypot_filled(payload):
-    """True if the hidden anti-spam `website` field was populated. Real browsers never
-    fill it; bots that auto-fill every field do. Read defensively from the raw payload."""
-    try:
-        value = payload.get("website", "")
-    except AttributeError:
-        return False
-    return bool(str(value).strip())
-
-
-def _requestable_products(product_ids, makerspace):
-    return {
-        product.pk: product
-        for product in InventoryProduct.objects.filter(
-            pk__in=product_ids,
-            makerspace=makerspace,
-            is_public=True,
-            is_archived=False,
-        )
-    }
-
-
-def _require_module(makerspace, module_key):
-    if not module_enabled(makerspace, module_key):
-        raise ValidationError({"module": f"{module_key} is disabled for this makerspace."})

@@ -136,6 +136,7 @@ export const openApiPaths = [
   "/api/v1/admin/machine-service/requests/{id}/fail",
   "/api/v1/admin/machine-service/requests/{id}/files/finalize",
   "/api/v1/admin/machine-service/requests/{id}/files/presign",
+  "/api/v1/admin/machine-service/requests/{id}/record-manual-payment",
   "/api/v1/admin/machine-service/requests/{id}/reject",
   "/api/v1/admin/machine-service/requests/{id}/reprint",
   "/api/v1/admin/machine-service/requests/{id}/start",
@@ -447,6 +448,7 @@ export const openApiPaths = [
   "/api/v1/public/machine-service/3d-printer/requests/{public_token}/status",
   "/api/v1/public/makerspaces/",
   "/api/v1/public/requests/{public_token}/status",
+  "/api/v1/public/{makerspace_slug}/checkin/lookup",
   "/api/v1/public/{makerspace_slug}/events/",
   "/api/v1/public/{makerspace_slug}/events/{public_token}/register/",
   "/api/v1/public/{makerspace_slug}/inventory/",
@@ -546,6 +548,9 @@ export type AdminRequest = {
   "requester_contact_email": string;
   "requester_contact_phone": string;
   "requester_contact_verified": boolean;
+  "checkin_purpose": string;
+  "checkin_project_name": string;
+  "checkin_verified_at": string | null;
   "status": string;
   "requested_for": string;
   "rejection_reason": string;
@@ -1060,6 +1065,20 @@ export type ChangePasswordResponse = {
 export type Channel7a7Enum = "telegram" | "slack" | "mattermost" | "discord";
 
 export type ChannelCbbEnum = "email" | "telegram" | "slack" | "mattermost" | "discord" | "native_push";
+
+export type CheckinLookupRequest = {
+  "name": string;
+};
+
+export type CheckinMatch = {
+  "mid": number;
+  "name": string;
+  "avatar": string;
+  "purpose": string;
+  "project_name": string;
+  "eligible": boolean;
+  "reason": ReasonEnum | BlankEnum;
+};
 
 export type CheckoutUrl = {
   "checkout_url": string;
@@ -2340,6 +2359,9 @@ export type MachineServiceRequest = {
   "reserved_grams": string;
   "actual_consumed_grams": string;
   "payment": StaffPayment | null;
+  "payment_amount": string | null;
+  "payment_status": string;
+  "paid_at": string | null;
   "run_machine_model": string;
   "files": Array<ServiceFile>;
   "consumptions": Array<ServiceConsumption>;
@@ -4225,6 +4247,8 @@ export type PublicMachine = {
 
 export type PublicMachineServiceSubmit = {
   "website"?: string;
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "machine_id": number;
   "title": string;
   "description"?: string;
@@ -4280,6 +4304,8 @@ export type PublicPrinterStatus = {
 
 export type PublicPrinterSubmit = {
   "website"?: string;
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "queue_id"?: number | null;
   "title": string;
   "project_brief"?: string;
@@ -4299,6 +4325,8 @@ export type PublicPrinterSubmitResponse = {
 };
 
 export type PublicPrinterUpload = {
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "queue_id"?: number | null;
   "kind": PublicPrinterUploadKindEnum;
   "filename": string;
@@ -4450,12 +4478,17 @@ export type PublicStatsToolsOut = {
 };
 
 export type PublicToolCheckout = {
-  "payload": string;
+  "checkin_mid"?: number | null;
+  "name"?: string;
+  "payload"?: string;
+  "qr_payloads"?: Array<string>;
   "evidence_id": number;
   "remark"?: string;
 };
 
 export type PublicToolEvidenceUrlRequest = {
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "evidence_type": PublicToolEvidenceUrlRequestEvidenceTypeEnum;
   "content_type": string;
   "size_bytes"?: number | null;
@@ -4475,6 +4508,8 @@ export type PublicToolLoanItem = {
 };
 
 export type PublicToolScan = {
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "payload": string;
   "evidence_id": number;
   "remark": string;
@@ -4638,6 +4673,8 @@ export type Readiness = {
   "archive_custody": ArchiveCustodyReadiness;
 };
 
+export type ReasonEnum = "purpose" | "project" | "expired" | "space";
+
 export type ReceiptEnvelope = {
   "payload": {
   [key: string]: unknown;
@@ -4771,7 +4808,7 @@ export type ReportError = {
   "code"?: string;
 };
 
-export type RequestAccessEnum = "anyone";
+export type RequestAccessEnum = "anyone" | "checked_in";
 
 export type RequestItemInput = {
   "product_id": number;
@@ -4783,6 +4820,8 @@ export type RequestSubmit = {
   "contact_name"?: string;
   "contact_email"?: string;
   "contact_phone"?: string;
+  "checkin_mid"?: number | null;
+  "name"?: string;
   "requested_for"?: string;
   "items": Array<RequestItemInput>;
 };

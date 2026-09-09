@@ -12,6 +12,7 @@ from io import StringIO
 
 from apps.makerspaces.models import Makerspace
 from apps.makerspaces.module_profiles import (
+    CHECKIN,
     EVERYTHING,
     LENDING,
     MINIMAL,
@@ -46,6 +47,16 @@ def test_the_workshop_profile_ships_machines_but_not_the_lending_extras():
     assert {"machines", "machine_service", "maintenance"} <= keys
     assert "stock_transfers" not in keys
     assert "procurement" not in keys
+
+
+def test_the_checkin_profile_combines_workshop_and_inventory_without_local_membership():
+    keys = set(profile_modules(CHECKIN))
+    assert keys == core_module_keys() | {
+        "machines", "machine_service", "printing", "maintenance", "reports",
+        "notifications", "email", "updates", "guest_handover", "bulk_import",
+        "containers", "stock_transfers", "stocktake", "qr_print_batches", "asset_units",
+    }
+    assert not {"membership", "member_accounts", "payments", "events", "bookings"} & keys
 
 
 def test_the_loan_spine_survives_every_profile_including_workshop():

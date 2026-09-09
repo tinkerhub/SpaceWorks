@@ -2,7 +2,29 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 
-class PublicToolScanSerializer(serializers.Serializer):
+class _CheckinPrincipalSerializer(serializers.Serializer):
+    checkin_mid = serializers.IntegerField(required=False, allow_null=True)
+    name = serializers.CharField(required=False, allow_blank=True, max_length=200)
+
+    def to_internal_value(self, data):
+        if not self.context.get("checkin_submission", False):
+            # These inputs have no meaning outside the checked-in policy. Drop them
+            # before field validation so adding the seam cannot change legacy
+            # responses for callers that happened to include similarly named keys.
+            data = data.copy()
+            data.pop("checkin_mid", None)
+            data.pop("name", None)
+        return super().to_internal_value(data)
+
+    def validate(self, attrs):
+        if self.context.get("checkin_submission", False) and not attrs.get(
+            "name", ""
+        ).strip():
+            raise serializers.ValidationError({"name": "This field is required."})
+        return attrs
+
+
+class PublicToolScanSerializer(_CheckinPrincipalSerializer):
     payload = serializers.CharField(max_length=64)
     evidence_id = serializers.IntegerField()
     remark = serializers.CharField()
@@ -14,6 +36,7 @@ class PublicToolScanSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
+        attrs = super().validate(attrs)
         if attrs.get("report_problem") and not attrs.get("problem_note", "").strip():
             raise serializers.ValidationError(
                 {"problem_note": "Problem note is required."}
@@ -21,13 +44,33 @@ class PublicToolScanSerializer(serializers.Serializer):
         return attrs
 
 
-class PublicToolCheckoutSerializer(serializers.Serializer):
-    payload = serializers.CharField(max_length=64)
+class PublicToolCheckoutSerializer(_CheckinPrincipalSerializer):
+    payload = serializers.CharField(max_length=64, required=False)
+    qr_payloads = serializers.ListField(
+        child=serializers.CharField(max_length=64),
+        required=False,
+        allow_empty=True,
+        max_length=50,
+    )
     evidence_id = serializers.IntegerField()
     remark = serializers.CharField(required=False, allow_blank=True)
 
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        has_payload = "payload" in attrs
+        has_batch = bool(attrs.get("qr_payloads"))
+        if not has_payload and not has_batch:
+            raise serializers.ValidationError(
+                {"payload": "This field is required unless qr_payloads is provided."}
+            )
+        if has_payload and has_batch:
+            raise serializers.ValidationError(
+                "Provide either payload or qr_payloads, not both."
+            )
+        return attrs
 
-class PublicToolEvidenceUrlRequestSerializer(serializers.Serializer):
+
+class PublicToolEvidenceUrlRequestSerializer(_CheckinPrincipalSerializer):
     evidence_type = serializers.ChoiceField(choices=["issue", "return"])
     content_type = serializers.CharField()
     size_bytes = serializers.IntegerField(required=False, allow_null=True, min_value=0)

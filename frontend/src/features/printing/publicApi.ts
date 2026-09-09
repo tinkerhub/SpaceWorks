@@ -4,9 +4,15 @@ import { publicV1Request, tenantPublicRequest } from "../../lib/api";
 export type PrintQueue = PublicPrinterQueue;
 export type PublicFilamentPool = PublicPrinterPool;
 export type PrintStatus = PublicPrinterStatus;
-export type PrintUploadBody = PublicPrinterUpload;
+export type PrintUploadBody = PublicPrinterUpload & {
+  checkin_mid?: number;
+  name?: string;
+};
 export type PrintUpload = { url: string; fields: Record<string, string>; method?: string; headers?: Record<string, string> };
-export type PrintRequestPayload = PublicPrinterSubmit;
+export type PrintRequestPayload = PublicPrinterSubmit & {
+  checkin_mid?: number;
+  name?: string;
+};
 
 export function fetchPrintQueues(slug: string) {
   return tenantPublicRequest<PrintQueue[]>(slug, `/public/${slug}/machine-service/3d-printer/queues`);

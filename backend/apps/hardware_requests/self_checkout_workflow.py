@@ -6,25 +6,21 @@ from django.db.models import Q
 from django.utils import timezone
 
 from apps.audit import services as audit
-from apps.boxes.models import Box, QrCode, QrScanEvent
+from apps.boxes.models import QrCode, QrScanEvent
 from apps.evidence.models import EvidencePhoto
 from apps.evidence.finalization import charge_storage_once
 from apps.hardware_requests.models import (
     HardwareRequest,
-    HardwareRequestItem,
     PublicProblemReport,
     PublicToolLoan,
     ReturnEvent,
 )
 from apps.hardware_requests.self_checkout_helpers import (
-    _checkout_box,
     _checkout_target,
-    _create_issued_request,
-    _eligible_asset,
-    _eligible_product,
-    _issue_product,
     _issued_request,
     _locked_qr,
+    _locked_qrs_for_payloads,
+    _reject_overlapping_checkout_targets,
     _return_request_items,
 )
 from apps.hardware_requests.workflow_errors import (
@@ -34,15 +30,27 @@ from apps.hardware_requests.workflow_errors import (
     ReturnValidationError,
 )
 from apps.hardware_requests.direct_loan_returns import validate_evidence_upload
-from apps.inventory import availability
-from apps.inventory.models import InventoryAsset, InventoryProduct
+from apps.inventory.models import InventoryAsset
 from apps.makerspaces.guards import require_feature, require_feature_locked
 from apps.makerspaces.models import Makerspace
 from apps.makerspaces.servability import is_servable
 from apps.notifications.emit import emit_notification
 
 
-def checkout_tool(makerspace, requester, payload, *, evidence_id, remark=""):
+def checkout_tool(
+    makerspace,
+    requester,
+    payload=None,
+    *,
+    qr_payloads=None,
+    evidence_id,
+    remark="",
+):
+    if payload is not None and qr_payloads:
+        raise RequestValidationError("Provide either payload or qr_payloads, not both.")
+    payloads = list(qr_payloads or ([] if payload is None else [payload]))
+    if not payloads:
+        raise RequestValidationError("Provide payload or qr_payloads.")
     # Gate on the feature and on servability BEFORE touching evidence. Promotion moved
     # out of the transaction so its row locks never span S3 I/O, and moving the evidence
     # work up with it put it ahead of the feature check -- so a makerspace with
@@ -66,17 +74,38 @@ def checkout_tool(makerspace, requester, payload, *, evidence_id, remark=""):
             raise RequestValidationError("Makerspace is not available.")
         due_at = timezone.now() + timedelta(days=(makerspace.default_loan_days or 7))
         _lock_unused_evidence(evidence, issue=True)
-        charge_storage_once(evidence, finalized.size)
-        qr = _locked_qr(makerspace, payload)
-        if qr_has_active_loan(makerspace, qr):
+        qrs = _locked_qrs_for_payloads(makerspace, payloads)
+        if len({qr.id for qr in qrs}) != len(qrs):
+            raise InvalidTransition("The same QR code was scanned more than once.")
+        _reject_overlapping_checkout_targets(qrs)
+        if any(qr_has_active_loan(makerspace, qr) for qr in qrs):
             raise InvalidTransition("This QR code is already checked out.")
 
-        target_label, product_quantities, asset_ids, container = _checkout_target(qr)
+        charge_storage_once(evidence, finalized.size)
+        product_quantities = Counter()
+        asset_ids = []
+        labels = []
+        container = None
+        for qr in qrs:
+            label, quantities, target_asset_ids, target_container = _checkout_target(qr)
+            if target_container is not None:
+                if container is None:
+                    container = target_container
+                elif container.id != target_container.id:
+                    raise InvalidTransition(
+                        "Only one handout container can be checked out at a time."
+                    )
+            labels.append(label)
+            product_quantities.update(quantities)
+            asset_ids.extend(target_asset_ids)
+
+        first_qr = qrs[0]
+        target_label = ", ".join(labels)[:200]
         hardware_request = _issued_request(
             makerspace,
             requester,
             requester.username,
-            product_quantities,
+            dict(product_quantities),
             requester_name=requester.display_name,
             contact_email=requester.email,
             contact_phone=requester.phone,
@@ -87,30 +116,31 @@ def checkout_tool(makerspace, requester, payload, *, evidence_id, remark=""):
         hardware_request.save(update_fields=["issue_evidence", "issue_remark", "updated_at"])
         loan = PublicToolLoan.objects.create(
             makerspace=makerspace,
-            qr_code=qr,
-            qr_ids=[qr.id],
+            qr_code=first_qr,
+            qr_ids=[qr.id for qr in qrs],
             container=container,
             request=hardware_request,
             requester=requester,
-            target_type=qr.target_type,
-            target_id=qr.target_id,
+            target_type=first_qr.target_type,
+            target_id=first_qr.target_id,
             target_label=target_label,
             asset_ids=asset_ids,
             due_at=due_at,
         )
-        QrScanEvent.objects.create(
-            makerspace=makerspace,
-            qr_code=qr,
-            actor=requester,
-            context=QrScanEvent.Context.ISSUE,
-            request=hardware_request,
-        )
+        for qr in qrs:
+            QrScanEvent.objects.create(
+                makerspace=makerspace,
+                qr_code=qr,
+                actor=requester,
+                context=QrScanEvent.Context.ISSUE,
+                request=hardware_request,
+            )
         audit.record(
             requester,
             "public_tool.checked_out",
             makerspace=makerspace,
             target=hardware_request,
-            meta={"qr_id": qr.id, "target": target_label},
+            meta={"qr_id": first_qr.id, "target": target_label},
         )
         return loan
 
@@ -147,7 +177,8 @@ def return_tool(
         loan = (
             PublicToolLoan.objects.select_for_update()
             .select_related("request", "requester")
-            .filter(qr_code=qr, status=PublicToolLoan.Status.CHECKED_OUT)
+            .filter(status=PublicToolLoan.Status.CHECKED_OUT)
+            .filter(Q(qr_code=qr) | Q(qr_ids__contains=[qr.id]))
             .first()
         )
         if loan is None:
@@ -251,35 +282,3 @@ def qr_has_active_loan(makerspace, qr):
         .filter(Q(qr_code=qr) | Q(qr_ids__contains=[qr.id]))
         .exists()
     )
-
-
-__all__ = [
-    "Box",
-    "Counter",
-    "HardwareRequest",
-    "HardwareRequestItem",
-    "InventoryAsset",
-    "InventoryProduct",
-    "InvalidTransition",
-    "PublicToolLoan",
-    "Q",
-    "QrCode",
-    "QrScanEvent",
-    "RequestValidationError",
-    "_checkout_box",
-    "_checkout_target",
-    "_create_issued_request",
-    "_eligible_asset",
-    "_eligible_product",
-    "_issue_product",
-    "_issued_request",
-    "_locked_qr",
-    "_return_request_items",
-    "audit",
-    "availability",
-    "checkout_tool",
-    "qr_has_active_loan",
-    "return_tool",
-    "timezone",
-    "transaction",
-]

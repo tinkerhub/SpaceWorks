@@ -1,6 +1,7 @@
 """Relational and semantic reference registries for the global User closure."""
 
 from .fields import FIELDS
+from .references_json_fields import JSON_FIELDS
 from .models import EXPORTED_MODELS
 from .types import (
     Fidelity,
@@ -58,6 +59,10 @@ RELATIONAL_USER_FIELDS = frozenset(
         ("audit.AuditLog", "actor"),
         ("bookings.BookableSpace", "created_by"),
         ("bookings.Booking", "member"),
+        # The check-in principal. Included in the closure like any other person
+        # reference: a checked-in requester IS a person for export purposes, which
+        # is the whole reason principals are per-mid rather than one sentinel.
+        ("checkin.CheckinIdentity", "user"),
         ("boxes.BoxScan", "actor"),
         ("boxes.QrCode", "created_by"),
         ("boxes.QrScanEvent", "actor"),
@@ -201,43 +206,6 @@ POLYMORPHIC_PAIRS = frozenset(
     }
 )
 
-JSON_FIELDS = frozenset(
-    {
-        ("apiclients.ApiClient", "scopes"),
-        ("apiclients.ApiClient", "allowed_origins"),
-        ("apiclients.ApiKeyRequest", "allowed_origins"),
-        ("audit.AuditLog", "meta"),
-        # Phase 7 imported-actor provenance. Each holds actor_username,
-        # actor_display, source_user_id and recorded_at.
-        ("makerspaces.MakerspaceMembership", "witnessed_actor_snapshot"),
-        ("makerspaces.MakerspaceMembership", "verified_actor_snapshot"),
-        ("makerspaces.MakerspaceMembership", "activated_actor_snapshot"),
-        ("makerspaces.MakerspaceMembership", "revoked_actor_snapshot"),
-        ("bookings.BookableSpace", "custom_form"),
-        ("bookings.Booking", "custom_answers"),
-        ("events.Event", "custom_form"),
-        ("events.EventRegistration", "custom_answers"),
-        ("hardware_requests.PublicToolLoan", "asset_ids"),
-        ("hardware_requests.PublicToolLoan", "qr_ids"),
-        ("machines.Machine", "service_file_policy"),
-        ("machines.Machine", "type_payload"),
-        ("machines.MachineServiceRequest", "capability_payload"),
-        ("machines.MachineType", "capability_config"),
-        ("makerspaces.Makerspace", "cors_allowed_origins"),
-        ("makerspaces.Makerspace", "enabled_modules"),
-        ("makerspaces.Makerspace", "enabled_features"),
-        ("makerspaces.Makerspace", "resource_limit_overrides"),
-        ("makerspaces.Makerspace", "theme_config"),
-        ("makerspaces.Makerspace", "branding_config"),
-        ("makerspaces.Makerspace", "presence_preset_minutes"),
-        ("makerspaces.MakerspaceRole", "granted_actions"),
-        ("makerspaces.MemberProfile", "interests"),
-        ("makerspaces.MemberProfile", "languages"),
-        ("makerspaces.MemberProfile", "education"),
-        ("makerspaces.MemberProject", "links"),
-        ("tenant_migration.ExternalTenantReference", "snapshot"),
-    }
-)
 
 SEMANTIC_REFERENCES = {}
 for _fidelity in Fidelity:

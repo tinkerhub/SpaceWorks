@@ -70,6 +70,12 @@ _ROUTE_DEFINITIONS = (
         TARGET_TENANT_SLUG, False, True,
     ),
     (
+        # POST is only an HTTP detail here; authorization is read-only, matching
+        # the AnonymousRead classification in apps.accounts.claim_routes_public.
+        "checkin:lookup", _WRITE, PUBLIC_READ_SCOPES,
+        TARGET_TENANT_SLUG, False, False,
+    ),
+    (
         "hardware_requests:public-tool-evidence-url", _WRITE, PUBLIC_WRITE_SCOPES,
         TARGET_TENANT_SLUG, False, True,
     ),

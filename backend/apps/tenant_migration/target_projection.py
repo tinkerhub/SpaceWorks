@@ -120,6 +120,14 @@ TARGET_FIELD_PROJECTION = {
         0,
         reason="Target quota accounting starts empty and advances from accepted object bytes.",
     ),
+    ("makerspaces.Makerspace", "public_request_mode"): TargetField(
+        "disabled",
+        reason="A source check-in policy is not authority to trust the target deployment's roster.",
+    ),
+    ("makerspaces.Makerspace", "checkin_space_id"): TargetField(
+        None,
+        reason="A source roster binding has no authority on the target deployment.",
+    ),
     ("makerspaces.Makerspace", "membership_policy"): TargetField(
         "request", allow_superadmin_override=True,
         reason="Open admission is a target grant, not a portable preference.",

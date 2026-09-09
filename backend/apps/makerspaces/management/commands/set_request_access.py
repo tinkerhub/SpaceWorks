@@ -7,19 +7,33 @@ keeps the installer from reporting a policy the database does not have.
 """
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 from apps.makerspaces.management.commands.list_modules import resolve_makerspace
 from apps.makerspaces.request_access import (
     ACCOUNTS,
     ANYONE,
+    CHECKED_IN,
     MEMBERS,
+    MODE_ANYONE,
+    MODE_CHECKED_IN,
+    MODE_DISABLED,
     POLICY_LABELS,
     RequestAccessConflict,
     effective_policy,
-    set_anonymous_requests,
+    set_request_access,
 )
 
-MODES = (MEMBERS, ACCOUNTS, ANYONE)
+# The operator asks for a POLICY; the column stores a MODE. `members` and `accounts`
+# are the same stored mode -- which of the two you actually get is decided by the
+# membership module, not by this command.
+MODES = (MEMBERS, ACCOUNTS, CHECKED_IN, ANYONE)
+STORED_MODE = {
+    MEMBERS: MODE_DISABLED,
+    ACCOUNTS: MODE_DISABLED,
+    CHECKED_IN: MODE_CHECKED_IN,
+    ANYONE: MODE_ANYONE,
+}
 
 
 class Command(BaseCommand):
@@ -33,19 +47,35 @@ class Command(BaseCommand):
             choices=MODES,
             help=(
                 "members = active members only (requires the membership module); "
-                "accounts = any signed-in account; anyone = no account needed."
+                "accounts = any signed-in account; "
+                "checked_in = no account, verified against the upstream check-in "
+                "roster (requires --checkin-space-id to have been set); "
+                "anyone = no account needed."
+            ),
+        )
+        parser.add_argument(
+            "--checkin-space-id",
+            type=int,
+            default=None,
+            help=(
+                "Bind this makerspace to an upstream check-in space id. Required "
+                "before --mode checked_in, and applied before the mode is set so a "
+                "single invocation can do both."
             ),
         )
 
     def handle(self, *args, **options):
         makerspace = resolve_makerspace(options["makerspace"])
         mode = options["mode"]
+        space_id = options["checkin_space_id"]
         try:
-            # Only `anyone` is a request to OPEN the flag. `members` and `accounts` are
-            # both "an account is required", and which of the two you get is decided by
-            # the membership module, not by this command -- so both close the flag and
-            # then report what the module state actually produced.
-            resulting = set_anonymous_requests(makerspace, mode == ANYONE)
+            with transaction.atomic():
+                if space_id is not None:
+                    # The binding and mode change commit together, so a refused mode
+                    # leaves the existing binding and live policy unchanged.
+                    makerspace.checkin_space_id = space_id
+                    makerspace.save(update_fields=["checkin_space_id"])
+                resulting = set_request_access(makerspace, STORED_MODE[mode])
         except RequestAccessConflict as exc:
             raise CommandError(str(exc)) from exc
 

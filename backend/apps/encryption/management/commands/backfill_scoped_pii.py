@@ -12,6 +12,7 @@ from apps.encryption.registry import all_fields, fields_for_label, makerspace_id
 FILTERS = {
     "hardware_requests.HardwareRequest": {"makerspace_id": None},
     "events.EventRegistration": {"event__makerspace_id": None},
+    "checkin.CheckinIdentity": {"makerspace_id": None},
     "bookings.Booking": {"space__makerspace_id": None},
     "machines.MachineServiceRequest": {"makerspace_id": None},
     "machines.MachineUsageEntry": {"machine__makerspace_id": None},

@@ -18,6 +18,9 @@ def assert_ready(*, strict=False):
     from apps.events.models import EventRegistration
     if EventRegistration.objects.exclude(email_hash_generation__isnull=True).exclude(email_hash_generation=generation).exists():
         raise PiiUnavailable()
+    from apps.checkin.models import CheckinIdentity
+    if CheckinIdentity.objects.exclude(mid_hash_generation__isnull=True).exclude(mid_hash_generation=generation).exists():
+        raise PiiUnavailable()
     # Existing envelopes imply an owning tenant must have precisely one live DEK,
     # and every retained version needs an authenticated broker preflight.
     owners = set()

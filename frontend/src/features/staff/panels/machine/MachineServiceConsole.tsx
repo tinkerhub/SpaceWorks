@@ -8,6 +8,7 @@ import type { Machine, MachineType, MeteringUnit } from "../../machinesApi";
 import { useStaffGet } from "../shared";
 import { clearedActionDraft } from "./serviceDrafts";
 import type { ServiceActionName, ServiceDraft } from "./serviceDrafts";
+import { paymentState } from "./servicePaymentState";
 import { poolQueryKey, poolUnits, unitLabels, usablePools } from "./servicePools";
 
 type Props = {
@@ -97,7 +98,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
         <div className="grid gap-2">
           {requests.data?.map((request) => (
             <article className="rounded-md border border-line bg-surface p-3" key={request.id}>
-              <div className="flex flex-wrap items-center justify-between gap-2"><strong>{request.title}</strong><span>{request.status.replace("_", " ")}</span></div>
+              <div className="flex flex-wrap items-center justify-between gap-2"><strong>{request.title}</strong><span>{request.status.replace("_", " ")} · payment {paymentState(request)}</span></div>
               <p className="mt-1 text-xs text-muted">Planned {request.planned_quantity ?? "0"} {unitLabel} · actual {request.actual_consumed_quantity ?? "0"} {unitLabel}</p>
               <div className="mt-2 flex flex-wrap gap-2"><ServiceActions request={request} onAction={(name) => setDraft((current) => ({ ...current, action: { id: request.id, name } }))} /></div>
             </article>
@@ -141,6 +142,7 @@ function ServiceActions({ request, onAction }: { request: MachineServiceRequest;
   if (request.status === "pending") return <><button className="desk-button-success" onClick={() => onAction("accept")}>Accept</button><button className="desk-button-danger" onClick={() => onAction("reject")}>Reject</button></>;
   if (request.status === "accepted") return <button className="desk-button-primary" onClick={() => onAction("start")}>Start</button>;
   if (request.status === "in_progress") return <><button className="desk-button-success" onClick={() => onAction("complete")}>Complete</button><button className="desk-button-danger" onClick={() => onAction("fail")}>Fail</button></>;
+  if (request.status === "completed" && request.payment?.status === "pending") return <button className="desk-button-success" onClick={() => onAction("record-manual-payment")}>Record payment · {request.payment.currency.toUpperCase()} {request.payment.amount}</button>;
   return request.status === "completed" ? <button className="desk-button-success" onClick={() => onAction("collect")}>Collect</button> : null;
 }
 

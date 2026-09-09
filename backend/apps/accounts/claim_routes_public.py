@@ -76,4 +76,8 @@ PUBLIC_CLAIM_ROUTES = {
     ),
     ("hardware_requests:public-tool-return", "OPTIONS"): AnonymousRead(),
     **_anonymous("hardware_requests:request-status"),
+    # This POST is a read: it ignores presented claims, creates nothing, emits no audit
+    # row, and only echoes matches for a name the caller already typed.
+    ("checkin:lookup", "POST"): AnonymousRead(),
+    ("checkin:lookup", "OPTIONS"): AnonymousRead(),
 }

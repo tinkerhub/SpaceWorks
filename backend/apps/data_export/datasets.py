@@ -34,6 +34,7 @@ DATASET_SPECS = {
     "hardware_requests.PublicProblemReport": ("lending/problem_reports.csv", P(("makerspace",))),
     "hardware_requests.PublicToolLoan": ("lending/direct_and_self_checkout_loans.csv", P(("makerspace",))),
     "hardware_requests.RequesterAccountability": ("lending/accountability.csv", P(("makerspace",))),
+    "checkin.CheckinIdentity": ("lending/checkin-identities.csv", P(("makerspace",))),
     "hardware_requests.ReturnEvent": ("lending/return_events.csv", P(("makerspace",))),
     "integrations.ChatTemplate": ("notifications/chat_templates.csv", P(("makerspace",))),
     "integrations.DestinationCategoryScope": ("notifications/destination_category_scopes.csv", P(("destination__makerspace",), ("category__makerspace",))),

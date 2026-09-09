@@ -1,5 +1,10 @@
 import { apiGet, publicV1Request, tenantPublicRequest } from "../../lib/api";
 import type {
+  CheckinMatch as GeneratedCheckinMatch,
+  PublicToolCheckout,
+  PublicToolScan,
+} from "../../generated/api";
+import type {
   Makerspace,
   PaginatedResponse,
   Product,
@@ -77,6 +82,11 @@ export async function submitPublicRequest(
     contact_name?: string;
     contact_email?: string;
     contact_phone?: string;
+    // Checked-in submissions only. `name` is matched against the upstream roster and
+    // `checkin_mid` says WHICH entry was confirmed; the backend re-verifies both
+    // against a fresh roster, so neither is a credential.
+    name?: string;
+    checkin_mid?: number;
     // Honeypot. The serializer pops it and a filled value gets the decoy response, so it
     // is sent on every submission, authenticated or not -- the backend checks both.
     website?: string;
@@ -107,11 +117,7 @@ export async function fetchRequestStatus(
 
 export async function publicToolCheckout(
   slug: string,
-  payload: {
-    payload: string;
-    evidence_id: number;
-    remark?: string;
-  },
+  payload: PublicToolCheckout,
 ): Promise<PublicToolLoan> {
   return tenantPublicRequest<PublicToolLoan>(
     slug,
@@ -125,13 +131,7 @@ export async function publicToolCheckout(
 
 export async function publicToolReturn(
   slug: string,
-  payload: {
-    payload: string;
-    evidence_id: number;
-    remark: string;
-    report_problem?: boolean;
-    problem_note?: string;
-  },
+  payload: PublicToolScan,
 ): Promise<PublicToolLoan> {
   return tenantPublicRequest<PublicToolLoan>(
     slug,
@@ -140,5 +140,20 @@ export async function publicToolReturn(
       method: "POST",
       body: JSON.stringify(payload),
     },
+  );
+}
+
+
+export type CheckinMatch = GeneratedCheckinMatch;
+
+/** Find your own check-in entry by name. Returns only entries matching what was typed. */
+export async function lookupCheckin(
+  slug: string,
+  name: string,
+): Promise<CheckinMatch[]> {
+  return tenantPublicRequest<CheckinMatch[]>(
+    slug,
+    `/public/${slug}/checkin/lookup`,
+    { method: "POST", body: JSON.stringify({ name }) },
   );
 }

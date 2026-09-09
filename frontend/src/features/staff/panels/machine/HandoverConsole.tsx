@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { MachineServiceRequest } from "../../../../generated/api";
 import { staffRequest } from "../../../../lib/api";
 import { Panel, useStaffGet } from "../shared";
+import { paymentState } from "./servicePaymentState";
 
 /**
  * Front-desk handover of finished machine jobs.
@@ -10,8 +11,8 @@ import { Panel, useStaffGet } from "../shared";
  * Deliberately not a slimmed-down MachineServiceConsole. That one is the machine
  * lifecycle -- queues, pools, manual usage, accept/start/complete -- and the whole reason
  * `collect_service_request` exists is that handing a member their finished print should
- * not require any of it. So this asks for one thing (what is waiting) and offers one
- * action (hand it over).
+ * not require any of it. So this asks only what is waiting and offers the two narrow
+ * desk actions: settle a manual debt, then hand the finished job over.
  *
  * The backend narrows a collect-only actor's queryset to completed jobs by itself, so the
  * `status=completed` filter here is what a *manager* sees too rather than a client-side
@@ -19,16 +20,6 @@ import { Panel, useStaffGet } from "../shared";
  */
 
 type Props = { makerspaceId: number; enabled: boolean };
-
-const money = (payment: MachineServiceRequest["payment"]) => {
-  if (!payment) return null;
-  const paid = payment.status === "paid_online" || payment.status === "paid_offline";
-  return {
-    paid: paid || payment.status === "waived",
-    label: payment.status === "waived" ? "Waived" : `${payment.currency.toUpperCase()} ${payment.amount}`.trim(),
-    tone: paid || payment.status === "waived" ? "text-muted" : "text-warn-ink",
-  };
-};
 
 export function HandoverConsole({ makerspaceId, enabled }: Props) {
   const queryClient = useQueryClient();
@@ -44,6 +35,14 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       staffRequest(`/admin/machine-service/requests/${id}/collect`, { method: "POST", body: "{}" }),
     // Invalidate rather than filter locally: collecting is the one thing that removes a
     // row from this list, and a refetch also picks up jobs finished since the page loaded.
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey }),
+  });
+  const recordPayment = useMutation({
+    mutationFn: (id: number) =>
+      staffRequest(`/admin/machine-service/requests/${id}/record-manual-payment`, {
+        method: "POST",
+        body: "{}",
+      }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey }),
   });
 
@@ -64,7 +63,10 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       {rows.length > 0 ? (
         <ul className="divide-y divide-line">
           {rows.map((row) => {
-            const payment = money(row.payment);
+            const manualPayment =
+              row.status === "completed" && row.payment?.status === "pending"
+                ? row.payment
+                : null;
             return (
               <li key={row.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
@@ -74,20 +76,29 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                     {row.machine?.name ? ` · ${row.machine.name}` : ""}
                     {row.completed_at ? ` · finished ${new Date(row.completed_at).toLocaleString()}` : ""}
                   </p>
-                  {payment ? (
-                    <p className={`text-xs ${payment.tone}`}>
-                      {payment.paid ? "Paid" : "Unpaid"} · {payment.label}
-                    </p>
-                  ) : null}
+                  <p className={`text-xs ${manualPayment ? "text-warn-ink" : "text-muted"}`}>
+                    Payment {paymentState(row)}
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  className="desk-button-primary"
-                  disabled={collect.isPending}
-                  onClick={() => collect.mutate(row.id)}
-                >
-                  Hand over
-                </button>
+                {manualPayment ? (
+                  <button
+                    type="button"
+                    className="desk-button-success"
+                    disabled={recordPayment.isPending}
+                    onClick={() => recordPayment.mutate(row.id)}
+                  >
+                    Record payment · {manualPayment.currency.toUpperCase()} {manualPayment.amount}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="desk-button-primary"
+                    disabled={collect.isPending}
+                    onClick={() => collect.mutate(row.id)}
+                  >
+                    Hand over
+                  </button>
+                )}
               </li>
             );
           })}
@@ -97,6 +108,11 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       {collect.isError ? (
         <p className="mt-3 text-sm text-danger">
           Could not mark that job collected. It may have been handed over already.
+        </p>
+      ) : null}
+      {recordPayment.isError ? (
+        <p className="mt-3 text-sm text-danger">
+          Could not record that payment. It may have been settled already.
         </p>
       ) : null}
     </Panel>

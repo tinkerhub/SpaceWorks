@@ -5,6 +5,9 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.audit.models import AuditLog
+from apps.checkin.client import CheckinEntry
+from apps.checkin.identity import mid_hash, resolve_principal
+from apps.checkin.models import CheckinIdentity
 from apps.encryption.blind_index import (
     event_email_hash,
     exact_hash,
@@ -21,6 +24,7 @@ from apps.events.models import Event, EventRegistration
 from apps.hardware_requests.models import HardwareRequest
 from apps.tenant_migration.tenant_dump_errors import TenantDumpTargetError
 from apps.tenant_migration.tenant_dump_target_readiness import (
+    _rebuild_checkin_hashes,
     rebuild_and_verify_target_encryption,
     run_target_encryption_readiness,
 )
@@ -91,6 +95,26 @@ def _restored_encrypted_request(space, *, master_key):
             email_exact_hash=None,
             email_hash_generation=None,
         )
+        checkin_user = User.objects.create_user(username=f"{space.slug}-checkin")
+        identity = CheckinIdentity.objects.create(
+            makerspace=space,
+            user=checkin_user,
+            mid="",
+        )
+        mid_envelope = encrypt(
+            b"443",
+            TARGET_DEK,
+            key_version=7,
+            makerspace_id=space.pk,
+            table=CheckinIdentity._meta.db_table,
+            pk=identity.pk,
+            field="mid",
+        )
+        CheckinIdentity.objects.filter(pk=identity.pk).update(
+            mid=mid_envelope,
+            mid_exact_hash=None,
+            mid_hash_generation=None,
+        )
     wrapped = LocalMasterKeyBroker(master_key=master_key).wrap_dek(
         TARGET_DEK, space.pk, 7
     )
@@ -102,7 +126,7 @@ def _restored_encrypted_request(space, *, master_key):
         broker_key_id=wrapped.broker_key_id,
         status=MakerspaceEncryptionKey.Status.ACTIVE,
     )
-    return request, registration
+    return request, registration, identity
 
 
 def test_target_search_generation_and_blind_indexes_use_target_search_key():
@@ -110,7 +134,7 @@ def test_target_search_generation_and_blind_indexes_use_target_search_key():
     target_master = Fernet.generate_key().decode("ascii")
     target_search = Fernet.generate_key().decode("ascii")
     source_search = Fernet.generate_key().decode("ascii")
-    request, registration = _restored_encrypted_request(
+    request, registration, identity = _restored_encrypted_request(
         space, master_key=target_master
     )
     with override_settings(PII_SEARCH_HASH_KEY=source_search):
@@ -146,7 +170,26 @@ def test_target_search_generation_and_blind_indexes_use_target_search_key():
             makerspace_id=space.pk,
             event_id=registration.event_id,
         )
+        expected_mid_hash = mid_hash(
+            "443",
+            makerspace_id=space.pk,
+            generation=generation,
+        )
         registration.refresh_from_db()
+        identity.refresh_from_db()
+        resolved = resolve_principal(
+            space,
+            CheckinEntry(
+                mid=443,
+                name="Imported person",
+                avatar="",
+                purpose="Working on a project",
+                project_name="Target readiness",
+                check_in_time=timezone.now(),
+                check_out_time=timezone.now(),
+                space_id=1,
+            ),
+        )
 
     assert generation.generation == 1
     assert bytes(generation.key_fingerprint) == expected_generation_fingerprint
@@ -154,9 +197,13 @@ def test_target_search_generation_and_blind_indexes_use_target_search_key():
     assert bytes(email_index.exact_hash) == expected_email_hash
     assert bytes(registration.email_exact_hash) == expected_event_hash
     assert registration.email_hash_generation_id == 1
+    assert bytes(identity.mid_exact_hash) == expected_mid_hash
+    assert identity.mid_hash_generation_id == 1
+    assert resolved.pk == identity.pk
+    assert CheckinIdentity.objects.filter(makerspace=space).count() == 1
     assert readiness.blind_indexes_created == 2
     assert readiness.event_hashes_created == 1
-    assert readiness.authenticated_samples == 3
+    assert readiness.authenticated_samples == 4
     assert AuditLog.objects.filter(
         makerspace=space,
         action="tenant_migration.target_search_generation_created",
@@ -165,6 +212,24 @@ def test_target_search_generation_and_blind_indexes_use_target_search_key():
         makerspace=space,
         action="tenant_migration.target_encryption_ready",
     ).exists()
+
+
+@override_settings(PII_ENCRYPTION_ENABLED=False)
+def test_checkin_hash_rebuild_is_a_noop_when_encryption_is_disabled():
+    space = importing_space("d5-checkin-plaintext")
+    user = User.objects.create_user(username="d5-checkin-plaintext")
+    identity = CheckinIdentity.objects.create(
+        makerspace=space,
+        user=user,
+        mid="443",
+    )
+
+    assert _rebuild_checkin_hashes(space, batch_size=1) == 0
+
+    identity.refresh_from_db()
+    assert identity.mid == "443"
+    assert identity.mid_exact_hash is None
+    assert identity.mid_hash_generation_id is None
 
 
 def test_strict_readiness_runs_before_authenticated_sample_decrypts(monkeypatch):

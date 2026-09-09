@@ -8,7 +8,7 @@ from apps.makerspaces.models import Makerspace, default_branding_config, default
 from apps.makerspaces.servability import is_servable, servable_queryset
 from apps.makerspaces.capabilities import FEATURE_MODULES, FEATURES
 from apps.makerspaces.module_registry import is_frontend_exposed, module_available, module_workflows
-from apps.makerspaces.request_access import ANYONE, effective_policy
+from apps.makerspaces.request_access import ANYONE, CHECKED_IN, effective_policy
 from apps.separability.registry import runtime_active
 
 # Derived from the module registry, which also decides frontend exposure: an
@@ -195,8 +195,15 @@ def bootstrap_payload(makerspace):
     # details and send an Idempotency-Key, and without knowing the policy the client
     # cannot tell whether to ask for them -- it would post a members-shaped body and take
     # a 400.
-    if effective_policy(makerspace) == ANYONE:
-        makerspace_payload["request_access"] = ANYONE
+    #
+    # `checked_in` is emitted for the same reason and with the same discipline: that
+    # client must collect a name, resolve it against the roster and send the confirmed
+    # mid, none of which it can know to do from a members-shaped payload. Every policy
+    # that requires an account still emits NOTHING, so a deployment that has not opted
+    # in keeps a byte-for-byte identical payload.
+    policy = effective_policy(makerspace)
+    if policy in (ANYONE, CHECKED_IN):
+        makerspace_payload["request_access"] = policy
     # Advisory geofence: expose the flag ONLY when configured AND the feature is on, so
     # dormant/self-host bootstrap payloads stay byte-for-byte unchanged (self-host
     # invariant) and a disabled feature cannot leave the client asking for coordinates

@@ -1,7 +1,7 @@
 """The membership / account-less-requests pair is impossible, at every depth.
 
 `RequestSubmitView` takes its anonymous branch BEFORE any membership guard runs, so a
-makerspace carrying both `membership` and `anonymous_requests_enabled` would let a
+makerspace carrying both `membership` and an open `public_request_mode` would let a
 stranger walk past the membership requirement the operator had just switched on. These
 pin the three enforcement depths independently, because each one covers writers the
 others do not: the model rule covers every save, the service covers the deliberate
@@ -25,20 +25,22 @@ from apps.makerspaces.request_access import (
     ACCOUNTS,
     ANYONE,
     MEMBERS,
+    MODE_ANYONE,
+    MODE_DISABLED,
     RequestAccessConflict,
     effective_policy,
-    set_anonymous_requests,
+    set_request_access,
 )
 
 pytestmark = pytest.mark.django_db
 
 
-def _space(slug, *, modules, anonymous=False):
+def _space(slug, *, modules, mode=MODE_DISABLED):
     return Makerspace.objects.create(
         name=slug,
         slug=slug,
         enabled_modules=list(modules),
-        anonymous_requests_enabled=anonymous,
+        public_request_mode=mode,
     )
 
 
@@ -50,30 +52,30 @@ CORE_PLUS = ["public_inventory", "request_workflow", "staff_admin", "scanner",
 
 
 def test_saving_with_membership_forces_account_less_requests_off():
-    space = _space("ra-model", modules=[*CORE_PLUS, "membership"], anonymous=True)
+    space = _space("ra-model", modules=[*CORE_PLUS, "membership"], mode=MODE_ANYONE)
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
     assert effective_policy(space) == MEMBERS
 
 
 def test_a_partial_save_cannot_leave_the_impossible_pair_on_the_row():
-    """`save(update_fields=[...])` that does not name the flag must still persist it."""
-    space = _space("ra-partial", modules=CORE_PLUS, anonymous=True)
-    assert space.anonymous_requests_enabled is True
+    """`save(update_fields=[...])` that does not name the mode must still persist it."""
+    space = _space("ra-partial", modules=CORE_PLUS, mode=MODE_ANYONE)
+    assert space.public_request_mode == MODE_ANYONE
 
     space.enabled_modules = [*CORE_PLUS, "membership"]
     space.save(update_fields=["enabled_modules"])
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
 
 
 def test_membership_off_leaves_account_less_requests_alone():
-    space = _space("ra-open", modules=CORE_PLUS, anonymous=True)
+    space = _space("ra-open", modules=CORE_PLUS, mode=MODE_ANYONE)
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is True
+    assert space.public_request_mode == MODE_ANYONE
     assert effective_policy(space) == ANYONE
 
 
@@ -86,12 +88,12 @@ def test_policy_without_membership_and_without_the_flag_is_accounts():
 
 
 def test_installing_membership_closes_account_less_requests():
-    space = _space("ra-install", modules=CORE_PLUS, anonymous=True)
+    space = _space("ra-install", modules=CORE_PLUS, mode=MODE_ANYONE)
 
     install_module(space, "membership")
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
 
 
 def test_the_forced_close_is_audited_with_the_before_and_after_policy():
@@ -100,7 +102,7 @@ def test_the_forced_close_is_audited_with_the_before_and_after_policy():
     feature lists only -- which cannot distinguish a previous `anyone` policy from
     `accounts` -- and the operator loses the record that installing membership closed an
     unauthenticated write surface."""
-    space = _space("ra-forced-audit", modules=CORE_PLUS, anonymous=True)
+    space = _space("ra-forced-audit", modules=CORE_PLUS, mode=MODE_ANYONE)
 
     install_module(space, "membership")
 
@@ -139,27 +141,27 @@ def test_uninstalling_membership_does_not_reopen_account_less_requests():
     uninstall_module(space, "membership")
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
     assert effective_policy(space) == ACCOUNTS
 
 
 # ------------------------------------------------------------------------- service
 
 
-def test_set_anonymous_requests_refuses_while_membership_is_installed():
+def test_set_request_access_refuses_while_membership_is_installed():
     space = _space("ra-refuse", modules=[*CORE_PLUS, "membership"])
 
     with pytest.raises(RequestAccessConflict):
-        set_anonymous_requests(space, True)
+        set_request_access(space, MODE_ANYONE)
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
 
 
-def test_set_anonymous_requests_audits_the_policy_change():
+def test_set_request_access_audits_the_policy_change():
     space = _space("ra-audit", modules=CORE_PLUS)
 
-    resulting = set_anonymous_requests(space, True)
+    resulting = set_request_access(space, MODE_ANYONE)
 
     assert resulting == ANYONE
     entry = AuditLog.objects.filter(action="makerspace.request_access_changed").latest("id")
@@ -169,10 +171,10 @@ def test_set_anonymous_requests_audits_the_policy_change():
 
 def test_setting_the_same_value_twice_writes_no_second_audit_row():
     space = _space("ra-idempotent", modules=CORE_PLUS)
-    set_anonymous_requests(space, True)
+    set_request_access(space, MODE_ANYONE)
     before = AuditLog.objects.filter(action="makerspace.request_access_changed").count()
 
-    set_anonymous_requests(space, True)
+    set_request_access(space, MODE_ANYONE)
 
     assert AuditLog.objects.filter(action="makerspace.request_access_changed").count() == before
 
@@ -200,11 +202,11 @@ def test_command_refuses_anyone_when_membership_is_installed():
         call_command("set_request_access", "--makerspace", space.slug, "--mode", ANYONE)
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
 
 
 def test_list_modules_json_reports_installed_keys_and_request_access():
-    space = _space("ra-json", modules=CORE_PLUS, anonymous=True)
+    space = _space("ra-json", modules=CORE_PLUS, mode=MODE_ANYONE)
     out = StringIO()
 
     call_command("list_modules", "--makerspace", space.slug, "--json", stdout=out)
@@ -222,7 +224,7 @@ def test_an_anonymous_submission_is_refused_when_membership_is_installed():
     """The hole this closes: the row carries BOTH, written behind the model rule."""
     space = _space("ra-view", modules=[*CORE_PLUS, "membership"])
     # Straight to the column, bypassing save() exactly as raw SQL or an old restore would.
-    Makerspace.objects.filter(pk=space.pk).update(anonymous_requests_enabled=True)
+    Makerspace.objects.filter(pk=space.pk).update(public_request_mode=MODE_ANYONE)
     product = InventoryProduct.objects.create(
         makerspace=space, name="Multimeter", total_quantity=2, available_quantity=2, is_public=True,
     )
@@ -264,7 +266,7 @@ def test_the_control_capability_matrix_audits_the_forced_policy_change():
     class _CapabilityAdmin(MakerspaceCapabilityAdminMixin, ModelAdmin):
         """The mixin relies on `super().save_model`, so it needs a real ModelAdmin."""
 
-    space = _space("ra-control-matrix", modules=CORE_PLUS, anonymous=True)
+    space = _space("ra-control-matrix", modules=CORE_PLUS, mode=MODE_ANYONE)
     assert effective_policy(space) == ANYONE
 
     form = MakerspaceAdminForm(instance=space)
@@ -277,6 +279,6 @@ def test_the_control_capability_matrix_audits_the_forced_policy_change():
     admin.save_model(SimpleNamespace(user=actor), space, form, change=True)
 
     space.refresh_from_db()
-    assert space.anonymous_requests_enabled is False
+    assert space.public_request_mode == MODE_DISABLED
     entry = AuditLog.objects.filter(action="makerspace.capabilities_changed").latest("id")
     assert entry.meta["request_access"] == {"before": ANYONE, "after": MEMBERS}

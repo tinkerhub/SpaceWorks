@@ -37,10 +37,12 @@ def assert_guard_fails(patterns, matrix, expected):
 
 def test_current_all_active_tree_has_a_complete_claim_matrix(settings):
     assert settings.TOMBSTONED_APPS == frozenset()
-    # 72 claim-reachable patterns at D3, plus the D5 claim-redemption endpoint. The count
-    # is asserted so that adding a member-reachable route is a visible decision here, not
-    # only inside the matrix.
-    assert len(validate_claim_route_matrix()) == 75
+    # 72 claim-reachable patterns at D3, plus the D5 claim-redemption endpoint and the
+    # check-in lookup route. The count is per PATTERN, not per method, so classifying both
+    # the lookup POST and its OPTIONS preflight still adds only one. The count is asserted
+    # so that adding a member-reachable route is a visible decision here, not only inside
+    # the matrix.
+    assert len(validate_claim_route_matrix()) == 76
 
 
 def test_unclassified_runtime_lookup_fails_closed_and_middleware_stays_out():

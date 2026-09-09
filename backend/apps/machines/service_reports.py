@@ -88,16 +88,19 @@ def build_printer_service_report(makerspace_id, *, limit=None, date_range=None, 
     if date_range:
         requests = requests.filter(_date_filter("completed_at", date_range) | _date_filter("failed_at", date_range))
     payment_totals = defaultdict(lambda: [Decimal("0.00"), Decimal("0.00")])
+    payment_request_ids = set()
     request_machines = {
         request_id: ((space_id, machine_id) if aggregate else machine_id)
         for request_id, space_id, machine_id in requests.values_list("id", "makerspace_id", "assigned_machine_id")
     }
     for payment in Payment.objects.filter(makerspace_id__in=ids, subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST, subject_id__in=request_machines):
+        payment_request_ids.add(payment.subject_id)
         key = request_machines[payment.subject_id]
         if payment.status == Payment.Status.PENDING:
             payment_totals[key][0] += payment.amount
         elif payment.status in {Payment.Status.PAID_ONLINE, Payment.Status.PAID_OFFLINE}:
             payment_totals[key][1] += payment.amount
+    manual_only = ~Q(pk__in=payment_request_ids) if payment_request_ids else Q()
     values = ["assigned_machine_id", "assigned_machine__name", "run_machine_model"]
     if aggregate:
         values.insert(0, "makerspace_id")
@@ -105,8 +108,8 @@ def build_printer_service_report(makerspace_id, *, limit=None, date_range=None, 
         completed_minutes=Coalesce(Sum("actual_minutes", filter=Q(status__in=COMPLETED)), Value(0)),
         failed_minutes=Coalesce(Sum(ExpressionWrapper(F("actual_minutes") * F("fail_percent_complete") / Value(100.0), output_field=FloatField()), filter=Q(status=MachineServiceRequest.Status.FAILED)), Value(0.0)),
         grams=Coalesce(Sum("actual_consumed_grams"), Value(Decimal("0.00"), output_field=DecimalField(max_digits=12, decimal_places=2))),
-        payment_due=Coalesce(Sum("payment_amount", filter=Q(payment_status="pending")), Value(Decimal("0.00"), output_field=DecimalField(max_digits=12, decimal_places=2))),
-        payment_paid=Coalesce(Sum("payment_amount", filter=Q(payment_status="paid")), Value(Decimal("0.00"), output_field=DecimalField(max_digits=12, decimal_places=2))),
+        payment_due=Coalesce(Sum("payment_amount", filter=Q(payment_status="pending") & manual_only), Value(Decimal("0.00"), output_field=DecimalField(max_digits=12, decimal_places=2))),
+        payment_paid=Coalesce(Sum("payment_amount", filter=Q(payment_status="paid") & manual_only), Value(Decimal("0.00"), output_field=DecimalField(max_digits=12, decimal_places=2))),
     )
     if printer_type is None:
         manual = MachineUsageEntry.objects.none()
@@ -130,7 +133,11 @@ def build_printer_service_report(makerspace_id, *, limit=None, date_range=None, 
             "machine_id": row["assigned_machine_id"], "machine_name": row["assigned_machine__name"], "model": row["run_machine_model"],
             "completed_hours": _hours(row["completed_minutes"]), "failed_partial_hours": _hours(row["failed_minutes"]),
             "manual_hours": float(manual_hours.get(key, Decimal("0"))), "consumed_grams": _amount(row["grams"]),
-            "payment_due": _amount(payment_totals[key][0]), "payment_paid": _amount(payment_totals[key][1]),
+            # Two settlement sources, summed: `payment_totals` holds authoritative
+            # `Payment` rows, while annotations include legacy/manual columns only for
+            # requests with no Payment, excluding columns retained by the backfill.
+            "payment_due": _amount(payment_totals[key][0] + row["payment_due"]),
+            "payment_paid": _amount(payment_totals[key][1] + row["payment_paid"]),
         }
         if aggregate:
             record["makerspace_id"] = row["makerspace_id"]

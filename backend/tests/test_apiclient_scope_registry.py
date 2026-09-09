@@ -68,7 +68,10 @@ def test_registry_has_no_urlconf_drift():
 
 
 def test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded():
-    assert all(entry.legacy_v1 for entry in SCOPE_REGISTRY.values())
+    # The counts are asserted so that freezing a new route into legacy authority is a
+    # deliberate, visible decision here, not a silent default.
+    assert sum(entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 50
+    assert sum(not entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 1
     new_entry = ScopeRegistryEntry(frozenset({"public:read"}), TARGET_GLOBAL)
 
     assert new_entry.legacy_v1 is False

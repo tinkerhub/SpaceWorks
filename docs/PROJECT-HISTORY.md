@@ -6,6 +6,23 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-09-09 — Check-in gated public requests (`apps/checkin` reinstated) + machine-service counter
+  settlement.** Public borrow submission gained a third identity path: `public_request_mode` = `checked_in`
+  matches a typed name against one upstream TinkerHub roster and mints a stable per-person walk-in principal.
+  It is a **presence filter, not authentication** — the roster is world-readable, so a match is a presence
+  claim, matching is normalised-exact (never fuzzy), and every unreadable response is a 503 rather than a
+  denial. `apps/makerspaces/request_access.py` is the single source of truth for which of the three paths a
+  space runs, stored as ONE mode rather than a boolean each, so "both on" is unrepresentable. Machine-service
+  jobs for credentialless walk-ins settle at the counter. **Counter settlement raises a pending `Payment` row
+  reconciled to `paid_offline`** — an earlier draft of this batch resurrected the read-only-historic
+  `MachineServiceRequest.payment_*` columns as a live second ledger and made `collect()` block on them,
+  violating the single-payment-authority and never-block invariants; that was caught at the review gate and
+  rewritten onto `Payment`. Consequence worth knowing: settling now follows Payment's RBAC plus machine
+  scope, so a handout-only desk role can mark a job collected but needs payment authority granted to record
+  cash. Also fixed in the same gate: overlapping box + contained-asset QR scans were order-dependent in
+  **both** the public self-checkout and staff direct-handout paths (now rejected before any mutation), and a
+  walk-in transitioned to a real account no longer suppresses online checkout forever in every tenant.
+
 - **2026-08-22 — Archive-recipient custody, Part A (K1 landed + the two-recipient floor).** A tenant archive
   is encrypted to the makerspace's own verified `age` recipients, and the platform is added **only** when
   `superadmin_access_enabled` is true — so with the switch off the operator can *run* a tenant backup but

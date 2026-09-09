@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
+from apps.checkin.models import CheckinIdentity
 from apps.bookings.models import BookableSpace, Booking
 from apps.data_export.pii_raw import aad_inputs, mapped_field_names
 from apps.data_export.runner import ExportIntegrityError
@@ -34,6 +35,7 @@ DATASET_PATHS = {
     "bookings.Booking": "bookings/bookings.csv",
     "machines.MachineServiceRequest": "machine_service/requests.csv",
     "machines.MachineUsageEntry": "machines/usage_entries.csv",
+    "checkin.CheckinIdentity": "lending/checkin-identities.csv",
 }
 
 
@@ -46,7 +48,11 @@ def create_mapped_rows(makerspace, actor):
         requester_name="PII Hardware Name",
         requester_contact_email="pii-hardware@example.test",
         requester_contact_phone="PII-HARDWARE-PHONE",
+        checkin_project_name="PII Hardware Project",
         requested_for="Portable export test",
+    )
+    checkin_identity = CheckinIdentity.objects.create(
+        makerspace=makerspace, user=actor, mid="PII-CHECKIN-MID",
     )
     event = Event.objects.create(
         makerspace=makerspace,
@@ -98,7 +104,9 @@ def create_mapped_rows(makerspace, actor):
     )
     return {
         row._meta.label: row
-        for row in (request, registration, booking, service_request, usage)
+        for row in (
+            request, registration, booking, service_request, usage, checkin_identity,
+        )
     }
 
 

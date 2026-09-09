@@ -125,6 +125,15 @@ services:
       # Absolute base for links in outbound email. Unset => links are emitted as bare
       # paths (e.g. "/reset-password?...") and password reset is unusable.
       PUBLIC_APP_BASE_URL: ${PUBLIC_APP_BASE_URL:-}
+      # Upstream check-in roster for the `checked_in` public-request mode. Blank leaves the
+      # integration dormant; a tenant must also be switched into the mode and bound to a
+      # `checkin_space_id`. Absent here, setting it in the host .env never reaches Django.
+      CHECKIN_API_URL: ${CHECKIN_API_URL:-}
+      CHECKIN_TIMEOUT: ${CHECKIN_TIMEOUT:-5.0}
+      CHECKIN_CACHE_SECONDS: ${CHECKIN_CACHE_SECONDS:-30}
+      CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
+      CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
+      CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
       API_CLIENT_ENC_KEY: ${API_CLIENT_ENC_KEY:-}
       AUDIT_MAC_MASTER_KEY: ${AUDIT_MAC_MASTER_KEY:-}
       AUDIT_ATTESTATION_DEPLOYMENT_ID: ${AUDIT_ATTESTATION_DEPLOYMENT_ID:-}

@@ -36,14 +36,16 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      # Two test suites read repo files by walking up from their own path, which
+      # Three test suites read repo files outside the backend bind mount, which
       # with ./backend mounted at /app lands at the filesystem root:
       #   tests/test_capabilities.py     -> parents[2] / "frontend"  -> /frontend
       #   tests/encryption/test_doc_help -> parents[3] / "docs"      -> /docs
-      # Mount both read-only there or `exec backend pytest` reports false failures
-      # (a phantom feature-drift, and a missing PII runbook).
+      #   tests/test_env_surface_drift.py -> repository manifests    -> /workspace
+      # Mount all three sources read-only or `exec backend pytest` reports false
+      # failures (phantom feature/env drift, and a missing PII runbook).
       - ./frontend:/frontend:ro
       - ./docs:/docs:ro
+      - ./:/workspace:ro
 
   # Migrations run from the mounted tree, so a migration you just wrote applies
   # without rebuilding the image.

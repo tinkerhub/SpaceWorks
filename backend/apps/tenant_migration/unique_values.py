@@ -115,6 +115,10 @@ DEPLOYMENT_GLOBAL_UNIQUE_RULES = {
         "Keep printed QR labels unless the target already uses the payload.",
         field="payload",
     ),
+    ("checkin.CheckinIdentity", "field:user"): _policy(
+        REMAP,
+        "The one-to-one principal user reference is remapped to the imported user.",
+    ),
     ("events.Event", "field:public_token"): _policy(
         FRESH, "Source bearer tokens are replaced."
     ),

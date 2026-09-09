@@ -155,6 +155,7 @@ INSTALLED_APPS = [
     "apps.boxes",
     "apps.inventory",
     "apps.hardware_requests",
+    "apps.checkin",
     "apps.printing",
     "apps.audit",
     "apps.evidence",
@@ -399,6 +400,24 @@ PRINT_ALLOWED_SCREENSHOT_MIME = [
     "image/webp",
     "application/pdf",
 ]
+
+# --- TinkerHub check-in roster -------------------------------------------------
+# Blank URL means the integration is dormant: no makerspace can select the
+# `checked_in` request mode without it (enforced in `makerspaces.request_access`),
+# and `apps.checkin.apps` skips its startup validation. Setting it enables nothing
+# on its own -- a tenant still has to be switched into the mode and bound to a
+# space id.
+CHECKIN_API_URL = env("CHECKIN_API_URL", default="")
+CHECKIN_TIMEOUT = env.float("CHECKIN_TIMEOUT", default=5.0)
+# Cache applies to the LOOKUP surface only. Verification on submit/checkout/return
+# always refetches -- see `apps.checkin.client.fetch_roster`.
+CHECKIN_CACHE_SECONDS = env.int("CHECKIN_CACHE_SECONDS", default=30)
+# The upstream `purpose` string that admits a requester. A setting rather than a
+# constant because one rename upstream would otherwise close the gate on every
+# requester with no way to correct it short of a deploy.
+CHECKIN_REQUIRED_PURPOSE = env("CHECKIN_REQUIRED_PURPOSE", default="Working on a project")
+CHECKIN_MAX_RESPONSE_BYTES = env.int("CHECKIN_MAX_RESPONSE_BYTES", default=1048576)
+CHECKIN_MAX_ROWS = env.int("CHECKIN_MAX_ROWS", default=2000)
 
 # Read-only token for the GitHub GraphQL API, used only to cache a member's public
 # contribution total onto their maker profile. Unset means the feature is dormant: no
@@ -790,6 +809,18 @@ REST_FRAMEWORK = {
             "THROTTLE_ANONYMOUS_REQUEST_EMAIL",
             default="3/day",
         ),
+        # Harder than submit on purpose: this endpoint is unauthenticated and each
+        # miss can cost an upstream fetch against a third party.
+        "checkin_lookup_ip_burst": env(
+            "THROTTLE_CHECKIN_LOOKUP_IP_BURST",
+            default="5/min",
+        ),
+        "checkin_lookup_ip_hour": env(
+            "THROTTLE_CHECKIN_LOOKUP_IP_HOUR",
+            default="60/hour",
+        ),
+        "checkin_mid": env("THROTTLE_CHECKIN_MID", default="20/hour"),
+        "checkin_mid_upload": env("THROTTLE_CHECKIN_MID_UPLOAD", default="60/hour"),
         "print_request_submit": env("THROTTLE_PRINT_REQUEST_SUBMIT", default="10/min"),
         "public_tool_checkout": env("THROTTLE_PUBLIC_TOOL_CHECKOUT", default="10/min"),
         "public_tool_return": env("THROTTLE_PUBLIC_TOOL_RETURN", default="10/min"),

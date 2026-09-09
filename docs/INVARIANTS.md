@@ -588,7 +588,16 @@ paid event for an already-terminal payment is audited (`payment.paid_after_termi
 (mark_offline/waive) best-effort **expires** any live Checkout session. Checkout return URLs come from
 `platform.member_area_url` (VERIFIED custom domain → `/member`, else shared `/m/<slug>/member`). Legacy
 `MachineServiceRequest.payment_*` are **read-only historic** (a backfill migration maps them into Payment);
-refunds are out of scope. Amounts are staff-private (serializer split); requesters/members see status + own
+refunds are out of scope. **Counter settlement** (online payments off, or a credentialless check-in walk-in
+who can never reach a checkout) does NOT reopen those columns: `complete()` raises a pending `Payment`
+through `payments.offline_payments.create_offline_payment` — which skips provider resolution, since
+`services.create_payment` raises `PaymentsUnavailable` with no configured source — and the desk settles it
+with `reconciliation.mark_offline` to `paid_offline`. A draft that instead wrote `payment_amount`/
+`payment_status` and made `collect()` raise on them was caught at the review gate: it built a second mutable
+ledger with no currency snapshot, outside the terminal-immutability trigger, and broke never-block. Because
+settlement is a `Payment` act it carries Payment's authority — `_require_subject_authority` plus
+`_require_machine_scope` — so a handout-only desk role can mark a job **collected** but needs payment
+authority granted before it can record cash; that is a role-configuration task, not a code change. Amounts are staff-private (serializer split); requesters/members see status + own
 checkout link only.
 
 **Payment credentials, subjects, and reconciliation (Phase C final tracks).** Self-hosted makerspaces
@@ -1055,22 +1064,28 @@ must have a React staff-console surface — a capability with no console surface
 feature for normal staff. New workflow actions ship their staff UI in the same batch.
 
 **Who may submit a borrow request is DERIVED, and `membership` + account-less requests is an impossible
-pair.** `apps/makerspaces/request_access.py` is the only answer to the question. Three states fall out of
-one column and one module: `membership` on → **members**; both off → **accounts** (any active signed-in
-account); `anonymous_requests_enabled` on with `membership` off → **anyone**. The fourth combination must
-not exist, because `RequestSubmitView` takes its anonymous branch *before* any membership guard runs, so a
-row carrying both would walk a stranger straight past the membership requirement the operator had just
-switched on. It is enforced at three depths and all three are load-bearing: `Makerspace.save()` reconciles
-the pair so **no writer** can persist it (module install/uninstall, `apply_profile`, the `/control/`
-capability matrix, `setup_instance`, `seed_demo`, a bare `obj.save()`) — and it appends the field to
-`update_fields` so a partial save cannot leave the row inconsistent; `set_anonymous_requests` takes the row
-lock and **refuses** an explicit request to open account-less submission while `membership` is installed
-(the module path *forces*, the operator path *refuses* — the operator was asking about this flag, so
-silently ignoring them would be the wrong answer); and `anonymous_requests_allowed` re-derives at request
-time so a row from raw SQL or an old restore still fails closed. Migration
-`makerspaces/0067` closed the pair on existing rows and is deliberately **not reversible**. Turning
-`membership` off never re-opens account-less requests — opening an unauthenticated write surface is an
-explicit act, never a side effect.
+pair.** `apps/makerspaces/request_access.py` is the only answer to the question. Four states fall out of
+the single `public_request_mode` column plus the `membership` module: `membership` on (regardless of the
+incoming stored mode) → **members**; with `membership` off, mode `disabled` → **accounts** (any active
+signed-in account), mode `anyone` → **anyone**, and mode `checked_in` → **checked_in**. The last two are
+account-less modes. `checked_in` also requires a configured upstream URL and a bound `checkin_space_id`;
+the trust boundary and roster rules are documented under **Check-in gated requests** below rather than
+duplicated here.
+
+Membership plus either account-less mode must not exist, because `RequestSubmitView` takes its anonymous
+branch *before* any membership guard runs, so a row carrying both would walk a stranger straight past the
+membership requirement the operator had just switched on. It is enforced at three depths and all three
+are load-bearing: `Makerspace.save()` reconciles the mode so **no writer** can persist the pair (module
+install/uninstall, `apply_profile`, the `/control/` capability matrix, `setup_instance`, `seed_demo`, a
+bare `obj.save()`) — and it appends `public_request_mode` to `update_fields` so a partial save cannot leave
+the row inconsistent; the deliberate operator-facing writer, `set_request_access`, takes the row lock and
+**refuses** an explicit request for an account-less mode while `membership` is installed (and refuses
+`checked_in` without both of its prerequisites), while the module path *forces* the stored mode closed;
+and the request-access helpers re-derive the policy at request time so a row from raw SQL or an old restore
+still fails closed. Migration `makerspaces/0068` performs the data transition and its closing operation is
+deliberately **not reversible**; `makerspaces/0069` adds the database constraints. Turning `membership` off
+never re-opens account-less requests — opening an unauthenticated write surface is an explicit act, never a
+side effect.
 
 **A core module must work with every optional module uninstalled.** Two halves. The *declared* half is
 checked at import time: `module_registry._validate_registry` refuses a registry where an `is_core` module
@@ -2569,6 +2584,91 @@ encoder always emits canonical output, so stored envelopes are unaffected.
   i.e. the default deployment.
 - **The nonce namespace is `(client_id, nonce)` and is claimed exactly once per request**, shared
   across secrets. Never clear nonces on rotation.
+
+## Check-in gated requests
+
+**The upstream roster is a PRESENCE FILTER, NOT AUTHENTICATION.** `CHECKIN_API_URL` is a public
+endpoint: no API key, no per-user token, no query filters. Anyone on the internet can read the
+whole roster and claim any eligible identity on it. Everything below follows from that one fact,
+and no change may quietly upgrade the roster into an authentication source.
+
+- **For borrow requests the compensating control is staff acceptance in person.** The request is a
+  proposal; a staffer hands the hardware over while looking at the requester.
+- **For self-checkout there is no staff in the loop, and this is the sharpest edge in the design.**
+  A remote attacker still cannot obtain hardware — an active tool QR must be scanned and an issue
+  photo uploaded — but someone physically present can issue a tool under another checked-in
+  person's name. The issue photo is the after-the-fact evidence that resolves it. This risk was
+  accepted deliberately by the operator; do not "fix" it by loosening the evidence requirements,
+  which are the only thing making it survivable.
+
+**Only a well-formed 2xx list is ever trusted, and an unreadable response is never a denial.**
+Unlike the retired pre-M7 client, this endpoint returns a roster rather than a verdict, so there is
+no status that means "denied". Timeout, connection error, non-2xx, non-JSON, non-list, oversized,
+too many rows and all-rows-unparseable are all `CheckinUnavailable` -> **503**. Reporting any of
+them as "not checked in" would tell a person standing in the building that they are not in it.
+An EMPTY roster is different and must stay different: nobody checked in is a normal Tuesday.
+
+**A duplicated `mid` drops only that person.** Two rows claiming one identity make accountability
+ambiguous, and picking either would be a guess about who is responsible for a tool. Denying the
+whole building over one upstream duplicate is the wrong trade.
+
+**Submit refetches; only lookup may use the cache.** `fetch_roster(cached=True)` exists for the
+lookup UI. Every surface where the roster IS the authorization fact — submit, checkout, return —
+must call `cached=False`, because a cached copy can outlive a checkout and "checked in within the
+last 30 seconds" is not the rule. Call it through the module (`client.fetch_roster`), never a
+module-level `from ... import fetch_roster`: view modules are imported lazily, so a by-name import
+freezes whichever object the attribute held at that moment.
+
+**The lookup response is not a credential.** Submit re-resolves the `mid` against a fresh roster
+AND re-matches the submitted name to it. Both halves must agree, or a caller could pair someone
+else's mid — freely readable from the public roster — with their own name.
+
+**Replay is checked BEFORE the upstream call.** A retry of an already-accepted submission must
+still return the original request after the person has checked out or while upstream is down.
+The idempotency payload fingerprint MUST include the mid: two people sharing a display name would
+otherwise produce identical fingerprints and one could receive the other's public token.
+
+**Every makerspace in `checked_in` mode is bound to an upstream `spaceId`.** The roster endpoint is
+deployment-global and carries no tenant, so without `Makerspace.checkin_space_id` two makerspaces
+would admit exactly the same people. Entries whose `spaceId` does not match are discarded.
+
+**Principals are per-person, never the shared anonymous sentinel.** `CheckinIdentity` maps one
+upstream mid to one walk-in `User`. This is not a preference — four mechanisms break without it:
+`PublicToolLoan.requester` is a PROTECT FK, so one sentinel makes "who has this tool" unanswerable;
+`self_checkout_workflow` refuses a return by a non-owner, so one sentinel lets anyone return or be
+blamed for anyone's tool; printer staged files are owned by `actor.pk`; and `anonymous_requester_ids()`
+deliberately excludes the sentinel from top-borrowers and accountability. Because that exclusion is
+derived from `Makerspace.anonymous_requester_id` alone, a per-person principal falls outside it
+automatically — reports and access restriction work with no change to either.
+
+**The raw mid is stored encrypted, not merely hashed.** A one-way hash cannot be reversed, and a
+person leaves the roster the moment they check out — so name and project would recover nothing and
+an unreturned tool could never be chased. `CheckinIdentity.mid` is mapped PII; `mid_exact_hash` is
+only the deterministic lookup key. Two conditional unique constraints cover the two modes, because
+a deployment with `PII_ENCRYPTION_ENABLED=False` has no search-key generation and must still be
+able to resolve one principal per person. **The hash is generation-bound, so it travels with a
+search-key rotation like `EventRegistration.email_exact_hash` does**: `mid` is registered with
+`index_kind="checkin_exact"`, which is what puts `CheckinIdentity` in `reindex_scoped_pii`, in the
+backfill/decrypt filter maps and in `assert_ready`'s stale-generation refusal. Skip any one of those and
+activating a new generation leaves old-generation hashes behind — `_find()` misses them, the
+generation-scoped unique constraint permits the insert, and one person silently becomes two principals
+with their loan history split between them.
+
+**Audit metadata carries the policy, never the identity.** `request.submitted` records
+`request_access="checked_in"` and nothing else from the check-in. The audit sanitizer only
+recognises email/IP shapes, so a project name would sit in an append-only log forever and a stable
+per-person fingerprint would make every request that person ever submits permanently linkable. The
+detail lives on the purgeable request row.
+
+**`checkin_purpose` stores the configured canonical literal, never the raw upstream string.** The
+gate admits exactly one purpose, so the column carries no per-person information and stays outside
+the PII fence. If the gate is ever relaxed to admit several purposes, it becomes per-person data
+and must be mapped then.
+
+**`User.external_checkin_user_id` is NOT the storage for this.** It survived the M7 retirement as a
+plaintext, globally-unique column exposed through `admin_api/serializers_users.py`. It has no
+makerspace scope and no timestamps, and putting the upstream member id in plaintext through a staff
+serializer is exactly what the PII review rejected. Leave it alone.
 
 ## Container / deployment invariants
 

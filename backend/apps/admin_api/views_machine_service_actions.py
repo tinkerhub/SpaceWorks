@@ -54,6 +54,8 @@ class _MachineServiceActionView(APIView):
             row = service_workflow.fail(row, request.user, **data)
         elif self.operation == "collect":
             row = service_workflow.collect(row, request.user)
+        elif self.operation == "record_manual_payment":
+            row = service_workflow.record_manual_payment(row, request.user)
         elif self.operation == "reprint":
             row = service_workflow.create_reprint(row, request.user)
         else:
@@ -106,6 +108,15 @@ class MachineServiceCollectView(_MachineServiceActionView):
     collect_partition = True
 
     @extend_schema(tags=["Admin machine service"], summary="Mark a machine service request collected", request=EmptyServiceActionSerializer, responses={200: MachineServiceRequestSerializer, **SERVICE_ERRORS})
+    def post(self, request, pk, *args, **kwargs):
+        return super().post(request, pk, *args, **kwargs)
+
+
+class MachineServiceRecordManualPaymentView(_MachineServiceActionView):
+    operation = "record_manual_payment"
+    collect_partition = True
+
+    @extend_schema(tags=["Admin machine service"], summary="Record a manual machine service payment", request=EmptyServiceActionSerializer, responses={200: MachineServiceRequestSerializer, **SERVICE_ERRORS})
     def post(self, request, pk, *args, **kwargs):
         return super().post(request, pk, *args, **kwargs)
 

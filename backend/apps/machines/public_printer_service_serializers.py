@@ -17,14 +17,25 @@ class PublicPrinterPoolSerializer(serializers.Serializer):
 
 
 class PublicPrinterUploadSerializer(serializers.Serializer):
+    checkin_mid = serializers.IntegerField(required=False, allow_null=True)
+    name = serializers.CharField(required=False, allow_blank=True, max_length=200)
     queue_id = serializers.IntegerField(required=False, allow_null=True)
     kind = serializers.ChoiceField(choices=["stl", "screenshot"])
     filename = serializers.CharField(max_length=255)
     content_type = serializers.CharField(required=False, allow_blank=True, max_length=128)
 
+    def validate(self, attrs):
+        if self.context.get("checkin_submission", False) and not attrs.get(
+            "name", ""
+        ).strip():
+            raise serializers.ValidationError({"name": "This field is required."})
+        return attrs
+
 
 class PublicPrinterSubmitSerializer(serializers.Serializer):
     website = serializers.CharField(required=False, allow_blank=True)
+    checkin_mid = serializers.IntegerField(required=False, allow_null=True)
+    name = serializers.CharField(required=False, allow_blank=True, max_length=200)
     queue_id = serializers.IntegerField(required=False, allow_null=True)
     title = serializers.CharField(max_length=200)
     project_brief = serializers.CharField(required=False, allow_blank=True)
@@ -36,6 +47,13 @@ class PublicPrinterSubmitSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1, default=1)
     source_link = serializers.URLField(required=False, allow_blank=True, max_length=200)
     file_ids = serializers.ListField(child=serializers.IntegerField(), required=False, allow_empty=True, default=list)
+
+    def validate(self, attrs):
+        if self.context.get("checkin_submission", False) and not attrs.get(
+            "name", ""
+        ).strip():
+            raise serializers.ValidationError({"name": "This field is required."})
+        return attrs
 
 
 class PublicPrinterSubmitResponseSerializer(serializers.Serializer):

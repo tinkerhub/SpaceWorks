@@ -34,7 +34,14 @@ from pathlib import Path
 import pytest
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+# The dev backend exposes the repository read-only here; host runs use the test's
+# location so the same guard works without Docker.
+MOUNTED_REPO_ROOT = Path("/workspace")
+REPO_ROOT = (
+    MOUNTED_REPO_ROOT
+    if (MOUNTED_REPO_ROOT / "backend" / "config" / "settings.py").is_file()
+    else Path(__file__).resolve().parent.parent.parent
+)
 BACKEND = REPO_ROOT / "backend"
 SETTINGS = BACKEND / "config" / "settings.py"
 

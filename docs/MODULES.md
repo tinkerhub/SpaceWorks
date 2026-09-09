@@ -504,6 +504,7 @@ modules.
 |---|---|---|
 | `minimal` | 6 | Core only; nothing published publicly |
 | `workshop` | 14 | A machine shop: machines, service queue, maintenance — deliberately without `member_accounts` |
+| `checkin` | 21 | Full inventory and machine/printer operations; upstream roster identity and counter payments |
 | `lending` | 17 | A tool library: the full lending lifecycle, no machines |
 | `recommended` | 20 | Core plus the inventory lifecycle, reports and machines (the default) |
 | `cloud` | 24 | A managed box: everything that runs on a single Django process, no worker or beat |

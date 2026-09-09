@@ -72,9 +72,12 @@ channel only. Two architectural rules are load-bearing and easy to violate if yo
 - **QR Code & Box** — generates/resolves/revokes QR codes, assigns boxes to requests, tracks scan history.
 - **Evidence Photo** — immutable issue/return photo storage linked to actor + request + QR scans; object
   storage, never public.
-- **Check-In API Client** — **RETIRED** (`73a480c`, Part M7). `apps/checkin/` no longer exists and there is
-  no `CHECKIN_MODE` setting. Requester identity now comes from authenticated member accounts, so there is no
-  external verify dependency left to fail safe on.
+- **Check-In API Client** — **REINSTATED** for the `checked_in` request policy. `apps/checkin/`
+  reads one upstream roster (`CHECKIN_API_URL`), matches a typed name against it and mints a stable
+  per-person principal. It is a **presence filter, not authentication**: the roster is world-readable
+  and carries no secret, so anyone can read it and claim any eligible identity on it. Fails closed —
+  every unreadable response is a 503, never a denial. Full rules: **Check-in gated requests** in
+  `docs/INVARIANTS.md`.
 - **Telegram Integration** — sends per-makerspace group alerts. **Outbound only.** The webhook route is
   retained but accept-and-ignores every callback, because a deployment that already ran `setWebhook` would
   otherwise have Telegram retry a 404 for hours; no chat message may carry an inline keyboard.
@@ -112,10 +115,12 @@ the Auth module** — forgetting this is a cross-tenant data leak, not just a bu
   which decides how narrow the console is. The `guest-admin/` **URL paths** in `hardware_requests/urls.py`
   are the handover API surface (module key `guest_handover`), not the role — renaming them would break
   clients. Full detail: **Handover roles** in `docs/INVARIANTS.md`.
-- Public request submission requires an **authenticated member** (`RequestSubmitView` → `IsAuthenticated`),
-  and request lookup is scoped to that verified identity — it never matches free-text contact fields (no
-  enumeration by known email/phone). Since the Check-In retirement (`73a480c`) this is enforced by member
-  auth rather than an external verify call.
+- Public request submission requires either an **authenticated member**, an **account-less
+  submission** on an opted-in makerspace, or a **verified upstream check-in** on the `checked_in`
+  policy — `apps/makerspaces/request_access.py` is the single source of truth for which, and the
+  three are mutually exclusive by construction (one stored `public_request_mode`, not a flag each).
+  Request lookup stays scoped to the verified identity — it never matches free-text contact fields
+  (no enumeration by known email/phone).
 - Inventory Managers can run the full hardware lifecycle but **cannot** manage printing, staff, or
   makerspace settings.
 - Evidence endpoints require per-makerspace `UPLOAD_EVIDENCE` plus active status; QR management also checks
@@ -149,12 +154,15 @@ the Auth module** — forgetting this is a cross-tenant data leak, not just a bu
   the original file as a **thin re-export barrel** (explicit `from .submodule import (...)`, never
   `import *`) so `from app.views import X` and `views.X` keep resolving; for `admin.py` the barrel must
   still import the admin submodules so the `@admin.register` side effects fire. **The ceiling is enforced
-  on what you touch, and it is NOT currently met repo-wide: 37 backend files exceed 300 lines** — largest
-  first, `config/settings.py` (929, the accepted exception — Django settings are conventionally a single
-  file), `admin_api/urls.py` (825), `makerspaces/models.py` (682), `accounts/rbac.py` (609),
-  `inventory/availability.py` (596), `admin_api/serializers_makerspaces.py` (561),
-  `makerspaces/module_registry.py` (503), `machines/role_scope.py` (489). Measured 2026-08-20; an earlier
-  version of this line claimed every file but `settings.py` was compliant, which was false by 36 files.
+  on what you touch, and repo-wide it is now nearly met: **three** backend files exceed 300 lines
+  (excluding migrations and `backend/tests/`) — `config/settings.py` (1037, the accepted exception — Django
+  settings are conventionally a single file), `machines/access.py` (367) and
+  `tenant_migration/source_gate_guards.py` (301). Re-measured 2026-09-04. **Do not trust an inventory in
+  this file without re-running the count** — this line has now been wrong in both directions: it once
+  claimed full compliance when 36 files were over, and it then went on claiming 37 files and naming
+  `admin_api/urls.py` (825), `makerspaces/models.py` (682), `accounts/rbac.py` (609) and
+  `inventory/availability.py` (596) long after all four had been split into barrels and fell to 29, 87, 255
+  and 27 lines respectively.
   **Split an over-ceiling file in its own commit before adding to it**, and when splitting one that other
   modules import from, check for guards pinned to its path: `tests/makerspaces/test_tenant_servability_guard.py`
   pins two function *bodies* to `accounts/rbac.py` by `(path, function)`, and
