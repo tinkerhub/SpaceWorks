@@ -22,8 +22,9 @@ from apps.machines.public_service_serializers import (
 )
 from apps.makerspaces.guards import require_module
 from apps.makerspaces.lookup import get_public_makerspace
+from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.request_access import checkin_requests_allowed
-from apps.presence.guard import require_active_member_presence
+from apps.presence.guard import require_active_account, require_active_member_presence
 
 
 SERVICE_SUBMIT_ERRORS = {
@@ -36,6 +37,23 @@ SERVICE_SUBMIT_ERRORS = {
     503: OpenApiResponse(ErrorSerializer, description="Check-in roster is unavailable."),
 }
 
+
+def require_public_machine_requester(user, makerspace):
+    """Same identity contract as the public BORROW request, for the same reason.
+
+    A machine-service or print request is a PROPOSAL that staff act on -- the requester is
+    asking for a job to be run, not operating the machine themselves -- so it must not
+    hard-require a MakerspaceMembership row. Doing so made the surface dead for every
+    ordinary account on the default `recommended` profile, which ships `machine_service`
+    with `membership` off.
+
+    Mirrors `apps/hardware_requests/public_views.py`: membership, waiver and presence when
+    the community module is installed; an active account when it is not, because waiver
+    acceptance lives on MakerspaceMembership and cannot be recorded at all without it.
+    """
+    if module_enabled(makerspace, "membership"):
+        return require_active_member_presence(user, makerspace)
+    return require_active_account(user, makerspace)
 
 class PublicMachineServiceSubmitView(APIView):
     permission_classes = [AllowAny]
@@ -56,7 +74,10 @@ class PublicMachineServiceSubmitView(APIView):
         if not checkin_submission:
             if not request.user.is_authenticated:
                 raise NotAuthenticated()
-            require_active_member_presence(request.user, makerspace)
+            # main's helper, not require_active_member_presence directly: a service
+            # request is a PROPOSAL staff act on, so it must not hard-require a
+            # membership row on profiles that ship machine_service with membership off.
+            require_public_machine_requester(request.user, makerspace)
         if _honeypot_filled(request.data):
             decoy = SimpleNamespace(
                 public_token=uuid.uuid4(), status=MachineServiceRequest.Status.PENDING,

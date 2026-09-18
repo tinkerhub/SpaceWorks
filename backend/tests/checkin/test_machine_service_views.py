@@ -27,7 +27,10 @@ def _space(slug, *, mode=MODE_CHECKED_IN):
     return Makerspace.objects.create(
         name=slug,
         slug=slug,
-        enabled_modules=["machine_service"],
+        # `printing` as well as `machine_service`: the 3D-printer surfaces gained their own
+        # module gate, and that check runs BEFORE authentication, so without it even the
+        # unauthenticated cases return 400 "printing is disabled" instead of 401.
+        enabled_modules=["machine_service", "printing"],
         public_request_mode=mode,
         checkin_space_id=1 if mode == MODE_CHECKED_IN else None,
     )

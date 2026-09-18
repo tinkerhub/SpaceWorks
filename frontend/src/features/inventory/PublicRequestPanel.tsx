@@ -124,6 +124,13 @@ export function PublicRequestPanel({
         },
         accountLess || checkedIn ? idempotencyKey.current : undefined,
       ),
+    // The previous banner and token must not survive into the next attempt: if this one
+    // fails, showing the error beside a stale token invites the requester to save the
+    // wrong reference -- and it is their only route back to the request.
+    onMutate: () => {
+      setSubmitted(false);
+      setPublicToken("");
+    },
     onSuccess: (response) => {
       invalidatePublicInventory(queryClient, makerspaceSlug);
       // Kept before the form is cleared: this token is the account-less requester's only
@@ -174,11 +181,16 @@ export function PublicRequestPanel({
     sessionProbe.isFetched && (!authenticated || membershipProbe.isFetched)
   );
   const identityReady = identityResolved && (!checkedIn || confirmedCheckin !== null);
+  // While the probe is unresolved `accountLess` is still false, so `contactReady` is
+  // vacuously true and the button would go live before the contact fields exist. On a
+  // slow refresh a visitor could submit a member-shaped body and take a 400.
+  const policyResolved = requestAccess !== "anyone" || sessionProbe.isFetched;
   const canSubmit =
     requestedFor.trim().length > 0 &&
     items.length > 0 &&
     contactReady &&
     identityReady &&
+    policyResolved &&
     !submitMutation.isPending;
 
   return (

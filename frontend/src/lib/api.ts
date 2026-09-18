@@ -20,10 +20,12 @@ export {
   fetchJson,
   fetchMe,
   memberRequest,
+  memberRequestBlob,
   publicV1Request,
   staffRequest,
   staffRequestBlob,
   tenantPublicRequest,
+  tenantPublicRequestBlob,
 } from "./apiRequests";
 export type { ApiErrorBody } from "./apiErrors";
 export type {

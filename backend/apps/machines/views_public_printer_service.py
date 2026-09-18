@@ -19,14 +19,23 @@ from apps.machines.public_printer_service import public_pools, public_queues, pu
 from apps.machines.public_printer_service_serializers import PublicPrinterPoolSerializer, PublicPrinterQueueSerializer, PublicPrinterStatusSerializer, PublicPrinterSubmitResponseSerializer, PublicPrinterSubmitSerializer, PublicPrinterUploadSerializer
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.platform import module_enabled
+from apps.machines.views_public_service import require_public_machine_requester
+from apps.machines.permissions import IsActiveRequester
 from apps.makerspaces.request_access import checkin_requests_allowed
-from apps.presence.guard import require_active_member_presence
 
 
 def _require_printer_module(makerspace):
-    if not module_enabled(makerspace, "machine_service"):
+    """The public printer surface belongs to `printing`, which is separately optional.
+
+    This gated on `machine_service` instead, so the RECOMMENDED profile -- which ships
+    `machine_service` ON and `printing` OFF -- exposed the entire public printer API for a
+    module the operator had explicitly left off. `printing` already declares
+    `requires_modules=("machine_service",)`, so the dependency runs the other way and
+    checking `printing` alone is both necessary and sufficient.
+    """
+    if not module_enabled(makerspace, "printing"):
         from rest_framework.exceptions import ValidationError
-        raise ValidationError({"module": "machine service is disabled for this makerspace."})
+        raise ValidationError({"module": "printing is disabled for this makerspace."})
 
 
 class PublicPrinterQueuesView(APIView):
@@ -76,7 +85,7 @@ class PublicPrinterUploadView(APIView):
         if not checkin_submission:
             if not request.user.is_authenticated:
                 raise NotAuthenticated()
-            require_active_member_presence(request.user, makerspace)
+            require_public_machine_requester(request.user, makerspace)
         serializer = PublicPrinterUploadSerializer(
             data=request.data,
             context={"checkin_submission": checkin_submission},
@@ -132,7 +141,7 @@ class PublicPrinterRequestView(APIView):
             decoy = SimpleNamespace(public_token=uuid.uuid4(), status=MachineServiceRequest.Status.PENDING)
             return Response(PublicPrinterSubmitResponseSerializer(decoy).data, status=status.HTTP_201_CREATED)
         if not checkin_submission:
-            require_active_member_presence(request.user, makerspace)
+            require_public_machine_requester(request.user, makerspace)
         serializer = PublicPrinterSubmitSerializer(
             data=request.data,
             context={"checkin_submission": checkin_submission},

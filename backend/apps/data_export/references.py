@@ -1,8 +1,7 @@
 """Relational and semantic reference registries for the global User closure."""
-
 from .fields import FIELDS
-from .references_json_fields import JSON_FIELDS
 from .models import EXPORTED_MODELS
+from .references_json_fields import JSON_REFERENCE_FIELDS
 from .types import (
     Fidelity,
     Omitted,
@@ -10,12 +9,8 @@ from .types import (
     SourceLocalProvenance,
     UserEdge,
 )
-
-
 class DanglingUserReferenceError(RuntimeError):
     """A raw user ID cannot be bound safely in a portable archive."""
-
-
 def require_raw_user(fidelity, *, model, row_pk, field, user_id, existing_user_ids):
     """Enforce the declared no-dangling contract before a raw ID is remapped."""
     if fidelity is Fidelity.PORTABLE and user_id not in existing_user_ids:
@@ -23,7 +18,6 @@ def require_raw_user(fidelity, *, model, row_pk, field, user_id, existing_user_i
             f"{model} row {row_pk} has dangling {field}={user_id}"
         )
     return user_id
-
 RAW_USER_REFERENCE_FIELDS = frozenset(  # Raw integers are not discoverable as FKs.
     {
         ("encryption.PiiGlobalWriteFence", "actor_id"),
@@ -31,7 +25,6 @@ RAW_USER_REFERENCE_FIELDS = frozenset(  # Raw integers are not discoverable as F
         ("machines.ServiceRequestFile", "owner_user_id"),
     }
 )
-
 # Every forward relation to accounts.User in the internal model graph, including M2M.
 RELATIONAL_USER_FIELDS = frozenset(
     {
@@ -67,10 +60,16 @@ RELATIONAL_USER_FIELDS = frozenset(
         ("boxes.QrCode", "created_by"),
         ("boxes.QrScanEvent", "actor"),
         ("events.Event", "created_by"),
+        ("events.EventSeries", "created_by"),
+        ("events.EventSeriesCollaborator", "invited_by"),
+        ("events.EventSeriesCollaborator", "responded_by"),
+        ("events.EventSeriesOrganizer", "created_by"),
         ("events.EventCollaborator", "invited_by"),
         ("events.EventCollaborator", "responded_by"),
         ("events.EventOrganizer", "created_by"),
         ("events.EventRegistration", "member"),
+        ("events.EventCheckInEvent", "actor"),
+        ("events.EventAttendanceCertificate", "revoked_by"),
         ("evidence.EvidencePhoto", "uploaded_by"),
         ("hardware_requests.HardwareRequest", "requester"),
         ("hardware_requests.HardwareRequest", "accepted_by"),
@@ -156,6 +155,8 @@ RELATIONAL_USER_FIELDS = frozenset(
         ("organizations.OrganizationMakerspace", "created_by"),
         ("organizations.OrganizationMembership", "user"),
         ("organizations.OrganizationMembership", "created_by"),
+        ("organizations.OrganizationInvitation", "created_by"),
+        ("organizations.OrganizationInvitation", "redeemed_by"),
         ("payments.Payment", "member"),
         ("payments.Payment", "created_by"),
         ("payments.StripeConnectOAuthState", "initiated_by"),
@@ -206,6 +207,7 @@ POLYMORPHIC_PAIRS = frozenset(
     }
 )
 
+JSON_FIELDS = JSON_REFERENCE_FIELDS
 
 SEMANTIC_REFERENCES = {}
 for _fidelity in Fidelity:

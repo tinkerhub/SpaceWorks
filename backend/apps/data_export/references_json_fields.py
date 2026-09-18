@@ -2,8 +2,8 @@
 
 Split out of `references.py` when that file crossed the repo's 300-line hard ceiling.
 It is a pure data table with no logic and no imports from the rest of the package,
-which makes it the cleanest thing to lift out: `references` re-exports `JSON_FIELDS`,
-so every existing importer is unaffected.
+which makes it the cleanest thing to lift out: `references` re-exports it as
+`JSON_FIELDS`, so every existing importer is unaffected.
 
 A JSON column is listed here so the export and tenant-migration passes know to walk
 into its contents rather than treat it as an opaque scalar. A new JSON field that is
@@ -11,7 +11,7 @@ missing from this set is invisible to those passes — the drift guards in
 `tests/data_export` are what catch that.
 """
 
-JSON_FIELDS = frozenset(
+JSON_REFERENCE_FIELDS = frozenset(
     {
         ("apiclients.ApiClient", "scopes"),
         ("apiclients.ApiClient", "allowed_origins"),
@@ -26,7 +26,12 @@ JSON_FIELDS = frozenset(
         ("bookings.BookableSpace", "custom_form"),
         ("bookings.Booking", "custom_answers"),
         ("events.Event", "custom_form"),
+        ("events.Event", "badge_template"),
+        ("events.Event", "series_override_fields"),
+        ("events.EventSeries", "custom_form"),
         ("events.EventRegistration", "custom_answers"),
+        ("events.EventFeedbackSurvey", "questions"),
+        ("events.EventFeedbackSurvey", "answered_question_ids"),
         ("hardware_requests.PublicToolLoan", "asset_ids"),
         ("hardware_requests.PublicToolLoan", "qr_ids"),
         ("machines.Machine", "service_file_policy"),

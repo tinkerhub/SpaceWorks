@@ -70,7 +70,11 @@ def test_registry_has_no_urlconf_drift():
 def test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded():
     # The counts are asserted so that freezing a new route into legacy authority is a
     # deliberate, visible decision here, not a silent default.
-    assert sum(entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 50
+    # 50 -> 61 when the events/organizations programme merged in: each of those public
+    # routes carries an explicit trailing `True` in _ROUTE_DEFINITIONS, so the extension
+    # is declared per route rather than inherited. The excluded count stays 1, which is
+    # what proves a post-cutover route is still denied under `legacy:v1`.
+    assert sum(entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 61
     assert sum(not entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 1
     new_entry = ScopeRegistryEntry(frozenset({"public:read"}), TARGET_GLOBAL)
 
