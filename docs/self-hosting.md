@@ -39,11 +39,16 @@ POSTGRES_PASSWORD=replace-with-a-strong-password
 POSTGRES_APP_PASSWORD=replace-with-a-different-strong-password
 SECRET_KEY=replace-with-a-long-random-secret
 ALLOWED_HOSTS=inventory.example.org
-CORS_ALLOWED_ORIGINS=https://inventory.example.org
+CORS_ALLOWED_ORIGINS=http://inventory.example.org
+PUBLIC_APP_BASE_URL=http://inventory.example.org
 MINIO_ROOT_USER=replace-with-a-random-access-key
 MINIO_ROOT_PASSWORD=replace-with-a-long-random-secret
-AWS_S3_PUBLIC_ENDPOINT_URL=https://files.inventory.example.org
-MINIO_CORS_ALLOWED_ORIGINS=https://inventory.example.org
+AWS_S3_PUBLIC_ENDPOINT_URL=http://inventory.example.org:9000
+PUBLIC_IMAGE_BASE_URL=http://inventory.example.org:9000/public-images
+MINIO_CORS_ALLOWED_ORIGINS=http://inventory.example.org
+ENABLE_HTTPS=false
+AUTH_COOKIE_SAMESITE=Lax
+AUTH_COOKIE_SECURE=False
 MAKERSPACE_IMAGE_TAG=latest
 ```
 
@@ -203,6 +208,30 @@ scripts/spaceworks-compose.sh bundled up -d
 Do not schedule a blind container watcher: application images must not restart without the migration
 service and readiness gate. Manual dependency audit: `pip install pip-audit && pip-audit -r backend/requirements.txt`.
 
+### Host configuration changes
+
+Any edit to `.env` or a Compose file requires rerunning `bash scripts/init-host-orchestration.sh` before
+using the Compose wrapper again. `backend/apps/backup/host_topology_record.py` hashes the static environment
+and every Compose file into a root-owned topology record; if either changes,
+`validate_compose_wrapper` raises `Compose configuration digest drifted`. This check fails closed, so the
+next Compose command refuses to run until the trusted record is rebuilt.
+
+`scripts/update.sh` deploys new images only. It does not fetch newer Compose files, Caddyfiles, or host
+scripts, so automatic updates leave an existing deployment's host files unchanged; changes to those files
+must be installed manually. The curl installer is not a repair or reinstall path either: when `install.sh`
+finds the `.spaceworks-version` marker, it defers to the already-installed `scripts/update.sh` instead of
+replacing host files, so rerunning the installer cannot correct a stale file.
+
+The TLS overlay pins Caddy to an explicit patch release. `scripts/update.sh` pulls only the SpaceWorks
+backend and frontend images, not Caddy, so installing a Caddy security update requires changing that pin in
+`docker/compose.tls.yml`, rerunning `bash scripts/init-host-orchestration.sh`, and bringing the Compose layer
+up again.
+
+After switching an existing deployment from plain HTTP to the TLS layer, rerun the installer
+with the layer prefix, `SPACEWORKS_COMPOSE_LAYER=tls bash scripts/install-auto-update.sh`. The installed cron command records the Compose layer that was active
+when the schedule was installed; without reinstalling it, an unattended update continues using the old
+plain-HTTP layer.
+
 ## Publishing new images (maintainers)
 
 Every push to `main` runs `release.yml`, publishes matching backend and frontend images, and creates a
@@ -228,17 +257,51 @@ For a real domain with automatic TLS, use the Caddy overlay:
 
 ```env
 PUBLIC_DOMAIN=inventory.example.org
+CORS_ALLOWED_ORIGINS=https://inventory.example.org
+PUBLIC_APP_BASE_URL=https://inventory.example.org
+STORAGE_DOMAIN=files.inventory.example.org
 CSRF_TRUSTED_ORIGINS=https://inventory.example.org
 AWS_S3_PUBLIC_ENDPOINT_URL=https://files.inventory.example.org
+PUBLIC_IMAGE_BASE_URL=https://files.inventory.example.org/public-images
 MINIO_CORS_ALLOWED_ORIGINS=https://inventory.example.org
+ENABLE_HTTPS=true
+AUTH_COOKIE_SAMESITE=Lax
 ```
 
 ```bash
-SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled --profile tls up -d
+SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d
+# Reinstall the updater WITH the same prefix, or it records a plain-HTTP cron job.
+SPACEWORKS_COMPOSE_LAYER=tls bash scripts/install-auto-update.sh
 ```
 
-The overlay enables `ENABLE_HTTPS=true` and `TRUST_X_FORWARDED_PROTO=true` for the backend. Caddy is
-then the trusted TLS boundary: `/api`, `/static`, and docs paths go directly to Django with
+The variable is a one-command assignment and does not persist, so it has to be repeated on
+the `install-auto-update.sh` line too. Without it the installer resolves the layer to `none`
+and writes a base-topology cron job: the next unattended update then tries to publish the
+frontend on port 80 while Caddy already holds 80/443, and the rollback repeats it.
+
+This overlay forces `AUTH_COOKIE_SECURE=True`, because a refresh cookie without `Secure` is
+never correct on an HTTPS deployment and `setup.sh` writes `False` for the plain-HTTP origin
+it configures. `AUTH_COOKIE_SAMESITE` stays yours to set: the bundled frontend is same-origin,
+so `Lax` is right, while a frontend on a separate origin needs `None`.
+
+The Compose layer now both selects and activates the TLS overlay. The Caddy service no longer has a
+redundant `profiles: ["tls"]` activation gate: `scripts/update.sh` runs `up -d` without `--profile`, so
+keeping that second gate made every unattended update bring the stack back without its TLS terminator and
+roll the deployment back into the same plain-HTTP topology.
+
+`STORAGE_DOMAIN` creates the `files.` hostname as a Caddy site in `deploy/Caddyfile`, where it proxies
+`minio:9000`; its host must match the host in `AWS_S3_PUBLIC_ENDPOINT_URL`. Create DNS records for both the
+application hostname and the storage hostname before starting the overlay, or ACME certificate issuance
+cannot succeed. `PUBLIC_IMAGE_BASE_URL` must also be set explicitly because `setup.sh` initializes it to
+`http://<host>:9000/public-images`. Leaving that plaintext value in place makes every public item photo and
+makerspace logo a mixed-content failure in an HTTPS browser, even after presigned uploads work.
+
+The TLS overlay removes MinIO's inherited host port publications, including plaintext `0.0.0.0:9000`.
+Only Caddy's HTTPS `STORAGE_DOMAIN` site is reachable from outside the Compose network; the backend and
+Caddy continue to reach MinIO internally at `minio:9000`.
+
+The overlay enables `ENABLE_HTTPS=true` and `TRUST_X_FORWARDED_PROTO=true` for the backend. Caddy is then
+the trusted TLS boundary: `/api`, `/static`, and docs paths go directly to Django with
 `X-Forwarded-Proto: https`, while the React app goes to the frontend container. Keep any direct
 backend/frontend HTTP ports private when the TLS overlay is active.
 
@@ -278,7 +341,7 @@ box; it stays dormant here.) End-to-end:
    ```
 
    ```bash
-   SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled --profile tls up -d
+   SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d
    ```
 
    Caddy (`deploy/Caddyfile`) terminates HTTPS and forwards both the public site and the `/admin`
@@ -309,6 +372,7 @@ If an instance flips from managed → self-host after deploy, run
 | `ALLOWED_HOSTS` | yes | Comma-separated hostnames the backend will serve |
 | `DATABASE_URL` | no | Never put this in static `.env`; the atomic ops pointer is its only Compose source |
 | `CORS_ALLOWED_ORIGINS` | no | Browser origins allowed to call the API |
+| `PUBLIC_APP_BASE_URL` | yes for email links | Absolute frontend base URL used for password-reset and invitation links |
 | `API_CLIENT_ENC_KEY` | recommended | Fernet key encrypting integration secrets at rest |
 | `MINIO_ROOT_USER` | yes | MinIO/S3 access key used by the backend |
 | `MINIO_ROOT_PASSWORD` | yes | MinIO/S3 secret key used by the backend |
@@ -319,8 +383,12 @@ If an instance flips from managed → self-host after deploy, run
 | `PUBLIC_IMAGE_URL_TTL_SECONDS` | no (default `300`) | Presigned upload URL lifetime for public images |
 | `AWS_S3_ENDPOINT_URL` | no (default `http://minio:9000`) | Backend-to-MinIO endpoint inside Compose |
 | `AWS_S3_PUBLIC_ENDPOINT_URL` | yes for uploads | Browser-reachable MinIO/S3 endpoint used in presigned URLs |
+| `STORAGE_DOMAIN` | when the TLS overlay serves object storage | Hostname of the Caddy site proxying `minio:9000`; must match the host in `AWS_S3_PUBLIC_ENDPOINT_URL` |
 | `MINIO_CORS_ALLOWED_ORIGINS` | yes for uploads | Comma-separated frontend origins allowed to POST/GET objects (sets MinIO's `MINIO_API_CORS_ALLOW_ORIGIN`; defaults to `*`) |
+| `PUBLIC_DOMAIN` | when using the TLS overlay | Application hostname served by Caddy |
 | `ENABLE_HTTPS` | no (default false) | Turns on SSL redirect, Secure cookies, HSTS |
+| `AUTH_COOKIE_SAMESITE` | topology-dependent | `Lax` for the bundled same-origin frontend; `None` for a frontend on a separate origin |
+| `AUTH_COOKIE_SECURE` | topology-dependent | `False` only for plain HTTP; the TLS overlay forces `True` |
 | `TRUST_X_FORWARDED_PROTO` | no (default false) | Trusts `X-Forwarded-Proto` only for the TLS proxy overlay |
 | `CSRF_TRUSTED_ORIGINS` | when HTTPS | `https://` origin(s) trusted for login POSTs |
 | `AXES_FAILURE_LIMIT` | no (default 5) | Failed admin logins before lockout |

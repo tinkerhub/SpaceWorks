@@ -182,6 +182,10 @@ PUBLIC_IMAGE_BASE_URL=http://${WEBHOST}:9000/public-images
 MINIO_CORS_ALLOWED_ORIGINS=http://${WEBHOST}
 HTTP_PORT=80
 ENABLE_HTTPS=false
+# Same-origin plain HTTP: a Secure cookie is dropped, so staff log in then get signed
+# out on reload. The TLS overlay forces Secure back on; see docs/self-hosting.md.
+AUTH_COOKIE_SAMESITE=Lax
+AUTH_COOKIE_SECURE=False
 EOF
 fi
 # Existing installations predate the non-owner runtime database role. The privileged
@@ -191,6 +195,25 @@ if ! grep -q '^POSTGRES_APP_PASSWORD=' .env; then
 fi
 if ! grep -q '^SPACEWORKS_SCHEDULER_MODE=' .env; then
   printf '\nSPACEWORKS_SCHEDULER_MODE=image\n' >> .env
+fi
+# Older bundled installs may predate explicit cookie settings. Backfill only when the
+# file itself proves that both public app origins use plain HTTP and HTTPS is disabled;
+# split-origin HTTPS intentionally needs the secure defaults and must remain untouched.
+if ! grep -q '^AUTH_COOKIE_SAMESITE=' .env \
+   || ! grep -q '^AUTH_COOKIE_SECURE=' .env; then
+  if { ! grep -q '^ENABLE_HTTPS=' .env \
+       || grep -Eqi '^ENABLE_HTTPS=(false|0|no|off)$' .env; } \
+     && grep -Eq '^CORS_ALLOWED_ORIGINS=http://[^[:space:],]+(,http://[^[:space:],]+)*$' .env \
+     && grep -Eq '^PUBLIC_APP_BASE_URL=http://[^[:space:]]+$' .env; then
+    if ! grep -q '^AUTH_COOKIE_SAMESITE=' .env; then
+      printf '\nAUTH_COOKIE_SAMESITE=Lax\n' >> .env
+    fi
+    if ! grep -q '^AUTH_COOKIE_SECURE=' .env; then
+      printf '\nAUTH_COOKIE_SECURE=False\n' >> .env
+    fi
+  else
+    warn "Could not safely backfill AUTH_COOKIE_SAMESITE and AUTH_COOKIE_SECURE; set both explicitly using docs/self-hosting.md."
+  fi
 fi
 chmod 600 .env
 prepare_compose_wrapper

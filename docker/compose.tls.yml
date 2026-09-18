@@ -4,17 +4,52 @@ services:
       ENABLE_HTTPS: "true"
       TRUST_X_FORWARDED_PROTO: "true"
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:?set CSRF_TRUSTED_ORIGINS}
+      # Forced, not defaulted: this overlay IS the HTTPS topology, so a refresh cookie
+      # without Secure is never correct here. setup.sh writes AUTH_COOKIE_SECURE=False
+      # for the plain-HTTP origin it configures, and that value survives in .env when an
+      # operator later switches to this overlay -- which would keep emitting a long-lived
+      # refresh cookie that an http:// auth path can transmit before the HTTPS redirect.
+      # SameSite is deliberately NOT pinned: it stays operator-controlled through .env,
+      # because the bundled frontend is same-origin (Lax) but a frontend on a separate
+      # origin needs None. See "Split deployment" in README.md.
+      AUTH_COOKIE_SECURE: "True"
 
   frontend:
     ports: !reset []
     expose:
       - "80"
 
+  minio:
+    ports: !reset []
+    expose:
+      - "9000"
+
   caddy:
-    image: caddy:2-alpine
-    profiles: ["tls"]
+    # scripts/update.sh pulls only the SpaceWorks application images. Caddy security
+    # updates require editing this patch-version pin and rerunning the Compose up.
+    image: caddy:2.10.2-alpine
+    # Deliberately NO `profiles:` here. Merging this file at all is already gated on
+    # SPACEWORKS_COMPOSE_LAYER=tls|build-tls in scripts/spaceworks-compose.sh, so the Compose
+    # layer is the sole TLS activation mechanism. A profile was a redundant second one, and it
+    # silently dropped the TLS terminator on every unattended `up -d` that runs without
+    # --profile -- scripts/update.sh -- so a weekly update deployed the stack with no HTTPS and
+    # rolled back into the same topology.
+    restart: unless-stopped
+    # Compose anchors do not cross files, so keep this cap literal in the TLS overlay.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     environment:
       PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?set PUBLIC_DOMAIN}
+      # Required, not defaulted, because this overlay unpublishes MinIO's plaintext
+      # 0.0.0.0:9000 above. Left to default at files.localhost, a TLS deployment would
+      # have NO reachable object storage at all -- the plain port closed and the only
+      # HTTPS route pointing at a name that resolves nowhere -- so every evidence upload
+      # and public image would break silently. Must match the host in
+      # AWS_S3_PUBLIC_ENDPOINT_URL.
+      STORAGE_DOMAIN: ${STORAGE_DOMAIN:?set STORAGE_DOMAIN}
     ports:
       - "${TLS_HTTP_PORT:-80}:80"
       - "${TLS_HTTPS_PORT:-443}:443"

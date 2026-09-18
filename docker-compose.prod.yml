@@ -153,6 +153,15 @@ services:
       # set it true only when a TLS proxy forwards X-Forwarded-Proto: https.
       ENABLE_HTTPS: ${ENABLE_HTTPS:-false}
       TRUST_X_FORWARDED_PROTO: ${TRUST_X_FORWARDED_PROTO:-false}
+      # Staff sessions ride a refresh cookie. settings.py defaults it to SameSite=None +
+      # Secure, which is right for a split-origin HTTPS deployment (frontend on another
+      # host) but unusable on a plain-HTTP origin: the browser silently drops a Secure
+      # cookie, so login hands out a short-lived access token and then refresh, reload
+      # and browser restart all fail with no error anywhere. The defaults below match
+      # settings.py, so existing deployments are unaffected -- but absent from this
+      # block, setting either value in .env never reached Django at all.
+      AUTH_COOKIE_SAMESITE: ${AUTH_COOKIE_SAMESITE:-None}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-True}
       # The nginx frontend container is the one proxy in front of gunicorn, and it
       # appends the client to X-Forwarded-For. Unset, DRF keys throttles on REMOTE_ADDR,
       # which is nginx -- so every user shares one rate-limit bucket. Set this to 2 if a
