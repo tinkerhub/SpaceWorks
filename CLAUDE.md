@@ -156,10 +156,15 @@ the Auth module** — forgetting this is a cross-tenant data leak, not just a bu
   the original file as a **thin re-export barrel** (explicit `from .submodule import (...)`, never
   `import *`) so `from app.views import X` and `views.X` keep resolving; for `admin.py` the barrel must
   still import the admin submodules so the `@admin.register` side effects fire. **The ceiling is enforced
-  on what you touch, and repo-wide it is now nearly met: **three** backend files exceed 300 lines
-  (excluding migrations and `backend/tests/`) — `config/settings.py` (1037, the accepted exception — Django
-  settings are conventionally a single file), `machines/access.py` (367) and
-  `tenant_migration/source_gate_guards.py` (301). Re-measured 2026-09-04. **Do not trust an inventory in
+  on what you touch, and repo-wide it is now nearly met: **six** backend files exceed 300 lines
+  (excluding migrations and `backend/tests/`) — `config/settings.py` (1112, the accepted exception — Django
+  settings are conventionally a single file), `machines/access.py` (367),
+  `makerspaces/module_registry.py` (310), `tenant_migration/tenant_dump_authority.py` (309),
+  `inventory/middleware.py` (308) and `tenant_migration/source_gate_guards.py` (301). The middle three
+  crossed the line when the events/organizations programme merged in. Re-measured 2026-09-19.
+  **Twelve frontend files are also over**, led by `staff/panels/Inventory.tsx` (499),
+  `staff/DirectLoans.tsx` (438) and `staff/NotificationDestinations.tsx` (425); the barrel-split pattern
+  above has never been applied to `frontend/src`. **Do not trust an inventory in
   this file without re-running the count** — this line has now been wrong in both directions: it once
   claimed full compliance when 36 files were over, and it then went on claiming 37 files and naming
   `admin_api/urls.py` (825), `makerspaces/models.py` (682), `accounts/rbac.py` (609) and
@@ -208,10 +213,16 @@ starting a build.** These are the rules you must not violate without having read
   is decided per commit by who really wrote the code.
 - **Never `git add`/stage before a Codex workspace-write run** — a non-empty index makes `apply_patch`
   silently fail with a misleading "read-only" error and no files written.
-- **The test baseline is ZERO reds** — any failure is a NEW regression, not background noise. Run
-  `./scripts/dev-local.sh test` with `spaceworks-db` (:5433), `spaceworks-redis` (:6379) and
-  `spaceworks-minio` (:9200) up. **Never run two `pytest` procs against one DB**, and never run the full
-  suite concurrently with `codex review` (it runs its own).
+- **The test baseline is 22 environmental reds, and nothing else.** All 22 are in
+  `test_host_orchestration_surface_h1a.py` (20) and `test_platform_updates.py` (2), which resolve `ROOT`
+  to `/` inside the container and can only pass from a host checkout — CI runs one, so they should go
+  green there. Any OTHER failure is a new regression. **`scripts/dev-local.sh` does not exist** (this file
+  instructed running it for months); use `scripts/dev-docker.sh`, and note the real published ports are
+  **5432/9000**, not 5433/9200 — they collide with any other local Postgres/MinIO, so pass an overlay with
+  `ports: !reset []` when something else holds them. **Never run two `pytest` procs against one DB**, and
+  never run the full suite concurrently with `codex review` (it runs its own). A full run is ~60 minutes.
+  `tests/backup/test_compound_archive_verification_e3.py` has a known ordering flake
+  (`inventory_category` digest) that only appears in a full run and passes in isolation.
 - **`tests/backup` and `tests/tenant_migration` need a pg client whose MAJOR equals the server's (16),
   and the host may not have one.** `postgres_client.client_binary` resolves
   `/usr/lib/postgresql/{major}/bin` (Debian/PGDG) or `/usr/pgsql-{major}/bin` (RHEL) and otherwise
@@ -239,11 +250,20 @@ starting a build.** These are the rules you must not violate without having read
 
 ```bash
 ./scripts/dev-docker.sh up -d --build                          # default: all in Docker, live reload
-./scripts/dev-local.sh infra && ./scripts/dev-local.sh test    # host: faster pytest, most of the suite
 
 # In Docker, pytest needs the DB OWNER: the backend runs as `spaceworks_app`, which has no CREATEDB.
-./scripts/dev-docker.sh exec -e DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager \
-  -T backend pytest
+# API_CLIENT_ENC_KEY is EMPTY in the container and its absence produces ~287 failures of pure noise,
+# so inject one for the run or every encrypted-secret path raises ImproperlyConfigured.
+docker exec spaceworks-backend sh -c 'export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"); export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager; python -m pytest -q --create-db'
+```
+
+Frontend: run it on **Node 20**, not the host toolchain. Node 26 ships a native experimental
+`localStorage` that collides with jsdom's and fails four tests with
+`Cannot read properties of undefined (reading 'getItem')` — environmental, not a regression.
+Typecheck with plain `npx tsc -b` (`--noEmit` fails `TS6310` on this composite config).
+
+```bash
+docker run --rm -v "$PWD/frontend:/app" -w /app node:20 sh -c "npm ci && npx tsc -b && npm test"
 ```
 
 Public inventory page: `http://localhost:5000/m/makerspace`. API: `http://localhost:8000/api` — Swagger UI

@@ -64,10 +64,22 @@ MACHINE_SERVICE_ACTIONS = {
     'admin-machine-service-file-presign',
     'admin-machine-service-file-finalize',
 }
+# Consumable-pool detail/adjustments are keyed only by pool pk -- unlike the sibling
+# list/create route, which carries makerspaces/<int:makerspace_id>/ in its path and so
+# resolves its tenant from the URL. Without an entry here they resolve as unscoped global
+# endpoints and fail closed, making them unreachable from a verified tenant custom domain.
+MACHINE_CONSUMABLE_POOL_ACTIONS = {
+    'admin-machine-service-printer-pool-detail',
+    'admin-machine-service-printer-pool-adjustments',
+}
 MODEL_LOOKUPS = {
     **BASE_MODEL_LOOKUPS,
     **{name: ('hardware_requests.HardwareRequest', 'makerspace_id') for name in REQUEST_ACTIONS},
     **{name: ('machines.MachineServiceRequest', 'makerspace_id') for name in MACHINE_SERVICE_ACTIONS},
+    **{
+        name: ('machines.MachineConsumablePool', 'makerspace_id')
+        for name in MACHINE_CONSUMABLE_POOL_ACTIONS
+    },
 }
 
 def request_route_targets(request, view=None):

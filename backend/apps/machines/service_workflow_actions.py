@@ -185,12 +185,22 @@ def complete(service_request, actor, *, actual_minutes, consumptions, actual_gra
                               actual_quantity=actual_quantity)
             locked.refresh_from_db()
             locked.actual_minutes = _minutes(actual_minutes, "actual_minutes")
-        counter_settlement = requires_counter_settlement(locked) or not online_payments_enabled(locked.makerspace, "machines")
         locked.status, locked.handled_by, locked.completed_at = MachineServiceRequest.Status.COMPLETED, actor, timezone.now()
         locked.save(update_fields=["status", "handled_by", "actual_minutes", "completed_at", "updated_at"])
         _release_queue_machine(locked)
         _audit_transition(actor, locked, "completed")
         _notify_after_commit(locked, "completed")
+        # Never-block: payment work must never roll back a valid completion. Resolving the
+        # regime reads makerspace payment settings, so it can raise -- and it used to run
+        # before the save and outside every guard, which took the whole completion down with
+        # it. On failure fall through to create_for_completed_request(), which repeats this
+        # same check inside its own try/atomic and no-ops safely.
+        try:
+            counter_settlement = requires_counter_settlement(locked) or not online_payments_enabled(
+                locked.makerspace, "machines"
+            )
+        except Exception:
+            counter_settlement = False
         if counter_settlement:
             try:
                 from apps.machines.service_pricing import compute_amount

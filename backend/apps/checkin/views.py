@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from apps.checkin import matching
 from apps.checkin import client
 from apps.checkin.client import CheckinUnavailable
-from apps.checkin.eligibility import ELIGIBLE, refusal_reason
+from apps.checkin.eligibility import ELIGIBLE, REASON_SPACE, refusal_reason
 from apps.checkin.serializers import (
     CheckinLookupRequestSerializer,
     CheckinMatchSerializer,
@@ -80,6 +80,13 @@ class CheckinLookupView(APIView):
         matches = []
         for entry in matching.candidates(roster, serializer.validated_data["name"]):
             reason = refusal_reason(entry, now, space_id=space_id)
+            if reason == REASON_SPACE:
+                # Discarded, not reported. The roster is deployment-global, so an entry
+                # bound to another upstream spaceId belongs to a different makerspace;
+                # returning it here would republish that space's mid, display name,
+                # avatar, purpose and project name through this tenant's endpoint.
+                # docs/INVARIANTS.md: "Entries whose spaceId does not match are discarded."
+                continue
             matches.append(
                 {
                     "mid": entry.mid,

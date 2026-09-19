@@ -80,16 +80,21 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                     Payment {paymentState(row)}
                   </p>
                 </div>
-                {manualPayment ? (
-                  <button
-                    type="button"
-                    className="desk-button-success"
-                    disabled={recordPayment.isPending}
-                    onClick={() => recordPayment.mutate(row.id)}
-                  >
-                    Record payment · {manualPayment.currency.toUpperCase()} {manualPayment.amount}
-                  </button>
-                ) : (
+                {/* Both actions, never either/or. Settlement carries Payment's own
+                    authority, so a handout-only desk role may mark a job collected but is
+                    refused 403 on recording cash. Hiding "Hand over" behind a pending
+                    payment stranded exactly that role until another staff member settled. */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {manualPayment ? (
+                    <button
+                      type="button"
+                      className="desk-button-success"
+                      disabled={recordPayment.isPending}
+                      onClick={() => recordPayment.mutate(row.id)}
+                    >
+                      Record payment · {manualPayment.currency.toUpperCase()} {manualPayment.amount}
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className="desk-button-primary"
@@ -98,7 +103,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                   >
                     Hand over
                   </button>
-                )}
+                </div>
               </li>
             );
           })}
