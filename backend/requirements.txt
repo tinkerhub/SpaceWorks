@@ -13,10 +13,13 @@ drf-spectacular>=0.30
 # day drf-spectacular drops the dependency, an unrelated upgrade breaks both.
 PyYAML>=6,<7
 gunicorn>=23
-# Keep pytest below 9 until pytest-django supports its changed fixture finalizers:
-# an unbounded upgrade broke every test during setup and looked like a mass regression.
-pytest>=8,<9
-pytest-django>=4.12
+# The <9 cap is LIFTED. It was added when pytest-django 4.12 broke on pytest 9's changed
+# fixture finalizers; 4.14 declares `pytest>=7.0.0` with no upper bound and the suite runs
+# clean on 9.1.1. Keeping the cap held pytest at 8.4.2, which carries PYSEC-2026-1845 and
+# failed the pip-audit gate. Do not reintroduce the cap without also pinning
+# pytest-django to the version that actually needs it.
+pytest>=9
+pytest-django>=4.14
 whitenoise>=6.12
 segno
 djangorestframework-simplejwt>=5.5

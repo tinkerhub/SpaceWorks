@@ -11,7 +11,10 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Keyed on the BRANCH, not github.ref: a push to `dev` while its PR is open fires both
+  # the push and pull_request triggers, whose refs differ (refs/heads/dev vs
+  # refs/pull/N/merge), so a ref-keyed group runs this whole suite twice in parallel.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
