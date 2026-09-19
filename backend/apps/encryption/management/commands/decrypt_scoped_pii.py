@@ -21,6 +21,7 @@ from apps.encryption.write_fence import fence_operation
 _FILTERS = {
     "hardware_requests.HardwareRequest": "makerspace_id",
     "events.EventRegistration": "event__makerspace_id",
+    "checkin.CheckinIdentity": "makerspace_id",
     "bookings.Booking": "space__makerspace_id",
     "machines.MachineServiceRequest": "makerspace_id",
     "machines.MachineUsageEntry": "machine__makerspace_id",
@@ -127,6 +128,7 @@ class Command(BaseCommand):
                         if mutate and any(value is not None for value in values.values()):
                             validate_legacy_values(row, fields, values)
                             self._assert_event_email_unique(row, fields, values)
+                            self._assert_checkin_mid_unique(row, fields, values)
                             write_legacy_values(row, values)
                             PiiBlindIndex.objects.filter(
                                 makerspace_id=makerspace_id, model_label=label, object_id=row.pk
@@ -134,6 +136,10 @@ class Command(BaseCommand):
                             if label == "events.EventRegistration":
                                 model.objects.filter(pk=row.pk).update(
                                     email_exact_hash=None, email_hash_generation=None
+                                )
+                            elif label == "checkin.CheckinIdentity":
+                                model.objects.filter(pk=row.pk).update(
+                                    mid_exact_hash=None, mid_hash_generation=None
                                 )
                     checkpoint = rows[-1].pk
                     if mutate:
@@ -157,6 +163,29 @@ class Command(BaseCommand):
             if canonical_email(other_value) == wanted:
                 raise ValidationError({"email": "A registration already uses this email."})
 
+    def _assert_checkin_mid_unique(self, row, fields, values):
+        """Refuse a rollback that would collide on uniq_checkin_identity_mid_plain.
+
+        Two identities can only share a mid across generations or against an
+        already-rolled-back row: within one generation the hash constraint
+        already forbids it. So compare the cleared rows in SQL, and decrypt only
+        the stale-generation remainder rather than the whole makerspace.
+        """
+        if row._meta.label != "checkin.CheckinIdentity" or values.get("mid") is None:
+            return
+        wanted = values["mid"]
+        peers = type(row).objects.select_for_update().filter(makerspace_id=row.makerspace_id).exclude(pk=row.pk)
+        if peers.filter(mid_exact_hash__isnull=True, mid=wanted).exists():
+            raise ValidationError({"mid": "A check-in identity already uses this member id."})
+        for other in peers.filter(mid_exact_hash__isnull=False).exclude(mid_hash_generation=row.mid_hash_generation_id):
+            raw = other.__dict__.get("mid", "")
+            if is_envelope(raw):
+                other_value = decrypted_values(other, fields).get("mid")
+            else:
+                other_value = raw
+            if other_value == wanted:
+                raise ValidationError({"mid": "A check-in identity already uses this member id."})
+
     def _verify_model(self, model, fields, filters, makerspace_id):
         for row in model.objects.filter(**filters).iterator(chunk_size=200):
             values = {}
@@ -173,6 +202,10 @@ class Command(BaseCommand):
                 row.email_exact_hash is not None or row.email_hash_generation_id is not None
             ):
                 raise CommandError("Rollback verification found an event hash.")
+            if row._meta.label == "checkin.CheckinIdentity" and (
+                row.mid_exact_hash is not None or row.mid_hash_generation_id is not None
+            ):
+                raise CommandError("Rollback verification found a check-in hash.")
         if PiiBlindIndex.objects.filter(
             makerspace_id=makerspace_id, model_label=model._meta.label
         ).exists():
@@ -188,6 +221,9 @@ class Command(BaseCommand):
         event = apps.get_model("events.EventRegistration")
         if event.objects.filter(email_exact_hash__isnull=False).exists() or event.objects.filter(email_hash_generation__isnull=False).exists():
             raise CommandError("Global rollback verification found event hashes.")
+        checkin = apps.get_model("checkin.CheckinIdentity")
+        if checkin.objects.filter(mid_exact_hash__isnull=False).exists() or checkin.objects.filter(mid_hash_generation__isnull=False).exists():
+            raise CommandError("Global rollback verification found check-in hashes.")
         from apps.integrations.models import EmailLog
         if EmailLog.objects.filter(makerspace__isnull=True).exclude(
             to_email="", subject="Platform email", text_body="", html_body=""

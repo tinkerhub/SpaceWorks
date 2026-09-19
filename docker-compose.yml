@@ -153,6 +153,15 @@ services:
       SPACEWORKS_HOST_MARKER_PATH: /run/spaceworks-host/restore-marker.json
       BACKUP_PRODUCER_CAPABILITY_MARKER_PATH: /run/spaceworks-host/producer-capability.json
       BACKUP_PRODUCER_PRIVILEGED_SCRIPTS_DIR: /run/spaceworks-privileged-scripts
+      # Upstream check-in roster (the `checked_in` public-request mode). Blank leaves
+      # the integration dormant; setting it enables nothing on its own -- a tenant
+      # still has to be switched into the mode and bound to a `checkin_space_id`.
+      CHECKIN_API_URL: ${CHECKIN_API_URL:-}
+      CHECKIN_TIMEOUT: ${CHECKIN_TIMEOUT:-5.0}
+      CHECKIN_CACHE_SECONDS: ${CHECKIN_CACHE_SECONDS:-30}
+      CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
+      CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
+      CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
     command: ["--role", "backend", "sh", "-c", "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/', timeout=3).read()\""]

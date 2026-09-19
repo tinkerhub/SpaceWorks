@@ -9,6 +9,7 @@ from apps.machines.models import Machine, MachineServiceRequest, MachineType
 from apps.machines.service_consumable_pools import create_pool
 from apps.machines.service_workflow import submit
 from apps.makerspaces.models import MakerspaceMembership
+from apps.payments.models import Payment
 from tests.return_helpers import authenticated_client, make_member, make_space, make_user
 from tests.handout_roles import make_handout_member
 
@@ -133,10 +134,10 @@ def test_wrong_role_is_forbidden_and_disabled_module_is_rejected():
 # Handover without machine management (collect_service_request).
 # --------------------------------------------------------------------------
 #
-# Collecting a finished job is a front-desk act; MANAGE_MACHINES is the whole machine
-# lifecycle. Requiring the latter to do the former is why a handover-only staffer could
-# not hand a member their own print. These pin the split in both directions: the narrow
-# action must be enough to collect and must not be enough for anything else.
+# Collecting a finished job and its manual payment are front-desk acts; MANAGE_MACHINES
+# is the whole machine lifecycle. Requiring the latter to do the former is why a
+# handover-only staffer could not hand a member their own print. These pin the split in
+# both directions: the narrow action must cover handover without granting lifecycle work.
 
 def handover_member(username, space, actions=("collect_service_request",)):
     """A member holding a custom role with exactly `actions` -- no legacy role at all."""
@@ -173,8 +174,66 @@ def test_a_handover_role_can_collect_a_finished_job():
     assert row.collected_by_id == desk.pk
 
 
+def test_recording_a_manual_payment_requires_payment_authority():
+    """Settlement is a Payment act, so it follows Payment's RBAC, not the collect partition.
+
+    A handout-only desk role holds COLLECT_SERVICE_REQUEST and can still mark a job
+    collected, but marking money received reconciles the authoritative Payment row and
+    therefore needs payment authority plus machine scope. An operator who wants the
+    front desk to take cash grants those actions to the custom handover role.
+    """
+    space = make_space("service-payment-handover")
+    desk = handover_member("service-payment-desk", space)
+    manager = make_member("service-payment-manager", space)
+    row = completed_request(space)
+    payment = Payment.objects.create(
+        makerspace=space,
+        subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST,
+        subject_id=row.pk,
+        member=row.requester,
+        amount=Decimal("15.00"),
+        currency="usd",
+        status=Payment.Status.PENDING,
+        created_by=desk,
+    )
+
+    assert authenticated_client(desk).post(
+        action_url(row, "record-manual-payment"), {}, format="json"
+    ).status_code == 403
+
+    response = authenticated_client(manager).post(
+        action_url(row, "record-manual-payment"), {}, format="json"
+    )
+
+    assert response.status_code == 200, response.data
+    payment.refresh_from_db()
+    assert payment.status == Payment.Status.PAID_OFFLINE
+    row.refresh_from_db()
+    # The historic columns are read-only; settlement lives on Payment.
+    assert (row.payment_amount, row.payment_status) == (None, "none")
+
+
+def test_manual_payment_requires_collect_permission_and_maps_workflow_conflicts():
+    space = make_space("service-payment-guard")
+    desk = handover_member("service-payment-guard-desk", space)
+    guest = make_handout_member("service-payment-guard-guest", space)
+    row = completed_request(space)
+
+    assert authenticated_client(guest).post(
+        action_url(row, "record-manual-payment"), {}, format="json"
+    ).status_code == 403
+
+    response = authenticated_client(desk).post(
+        action_url(row, "record-manual-payment"), {}, format="json"
+    )
+    assert (response.status_code, response.data["code"]) == (
+        409,
+        "service_invalid_transition",
+    )
+
+
 @pytest.mark.parametrize("action", ["accept", "reject", "start", "complete", "fail", "reprint"])
-def test_a_handover_role_cannot_do_anything_but_collect(action):
+def test_a_handover_role_cannot_run_machine_lifecycle_actions(action):
     """The narrow action must not become a back door into the machine lifecycle."""
     space = make_space(f"service-collect-deny-{action}")
     desk = handover_member(f"service-collect-deny-{action}", space)

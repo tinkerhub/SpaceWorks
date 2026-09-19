@@ -5,11 +5,18 @@ import { Card } from "../../components/ui/Card";
 import QrScanner from "../../components/ui/QrScanner";
 import type { PublicToolLoan } from "../../types/inventory";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
-import { publicToolCheckout, publicToolReturn } from "./api";
+import {
+  publicToolCheckout,
+  publicToolReturn,
+  type CheckinMatch,
+} from "./api";
+import { CheckinIdentityStep } from "./CheckinIdentityStep";
+import { PendingToolCheckoutControls } from "./PendingToolCheckoutControls";
 import { PublicEvidenceUpload } from "./PublicEvidenceUpload";
 
 type PublicToolScanPanelProps = {
   makerspaceSlug: string;
+  requiresCheckin?: boolean;
 };
 
 function LoanResult({ loan }: { loan: PublicToolLoan }) {
@@ -31,9 +38,17 @@ function LoanResult({ loan }: { loan: PublicToolLoan }) {
   );
 }
 
-export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps) {
+export function PublicToolScanPanel({
+  makerspaceSlug,
+  requiresCheckin = false,
+}: PublicToolScanPanelProps) {
   const queryClient = useQueryClient();
-  const [scannedToken, setScannedToken] = useState("");
+  const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(
+    null,
+  );
+  const [pendingPayloads, setPendingPayloads] = useState<string[]>([]);
+  const [returnPayload, setReturnPayload] = useState("");
+  const [scannerTarget, setScannerTarget] = useState<"both" | "checkout">("both");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [issueEvidenceId, setIssueEvidenceId] = useState<number | null>(null);
   const [returnEvidenceId, setReturnEvidenceId] = useState<number | null>(null);
@@ -41,15 +56,24 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
   const [reportProblem, setReportProblem] = useState(false);
   const [problemNote, setProblemNote] = useState("");
   const [uploadKey, setUploadKey] = useState(0);
-  const effectivePayload = scannedToken.trim();
+  const effectiveReturnPayload = returnPayload.trim();
+  const identityReady = !requiresCheckin || confirmedCheckin !== null;
+  const checkinPayload =
+    requiresCheckin && confirmedCheckin
+      ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
+      : {};
   const checkout = useMutation({
     mutationFn: () =>
       publicToolCheckout(makerspaceSlug, {
-        payload: effectivePayload,
+        ...(pendingPayloads.length === 1
+          ? { payload: pendingPayloads[0] }
+          : { qr_payloads: pendingPayloads }),
         evidence_id: issueEvidenceId as number,
+        ...checkinPayload,
       }),
     onSuccess: () => {
       invalidatePublicInventory(queryClient, makerspaceSlug);
+      setPendingPayloads([]);
       setIssueEvidenceId(null);
       setUploadKey((key) => key + 1);
     },
@@ -57,11 +81,12 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
   const returnTool = useMutation({
     mutationFn: () =>
       publicToolReturn(makerspaceSlug, {
-        payload: effectivePayload,
+        payload: effectiveReturnPayload,
         evidence_id: returnEvidenceId as number,
         remark: returnRemark.trim(),
         report_problem: reportProblem,
         problem_note: reportProblem ? problemNote.trim() : "",
+        ...checkinPayload,
       }),
     onSuccess: () => {
       invalidatePublicInventory(queryClient, makerspaceSlug);
@@ -73,10 +98,12 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
     },
   });
   const checkoutDisabled =
-    !effectivePayload ||
+    !identityReady ||
+    pendingPayloads.length === 0 ||
     issueEvidenceId === null;
   const returnDisabled =
-    !effectivePayload ||
+    !identityReady ||
+    !effectiveReturnPayload ||
     returnEvidenceId === null ||
     !returnRemark.trim() ||
     (reportProblem && !problemNote.trim());
@@ -92,20 +119,39 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
       <p className="mt-2 text-sm leading-6 text-muted">
         Upload the required photo, then scan the tool QR with your camera.
       </p>
+      {requiresCheckin ? (
+        <div className="mt-4">
+          <CheckinIdentityStep
+            makerspaceSlug={makerspaceSlug}
+            confirmed={confirmedCheckin}
+            onConfirm={(match) => {
+              setConfirmedCheckin(match);
+              setIssueEvidenceId(null);
+              setReturnEvidenceId(null);
+              setUploadKey((key) => key + 1);
+            }}
+            disabled={checkout.isPending || returnTool.isPending}
+          />
+        </div>
+      ) : null}
       <button
         className="desk-button mt-4 w-full"
+        disabled={!identityReady || checkout.isPending || returnTool.isPending}
         type="button"
-        onClick={() => setScannerOpen(true)}
+        onClick={() => {
+          setScannerTarget("both");
+          setScannerOpen(true);
+        }}
       >
         Scan QR with camera
       </button>
-      {scannedToken ? (
+      {returnPayload ? (
         <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-success bg-success px-3 py-1 text-sm font-semibold text-on-success dark:bg-success/15 dark:text-success-ink">
           Scanned OK
           <button
             type="button"
             className="min-h-11 px-2 text-xs font-normal underline"
-            onClick={() => setScannedToken("")}
+            onClick={() => setReturnPayload("")}
           >
             clear
           </button>
@@ -114,23 +160,34 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <section className="rounded-lg border border-line p-3">
           <h3 className="title-section">Check out</h3>
-          <div className="mt-3">
-            <PublicEvidenceUpload
-              key={`issue-${uploadKey}`}
-              slug={makerspaceSlug}
-              evidenceType="issue"
-              disabled={checkout.isPending}
-              onUploaded={setIssueEvidenceId}
-            />
-          </div>
-          <button
-            className="desk-button-primary mt-3 w-full disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={checkoutDisabled || checkout.isPending}
-            type="button"
-            onClick={() => checkout.mutate()}
+          <PendingToolCheckoutControls
+            payloads={pendingPayloads}
+            isPending={checkout.isPending}
+            submitDisabled={checkoutDisabled}
+            onRemove={(payload) =>
+              setPendingPayloads((current) =>
+                current.filter((item) => item !== payload),
+              )
+            }
+            onScanAnother={() => {
+              setScannerTarget("checkout");
+              setScannerOpen(true);
+            }}
+            onSubmit={() => checkout.mutate()}
           >
-            {checkout.isPending ? "Checking out..." : "Check out"}
-          </button>
+            <div className="mt-3">
+              <PublicEvidenceUpload
+                key={`issue-${uploadKey}`}
+                slug={makerspaceSlug}
+                evidenceType="issue"
+                checkinIdentity={
+                  requiresCheckin ? confirmedCheckin ?? undefined : undefined
+                }
+                disabled={!identityReady || checkout.isPending}
+                onUploaded={setIssueEvidenceId}
+              />
+            </div>
+          </PendingToolCheckoutControls>
         </section>
         <section className="rounded-lg border border-line p-3">
           <h3 className="title-section">Return</h3>
@@ -139,7 +196,10 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
               key={`return-${uploadKey}`}
               slug={makerspaceSlug}
               evidenceType="return"
-              disabled={returnTool.isPending}
+              checkinIdentity={
+                requiresCheckin ? confirmedCheckin ?? undefined : undefined
+              }
+              disabled={!identityReady || returnTool.isPending}
               onUploaded={setReturnEvidenceId}
             />
           </div>
@@ -197,7 +257,14 @@ export function PublicToolScanPanel({ makerspaceSlug }: PublicToolScanPanelProps
         <QrScanner
           onClose={() => setScannerOpen(false)}
           onScan={(scanned) => {
-            setScannedToken(scanned);
+            const normalized = scanned.trim();
+            if (!normalized) return;
+            setPendingPayloads((current) =>
+              current.includes(normalized) ? current : [...current, normalized],
+            );
+            if (scannerTarget === "both") {
+              setReturnPayload(normalized);
+            }
             setScannerOpen(false);
           }}
         />

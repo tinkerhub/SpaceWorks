@@ -61,6 +61,11 @@ OMITTED_FIELD_RECONSTRUCTIONS = {
         DERIVED,
         ("events.EventRegistration", "email_exact_hash"),
         ("events.EventRegistration", "email_hash_generation"),
+        # The check-in mid index, same shape and same reason: the hash is keyed by
+        # the SOURCE deployment's search key, so it is meaningless on the target and
+        # must be recomputed there rather than carried across.
+        ("checkin.CheckinIdentity", "mid_exact_hash"),
+        ("checkin.CheckinIdentity", "mid_hash_generation"),
         # Unlike public_api_key, this callable-generated field has no database
         # uniqueness contract, so it cannot use the collision-checked FRESH rule.
         ("makerspaces.Makerspace", "domain_verification_token"),

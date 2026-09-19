@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from apps.encryption.blind_index import active_generation, sync_event_hash, upsert_index
+from apps.encryption.blind_index import active_generation, sync_checkin_hash, sync_event_hash, upsert_index
 from apps.encryption.models import PiiBlindIndex
 from apps.encryption.registry import fields_for_label
 
@@ -13,6 +13,7 @@ from apps.encryption.registry import fields_for_label
 FILTERS = {
     "hardware_requests.HardwareRequest": "makerspace_id",
     "events.EventRegistration": "event__makerspace_id",
+    "checkin.CheckinIdentity": "makerspace_id",
     "machines.MachineServiceRequest": "makerspace_id",
     "machines.MachineUsageEntry": "machine__makerspace_id",
 }
@@ -35,6 +36,14 @@ def _event_discrepancies(row, field, generation):
     if value:
         return 0 if bound else 1
     return 0 if (row.email_exact_hash is None and row.email_hash_generation_id is None) else 1
+
+
+def _checkin_discrepancies(row, field, generation):
+    value = getattr(row, field.field_name)
+    bound = row.mid_exact_hash is not None and row.mid_hash_generation_id == generation.pk
+    if value:
+        return 0 if bound else 1
+    return 0 if (row.mid_exact_hash is None and row.mid_hash_generation_id is None) else 1
 
 
 class Command(BaseCommand):
@@ -78,6 +87,12 @@ class Command(BaseCommand):
                                 model.objects.filter(pk=row.pk).update(email_exact_hash=row.email_exact_hash, email_hash_generation=row.email_hash_generation)
                             elif verify:
                                 problems += _event_discrepancies(row, field, generation)
+                        elif field.index_kind == "checkin_exact":
+                            if mutate:
+                                sync_checkin_hash(row, getattr(row, field.field_name), generation)
+                                model.objects.filter(pk=row.pk).update(mid_exact_hash=row.mid_exact_hash, mid_hash_generation=row.mid_hash_generation)
+                            elif verify:
+                                problems += _checkin_discrepancies(row, field, generation)
                     count += 1
                 checkpoint = rows[-1].pk
             self.stdout.write(f"checkpoint={checkpoint} rows={count} problems={problems}")

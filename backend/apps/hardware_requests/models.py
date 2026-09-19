@@ -31,6 +31,23 @@ class HardwareRequest(ScopedPiiModelMixin, models.Model):
     requester_contact_email = models.TextField(blank=True)
     requester_contact_phone = models.TextField(blank=True)
     requester_contact_verified = models.BooleanField(default=True)
+    # Upstream check-in provenance, captured at submit time. Present only on the
+    # `checked_in` request policy; blank everywhere else.
+    checkin_identity = models.ForeignKey(
+        "checkin.CheckinIdentity",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="hardware_requests",
+    )
+    # Mapped PII: a project name attached to an identified person is personal data.
+    checkin_project_name = models.TextField(blank=True, default="")
+    # NOT mapped, and deliberately not the raw upstream string either: the gate only
+    # admits one configured purpose, so this stores that canonical literal and
+    # therefore carries no per-person information. If the gate is ever relaxed to
+    # admit several purposes, this becomes per-person data and must be mapped then.
+    checkin_purpose = models.CharField(max_length=200, blank=True, default="")
+    checkin_verified_at = models.DateTimeField(null=True, blank=True)
     anonymous_idempotency_key_fingerprint = models.CharField(
         max_length=64,
         blank=True,

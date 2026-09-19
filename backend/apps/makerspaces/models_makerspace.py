@@ -2,21 +2,22 @@ from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.utils.crypto import get_random_string
 
-from apps.makerspaces.capabilities import (
-    default_enabled_features,
-    prune_features,
-    validate_capabilities,
-)
+from apps.makerspaces.capabilities import default_enabled_features
 from apps.makerspaces.module_registry import default_enabled_module_keys
 from apps.makerspaces.provenance import validate_actor_snapshot
-from apps.makerspaces.request_access import reconcile_enabled_modules
+from apps.makerspaces.request_access import (
+    MODE_CHECKED_IN,
+    MODE_CHOICES,
+    MODE_DISABLED,
+    MODES,
+)
+from apps.makerspaces.models_makerspace_lifecycle import MakerspaceLifecycleMixin
 from apps.makerspaces.models_makerspace_secrets import MakerspaceSecretsMixin
 from apps.makerspaces.validators import (
     DEFAULT_PRESENCE_PRESETS,
@@ -27,14 +28,15 @@ from apps.makerspaces.models import (
     default_branding_config,
     default_enabled_modules,
     default_theme_config,
+)
+from apps.makerspaces.models_common import (
     generate_domain_verification_token,
     generate_public_code,
     generate_publishable_key,
-    normalize_frontend_domain,
 )
 
 
-class Makerspace(MakerspaceSecretsMixin, models.Model):
+class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model):
     class LifecycleState(models.TextChoices):
         ACTIVE = "active", "Active"
         IMPORTING = "importing", "Importing"
@@ -83,7 +85,19 @@ class Makerspace(MakerspaceSecretsMixin, models.Model):
     # `membership` forces this off, because the anonymous branch of RequestSubmitView
     # runs before any membership guard and would otherwise walk straight past the
     # requirement the operator just switched on. See `request_access`.
-    anonymous_requests_enabled = models.BooleanField(default=False)
+    # Who may submit a borrow request without a membership. The DERIVED answer also
+    # depends on the `membership` module -- see `request_access` for the table and for
+    # why this is one mode rather than one boolean per option.
+    public_request_mode = models.CharField(
+        max_length=16,
+        choices=MODE_CHOICES,
+        default=MODE_DISABLED,
+    )
+    # The upstream check-in space this makerspace is bound to. Required before
+    # `public_request_mode` may be set to `checked_in`: the roster endpoint is
+    # deployment-global and carries no tenant, so without a binding two makerspaces on
+    # one deployment would admit exactly the same people.
+    checkin_space_id = models.IntegerField(null=True, blank=True)
     public_stats_enabled = models.BooleanField(default=False)
     public_stats_show_holder_names = models.BooleanField(default=False)
     public_print_status_lookup_policy = models.CharField(
@@ -226,6 +240,20 @@ class Makerspace(MakerspaceSecretsMixin, models.Model):
                 condition=Q(membership_dues_amount__gte=0),
                 name="makerspace_dues_nonnegative",
             ),
+            # An unrecognised mode reads as `disabled` in Python (`canonical_mode`),
+            # but the database should not hold one at all: it would be a silent
+            # downgrade an operator never sees in the console.
+            models.CheckConstraint(
+                condition=Q(public_request_mode__in=list(MODES)),
+                name="makerspace_public_request_mode_known",
+            ),
+            # The upstream roster is deployment-wide, so checked-in mode without a
+            # tenant binding would make every roster entry eligible for this space.
+            models.CheckConstraint(
+                condition=~Q(public_request_mode=MODE_CHECKED_IN)
+                | Q(checkin_space_id__isnull=False),
+                name="makerspace_checked_in_requires_space_id",
+            ),
         ]
 
     def __str__(self) -> str:
@@ -234,60 +262,3 @@ class Makerspace(MakerspaceSecretsMixin, models.Model):
     @property
     def geofence_effective(self) -> bool:
         return bool(self.geofence_enabled and self.geofence_latitude is not None and self.geofence_longitude is not None)
-
-    def save(self, *args, **kwargs):
-        self.public_code = (self.public_code or "").upper()
-        self.frontend_domain = normalize_frontend_domain(self.frontend_domain)
-        # Membership and account-less requests are mutually exclusive, and this is the
-        # ONE chokepoint every writer passes through: module install/uninstall, profile
-        # application, the /control/ capability matrix, setup_instance, seed_demo and a
-        # plain obj.save(). Enforcing it here rather than in each of them is what makes
-        # the state unreachable instead of merely discouraged -- see
-        # `request_access` for why the pair is impossible.
-        reconciled = reconcile_enabled_modules(
-            self.enabled_modules, self.anonymous_requests_enabled
-        )
-        if reconciled != self.anonymous_requests_enabled:
-            self.anonymous_requests_enabled = reconciled
-            # A partial save that did not name this field would otherwise change the
-            # attribute in memory and leave the row in the impossible state.
-            update_fields = kwargs.get("update_fields")
-            if update_fields is not None:
-                kwargs["update_fields"] = [*update_fields, "anonymous_requests_enabled"]
-        super().save(*args, **kwargs)
-
-    def clean(self):
-        if self.presence_preset_minutes:
-            validate_presence_presets(self.presence_preset_minutes)
-        # Drop features whose module is not in this row's set BEFORE validating. The
-        # module set is authoritative — `_canonical_modules` already normalizes rather
-        # than rejects (it adds core keys back), and this is the same class of
-        # normalization on the other axis.
-        #
-        # Without it a row can be born invalid and then never saved again: creating a
-        # makerspace with a narrow `enabled_modules` still takes the FIELD default for
-        # `enabled_features`, which includes the default-on `payments.enabled` and
-        # `mobile.push`. Those demand modules the row does not have, so `clean()` raised
-        # on every subsequent save — including saves that touched neither field, such as
-        # a Space Manager toggling public stats.
-        #
-        # The user-facing strictness is unaffected: the `/control/` capability matrix and
-        # `module_install` call `validate_capabilities` directly before saving, so a
-        # conflict the operator actually expressed is still reported there rather than
-        # silently cleared.
-        kept, _dropped = prune_features(
-            self.enabled_features or [], self.enabled_modules or []
-        )
-        self.enabled_modules, self.enabled_features = validate_capabilities(
-            self.enabled_modules or [], kept
-        )
-        if self.hidden_from_central_directory and not self.frontend_domain:
-            raise ValidationError(
-                {
-                    "hidden_from_central_directory": (
-                        "A frontend domain is required to hide a makerspace from the central directory."
-                    )
-                }
-            )
-        if self.geofence_enabled and not self.geofence_effective:
-            raise ValidationError({"geofence_enabled": "Set both latitude and longitude before enabling the geofence."})

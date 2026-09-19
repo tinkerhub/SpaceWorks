@@ -72,12 +72,22 @@ def test_legacy_scope_is_limited_to_entries_frozen_into_v1(monkeypatch):
     target = SimpleNamespace(pk=1)
     monkeypatch.setattr(scope_registry, "resolve_target", lambda *_args: (target, True))
     client = _principal([LEGACY_SCOPE])
+    exercised_legacy = False
+    exercised_post_cutover = False
 
     for (view_name, method), entry in SCOPE_REGISTRY.items():
         request = getattr(RequestFactory(), method.lower())("/registered/")
         request.resolver_match = SimpleNamespace(view_name=view_name, kwargs={})
-        assert entry.legacy_v1 is True
-        assert scope_registry.classify(request, client).verdict is True
+        verdict = scope_registry.classify(request, client).verdict
+        if entry.legacy_v1:
+            assert verdict is True
+            exercised_legacy = True
+        else:
+            assert verdict is False
+            exercised_post_cutover = True
+
+    assert exercised_legacy
+    assert exercised_post_cutover
 
     excluded = ScopeRegistryEntry(frozenset({PUBLIC_READ}), TARGET_GLOBAL)
     monkeypatch.setattr(scope_registry, "lookup", lambda *_args: excluded)

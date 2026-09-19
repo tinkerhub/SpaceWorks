@@ -4,9 +4,11 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db import InternalError, transaction
 
+from apps.checkin.models import CheckinIdentity
 from apps.machines import role_scope
 from apps.machines.models import Machine, MachineServiceRequest, MachineType, MakerspaceMachineTypePricing
-from apps.machines.service_workflow import accept, complete, start, submit
+from apps.machines.service_workflow import accept, collect, complete, record_manual_payment, start, submit
+from apps.makerspaces.walk_in_services import create_person_record
 from apps.payments.models import Payment
 from apps.payments.services import apply_webhook_event, mark_offline, waive
 from tests.payments.test_models import configured_settings
@@ -108,6 +110,47 @@ def test_completion_creates_payment_and_checkout_failure_never_blocks(monkeypatc
     assert complete(row, actor, actual_minutes=1, consumptions=[]).status == MachineServiceRequest.Status.COMPLETED
     payment = Payment.objects.get(subject_id=row.pk)
     assert (payment.amount, payment.currency) == (Decimal("3.00"), "usd")
+
+
+def test_checked_in_walk_in_completion_uses_counter_settlement():
+    space = make_space("c3-checkin-counter-settlement")
+    space.enabled_features = ["payments.enabled", "payments.machines"]
+    space.save(update_fields=["enabled_features", "updated_at"])
+    configured_settings(space)
+    staff = make_member("c3-checkin-counter-staff", space)
+    walk_in = create_person_record("Check-in counter walk-in")
+    CheckinIdentity.objects.create(makerspace=space, user=walk_in, mid="443")
+    row = service_request(
+        space,
+        walk_in,
+        config={"metering_unit": "minutes", "requires_booking": False},
+    )
+    MakerspaceMachineTypePricing.objects.create(
+        makerspace=space,
+        machine_type=row.assigned_machine.machine_type,
+        rate_per_unit="1.00",
+        flat_fee="2.00",
+        payment_enabled=True,
+    )
+
+    accept(row, staff)
+    start(row, staff, role_scope.EXEMPT, machine_id=row.assigned_machine_id)
+    completed = complete(row, staff, actual_minutes=1, consumptions=[])
+
+    # Counter settlement raises a real PENDING Payment. `Payment` is the single
+    # payment authority, so the historic columns on the request stay untouched.
+    assert (completed.payment_amount, completed.payment_status) == (None, "none")
+    payment = Payment.objects.get(
+        subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST,
+        subject_id=row.pk,
+    )
+    assert (payment.amount, payment.status) == (Decimal("3.00"), Payment.Status.PENDING)
+
+    settled = record_manual_payment(completed, staff)
+    payment.refresh_from_db()
+    assert payment.status == Payment.Status.PAID_OFFLINE
+    # Never-block: collection succeeds regardless of what is owed.
+    assert collect(settled, staff).status == MachineServiceRequest.Status.COLLECTED
 
 
 def test_reconciliation_expires_an_open_checkout_session(monkeypatch):

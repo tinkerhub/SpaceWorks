@@ -152,7 +152,12 @@ class ScopedPiiModelMixin(models.Model):
                 assert_mapped_write_allowed(self._mapped_write_fence_makerspace_id())
             if is_new and self.pk is None:
                 self._reserve_pk()
-            from apps.encryption.blind_index import active_generation, sync_event_hash, upsert_index
+            from apps.encryption.blind_index import (
+                active_generation,
+                sync_checkin_hash,
+                sync_event_hash,
+                upsert_index,
+            )
 
             generation = active_generation()
             encrypted, restore = {}, {}
@@ -187,6 +192,15 @@ class ScopedPiiModelMixin(models.Model):
                 sync_event_hash(self, restore.get(event_email.field_name, ""), generation)
                 if update_fields is not None:
                     update_fields.update({"email_exact_hash", "email_hash_generation"})
+                    kwargs["update_fields"] = update_fields
+            checkin_mid = next((item for item in self._mapped_values_for_save(update_fields, is_new=is_new)
+                                if item.index_kind == "checkin_exact"), None)
+            if checkin_mid is not None:
+                # A stale hash silently duplicates a person instead of erroring,
+                # splitting the principal's loan ownership and history.
+                sync_checkin_hash(self, restore.get(checkin_mid.field_name, ""), generation)
+                if update_fields is not None:
+                    update_fields.update({"mid_exact_hash", "mid_hash_generation"})
                     kwargs["update_fields"] = update_fields
             self.__dict__["_pii_writing"] = True
             if is_new:

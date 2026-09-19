@@ -9,3 +9,10 @@
 
     reverse_proxy frontend:80
 }
+
+# Expose the S3-compatible API through its dedicated storage hostname, matching Caddyfile.saas.
+# A Caddy site address cannot be omitted conditionally, so the default uses an internal
+# certificate for files.localhost instead of attempting public ACME when no domain is configured.
+{$STORAGE_DOMAIN:files.localhost} {
+    reverse_proxy minio:9000
+}

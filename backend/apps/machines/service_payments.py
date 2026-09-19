@@ -1,37 +1,43 @@
 """Machine-service charging boundary; payment failures never affect fulfilment."""
 
-from decimal import Decimal, InvalidOperation
-
 from django.db import transaction
 
 from apps.machines.models import MakerspaceMachineTypePricing
+from apps.machines.service_pricing import compute_amount
 from apps.payments.availability import online_payments_enabled
 from apps.payments.models import MakerspacePaymentSettings, Payment
 from apps.payments.services import create_checkout, create_payment
 
 
-def effective_quantity(service_request, machine_type):
-    config = machine_type.capability_config or {}
-    if config.get("metering_unit") == "minutes":
-        return _decimal(service_request.actual_minutes)
-    quantity = service_request.actual_consumed_quantity
-    if quantity is not None:
-        return _decimal(quantity)
-    return _decimal(service_request.actual_consumed_grams)
+def requires_counter_settlement(service_request):
+    requester = service_request.requester
+    # A check-in principal is a credentialless walk-in: it has no account and no way
+    # to reach an online checkout, so its debt must remain payable at the counter.
+    if requester is None or not requester.is_walk_in:
+        return False
+
+    from apps.checkin.models import CheckinIdentity
+
+    return CheckinIdentity.objects.filter(
+        user_id=requester.pk,
+        makerspace_id=service_request.makerspace_id,
+    ).exists()
 
 
 def create_for_completed_request(service_request, actor):
     try:
         with transaction.atomic():
             machine_type = service_request.assigned_machine.machine_type
-            if not online_payments_enabled(service_request.makerspace, "machines"):
+            if requires_counter_settlement(service_request) or not online_payments_enabled(
+                service_request.makerspace, "machines"
+            ):
                 return None
             pricing = MakerspaceMachineTypePricing.objects.filter(
                 makerspace=service_request.makerspace, machine_type=machine_type, payment_enabled=True
             ).first()
             if pricing is None:
                 return None
-            amount = (pricing.rate_per_unit * effective_quantity(service_request, machine_type) + pricing.flat_fee).quantize(Decimal("0.01"))
+            amount = compute_amount(service_request)
             if amount <= 0:
                 return None
             currency = MakerspacePaymentSettings.for_makerspace(service_request.makerspace).default_currency
@@ -57,11 +63,3 @@ def create_for_completed_request(service_request, actor):
     except Exception:
         pass
     return payment
-
-
-def _decimal(value):
-    try:
-        parsed = Decimal(str(value))
-    except (InvalidOperation, TypeError, ValueError):
-        return Decimal("0")
-    return parsed if parsed.is_finite() else Decimal("0")

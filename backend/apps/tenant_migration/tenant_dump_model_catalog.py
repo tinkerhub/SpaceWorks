@@ -6,7 +6,7 @@ from .tenant_dump_types import ModelDisposition, ModelRule, TableRule
 
 
 FIRST_PARTY_APP_LABELS = frozenset(
-    """accounts admin_api apiclients audit backup bookings boxes data_export
+    """accounts admin_api apiclients audit backup bookings boxes checkin data_export
     encryption events evidence hardware_requests integrations inventory machines
     maintenance makerspaces notifications operations organizations payments presence
     printing procurement roadmap separability tenant_migration updates warranty""".split()
@@ -24,7 +24,7 @@ THIRD_PARTY_INSTALLED_APP_LABELS = frozenset(
 # deriving this set from data_export.EXPORTED_MODELS would let it travel before a
 # Lane-D-specific review.
 PROJECTED_MODEL_LABELS = frozenset(
-    """accounts.User apiclients.ApiKeyRequest audit.AuditLog
+    """accounts.User apiclients.ApiKeyRequest audit.AuditLog checkin.CheckinIdentity
     backup.MakerspaceArchiveRecipient bookings.BookableSpace bookings.Booking boxes.Box
     boxes.BoxScan boxes.QrCode boxes.QrScanEvent events.EventSeries events.Event events.EventRegistration
     events.EventCheckInEvent events.EventFeedbackSurvey events.EventFeedbackResponse

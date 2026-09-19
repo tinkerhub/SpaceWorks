@@ -6,6 +6,7 @@ export type ServiceActionName =
   | "start"
   | "complete"
   | "fail"
+  | "record-manual-payment"
   | "collect"
   | "reprint";
 

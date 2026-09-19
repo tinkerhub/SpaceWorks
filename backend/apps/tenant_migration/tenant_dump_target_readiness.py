@@ -3,10 +3,13 @@
 from dataclasses import dataclass
 
 from django.apps import apps
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
 from apps.audit import services as audit
+from apps.checkin.identity import mid_hash
+from apps.checkin.models import CheckinIdentity
 from apps.encryption import services
 from apps.encryption.blind_index import (
     event_email_hash,
@@ -67,6 +70,7 @@ def rebuild_target_search_indexes(makerspace_id, *, actor=None, batch_size=500):
         _refuse("Target blind indexes must be empty before rebuilding.", "search_state_present")
     blind_count = rebuild_blind_indexes(makerspace, batch_size=batch_size)
     event_count = _rebuild_event_hashes(makerspace, batch_size=batch_size)
+    checkin_count = _rebuild_checkin_hashes(makerspace, batch_size=batch_size)
     audit.record(
         actor,
         "tenant_migration.target_blind_indexes_rebuilt",
@@ -75,6 +79,7 @@ def rebuild_target_search_indexes(makerspace_id, *, actor=None, batch_size=500):
         meta={
             "blind_indexes_created": blind_count,
             "event_hashes_created": event_count,
+            "checkin_hashes_created": checkin_count,
         },
     )
     return blind_count, event_count
@@ -169,6 +174,49 @@ def _rebuild_event_hashes(makerspace, *, batch_size):
     if pending:
         EventRegistration.objects.bulk_update(
             pending, ("email_exact_hash", "email_hash_generation")
+        )
+    return count
+
+
+def _rebuild_checkin_hashes(makerspace, *, batch_size):
+    if not settings.PII_ENCRYPTION_ENABLED:
+        return 0
+    generation = SearchKeyGeneration.objects.get(
+        status=SearchKeyGeneration.Status.ACTIVE
+    )
+    mapped = next(
+        field
+        for field in all_fields()
+        if field.model_label == "checkin.CheckinIdentity" and field.field_name == "mid"
+    )
+    rows = CheckinIdentity.objects.filter(makerspace=makerspace)
+    pending = []
+    count = 0
+    for identity in rows.iterator(chunk_size=batch_size):
+        envelope = identity.__dict__.get("mid")
+        if envelope:
+            plaintext = _decrypt_mapped(identity, mapped, envelope, makerspace.pk)
+            # Without this target-keyed lookup, resolve_principal silently creates a
+            # second person and splits the imported person's loan history.
+            identity.mid_exact_hash = mid_hash(
+                plaintext,
+                makerspace_id=makerspace.pk,
+                generation=generation,
+            )
+            identity.mid_hash_generation = generation
+            count += 1
+        else:
+            identity.mid_exact_hash = None
+            identity.mid_hash_generation = None
+        pending.append(identity)
+        if len(pending) == batch_size:
+            CheckinIdentity.objects.bulk_update(
+                pending, ("mid_exact_hash", "mid_hash_generation")
+            )
+            pending.clear()
+    if pending:
+        CheckinIdentity.objects.bulk_update(
+            pending, ("mid_exact_hash", "mid_hash_generation")
         )
     return count
 

@@ -45,6 +45,10 @@ export type HardwareRequest = {
   requester_display?: string;
   requester_contact_email?: string;
   requester_contact_phone?: string;
+  // Verified upstream check-in context, present only on a `checked_in` submission.
+  checkin_purpose?: string;
+  checkin_project_name?: string;
+  checkin_verified_at?: string | null;
   rejection_reason?: string;
   issue_evidence_id?: number | null;
   return_evidence_ids?: number[];

@@ -2,7 +2,7 @@
 
 Opt-in modules only work if choosing them is easy. A bare Frappe-style empty
 install would contradict this project's non-technical-install story, so
-`setup.sh`/`setup.ps1` and `setup_instance` offer three profiles instead of
+`setup.sh`/`setup.ps1` and `setup_instance` offer named profiles instead of
 leaving the operator to discover the module system on their own.
 """
 
@@ -13,6 +13,7 @@ CLOUD = "cloud"
 FULL = "full"
 LENDING = "lending"
 WORKSHOP = "workshop"
+CHECKIN = "checkin"
 RECOMMENDED = "recommended"
 EVERYTHING = "everything"
 
@@ -54,6 +55,16 @@ _WORKSHOP_EXTRAS = frozenset({
     "notifications", "email", "updates",
 })
 
+# A check-in-led makerspace: the upstream roster is the membership authority -- its
+# `mid` is the upstream membership ID -- so local membership or member accounts would
+# be a weaker second copy. It runs the whole inventory and machine/printer operation,
+# but money is handled at the counter rather than through online payments. Events and
+# bookings are outside that operational scope too.
+_CHECKIN_EXTRAS = _WORKSHOP_EXTRAS | frozenset({
+    "guest_handover", "bulk_import", "containers", "stock_transfers", "stocktake",
+    "qr_print_batches", "asset_units",
+})
+
 # The two deployment-shaped profiles. `cloud` is the module set that works on a single
 # Django process with no worker, no beat and no MinIO: everything here is either
 # request-driven or reachable from `run_scheduled_tasks`. `full` is every module, which
@@ -72,6 +83,7 @@ PROFILES = {
     FULL: "Every module, for a local server running the whole stack.",
     LENDING: "A tool library: the hardware lending lifecycle, no machines.",
     WORKSHOP: "A machine shop: machines, the service queue and maintenance.",
+    CHECKIN: "Full inventory and machine operations with check-in roster identity.",
     RECOMMENDED: "Core plus the inventory lifecycle, reports and machines.",
     EVERYTHING: "Every module (the pre-opt-in default).",
 }
@@ -101,6 +113,8 @@ def profile_modules(name):
         keys = core_module_keys() | _LENDING_EXTRAS
     elif name == WORKSHOP:
         keys = core_module_keys() | _WORKSHOP_EXTRAS
+    elif name == CHECKIN:
+        keys = core_module_keys() | _CHECKIN_EXTRAS
     else:
         keys = set(core_module_keys())
     return sorted(with_dependencies(keys))

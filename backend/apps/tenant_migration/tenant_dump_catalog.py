@@ -44,7 +44,10 @@ class TenantDumpCatalogError(AssertionError):
 # so this was recomputed after the merge rather than taken from either side.
 # Re-blessed again after both evidence retention models gained a normal auto primary key
 # so that it can travel with a tenant at all.
-CATALOG_SCHEMA_SHA256 = "3822e7a1d25be00cb59304f0afa3d576f59c63aa065a7b91d991156b33bd4c70"
+# Re-blessed a third time when the reinstated check-in programme merged in: neither
+# 3822e7a1 (events/organizations/retention) nor 5949a207 (check-in) describes the union,
+# so this is recomputed from the merged graph via schema_digest().
+CATALOG_SCHEMA_SHA256 = "aa1a4fdf0bda577282f074a83bdf167c08fe59b570356569a163e53030fa8c6f"
 
 
 def catalog_models(apps_registry=apps):

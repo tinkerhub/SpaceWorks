@@ -12,6 +12,7 @@ from apps.hardware_requests.models import HardwareRequest, PublicToolLoan
 from apps.inventory.models import InventoryProduct
 from apps.makerspaces.models import Makerspace
 from apps.makerspaces.module_registry import core_module_keys
+from apps.makerspaces.request_access import MODE_ANYONE, MODE_DISABLED
 from tests.accounts.oidc_browser_helpers import ORIGIN, make_provider, metadata, start
 from tests.accounts.test_device_auth import attested_login
 from tests.handout_roles import make_handout_member
@@ -48,7 +49,10 @@ def _space(slug, *optional, anonymous=False):
         name=slug,
         slug=slug,
         enabled_modules=sorted(CORE | set(optional)),
-        anonymous_requests_enabled=anonymous,
+        # The `anonymous_requests_enabled` boolean this test was written against was
+        # replaced by the single `public_request_mode` (migration 0068), so that
+        # "account-less" and "checked-in" cannot both be on. True maps to MODE_ANYONE.
+        public_request_mode=MODE_ANYONE if anonymous else MODE_DISABLED,
         public_inventory_enabled=True,
     )
 
@@ -187,7 +191,7 @@ def test_membership_off_supports_account_and_anyone_request_policies_but_on_requ
 
     assert account_response.status_code == 201, account_response.data
     assert anyone_response.status_code == 201, anyone_response.data
-    assert members_space.anonymous_requests_enabled is False
+    assert members_space.public_request_mode == MODE_DISABLED
     assert member_required.status_code == 403
     assert member_required.data["code"] == "membership_required"
     assert anonymous_closed.status_code == 401

@@ -104,3 +104,21 @@ def sync_event_hash(instance, plaintext, generation=None):
         return
     instance.email_exact_hash = event_email_hash(plaintext, generation=generation.generation, makerspace_id=instance.event.makerspace_id, event_id=instance.event_id)
     instance.email_hash_generation = generation
+
+
+def sync_checkin_hash(instance, plaintext, generation=None):
+    if not settings.PII_ENCRYPTION_ENABLED:
+        return
+    from apps.checkin.identity import mid_hash
+
+    generation = generation or active_generation()
+    if not plaintext:
+        instance.mid_exact_hash = None
+        instance.mid_hash_generation = None
+        return
+    instance.mid_exact_hash = mid_hash(
+        plaintext,
+        makerspace_id=instance.makerspace_id,
+        generation=generation,
+    )
+    instance.mid_hash_generation = generation

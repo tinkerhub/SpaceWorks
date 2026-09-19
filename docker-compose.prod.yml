@@ -125,6 +125,15 @@ services:
       # Absolute base for links in outbound email. Unset => links are emitted as bare
       # paths (e.g. "/reset-password?...") and password reset is unusable.
       PUBLIC_APP_BASE_URL: ${PUBLIC_APP_BASE_URL:-}
+      # Upstream check-in roster for the `checked_in` public-request mode. Blank leaves the
+      # integration dormant; a tenant must also be switched into the mode and bound to a
+      # `checkin_space_id`. Absent here, setting it in the host .env never reaches Django.
+      CHECKIN_API_URL: ${CHECKIN_API_URL:-}
+      CHECKIN_TIMEOUT: ${CHECKIN_TIMEOUT:-5.0}
+      CHECKIN_CACHE_SECONDS: ${CHECKIN_CACHE_SECONDS:-30}
+      CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
+      CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
+      CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
       API_CLIENT_ENC_KEY: ${API_CLIENT_ENC_KEY:-}
       AUDIT_MAC_MASTER_KEY: ${AUDIT_MAC_MASTER_KEY:-}
       AUDIT_ATTESTATION_DEPLOYMENT_ID: ${AUDIT_ATTESTATION_DEPLOYMENT_ID:-}
@@ -144,6 +153,15 @@ services:
       # set it true only when a TLS proxy forwards X-Forwarded-Proto: https.
       ENABLE_HTTPS: ${ENABLE_HTTPS:-false}
       TRUST_X_FORWARDED_PROTO: ${TRUST_X_FORWARDED_PROTO:-false}
+      # Staff sessions ride a refresh cookie. settings.py defaults it to SameSite=None +
+      # Secure, which is right for a split-origin HTTPS deployment (frontend on another
+      # host) but unusable on a plain-HTTP origin: the browser silently drops a Secure
+      # cookie, so login hands out a short-lived access token and then refresh, reload
+      # and browser restart all fail with no error anywhere. The defaults below match
+      # settings.py, so existing deployments are unaffected -- but absent from this
+      # block, setting either value in .env never reached Django at all.
+      AUTH_COOKIE_SAMESITE: ${AUTH_COOKIE_SAMESITE:-None}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-True}
       # The nginx frontend container is the one proxy in front of gunicorn, and it
       # appends the client to X-Forwarded-For. Unset, DRF keys throttles on REMOTE_ADDR,
       # which is nginx -- so every user shares one rate-limit bucket. Set this to 2 if a

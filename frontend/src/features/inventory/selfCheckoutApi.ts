@@ -1,4 +1,9 @@
 import { tenantPublicRequest } from "../../lib/api";
+import type {
+  PublicToolCheckout,
+  PublicToolEvidenceUrlRequest,
+  PublicToolScan,
+} from "../../generated/api";
 
 export type PublicToolLoanResult = {
   public_token: string;
@@ -17,11 +22,7 @@ export type PublicEvidenceUploadResponse = {
 
 export function requestPublicEvidenceUpload(
   slug: string,
-  body: {
-    evidence_type: "issue" | "return";
-    content_type: string;
-    size_bytes?: number;
-  },
+  body: PublicToolEvidenceUrlRequest,
 ) {
   return tenantPublicRequest<PublicEvidenceUploadResponse>(
     slug,
@@ -56,11 +57,7 @@ export async function uploadPublicEvidenceFile(
 
 export function checkoutTool(
   slug: string,
-  body: {
-    payload: string;
-    evidence_id: number;
-    remark?: string;
-  },
+  body: PublicToolCheckout,
 ) {
   return tenantPublicRequest<PublicToolLoanResult>(
     slug,
@@ -74,11 +71,7 @@ export function checkoutTool(
 
 export function returnTool(
   slug: string,
-  body: {
-    payload: string;
-    evidence_id: number;
-    remark: string;
-  },
+  body: PublicToolScan,
 ) {
   return tenantPublicRequest<PublicToolLoanResult>(
     slug,

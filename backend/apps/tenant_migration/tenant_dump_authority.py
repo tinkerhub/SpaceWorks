@@ -81,9 +81,13 @@ _ENTRIES = (
         "frontend_domain_status domain_verification_token domain_verified_at "
         "frontend_domain_changed_at cors_allowed_origins enabled_modules enabled_features "
         "resource_limit_overrides hidden_from_central_directory storage_bytes_used "
+        "public_request_mode checkin_space_id "
         "archived_at archived_by lifecycle_state",
         D.RESET,
-        "Admission, routing, capabilities, lifecycle and accounting are target policy.",
+        "Admission, routing, capabilities, lifecycle and accounting are target policy. "
+        "The check-in roster is DEPLOYMENT-global, so a source `checked_in` mode and its "
+        "space binding carry no authority here: importing them live would either 503 "
+        "forever or admit an upstream roster the target never authorized.",
     ),
     *_same(
         "makerspaces.Makerspace",

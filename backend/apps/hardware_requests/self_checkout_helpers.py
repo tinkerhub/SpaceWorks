@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from apps.boxes.models import Box, QrCode
 from apps.hardware_requests.models import HardwareRequest, HardwareRequestItem, PublicToolLoan
-from apps.hardware_requests.workflow_errors import RequestValidationError
+from apps.hardware_requests.workflow_errors import InvalidTransition, RequestValidationError
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 
@@ -18,6 +18,40 @@ def _locked_qr(makerspace, payload):
     if qr is None:
         raise RequestValidationError("QR code is not active for this makerspace.")
     return qr
+
+
+def _locked_qrs_for_payloads(makerspace, payloads):
+    unique_payloads = set(payloads)
+    qrs_by_payload = {
+        qr.payload: qr
+        for qr in QrCode.objects.select_for_update()
+        .filter(
+            payload__in=unique_payloads,
+            makerspace=makerspace,
+            status=QrCode.Status.ACTIVE,
+        )
+        .order_by("pk")
+    }
+    if len(qrs_by_payload) != len(unique_payloads):
+        raise RequestValidationError("QR code is not active for this makerspace.")
+    return [qrs_by_payload[payload] for payload in payloads]
+
+
+def _reject_overlapping_checkout_targets(qrs):
+    box_ids = {
+        qr.target_id for qr in qrs if qr.target_type == QrCode.TargetType.BOX
+    }
+    asset_ids = {
+        qr.target_id for qr in qrs if qr.target_type == QrCode.TargetType.ASSET
+    }
+    if box_ids and asset_ids and InventoryAsset.objects.filter(
+        pk__in=asset_ids,
+        box_id__in=box_ids,
+        makerspace_id__in={qr.makerspace_id for qr in qrs},
+    ).exists():
+        raise InvalidTransition(
+            "A scanned tool is inside a scanned box; scan either the box or the tool, not both."
+        )
 
 
 def _checkout_target(qr, *, require_public=True):

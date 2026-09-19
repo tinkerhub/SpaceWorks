@@ -1,4 +1,15 @@
-"""Reviewed JSON fields whose embedded reference semantics need declarations."""
+"""Which exported columns hold JSON, by `(model_label, field_name)`.
+
+Split out of `references.py` when that file crossed the repo's 300-line hard ceiling.
+It is a pure data table with no logic and no imports from the rest of the package,
+which makes it the cleanest thing to lift out: `references` re-exports it as
+`JSON_FIELDS`, so every existing importer is unaffected.
+
+A JSON column is listed here so the export and tenant-migration passes know to walk
+into its contents rather than treat it as an opaque scalar. A new JSON field that is
+missing from this set is invisible to those passes — the drift guards in
+`tests/data_export` are what catch that.
+"""
 
 JSON_REFERENCE_FIELDS = frozenset(
     {
@@ -6,6 +17,8 @@ JSON_REFERENCE_FIELDS = frozenset(
         ("apiclients.ApiClient", "allowed_origins"),
         ("apiclients.ApiKeyRequest", "allowed_origins"),
         ("audit.AuditLog", "meta"),
+        # Phase 7 imported-actor provenance. Each holds actor_username,
+        # actor_display, source_user_id and recorded_at.
         ("makerspaces.MakerspaceMembership", "witnessed_actor_snapshot"),
         ("makerspaces.MakerspaceMembership", "verified_actor_snapshot"),
         ("makerspaces.MakerspaceMembership", "activated_actor_snapshot"),

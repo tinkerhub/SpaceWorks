@@ -52,6 +52,10 @@ RELATIONAL_USER_FIELDS = frozenset(
         ("audit.AuditLog", "actor"),
         ("bookings.BookableSpace", "created_by"),
         ("bookings.Booking", "member"),
+        # The check-in principal. Included in the closure like any other person
+        # reference: a checked-in requester IS a person for export purposes, which
+        # is the whole reason principals are per-mid rather than one sentinel.
+        ("checkin.CheckinIdentity", "user"),
         ("boxes.BoxScan", "actor"),
         ("boxes.QrCode", "created_by"),
         ("boxes.QrScanEvent", "actor"),

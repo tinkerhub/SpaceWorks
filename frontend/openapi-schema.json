@@ -8287,6 +8287,71 @@
                 }
             }
         },
+        "/api/v1/admin/machine-service/requests/{id}/record-manual-payment": {
+            "post": {
+                "operationId": "api_v1_admin_machine_service_requests_record_manual_payment_create",
+                "summary": "Record a manual machine service payment",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin machine service"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MachineServiceRequest"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid service request input."
+                    },
+                    "401": {
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "description": "Machine management permission required."
+                    },
+                    "404": {
+                        "description": "Service request was not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Service workflow conflict."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/machine-service/requests/{id}/reject": {
             "post": {
                 "operationId": "api_v1_admin_machine_service_requests_reject_create",
@@ -37928,6 +37993,136 @@
                 }
             }
         },
+        "/api/v1/public/{makerspace_slug}/checkin/lookup": {
+            "post": {
+                "operationId": "api_v1_public_checkin_lookup_create",
+                "summary": "Find your check-in entry by name",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Public requests"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinLookupRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinLookupRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinLookupRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CheckinMatch"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid request."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Permission denied."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Workflow conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Too many requests."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Service unavailable."
+                    }
+                }
+            }
+        },
         "/api/v1/public/{makerspace_slug}/event-calendar/{raw_token}.ics": {
             "get": {
                 "operationId": "api_v1_public_event_calendar_.ics_retrieve",
@@ -38663,7 +38858,7 @@
         "/api/v1/public/{makerspace_slug}/machine-service-requests": {
             "post": {
                 "operationId": "api_v1_public_machine_service_requests_create",
-                "summary": "Submit a machine service request as a member",
+                "summary": "Submit a public machine service request",
                 "parameters": [
                     {
                         "in": "path",
@@ -38700,7 +38895,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "201": {
@@ -38772,6 +38968,16 @@
                             }
                         },
                         "description": "Request rate limit exceeded."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster is unavailable."
                     }
                 }
             }
@@ -38881,7 +39087,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "201": {
@@ -38893,6 +39100,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster is unavailable."
                     }
                 }
             }
@@ -38936,7 +39153,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "201": {
@@ -38948,6 +39166,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster is unavailable."
                     }
                 }
             }
@@ -39917,7 +40145,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "201": {
@@ -40059,7 +40288,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "201": {
@@ -40212,7 +40442,8 @@
                 "security": [
                     {
                         "jwtAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -40960,6 +41191,20 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "checkin_purpose": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "checkin_project_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "checkin_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "status": {
                         "type": "string",
                         "readOnly": true
@@ -41052,6 +41297,9 @@
                     "accepted_at",
                     "accepted_by",
                     "assigned_box_label",
+                    "checkin_project_name",
+                    "checkin_purpose",
+                    "checkin_verified_at",
                     "closed_at",
                     "created_at",
                     "id",
@@ -43297,12 +43545,19 @@
                 "type": "object",
                 "properties": {
                     "reason": {
-                        "$ref": "#/components/schemas/ReasonEnum"
+                        "$ref": "#/components/schemas/CertificateRevokeReasonEnum"
                     }
                 },
                 "required": [
                     "reason"
                 ]
+            },
+            "CertificateRevokeReasonEnum": {
+                "enum": [
+                    "staff_revoked"
+                ],
+                "type": "string",
+                "description": "* `staff_revoked` - staff_revoked"
             },
             "CertificateSummary": {
                 "type": "object",
@@ -43410,6 +43665,71 @@
                 ],
                 "type": "string",
                 "description": "* `email` - Email\n* `telegram` - Telegram\n* `slack` - Slack\n* `mattermost` - Mattermost\n* `discord` - Discord\n* `native_push` - Native push"
+            },
+            "CheckinLookupRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "CheckinMatch": {
+                "type": "object",
+                "description": "One roster entry that matched the typed name.\n\n`mid` is returned so the client can send back WHICH match it confirmed, and the\nserver re-verifies it against a fresh roster on submit -- this response is never\na token. `avatar` is what makes two people sharing a display name\ndistinguishable, which is the whole reason the confirm step exists.",
+                "properties": {
+                    "mid": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
+                    "purpose": {
+                        "type": "string"
+                    },
+                    "project_name": {
+                        "type": "string"
+                    },
+                    "eligible": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CheckinMatchReasonEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "avatar",
+                    "eligible",
+                    "mid",
+                    "name",
+                    "project_name",
+                    "purpose",
+                    "reason"
+                ]
+            },
+            "CheckinMatchReasonEnum": {
+                "enum": [
+                    "purpose",
+                    "project",
+                    "expired",
+                    "space"
+                ],
+                "type": "string",
+                "description": "* `` - eligible\n* `purpose` - purpose\n* `project` - project\n* `expired` - expired\n* `space` - space"
             },
             "CheckoutUrl": {
                 "type": "object",
@@ -49574,6 +49894,23 @@
                         "nullable": true,
                         "readOnly": true
                     },
+                    "payment_amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "payment_status": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "paid_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "run_machine_model": {
                         "type": "string",
                         "readOnly": true
@@ -49616,7 +49953,10 @@
                     "machine",
                     "machine_type",
                     "metering_unit",
+                    "paid_at",
                     "payment",
+                    "payment_amount",
+                    "payment_status",
                     "planned_grams",
                     "planned_quantity",
                     "queue_id",
@@ -58144,6 +58484,14 @@
                     "website": {
                         "type": "string"
                     },
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "machine_id": {
                         "type": "integer",
                         "minimum": 1
@@ -58579,6 +58927,14 @@
                     "website": {
                         "type": "string"
                     },
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "queue_id": {
                         "type": "integer",
                         "nullable": true
@@ -58659,6 +59015,14 @@
             "PublicPrinterUpload": {
                 "type": "object",
                 "properties": {
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "queue_id": {
                         "type": "integer",
                         "nullable": true
@@ -59326,9 +59690,25 @@
             "PublicToolCheckout": {
                 "type": "object",
                 "properties": {
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "payload": {
                         "type": "string",
                         "maxLength": 64
+                    },
+                    "qr_payloads": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 64
+                        },
+                        "maxItems": 50
                     },
                     "evidence_id": {
                         "type": "integer"
@@ -59338,13 +59718,20 @@
                     }
                 },
                 "required": [
-                    "evidence_id",
-                    "payload"
+                    "evidence_id"
                 ]
             },
             "PublicToolEvidenceUrlRequest": {
                 "type": "object",
                 "properties": {
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "evidence_type": {
                         "$ref": "#/components/schemas/PublicToolEvidenceUrlRequestEvidenceTypeEnum"
                     },
@@ -59414,6 +59801,14 @@
             "PublicToolScan": {
                 "type": "object",
                 "properties": {
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
                     "payload": {
                         "type": "string",
                         "maxLength": 64
@@ -60000,13 +60395,6 @@
                     "status"
                 ]
             },
-            "ReasonEnum": {
-                "enum": [
-                    "staff_revoked"
-                ],
-                "type": "string",
-                "description": "* `staff_revoked` - staff_revoked"
-            },
             "ReceiptEnvelope": {
                 "type": "object",
                 "properties": {
@@ -60586,10 +60974,11 @@
             },
             "RequestAccessEnum": {
                 "enum": [
-                    "anyone"
+                    "anyone",
+                    "checked_in"
                 ],
                 "type": "string",
-                "description": "* `anyone` - anyone"
+                "description": "* `anyone` - anyone\n* `checked_in` - checked_in"
             },
             "RequestItemInput": {
                 "type": "object",
@@ -60637,6 +61026,14 @@
                     "contact_phone": {
                         "type": "string",
                         "maxLength": 32
+                    },
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
                     },
                     "requested_for": {
                         "type": "string",

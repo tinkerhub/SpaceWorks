@@ -27,6 +27,7 @@ from apps.makerspaces.models import (
     MakerspaceMembership,
     MemberProfile,
 )
+from apps.makerspaces.request_access import ACCOUNTS, effective_policy
 from apps.tenant_migration.tenant_dump_raw import sanitize_record
 from tests.tenant_migration.tenant_dump_d3_helpers import manager, operator
 
@@ -76,6 +77,28 @@ def test_public_machine_visibility_uses_post_projection_module_and_visibility_va
     assert projected_machine["is_public"] is True
     assert projected_machine["is_active"] is True
     assert response.status_code == 404
+
+
+def test_checked_in_source_tenant_lands_closed_without_a_target_roster_binding():
+    space = Makerspace.objects.create(
+        name="D8 checked-in admission",
+        slug="d8-checked-in-admission",
+        enabled_modules=[],
+        public_request_mode="checked_in",
+        checkin_space_id=41,
+    )
+    assert space.public_request_mode == "checked_in"
+
+    projected = _projected(Makerspace, space)
+    Makerspace.objects.filter(pk=space.pk).update(
+        public_request_mode=projected["public_request_mode"],
+        checkin_space_id=projected["checkin_space_id"],
+    )
+    space.refresh_from_db()
+
+    assert projected["public_request_mode"] == "disabled"
+    assert projected["checkin_space_id"] is None
+    assert effective_policy(space) == ACCOUNTS
 
 
 def test_public_checkout_eligibility_uses_both_post_projection_reset_flags():

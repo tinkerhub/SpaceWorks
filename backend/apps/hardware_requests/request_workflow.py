@@ -29,6 +29,12 @@ class RequesterSnapshot:
     email: str
     phone: str
     contact_verified: bool
+    # Upstream check-in provenance, on the `checked_in` policy only. The identity is
+    # the durable principal; purpose and project are the operator-visible "what were
+    # they here to do", which the request review card and the reports show.
+    checkin_identity: object = None
+    checkin_purpose: str = ""
+    checkin_project_name: str = ""
 
 
 def submit_request(
@@ -67,6 +73,12 @@ def submit_request(
             requester_contact_email=contact_snapshot.email,
             requester_contact_phone=contact_snapshot.phone,
             requester_contact_verified=contact_snapshot.contact_verified,
+            checkin_identity=contact_snapshot.checkin_identity,
+            checkin_purpose=contact_snapshot.checkin_purpose,
+            checkin_project_name=contact_snapshot.checkin_project_name,
+            checkin_verified_at=(
+                timezone.now() if contact_snapshot.checkin_identity is not None else None
+            ),
             anonymous_idempotency_key_fingerprint=idempotency_key_fingerprint,
             anonymous_payload_fingerprint=payload_fingerprint,
             status=HardwareRequest.Status.PENDING_APPROVAL,
@@ -82,11 +94,22 @@ def submit_request(
                 for item in items
             ]
         )
+        # Audit meta carries the POLICY, never the project name and never the mid or
+        # a fingerprint of it. The sanitizer only recognises email/IP shapes, so
+        # anything else here would sit in an append-only log forever, and a stable
+        # per-person fingerprint would additionally make every request that person
+        # ever submits permanently linkable. The detail lives on the request row,
+        # which is purgeable. See `docs/INVARIANTS.md` on append-only PII.
         audit.record(
             audit_actor,
             "request.submitted",
             makerspace=makerspace,
             target=request,
+            meta=(
+                {"request_access": "checked_in"}
+                if contact_snapshot.checkin_identity is not None
+                else None
+            ),
         )
         notifications.notify_request_submitted(request)
         emit_notification(

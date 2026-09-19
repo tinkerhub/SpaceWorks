@@ -37,7 +37,7 @@ def create_walk_in_member(actor, makerspace, *, display_name, email="", phone=""
         # concurrent role edit and walk-in creation otherwise take the two rows in
         # opposite orders and deadlock.
         makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
-        user = _new_user(display_name, email, phone)
+        user = create_person_record(display_name, email, phone)
         membership = _activate_membership(
             actor, makerspace, user, _member_role(makerspace), source="walk_in"
         )
@@ -56,8 +56,14 @@ def create_walk_in_member(actor, makerspace, *, display_name, email="", phone=""
         return membership
 
 
-def _new_user(display_name, email, phone):
-    """A fresh person record. This path NEVER binds to an existing account.
+def create_person_record(display_name, email="", phone=""):
+    """A fresh person record, with NO membership. This path NEVER binds to an existing account.
+
+    Public because it has a second caller: `apps.checkin.identity` mints one per
+    upstream check-in identity, deliberately WITHOUT the membership that
+    `create_walk_in_member` adds. A makerspace running the check-in gate has the
+    `membership` module off, so there is no membership to create and inventing a
+    tenant-binding row would contradict the operator's configuration.
 
     A typed email that already belongs to someone is refused rather than attached, and
     that refusal is the security boundary of this endpoint. Binding an account to a

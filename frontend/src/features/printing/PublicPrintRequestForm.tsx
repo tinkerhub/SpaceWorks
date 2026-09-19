@@ -1,4 +1,4 @@
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import type { Dispatch, FormEvent, ReactNode, SetStateAction } from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 import { Card, EmptyState } from "../../components/ui";
@@ -58,6 +58,8 @@ type PrintDetailsFormProps = {
   screenshotFiles: File[];
   setScreenshotFiles: Dispatch<SetStateAction<File[]>>;
   submitPending: boolean;
+  identityReady?: boolean;
+  identityStep?: ReactNode;
   submitError?: Error | null;
   uploadProgress: string;
   website: string;
@@ -74,6 +76,8 @@ export function PrintDetailsForm({
   screenshotFiles,
   setScreenshotFiles,
   submitPending,
+  identityReady = true,
+  identityStep,
   submitError,
   uploadProgress,
   website,
@@ -83,6 +87,7 @@ export function PrintDetailsForm({
   const noAvailablePools = poolsQuery.isSuccess && (poolsQuery.data?.length ?? 0) === 0;
   return (
     <Card>
+      {identityStep ? <div className="mb-4">{identityStep}</div> : null}
       <h2 className="title-panel text-secondary-ink">
         Print Details
       </h2>
@@ -97,7 +102,7 @@ export function PrintDetailsForm({
           value={website}
           onChange={(event) => onWebsiteChange(event.target.value)}
         />
-        <fieldset className="space-y-4" disabled={submitPending}>
+        <fieldset className="space-y-4" disabled={submitPending || !identityReady}>
           <TextInput
             label="Title"
             required
@@ -216,6 +221,7 @@ export function PrintDetailsForm({
           className="desk-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
           disabled={
             !form.title.trim() ||
+            !identityReady ||
             submitPending
           }
           type="submit"

@@ -54,6 +54,7 @@ EXPECTED = dict(
             "domain_verified_at frontend_domain_changed_at cors_allowed_origins "
             "enabled_modules enabled_features resource_limit_overrides "
             "hidden_from_central_directory storage_bytes_used archived_at archived_by "
+            "public_request_mode checkin_space_id "
             "lifecycle_state staff_notifications_enabled "
             "booking_requester_notifications_enabled public_api_key smtp_host smtp_port "
             "smtp_username smtp_password smtp_use_tls smtp_use_ssl smtp_from_email "

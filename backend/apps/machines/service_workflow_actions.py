@@ -170,6 +170,8 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
 
 def complete(service_request, actor, *, actual_minutes, consumptions, actual_grams=None, actual_quantity=None):
     with transaction.atomic():
+        from apps.machines.service_payments import create_for_completed_request, requires_counter_settlement
+        from apps.payments.availability import online_payments_enabled
         _assert_request_write_allowed(service_request)
         locked = _locked_request(service_request)
         _require_module(locked.makerspace)
@@ -188,8 +190,33 @@ def complete(service_request, actor, *, actual_minutes, consumptions, actual_gra
         _release_queue_machine(locked)
         _audit_transition(actor, locked, "completed")
         _notify_after_commit(locked, "completed")
-        from apps.machines.service_payments import create_for_completed_request
-        create_for_completed_request(locked, actor)
+        # Never-block: payment work must never roll back a valid completion. Resolving the
+        # regime reads makerspace payment settings, so it can raise -- and it used to run
+        # before the save and outside every guard, which took the whole completion down with
+        # it. On failure fall through to create_for_completed_request(), which repeats this
+        # same check inside its own try/atomic and no-ops safely.
+        try:
+            counter_settlement = requires_counter_settlement(locked) or not online_payments_enabled(
+                locked.makerspace, "machines"
+            )
+        except Exception:
+            counter_settlement = False
+        if counter_settlement:
+            try:
+                from apps.machines.service_pricing import compute_amount
+                from apps.payments.models import MakerspacePaymentSettings, Payment
+                from apps.payments.offline_payments import create_offline_payment
+                create_offline_payment(
+                    makerspace=locked.makerspace, subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST,
+                    subject_id=locked.pk, member=locked.member or locked.requester,
+                    amount=compute_amount(locked),
+                    currency=MakerspacePaymentSettings.for_makerspace(locked.makerspace).default_currency,
+                    created_by=actor,
+                )
+            except Exception:
+                pass
+        else:
+            create_for_completed_request(locked, actor)
         return locked
 
 
@@ -241,6 +268,23 @@ def collect(service_request, actor):
         return locked
 
 
+def record_manual_payment(service_request, actor):
+    with transaction.atomic():
+        from apps.payments.models import Payment
+        from apps.payments.reconciliation import mark_offline
+        _assert_request_write_allowed(service_request)
+        locked = _locked_request(service_request)
+        _require_module(locked.makerspace)
+        payment = Payment.objects.select_for_update().filter(
+            makerspace_id=locked.makerspace_id, subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST,
+            subject_id=locked.pk, status=Payment.Status.PENDING).first()
+        if payment is None:
+            raise ServiceInvalidTransition("Only pending payments can be recorded as paid.")
+        mark_offline(payment, actor)
+        _audit_transition(actor, locked, "manual_payment_recorded")
+        return locked
+
+
 def create_reprint(service_request, actor):
     """Create an accepted child request that retains the original attachment root."""
     with transaction.atomic():
@@ -260,4 +304,3 @@ def create_reprint(service_request, actor):
         )
         _audit_transition(actor, child, "reprint_created", extra={"reprint_of_id": root.pk})
         return child
-

@@ -5,15 +5,18 @@ import {
   requestPublicEvidenceUpload,
   uploadPublicEvidenceFile,
 } from "./selfCheckoutApi";
+import type { CheckinMatch } from "./api";
 
 export function PublicEvidenceUpload({
   slug,
   evidenceType,
+  checkinIdentity,
   disabled = false,
   onUploaded,
 }: {
   slug: string;
   evidenceType: "issue" | "return";
+  checkinIdentity?: Pick<CheckinMatch, "mid" | "name">;
   disabled?: boolean;
   onUploaded: (evidenceId: number | null) => void;
 }) {
@@ -44,6 +47,12 @@ export function PublicEvidenceUpload({
         evidence_type: evidenceType,
         content_type: file.type,
         size_bytes: file.size,
+        ...(checkinIdentity
+          ? {
+              checkin_mid: checkinIdentity.mid,
+              name: checkinIdentity.name,
+            }
+          : {}),
       });
       await uploadPublicEvidenceFile(presigned, file);
       setStatus("done");

@@ -4,13 +4,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card } from "../../components/ui/Card";
 import type { RequestCartItem } from "../../types/inventory";
 import { BorrowRequestCard } from "./BorrowRequestCard";
-import { getAccessToken, refreshAccessToken } from "../../lib/api";
-import { submitPublicRequest } from "./api";
+import { getAccessToken, memberRequest, refreshAccessToken } from "../../lib/api";
+import { submitPublicRequest, type CheckinMatch } from "./api";
+import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
+import { PublicRequestHeader } from "./PublicRequestHeader";
 import { PublicToolScanPanel } from "./PublicToolScanPanel";
 
 type ActiveTab = "borrow" | "scan";
-
+type MembershipProbe = {
+  memberships: Array<{ makerspace: { slug?: string }; membership_status: string }>;
+};
 type PublicRequestPanelProps = {
   items: RequestCartItem[];
   makerspaceSlug: string;
@@ -18,7 +22,7 @@ type PublicRequestPanelProps = {
   disabled?: boolean;
   // The makerspace's policy, not the caller's state. Present only when the space opted
   // into account-less borrow requests.
-  requestAccess?: "anyone";
+  requestAccess?: "anyone" | "checked_in";
 };
 
 // The header is required for account-less submissions, and it is what makes a retry
@@ -48,6 +52,7 @@ export function PublicRequestPanel({
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [website, setWebsite] = useState("");
+  const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(null);
   const [publicToken, setPublicToken] = useState("");
   const idempotencyKey = useRef(newIdempotencyKey());
   // A signed-in member who RELOADED this page holds no in-memory access token -- it lives
@@ -58,7 +63,19 @@ export function PublicRequestPanel({
   const sessionProbe = useQuery({
     queryKey: ["public-request-session", makerspaceSlug],
     queryFn: async () => (getAccessToken() ? true : refreshAccessToken()),
-    enabled: requestAccess === "anyone" && !disabled,
+    // Runs for BOTH account-less policies. A signed-in member whose access token
+    // needs a cookie refresh would otherwise be classified as anonymous and filed
+    // against the shared anonymous principal.
+    enabled:
+      (requestAccess === "anyone" || requestAccess === "checked_in") && !disabled,
+    staleTime: Infinity,
+    retry: false,
+  });
+  const authenticated = sessionProbe.data === true || Boolean(getAccessToken());
+  const membershipProbe = useQuery({
+    queryKey: ["public-request-memberships", makerspaceSlug],
+    queryFn: () => memberRequest<MembershipProbe>("/memberships/me"),
+    enabled: requestAccess === "checked_in" && sessionProbe.isFetched && authenticated,
     staleTime: Infinity,
     retry: false,
   });
@@ -67,9 +84,16 @@ export function PublicRequestPanel({
   // these contact fields -- so asking for them would promise something the stored request
   // does not honour. Until the probe settles we assume a member: claiming "no account
   // needed" and then discovering a session would be the worse way round.
-  const authenticated = Boolean(getAccessToken());
   const accountLess =
     requestAccess === "anyone" && sessionProbe.isFetched && !authenticated;
+  const activeMembership = membershipProbe.data?.memberships.some(
+    (row) => row.makerspace.slug === makerspaceSlug && row.membership_status === "active",
+  ) ?? false;
+  const checkedIn =
+    requestAccess === "checked_in" &&
+    sessionProbe.isFetched &&
+    (!authenticated || membershipProbe.isFetched) &&
+    !activeMembership;
   const totalItems = useMemo(
     () => items.reduce((total, item) => total + item.quantity, 0),
     [items],
@@ -93,8 +117,12 @@ export function PublicRequestPanel({
                 contact_phone: contactPhone.trim(),
               }
             : {}),
+          // No contact fields on this policy: identity is the roster match.
+          ...(checkedIn && confirmedCheckin
+            ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
+            : {}),
         },
-        accountLess ? idempotencyKey.current : undefined,
+        accountLess || checkedIn ? idempotencyKey.current : undefined,
       ),
     // The previous banner and token must not survive into the next attempt: if this one
     // fails, showing the error beside a stale token invites the requester to save the
@@ -147,6 +175,12 @@ export function PublicRequestPanel({
   const contactReady =
     !accountLess ||
     (contactName.trim().length > 0 && contactEmail.trim().length > 0);
+  // On the checked-in policy the confirmed roster entry IS the identity, so submitting
+  // without one would post a request the backend can only refuse.
+  const identityResolved = requestAccess !== "checked_in" || (
+    sessionProbe.isFetched && (!authenticated || membershipProbe.isFetched)
+  );
+  const identityReady = identityResolved && (!checkedIn || confirmedCheckin !== null);
   // While the probe is unresolved `accountLess` is still false, so `contactReady` is
   // vacuously true and the button would go live before the contact fields exist. On a
   // slow refresh a visitor could submit a member-shaped body and take a 400.
@@ -155,6 +189,7 @@ export function PublicRequestPanel({
     requestedFor.trim().length > 0 &&
     items.length > 0 &&
     contactReady &&
+    identityReady &&
     policyResolved &&
     !submitMutation.isPending;
 
@@ -172,26 +207,12 @@ export function PublicRequestPanel({
         </Card>
       ) : (
         <>
-          <Card className="shrink-0" padding="sm">
-            <h2 className="title-panel text-secondary-ink">
-              {accountLess && activeTab === "borrow"
-                ? "Borrow something"
-                : "Member borrowing"}
-            </h2>
-            <p className="mt-2 text-sm text-muted">
-              {/* Three states, because the requirements genuinely differ. Scoped to the
-                  borrow tab: scanning a tool is self-checkout, which DOES require an
-                  authenticated member with active presence, so "no account needed" would
-                  be false there until it 401s. And an `anyone` policy necessarily has the
-                  membership module off, so the membership/waiver/presence sentence cannot
-                  be true on such a space even for a signed-in visitor. */}
-              {activeTab === "borrow" && accountLess
-                ? "No account needed. Leave your name and email so staff can reach you about the request; they review it before anything is handed over."
-                : activeTab === "borrow" && requestAccess === "anyone"
-                  ? "You are signed in, so this request is filed against your account. Staff review it before anything is handed over."
-                  : "Requests use your signed-in member account. An active membership, waiver acceptance, and current presence are required."}
-            </p>
-          </Card>
+          <PublicRequestHeader
+            accountLess={accountLess}
+            activeTab={activeTab}
+            checkedIn={checkedIn}
+            requestAccess={requestAccess}
+          />
 
           <div
             aria-label="Request actions"
@@ -222,6 +243,16 @@ export function PublicRequestPanel({
               <div
                 id="public-request-borrow-panel"
               >
+                {checkedIn ? (
+                  <div className="mb-4">
+                    <CheckinIdentityStep
+                      makerspaceSlug={makerspaceSlug}
+                      confirmed={confirmedCheckin}
+                      onConfirm={setConfirmedCheckin}
+                      disabled={submitMutation.isPending || submitted}
+                    />
+                  </div>
+                ) : null}
                 <BorrowRequestCard
                   canSubmit={canSubmit}
                   items={items}
@@ -255,6 +286,7 @@ export function PublicRequestPanel({
               >
                 <PublicToolScanPanel
                   makerspaceSlug={makerspaceSlug}
+                  requiresCheckin={requestAccess === "checked_in"}
                 />
               </div>
             ) : null}

@@ -61,7 +61,11 @@ class MachineServiceRequestSerializer(serializers.ModelSerializer):
     planned_grams = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     reserved_grams = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     actual_consumed_grams = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    # Payment rows are the online regime; these request fields are the manual regime, and a makerspace uses only one.
     payment = serializers.SerializerMethodField()
+    payment_amount = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True, allow_null=True)
+    payment_status = serializers.CharField(read_only=True)
+    paid_at = serializers.DateTimeField(read_only=True, allow_null=True)
     run_machine_model = serializers.CharField(read_only=True)
     files = ServiceFileSerializer(many=True, read_only=True)
     consumptions = ServiceConsumptionSerializer(many=True, read_only=True)
@@ -74,7 +78,7 @@ class MachineServiceRequestSerializer(serializers.ModelSerializer):
             "description", "source_link", "status", "reason", "estimated_minutes",
             "actual_minutes", "fail_percent_complete", "accepted_at", "started_at",
             "completed_at", "failed_at", "collected_at", "created_at", "updated_at",
-            "capability_payload", "metering_unit", "planned_quantity", "reserved_quantity", "actual_consumed_quantity", "planned_grams", "reserved_grams", "actual_consumed_grams", "payment", "run_machine_model", "files", "consumptions",
+            "capability_payload", "metering_unit", "planned_quantity", "reserved_quantity", "actual_consumed_quantity", "planned_grams", "reserved_grams", "actual_consumed_grams", "payment", "payment_amount", "payment_status", "paid_at", "run_machine_model", "files", "consumptions",
         )
         read_only_fields = fields
 

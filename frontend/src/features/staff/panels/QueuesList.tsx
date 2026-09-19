@@ -55,6 +55,7 @@ export function RequestList({ rows, actions, canViewAudit = false }: { rows: Har
               {[row.requester_contact_email, row.requester_contact_phone].filter(Boolean).join(" Â· ")}
             </p>
           ) : null}
+          <RequestCheckinContext row={row} />
           {row.status === "rejected" && row.rejection_reason ? (
             <p className="mt-1 text-xs text-danger">
               <span className="font-medium">Rejected: </span>{row.rejection_reason}
@@ -115,6 +116,17 @@ function RequestAttribution({ row }: { row: HardwareRequest }) {
     attributed.issued_by ? `Issued by ${formatActor(attributed.issued_by)}` : "",
   ].filter(Boolean);
   return parts.length ? <p className="mt-1 text-xs text-muted">{parts.join(" | ")}</p> : null;
+}
+
+function RequestCheckinContext({ row }: { row: HardwareRequest }) {
+  if (!row.checkin_purpose && !row.checkin_project_name) return null;
+  return (
+    <p className="mt-1 text-xs text-muted">
+      <span className="font-medium text-ink">Checked in: </span>
+      {[row.checkin_purpose, row.checkin_project_name].filter(Boolean).join(" · ")}
+      {row.checkin_verified_at ? ` · verified ${new Date(row.checkin_verified_at).toLocaleString()}` : ""}
+    </p>
+  );
 }
 
 function formatActor(actor: RequestActor) {

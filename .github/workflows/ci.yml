@@ -1,0 +1,160 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  # Keyed on the BRANCH, not github.ref: a push to `dev` while its PR is open fires both
+  # the push and pull_request triggers, whose refs differ (refs/heads/dev vs
+  # refs/pull/N/merge), so a ref-keyed group runs this whole suite twice in parallel.
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  # CLAUDE.md and AGENTS.md are one document under two filenames; the emptiness of this
+  # diff is the drift guard. AGENTS.md was once a hand-written short mirror and silently
+  # rotted for months, so this runs as its own fast job rather than behind the suite.
+  docs-twins:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: CLAUDE.md and AGENTS.md must be byte-identical
+        run: diff CLAUDE.md AGENTS.md
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Job scope, so every Django invocation below inherits it. config/settings.py
+      # raises ImproperlyConfigured at IMPORT time when DEBUG is False and this is
+      # unset, which would fail each step before it ran a single check. CI reaches
+      # the container directly, so the trusted-proxy count is 0.
+      TRUSTED_PROXY_COUNT: "0"
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: makerspace
+          POSTGRES_PASSWORD: makerspace
+          POSTGRES_DB: makerspace_manager
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U makerspace -d makerspace_manager"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    # MinIO is intentionally not started. backend/conftest.py has no live-S3 fixture,
+    # and storage-facing tests fake the S3 operations while settings generate URLs
+    # from the localhost endpoints below. GitHub service containers cannot supply
+    # MinIO's required `server /data` command, so an unused container adds no coverage.
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install PostgreSQL 16 client
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install --yes postgresql-client-16
+        # Backup and tenant-migration tests fail closed unless the client major
+        # matches PostgreSQL and is under /usr/lib/postgresql/16/bin (the PGDG path).
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Generate encryption keys
+        shell: bash
+        run: |
+          echo "API_CLIENT_ENC_KEY=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')" >> "$GITHUB_ENV"
+          echo "AUDIT_MAC_MASTER_KEY=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')" >> "$GITHUB_ENV"
+        # These settings default to empty strings; real Fernet keys are required
+        # before any test path can encrypt API-client secrets or authenticate audits.
+
+      - name: Check for unmade migrations
+        working-directory: backend
+        env:
+          DATABASE_URL: postgres://makerspace:makerspace@localhost:5432/makerspace_manager
+          SECRET_KEY: ci-insecure
+          DEBUG: "False"
+        # A model change merged without its migration leaves every deployment unable to
+        # migrate. Cheap to check here, expensive to discover after release.yml publishes.
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run backend tests
+        working-directory: backend
+        env:
+          # pytest must connect as the database owner because it creates and drops
+          # the test database; the runtime spaceworks_app role deliberately cannot.
+          DATABASE_URL: postgres://makerspace:makerspace@localhost:5432/makerspace_manager
+          SECRET_KEY: ci-insecure
+          DEBUG: "False"
+          CELERY_TASK_ALWAYS_EAGER: "True"
+          CELERY_BROKER_URL: redis://localhost:6379/0
+          AWS_ACCESS_KEY_ID: minioadmin
+          AWS_SECRET_ACCESS_KEY: minioadmin
+          AWS_STORAGE_BUCKET_NAME: evidence
+          AWS_S3_ENDPOINT_URL: http://localhost:9000
+          AWS_S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
+          PUBLIC_IMAGE_BUCKET: public-images
+          PUBLIC_IMAGE_BASE_URL: http://localhost:9000/public-images
+          STORAGE_PRESIGN_METHOD: post
+        run: pytest --create-db
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # Plain `tsc -b`, not `tsc -b --noEmit`: tsconfig.node.json is a referenced
+      # project, and --noEmit on a composite build fails with TS6310. This matches
+      # the `build` script in package.json.
+      - name: Type-check frontend
+        run: npx tsc -b
+
+      - name: Run frontend tests
+        run: npm test
+
+      # tsc and vitest both pass on a barrel that re-exports a name nothing defines;
+      # only the bundler resolves the export graph. lib/api.ts is a re-export barrel,
+      # so this is the step that catches a broken split.
+      - name: Build frontend
+        run: npm run build

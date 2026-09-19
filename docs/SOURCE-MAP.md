@@ -22,7 +22,14 @@
   CORS, module guards, `module_registry.py` (canonical module definitions — all module lists derive from
   it), `platform.py` (origin helpers), `limits.py` (fair-use quotas), `lifecycle.py` (archive/purge barrel
   over `lifecycle_archive.py`, `lifecycle_purge.py` and `lifecycle_storage.py`),
-  `origin_scope.py` (browser origin→tenant guard), `provisioning.py`/`hosting.py`, `secrets.py`.
+  `origin_scope.py` (browser origin→tenant guard), `provisioning.py`/`hosting.py`, `secrets.py`. The
+  `Makerspace` row itself lives in `models_makerspace.py` with two behaviour-only mixins carrying **no field
+  definitions** (so neither needs a migration): `models_makerspace_secrets.py` (encrypted integration
+  credentials) and `models_makerspace_lifecycle.py` (`save()`/`clean()` — the one chokepoint that reconciles
+  `public_request_mode` against the `membership` module). Both mixins and `models_makerspace.py` take their
+  shared helpers from the neutral `models_common.py` (key/code generators, `normalize_frontend_domain`,
+  `presence_presets`) rather than from the `models.py` barrel, so each submodule stays safe to import first;
+  the barrel re-exports them because migrations serialize field defaults as `apps.makerspaces.models.<name>`.
 - `backend/apps/organizations/` — `Organization` (platform entity, creatable before any makerspace, NOT a
   module_registry key), its opt-in public profile and cross-makerspace event catalogue,
   `OrganizationMakerspace` (the many-to-many link, at most one `owner` per space),
@@ -57,6 +64,13 @@
   terminal expired state without mutating the `EvidencePhoto` row. `sweep_evidence_retention()` is the
   single sweep entry point, `tasks.py` is its Celery/scheduled-task adapter, and `views_retention.py` exposes
   the policy and preview API.
+- `backend/apps/checkin/` — the upstream check-in roster: `client.py` (fail-closed fetch and
+  parse), `matching.py` (normalised-exact name matching), `eligibility.py` (the purpose/project
+  gate), `identity.py` + `models.py` (`CheckinIdentity`, one walk-in principal per upstream mid),
+  `verification.py` (submit-time re-verification), `views.py` (the public name lookup),
+  `errors.py` (the shared `denied()`/503 shapes both `verification` and `identity` raise),
+  `throttles.py` (the mid-keyed and lookup budgets).
+  **Reinstated** after the M7 retirement; see **Check-in gated requests** in `docs/INVARIANTS.md`.
 - `backend/apps/boxes/` — `QrCode`/`Box` payloads, immutable `BoxScan`/`QrScanEvent`, `qr_render.py`
   (namespaced standalone SVG shared by QR-print + batch ZIP), QR rebind. Camera scanner at
   `frontend/src/components/ui/QrScanner.tsx` (native `BarcodeDetector` + `zxing-wasm` fallback).
@@ -99,7 +113,9 @@
   disposition registry over models, fields, datasets, traversals and the global-user reference closure, with
   **drift guards that refuse an unclassified model or field**. Its `guards._equal(subject, declared,
   actual)` is called with the *scanned* set passed as `declared`, so `extra=` in a failure means **scanned
-  but not registered** — read the signature before deciding which side to fix.
+  but not registered** — read the signature before deciding which side to fix. `references.py` re-exports
+  `JSON_FIELDS` from `references_json_fields.py`; a new JSON column missing from that set is invisible to
+  the export and tenant-migration passes.
 - `backend/apps/tenant_migration/` — per-makerspace migration, managed → self-host (Phase 5B), in
   `SEPARABLE_APPS`. `source_gate.py` + `gate_locks.py`/`gate_runtime.py`/`gate_policy.py`/`middleware.py`/
   `task_gate.py` (the write-drain lock protocol and its AST coverage guards in `source_gate_guards.py`);
@@ -159,8 +175,15 @@
   transitions (atomic + row-locked + audited; also `assign_box`/`issue_request`/`return_items`);
   `permissions.py`, `exceptions.py` (workflow→HTTP map + `ErrorSerializer._EXCEPTION_MAP`),
   `notifications.py` (Telegram seam), public submit/verify/status views, `send_return_reminders` command.
+  `serializers.py` is a thin re-export **barrel** over `serializers_public.py` (the public submit/status
+  surface) and `serializers_admin.py` (staff review/issue/return) — add a public-facing field to the former
+  only, since everything in it is reachable without staff authority.
 - `backend/apps/payments/` — immutable multi-subject Payment authority, per-space raw credentials + managed
   Stripe Connect resolution, checkout/webhook settlement, reconciliation, native PaymentSheet intents.
+  `offline_payments.py` is the ONLY way to raise a charge with no online provider configured (counter
+  settlement): `services.create_payment` resolves a payment source and raises `PaymentsUnavailable` when
+  there is none, so it cannot serve that case. Everything still lands on one `Payment` row — the legacy
+  `MachineServiceRequest.payment_*` columns stay read-only historic.
 - `backend/apps/printing/` — **TOMBSTONED** (Project B): only an `AppConfig` and an empty `models.py`, kept
   in `INSTALLED_APPS` so its historical migrations remain installed. 3D printing is now a `MachineType`
   inside `apps/machines/` — look there, not here.
@@ -193,7 +216,11 @@
   action-based `staffAccess.ts`; payment reconciliation and platform credential panels.
   `frontend/src/features/auth/` + `members/MemberAuthPanel.tsx` — provider-config-driven social/member auth.
   `frontend/src/features/printing|bookings|forms|...` — feature slices. `frontend/src/lib/`,
-  `components/ui/`, `types/`, `generated/api.ts`.
+  `components/ui/`, `types/`, `generated/api.ts`. `lib/api.ts` is a thin **re-export barrel** (explicit
+  named re-exports, never `export *`) over `apiConfig` / `apiTypes` / `apiErrors` / `apiSession` /
+  `apiRequests`; ~164 files import from `lib/api`, so add a symbol to a submodule AND the barrel. The
+  in-memory access token, runtime publishable key, tenant key cache and auth-expired listeners live in
+  `apiSession.ts` alone — duplicating that state across submodules would silently break auth.
 - `frontend/src/features/events/` — the standalone anonymous PIN-station route. Its
   `EventCheckInStationPage.tsx` exchanges the event-scoped PIN, then reuses the offline roster/sync API,
   IndexedDB state and operator UI owned by `features/staff/eventCheckInOfflineApi.ts`,
@@ -203,3 +230,4 @@
   `OrganizationInvitationRedeemPage.tsx` binds a single-use invitation after member sign-in, and
   `publicOrganizationsApi.ts` owns their TanStack Query keys and public API calls. Staff profile,
   membership, invitation and event-organizer controls remain under `frontend/src/features/staff/`.
+
