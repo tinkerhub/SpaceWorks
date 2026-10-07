@@ -18,8 +18,10 @@ grep -q '^SPACEWORKS_SCHEDULER_MODE=' .env || {
 }
 chmod 600 .env
 
-image="${MAKERSPACE_BACKEND_IMAGE:-ghcr.io/spaceworks-hq/spaceworks-backend}"
-tag="${MAKERSPACE_IMAGE_TAG:-latest}"
+source "$ROOT/scripts/env-file.sh"
+source "$ROOT/scripts/host-image.sh"
+image="$(resolve_backend_image "$ROOT")" || exit 64
+tag="$(resolve_image_tag "$ROOT")" || exit 64
 HOST_CONFIG_IMAGE="${image}:${tag}"
 export SPACEWORKS_HOST_CONFIG_BUILD=0
 source "$ROOT/scripts/setup-host-orchestration.sh"

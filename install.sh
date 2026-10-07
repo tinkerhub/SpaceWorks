@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Pinned, no-git SpaceWorks installer.
 set -euo pipefail
-
-REPOSITORY="SpaceWorks-HQ/SpaceWorks"
+say() { printf '[SpaceWorks installer] %s\n' "$*"; }
+die() { printf '[SpaceWorks installer] ERROR: %s\n' "$*" >&2; exit 1; }
+REPOSITORY="${SPACEWORKS_REPOSITORY:-SpaceWorks-HQ/SpaceWorks}"
+[[ "$REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || die "SPACEWORKS_REPOSITORY must look like owner/repo."
 RELEASE_API="https://api.github.com/repos/$REPOSITORY/releases/latest"
 INSTALL_DIR="${SPACEWORKS_DIR:-/opt/spaceworks}"
 MIN_FREE_KB=$((8 * 1024 * 1024))
@@ -15,9 +17,6 @@ VERSION=""
 STAGE_DIR=""
 ARCHIVE=""
 CREATED_PARENT=0
-
-say() { printf '[SpaceWorks installer] %s\n' "$*"; }
-die() { printf '[SpaceWorks installer] ERROR: %s\n' "$*" >&2; exit 1; }
 prompt() {
   local reply
   [[ -r /dev/tty ]] || die "An interactive terminal is required."
@@ -35,21 +34,17 @@ cleanup() {
   fi
 }
 trap cleanup EXIT
-
 case "$INSTALL_DIR" in
   ""|/|*"'"*) die "SPACEWORKS_DIR must be a specific path and cannot contain a single quote." ;;
 esac
-
 say "Preflight only—nothing will be installed until all checks pass."
 say "Checking architecture, operating system, dependencies, Docker, release availability, ports, disk space, and existing state."
-
 machine="$(uname -m)"
 case "$machine" in
   x86_64|amd64) ARCH=x86_64 ;;
   aarch64|arm64) ARCH=aarch64 ;;
   *) die "Unsupported architecture '$machine'. SpaceWorks release images support only x86_64 and aarch64." ;;
 esac
-
 kernel="$(uname -s)"
 PACKAGE_FAMILY=""
 case "$kernel" in
@@ -75,7 +70,6 @@ case "$kernel" in
   *) die "Unsupported host '$kernel'. Use Linux, Windows Git Bash, or macOS with Docker Desktop." ;;
 esac
 say "Architecture: $ARCH; host: $HOST_KIND${PACKAGE_FAMILY:+/$PACKAGE_FAMILY}."
-
 missing=()
 MISSING_DOCKER=0
 MISSING_COMPOSE=0
@@ -114,6 +108,7 @@ if command -v docker >/dev/null 2>&1 && ! docker info >/dev/null 2>&1; then
 fi
 
 if [[ -f "$INSTALL_DIR/.spaceworks-version" ]]; then
+  [[ ! ${SPACEWORKS_REPOSITORY+x} ]] || { say "SPACEWORKS_REPOSITORY from the shell is ignored for an existing install; SPACEWORKS_REPOSITORY in $INSTALL_DIR/.env decides where updates come from."; unset SPACEWORKS_REPOSITORY; }
   ACTION="$(prompt $'Existing SpaceWorks install detected.\n  1) Update to latest release\n  2) Change modules\n  3) Update and change modules\n  4) Cancel\nChoose [4]: ')"
   ACTION="${ACTION:-4}"
   case "$ACTION" in
@@ -166,7 +161,7 @@ available_kb="$(df -Pk "$disk_path" | awk 'NR == 2 {print $4}')"
 ((available_kb >= MIN_FREE_KB)) || die "At least 8 GiB free is required; $disk_path has $((available_kb / 1024)) MiB."
 say "Disk-space check passed."
 
-if [[ "$ACTION" != modules ]]; then
+if [[ "$ACTION" == fresh ]]; then
   release_json="$(curl --fail --silent --show-error --location \
     --header 'Accept: application/vnd.github+json' \
     --header 'User-Agent: spaceworks-curl-installer' "$RELEASE_API")" \
@@ -176,6 +171,20 @@ if [[ "$ACTION" != modules ]]; then
   [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-main\.[0-9]+\.[0-9a-f]{12}$ ]] \
     || die "GitHub returned an unexpected latest release tag: ${RELEASE_TAG:-<empty>}"
   say "Pinned release: $RELEASE_TAG."
+  setup_command=""; MAKERSPACE_IMAGE_TAG="$VERSION"
+  if [[ ${SPACEWORKS_REPOSITORY+x} ]]; then
+    owner="$(printf '%s' "${REPOSITORY%%/*}" | tr '[:upper:]' '[:lower:]')"
+    MAKERSPACE_BACKEND_IMAGE="${MAKERSPACE_BACKEND_IMAGE-ghcr.io/$owner/spaceworks-backend}"
+    MAKERSPACE_FRONTEND_IMAGE="${MAKERSPACE_FRONTEND_IMAGE-ghcr.io/$owner/spaceworks-frontend}"
+  fi
+  # sudo/sg strip or re-parse the environment, so pass values explicitly
+  # with shell quoting to preserve spaces and metacharacters.
+  for name in MAKERSPACE_IMAGE_TAG SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE SPACEWORKS_UPDATE_SCHEDULE; do
+    [[ ${!name+x} ]] || continue
+    value="${!name}"; [[ "$value" != *$'\r'* && "$value" != *$'\n'* ]] || die "$name cannot contain CR or LF."
+    printf -v assignment '%s=%q ' "$name" "$value"; setup_command+="$assignment"
+  done
+  setup_command+="bash setup.sh"
 fi
 say "All preflight checks passed; state-changing work starts now."
 
@@ -285,6 +294,6 @@ if [[ "$(id -u)" != 0 && ${#RUN_ROOT[@]} -gt 0 ]]; then
   "${RUN_ROOT[@]}" chown -R "$(id -u):$(id -g)" "$INSTALL_DIR"
 fi
 
-run_installed "MAKERSPACE_IMAGE_TAG='$VERSION' bash setup.sh"
+run_installed "$setup_command"
 printf '%s\n' "$VERSION" > "$INSTALL_DIR/.spaceworks-version"
 say "Installed SpaceWorks $VERSION in $INSTALL_DIR."

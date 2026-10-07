@@ -59,6 +59,23 @@ MAKERSPACE_BACKEND_IMAGE=ghcr.io/spaceworks-hq/spaceworks-backend
 MAKERSPACE_FRONTEND_IMAGE=ghcr.io/spaceworks-hq/spaceworks-frontend
 ```
 
+### Deploying a fork
+
+Set `SPACEWORKS_REPOSITORY=owner/repo` on the fresh installer's `bash` process to follow your fork's
+GitHub releases. The installer derives `ghcr.io/<lowercased owner>/spaceworks-backend` and
+`spaceworks-frontend` unless you supply explicit image overrides, then forwards those settings and
+`SPACEWORKS_UPDATE_SCHEDULE` to `setup.sh` for persistence in `.env`.
+On an existing curl install, the shell repository override is ignored: edit `.env` instead.
+Direct `scripts/update.sh` calls resolve the repository from the shell, then `.env`, then
+`SpaceWorks-HQ/SpaceWorks`. Repository selection and image selection are separate on existing hosts;
+set both image names explicitly when changing forks.
+
+`setup.sh` and `scripts/init-host-orchestration.sh` resolve the host-configuration backend image from
+the shell, then `.env`, then the upstream default. Its tag resolves from the shell, then `.env`, then
+`.spaceworks-version`, then `latest`, matching the Compose wrapper's precedence.
+Rerun `bash scripts/init-host-orchestration.sh` after any `.env` edit. For EC2 installation, check-in
+setup, HTTPS and automatic redeploys from `tinkerhub/SpaceWorks`, see [deploy-ec2.md](deploy-ec2.md).
+
 ### Build from source (explicit opt-in)
 
 Release images are published to GHCR and `setup.sh` pulls them by default. A developer with a full
@@ -124,16 +141,24 @@ The command is idempotent. It only sends reminders for issued or partially retur
 
 ## Automatic and manual upgrades
 
-Every successful push to `main` publishes matching backend/frontend images and a GitHub Release. The
-release is marked latest only after both images are available. The self-host updater uses that release
+Pushes to `dev` and `main` run CI; push CI includes the reusable security audit (`pip-audit`). Only a
+successful CI run for a push to `main` triggers `release.yml` through `workflow_run`; a failing main
+run produces no release. Manual release dispatch also requires the `main` ref and a successful push CI
+run for that exact SHA. The release is marked latest only after both images are available and the
+released commit is still the main branch head. The self-host updater uses that release
 as its gate, creates a PostgreSQL backup, deploys the exact immutable tag, runs migrations through the
 Compose migration service, and records the version only after the readiness check passes.
 
-Guided setup offers automatic checks every seven days by default. A Super Admin can then open
+Guided setup offers automatic checks on `SPACEWORKS_UPDATE_SCHEDULE`, default `0 3 * * 0`
+(Sunday at 03:00 in the host's cron timezone). `scripts/install-auto-update.sh` reads the shell, then
+`.env`, then that default. It requires a strictly validated five-field cron schedule: numeric fields
+within their bounds, wildcards, lists, ascending ranges and positive steps; `%` and CR/LF are rejected.
+For example, `*/5 * * * *` checks every five minutes. Reinstall the cron job after changing the schedule.
+A Super Admin can then open
 **Staff console -> Platform settings -> Software updates** to turn automatic installation on or off,
 see the installed/latest versions, or queue **Update now**. The web application never receives Docker
 socket access: it records the request in PostgreSQL and the host scheduler performs the privileged work.
-Turning automatic installation off leaves the seven-day host check active, so release information and
+Turning automatic installation off leaves the scheduled host check active, so release information and
 manual requests still work without installing anything automatically.
 Install or repair the schedule manually with:
 
@@ -201,6 +226,7 @@ For a manual deployment, set `MAKERSPACE_IMAGE_TAG` to a release such as
 `0.5.1-main.42.a1b2c3d4e5f6`, then run:
 
 ```bash
+bash scripts/init-host-orchestration.sh
 scripts/spaceworks-compose.sh bundled pull
 scripts/spaceworks-compose.sh bundled up -d
 ```
@@ -234,8 +260,16 @@ plain-HTTP layer.
 
 ## Publishing new images (maintainers)
 
-Every push to `main` runs `release.yml`, publishes matching backend and frontend images, and creates a
-GitHub Release titled with the version from `VERSION` (for example, `v0.5.1`). Its internal tag still
+`release.yml` no longer runs directly on pushes. Its `workflow_run` trigger waits for CI to complete
+on `main`, then releases only when the conclusion is `success` and the original event is `push`.
+CI includes `pip-audit` on pushes, and main pushes have a separate concurrency group so a PR cannot
+cancel the release-gating run. The backend job has a 90-minute timeout for the roughly 60-minute suite;
+the old 45-minute limit cancelled it. Manual dispatch is refused unless the ref is `main` and a
+successful push CI run exists for the exact release SHA.
+
+The workflow publishes `ghcr.io/<lowercased repo owner>/spaceworks-backend` and
+`ghcr.io/<lowercased repo owner>/spaceworks-frontend`, then creates a
+GitHub Release titled `SpaceWorks v<version from VERSION>` (for example, `SpaceWorks v0.5.1`). Its internal tag still
 identifies the exact build used by the updater. When both images succeed for the current branch head, the workflow promotes
 them to the rolling `:X.Y`, `:main`, and `:latest` tags, then removes older Releases and GHCR versions.
 The current and immediately previous builds remain available so a failed deployment can roll its
@@ -244,8 +278,9 @@ application containers back automatically.
 The root **`VERSION`** file selects the semantic release series. Edit it (for example, to `1.0.0`) only
 when starting a new series; the workflow adds the run number and commit SHA to every release automatically.
 
-The `spaceworks-backend` / `spaceworks-frontend` GHCR packages must be set to **Public** (org → Packages)
-so operators can `docker compose pull` without authenticating.
+The `spaceworks-backend` / `spaceworks-frontend` GHCR packages must be set to **Public** after the first
+release (org → Packages) so operators can pull without authenticating; private packages require
+`docker login ghcr.io` on the host. Organization Actions policy must allow `GITHUB_TOKEN` package writes.
 
 ## HTTPS & security hardening
 
@@ -269,6 +304,7 @@ AUTH_COOKIE_SAMESITE=Lax
 ```
 
 ```bash
+bash scripts/init-host-orchestration.sh
 SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d
 # Reinstall the updater WITH the same prefix, or it records a plain-HTTP cron job.
 SPACEWORKS_COMPOSE_LAYER=tls bash scripts/install-auto-update.sh
@@ -374,6 +410,12 @@ If an instance flips from managed → self-host after deploy, run
 | `CORS_ALLOWED_ORIGINS` | no | Browser origins allowed to call the API |
 | `PUBLIC_APP_BASE_URL` | yes for email links | Absolute frontend base URL used for password-reset and invitation links |
 | `API_CLIENT_ENC_KEY` | recommended | Fernet key encrypting integration secrets at rest |
+| `SPACEWORKS_REPOSITORY` | no (default `SpaceWorks-HQ/SpaceWorks`) | GitHub `owner/repo` whose latest release the host follows; fresh installs derive image names from its lowercased owner |
+| `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
+| `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
+| `SPACEWORKS_UPDATE_SCHEDULE` | no (default `0 3 * * 0`) | Validated five-field host cron schedule; rerun `init-host-orchestration.sh` after editing `.env` and reinstall `install-auto-update.sh` to apply it |
+| `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
+| `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N` |
 | `MINIO_ROOT_USER` | yes | MinIO/S3 access key used by the backend |
 | `MINIO_ROOT_PASSWORD` | yes | MinIO/S3 secret key used by the backend |
 | `AWS_STORAGE_BUCKET_NAME` | no (default `evidence`) | Private object-storage bucket for evidence and print files |

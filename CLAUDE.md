@@ -208,6 +208,10 @@ starting a build.** These are the rules you must not violate without having read
 
 - **The Codex gates are LIVE** (Stages 1/2/4 of `~/.claude/CLAUDE.md`), but **re-check `codex doctor`**
   rather than trusting any written claim — that one line has gone stale silently for weeks before.
+- **CI runs on `dev` and `main` pushes with a 90-minute backend timeout** (the suite takes ~60 min);
+  releases are produced only by `release.yml`'s `workflow_run` after CI (including `pip-audit`) succeeds
+  on a main push, so a red main never deploys; forks set `SPACEWORKS_REPOSITORY` (see
+  [docs/deploy-ec2.md](docs/deploy-ec2.md)).
 - **Name Codex in a `Co-Authored-By` trailer only on work Codex actually wrote.** Attribution, not
   ceremony: this overrides the unconditional three-trailer rule in the global config, and the trailer set
   is decided per commit by who really wrote the code.

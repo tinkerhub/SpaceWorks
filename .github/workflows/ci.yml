@@ -7,17 +7,25 @@ on:
       - dev
   push:
     branches:
+      - main
       - dev
   workflow_dispatch:
 
 concurrency:
-  # Keyed on the BRANCH, not github.ref: a push to `dev` while its PR is open fires both
-  # the push and pull_request triggers, whose refs differ (refs/heads/dev vs
-  # refs/pull/N/merge), so a ref-keyed group runs this whole suite twice in parallel.
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  # Main pushes get their own group so no PR, even from a fork with a head branch
+  # named main or main-push, can cancel the CI run that gates a release. Every other
+  # group is prefixed branch- so it cannot collide; a dev push and its open PR still
+  # share branch-dev so the suite is not run twice.
+  group: ${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref_name == 'main') && 'main-push' || format('branch-{0}', github.head_ref || github.ref_name) }}
   cancel-in-progress: true
 
 jobs:
+  # Pull requests already run security-audit.yml directly; on pushes it runs here
+  # so the CI conclusion that gates release.yml includes pip-audit.
+  security-audit:
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/security-audit.yml
+
   # CLAUDE.md and AGENTS.md are one document under two filenames; the emptiness of this
   # diff is the drift guard. AGENTS.md was once a hand-written short mirror and silently
   # rotted for months, so this runs as its own fast job rather than behind the suite.
@@ -31,7 +39,8 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # The full suite takes ~60 minutes, so 45 cancelled every run.
+    timeout-minutes: 90
     env:
       # Job scope, so every Django invocation below inherits it. config/settings.py
       # raises ImproperlyConfigured at IMPORT time when DEBUG is False and this is

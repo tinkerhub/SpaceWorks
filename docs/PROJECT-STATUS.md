@@ -46,6 +46,11 @@ root-owned-file trust semantics. See
 `setup_instance` seeds `superadmin`/`super123` + `must_change_password` (surfaced by login + `/auth/me`,
 cleared by `/auth/change-password`).
 
+Releases now run through `release.yml`'s `workflow_run` only after CI (including `pip-audit`) succeeds
+for a main push; manual dispatch requires `main` and successful push CI for the exact SHA.
+Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides, and poll on
+`SPACEWORKS_UPDATE_SCHEDULE` (default `0 3 * * 0`); see [deploy-ec2.md](deploy-ec2.md).
+
 **Releases are titled `SpaceWorks <version>`** (owner convention, 2026-08-15), where the version is the
 git-tag form `v<semver>-<branch>.<n>.<sha>` — e.g. `SpaceWorks v0.5.1-main.12.a9cd82c0dd89`. **The
 `SpaceWorks ` prefix is a display title, not part of the version value:** `updates.UpdateState` stores the

@@ -83,6 +83,7 @@ def test_bundled_host_scripts_route_management_commands_through_explicit_role():
         "setup.sh", "setup.ps1", "scripts/import-backup.sh", "scripts/restore.sh",
         "scripts/update.sh", "scripts/update.ps1", "scripts/install-auto-update.sh",
         "scripts/install-auto-update.ps1",
+        "scripts/request-access-selection.sh",
     )
     for name in names:
         source = (ROOT / name).read_text(encoding="utf-8")

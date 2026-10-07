@@ -26,6 +26,10 @@ ROOT = (
     if (MOUNTED_REPO_ROOT / "backend" / "config" / "settings.py").is_file()
     else Path(__file__).resolve().parents[2]
 )
+pytestmark = pytest.mark.skipif(
+    not (ROOT / "install.sh").exists(),
+    reason="host-only: the repository root is not in the backend image",
+)
 INSTALLER = ROOT / "scripts" / "install-auto-update.sh"
 CRON_MARKER = "scripts/update.sh"
 LAYER_PREFIX = "SPACEWORKS_COMPOSE_LAYER="
@@ -102,22 +106,32 @@ def _install_into(tmp_path, environment):
     (tmp_path / "backups").mkdir()
     (tmp_path / "bin").mkdir()
     shutil.copy(INSTALLER, tmp_path / "scripts" / "install-auto-update.sh")
+    shutil.copy(ROOT / "scripts" / "env-file.sh", tmp_path / "scripts" / "env-file.sh")
 
     wrapper = tmp_path / "scripts" / "spaceworks-compose.sh"
-    wrapper.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    wrapper.write_text(
+        '#!/bin/sh\nprintf "%s\\n" "$*" >> "$FAKE_COMPOSE_CALLS"\n',
+        encoding="utf-8",
+    )
     wrapper.chmod(0o755)
 
     crontab = tmp_path / "bin" / "crontab"
-    crontab.write_text('#!/bin/sh\ncat > "$FAKE_CRON_OUT"\n', encoding="utf-8")
+    crontab.write_text(
+        '#!/bin/sh\nprintf "%s\\n" "$*" >> "$FAKE_CRON_CALLS"\n'
+        '[ "$1" != "-l" ] || exit 0\ncat > "$FAKE_CRON_OUT"\n',
+        encoding="utf-8",
+    )
     crontab.chmod(0o755)
 
     installed = tmp_path / "cron.txt"
     completed = subprocess.run(
-        ["bash", str(tmp_path / "scripts" / "install-auto-update.sh")],
+        [shutil.which("bash") or "bash", (tmp_path / "scripts" / "install-auto-update.sh").as_posix()],
         cwd=tmp_path,
         env={
-            "PATH": f"{tmp_path / 'bin'}:{os.environ['PATH']}",
-            "FAKE_CRON_OUT": str(installed),
+            "PATH": f"{tmp_path / 'bin'}{os.pathsep}{os.environ['PATH']}",
+            "FAKE_CRON_OUT": installed.as_posix(),
+            "FAKE_CRON_CALLS": (tmp_path / "crontab-calls.txt").as_posix(),
+            "FAKE_COMPOSE_CALLS": (tmp_path / "compose-calls.txt").as_posix(),
             **environment,
         },
         capture_output=True,
@@ -198,3 +212,49 @@ def test_installer_refuses_an_unvalidated_layer(tmp_path, layer):
         "interpolated into a crontab line, so the whitelist is the injection defense; "
         "reaching the crontab step at all means an unvalidated value was accepted."
     )
+
+
+@pytest.mark.parametrize(
+    ("environment", "dotenv", "expected"),
+    [
+        ({}, None, "0 3 * * 0"),
+        ({"SPACEWORKS_UPDATE_SCHEDULE": "*/5 * * * *"}, None, "*/5 * * * *"),
+        ({}, 'SPACEWORKS_UPDATE_SCHEDULE="15 4 * * 1"\n', "15 4 * * 1"),
+        (
+            {"SPACEWORKS_UPDATE_SCHEDULE": "*/5 * * * *"},
+            "SPACEWORKS_UPDATE_SCHEDULE=15 4 * * 1\n",
+            "*/5 * * * *",
+        ),
+    ],
+    ids=["default", "shell", "dotenv", "shell-wins"],
+)
+def test_installed_cron_uses_the_resolved_schedule(tmp_path, environment, dotenv, expected):
+    """Cron must keep the operator's polling cadence across unattended updates."""
+    if dotenv is not None:
+        (tmp_path / ".env").write_text(dotenv, encoding="utf-8")
+    completed, installed = _install_into(tmp_path, environment)
+
+    assert completed.returncode == 0, completed.stderr
+    job = next(line for line in installed.read_text().splitlines() if CRON_MARKER in line)
+    assert job.startswith(f"{expected} cd ")
+    assert "update_control set-auto on" in (tmp_path / "compose-calls.txt").read_text()
+    assert (tmp_path / "crontab-calls.txt").read_text().splitlines() == ["-l", "-"]
+
+
+@pytest.mark.parametrize(
+    "schedule",
+    [
+        "* * * * *; rm -rf /", "* * * *", "*/0 * * * *", "60 * * * *",
+        "5-1 * * * *", "0 3 * * 0%", "0 3 * * 0\n* * * * * evil",
+    ],
+)
+def test_invalid_schedule_has_no_application_or_crontab_side_effects(tmp_path, schedule):
+    """Reject cron injection before enabling application updates or even reading crontab."""
+    completed, installed = _install_into(
+        tmp_path, {"SPACEWORKS_UPDATE_SCHEDULE": schedule}
+    )
+
+    assert completed.returncode != 0, completed.stdout
+    assert not installed.exists()
+    assert not (tmp_path / "crontab-calls.txt").exists()
+    assert not (tmp_path / "compose-calls.txt").exists()

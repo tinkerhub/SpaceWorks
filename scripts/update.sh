@@ -9,7 +9,6 @@ OPS_DIR="${SPACEWORKS_OPS_HOST_DIR:-/var/lib/spaceworks/ops}"
 COMPOSE=("$ROOT/scripts/spaceworks-compose.sh" bundled)
 LOCK_DIR="$ROOT/.spaceworks-update.lock"
 VERSION_FILE="$ROOT/.spaceworks-version"
-RELEASE_API="https://api.github.com/repos/SpaceWorks-HQ/SpaceWorks/releases/latest"
 update_claimed=0
 update_complete=0
 deployment_started=0
@@ -31,6 +30,10 @@ warn() { printf '[Space Works updater] WARNING: %s\n' "$*" >&2; }
 die() { printf '[Space Works updater] ERROR: %s\n' "$*" >&2; exit 1; }
 source "$ROOT/scripts/update-lock.sh"
 source "$ROOT/scripts/module-selection.sh"
+source "$ROOT/scripts/env-file.sh"
+source "$ROOT/scripts/host-image.sh"
+REPOSITORY="$(resolve_spaceworks_repository "$ROOT")" || die "Invalid SPACEWORKS_REPOSITORY."
+RELEASE_API="https://api.github.com/repos/$REPOSITORY/releases/latest"
 
 force_arg=()
 while (($# > 0)); do

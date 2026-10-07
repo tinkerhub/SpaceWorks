@@ -68,9 +68,17 @@ cd backend && pytest
 
 ## Releases (maintainers)
 
-Every commit pushed to `main` triggers `.github/workflows/release.yml`. It builds and publishes both
-Docker images, then creates a tagged GitHub Release with generated notes. The release title shows the
-version from `VERSION` (for example, `v0.5.1`), while its internal tag remains immutable, such as
+Pushes to `dev` and `main` run CI, with a 90-minute backend timeout for the roughly 60-minute suite.
+Push CI calls the reusable `security-audit.yml`, so its conclusion includes `pip-audit`; main pushes
+have their own concurrency group and cannot be cancelled by a PR's CI run.
+`.github/workflows/release.yml` runs on `workflow_run` when CI completes on `main`, and proceeds only
+for a successful run whose original event was `push`. It does not run directly on pushes.
+Manual dispatch is refused unless the ref is `main` and a successful push CI run exists for that exact SHA.
+
+The release builds and publishes `ghcr.io/<lowercased repo owner>/spaceworks-backend` and
+`ghcr.io/<lowercased repo owner>/spaceworks-frontend`, then creates a tagged GitHub Release with generated
+notes. The release title shows `SpaceWorks v<version from VERSION>` (for example, `SpaceWorks v0.5.1`),
+while its internal tag remains immutable, such as
 `0.5.1-main.42.a1b2c3d4e5f6`, so host updates always select one exact build.
 
 After both images succeed, the current `main` build is promoted to the rolling `:X.Y`, `:main`, and
