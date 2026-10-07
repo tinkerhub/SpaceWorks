@@ -275,7 +275,7 @@ STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d "$parent/.spaceworks-stage.XXXXXX")"
 "${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1
 [[ -f "$STAGE_DIR/setup.sh" && -f "$STAGE_DIR/docker-compose.prod.yml" \
   && -f "$STAGE_DIR/scripts/update.sh" && -f "$STAGE_DIR/scripts/spaceworks-compose.sh" \
-  && -f "$STAGE_DIR/scripts/module-selection.sh" && -f "$STAGE_DIR/scripts/update-lock.sh" ]] \
+  && -f "$STAGE_DIR/scripts/module-selection.sh" && -f "$STAGE_DIR/scripts/request-access-selection.sh" && -f "$STAGE_DIR/scripts/update-lock.sh" ]] \
   || die "The pinned release archive is missing required installer files."
 "${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"
 if [[ "${EMPTY_INSTALL_DIR:-0}" == 1 ]]; then "${RUN_ROOT[@]}" rmdir -- "$INSTALL_DIR"; fi
