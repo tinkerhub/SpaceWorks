@@ -259,7 +259,12 @@ def test_self_host_storage_accounting_is_a_noop():
     assert makerspace.storage_bytes_used == 7
 
 
-def test_recompute_storage_sums_authoritative_evidence_sizes():
+def test_recompute_storage_sums_authoritative_evidence_sizes(monkeypatch):
+    # The command HEADs every object. CI has no MinIO, so the real call raised
+    # StorageUnavailable and the command (correctly) left usage unchanged at 999;
+    # this only passed against the Docker stack. Answer "not found", exactly what an
+    # empty bucket returns, so the recorded size_bytes fallback is what is under test.
+    monkeypatch.setattr("apps.evidence.storage.object_size", lambda key: None)
     makerspace = make_space("limits-storage-recompute")
     uploader = make_user("limits-storage-uploader", access_status="active")
     for index, size in enumerate((40, 60)):
