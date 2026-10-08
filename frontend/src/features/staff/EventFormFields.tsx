@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import type { EventPayload, StaffEvent } from "./eventsApi";
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 
@@ -46,10 +47,11 @@ export function payloadFor(values: EventFormValues): EventPayload {
 }
 
 export function EventFields({ values, setValues, disabled = false, approvalLocked = false }: {
-  values: EventFormValues; setValues: (values: EventFormValues) => void;
+  values: EventFormValues; setValues: Dispatch<SetStateAction<EventFormValues>>;
   disabled?: boolean; approvalLocked?: boolean;
 }) {
-  const set = <K extends keyof EventFormValues>(key: K, value: EventFormValues[K]) => setValues({ ...values, [key]: value });
+  // Functional updates keep edits before the drawer's load effect re-renders from dropping required fields via a stale empty copy.
+  const set = <K extends keyof EventFormValues>(key: K, value: EventFormValues[K]) => setValues((current) => ({ ...current, [key]: value }));
   const cutoffMode = values.registration_cutoff_at !== null ? "absolute" : values.registration_cutoff_lead_minutes !== null ? "lead" : "none";
   return <div className="grid gap-3 sm:grid-cols-2">
     <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Title<input className="desk-input" value={values.title} onChange={(e) => set("title", e.target.value)} required disabled={disabled} maxLength={200} /></label>
@@ -59,7 +61,7 @@ export function EventFields({ values, setValues, disabled = false, approvalLocke
     <label className="grid gap-1 text-sm font-semibold text-ink">Location<input className="desk-input" value={values.location} onChange={(e) => set("location", e.target.value)} disabled={disabled} maxLength={255} /></label>
     <label className="grid gap-1 text-sm font-semibold text-ink">Capacity<input className="desk-input" type="number" min="0" value={values.capacity} onChange={(e) => set("capacity", Number(e.target.value))} disabled={disabled} /><span className="text-xs font-normal text-muted">Use 0 for Unlimited.</span></label>
     <label className="grid gap-1 text-sm font-semibold text-ink">Registration price<input className="desk-input" type="number" min="0" step="0.01" value={values.payment_amount} onChange={(e) => set("payment_amount", e.target.value)} disabled={disabled} /><span className="text-xs font-normal text-muted">Charged only when a place is confirmed.</span></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Registration cutoff<select className="desk-input" value={cutoffMode} disabled={disabled} onChange={(e) => { const mode = e.target.value; setValues({ ...values, registration_cutoff_at: mode === "absolute" ? (values.starts_at || "") : null, registration_cutoff_lead_minutes: mode === "lead" ? 0 : null }); }}><option value="none">No cutoff</option><option value="absolute">At a date and time</option><option value="lead">Before the event starts</option></select></label>
+    <label className="grid gap-1 text-sm font-semibold text-ink">Registration cutoff<select className="desk-input" value={cutoffMode} disabled={disabled} onChange={(e) => { const mode = e.target.value; setValues((current) => ({ ...current, registration_cutoff_at: mode === "absolute" ? (current.starts_at || "") : null, registration_cutoff_lead_minutes: mode === "lead" ? 0 : null })); }}><option value="none">No cutoff</option><option value="absolute">At a date and time</option><option value="lead">Before the event starts</option></select></label>
     {cutoffMode === "absolute" ? <label className="grid gap-1 text-sm font-semibold text-ink">Cutoff time<input className="desk-input" type="datetime-local" value={values.registration_cutoff_at ?? ""} onChange={(e) => set("registration_cutoff_at", e.target.value)} disabled={disabled} required /></label> : null}
     {cutoffMode === "lead" ? <label className="grid gap-1 text-sm font-semibold text-ink">Minutes before start<input className="desk-input" type="number" min="0" value={values.registration_cutoff_lead_minutes ?? 0} onChange={(e) => set("registration_cutoff_lead_minutes", Number(e.target.value))} disabled={disabled} /></label> : null}
     <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Description<textarea className="desk-input min-h-24" value={values.description} onChange={(e) => set("description", e.target.value)} disabled={disabled} /></label>

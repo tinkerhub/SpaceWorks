@@ -8,14 +8,15 @@ on:
   push:
     branches:
       - main
-      - dev
   workflow_dispatch:
 
 concurrency:
   # Main pushes get their own group so no PR, even from a fork with a head branch
   # named main or main-push, can cancel the CI run that gates a release. Every other
-  # group is prefixed branch- so it cannot collide; a dev push and its open PR still
-  # share branch-dev so the suite is not run twice.
+  # group is prefixed branch- so it cannot collide. Dev commits are tested through
+  # their pull request: a separate dev push run used to share the PR's group and be
+  # cancelled. GitHub counts those CANCELLED required checks against the merge, so
+  # dev pushes no longer trigger CI.
   group: ${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref_name == 'main') && 'main-push' || format('branch-{0}', github.head_ref || github.ref_name) }}
   cancel-in-progress: true
 

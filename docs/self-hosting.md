@@ -141,7 +141,7 @@ The command is idempotent. It only sends reminders for issued or partially retur
 
 ## Automatic and manual upgrades
 
-Pushes to `dev` and `main` run CI; push CI includes the reusable security audit (`pip-audit`). Only a
+CI runs on pull requests to main/dev and on pushes to main; push CI includes the reusable security audit (`pip-audit`). Only a
 successful CI run for a push to `main` triggers `release.yml` through `workflow_run`; a failing main
 run produces no release. Manual release dispatch also requires the `main` ref and a successful push CI
 run for that exact SHA. The release is marked latest only after both images are available and the

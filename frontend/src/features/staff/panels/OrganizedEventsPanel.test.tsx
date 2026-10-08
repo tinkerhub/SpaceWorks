@@ -184,7 +184,8 @@ describe("OrganizedEventsPanel", () => {
     fireEvent.click(await screen.findByRole("button", { name: event.title }));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(`/admin/events/${event.id}/`));
-    fireEvent.change(await screen.findByLabelText("Title"), {
+    const title = await screen.findByDisplayValue(event.title);
+    fireEvent.change(title, {
       target: { value: "Updated repair night" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));

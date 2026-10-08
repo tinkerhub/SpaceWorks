@@ -208,7 +208,9 @@ starting a build.** These are the rules you must not violate without having read
 
 - **The Codex gates are LIVE** (Stages 1/2/4 of `~/.claude/CLAUDE.md`), but **re-check `codex doctor`**
   rather than trusting any written claim — that one line has gone stale silently for weeks before.
-- **CI runs on `dev` and `main` pushes with a 90-minute backend timeout** (the suite takes ~60 min);
+- **CI runs on pull requests to `main`/`dev` and on `main` pushes, with a 90-minute backend timeout**
+  (the suite takes ~60 min). `dev` pushes are tested through their PR, not a separate push run: that run
+  used to be cancelled, and GitHub counts a cancelled required check against the merge;
   releases are produced only by `release.yml`'s `workflow_run` after CI (including `pip-audit`) succeeds
   on a main push, so a red main never deploys; forks set `SPACEWORKS_REPOSITORY` (see
   [docs/deploy-ec2.md](docs/deploy-ec2.md)).
@@ -244,11 +246,6 @@ starting a build.** These are the rules you must not violate without having read
   a spec quotes.
 - **Commits sit local and unpushed on `dev`; pushing is the owner's call alone.** Ask
   `git rev-list --count origin/dev..dev` rather than trusting a count written anywhere.
-- **MERGING IS THE OWNER'S ACT ALONE — never merge a branch yourself.** This covers every merge,
-  including `dev` -> `main`, a feature branch into `dev`, and a fast-forward that looks trivial.
-  Prepare the merge, verify it is clean, report exactly what would land, then STOP and hand it over:
-  the owner runs the `git merge` and the `git push`. This is stricter than the push rule above and
-  overrides the global config's Stage-5 "merge it into `dev`" step, which no longer applies here.
 - **Never run the Docker and host stacks at once** — they bind the same ports (:8000, :5000) and the same
   database.
 

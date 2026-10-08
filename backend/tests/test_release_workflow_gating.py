@@ -37,7 +37,8 @@ def _group(event, ref_name, head_ref=""):
 def test_ci_pushes_include_security_audit_and_sufficient_backend_time():
     """The successful CI conclusion must cover dependencies and allow the full suite to finish."""
     ci = _workflow("ci.yml")
-    assert {"main", "dev"} <= set(ci["on"]["push"]["branches"])
+    assert ci["on"]["push"]["branches"] == ["main"]
+    assert {"main", "dev"} <= set(ci["on"]["pull_request"]["branches"])
     assert int(ci["jobs"]["backend"]["timeout-minutes"]) >= 75
     audit = ci["jobs"]["security-audit"]
     assert audit["uses"] == "./.github/workflows/security-audit.yml"
@@ -54,7 +55,7 @@ def test_pull_requests_cannot_cancel_main_release_ci(head_ref):
     assert expression == CI_GROUP
     assert _group("push", "main") == "CI-main-push"
     assert _group("pull_request", "123/merge", head_ref) != _group("push", "main")
-    assert _group("push", "dev") == _group("pull_request", "123/merge", "dev")
+    assert "dev" not in _workflow("ci.yml")["on"]["push"]["branches"]
 
 
 def test_release_waits_for_successful_main_push_ci():

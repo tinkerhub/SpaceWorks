@@ -68,7 +68,7 @@ cd backend && pytest
 
 ## Releases (maintainers)
 
-Pushes to `dev` and `main` run CI, with a 90-minute backend timeout for the roughly 60-minute suite.
+CI runs on pull requests to main/dev and on pushes to main, with a 90-minute backend timeout for the roughly 60-minute suite.
 Push CI calls the reusable `security-audit.yml`, so its conclusion includes `pip-audit`; main pushes
 have their own concurrency group and cannot be cancelled by a PR's CI run.
 `.github/workflows/release.yml` runs on `workflow_run` when CI completes on `main`, and proceeds only

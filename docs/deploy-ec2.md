@@ -16,7 +16,7 @@ Owner pushes main -> CI (tests + pip-audit) -> release images and GitHub Release
                                             -> on failure: application rollback
 ```
 
-CI runs on `dev` and `main` pushes. The backend suite takes about 60 minutes and has a 90-minute
+CI runs on pull requests to main/dev and on pushes to main. The backend suite takes about 60 minutes and has a 90-minute
 timeout; the former 45-minute limit cancelled it. Main pushes have a separate concurrency group,
 so a PR cannot cancel their release-gating CI. `security-audit.yml` is callable by CI, which includes
 `pip-audit` on pushes.
