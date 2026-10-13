@@ -61,10 +61,24 @@ def test_existing_install_drops_the_shell_repository_override():
 def test_installer_requires_the_request_access_helper_in_the_release():
     """Setup sources this helper, so a partial release must fail before installing the archive."""
     source = (ROOT / "install.sh").read_text(encoding="utf-8")
-    required = source.split('[[ -f "$STAGE_DIR/setup.sh"', 1)[1].split(
-        '|| die "The pinned release archive is missing required installer files."', 1
-    )[0]
-    assert '-f "$STAGE_DIR/scripts/request-access-selection.sh"' in required
+    required = source.split("for required in ", 1)[1].split("; do", 1)[0]
+    required = required.replace("\\\n", "").split()
+    assert "setup.sh" in required
+    assert "scripts/request-access-selection.sh" in required
+
+
+def test_installer_reads_the_private_stage_dir_only_as_root():
+    """Under sudo the stage is a root-owned 0700 mktemp dir; unprivileged reads cannot
+    traverse it, so every check fails until the post-mv chown.
+    """
+    source = (ROOT / "install.sh").read_text(encoding="utf-8")
+    start = source.index('STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d')
+    end = source.index('\nSTAGE_DIR=""', start)
+    block = source[start:end]
+    for line in block.splitlines():
+        if "$STAGE_DIR" in line:
+            assert '"${RUN_ROOT[@]}"' in line, line
+    assert '"${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required"' in block
 
 
 @pytest.mark.parametrize("name", [

@@ -282,10 +282,10 @@ parent="$(dirname "$INSTALL_DIR")"
 if [[ ! -d "$parent" ]]; then "${RUN_ROOT[@]}" mkdir -p -- "$parent"; CREATED_PARENT=1; fi
 STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d "$parent/.spaceworks-stage.XXXXXX")"
 "${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1
-[[ -f "$STAGE_DIR/setup.sh" && -f "$STAGE_DIR/docker-compose.prod.yml" \
-  && -f "$STAGE_DIR/scripts/update.sh" && -f "$STAGE_DIR/scripts/spaceworks-compose.sh" \
-  && -f "$STAGE_DIR/scripts/module-selection.sh" && -f "$STAGE_DIR/scripts/request-access-selection.sh" && -f "$STAGE_DIR/scripts/update-lock.sh" ]] \
-  || die "The pinned release archive is missing required installer files."
+for required in setup.sh docker-compose.prod.yml scripts/update.sh scripts/spaceworks-compose.sh \
+  scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh; do
+  "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" || die "The pinned release archive is missing required installer file $required."
+done
 "${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"
 if [[ "${EMPTY_INSTALL_DIR:-0}" == 1 ]]; then "${RUN_ROOT[@]}" rmdir -- "$INSTALL_DIR"; fi
 "${RUN_ROOT[@]}" mv -- "$STAGE_DIR" "$INSTALL_DIR"
