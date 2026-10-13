@@ -201,6 +201,11 @@ For an immediate image-only update on TLS, run
 
 ## Adopting this on an existing host
 
+Fresh installs now pull `pgsty/silo` + `pgsty/mc`. Before an existing host adopts the new
+`docker-compose.prod.yml`, back up `minio_data`, then rerun `bash scripts/init-host-orchestration.sh`
+after installing it. See [Object storage images](self-hosting.md#object-storage-images) for image
+overrides and migration steps.
+
 `scripts/update.sh` replaces application images only; it does not download new host scripts,
 Compose files or Caddyfiles. Rerunning the curl installer on an existing install invokes its local
 updater, so it cannot repair stale host files. Its shell `SPACEWORKS_REPOSITORY` override is ignored

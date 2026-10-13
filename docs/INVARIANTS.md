@@ -2960,6 +2960,14 @@ capped `json-file` `logging` block (via `x-logging`) or container logs fill the 
 images are pinned to a verified release tag — **verify a tag actually resolves before pinning it**
 (`minio/mc` release tags do not match the epoch in the image's `release` label).
 
+**MinIO object-storage image repositories are configurable.** `MINIO_IMAGE` / `MC_IMAGE` take
+repository names only (optional registry port, no `:tag` or `@digest`); tags belong in `*_IMAGE_TAG`.
+Defaults are `pgsty/silo` + `pgsty/mc` because MinIO removed its community images. Any replacement
+must keep `sh` + `curl` in the server image (healthcheck), `sh` + `mc` in the client image
+(`createbuckets`), and accept the `server /data --console-address` argv. This rules out distroless
+variants and Chainguard images. `backend/tests/test_object_storage_images.py` guards the defaults;
+adopting new Compose files on an existing host requires rerunning `bash scripts/init-host-orchestration.sh`.
+
 **GHCR retention must protect the whole OCI graph, and must fail closed.** `docker/build-push-action`
 leaves provenance attestations on by default, so every published tag is an OCI **index** whose
 platform manifest and attestation manifest are separate, **untagged** GHCR package versions. A

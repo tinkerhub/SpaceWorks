@@ -29,7 +29,8 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    # See docker-compose.prod.yml for the image defaults and override requirements.
+    image: ${MINIO_IMAGE:-pgsty/silo}:${MINIO_IMAGE_TAG:-RELEASE.2026-09-16T00-00-00Z}
     container_name: spaceworks-minio
     command: server /data --console-address ":9001"
     environment:
@@ -47,7 +48,7 @@ services:
       retries: 5
 
   createbuckets:
-    image: minio/mc:latest
+    image: ${MC_IMAGE:-pgsty/mc}:${MC_IMAGE_TAG:-RELEASE.2026-09-16T00-00-00Z}
     container_name: spaceworks-minio-createbuckets
     depends_on:
       minio:

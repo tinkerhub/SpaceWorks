@@ -236,11 +236,14 @@ service and readiness gate. Manual dependency audit: `pip install pip-audit && p
 
 ### Host configuration changes
 
-Any edit to `.env` or a Compose file requires rerunning `bash scripts/init-host-orchestration.sh` before
-using the Compose wrapper again. `backend/apps/backup/host_topology_record.py` hashes the static environment
-and every Compose file into a root-owned topology record; if either changes,
-`validate_compose_wrapper` raises `Compose configuration digest drifted`. This check fails closed, so the
-next Compose command refuses to run until the trusted record is rebuilt.
+Any edit to `.env` or a Compose file selected for the active topology/layer requires rerunning
+`bash scripts/init-host-orchestration.sh` before using the Compose wrapper again.
+`backend/apps/backup/host_topology_record.py` hashes the raw bytes of the static `.env` and the ordered
+Compose files selected by `scripts/spaceworks-compose.sh` into a root-owned topology record, not resolved
+image references. Exported shell variables are not fingerprinted, so an exported image override is not
+detected. If a recorded file changes, `validate_compose_wrapper` raises
+`Compose configuration digest drifted`; the next Compose command refuses to run until the trusted
+record is rebuilt.
 
 `scripts/update.sh` deploys new images only. It does not fetch newer Compose files, Caddyfiles, or host
 scripts, so automatic updates leave an existing deployment's host files unchanged; changes to those files
@@ -416,6 +419,10 @@ If an instance flips from managed → self-host after deploy, run
 | `SPACEWORKS_UPDATE_SCHEDULE` | no (default `0 3 * * 0`) | Validated five-field host cron schedule; rerun `init-host-orchestration.sh` after editing `.env` and reinstall `install-auto-update.sh` to apply it |
 | `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
 | `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N` |
+| `MINIO_IMAGE` | no (default `pgsty/silo`) | Server image repository only; optional registry port, no `:tag` or `@digest` |
+| `MINIO_IMAGE_TAG` | no (default `RELEASE.2026-09-16T00-00-00Z`) | Server image tag; must exist in `MINIO_IMAGE` |
+| `MC_IMAGE` | no (default `pgsty/mc`) | Client image repository only; optional registry port, no `:tag` or `@digest` |
+| `MC_IMAGE_TAG` | no (default `RELEASE.2026-09-16T00-00-00Z`) | Client image tag; must exist in `MC_IMAGE` |
 | `MINIO_ROOT_USER` | yes | MinIO/S3 access key used by the backend |
 | `MINIO_ROOT_PASSWORD` | yes | MinIO/S3 secret key used by the backend |
 | `AWS_STORAGE_BUCKET_NAME` | no (default `evidence`) | Private object-storage bucket for evidence and print files |
@@ -470,28 +477,103 @@ server address and port that browsers can reach, for example `http://192.168.1.2
 console binds to `127.0.0.1:9001` by default; keep it private or put it behind authenticated VPN/admin
 access.
 
+### Object storage images
+
+Both Compose files default to `pgsty/silo:RELEASE.2026-09-16T00-00-00Z` and
+`pgsty/mc:RELEASE.2026-09-16T00-00-00Z`: Pigsty's maintained MinIO fork (AGPL-3.0, amd64 + arm64).
+MinIO's Docker Hub repositories return 404 and Quay refuses anonymous pulls; distroless variants and
+Chainguard lack the shell/curl needed by the healthcheck and bucket bootstrap, while Bitnami Legacy is
+frozen.
+
+`MINIO_IMAGE` and `MC_IMAGE` take repository names only (`registry/namespace/name`, optional registry
+port, no `:tag` or `@digest`); tags go in `MINIO_IMAGE_TAG` and `MC_IMAGE_TAG`. For a private mirror:
+
+```env
+MINIO_IMAGE=registry.example.org:5000/mirror/silo
+MINIO_IMAGE_TAG=RELEASE.2026-09-16T00-00-00Z
+MC_IMAGE=registry.example.org:5000/mirror/mc
+MC_IMAGE_TAG=RELEASE.2026-09-16T00-00-00Z
+```
+
+Remove or replace any `MINIO_IMAGE_TAG` / `MC_IMAGE_TAG` pin to an upstream `RELEASE.2025-*` tag,
+whether in `.env` or exported in the shell: those tags do not exist under `pgsty`. Exported shell
+variables override `.env` during Compose interpolation.
+
+#### Existing installations
+
+`scripts/update.sh` never fetches Compose files. Existing installations keep running only while the
+old `minio/minio` image remains in the local Docker cache; `docker image prune -a` would break the next
+`up`. To adopt the new images, back up `minio_data` first (see [Backups](#backups)), while the current
+topology record still validates. Install the new `docker-compose.prod.yml` and any overlays changed by
+the release, remove or replace stale image tags, then run:
+
+```bash
+bash scripts/init-host-orchestration.sh
+scripts/spaceworks-compose.sh bundled pull
+scripts/spaceworks-compose.sh bundled up -d
+```
+
+Use the deployment's `SPACEWORKS_COMPOSE_LAYER=...` prefix on initialization and every wrapper command
+if it uses a layer (for example `SPACEWORKS_COMPOSE_LAYER=tls`). Changes to `.env` or the active Compose
+files require rebuilding the topology record; shell-exported overrides are not detected (see
+[Host configuration changes](#host-configuration-changes)).
+
+Switching an existing `minio_data` volume to Silo is a one-way data migration in practice: going back
+means restoring the backup, not just reverting the image. The [Silo migration guide](https://silo.pigsty.io/compatibility/migration/)
+asks operators to test the exact version pair before switching. The pair this repository moves between
+was tested on 2026-10-13: a volume written by MinIO `RELEASE.2025-09-07T16-13-09Z` (the previous default)
+was served by Silo `RELEASE.2026-09-16T00-00-00Z` with object versions, delete markers, versioning state
+and bucket policies intact, and with presigned POST (MIME and size conditions enforced) and PUT
+uploads working. If you pinned a different MinIO release, test your own pair.
+
 ## Backups
 
 Operational data lives in Postgres and object files live in the `minio_data` Docker volume. Back up
-both before upgrades:
+both before upgrades. Stop writers and MinIO, retaining their containers and leaving the database running;
+Silo has no `tar`, so a temporary Alpine container archives the stopped MinIO container's volume.
+
+If the deployment uses a layer, prefix every wrapper command below with its
+`SPACEWORKS_COMPOSE_LAYER=...` (for example `SPACEWORKS_COMPOSE_LAYER=tls`), including the command
+inside `cid="$(...)"`.
 
 ```bash
+scripts/spaceworks-compose.sh bundled stop frontend backend worker beat minio
 scripts/spaceworks-compose.sh bundled exec -T db \
   pg_dump -U makerspace makerspace_manager > backup-$(date +%F).sql
 
 mkdir -p backups
-scripts/spaceworks-compose.sh bundled run --rm --entrypoint sh \
-  -v "$PWD/backups:/backup" \
-  minio \
-  -c 'tar -czf /backup/minio-$(date +%F).tgz -C /data .'
+cid="$(scripts/spaceworks-compose.sh bundled ps -a -q minio)"
+if [ -z "$cid" ]; then
+  printf '%s\n' 'MinIO container not found; services remain stopped.' >&2
+else
+  docker run --rm --volumes-from "$cid":ro -v "$PWD/backups:/backup" \
+    alpine:3.24.2 tar -czf /backup/minio-$(date +%F).tgz -C /data . && \
+    scripts/spaceworks-compose.sh bundled up -d
+fi
 ```
 
 Also keep a copy of your `.env` (it holds `API_CLIENT_ENC_KEY`, without which encrypted integration
 secrets are unrecoverable, and the MinIO credentials needed to read object backups).
 
-Restore order is database first, then object files. Stop the stack, restore the Postgres dump into the
-`db` service, unpack the MinIO archive into the `minio_data` volume, then start the stack and check
-`/api/v1/health/readiness/`.
+Restore order is database first, then object files. Stop the same services and restore the Postgres
+dump into the still-running `db` service before replacing the object files below. Replace
+`YYYY-MM-DD` with the backup date. The archive is read in full first; only if it is intact is the volume
+cleared and the archive extracted, so a mistyped date or corrupt file leaves the existing objects untouched.
+
+```bash
+scripts/spaceworks-compose.sh bundled stop frontend backend worker beat minio
+# Restore the Postgres dump into db before continuing.
+cid="$(scripts/spaceworks-compose.sh bundled ps -a -q minio)"
+if [ -z "$cid" ]; then
+  printf '%s\n' 'MinIO container not found; services remain stopped.' >&2
+else
+  docker run --rm --volumes-from "$cid" -v "$PWD/backups:/backup:ro" \
+    alpine:3.24.2 sh -c 'a=/backup/minio-YYYY-MM-DD.tgz; tar -tzf "$a" >/dev/null && find /data -mindepth 1 -delete && tar -xzf "$a" -C /data' && \
+    scripts/spaceworks-compose.sh bundled up -d
+fi
+```
+
+After startup, check `/api/v1/health/readiness/`.
 
 ## Tenant Frontends
 

@@ -6,6 +6,12 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-13 — Maintained MinIO-compatible images.** Fresh installs failed at `docker compose pull`
+  after MinIO removed its community images. Both Compose files now pin `pgsty/silo` + `pgsty/mc`,
+  with configurable repositories and tags. Existing hosts must back up `minio_data` before adopting
+  the new Compose files and rerun `init-host-orchestration.sh`; reverting the image alone is not a
+  data rollback.
+
 - **2026-09-09 — Check-in gated public requests (`apps/checkin` reinstated) + machine-service counter
   settlement.** Public borrow submission gained a third identity path: `public_request_mode` = `checked_in`
   matches a typed name against one upstream TinkerHub roster and mints a stable per-person walk-in principal.

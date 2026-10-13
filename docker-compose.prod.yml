@@ -46,7 +46,13 @@ services:
       timeout: 5s
       retries: 6
   minio:
-    image: minio/minio:${MINIO_IMAGE_TAG:-RELEASE.2025-09-07T16-13-09Z}
+    # MinIO removed its community Docker Hub images (minio/minio, minio/mc 404);
+    # quay.io refuses anonymous pulls. Default: Pigsty's maintained pgsty/silo + pgsty/mc.
+    # MINIO_IMAGE/MC_IMAGE are repository names only (no :tag or @digest); tags go in
+    # MINIO_IMAGE_TAG/MC_IMAGE_TAG. Old upstream RELEASE.2025-* tags do not exist under pgsty.
+    # The server binary is silo; the entrypoint maps 'server ...' argv to it, so command stays.
+    # Do not use -distroless variants: the healthcheck needs curl; createbuckets needs sh.
+    image: ${MINIO_IMAGE:-pgsty/silo}:${MINIO_IMAGE_TAG:-RELEASE.2026-09-16T00-00-00Z}
     restart: *default-restart
     logging: *default-logging
     command: server /data --console-address ":9001"
@@ -71,7 +77,7 @@ services:
       timeout: 5s
       retries: 6
   createbuckets:
-    image: minio/mc:${MC_IMAGE_TAG:-RELEASE.2025-08-13T08-35-41Z}
+    image: ${MC_IMAGE:-pgsty/mc}:${MC_IMAGE_TAG:-RELEASE.2026-09-16T00-00-00Z}
     depends_on:
       minio:
         condition: service_healthy
