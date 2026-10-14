@@ -2768,27 +2768,38 @@ serializer is exactly what the PII review rejected. Leave it alone.
 
 ## Container / deployment invariants
 
-**The release webhook receiver only queues; host tooling executes deployments.**
-`backend/scripts/deploy_webhook.py` verifies raw-body HMAC, repository, published non-draft/non-prerelease
-main releases, delivery IDs and request limits before atomically writing a local queue file. Empty
-`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables it. The read-only, unprivileged receiver has no Docker socket,
-Django/database configuration, `.env` mount or host orchestration authority. nginx/Caddy reaches it on the
-internal `deploy-hooks` network; frontend and Caddy also retain `default` for application/storage access.
-The host `spaceworks-deploy.path` activates an install-owner service running
-`scripts/deploy-from-request.sh`, which invokes `update.sh --no-module-changes` (never `--force`). A
-request is deleted only once the installed version changes: a delivery that arrives before
-`release.yml` promotes the release to latest is retried for an hour, and a failed update is retried
-with backoff for a day, so neither a promotion race nor a transient outage loses it. The bundled
-frontend mounts the host-bundle `frontend/nginx.conf`, so an image rollback keeps `/hooks/deploy`;
-the curl installer pins `update.sh` to the release it staged (`SPACEWORKS_PINNED_RELEASE`); and the
-Cloud topology's receiver is permanently disabled (no secret, no queue) because the host updater
-drives only the bundled stack. Without systemd,
-a one-minute local-queue cron is the fallback; it must never become release polling. Delivery payloads
-are wake-up signals only: `update.sh` independently selects the eligible GitHub release, takes host locks,
-backs up, refreshes trusted Compose records/producer capability, retires polling and the update tombstone,
-and runs migrations before application startup. Rollback restarts application services with `--no-deps`,
-excluding `migrate`; it does not reverse database migrations. Setup writes the secret before creating
-Compose records/containers, and `.spaceworks-layer` preserves the overlay for unattended updates.
+**Only `deploy.yml` may target the production self-hosted runner; host tooling executes deployments.**
+No other `.github/workflows` file may contain `self-hosted` or `spaceworks-prod`. `deploy.yml` has only
+successful Continuous Release `workflow_run` completion on `main` and manual dispatch on `main` as
+deployment paths; it must never gain PR or push triggers. The repository variable
+`SPACEWORKS_DEPLOY_RUNNER == 'true'` gates the job, which has `permissions: {}`, serial concurrency,
+no checkout, no `uses:` steps and no execution of repository code. Its sole command invokes the
+already installed `scripts/update.sh --no-module-changes` (never `--force`) with
+`SPACEWORKS_DEPLOY_WAIT=1`. The install path comes from the runner's own `.env`, never workflow input.
+Continuous Release has promoted latest before deployment starts; `update.sh` independently selects
+the eligible GitHub release.
+
+**Fork PR approval is a human boundary, not runner isolation.** Public-repository fork workflows can
+target a repository-level production runner once approved. Require approval for all outside
+collaborators (`all_external_contributors`) and review workflow changes before approving. When `gh`
+is available, the installer checks the policy and refuses an unsafe result unless
+`SPACEWORKS_RUNNER_ACCEPT_RISK=1`; inability to query must still warn the owner to verify it. An
+organization runner group restricted to `deploy.yml@main` is the stronger boundary and needs an org admin.
+
+`scripts/install-deploy-runner.sh` runs as the current, non-root install owner on Linux x64/arm64 with
+running systemd and sudo. It verifies the pinned v2.338.0 SHA-256 before extraction and never extracts
+over an existing installation. Same-repository configured runners only refresh `SPACEWORKS_INSTALL_DIR`
+and restart; service installation happens only when needed. Registration/removal tokens travel through
+`ACTIONS_RUNNER_INPUT_TOKEN`, never argv, files or output. Setup prints instructions after startup and
+does not mint or save a token. The earlier deployment receiver never shipped, so no installed host
+needs receiver cleanup.
+
+The curl installer pins `update.sh` to its staged release (`SPACEWORKS_PINNED_RELEASE`). Independently
+of the trigger, updates take host locks, back up the database selected by the ops pointer, pre-pull,
+preserve and restore producer proof, refresh trusted Compose records/producer capability, retire polling
+and the update tombstone, and run migrations before application startup. Host-bundle adoption follows
+the database backup. Rollback restarts application services with `--no-deps`, excluding `migrate`; it
+does not reverse database migrations. `.spaceworks-layer` preserves the overlay for unattended updates.
 
 **The H1 host marker is a process boundary, and PostgreSQL grants are a separate authority
 boundary.** Every application-image start must enter through

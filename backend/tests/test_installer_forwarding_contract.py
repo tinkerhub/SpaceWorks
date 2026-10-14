@@ -33,7 +33,7 @@ def test_installer_validates_fork_repository_without_sourcing_repo_files():
 def test_installer_release_preflight_and_quoted_forwarding():
     """Updates stage the release; setup must preserve literal image overrides."""
     source = (ROOT / "install.sh").read_text(encoding="utf-8")
-    start = source.index('if [[ "$ACTION" != modules ]]; then\n  release_json=')
+    start = source.index('if [[ "$ACTION" != modules && "$ACTION" != runner ]]; then\n  release_json=')
     end = source.index('say "All preflight checks passed;', start)
     preflight = source[start:end]
     assert source.count("release_json=") == 1
@@ -69,6 +69,8 @@ def test_installer_requires_the_request_access_helper_in_the_release():
     required = required.replace("\\\n", "").split()
     assert "setup.sh" in required
     assert "scripts/request-access-selection.sh" in required
+    assert "scripts/install-deploy-runner.sh" in required
+    assert "scripts/setup-deploy-runner.sh" in required
 
 
 def test_installer_reads_the_private_stage_dir_only_as_root():
@@ -89,6 +91,7 @@ def test_installer_reads_the_private_stage_dir_only_as_root():
 @pytest.mark.parametrize("name", [
     "install.sh", "setup.sh", "scripts/request-access-selection.sh",
     "scripts/env-file.sh", "scripts/host-image.sh",
+    "scripts/install-deploy-runner.sh", "scripts/setup-deploy-runner.sh",
 ])
 def test_install_entrypoints_and_helpers_stay_modular(name):
     """Keep host setup small enough that validation and privileged transitions remain reviewable."""

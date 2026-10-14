@@ -66,7 +66,7 @@ The script will ask you a few simple questions (press Enter to accept the sugges
 | Admin email | your email |
 | Admin password | type one, or leave blank and it makes a strong one for you |
 | Modules | leave the current ticks, use `a` for all, `n` for core only, or toggle numbers |
-| Automatic updates | press Enter to enable backup-first updates from signed GitHub release webhooks; register the Releases webhook after setup |
+| Automatic updates | press Enter for self-hosted Actions runner setup instructions after startup; requires Linux/systemd and two GitHub settings |
 
 Then it pulls the pinned release images and starts everything. **The first time takes a few minutes** —
 that's normal. Developers with a full source checkout can explicitly use `bash setup.sh --build`; normal
@@ -163,12 +163,12 @@ You have two good options before giving up:
   `scripts/spaceworks-compose.sh bundled up -d`.
 - **Stop it:** `scripts/spaceworks-compose.sh bundled down`
   (your data is safe — it's kept in a database volume).
-- **Update to a newer version:** guided installs offer signed GitHub release webhook updates. Run
+- **Update to a newer version:** guided installs offer self-hosted Actions runner updates on Linux/systemd. Run
   `bash scripts/update.sh` on Linux, macOS or Windows Git Bash to update immediately when your installed
   version differs from the latest release; add `--force` to reinstall the same release. Configure the
-  repository's **Releases** webhook using the secret in `.env`; an empty
-  `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables the receiver after configuration refresh and recreation;
-  see [webhook setup](self-hosting.md#automatic-and-manual-upgrades). Answering “No” retires old polling;
+  runner and enable the repository variable `SPACEWORKS_DEPLOY_RUNNER=true`; require approval for all
+  outside collaborators and review workflow changes before approval, because fork PRs can target the host.
+  See [runner setup and public-repository risks](self-hosting.md#automatic-and-manual-upgrades);
   the interactive command also opens the current module tick list. The updater backs up
   PostgreSQL and verifies the new release before marking it installed. If the new application fails,
   it automatically returns to the previous retained release. Your `.env` and data are preserved. The

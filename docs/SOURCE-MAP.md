@@ -8,15 +8,15 @@
 
 ## Current source map (real paths)
 
-- `backend/scripts/deploy_webhook.py` — stdlib signed GitHub release receiver; queues atomic requests,
-  never executes host commands. `deploy/deploy-webhook.openapi.json` documents its HTTP contract.
-- `scripts/deploy-from-request.sh` / `install-deploy-webhook.sh` — host queue consumer and systemd
-  path/service installer (local queue cron fallback); deployments run through `scripts/update.sh`.
+- `.github/workflows/deploy.yml` — the only workflow allowed to target the production self-hosted runner;
+  follows successful Continuous Release on `main`, or manual dispatch on `main`, without checking out code.
+- `scripts/install-deploy-runner.sh` — pinned, checksum-verified Actions runner installer/remover for
+  the current install owner on Linux/systemd; deployments run through installed `scripts/update.sh`.
+  `scripts/setup-deploy-runner.sh` prints registration instructions after guided setup starts the stack.
   `retire-update-polling.sh` removes legacy polling; `retire-update-tombstone.sh` removes only the
   deleted `updates` token from `TOMBSTONED_APPS`. `env-file.sh` and `host-image.sh` resolve settings/repository.
-- `docker-compose.prod.yml`, `docker/compose.tls.yml`, `docker/compose.saas.yml` — internal
-  `deploy-hooks` receiver network; separate frontend nginx and Caddy route `/hooks/deploy` directly
-  to `deploy-webhook:8081`. The dev/cloud Compose files also supply the receiver for nginx resolution.
+- `docker-compose.prod.yml`, `docker/compose.tls.yml`, `docker/compose.saas.yml` — bundled production
+  stack and TLS/SaaS overlays; deployment triggers run on the host through the Actions runner.
   `scripts/spaceworks-compose.sh` reads `.spaceworks-layer` for the persistent overlay selection.
 
 - `backend/config/` — Django project (`settings.py`, `urls.py`, wsgi/asgi). All API routes under `/api/`.

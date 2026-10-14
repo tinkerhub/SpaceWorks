@@ -149,37 +149,57 @@ released commit is still the main branch head. The self-host updater uses that r
 as its gate, creates a PostgreSQL backup, deploys the exact immutable tag, runs migrations through the
 Compose migration service, and records the version only after the readiness check passes.
 
-Guided setup asks **Enable automatic production updates from main?** before writing configuration.
-Only **Yes** generates a strong `SPACEWORKS_DEPLOY_WEBHOOK_SECRET`, saved privately in `.env` before
-Compose records and containers are created. Setup never prints the secret. After startup it installs
-`spaceworks-deploy.path` and `spaceworks-deploy.service` on systemd hosts. The service runs as the
-install owner. Other hosts receive a one-minute cron command for `scripts/deploy-from-request.sh`;
-this checks the local queue only. Answering **No** retires old release polling jobs.
+Guided setup asks **Enable automatic production updates from main?** before starting the stack.
+**Yes** prints runner setup instructions after the stack is up; setup does not mint or save a token.
+Automatic deployment requires Linux x64/arm64, running systemd and sudo. Run the installer as the
+current, non-root install owner; the runner lives in `$HOME/spaceworks-actions-runner` and its service
+runs as that user. The installer verifies the pinned Actions runner v2.338.0 archive's SHA-256 and
+retires old release polling jobs. Other platforms can still update manually.
 
-In the followed repository, open **Settings → Webhooks → Add webhook**:
+**Public repository warning:** a repository-level runner can receive a fork PR workflow targeting
+`spaceworks-prod` once a maintainer approves it. Requiring approval is a human gate, not isolation.
+Review every workflow change before approving a fork PR run. An organization runner group restricted
+to `deploy.yml@main` is the stronger boundary and requires an organization administrator.
 
-1. **Payload URL:** `https://<PUBLIC_DOMAIN or host>/hooks/deploy`.
-2. **Content type:** `application/json`.
-3. **Secret:** copy `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` from `.env` privately.
-4. Select individual events, choose **Releases** only, and enable **Active**.
+In the followed repository, configure both GitHub settings:
 
-GitHub must be able to reach the endpoint over HTTPS. nginx/Caddy forwards it to the internal receiver,
-which verifies the raw-body HMAC, repository, published non-draft/non-prerelease release and main tag.
-It handles signed pings, deduplicates deliveries and limits requests. It only writes atomic local
-queue files; it has no database, Docker socket or `.env` mount and never executes an update. The host
-consumer coalesces requests and runs `update.sh --no-module-changes`; the payload is only a
-wake-up signal, and the updater independently checks GitHub. Requests stay queued until a newer
-release is actually installed, so a delivery that beats the release's promotion or a failed update is
-retried rather than lost. Deploy and rollback output goes to
-`backups/deploy.log`. Install or repair the host trigger with:
+1. **Settings → Actions → General → Fork pull request workflows:** require approval for **all outside
+   collaborators** (`all_external_contributors`). When `gh` is available, the installer checks this policy
+   and refuses an unsafe result unless `SPACEWORKS_RUNNER_ACCEPT_RISK=1` explicitly accepts the risk.
+   An unavailable policy check does not prove the setting is safe; verify it yourself before registration.
+2. **Settings → Secrets and variables → Actions → Variables:** add `SPACEWORKS_DEPLOY_RUNNER=true`.
+   With authenticated `gh`, use `gh variable set SPACEWORKS_DEPLOY_RUNNER --body true --repo OWNER/REPO`.
+
+Then install the runner as the install owner. Guided setup does this when you answer **Y** to
+automatic updates, the curl installer offers **Set up automatic deploys (GitHub runner)** on an
+existing host, or run it directly. It asks for a one-time registration token at a hidden prompt and
+prints where to get one (**Settings → Actions → Runners → New self-hosted runner**):
 
 ```bash
-bash scripts/install-deploy-webhook.sh
+bash scripts/install-deploy-runner.sh
 ```
 
-To disable future deliveries, clear `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` in `.env`, rebuild configuration
-records and recreate the receiver. Disable the GitHub webhook and stop `spaceworks-deploy.path`
-(or remove the local queue cron job) when stopping host consumption too.
+For unattended use, export `RUNNER_TOKEN` instead (for example
+`RUNNER_TOKEN="$(gh api -X POST repos/OWNER/REPO/actions/runners/registration-token --jq .token)"`).
+The installer passes the token through `ACTIONS_RUNNER_INPUT_TOKEN`, never argv or the runner `.env`.
+It resolves the repository from the installed configuration. `SPACEWORKS_INSTALL_DIR` is written to
+the runner's own `.env`, not supplied by the workflow.
+
+`deploy.yml` runs only after **Continuous Release** completes successfully on `main`, or manual
+dispatch on `main`. It has no checkout or action steps and runs only installed
+`update.sh --no-module-changes`, with `SPACEWORKS_DEPLOY_WAIT=1` to wait for the update lock. The
+release is already promoted to latest before this job runs. Output, including rollback results, is
+available in the Actions job log. No other workflow may target a self-hosted runner.
+
+To repair the same-repository configured runner, rerun `bash scripts/install-deploy-runner.sh` without
+a token: it refreshes the install path and restarts the service without extraction or registration.
+Set `SPACEWORKS_DEPLOY_RUNNER=false` to stop future automatic deployment jobs. To unregister, get a
+fresh removal token from GitHub's runner removal instructions (or the `actions/runners/remove-token`
+API), then run as the install owner:
+
+```bash
+bash scripts/install-deploy-runner.sh --remove   # asks for the removal token (hidden)
+```
 
 Run an immediate checked update with:
 
@@ -188,7 +208,7 @@ bash scripts/update.sh  # add --force to reinstall the latest release even if al
 ```
 
 When run in a terminal, the updater opens the same live-registry module tick list after the release is
-healthy. It is seeded from each makerspace's current `enabled_modules`, not an install profile. Webhook
+healthy. It is seeded from each makerspace's current `enabled_modules`, not an install profile. Runner
 deployments explicitly skip module changes. Useful explicit forms are:
 
 ```bash
@@ -226,11 +246,11 @@ automatically.
 The scripts use `.spaceworks-update.lock` to prevent overlapping runs and `.spaceworks-version` to avoid
 redeploying the same release. If migration, deployment, or readiness fails after replacement starts, the
 updater automatically pulls and starts the previous retained application release, then verifies its
-health. The version marker is not advanced, webhook output in `backups/deploy.log` records whether
+health. The version marker is not advanced, the runner's Actions job log records whether
 rollback succeeded, and the database backup remains available. Database migrations are not reversed
 automatically; keep migrations backward compatible with the immediately previous application release.
 If application rollback also fails, review
-`backups/deploy.log` before restoring the database snapshot and previous image tag manually.
+the Actions job log (or manual updater output) before restoring the database snapshot and previous image tag manually.
 
 Known limitation: when an upgrade started from the curl installer fails, rollback restores the previous
 images and producer proof but keeps the installer's newer host files, so compound backups refuse the
@@ -273,12 +293,12 @@ before adopting the host bundle. Private `.env`, version/layer markers, backups,
 orchestration state are preserved. This uses release archives and does not require Git.
 
 The TLS overlay pins Caddy to an explicit patch release. `scripts/update.sh` pulls only the SpaceWorks
-backend, frontend and deploy-webhook images, not Caddy, so installing a Caddy security update requires changing that pin in
+backend and frontend images, not Caddy, so installing a Caddy security update requires changing that pin in
 `docker/compose.tls.yml`, rerunning `bash scripts/init-host-orchestration.sh`, and bringing the Compose layer
 up again.
 
 The wrapper reads the persisted `.spaceworks-layer` marker. Save `tls` or `saas` there before rebuilding
-configuration records for that overlay, so webhook deployments and rollback retain the active topology.
+configuration records for that overlay, so runner deployments and rollback retain the active topology.
 An explicit `SPACEWORKS_COMPOSE_LAYER` still overrides the marker for an individual command.
 
 ## Publishing new images (maintainers)
@@ -433,7 +453,7 @@ If an instance flips from managed → self-host after deploy, run
 | `SPACEWORKS_REPOSITORY` | no (default `SpaceWorks-HQ/SpaceWorks`) | GitHub `owner/repo` whose latest release the host follows; fresh installs derive image names from its lowercased owner |
 | `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
 | `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
-| `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` | for automatic deploys | Strong shared GitHub webhook secret; empty disables the receiver. After edits rerun `init-host-orchestration.sh` and recreate the receiver |
+| `SPACEWORKS_DEPLOY_RUNNER` | repository variable for automatic deploys | Set `true` in GitHub Actions variables after runner setup; `false` disables automatic deployment jobs. This is not a host `.env` setting |
 | `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
 | `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N` |
 | `MINIO_IMAGE` | no (default `pgsty/silo`) | Server image repository only; optional registry port, no `:tag` or `@digest` |

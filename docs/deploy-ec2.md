@@ -11,7 +11,7 @@ The deployment chain is:
 
 ```text
 Owner pushes main -> CI (tests + pip-audit) -> release images and GitHub Release
-  -> signed release webhook -> local queue -> host updater
+  -> successful Continuous Release -> self-hosted Actions runner -> host updater
   -> database backup -> pull immutable images
   -> migrate and restart -> readiness check -> record installed version
                                             -> on failure: application rollback
@@ -28,8 +28,8 @@ also refused unless the ref is `main` and successful push CI exists for that exa
 must finish, and the commit must still be the main head, before the release becomes latest.
 
 Expect roughly an hour for CI, plus image build/publish time and time to back up and deploy.
-Runner queues, image downloads and database size add time. GitHub sends an HTTPS release webhook;
-the receiver only queues a request, and the host updater independently checks GitHub for the release.
+Runner queues, image downloads and database size add time. `deploy.yml` starts only after release
+promotion finishes, and the host updater independently checks GitHub for the release.
 
 ## One-time GitHub setup
 
@@ -104,9 +104,9 @@ For the prompts:
 - **Admin username/email/password:** choose credentials or save the generated password. Google
   sign-in and Stripe are optional; leave them blank if you are not configuring them.
 - **Module selection:** review the check-in defaults described below.
-- **Enable automatic production updates from main?:** answer **Y** for release webhook updates.
-  Setup generates `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` in `.env` before creating Compose records or
-  containers, then installs the host trigger after startup. **No** removes old release polling jobs.
+- **Enable automatic production updates from main?:** answer **Y** for runner setup instructions.
+  Setup prints them after the stack starts; it does not generate or save a deployment token.
+  **No** skips those instructions; the runner installer and updater retire old release polling jobs.
 
 Option 4 writes `CHECKIN_API_URL` and `CHECKIN_REQUIRED_PURPOSE` to `.env`, starts the makerspace with
 the `checkin` module profile, then sets `checked_in` request mode and the upstream space ID in the
@@ -118,18 +118,45 @@ can enter another checked-in person's name. Staff still accept every borrow requ
 hand-over evidence. Read [Check-in gated requests](INVARIANTS.md#check-in-gated-requests) before
 choosing this policy.
 
-Reconnect SSH if Docker group membership was added. After configuring HTTPS below, register the webhook
-in **tinkerhub/SpaceWorks → Settings → Webhooks → Add webhook**:
+Reconnect SSH if Docker group membership was added. Register the runner as the current, non-root
+install owner in `/opt/spaceworks`; Linux x64/arm64, running systemd and sudo are required.
+The installer verifies the pinned Actions runner v2.338.0 archive's SHA-256 before extracting it into
+`$HOME/spaceworks-actions-runner`. Its systemd service runs as the install owner.
 
-1. **Payload URL:** `https://<PUBLIC_DOMAIN or host>/hooks/deploy`.
-2. **Content type:** `application/json`.
-3. **Secret:** copy `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` from the private `.env`; do not publish it.
-4. Choose individual events, select **Releases** only, and enable **Active**.
+**Public repository warning:** `tinkerhub/SpaceWorks` is public. A fork PR can add a workflow targeting
+the repository-level production runner and execute it once a maintainer approves the run. Review all
+workflow changes before approving fork PR runs; approval alone does not isolate the runner. The stronger
+boundary is an organization runner group restricted to `deploy.yml@main`, which needs an org administrator.
 
-Confirm `systemctl status spaceworks-deploy.path`. If the trigger needs repair, run
-`bash scripts/install-deploy-webhook.sh` from `/opt/spaceworks`. The service runs as the install owner.
-Without systemd, the installer prints a one-minute cron command that consumes only local queued
-requests; it does not poll releases. GitHub must be able to reach the webhook over HTTPS.
+Configure these two settings in **tinkerhub/SpaceWorks**:
+
+1. **Settings → Actions → General → Fork pull request workflows:** require approval for **all outside
+   collaborators** (`all_external_contributors`). When `gh` is available, the installer checks this policy
+   and refuses an unsafe result unless `SPACEWORKS_RUNNER_ACCEPT_RISK=1`; if it cannot check, verify it
+   yourself before proceeding.
+2. **Settings → Secrets and variables → Actions → Variables:** set `SPACEWORKS_DEPLOY_RUNNER=true`, or
+   run `gh variable set SPACEWORKS_DEPLOY_RUNNER --body true --repo tinkerhub/SpaceWorks` with authenticated `gh`.
+
+Then install the runner on the server, as the install owner. Any of these runs the same installer,
+which asks for a one-time registration token at a hidden prompt and prints where to get one
+(**Settings → Actions → Runners → New self-hosted runner**, or the `registration-token` API):
+
+- answer **Y** to "Enable automatic production updates from main?" during guided setup;
+- rerun the curl installer on an existing host and choose **Set up automatic deploys (GitHub runner)**;
+- or run it directly:
+
+```bash
+bash scripts/install-deploy-runner.sh
+```
+
+For unattended use, export `RUNNER_TOKEN` instead (for example
+`RUNNER_TOKEN="$(gh api -X POST repos/tinkerhub/SpaceWorks/actions/runners/registration-token --jq .token)"`).
+The token reaches runner configuration only through `ACTIONS_RUNNER_INPUT_TOKEN`, never argv, files or
+output. The runner's `.env` supplies `SPACEWORKS_INSTALL_DIR`; the workflow does not choose the path.
+`deploy.yml` never checks out or runs repository code: it runs installed `update.sh --no-module-changes`
+after successful Continuous Release on `main`, or manual dispatch on `main`, and waits for the update lock.
+Confirm the runner is **Idle** in GitHub's runner settings. Rerun the installer without a token to repair
+the same-repository configured runner; it refreshes the path and restarts without extraction or registration.
 
 ## Enabling the modules and Telegram
 
@@ -187,7 +214,7 @@ for further details.
 ## Verifying a deploy
 
 In GitHub Actions, confirm **CI** succeeded for the pushed main SHA and **Continuous Release** finished.
-On the server, inspect `backups/deploy.log` with `tail -n 100 backups/deploy.log` and compare
+Inspect the **Production Deploy** job log, and on the server compare
 `.spaceworks-version` with the latest GitHub release tag (the marker omits its leading `v`).
 Run `bash scripts/update.sh` for an immediate update when the installed version differs from the latest
 release; add `--force` to reinstall it. Update controls and results are managed on the host.
@@ -208,11 +235,11 @@ Fresh installs now pull `pgsty/silo` + `pgsty/mc`. Before an existing host adopt
 after installing it. See [Object storage images](self-hosting.md#object-storage-images) for image
 overrides and migration steps.
 
-To adopt the webhook tooling on an existing curl install, rerun the install command and choose
+To adopt the runner tooling on an existing curl install, rerun the install command and choose
 **Update** or **Update, then change modules**. It downloads the pinned release into staging and uses
 that release's updater to back up the database before adopting its host scripts, Compose and proxy
 files. It preserves private `.env`, version/layer markers, backups, volumes and host orchestration state.
-The installer follows the repository in the installed `.env`; direct `update.sh` calls may override it. Ordinary webhook updates
+The installer follows the repository in the installed `.env`; direct `update.sh` calls may override it. Ordinary runner updates
 replace images; rerun the installer when a release changes host tooling. No Git checkout is needed.
 
 Replace/add these keys in the existing `.env`:
@@ -221,7 +248,6 @@ Replace/add these keys in the existing `.env`:
 SPACEWORKS_REPOSITORY=tinkerhub/SpaceWorks
 MAKERSPACE_BACKEND_IMAGE=ghcr.io/tinkerhub/spaceworks-backend
 MAKERSPACE_FRONTEND_IMAGE=ghcr.io/tinkerhub/spaceworks-frontend
-SPACEWORKS_DEPLOY_WEBHOOK_SECRET=<new random secret>
 ```
 
 Direct updater calls resolve the repository from shell → `.env` → `SpaceWorks-HQ/SpaceWorks`. Clear
@@ -231,10 +257,9 @@ marker for ordinary Compose commands; remove a stale pin if you want the marker 
 When switching from upstream to a fork, first confirm the installed marker's tag exists in the fork's
 image packages too. If it does not, use a valid fork release tag for a manual deployment before
 enabling its updater; the new image names alone cannot make an upstream-only tag pullable.
-Generate the webhook secret with `openssl rand -hex 32` (or Python `secrets.token_hex(32)`) and
-store it privately in `.env`. For TLS, save `tls` in `.spaceworks-layer` before rerunning
-`bash scripts/init-host-orchestration.sh` and recreating the receiver through the Compose wrapper.
-Run `bash scripts/install-deploy-webhook.sh` and register the webhook as described above.
+For TLS, save `tls` in `.spaceworks-layer` before rerunning
+`bash scripts/init-host-orchestration.sh` and recreating the stack through the Compose wrapper.
+Register the runner and configure the two GitHub settings as described above.
 
 Existing setup does not ask the first-run check-in questions again. To adopt that mode, set the
 check-in URL/purpose in `.env`, rerun orchestration initialization, recreate the stack using its
@@ -252,11 +277,11 @@ policy and upstream space ID; setting the URL alone does not enable the policy.
 
 If migration, replacement or readiness fails after deployment starts, the updater tries the previous
 retained application release and checks readiness again. It keeps the database backup, does not advance
-the version marker, and webhook-triggered runs record the result in `backups/deploy.log`. Database migrations
+the version marker, and runner-triggered runs record the result in the Actions job log. Database migrations
 are not reversed. The release workflow retains the current and immediately previous builds for this purpose.
 
-For a deliberate manual rollback, disable the GitHub webhook and stop the host path trigger with
-`sudo systemctl disable --now spaceworks-deploy.path`, then identify the previous image tag and follow [manual deployment and recovery](self-hosting.md#automatic-and-manual-upgrades).
+For a deliberate manual rollback, set the repository variable `SPACEWORKS_DEPLOY_RUNNER=false` and
+wait for any running deploy job to finish, then identify the previous image tag and follow [manual deployment and recovery](self-hosting.md#automatic-and-manual-upgrades).
 Set `MAKERSPACE_IMAGE_TAG` to that tag in `.env`, rerun `bash scripts/init-host-orchestration.sh`, and
 pull/start through the wrapper with the same TLS prefix if applicable. Verify readiness before
 recording the restored version. After readiness succeeds, replace `PREVIOUS_TAG` below with the

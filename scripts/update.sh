@@ -119,18 +119,18 @@ cleanup() {
   trap - EXIT
   set +e
   if [[ "$update_claimed" == 1 && "$update_complete" == 0 ]]; then
-    failure_message="Host update failed. Check backups/deploy.log."
+    failure_message="Host update failed. Check the terminal output or Actions job log."
     if [[ "$deployment_started" == 1 && \
       "$previous_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-main\.[0-9]+\.[0-9a-f]{12}$ ]]; then
       say "Update failed; rolling application containers back to $previous_version."
       export MAKERSPACE_IMAGE_TAG="$previous_version"
-      "${COMPOSE[@]}" pull backend worker beat frontend deploy-webhook || \
+      "${COMPOSE[@]}" pull backend worker beat frontend || \
         say "Could not refresh previous images; trying the host's cached copies."
       # Put back the previous proof byte-for-byte; forward database changes stay in place.
       # Regenerating it would run the OLD image's installer, which may predate its fix.
       producer_marker 'if [ -f /p/.producer-capability.previous ]; then mv -f /p/.producer-capability.previous /p/producer-capability.json; fi' \
         || say "Could not restore the previous producer proof."
-      if "${COMPOSE[@]}" up -d --no-deps backend worker beat frontend deploy-webhook && wait_for_backend; then
+      if "${COMPOSE[@]}" up -d --no-deps backend worker beat frontend && wait_for_backend; then
         say "Rollback complete: $previous_version is healthy."
         failure_message="Update failed; application containers rolled back to $previous_version. The database backup was retained."
       else
@@ -154,7 +154,7 @@ producer_marker() {
 }
 trap cleanup EXIT
 acquire_update_lock
-# Preserve the selected topology for future deliveries, including upgraded TLS hosts.
+# Preserve the selected topology for unattended updates, including upgraded TLS hosts.
 layer="${SPACEWORKS_COMPOSE_LAYER:-}"
 [[ -n "$layer" || "${SPACEWORKS_COMPOSE_BUILD_LAYER:-0}" != 1 ]] || layer=build
 if [[ -n "$layer" ]]; then
@@ -246,7 +246,7 @@ install_staged_host_bundle "$(cd "$UPDATE_SCRIPT_DIR/.." && pwd)"
 producer_marker 'rm -f /p/.producer-capability.previous; if [ -f /p/producer-capability.json ]; then cp -p /p/producer-capability.json /p/.producer-capability.previous; fi' \
   || die "Could not save the current producer proof; update cancelled."
 deployment_started=1
-# Queue ownership, new Compose hashes and producer proof must precede Django startup.
+# New Compose hashes and producer proof must precede Django startup.
 bash "$ROOT/scripts/init-host-orchestration.sh"
 COMPOSE=("$ROOT/scripts/spaceworks-compose.sh" bundled)
 

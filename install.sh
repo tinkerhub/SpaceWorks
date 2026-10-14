@@ -108,13 +108,14 @@ if command -v docker >/dev/null 2>&1 && ! docker info >/dev/null 2>&1; then
 fi
 if [[ -f "$INSTALL_DIR/.spaceworks-version" ]]; then
   [[ ! ${SPACEWORKS_REPOSITORY+x} ]] || { say "SPACEWORKS_REPOSITORY from the shell is ignored for an existing install; SPACEWORKS_REPOSITORY in $INSTALL_DIR/.env decides where updates come from."; unset SPACEWORKS_REPOSITORY; }
-  ACTION="$(prompt $'Existing SpaceWorks install detected.\n  1) Update to latest release\n  2) Change modules\n  3) Update and change modules\n  4) Cancel\nChoose [4]: ')"
-  ACTION="${ACTION:-4}"
+  ACTION="$(prompt $'Existing SpaceWorks install detected.\n  1) Update to latest release\n  2) Change modules\n  3) Update and change modules\n  4) Set up automatic deploys (GitHub runner)\n  5) Cancel\nChoose [5]: ')"
+  ACTION="${ACTION:-5}"
   case "$ACTION" in
     1) ACTION=update ;;
     2) ACTION=modules ;;
     3) ACTION=both ;;
-    4) say "Cancelled; existing deployment was not changed."; exit 0 ;;
+    4) ACTION=runner ;;
+    5) say "Cancelled; existing deployment was not changed."; exit 0 ;;
     *) die "Invalid menu choice; existing deployment was not changed." ;;
   esac
   [[ -f "$INSTALL_DIR/scripts/update.sh" ]] || die "The version marker exists but scripts/update.sh is missing. Repair the install manually."
@@ -160,7 +161,7 @@ available_kb="$(df -Pk "$disk_path" | awk 'NR == 2 {print $4}')"
 [[ "$available_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space for $INSTALL_DIR."
 ((available_kb >= MIN_FREE_KB)) || die "At least 8 GiB free is required; $disk_path has $((available_kb / 1024)) MiB."
 say "Disk-space check passed."
-if [[ "$ACTION" != modules ]]; then
+if [[ "$ACTION" != modules && "$ACTION" != runner ]]; then
   release_json="$(curl --fail --silent --show-error --location \
     --header 'Accept: application/vnd.github+json' \
     --header 'User-Agent: spaceworks-curl-installer' "$RELEASE_API")" \
@@ -264,7 +265,7 @@ run_installed() {
     (cd "$INSTALL_DIR" && bash -c "$command" < /dev/tty)
   fi
 }
-[[ "$ACTION" != modules ]] || { run_installed "bash scripts/update.sh --modules-only"; exit 0; }
+case "$ACTION" in modules) run_installed "bash scripts/update.sh --modules-only"; exit 0 ;; runner) [[ -f "$INSTALL_DIR/scripts/install-deploy-runner.sh" ]] || die "This install predates runner deploys; choose 1 (update) first, then 4."; run_installed "bash scripts/install-deploy-runner.sh"; exit 0 ;; esac
 ARCHIVE="$(mktemp)"
 curl --fail --silent --show-error --location \
   "https://github.com/$REPOSITORY/archive/refs/tags/$RELEASE_TAG.tar.gz" -o "$ARCHIVE"
@@ -274,7 +275,7 @@ STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d "$parent/.spaceworks-stage.XXXXXX")"
 "${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1
 for required in setup.sh docker-compose.prod.yml scripts/update.sh scripts/spaceworks-compose.sh \
   scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh \
-  scripts/install-host-bundle.sh scripts/install-deploy-webhook.sh backend/scripts/deploy_webhook.py; do
+  scripts/install-host-bundle.sh scripts/install-deploy-runner.sh scripts/setup-deploy-runner.sh; do
   "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" || die "The pinned release archive is missing required installer file $required."
 done
 "${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR" "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"

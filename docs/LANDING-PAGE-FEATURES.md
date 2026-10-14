@@ -344,11 +344,12 @@ Docker, generates secrets, writes configuration, builds the stack, creates the f
 makerspace, and prints the URL and credentials. Prebuilt backend and frontend container images are also
 available. PostgreSQL, Redis, S3-compatible storage, background workers and migrations use Docker Compose.
 
-Signed GitHub release webhooks queue a request for host scripts, which independently check the latest
-release; operators can also run updates manually. Guided updates are backup-first, run readiness checks
-and can return application containers to the retained prior release if deployment fails. An empty
-`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables the receiver after configuration refresh and recreation.
-See [webhook setup](self-hosting.md#automatic-and-manual-upgrades).
+An optional self-hosted GitHub Actions runner invokes host scripts after a successful `main` release.
+Those scripts independently check the latest release; operators can also run updates manually.
+Guided updates are backup-first, run readiness checks
+and can return application containers to the retained prior release if deployment fails. Setting the
+repository variable `SPACEWORKS_DEPLOY_RUNNER=false` stops automatic deployment jobs.
+See [runner setup and public-repository risks](self-hosting.md#automatic-and-manual-upgrades).
 
 ### Managed or partner-hosted operation
 

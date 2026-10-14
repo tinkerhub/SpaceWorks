@@ -1,0 +1,25 @@
+name: Production Deploy
+
+on:
+  workflow_run:
+    workflows: ["Continuous Release"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.SPACEWORKS_DEPLOY_RUNNER == 'true' && ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success')
+    runs-on: [self-hosted, spaceworks-prod]
+    timeout-minutes: 90
+    steps:
+      - name: Update installed production stack
+        env:
+          SPACEWORKS_DEPLOY_WAIT: "1"
+        run: bash "$SPACEWORKS_INSTALL_DIR/scripts/update.sh" --no-module-changes

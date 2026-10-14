@@ -94,9 +94,9 @@ distribution, checks dependencies, Docker, release availability, ports, disk spa
 **before changing anything**, then installs missing Linux dependencies through apt, dnf/yum, pacman or
 zypper. The downloaded source and backend/frontend images are pinned to the tagged release.
 
-It prints your URL and login when it finishes and offers backup-first production updates triggered by
-signed GitHub release webhooks. Register `/hooks/deploy` for **Releases** with the secret saved in `.env`;
-see [webhook setup](docs/self-hosting.md#automatic-and-manual-upgrades). Run
+It prints your URL and login when it finishes and offers backup-first production updates through a
+self-hosted GitHub Actions runner on Linux/systemd. Register the runner and configure the two GitHub settings;
+see [runner setup and public-repository risks](docs/self-hosting.md#automatic-and-manual-upgrades). Run
 `bash scripts/update.sh` for an immediate update. `setup.sh` pulls published images by default;
 developers with a full source checkout can explicitly opt into a local Django/Vite build with
 `bash setup.sh --build`.
@@ -453,7 +453,7 @@ suggested when **no** makerspace on the deployment uses any of its modules.
 
 Space Works 0.5 is focused on reliable self-hosting and complete makerspace operations:
 
-- webhook-triggered, backup-first host updates to the latest successful `main` release;
+- runner-triggered, backup-first host updates to the latest successful `main` release;
 - stable public, member, staff, and superadmin workflows across the full module set;
 - continued accessibility, mobile, reporting, and operational resilience work.
 
@@ -557,13 +557,13 @@ scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role manageme
 With no arguments it seeds **`superadmin` / `super123`** and forces a password change on first login.
 The in-app updater is retired: its panel, API, admin page and module key are gone, and migration
 `0070_remove_in_app_updates` strips the stored module key. Its table stays one more release.
-Guided installs can deploy the latest successful `main` release on a signed release webhook, with a backup
+Guided installs can deploy the latest successful `main` release through a self-hosted Actions runner, with a backup
 and readiness check. If deployment fails, the application containers return to the previous retained
 release. Run
 `bash scripts/update.sh` on Linux or Windows Git Bash for an immediate update when the installed version
-differs from the latest release; add `--force` to reinstall it. An empty
-`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables the receiver after configuration refresh and recreation;
-see **[docs/self-hosting.md](docs/self-hosting.md)** for webhook setup, pinning, TLS and recovery.
+differs from the latest release; add `--force` to reinstall it. Set the repository variable
+`SPACEWORKS_DEPLOY_RUNNER=false` to stop automatic deployment jobs;
+see **[docs/self-hosting.md](docs/self-hosting.md)** for runner setup, public-repository risks, pinning, TLS and recovery.
 
 **No server of your own?** Space Works is multi-tenant — partner with a nearby makerspace to run your space
 as a tenant on their instance. **Prefer managed Postgres?** The database URL must live in the versioned

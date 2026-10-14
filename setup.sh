@@ -39,7 +39,7 @@ die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 source "$ROOT/scripts/setup-host-orchestration.sh"
 source "$ROOT/scripts/module-selection.sh"
 source "$ROOT/scripts/request-access-selection.sh"
-source "$ROOT/scripts/setup-deploy-webhook.sh"
+source "$ROOT/scripts/setup-deploy-runner.sh"
 source "$ROOT/scripts/retire-update-tombstone.sh"
 source "$ROOT/scripts/retire-update-polling.sh"
 
@@ -167,7 +167,7 @@ if ! grep -q '^AUTH_COOKIE_SAMESITE=' .env \
     warn "Could not safely backfill AUTH_COOKIE_SAMESITE and AUTH_COOKIE_SECURE; set both explicitly using docs/self-hosting.md."
   fi
 fi
-# Persisted so the webhook-triggered updater and compose interpolation follow the same repository and images.
+# Persisted so the runner-triggered updater and compose interpolation follow the same repository and images.
 for key in SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE; do
   value="${!key:-}"
   [[ -n "$value" ]] || continue
@@ -178,7 +178,7 @@ for key in SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IM
   env_file_append_if_absent .env "$key" "$value" || die "Could not persist $key in .env."
 done
 if [[ "$FIRST_RUN" == 1 ]]; then persist_checkin_settings; fi
-ask_deploy_webhook
+ask_deploy_runner
 # Hosts upgraded from the in-app updater: drop its tombstone label and weekly cron.
 retire_update_tombstone
 retire_update_polling
@@ -271,4 +271,4 @@ else
   echo "  ${COMPOSE[*]} run --rm --no-deps backend --role management python manage.py setup_instance --username admin --password 'a-strong-password' --makerspace-name 'My Makerspace'"
 fi
 
-finish_deploy_webhook_setup
+finish_deploy_runner_setup

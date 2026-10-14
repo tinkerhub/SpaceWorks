@@ -11,11 +11,10 @@ install_staged_host_bundle() {
     docker-compose.prod.yml docker-compose.cloud.yml docker-compose.yml
     docker/compose.build.yml docker/compose.tls.yml docker/compose.saas.yml
     deploy/Caddyfile deploy/Caddyfile.saas frontend/nginx.conf
-    backend/scripts/deploy_webhook.py deploy/deploy-webhook.openapi.json
     scripts/bundled-database-url.py scripts/configure-compose-wrapper.py
-    scripts/deploy-from-request.sh scripts/host-capability.py scripts/import-backup.sh
-    scripts/init-host-orchestration.sh scripts/install-deploy-webhook.sh scripts/install-host-bundle.sh
-    scripts/setup-deploy-webhook.sh
+    scripts/host-capability.py scripts/import-backup.sh
+    scripts/init-host-orchestration.sh scripts/install-deploy-runner.sh scripts/install-host-bundle.sh
+    scripts/setup-deploy-runner.sh
     scripts/env-file.sh scripts/host-image.sh scripts/module-selection.sh scripts/request-access-selection.sh
     scripts/restore.sh scripts/retire-update-polling.sh scripts/retire-update-tombstone.sh
     scripts/setup-host-orchestration.sh scripts/spaceworks-compose.sh

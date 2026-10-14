@@ -48,10 +48,13 @@ cleared by `/auth/change-password`).
 
 Releases now run through `release.yml`'s `workflow_run` only after CI (including `pip-audit`) succeeds
 for a main push; manual dispatch requires `main` and successful push CI for the exact SHA.
-Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides. Signed GitHub
-release webhooks queue requests for an install-owner host service; the receiver never executes
-updates or accesses Docker. Setup generates `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` only when enabled,
-before Compose initialization, and retires old polling. See [deploy-ec2.md](deploy-ec2.md).
+Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides. `deploy.yml`
+runs after successful Continuous Release completion on `main`, or manual dispatch on `main`, through
+an install-owner self-hosted Actions runner. It has no checkout and invokes only installed `update.sh`.
+Setup prints registration instructions after startup; no deployment secret is saved in `.env`.
+The runner installer retires old polling and checks fork PR approval policy when `gh` is available;
+deploy jobs require `SPACEWORKS_DEPLOY_RUNNER=true` in repository variables. Public repositories retain a fork-PR
+runner risk even with approval required; see [deploy-ec2.md](deploy-ec2.md).
 **Follow-up:** the next release deletes `apps/updates` and drops `updates_platformupdatesettings`
 in the same change (its classification entries go with it); it is kept now only so this release's
 rollback and compound backups keep working.
