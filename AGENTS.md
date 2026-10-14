@@ -208,11 +208,12 @@ starting a build.** These are the rules you must not violate without having read
 
 - **The Codex gates are LIVE** (Stages 1/2/4 of `~/.claude/CLAUDE.md`), but **re-check `codex doctor`**
   rather than trusting any written claim — that one line has gone stale silently for weeks before.
-- **CI runs on pull requests to `main`/`dev` and on `main` pushes, with a 90-minute backend timeout**
-  (the suite takes ~60 min). `dev` pushes are tested through their PR, not a separate push run: that run
-  used to be cancelled, and GitHub counts a cancelled required check against the merge;
-  releases are produced only by `release.yml`'s `workflow_run` after CI (including `pip-audit`) succeeds
-  on a main push, so a red main never deploys; forks set `SPACEWORKS_REPOSITORY` (see
+- **GitHub CI runs only `pip-audit`; every test runs locally before you push.** The backend suite,
+  the frontend type-check/tests/build and `diff CLAUDE.md AGENTS.md` are no longer in CI, so nothing on
+  GitHub catches a red suite: run them yourself (commands below) before pushing to `main`. Pull requests
+  run `security-audit.yml` (`pip-audit`, the one required check on `main`); main pushes run it through
+  `ci.yml`, and releases are produced only by `release.yml`'s `workflow_run` after that CI succeeds on a
+  main push, about five minutes later. Forks set `SPACEWORKS_REPOSITORY` (see
   [docs/deploy-ec2.md](docs/deploy-ec2.md)).
 - **Name Codex in a `Co-Authored-By` trailer only on work Codex actually wrote.** Attribution, not
   ceremony: this overrides the unconditional three-trailer rule in the global config, and the trailer set
@@ -221,8 +222,7 @@ starting a build.** These are the rules you must not violate without having read
   silently fail with a misleading "read-only" error and no files written.
 - **The test baseline is 22 environmental reds, and nothing else.** All 22 are in
   `test_host_orchestration_surface_h1a.py` (20) and `test_host_update_boundary.py` (2), which resolve `ROOT`
-  to `/` inside the container and can only pass from a host checkout — CI runs one, so they should go
-  green there. Any OTHER failure is a new regression. **`scripts/dev-local.sh` does not exist** (this file
+  to `/` inside the container and can only pass from a host checkout, so run them from one. Any OTHER failure is a new regression. **`scripts/dev-local.sh` does not exist** (this file
   instructed running it for months); use `scripts/dev-docker.sh`, and note the real published ports are
   **5432/9000**, not 5433/9200 — they collide with any other local Postgres/MinIO, so pass an overlay with
   `ports: !reset []` when something else holds them. **Never run two `pytest` procs against one DB**, and

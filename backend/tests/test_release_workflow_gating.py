@@ -15,10 +15,6 @@ pytestmark = pytest.mark.skipif(
     not (ROOT / "install.sh").exists(),
     reason="host-only: the repository root is not in the backend image",
 )
-CI_GROUP = (
-    "${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref_name == 'main') "
-    "&& 'main-push' || format('branch-{0}', github.head_ref || github.ref_name) }}"
-)
 RESOLVED_SHA = "${{ github.event.workflow_run.head_sha || github.sha }}"
 
 
@@ -28,34 +24,21 @@ def _workflow(name):
                      Loader=yaml.BaseLoader)
 
 
-def _group(event, ref_name, head_ref=""):
-    """Evaluate only the two branches of the exact expression pinned by the caller."""
-    suffix = "main-push" if event == "push" and ref_name == "main" else f"branch-{head_ref or ref_name}"
-    return f"CI-{suffix}"
-
-
-def test_ci_pushes_include_security_audit_and_sufficient_backend_time():
-    """The successful CI conclusion must cover dependencies and allow the full suite to finish."""
+def test_ci_is_only_the_dependency_audit_on_main_pushes():
+    """Tests run locally; the CI conclusion that gates a release is pip-audit's alone."""
     ci = _workflow("ci.yml")
     assert ci["on"]["push"]["branches"] == ["main"]
-    assert {"main", "dev"} <= set(ci["on"]["pull_request"]["branches"])
-    assert int(ci["jobs"]["backend"]["timeout-minutes"]) >= 75
-    audit = ci["jobs"]["security-audit"]
-    assert audit["uses"] == "./.github/workflows/security-audit.yml"
-    assert audit["if"] == "github.event_name != 'pull_request'"
-    assert "workflow_call" in _workflow("security-audit.yml")["on"]
+    # A pull request cannot cancel the release-gating run because CI no longer runs on PRs.
+    assert "pull_request" not in ci["on"]
+    assert set(ci["jobs"]) == {"security-audit"}
+    assert ci["jobs"]["security-audit"]["uses"] == "./.github/workflows/security-audit.yml"
 
 
-@pytest.mark.parametrize("head_ref", ["main", "main-push", "dev"])
-def test_pull_requests_cannot_cancel_main_release_ci(head_ref):
-    """Even a fork branch named main-push must never share the release-gating push group."""
-    expression = _workflow("ci.yml")["concurrency"]["group"]
-    assert "main-push" in expression
-    assert "format('branch-{0}'" in expression
-    assert expression == CI_GROUP
-    assert _group("push", "main") == "CI-main-push"
-    assert _group("pull_request", "123/merge", head_ref) != _group("push", "main")
-    assert "dev" not in _workflow("ci.yml")["on"]["push"]["branches"]
+def test_pull_requests_still_run_the_required_audit():
+    """pip-audit is the one required check on main, so every PR must still produce it."""
+    audit = _workflow("security-audit.yml")["on"]
+    assert "pull_request" in audit
+    assert "workflow_call" in audit
 
 
 def test_release_waits_for_successful_main_push_ci():

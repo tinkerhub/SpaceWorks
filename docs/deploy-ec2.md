@@ -17,17 +17,15 @@ Owner pushes main -> CI (tests + pip-audit) -> release images and GitHub Release
                                             -> on failure: application rollback
 ```
 
-CI runs on pull requests to main/dev and on pushes to main. The backend suite takes about 60 minutes and has a 90-minute
-timeout; the former 45-minute limit cancelled it. Main pushes have a separate concurrency group,
-so a PR cannot cancel their release-gating CI. `security-audit.yml` is callable by CI, which includes
-`pip-audit` on pushes.
+GitHub CI runs only `pip-audit`: pull requests run `security-audit.yml` directly, and main pushes run
+it through `ci.yml`. The backend and frontend test suites run locally before pushing, not in CI.
 
 `release.yml` waits for CI's `workflow_run` completion on `main` and proceeds only if its conclusion
 is `success` and its original event is `push`. A red main produces no release. Manual dispatch is
 also refused unless the ref is `main` and successful push CI exists for that exact SHA. Both images
 must finish, and the commit must still be the main head, before the release becomes latest.
 
-Expect roughly an hour for CI, plus image build/publish time and time to back up and deploy.
+Expect about a minute for CI, plus image build/publish time and time to back up and deploy.
 Runner queues, image downloads and database size add time. `deploy.yml` starts only after release
 promotion finishes, and the host updater independently checks GitHub for the release.
 

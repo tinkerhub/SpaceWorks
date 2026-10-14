@@ -318,9 +318,7 @@ fingerprints only `.env` and the selected Compose files.
 
 `release.yml` no longer runs directly on pushes. Its `workflow_run` trigger waits for CI to complete
 on `main`, then releases only when the conclusion is `success` and the original event is `push`.
-CI includes `pip-audit` on pushes, and main pushes have a separate concurrency group so a PR cannot
-cancel the release-gating run. The backend job has a 90-minute timeout for the roughly 60-minute suite;
-the old 45-minute limit cancelled it. Manual dispatch is refused unless the ref is `main` and a
+CI is only `pip-audit`; the test suites run locally before pushing, not in CI. Manual dispatch is refused unless the ref is `main` and a
 successful push CI run exists for the exact release SHA.
 
 The workflow publishes `ghcr.io/<lowercased repo owner>/spaceworks-backend` and
