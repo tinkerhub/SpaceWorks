@@ -13,7 +13,7 @@ pytestmark = pytest.mark.skipif(
     not (ROOT / "install.sh").exists(),
     reason="host-only: the repository root is not in the backend image",
 )
-FORCE_ON = "reports,telegram,guest_handover,machines,machine_service,printing,maintenance"
+FORCE_ON = "reports,telegram,guest_handover,machines,machine_service,printing,maintenance,procurement"
 
 
 @pytest.fixture

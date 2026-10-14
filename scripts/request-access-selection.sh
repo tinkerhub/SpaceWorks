@@ -94,10 +94,10 @@ choose_modules() {
     members)          MODULE_FORCE_ON="membership" ;;
     accounts|anyone)  MODULE_FORCE_OFF="membership" ;;
     checked_in)
-      # The owner wants reports, Telegram alerts, staff hand-over, and all machine
-      # modules on a check-in deployment; the request workflow and staff ledger
-      # are core and always on.
-      MODULE_FORCE_ON="reports,telegram,guest_handover,machines,machine_service,printing,maintenance"
+      # The owner wants reports, Telegram alerts, staff hand-over, procurement and all
+      # machine modules on a check-in deployment; the request workflow and staff
+      # ledger are core and always on.
+      MODULE_FORCE_ON="reports,telegram,guest_handover,machines,machine_service,printing,maintenance,procurement"
       MODULE_FORCE_OFF="membership"
       ;;
   esac

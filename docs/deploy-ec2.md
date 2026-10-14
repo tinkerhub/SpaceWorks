@@ -159,7 +159,7 @@ the same-repository configured runner; it refreshes the path and restarts withou
 ## Enabling the modules and Telegram
 
 Option 4 uses the `checkin` profile and forces on `reports`, `telegram`, `guest_handover`, `machines`,
-`machine_service`, `printing` and `maintenance` in setup's module selection, with `membership` off.
+`machine_service`, `printing`, `maintenance` and `procurement` in setup's module selection, with `membership` off.
 The request workflow and staff ledger are core. Review the final module selection; enabling membership
 conflicts with account-less check-in requests and prevents the mode from being applied.
 
