@@ -25,6 +25,7 @@ services:
       - "9000"
 
   caddy:
+    networks: [default, deploy-hooks]
     # scripts/update.sh pulls only the SpaceWorks application images. Caddy security
     # updates require editing this patch-version pin and rerunning the Compose up.
     image: caddy:2.10.2-alpine

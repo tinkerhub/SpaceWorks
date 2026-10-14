@@ -81,8 +81,8 @@ def test_producer_roles_see_marker_and_installed_scripts_read_only(name):
 def test_bundled_host_scripts_route_management_commands_through_explicit_role():
     names = (
         "setup.sh", "setup.ps1", "scripts/import-backup.sh", "scripts/restore.sh",
-        "scripts/update.sh", "scripts/update.ps1", "scripts/install-auto-update.sh",
-        "scripts/install-auto-update.ps1",
+        "scripts/update.sh", "scripts/update.ps1", "scripts/deploy-from-request.sh",
+        "scripts/install-deploy-webhook.sh",
         "scripts/request-access-selection.sh",
     )
     for name in names:

@@ -44,7 +44,6 @@ REPORT_MODULE_COVERAGE = {
     "payments": ModuleReportCoverage("substantive", ("payment-reconciliation",)),
     "member_accounts": ModuleReportCoverage("composite", ("community-engagement",)),
     "mobile": ModuleReportCoverage("composite", ("community-engagement",)),
-    "updates": ModuleReportCoverage("health_row", ("module-operational-health",)),
 }
 
 

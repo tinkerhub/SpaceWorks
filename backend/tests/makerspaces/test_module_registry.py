@@ -151,16 +151,16 @@ def test_modules_are_opt_in_and_a_new_makerspace_gets_approved_defaults():
     # `slack`/`mattermost`/`discord` are the per-channel notification module keys. The
     # first two were previously ungated (webhook presence alone decided), which is why
     # makerspaces/0056 backfills them onto existing rows; `discord` is genuinely new and
-    # stays opt-in. The final four keys are the other registry growth since the legacy
-    # baseline; only payments and updates remain default-enabled.
+    # stays opt-in. The final three keys are the remaining registry growth since the
+    # legacy baseline; only payments remains default-enabled.
     POST_LEGACY_KEYS = {
         "notifications", "email", "slack", "mattermost", "discord",
-        "payments", "member_accounts", "mobile", "updates",
+        "payments", "member_accounts", "mobile",
     }
 
-    # Only payments and updates remain default-on. Member accounts and mobile are
+    # Only payments remains default-on. Member accounts and mobile are
     # opt-in together because mobile depends on member accounts.
-    DEFAULT_ON_KEYS = {"payments", "updates"}
+    DEFAULT_ON_KEYS = {"payments"}
 
     assert set(DEFAULT_ENABLED_MODULES) == module_registry.core_module_keys() | DEFAULT_ON_KEYS
     assert default_enabled_modules() == DEFAULT_ENABLED_MODULES
@@ -224,8 +224,8 @@ def test_registry_is_internally_consistent():
     # 24 at the registry's introduction, plus `email` (plan A5), plus the three
     # per-channel notification keys `slack`/`mattermost`/`discord`, plus the four
     # phase-3 keys placed in front of previously ungated substrate: `payments`,
-    # `member_accounts`, `mobile` and `updates`.
-    assert len(module_registry.MODULES) == 32
+    # `member_accounts`, `mobile` and `updates`; `updates` is now retired.
+    assert len(module_registry.MODULES) == 31
     assert len(module_registry.BY_KEY) == len(module_registry.MODULES)
     for definition in module_registry.MODULES:
         assert definition.label and definition.description and definition.app_label

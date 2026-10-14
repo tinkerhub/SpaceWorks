@@ -53,7 +53,7 @@ def test_the_checkin_profile_combines_workshop_and_inventory_without_local_membe
     keys = set(profile_modules(CHECKIN))
     assert keys == core_module_keys() | {
         "machines", "machine_service", "printing", "maintenance", "reports",
-        "notifications", "email", "updates", "guest_handover", "bulk_import",
+        "notifications", "email", "guest_handover", "bulk_import",
         "containers", "stock_transfers", "stocktake", "qr_print_batches", "asset_units",
     }
     assert not {"membership", "member_accounts", "payments", "events", "bookings"} & keys

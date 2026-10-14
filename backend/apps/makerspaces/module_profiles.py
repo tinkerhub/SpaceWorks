@@ -28,10 +28,10 @@ _RECOMMENDED_EXTRAS = frozenset({
     "guest_handover", "bulk_import", "containers", "stock_transfers", "stocktake",
     "reports", "qr_print_batches", "asset_units", "machines", "machine_service",
     "notifications", "email",
-    # Member accounts and the in-app updater. A profile is an explicit set, so a key
-    # that merely defaults on is NOT picked up here -- omitting them would hand a
-    # freshly provisioned space no way for a member to register.
-    "member_accounts", "updates",
+    # Member accounts. A profile is an explicit set, so a key that merely defaults on
+    # is NOT picked up here -- omitting it would hand a freshly provisioned space no
+    # way for a member to register.
+    "member_accounts",
 })
 
 # A tool library: the hardware lending lifecycle and nothing else. No machines, no
@@ -40,7 +40,7 @@ _LENDING_EXTRAS = frozenset({
     "guest_handover", "bulk_import", "containers", "stock_transfers", "stocktake",
     "reports", "qr_print_batches", "asset_units", "email",
     # A tool library lends to people, so it needs member accounts to lend to.
-    "member_accounts", "updates",
+    "member_accounts",
 })
 
 # A machine shop: the machine registry, its service queue and the maintenance that keeps
@@ -52,7 +52,7 @@ _LENDING_EXTRAS = frozenset({
 # layer.
 _WORKSHOP_EXTRAS = frozenset({
     "machines", "machine_service", "printing", "maintenance", "reports",
-    "notifications", "email", "updates",
+    "notifications", "email",
 })
 
 # A check-in-led makerspace: the upstream roster is the membership authority -- its

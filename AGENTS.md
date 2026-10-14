@@ -220,7 +220,7 @@ starting a build.** These are the rules you must not violate without having read
 - **Never `git add`/stage before a Codex workspace-write run** — a non-empty index makes `apply_patch`
   silently fail with a misleading "read-only" error and no files written.
 - **The test baseline is 22 environmental reds, and nothing else.** All 22 are in
-  `test_host_orchestration_surface_h1a.py` (20) and `test_platform_updates.py` (2), which resolve `ROOT`
+  `test_host_orchestration_surface_h1a.py` (20) and `test_host_update_boundary.py` (2), which resolve `ROOT`
   to `/` inside the container and can only pass from a host checkout — CI runs one, so they should go
   green there. Any OTHER failure is a new regression. **`scripts/dev-local.sh` does not exist** (this file
   instructed running it for months); use `scripts/dev-docker.sh`, and note the real published ports are

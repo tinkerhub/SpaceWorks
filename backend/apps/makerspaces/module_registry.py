@@ -23,7 +23,6 @@ from apps.makerspaces.module_registry_definitions import (
     GROUP_PAYMENTS,
     GROUP_REPORTS,
     GROUP_STOCKTAKE,
-    GROUP_UPDATES,
     GROUPS,
     GROUPS_BY_KEY,
     GUARD,
@@ -183,7 +182,7 @@ MODULES = (
     ),
     # These keys were placed in front of substrate that had been unconditionally
     # present, so migration 0057 backfilled their original keys onto existing rows.
-    # Payments and updates remain default-enabled; member accounts and mobile are now
+    # Payments remain default-enabled; member accounts and mobile are now
     # opt-in for newly created makerspaces.
     ModuleDefinition(
         "payments", "Payments", "Online payment for machine jobs, bookings, events and dues.",
@@ -205,10 +204,6 @@ MODULES = (
         "Attested device sessions, native push and the in-app payment sheet.",
         "accounts", GUARD, group=GROUP_MOBILE,
         requires_modules=("member_accounts",),
-    ),
-    ModuleDefinition(
-        "updates", "Updates", "In-app platform release checks and controlled updates.",
-        "updates", GUARD, group=GROUP_UPDATES, default_enabled=True,
     ),
 )
 

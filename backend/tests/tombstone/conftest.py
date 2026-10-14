@@ -9,7 +9,7 @@ asserts the opposite for the same objects (`test_admin_registration` requires
 
 Run it with the apps under test named in the environment:
 
-    TOMBSTONED_APPS=bookings,events,maintenance,notifications,presence,procurement,warranty pytest tests/tombstone
+    TOMBSTONED_APPS=bookings,events,maintenance,notifications,payments,presence,procurement,tenant_migration,warranty pytest tests/tombstone
 
 Two failure modes are handled differently on purpose:
 
@@ -28,7 +28,7 @@ from apps.separability.tombstones import tombstoned_app_labels
 # The apps these tests expect to be tombstoned. Grows by one per phase of plan B6.
 TOMBSTONE_PROFILE_APPS = frozenset({
     "procurement", "notifications", "warranty", "maintenance", "presence", "events", "bookings",
-    "payments", "tenant_migration", "updates",
+    "payments", "tenant_migration",
 })
 
 _PROFILE_ACTIVE = tombstoned_app_labels() == TOMBSTONE_PROFILE_APPS

@@ -2,6 +2,7 @@
 
 SPACEWORKS_DEFAULT_REPOSITORY="SpaceWorks-HQ/SpaceWorks"
 SPACEWORKS_DEFAULT_BACKEND_IMAGE="ghcr.io/spaceworks-hq/spaceworks-backend"
+SPACEWORKS_DEFAULT_FRONTEND_IMAGE="ghcr.io/spaceworks-hq/spaceworks-frontend"
 
 spaceworks_repository_is_valid() {
   local LC_ALL=C
@@ -42,6 +43,16 @@ resolve_backend_image() {
     image="$(env_file_get "$root/.env" MAKERSPACE_BACKEND_IMAGE)" || return 1
   fi
   image="${image:-$SPACEWORKS_DEFAULT_BACKEND_IMAGE}"
+  spaceworks_image_is_valid "$image" || return 1
+  printf '%s\n' "$image"
+}
+
+resolve_frontend_image() {
+  local root="$1" image="${MAKERSPACE_FRONTEND_IMAGE:-}"
+  if [[ -z "$image" ]]; then
+    image="$(env_file_get "$root/.env" MAKERSPACE_FRONTEND_IMAGE)" || return 1
+  fi
+  image="${image:-$SPACEWORKS_DEFAULT_FRONTEND_IMAGE}"
   spaceworks_image_is_valid "$image" || return 1
   printf '%s\n' "$image"
 }

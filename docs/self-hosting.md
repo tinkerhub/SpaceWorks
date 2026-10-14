@@ -63,9 +63,9 @@ MAKERSPACE_FRONTEND_IMAGE=ghcr.io/spaceworks-hq/spaceworks-frontend
 
 Set `SPACEWORKS_REPOSITORY=owner/repo` on the fresh installer's `bash` process to follow your fork's
 GitHub releases. The installer derives `ghcr.io/<lowercased owner>/spaceworks-backend` and
-`spaceworks-frontend` unless you supply explicit image overrides, then forwards those settings and
-`SPACEWORKS_UPDATE_SCHEDULE` to `setup.sh` for persistence in `.env`.
-On an existing curl install, the shell repository override is ignored: edit `.env` instead.
+`spaceworks-frontend` unless you supply explicit image overrides, then forwards those settings
+to `setup.sh` for persistence in `.env`.
+On an existing curl install, `.env` selects the repository unless explicitly overridden.
 Direct `scripts/update.sh` calls resolve the repository from the shell, then `.env`, then
 `SpaceWorks-HQ/SpaceWorks`. Repository selection and image selection are separate on existing hosts;
 set both image names explicitly when changing forks.
@@ -149,32 +149,47 @@ released commit is still the main branch head. The self-host updater uses that r
 as its gate, creates a PostgreSQL backup, deploys the exact immutable tag, runs migrations through the
 Compose migration service, and records the version only after the readiness check passes.
 
-Guided setup offers automatic checks on `SPACEWORKS_UPDATE_SCHEDULE`, default `0 3 * * 0`
-(Sunday at 03:00 in the host's cron timezone). `scripts/install-auto-update.sh` reads the shell, then
-`.env`, then that default. It requires a strictly validated five-field cron schedule: numeric fields
-within their bounds, wildcards, lists, ascending ranges and positive steps; `%` and CR/LF are rejected.
-For example, `*/5 * * * *` checks every five minutes. Reinstall the cron job after changing the schedule.
-A Super Admin can then open
-**Staff console -> Platform settings -> Software updates** to turn automatic installation on or off,
-see the installed/latest versions, or queue **Update now**. The web application never receives Docker
-socket access: it records the request in PostgreSQL and the host scheduler performs the privileged work.
-Turning automatic installation off leaves the scheduled host check active, so release information and
-manual requests still work without installing anything automatically.
-Install or repair the schedule manually with:
+Guided setup asks **Enable automatic production updates from main?** before writing configuration.
+Only **Yes** generates a strong `SPACEWORKS_DEPLOY_WEBHOOK_SECRET`, saved privately in `.env` before
+Compose records and containers are created. Setup never prints the secret. After startup it installs
+`spaceworks-deploy.path` and `spaceworks-deploy.service` on systemd hosts. The service runs as the
+install owner. Other hosts receive a one-minute cron command for `scripts/deploy-from-request.sh`;
+this checks the local queue only. Answering **No** retires old release polling jobs.
+
+In the followed repository, open **Settings → Webhooks → Add webhook**:
+
+1. **Payload URL:** `https://<PUBLIC_DOMAIN or host>/hooks/deploy`.
+2. **Content type:** `application/json`.
+3. **Secret:** copy `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` from `.env` privately.
+4. Select individual events, choose **Releases** only, and enable **Active**.
+
+GitHub must be able to reach the endpoint over HTTPS. nginx/Caddy forwards it to the internal receiver,
+which verifies the raw-body HMAC, repository, published non-draft/non-prerelease release and main tag.
+It handles signed pings, deduplicates deliveries and limits requests. It only writes atomic local
+queue files; it has no database, Docker socket or `.env` mount and never executes an update. The host
+consumer coalesces requests and runs `update.sh --no-module-changes`; the payload is only a
+wake-up signal, and the updater independently checks GitHub. Requests stay queued until a newer
+release is actually installed, so a delivery that beats the release's promotion or a failed update is
+retried rather than lost. Deploy and rollback output goes to
+`backups/deploy.log`. Install or repair the host trigger with:
 
 ```bash
-bash scripts/install-auto-update.sh  # Linux, or WSL2 on Windows
+bash scripts/install-deploy-webhook.sh
 ```
+
+To disable future deliveries, clear `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` in `.env`, rebuild configuration
+records and recreate the receiver. Disable the GitHub webhook and stop `spaceworks-deploy.path`
+(or remove the local queue cron job) when stopping host consumption too.
 
 Run an immediate checked update with:
 
 ```bash
-bash scripts/update.sh --force
+bash scripts/update.sh  # add --force to reinstall the latest release even if already installed
 ```
 
 When run in a terminal, the updater opens the same live-registry module tick list after the release is
-healthy. It is seeded from each makerspace's current `enabled_modules`, not an install profile. Cron has
-no terminal and therefore performs only the release update. Useful explicit forms are:
+healthy. It is seeded from each makerspace's current `enabled_modules`, not an install profile. Webhook
+deployments explicitly skip module changes. Useful explicit forms are:
 
 ```bash
 # Explicitly open the live module tick list after a checked update.
@@ -211,10 +226,16 @@ automatically.
 The scripts use `.spaceworks-update.lock` to prevent overlapping runs and `.spaceworks-version` to avoid
 redeploying the same release. If migration, deployment, or readiness fails after replacement starts, the
 updater automatically pulls and starts the previous retained application release, then verifies its
-health. The version marker is not advanced, the UI records whether rollback succeeded, and the database
-backup remains available. Database migrations are not reversed automatically; keep migrations backward
-compatible with the immediately previous application release. If application rollback also fails, review
-`backups/auto-update.log` before restoring the database snapshot and previous image tag manually.
+health. The version marker is not advanced, webhook output in `backups/deploy.log` records whether
+rollback succeeded, and the database backup remains available. Database migrations are not reversed
+automatically; keep migrations backward compatible with the immediately previous application release.
+If application rollback also fails, review
+`backups/deploy.log` before restoring the database snapshot and previous image tag manually.
+
+Known limitation: when an upgrade started from the curl installer fails, rollback restores the previous
+images and producer proof but keeps the installer's newer host files, so compound backups refuse the
+mismatched privileged-script hashes. Rerun the installer once the release is fixed, or copy the files back
+from the newest `backups/host-config-*/` and rerun `bash scripts/init-host-orchestration.sh`.
 
 On hosts with `flock`, the updater also holds the shared host operation-lock inode. Native Windows Git
 Bash normally lacks `flock`, so update falls back to the existing directory lock, recording its owner PID
@@ -245,21 +266,20 @@ detected. If a recorded file changes, `validate_compose_wrapper` raises
 `Compose configuration digest drifted`; the next Compose command refuses to run until the trusted
 record is rebuilt.
 
-`scripts/update.sh` deploys new images only. It does not fetch newer Compose files, Caddyfiles, or host
-scripts, so automatic updates leave an existing deployment's host files unchanged; changes to those files
-must be installed manually. The curl installer is not a repair or reinstall path either: when `install.sh`
-finds the `.spaceworks-version` marker, it defers to the already-installed `scripts/update.sh` instead of
-replacing host files, so rerunning the installer cannot correct a stale file.
+Ordinary `scripts/update.sh` runs replace images and do not download host tooling. To adopt a release's
+new scripts, Compose files or proxy configuration, rerun the curl installer and choose an update. It
+stages the pinned release and runs its updater against the existing install, backing up the database
+before adopting the host bundle. Private `.env`, version/layer markers, backups, volumes and host
+orchestration state are preserved. This uses release archives and does not require Git.
 
 The TLS overlay pins Caddy to an explicit patch release. `scripts/update.sh` pulls only the SpaceWorks
-backend and frontend images, not Caddy, so installing a Caddy security update requires changing that pin in
+backend, frontend and deploy-webhook images, not Caddy, so installing a Caddy security update requires changing that pin in
 `docker/compose.tls.yml`, rerunning `bash scripts/init-host-orchestration.sh`, and bringing the Compose layer
 up again.
 
-After switching an existing deployment from plain HTTP to the TLS layer, rerun the installer
-with the layer prefix, `SPACEWORKS_COMPOSE_LAYER=tls bash scripts/install-auto-update.sh`. The installed cron command records the Compose layer that was active
-when the schedule was installed; without reinstalling it, an unattended update continues using the old
-plain-HTTP layer.
+The wrapper reads the persisted `.spaceworks-layer` marker. Save `tls` or `saas` there before rebuilding
+configuration records for that overlay, so webhook deployments and rollback retain the active topology.
+An explicit `SPACEWORKS_COMPOSE_LAYER` still overrides the marker for an individual command.
 
 ## Publishing new images (maintainers)
 
@@ -307,16 +327,13 @@ AUTH_COOKIE_SAMESITE=Lax
 ```
 
 ```bash
+printf '%s\n' tls > .spaceworks-layer
 bash scripts/init-host-orchestration.sh
-SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d
-# Reinstall the updater WITH the same prefix, or it records a plain-HTTP cron job.
-SPACEWORKS_COMPOSE_LAYER=tls bash scripts/install-auto-update.sh
+scripts/spaceworks-compose.sh bundled up -d
 ```
 
-The variable is a one-command assignment and does not persist, so it has to be repeated on
-the `install-auto-update.sh` line too. Without it the installer resolves the layer to `none`
-and writes a base-topology cron job: the next unattended update then tries to publish the
-frontend on port 80 while Caddy already holds 80/443, and the rollback repeats it.
+The layer marker persists this selection for later wrapper commands, host-triggered deployments and
+rollback. Save it before initialization so the trusted topology record describes the TLS overlay.
 
 This overlay forces `AUTH_COOKIE_SECURE=True`, because a refresh cookie without `Secure` is
 never correct on an HTTPS deployment and `setup.sh` writes `False` for the plain-HTTP origin
@@ -416,7 +433,7 @@ If an instance flips from managed → self-host after deploy, run
 | `SPACEWORKS_REPOSITORY` | no (default `SpaceWorks-HQ/SpaceWorks`) | GitHub `owner/repo` whose latest release the host follows; fresh installs derive image names from its lowercased owner |
 | `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
 | `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
-| `SPACEWORKS_UPDATE_SCHEDULE` | no (default `0 3 * * 0`) | Validated five-field host cron schedule; rerun `init-host-orchestration.sh` after editing `.env` and reinstall `install-auto-update.sh` to apply it |
+| `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` | for automatic deploys | Strong shared GitHub webhook secret; empty disables the receiver. After edits rerun `init-host-orchestration.sh` and recreate the receiver |
 | `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
 | `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N` |
 | `MINIO_IMAGE` | no (default `pgsty/silo`) | Server image repository only; optional registry port, no `:tag` or `@digest` |

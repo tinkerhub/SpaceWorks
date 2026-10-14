@@ -46,6 +46,9 @@ LAYER="${SPACEWORKS_COMPOSE_LAYER:-}"
 if [[ -z "$LAYER" && "${SPACEWORKS_COMPOSE_BUILD_LAYER:-0}" == "1" ]]; then
   LAYER="build"
 fi
+if [[ "$TOPOLOGY" == bundled && -z "$LAYER" && -f "$ROOT/.spaceworks-layer" ]]; then
+  LAYER="$(tr -d '[:space:]' < "$ROOT/.spaceworks-layer")"
+fi
 LAYER="${LAYER:-none}"
 if [[ "$TOPOLOGY" == "cloud" && "$LAYER" != "none" ]]; then
   echo "Named Compose overlays are available only for bundled topology." >&2

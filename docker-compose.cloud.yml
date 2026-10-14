@@ -130,6 +130,30 @@ x-app-env: &app-env
   BACKUP_PRODUCER_PRIVILEGED_SCRIPTS_DIR: /run/spaceworks-privileged-scripts
 
 services:
+  # No database, Docker socket, .env or host marker: queue-only deployment receiver.
+  deploy-webhook:
+    image: ${MAKERSPACE_BACKEND_IMAGE:-ghcr.io/spaceworks-hq/spaceworks-backend}:${MAKERSPACE_IMAGE_TAG:-latest}
+    entrypoint: ["python", "/app/scripts/deploy_webhook.py"]
+    command: []
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 64m
+    pids_limit: 32
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+    # Cloud topology is not deployed by the host updater (update.sh drives only the bundled
+    # stack), so this receiver exists only so nginx resolves its upstream: no secret means it
+    # refuses every request before touching a queue, and it gets no queue mount.
+    environment:
+      SPACEWORKS_REPOSITORY: ${SPACEWORKS_REPOSITORY:-SpaceWorks-HQ/SpaceWorks}
+      SPACEWORKS_DEPLOY_WEBHOOK_SECRET: ""
+    volumes:
+      - ./backend/scripts/deploy_webhook.py:/app/scripts/deploy_webhook.py:ro
+    expose: ["8081"]
+    networks: [deploy-hooks]
   orchestration-init:
     image: ${MAKERSPACE_BACKEND_IMAGE:-ghcr.io/spaceworks-hq/spaceworks-backend}:${MAKERSPACE_IMAGE_TAG:-latest}
     user: "0:0"
@@ -236,11 +260,18 @@ services:
       - ${SPACEWORKS_HOST_STATE_DIR:-/var/lib/spaceworks/host}/public:/run/spaceworks-host:ro
 
   frontend:
+    networks: [default, deploy-hooks]
     image: ${MAKERSPACE_FRONTEND_IMAGE:-ghcr.io/spaceworks-hq/spaceworks-frontend}:${MAKERSPACE_IMAGE_TAG:-latest}
     restart: *default-restart
     logging: *default-logging
     ports:
       - "${FRONTEND_PORT:-8080}:80"
     depends_on:
+      deploy-webhook:
+        condition: service_started
       backend:
         condition: service_healthy
+networks:
+  default: {}
+  deploy-hooks:
+    internal: true

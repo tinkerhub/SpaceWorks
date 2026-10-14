@@ -28,7 +28,6 @@ GROUP_NOTIFICATIONS = "notifications"
 GROUP_REPORTS = "reports"
 GROUP_PAYMENTS = "payments"
 GROUP_MOBILE = "mobile"
-GROUP_UPDATES = "updates"
 
 
 @dataclass(frozen=True)
@@ -85,11 +84,6 @@ GROUPS = (
     GroupDefinition(
         GROUP_MOBILE, "Mobile apps",
         "Attested device sessions, native push and the in-app payment sheet.",
-    ),
-    GroupDefinition(
-        GROUP_UPDATES, "Updates",
-        "In-app release control. A deployment updated by its own host tooling ships "
-        "none of it.",
     ),
 )
 

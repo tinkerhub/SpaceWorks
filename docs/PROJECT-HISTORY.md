@@ -6,6 +6,8 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-14 — Producer-capability installer import fix + in-app updates retired.** `BackupBuildError` moved to settings-free `apps/backup/errors.py` so the installer imports without Django settings; the update panel, admin API, `/control/` page and module key are removed, and makerspaces migration `0070_remove_in_app_updates` strips the stored `updates` module key; `apps/updates` keeps only its model for one release so rollback and compound backups keep working. Upstream's signed release webhook receiver queues on an internal network; nginx/Caddy routes reach it across HTTP/TLS/SaaS layouts, and an install-owner host path/service consumes requests through `update.sh`. Setup writes its opt-in secret before Compose initialization; polling installers are removed. Updates refresh orchestration/producer capability and retire the old tombstone before Django starts; rollback skips migration dependencies. Existing curl installs stage a pinned host bundle after database backup, with persistent layer selection and no Git machinery.
+
 - **2026-10-13 — Maintained MinIO-compatible images.** Fresh installs failed at `docker compose pull`
   after MinIO removed its community images. Both Compose files now pin `pgsty/silo` + `pgsty/mc`,
   with configurable repositories and tags. Existing hosts must back up `minio_data` before adopting

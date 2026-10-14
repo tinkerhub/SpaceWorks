@@ -94,10 +94,12 @@ distribution, checks dependencies, Docker, release availability, ports, disk spa
 **before changing anything**, then installs missing Linux dependencies through apt, dnf/yum, pacman or
 zypper. The downloaded source and backend/frontend images are pinned to the tagged release.
 
-It prints your URL and login when it finishes and offers to install seven-day, backup-first production
-update checks. Super Admins can control automatic or manual installation from **Platform settings →
-Software updates**. `setup.sh` pulls published images by default; developers with a full source checkout
-can explicitly opt into a local Django/Vite build with `bash setup.sh --build`.
+It prints your URL and login when it finishes and offers backup-first production updates triggered by
+signed GitHub release webhooks. Register `/hooks/deploy` for **Releases** with the secret saved in `.env`;
+see [webhook setup](docs/self-hosting.md#automatic-and-manual-upgrades). Run
+`bash scripts/update.sh` for an immediate update. `setup.sh` pulls published images by default;
+developers with a full source checkout can explicitly opt into a local Django/Vite build with
+`bash setup.sh --build`.
 
 Run the same curl command later and an existing install offers **update**, **change modules**, **both**, or
 **cancel**. It never silently reinstalls or reruns first-instance setup.
@@ -149,7 +151,7 @@ Unticking a module hides its surfaces and calls `uninstall_module`; it does **no
 
 ## Modules
 
-A makerspace only carries the parts it uses. Space Works ships **32 modules**; **6 are core** and
+A makerspace only carries the parts it uses. Space Works ships **31 modules**; **6 are core** and
 always on (the public catalogue, request workflow, staff admin, evidence uploads, QR management and
 the scanner). The rest are **opt-in**.
 
@@ -159,7 +161,7 @@ QR scan *and* a photo, so a machines-only workshop still carries the request/QR/
 Per-module detail — what each key is and what you lose without it — is in
 [**docs/MODULES.md**](docs/MODULES.md).
 
-You do not have to think in 32 switches. They are grouped into **twelve areas**, which is what the
+You do not have to think in 31 switches. They are grouped into **ten areas**, which is what the
 console shows you:
 
 | Area | Covers |
@@ -174,7 +176,6 @@ console shows you:
 | **Reports** | Analytics, the report registry and CSV/XLSX exports |
 | **Payments** | Taking money online, through Stripe or Razorpay |
 | **Mobile apps** | Attested device sessions, native push and the in-app payment sheet |
-| **Updates** | In-app release control |
 
 **Pick modules at install time** — `setup.sh` reads the live registry and opens a tick list. Its initial
 recommended state corresponds to this profile table; management commands can also pass `--profile`:
@@ -182,11 +183,11 @@ recommended state corresponds to this profile table; management commands can als
 | Profile | Modules | For |
 |---|---|---|
 | `minimal` | 6 | Core only; nothing published publicly |
-| `workshop` | 14 | A machine shop: machines, service queue, maintenance |
-| `lending` | 17 | A tool library: the full lending lifecycle, no machines |
-| `recommended` | 20 | Core plus the inventory lifecycle, reports and machines |
+| `workshop` | 13 | A machine shop: machines, service queue, maintenance |
+| `lending` | 16 | A tool library: the full lending lifecycle, no machines |
+| `recommended` | 19 | Core plus the inventory lifecycle, reports and machines |
 | `cloud` | 24 | A managed box: everything a hosted deployment runs |
-| `everything` / `full` | 32 | All modules |
+| `everything` / `full` | 31 | All modules |
 
 **Change it later.** Uninstalling clears the capability and hides the surfaces; **your data is always
 retained** and reinstalling brings it back:
@@ -263,13 +264,12 @@ cannot be removed. **Default** means it is on when you install without choosing 
 | **Reports** | [`reports`](docs/MODULES.md#reports) | | | Analytics, the ledger and CSV/XLSX export |
 | **Payments** | [`payments`](docs/MODULES.md#payments) | | ● | Taking money online (Stripe or Razorpay) |
 | **Mobile apps** | [`mobile`](docs/MODULES.md#mobile) | | | Attested device sessions, native push, payment sheet |
-| **Updates** | [`updates`](docs/MODULES.md#updates) | | ● | In-app release control |
 
 `mobile` requires `member_accounts`; `printing` requires `machine_service`. Installing one pulls in
 what it needs. `membership` deliberately does **not** require `member_accounts` — identity can come
 from an external identity provider or a staff-created walk-in record instead.
 
-**Every module has a page.** [**docs/MODULES.md**](docs/MODULES.md) covers each of the 32 keys in turn:
+**Every module has a page.** [**docs/MODULES.md**](docs/MODULES.md) covers each of the 31 keys in turn:
 what it is, what it puts on screen, **what happens if you do not install it**, and what becomes of its
 data if you later purge it.
 
@@ -299,7 +299,7 @@ enable them.
 
 ### What you get if you choose nothing
 
-Installing without a profile gives you **8 modules**: the six core ones plus `payments` and `updates`.
+Installing without a profile gives you **7 modules**: the six core ones plus `payments`.
 Member accounts and mobile apps are opt-in; mobile pulls in `member_accounts` when installed.
 
 Everything money-related is still dormant: `payments` being installed means the *surfaces* exist,
@@ -453,7 +453,7 @@ suggested when **no** makerspace on the deployment uses any of its modules.
 
 Space Works 0.5 is focused on reliable self-hosting and complete makerspace operations:
 
-- automatic, backup-first updates from every successful `main` release;
+- webhook-triggered, backup-first host updates to the latest successful `main` release;
 - stable public, member, staff, and superadmin workflows across the full module set;
 - continued accessibility, mobile, reporting, and operational resilience work.
 
@@ -555,10 +555,15 @@ scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role manageme
 ```
 
 With no arguments it seeds **`superadmin` / `super123`** and forces a password change on first login.
-Guided installs can receive each successful `main` release automatically with a backup and readiness
-check. If deployment fails, the application containers return to the previous retained release. Run
-`bash scripts/update.sh --force` on Linux or Windows Git Bash for an immediate
-update; see **[docs/self-hosting.md](docs/self-hosting.md)** for scheduling, pinning, TLS, and recovery.
+The in-app updater is retired: its panel, API, admin page and module key are gone, and migration
+`0070_remove_in_app_updates` strips the stored module key. Its table stays one more release.
+Guided installs can deploy the latest successful `main` release on a signed release webhook, with a backup
+and readiness check. If deployment fails, the application containers return to the previous retained
+release. Run
+`bash scripts/update.sh` on Linux or Windows Git Bash for an immediate update when the installed version
+differs from the latest release; add `--force` to reinstall it. An empty
+`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables the receiver after configuration refresh and recreation;
+see **[docs/self-hosting.md](docs/self-hosting.md)** for webhook setup, pinning, TLS and recovery.
 
 **No server of your own?** Space Works is multi-tenant — partner with a nearby makerspace to run your space
 as a tenant on their instance. **Prefer managed Postgres?** The database URL must live in the versioned

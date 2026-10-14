@@ -1108,5 +1108,6 @@ SPECTACULAR_SETTINGS = {
         {"name": "Asset units", "description": "Individual asset unit generation and QR assignment."},
         {"name": "Health", "description": "Health and readiness probes."},
         {"name": "Notifications", "description": "Persistent staff inbox notifications."},
+        {"name": "Platform", "description": "Superadmin platform settings: email, social sign-in, Stripe Connect."},
     ],
 }

@@ -17,7 +17,7 @@ from apps.operations.models import QrPrintBatch
 
 pytestmark = pytest.mark.django_db
 
-PLATFORM_MODULES = ("reports", "qr_print_batches", "updates")
+PLATFORM_MODULES = ("reports", "qr_print_batches")
 
 
 def _space(slug, *, without=None):
@@ -180,31 +180,3 @@ def test_qr_print_batches_off_refuses_batches_but_core_qr_management_works_and_o
     assert enabled.status_code == 201, enabled.data
     assert QrPrintBatch.objects.filter(makerspace=space).count() == 1
 
-
-def test_updates_off_hides_the_updater_but_platform_settings_work_and_on_restores_it():
-    """Updates is deployment-wide because its singleton has no tenant foreign key.
-
-    With at least one live space and none enabling updates, only the updater should be
-    absent; the independent email and login-provider settings must remain reachable.
-    """
-    space = _space("platform-updates-gate", without="updates")
-    client = _client(_user("platform-updates-superadmin", superadmin=True))
-    updater_url = reverse("admin-platform-update-settings")
-    update_now_url = reverse("admin-platform-update-now")
-
-    refused_settings = client.get(updater_url)
-    refused_update = client.post(update_now_url)
-    email_settings = client.get(reverse("admin-platform-email-settings"))
-    social_settings = client.get(reverse("admin-platform-social-auth-settings"))
-
-    assert refused_settings.status_code == 404
-    assert refused_update.status_code == 404
-    assert email_settings.status_code == 200, email_settings.data
-    assert social_settings.status_code == 200, social_settings.data
-
-    _enable(space, "updates")
-    enabled_settings = client.get(updater_url)
-    enabled_update = client.post(update_now_url)
-
-    assert enabled_settings.status_code == 200, enabled_settings.data
-    assert enabled_update.status_code == 202, enabled_update.data

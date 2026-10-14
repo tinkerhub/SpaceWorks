@@ -363,7 +363,7 @@ route through it. `/auth/me` + `/auth/login` carry typed effective `actions` per
 membership/role-assignment APIs enforce non-escalation (can't grant a role you don't hold; can't touch a
 MANAGE_MAKERSPACE target/role) with makerspace-first lock ordering.
 
-**`apps/makerspaces/module_registry.py` is the single source of truth for module keys.** All 32
+**`apps/makerspaces/module_registry.py` is the single source of truth for module keys.** All 31
 `ModuleDefinition`s live there (`key`, `label`, `description`, `app_label`, `enforcement`, `group`,
 `requires_modules`, `default_enabled`, `is_core`, `frontend_exposed`, `frontend_workflows`), and the
 lists that used to be hand-kept in parallel now **derive** from it: `models.DEFAULT_ENABLED_MODULES`,
@@ -380,19 +380,14 @@ issue photo to issue hardware. `tests/makerspaces/test_module_registry.py` is th
 AST-parses `apps/` and fails if a registered module has no real guard call site, if a guarded key is
 unregistered, if the derived lists change, or if a migration-referenced callable stops resolving.
 
-**Modules are OPT-IN.** `DEFAULT_ENABLED_MODULES` resolves to **10 keys** — the 6 core ones plus
-`accounts`, `payments`, `mobile` and `updates`, which carry `default_enabled=True` because each was
-introduced as a *key over behaviour that already existed*, and an opt-in default would have switched
-that behaviour off for every deployment on upgrade (the `0050`/`0051` backfill reasoning, expressed
-in the registry instead of a migration). Everything else is off, and a new makerspace installs core
-plus whatever profile the operator chose (`minimal` 6 / `workshop` 14 / `lending` 17 /
-`recommended` 20 / `cloud` 24 / `everything` = `full` 32).
+**Modules are OPT-IN.** `DEFAULT_ENABLED_MODULES` resolves to **7 keys** — the 6 core ones plus
+`payments`, the only optional module carrying `default_enabled=True`. Member accounts and mobile
+are opt-in; the `updates` key is retired. A new makerspace installs core plus whatever profile the
+operator chose (`minimal` 6 / `workshop` 13 / `checkin` 20 / `lending` 16 /
+`recommended` 19 / `cloud` 24 / `everything` = `full` 31).
 `ModuleDefinition.default_enabled` defaults to **False** and core must not set it (core is on by
-definition; two sources for one fact is the drift the registry exists to remove) — so the four
-above are the only registry entries that set it, and `default_enabled_module_keys()` is the one
-place to ask rather than counting by hand. (This paragraph read "core only (6 keys)" until those
-four keys landed; it is the kind of count that goes stale silently, which is why the README table
-is generated from the registry rather than written out.) **Existing makerspaces
+definition; two sources for one fact is the drift the registry exists to remove).
+`default_enabled_module_keys()` is the one place to ask rather than counting by hand. **Existing makerspaces
 are untouched** — a default change never rewrites stored JSON rows, and `_canonical_modules` preserves
 unknown keys. Because almost every backend test exercises a module's behaviour rather than the install
 default, `tests/conftest.py` has an autouse fixture that patches **only the `enabled_modules` field
@@ -417,7 +412,7 @@ that is the *other* axis: `python manage.py suggest_tombstones` reads what every
 has installed and prints the `TOMBSTONED_APPS=` line to paste into `.env`. It is conservative by
 construction — an app is suggested only when **no** makerspace uses any of its modules, because a
 tombstone is process-global and would break the one tenant still using it. Apps owning no module key
-(`warranty`, `presence`, `payments`, `updates`) are listed separately for a by-hand decision. `setup.sh`
+(`warranty`, `presence`, `tenant_migration`) are listed separately for a by-hand decision. `setup.sh`
 and `setup_instance --profile` (env `SETUP_MODULE_PROFILE`, default `recommended`) apply one,
 **only when the makerspace is first created** so a re-run never rewrites an operator's choices.
 Core modules are **added back by `_canonical_modules`, not rejected** — no caller has to carry the core
@@ -1229,29 +1224,37 @@ It composes with, and does not replace, the per-makerspace `enabled_modules` swi
 only when the tenant enabled it **and** the deployment ships the app. The env var names **app labels,
 not module keys** (one app can own several keys — `printing`/`machines`/`machine_service` are all
 `apps.machines`), and it never touches data: rows, migrations, purge plans and PII mappings all stay.
-- **`payments` and `updates` joined `SEPARABLE_APPS` (phase 16).** A makerspace that takes no money
-  online ships **no Stripe surfaces at all**, and a deployment updated by its own host tooling ships
-  no in-app release control. The import counts are a red herring — 26 modules import `apps.payments`
-  and every one keeps working, because a tombstone removes *surfaces*, never models: the rows stay
+- **`payments` is separable; `updates` is now retired.** A makerspace that takes no money
+  online ships **no Stripe surfaces at all**. The import counts are a red herring — 26 modules import
+  `apps.payments` and every one keeps working, because a tombstone removes *surfaces*, never models: the rows stay
   readable, purgeable and nameable by the retention registry. Three things this needed beyond the
   standard pattern:
   - **The Stripe webhook is spliced out, not left answering.** An endpoint that still verified and
     settled a charge for an app whose reconciliation console is gone would move real money nobody
     can see. `config.urls.separable_paths` is the shape of `separable()` for inline single-view
     routes rather than an app urlconf.
-  - **Some routes live in another app's urlconf.** `admin_api` owns the staff surface for payments
-    and updates, so those cannot be removed by dropping an `include()` — `admin_api/urls.py` has its
+  - **Some routes live in another app's urlconf.** `admin_api` owns the staff surface for payments,
+    so those cannot be removed by dropping an `include()` — `admin_api/urls.py` has its
     own in-place `_separable()` gate. The tombstone tests assert a **neighbouring** route in the
     same list still resolves, because splicing in place is exactly where an off-by-one removes too
     much.
   - **`_managed_item` had to become None-safe.** It called `_item(...)` and then subscripted the
     result; `_item` returns `None` for a tombstoned app, so the Stripe Connect entry would have
     turned a supported tombstone into a boot crash.
-  Both apps own **feature** keys or no key at all, so `available_modules` has nothing to drop and
-  `unavailable_apps()` is what tells the console to hide the tabs — the same reason it exists for
-  `warranty` and `presence`. `TOMBSTONE_PROFILE_APPS` in `tests/tombstone/conftest.py` was extended
-  in step, and the profile is now **ten** apps — `tenant_migration` joined it in Phase 5B, whose
-  whole superadmin surface is separable.
+  `payments` owns a module key, so `available_modules` drops it when tombstoned; `unavailable_apps()`
+  also tells the console which apps are absent, including keyless `warranty` and `presence`.
+  `TOMBSTONE_PROFILE_APPS` in `tests/tombstone/conftest.py` now contains **nine** apps, including
+  `tenant_migration`, whose whole superadmin surface is separable.
+- **The in-app updater is retired; only its model stays, for one release.** The update panel,
+  admin API routes, `/control/` page, `update_control` command and `updates` module key are
+  removed, and makerspaces migration `0070_remove_in_app_updates` strips `updates` from every
+  `enabled_modules`. `apps/updates` keeps only `PlatformUpdateSettings` and its migration for
+  one release: a failed deploy rolls back without migrations and the previous image needs that table, and compound backups refuse any table no installed model classifies.
+  The next release deletes the app and drops the table together; never drop the table while
+  the app is installed, nor uninstall the app while the table exists.
+  `updates` is absent from `SEPARABLE_APPS`, so E007 would refuse a stale
+  `TOMBSTONED_APPS=updates`; `setup.sh` and `update.sh` strip that label first
+  (`scripts/retire-update-tombstone.sh`).
 - **Still NOT separable, with reasons:** `integrations` (platform mail carries password reset and
   email verification — removing it locks users out of their own accounts), `encryption` (the
   `ScopedPiiModelMixin` substrate six models depend on), `operations` (owns six module keys and the
@@ -1262,9 +1265,9 @@ not module keys** (one app can own several keys — `printing`/`machines`/`machi
 - **`SEPARABLE_APPS` is declared, not derived.** Nothing in the module registry encodes "can this app's
   surfaces be removed without leaving the rest incoherent" — `is_core` comes closest and is a different
   question (`apps.makerspaces` owns only non-core modules yet is the tenant root; `apps.inventory` owns
-  a core module *and* two optional ones). Anything in `TOMBSTONED_APPS` but absent from `SEPARABLE_APPS`
-  **refuses startup** (`separability.E007`), which is what turns a typo, a dotted path or a core app
-  from a silently inert setting into a boot failure. The set grows one app per B6 phase.
+  a core module *and* two optional ones). Anything in `TOMBSTONED_APPS` but absent from
+  `SEPARABLE_APPS` **refuses startup** (`separability.E007`), which turns a typo,
+  a dotted path or a core app from a silently inert setting into a boot failure. The set grows one app per B6 phase.
 - **`module_enabled()` is the chokepoint**, ANDing `module_registry.module_available(key)` in, so a
   guard written later inherits the check without knowing it exists. `platform.available_modules()` is
   the read side — used by the bootstrap payload and both staff makerspace serializers, because the
@@ -1284,8 +1287,8 @@ not module keys** (one app can own several keys — `printing`/`machines`/`machi
   has no urlconf to import.
 - **The tombstone suite is a separate pytest run** (`tests/tombstone/`), because import-time surfaces
   cannot be re-derived in-process and the all-active suite asserts the opposite for the same objects:
-  `TOMBSTONED_APPS=bookings,events,maintenance,notifications,payments,presence,procurement,tenant_migration,updates,warranty
-  pytest tests/tombstone` — the conftest demands the **whole ten-app profile** and names the exact
+  `TOMBSTONED_APPS=bookings,events,maintenance,notifications,payments,presence,procurement,tenant_migration,warranty
+  pytest tests/tombstone` — the conftest demands the **whole nine-app profile** and names the exact
   string it wants, so a single app (this line said `procurement` alone until 2026-08-11) is a hard
   `UsageError`, not a partial run. A whole-tree run skips the directory; an
   explicit run without the profile is a hard `UsageError`, never a green no-op. `TOMBSTONE_PROFILE_APPS`
@@ -2764,6 +2767,28 @@ makerspace scope and no timestamps, and putting the upstream member id in plaint
 serializer is exactly what the PII review rejected. Leave it alone.
 
 ## Container / deployment invariants
+
+**The release webhook receiver only queues; host tooling executes deployments.**
+`backend/scripts/deploy_webhook.py` verifies raw-body HMAC, repository, published non-draft/non-prerelease
+main releases, delivery IDs and request limits before atomically writing a local queue file. Empty
+`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables it. The read-only, unprivileged receiver has no Docker socket,
+Django/database configuration, `.env` mount or host orchestration authority. nginx/Caddy reaches it on the
+internal `deploy-hooks` network; frontend and Caddy also retain `default` for application/storage access.
+The host `spaceworks-deploy.path` activates an install-owner service running
+`scripts/deploy-from-request.sh`, which invokes `update.sh --no-module-changes` (never `--force`). A
+request is deleted only once the installed version changes: a delivery that arrives before
+`release.yml` promotes the release to latest is retried for an hour, and a failed update is retried
+with backoff for a day, so neither a promotion race nor a transient outage loses it. The bundled
+frontend mounts the host-bundle `frontend/nginx.conf`, so an image rollback keeps `/hooks/deploy`;
+the curl installer pins `update.sh` to the release it staged (`SPACEWORKS_PINNED_RELEASE`); and the
+Cloud topology's receiver is permanently disabled (no secret, no queue) because the host updater
+drives only the bundled stack. Without systemd,
+a one-minute local-queue cron is the fallback; it must never become release polling. Delivery payloads
+are wake-up signals only: `update.sh` independently selects the eligible GitHub release, takes host locks,
+backs up, refreshes trusted Compose records/producer capability, retires polling and the update tombstone,
+and runs migrations before application startup. Rollback restarts application services with `--no-deps`,
+excluding `migrate`; it does not reverse database migrations. Setup writes the secret before creating
+Compose records/containers, and `.spaceworks-layer` preserves the overlay for unattended updates.
 
 **The H1 host marker is a process boundary, and PostgreSQL grants are a separate authority
 boundary.** Every application-image start must enter through

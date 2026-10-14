@@ -106,7 +106,6 @@ if command -v docker >/dev/null 2>&1 && ! docker info >/dev/null 2>&1; then
     die "Docker Desktop is installed but not running. Start it and wait until it is ready, then rerun; no state was changed."
   fi
 fi
-
 if [[ -f "$INSTALL_DIR/.spaceworks-version" ]]; then
   [[ ! ${SPACEWORKS_REPOSITORY+x} ]] || { say "SPACEWORKS_REPOSITORY from the shell is ignored for an existing install; SPACEWORKS_REPOSITORY in $INSTALL_DIR/.env decides where updates come from."; unset SPACEWORKS_REPOSITORY; }
   ACTION="$(prompt $'Existing SpaceWorks install detected.\n  1) Update to latest release\n  2) Change modules\n  3) Update and change modules\n  4) Cancel\nChoose [4]: ')"
@@ -124,6 +123,9 @@ if [[ -f "$INSTALL_DIR/.spaceworks-version" ]]; then
     RUN_ROOT=(sudo)
     RUN_INSTALLED_AS_ROOT=1
   fi
+  # With the privileges chosen above: a root-owned install keeps its .env at mode 0600.
+  REPOSITORY="$("${RUN_ROOT[@]}" bash -c 'source "$1/scripts/env-file.sh"; source "$1/scripts/host-image.sh"; resolve_spaceworks_repository "$1"' _ "$INSTALL_DIR")" || die "Invalid installed repository."
+  RELEASE_API="https://api.github.com/repos/$REPOSITORY/releases/latest"
 elif [[ -e "$INSTALL_DIR" ]]; then
   if [[ -d "$INSTALL_DIR" && -z "$(find "$INSTALL_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
     EMPTY_INSTALL_DIR=1
@@ -133,7 +135,6 @@ elif [[ -e "$INSTALL_DIR" ]]; then
 else
   EMPTY_INSTALL_DIR=0
 fi
-
 port_in_use() {
   local port="$1" hex file
   if [[ "$HOST_KIND" == linux ]]; then
@@ -153,15 +154,13 @@ if [[ "$ACTION" == fresh ]]; then
   done
   say "Required TCP ports 80, 9000, and 9001 are free."
 fi
-
 disk_path="$INSTALL_DIR"
 while [[ ! -e "$disk_path" && "$disk_path" != / ]]; do disk_path="$(dirname "$disk_path")"; done
 available_kb="$(df -Pk "$disk_path" | awk 'NR == 2 {print $4}')"
 [[ "$available_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space for $INSTALL_DIR."
 ((available_kb >= MIN_FREE_KB)) || die "At least 8 GiB free is required; $disk_path has $((available_kb / 1024)) MiB."
 say "Disk-space check passed."
-
-if [[ "$ACTION" == fresh ]]; then
+if [[ "$ACTION" != modules ]]; then
   release_json="$(curl --fail --silent --show-error --location \
     --header 'Accept: application/vnd.github+json' \
     --header 'User-Agent: spaceworks-curl-installer' "$RELEASE_API")" \
@@ -179,7 +178,7 @@ if [[ "$ACTION" == fresh ]]; then
   fi
   # sudo/sg strip or re-parse the environment, so pass values explicitly
   # with shell quoting to preserve spaces and metacharacters.
-  for name in MAKERSPACE_IMAGE_TAG SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE SPACEWORKS_UPDATE_SCHEDULE; do
+  for name in MAKERSPACE_IMAGE_TAG SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE; do
     [[ ${!name+x} ]] || continue
     value="${!name}"; [[ "$value" != *$'\r'* && "$value" != *$'\n'* ]] || die "$name cannot contain CR or LF."
     printf -v assignment '%s=%q ' "$name" "$value"; setup_command+="$assignment"
@@ -187,7 +186,6 @@ if [[ "$ACTION" == fresh ]]; then
   setup_command+="bash setup.sh"
 fi
 say "All preflight checks passed; state-changing work starts now."
-
 install_linux_dependencies() {
   case "$PACKAGE_FAMILY" in
     apt)
@@ -226,7 +224,6 @@ install_linux_dependencies() {
   esac
 }
 if ((${#missing[@]} > 0)); then install_linux_dependencies; fi
-
 if ! docker compose version >/dev/null 2>&1; then
   compose_json="$(curl --fail --silent --show-error --location \
     --header 'Accept: application/vnd.github+json' \
@@ -240,7 +237,6 @@ if ! docker compose version >/dev/null 2>&1; then
     -o /usr/local/lib/docker/cli-plugins/docker-compose
   "${RUN_ROOT[@]}" chmod 755 /usr/local/lib/docker/cli-plugins/docker-compose
 fi
-
 if ! docker info >/dev/null 2>&1; then
   if [[ "$HOST_KIND" == linux ]] && command -v systemctl >/dev/null 2>&1; then
     "${RUN_ROOT[@]}" systemctl enable --now docker >/dev/null 2>&1 || true
@@ -258,7 +254,6 @@ if ! docker info >/dev/null 2>&1; then
   fi
 fi
 docker compose version >/dev/null 2>&1 || die "Docker Compose V2 is still unavailable after dependency setup."
-
 run_installed() {
   local command="$1"
   if [[ "$RUN_INSTALLED_AS_ROOT" == 1 ]]; then
@@ -269,12 +264,7 @@ run_installed() {
     (cd "$INSTALL_DIR" && bash -c "$command" < /dev/tty)
   fi
 }
-case "$ACTION" in
-  update) run_installed "bash scripts/update.sh --force --no-module-changes"; exit 0 ;;
-  modules) run_installed "bash scripts/update.sh --modules-only"; exit 0 ;;
-  both) run_installed "bash scripts/update.sh --force --modules"; exit 0 ;;
-esac
-
+[[ "$ACTION" != modules ]] || { run_installed "bash scripts/update.sh --modules-only"; exit 0; }
 ARCHIVE="$(mktemp)"
 curl --fail --silent --show-error --location \
   "https://github.com/$REPOSITORY/archive/refs/tags/$RELEASE_TAG.tar.gz" -o "$ARCHIVE"
@@ -283,17 +273,27 @@ if [[ ! -d "$parent" ]]; then "${RUN_ROOT[@]}" mkdir -p -- "$parent"; CREATED_PA
 STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d "$parent/.spaceworks-stage.XXXXXX")"
 "${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1
 for required in setup.sh docker-compose.prod.yml scripts/update.sh scripts/spaceworks-compose.sh \
-  scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh; do
+  scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh \
+  scripts/install-host-bundle.sh scripts/install-deploy-webhook.sh backend/scripts/deploy_webhook.py; do
   "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" || die "The pinned release archive is missing required installer file $required."
 done
-"${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"
+"${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR" "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"
+# An existing install runs the NEW release's updater: backup, staged host files, images.
+if [[ "$ACTION" != fresh ]]; then
+  update_options="--force --no-module-changes"; [[ "$ACTION" != both ]] || update_options="--force --modules"
+  printf -v update_command 'SPACEWORKS_REPOSITORY=%q SPACEWORKS_PINNED_RELEASE=%q SPACEWORKS_UPDATE_INSTALL_DIR=%q bash %q %s' "$REPOSITORY" "$RELEASE_TAG" "$INSTALL_DIR" "$STAGE_DIR/scripts/update.sh" "$update_options"
+  for name in SPACEWORKS_COMPOSE_LAYER SPACEWORKS_COMPOSE_BUILD_LAYER; do
+    [[ -z "${!name:-}" ]] || { printf -v assignment '%s=%q ' "$name" "${!name}"; update_command="$assignment$update_command"; }
+  done
+  run_installed "$update_command"
+  exit 0
+fi
 if [[ "${EMPTY_INSTALL_DIR:-0}" == 1 ]]; then "${RUN_ROOT[@]}" rmdir -- "$INSTALL_DIR"; fi
 "${RUN_ROOT[@]}" mv -- "$STAGE_DIR" "$INSTALL_DIR"
 STAGE_DIR=""
 if [[ "$(id -u)" != 0 && ${#RUN_ROOT[@]} -gt 0 ]]; then
   "${RUN_ROOT[@]}" chown -R "$(id -u):$(id -g)" "$INSTALL_DIR"
 fi
-
 run_installed "$setup_command"
 printf '%s\n' "$VERSION" > "$INSTALL_DIR/.spaceworks-version"
 say "Installed SpaceWorks $VERSION in $INSTALL_DIR."

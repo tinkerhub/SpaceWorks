@@ -1,3 +1,13 @@
+"""Retired in-app updater: only this model stays installed, for exactly one release.
+
+Every surface (staff panel, admin API, /control/ page, update_control, module key) is gone;
+releases now arrive through the GitHub release webhook. The model is kept because:
+* a failed deploy rolls back to the previous image without running migrations, and that image
+  needs its `updates` migration recorded and this table present to pass readiness;
+* compound backups refuse any physical table that no installed model classifies.
+A later release deletes this app and drops the table together (docs/PROJECT-STATUS.md).
+"""
+
 from django.db import models
 
 

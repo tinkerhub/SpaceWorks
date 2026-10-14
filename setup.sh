@@ -39,6 +39,9 @@ die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 source "$ROOT/scripts/setup-host-orchestration.sh"
 source "$ROOT/scripts/module-selection.sh"
 source "$ROOT/scripts/request-access-selection.sh"
+source "$ROOT/scripts/setup-deploy-webhook.sh"
+source "$ROOT/scripts/retire-update-tombstone.sh"
+source "$ROOT/scripts/retire-update-polling.sh"
 
 # 1. Docker must be installed and running.
 command -v docker >/dev/null 2>&1 || die "Docker is not installed. Install Docker Desktop first: https://www.docker.com/products/docker-desktop/"
@@ -164,18 +167,22 @@ if ! grep -q '^AUTH_COOKIE_SAMESITE=' .env \
     warn "Could not safely backfill AUTH_COOKIE_SAMESITE and AUTH_COOKIE_SECURE; set both explicitly using docs/self-hosting.md."
   fi
 fi
-# Persisted so the cron-time updater and compose interpolation follow the same repository and images.
-for key in SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE SPACEWORKS_UPDATE_SCHEDULE; do
+# Persisted so the webhook-triggered updater and compose interpolation follow the same repository and images.
+for key in SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE; do
   value="${!key:-}"
   [[ -n "$value" ]] || continue
   case "$key" in
     SPACEWORKS_REPOSITORY) spaceworks_repository_is_valid "$value" || die "Invalid $key." ;;
     MAKERSPACE_BACKEND_IMAGE|MAKERSPACE_FRONTEND_IMAGE) spaceworks_image_is_valid "$value" || die "Invalid $key." ;;
-    SPACEWORKS_UPDATE_SCHEDULE) value="$(validate_cron_schedule "$value")" || die "Invalid $key." ;;
   esac
   env_file_append_if_absent .env "$key" "$value" || die "Could not persist $key in .env."
 done
 if [[ "$FIRST_RUN" == 1 ]]; then persist_checkin_settings; fi
+ask_deploy_webhook
+# Hosts upgraded from the in-app updater: drop its tombstone label and weekly cron.
+retire_update_tombstone
+retire_update_polling
+record_compose_layer
 chmod 600 .env
 prepare_compose_wrapper
 if [[ "$BUILD_FROM_SOURCE" == 1 ]]; then
@@ -249,23 +256,6 @@ if [ "$FIRST_RUN" = 1 ]; then
     configure_setup_stripe
   fi
 
-  read -r -p "Enable automatic production updates from main? [Y/n]: " AUTOUPDATE
-  AUTOUPDATE="${AUTOUPDATE:-Y}"
-  # ^[Yy] not ^[Yy]$: typing "yes" at a [Y/n] prompt previously fell through to the
-  # off branch, which is the opposite of what the operator asked for.
-  if [[ "$AUTOUPDATE" =~ ^[Yy] ]]; then
-    if ! bash scripts/install-auto-update.sh; then
-      warn "Could not install the seven-day updater. Run bash scripts/install-auto-update.sh later."
-    fi
-  else
-    if bash scripts/install-auto-update.sh; then
-      "${COMPOSE[@]}" run --rm --no-deps -T backend --role management python manage.py update_control set-auto off >/dev/null
-      warn "Automatic installation is off. The host will still check for releases so Update now works from Platform settings."
-    else
-      warn "Could not install the seven-day update checker. Run bash scripts/install-auto-update.sh later, then turn automatic updates off in Platform settings."
-    fi
-  fi
-
   PORT="$(grep -E '^HTTP_PORT=' .env | cut -d= -f2)"; PORT="${PORT:-80}"
   HOST="$(grep -E '^ALLOWED_HOSTS=' .env | cut -d= -f2 | cut -d, -f1)"; HOST="${HOST:-localhost}"
   SUFFIX=""; [ "$PORT" != "80" ] && SUFFIX=":$PORT"
@@ -280,3 +270,5 @@ else
   say "App started. To create the first admin (only if you haven't yet), run:"
   echo "  ${COMPOSE[*]} run --rm --no-deps backend --role management python manage.py setup_instance --username admin --password 'a-strong-password' --makerspace-name 'My Makerspace'"
 fi
+
+finish_deploy_webhook_setup

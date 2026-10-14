@@ -28180,101 +28180,6 @@
                 }
             }
         },
-        "/api/v1/admin/platform/update-settings": {
-            "get": {
-                "operationId": "api_v1_admin_platform_update_settings_retrieve",
-                "summary": "Retrieve or update automatic production update settings",
-                "tags": [
-                    "Platform"
-                ],
-                "security": [
-                    {
-                        "jwtAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlatformUpdateSettings"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            },
-            "patch": {
-                "operationId": "api_v1_admin_platform_update_settings_partial_update",
-                "summary": "Retrieve or update automatic production update settings",
-                "tags": [
-                    "Platform"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedPlatformUpdateSettings"
-                            }
-                        },
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedPlatformUpdateSettings"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchedPlatformUpdateSettings"
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "jwtAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlatformUpdateSettings"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/api/v1/admin/platform/update-settings/update-now": {
-            "post": {
-                "operationId": "api_v1_admin_platform_update_settings_update_now_create",
-                "summary": "Queue the latest production release for installation",
-                "tags": [
-                    "Platform"
-                ],
-                "security": [
-                    {
-                        "jwtAuth": []
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlatformUpdateSettings"
-                                }
-                            }
-                        },
-                        "description": ""
-                    }
-                }
-            }
-        },
         "/api/v1/admin/products/{id}/assets/generate": {
             "post": {
                 "operationId": "api_v1_admin_products_assets_generate_create",
@@ -51246,7 +51151,8 @@
                                 "$ref": "#/components/schemas/MakerspaceArchiveRequestStatusEnum"
                             }
                         ],
-                        "readOnly": true
+                        "readOnly": true,
+                        "default": "pending"
                     }
                 },
                 "required": [
@@ -56470,71 +56376,6 @@
                     }
                 }
             },
-            "PatchedPlatformUpdateSettings": {
-                "type": "object",
-                "properties": {
-                    "automatic_updates_enabled": {
-                        "type": "boolean"
-                    },
-                    "status": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/PlatformUpdateSettingsStatusEnum"
-                            }
-                        ],
-                        "readOnly": true
-                    },
-                    "current_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "available_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "target_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "update_requested_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_checked_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_backup_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_backup_name": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "last_error": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    }
-                }
-            },
             "PatchedPrinterPoolVisibility": {
                 "type": "object",
                 "properties": {
@@ -57156,94 +56997,6 @@
                     "stripe_webhook_secret_set",
                     "updated_at"
                 ]
-            },
-            "PlatformUpdateSettings": {
-                "type": "object",
-                "properties": {
-                    "automatic_updates_enabled": {
-                        "type": "boolean"
-                    },
-                    "status": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/PlatformUpdateSettingsStatusEnum"
-                            }
-                        ],
-                        "readOnly": true
-                    },
-                    "current_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "available_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "target_version": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "update_requested_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_checked_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_backup_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true,
-                        "nullable": true
-                    },
-                    "last_backup_name": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "last_error": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    }
-                },
-                "required": [
-                    "available_version",
-                    "current_version",
-                    "last_backup_at",
-                    "last_backup_name",
-                    "last_checked_at",
-                    "last_error",
-                    "last_updated_at",
-                    "status",
-                    "target_version",
-                    "update_requested_at",
-                    "updated_at"
-                ]
-            },
-            "PlatformUpdateSettingsStatusEnum": {
-                "enum": [
-                    "idle",
-                    "queued",
-                    "running",
-                    "failed"
-                ],
-                "type": "string",
-                "description": "* `idle` - Idle\n* `queued` - Queued\n* `running` - Running\n* `failed` - Failed"
             },
             "PresenceCurrent": {
                 "type": "object",
@@ -64688,6 +64441,10 @@
         {
             "name": "Notifications",
             "description": "Persistent staff inbox notifications."
+        },
+        {
+            "name": "Platform",
+            "description": "Superadmin platform settings: email, social sign-in, Stripe Connect."
         }
     ]
 }

@@ -48,15 +48,20 @@ cleared by `/auth/change-password`).
 
 Releases now run through `release.yml`'s `workflow_run` only after CI (including `pip-audit`) succeeds
 for a main push; manual dispatch requires `main` and successful push CI for the exact SHA.
-Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides, and poll on
-`SPACEWORKS_UPDATE_SCHEDULE` (default `0 3 * * 0`); see [deploy-ec2.md](deploy-ec2.md).
+Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides. Signed GitHub
+release webhooks queue requests for an install-owner host service; the receiver never executes
+updates or accesses Docker. Setup generates `SPACEWORKS_DEPLOY_WEBHOOK_SECRET` only when enabled,
+before Compose initialization, and retires old polling. See [deploy-ec2.md](deploy-ec2.md).
+**Follow-up:** the next release deletes `apps/updates` and drops `updates_platformupdatesettings`
+in the same change (its classification entries go with it); it is kept now only so this release's
+rollback and compound backups keep working.
 
 **Releases are titled `SpaceWorks <version>`** (owner convention, 2026-08-15), where the version is the
 git-tag form `v<semver>-<branch>.<n>.<sha>` — e.g. `SpaceWorks v0.5.1-main.12.a9cd82c0dd89`. **The
-`SpaceWorks ` prefix is a display title, not part of the version value:** `updates.UpdateState` stores the
-bare string in `current_version`/`available_version`/`target_version`, and writing the prefix into those
-columns (or comparing against it) would break every version equality check the update flow makes. Compose
-`f"SpaceWorks {version}"` at the display layer.
+`SpaceWorks ` prefix is a display title, not part of the version value:** the installed version lives in
+`.spaceworks-version` on the host, without the leading `v` (e.g. `0.5.1-main.12.a9cd82c0dd89`). The host
+updater compares it with the latest release tag after stripping that tag's leading `v`; display titles
+must never be written into the marker. In-app update controls are retired.
 
 **Per-makerspace integrations are backend-only and never leak.** `Makerspace` holds per-tenant
 `telegram_bot_token` + `smtp_*`; secrets are encrypted at rest with `API_CLIENT_ENC_KEY` via

@@ -65,7 +65,6 @@ GLOBAL_ADMIN_MODELS = {
     "integrations.platformsmssettings",
     "integrations.dailyotpsmscounter",
     "payments.platformstripeconnectsettings",
-    "updates.platformupdatesettings",
     "backup.platformbackupsettings",
     "backup.backuparchive",
     "backup.restoreoperation",

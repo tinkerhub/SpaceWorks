@@ -1,6 +1,6 @@
 # SpaceWorks modules — what each one is, and what happens without it
 
-Space Works ships **32 modules**: 6 **core** ones that cannot be switched off, 2 that are **on by
+Space Works ships **31 modules**: 6 **core** ones that cannot be switched off, 1 that is **on by
 default**, and the rest opt-in. This page is the per-module reference the README links into — one entry
 per key, saying what it is, what it puts on screen, what disappears if you do not install it, and what
 happens to its data.
@@ -54,7 +54,7 @@ core modules cannot be uninstalled at all.
 **Notifications**: [notifications](#notifications) · [email](#email) · [telegram](#telegram) ·
 [slack](#slack) · [mattermost](#mattermost) · [discord](#discord) — **Reports**: [reports](#reports) —
 **Payments**: [payments](#payments) — **Accounts**: [member_accounts](#member_accounts) —
-**Mobile apps**: [mobile](#mobile) — **Updates**: [updates](#updates)
+**Mobile apps**: [mobile](#mobile)
 
 ---
 
@@ -473,19 +473,7 @@ Requires `member_accounts`.
 
 ## Updates
 
-### updates
-
-**On by default.**
-
-- **What it is** — in-app release control: check for a new version, and apply it from the console.
-- **What it adds** — the superadmin update surface and `UpdateState` (current / available / target
-  version).
-- **Without it** — the box is updated by whatever tooling you already use (`git pull` + `docker compose
-  up -d --build`, Ansible, your own pipeline). This is a **deployment-level** key like
-  `member_accounts`, read
-  as "does any live makerspace run it", because the update console is a single-box superadmin surface
-  with no tenant to scope by.
-- **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
+Retired: the `updates` module and in-app controls are removed, and makerspaces migration `0070_remove_in_app_updates` strips the stored module key. Only its data table remains, for one release. Releases are applied by [host scripts](self-hosting.md#automatic-and-manual-upgrades).
 
 ---
 
@@ -519,15 +507,15 @@ modules.
 | Profile | Modules | For |
 |---|---|---|
 | `minimal` | 6 | Core only; nothing published publicly |
-| `workshop` | 14 | A machine shop: machines, service queue, maintenance — deliberately without `member_accounts` |
-| `checkin` | 21 | Full inventory and machine/printer operations; upstream roster identity and counter payments |
-| `lending` | 17 | A tool library: the full lending lifecycle, no machines |
-| `recommended` | 20 | Core plus the inventory lifecycle, reports and machines (the default) |
+| `workshop` | 13 | A machine shop: machines, service queue, maintenance — deliberately without `member_accounts` |
+| `checkin` | 20 | Full inventory and machine/printer operations; upstream roster identity and counter payments |
+| `lending` | 16 | A tool library: the full lending lifecycle, no machines |
+| `recommended` | 19 | Core plus the inventory lifecycle, reports and machines (the default) |
 | `cloud` | 24 | A managed box: everything that runs on a single Django process, no worker or beat |
-| `everything` / `full` | 32 | All modules |
+| `everything` / `full` | 31 | All modules |
 
-**Installing without a profile** gives you **8 modules**: the six core ones plus `payments` and
-`updates`. Member accounts and mobile apps are opt-in; installing `mobile` also installs its
+**Installing without a profile** gives you **7 modules**: the six core ones plus `payments`.
+Member accounts and mobile apps are opt-in; installing `mobile` also installs its
 `member_accounts` dependency.
 
 ## Deleting a module's data
@@ -556,5 +544,5 @@ command tells you which. [`machines`](#machines) is the notable second case.
 Uninstalling switches a module off for one makerspace; the code still ships. A deployment that will never
 use an area can drop the app itself with `TOMBSTONED_APPS`, and `suggest_tombstones` reads the installed
 modules and names the apps that are safe to remove. The separable apps are `warranty`, `presence`,
-`payments`, `updates`, `events`, `bookings`, `maintenance` and `procurement`. That is a different axis
-from modules — see **Separability and tombstoning** in `docs/INVARIANTS.md`.
+`payments`, `events`, `bookings`, `maintenance`, `notifications`, `procurement` and `tenant_migration`.
+That is a different axis from modules — see **Separability and tombstoning** in `docs/INVARIANTS.md`.

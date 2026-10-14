@@ -5,6 +5,20 @@
 acquire_update_lock() {
   local now owner_pid="" owner_started="" age="unknown"
   now="$(date +%s)"
+  if [[ "${SPACEWORKS_DEPLOY_WAIT:-0}" == 1 ]]; then
+    # Wait only while a LIVE owner holds the lock. A dead, legacy (pid-file) or ownerless
+    # lock falls through to the recovery/refusal handling below instead of waiting forever.
+    while [[ -d "$LOCK_DIR" ]]; do
+      owner_pid=""
+      if [[ -f "$LOCK_DIR/owner" ]]; then
+        read -r owner_pid _ < "$LOCK_DIR/owner" || true
+      elif [[ -f "$LOCK_DIR/pid" ]]; then
+        owner_pid="$(tr -dc '0-9' < "$LOCK_DIR/pid")"
+      fi
+      [[ "$owner_pid" =~ ^[0-9]+$ ]] && kill -0 "$owner_pid" 2>/dev/null || break
+      sleep 10
+    done
+  fi
   if ! mkdir "$LOCK_DIR" 2>/dev/null; then
     if [[ -f "$LOCK_DIR/owner" ]]; then
       read -r owner_pid owner_started < "$LOCK_DIR/owner" || true
@@ -16,6 +30,7 @@ acquire_update_lock() {
     fi
     if [[ "$owner_pid" =~ ^[0-9]+$ ]] && kill -0 "$owner_pid" 2>/dev/null; then
       if [[ "${UPDATE_LOCK_OVERRIDE:-0}" != 1 ]]; then
+        [[ "${SPACEWORKS_DEPLOY_WAIT:-0}" != 1 ]] || exit 75
         die "Another update owns $LOCK_DIR (PID $owner_pid, age $age). If that PID is unrelated or wedged, verify it first, then rerun with --override-lock."
       fi
       say "Overriding the update lock owned by live PID $owner_pid (age $age) at operator request."
@@ -33,10 +48,16 @@ acquire_update_lock() {
   printf '%s %s\n' "$$" "$now" > "$LOCK_DIR/owner"
   UPDATE_LOCK_HELD=1
 
-  mkdir -p "$OPS_DIR"
+  mkdir -p "$OPS_DIR" || die "Cannot access $OPS_DIR. Run bash scripts/init-host-orchestration.sh as the install owner, then rerun the update."
   if command -v flock >/dev/null 2>&1; then
+    [[ ! -e "$OPS_DIR/operation.lock" || -w "$OPS_DIR/operation.lock" ]] \
+      || die "The host operation lock is not writable. Run bash scripts/init-host-orchestration.sh as the install owner, then retry."
     exec 8>"$OPS_DIR/operation.lock"
-    flock -n 8 || die "Another backup, restore, verification, or update is running."
+    if [[ "${SPACEWORKS_DEPLOY_WAIT:-0}" == 1 ]]; then
+      flock 8 || die "Could not acquire the host operation lock."
+    else
+      flock -n 8 || die "Another backup, restore, verification, or update is running."
+    fi
   else
     say "Host flock is unavailable; using the PID/timestamp update lock. Dead owners are recovered automatically; use --override-lock only after verifying no update is active."
   fi

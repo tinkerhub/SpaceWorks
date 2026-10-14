@@ -159,7 +159,6 @@ PROBES = {
     "stock_transfers": _inventory_probe("stock_transfers"),
     "stocktake": _inventory_probe("stocktake"),
     "telegram": _telegram,
-    "updates": None,
 }
 
 

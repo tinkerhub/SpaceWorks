@@ -29,9 +29,9 @@ These counts were checked against the current sources rather than copied as mark
 
 | What was counted | Result | Source |
 | --- | --- | --- |
-| Module keys and customer-facing areas | **32 modules in 12 areas** | `backend/apps/makerspaces/module_registry.py` |
-| Module modes | **6 core, 4 optional default-on, 22 opt-in; 26 non-core total** | `backend/apps/makerspaces/module_registry.py` |
-| User-facing module entries | **32**, with no missing registry key and no extra entry | `docs/MODULES.md` |
+| Module keys and customer-facing areas | **31 modules in 10 areas** | `backend/apps/makerspaces/module_registry.py` |
+| Module modes | **6 core, 1 optional default-on, 24 opt-in; 25 non-core total** | `backend/apps/makerspaces/module_registry.py` |
+| User-facing module entries | **31**, with no missing registry key and no extra entry | `docs/MODULES.md` |
 | Seeded default roles | **4**: Space Manager, Inventory Manager, Machine Manager and Member | Roles table in `README.md` |
 
 The six core keys counted in the registry are Public inventory, Request workflow, Staff admin, Evidence
@@ -270,7 +270,7 @@ and operational monitoring.
 
 ## Optional modules: landing-page comparison source
 
-This table contains the **26 non-core modules counted from the registry**. “Default-on” still means optional:
+This table contains the **25 non-core modules counted from the registry**. “Default-on” still means optional:
 an operator can disable it. Every other row is opt-in. The six core modules are omitted because there is no
 supported installation without them.
 
@@ -299,9 +299,8 @@ supported installation without them.
 | Discord | Discord incoming-webhook destination | No Discord notification surface |
 | Reports | Dashboards, ledger, registered reports and CSV/XLSX export | No analytics or report-export screens |
 | Payments (default-on) | Stripe/Razorpay checkout, charges, receipts and reconciliation | Money is handled outside SpaceWorks |
-| Member accounts (default-on) | Self-sign-up, member area, password, Google/Apple and phone login | Staff sign-in and external OIDC remain; members become staff-created walk-ins |
-| Mobile apps (default-on) | Attested device sessions, native push and PaymentSheet support | The web app works, but native clients cannot hold a session for the space |
-| Updates (default-on) | In-app version checks and controlled software updates | Updates must be run through host tooling or an external deployment pipeline |
+| Member accounts | Self-sign-up, member area, password, Google/Apple and phone login | Staff sign-in and external OIDC remain; members become staff-created walk-ins |
+| Mobile apps | Attested device sessions, native push and PaymentSheet support | The web app works, but native clients cannot hold a session for the space |
 
 Two dependency rules also come directly from the registry: Printing requires Machine service, and Mobile
 apps requires Member accounts. Installing a dependent module pulls in its requirement; a required module
@@ -345,9 +344,11 @@ Docker, generates secrets, writes configuration, builds the stack, creates the f
 makerspace, and prints the URL and credentials. Prebuilt backend and frontend container images are also
 available. PostgreSQL, Redis, S3-compatible storage, background workers and migrations use Docker Compose.
 
-The Updates module can check and apply releases from the control plane. Guided updates are backup-first,
-run readiness checks and can return application containers to the retained prior release if deployment
-fails.
+Signed GitHub release webhooks queue a request for host scripts, which independently check the latest
+release; operators can also run updates manually. Guided updates are backup-first, run readiness checks
+and can return application containers to the retained prior release if deployment fails. An empty
+`SPACEWORKS_DEPLOY_WEBHOOK_SECRET` disables the receiver after configuration refresh and recreation.
+See [webhook setup](self-hosting.md#automatic-and-manual-upgrades).
 
 ### Managed or partner-hosted operation
 

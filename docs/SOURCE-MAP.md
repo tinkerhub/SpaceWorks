@@ -8,6 +8,17 @@
 
 ## Current source map (real paths)
 
+- `backend/scripts/deploy_webhook.py` — stdlib signed GitHub release receiver; queues atomic requests,
+  never executes host commands. `deploy/deploy-webhook.openapi.json` documents its HTTP contract.
+- `scripts/deploy-from-request.sh` / `install-deploy-webhook.sh` — host queue consumer and systemd
+  path/service installer (local queue cron fallback); deployments run through `scripts/update.sh`.
+  `retire-update-polling.sh` removes legacy polling; `retire-update-tombstone.sh` removes only the
+  deleted `updates` token from `TOMBSTONED_APPS`. `env-file.sh` and `host-image.sh` resolve settings/repository.
+- `docker-compose.prod.yml`, `docker/compose.tls.yml`, `docker/compose.saas.yml` — internal
+  `deploy-hooks` receiver network; separate frontend nginx and Caddy route `/hooks/deploy` directly
+  to `deploy-webhook:8081`. The dev/cloud Compose files also supply the receiver for nginx resolution.
+  `scripts/spaceworks-compose.sh` reads `.spaceworks-layer` for the persistent overlay selection.
+
 - `backend/config/` — Django project (`settings.py`, `urls.py`, wsgi/asgi). All API routes under `/api/`.
   `config/admin_access.py` holds the `/control/` gating, CSP middleware, and the hidden-scope drift-guard
   registries (`NESTED_MAKERSPACE_LOOKUPS`, `GLOBAL_ADMIN_MODELS`).
@@ -86,9 +97,8 @@
   credentials + device registrations, `dispatch_email` choke point + `EmailLog` outbox + Celery task,
   webhook (auth via `X-Telegram-Bot-Api-Secret-Token` vs `TELEGRAM_WEBHOOK_SECRET`, fail-closed),
   `PlatformEmailSettings`, `DailyEmailCounter`, staff-notification recipient matrix.
-- `backend/apps/updates/` — singleton platform update state, audited superadmin controls, and the
-  `update_control` management command used by the privileged host scheduler. The web process never gets
-  Docker-socket access; host scripts claim queued/automatic releases and report check/backup/result state.
+- `backend/apps/updates/` — retired: only the `PlatformUpdateSettings` model and its migration
+  remain, for one release (rollback and compound-backup table classification). No surfaces.
 - `backend/apps/backup/` — deployment backup + restore (Phase 5A/Lane E). `outer_manifest.py` owns the
   signed readable manifest, `artifact_ledger.py` + `models_artifact_ledger.py` own durable component and
   recipient custody, `activation.py` owns the access-switch/activation transition, and
@@ -100,7 +110,7 @@
   compatibility surface. Archive builder, `restore_diff`, the global quarantine
   `middleware.py` + `route_policy.py`, `recovery.py`, `object_restore.py`,
   `operation_lock.py`, and the privileged host scripts (`scripts/restore.sh`, `scripts/import-backup.sh`)
-  that mirror `apps/updates`. Project JWT classes (`accounts/tokens.py`, `token_guard.py`) stamp
+  keep recovery orchestration on the host. Project JWT classes (`accounts/tokens.py`, `token_guard.py`) stamp
   `auth_generation`. `custody.py` is the makerspace-first/recipient-PK serialization boundary;
   `tenant_exit_custody.py` derives Lane D's independent tenant-only floor, while
   `tenant_exit_custody_alarms.py` reuses the decision-19b recipient selectors and parameterized durable
@@ -232,4 +242,3 @@
   `OrganizationInvitationRedeemPage.tsx` binds a single-use invitation after member sign-in, and
   `publicOrganizationsApi.ts` owns their TanStack Query keys and public API calls. Staff profile,
   membership, invitation and event-organizer controls remain under `frontend/src/features/staff/`.
-
