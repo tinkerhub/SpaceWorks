@@ -3024,3 +3024,9 @@ implementation that silently stops deleting is invisible in CI; the fixture-driv
 directions — children survive, and genuinely stale versions are still deleted. `release.yml` runs
 `scripts/verify-release-images.sh` after cleanup so a release that orphaned its own images fails at
 the release rather than at the next person's install.
+
+**Every public application proxy denies `/api/v1/internal/*` with 403.** `deploy/Caddyfile`, `deploy/Caddyfile.saas`
+and `frontend/nginx.conf` each carry the deny; infrastructure callers (Caddy's `on_demand_tls` ask) reach the
+backend on its private `backend:8000` address, never through a public site. `deploy/Caddyfile` once proxied all
+of `/api/*` without it, exposing the internal routes on TLS-mode self-hosts only. A new proxy config needs the
+same deny; `backend/tests/test_proxy_internal_route_deny.py` guards every `deploy/Caddyfile*` and the nginx config.

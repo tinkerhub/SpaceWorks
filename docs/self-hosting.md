@@ -301,6 +301,19 @@ The wrapper reads the persisted `.spaceworks-layer` marker. Save `tls` or `saas`
 configuration records for that overlay, so runner deployments and rollback retain the active topology.
 An explicit `SPACEWORKS_COMPOSE_LAYER` still overrides the marker for an individual command.
 
+A release that changes `deploy/Caddyfile` — for example the 403 deny on `/api/v1/internal/*` that keeps the
+infra-only TLS ask endpoint off the public site — reaches an existing TLS host only once you install the
+new file and recreate Caddy:
+
+```bash
+SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d --force-recreate caddy
+```
+
+Use `build-tls` if that is the host's layer. Recreate rather than reload: the Caddyfile is a single-file
+read-only bind mount, so replacing the file can leave the running container on the old copy. No
+`init-host-orchestration.sh` rerun is needed for a Caddyfile-only change, because the topology record
+fingerprints only `.env` and the selected Compose files.
+
 ## Publishing new images (maintainers)
 
 `release.yml` no longer runs directly on pushes. Its `workflow_run` trigger waits for CI to complete

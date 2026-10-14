@@ -1,6 +1,12 @@
 {$PUBLIC_DOMAIN} {
     encode zstd gzip
 
+    # Infra-only endpoints (the on-demand TLS ask) are never public. Caddy runs
+    # handle before reverse_proxy, so this 403 wins over the @backend proxy below.
+    handle /api/v1/internal/* {
+        respond 403
+    }
+
     @backend path /api/* /static/* /docs* /redoc* /schema*
     reverse_proxy @backend backend:8000 {
         header_up X-Forwarded-Proto https
