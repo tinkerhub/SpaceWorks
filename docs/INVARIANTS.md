@@ -2038,7 +2038,10 @@ installed. It records SHA-256 for the installed `host-capability.py`, `import-ba
 `spaceworks-compose.sh` and `validate-compose-wrapper.py` host scripts, SHA-256 for the image's actual common
 entrypoint, the closed supported compound-protocol range, only the verification-key fingerprint, and a
 length-framed digest of the installed Django migration files. It never records or receives the private
-archive-signing key.
+archive-signing key. The installer runs as a bare `docker run --entrypoint python` with no Django settings,
+so the import closure of `backend/scripts/install_producer_capability.py` must never require configured
+settings or app loading; `BackupBuildError` therefore lives in the settings-free `apps/backup/errors.py`,
+and `test_producer_capability_installer_standalone.py` guards it.
 
 `backup/archive_builder.py` checks this marker only for deployment/compound builds and does so before
 recipient resolution, temporary workspace creation, capture bytes, encryption, staging upload or artifact
