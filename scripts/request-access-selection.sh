@@ -7,17 +7,19 @@ ask_request_access() {
   # been applied. See apply_request_access.
   echo
   echo "Who can submit borrow requests?"
-  echo "  1) Members only            - people you have enrolled as members of this makerspace"
-  echo "  2) Anyone with an account  - any signed-in user; staff still accept every request"
-  echo "  3) Anyone, no account      - a stranger leaves their name and contact details"
-  echo "  4) Anyone on your check-in roster - no account; verified against your check-in API"
-  echo "Option 3 is an unauthenticated write surface: it is rate limited, contact details are"
-  echo "marked unverified, and no email is sent to them until you verify. You can change this"
-  echo "later with 'manage.py set_request_access'."
-  echo "Option 4 checks a typed name against a PUBLIC check-in roster. A match proves that name"
-  echo "is checked in at your space, not who is typing: anyone can enter another checked-in"
-  echo "person's name. Staff still accept every request and record hand-over evidence."
-  echo "See 'Check-in gated requests' in docs/INVARIANTS.md."
+  echo
+  echo "  #  Who can borrow                                       Account needed?"
+  echo "  1  Only people you have enrolled as members             Yes"
+  echo "  2  Anyone who signs up for an account                   Yes"
+  echo "  3  Anyone, by typing their name and contact details     No (details unverified)"
+  echo "  4  Anyone checked in at your space (check-in API)       No"
+  echo
+  echo "Staff always sign in with their own account, and staff still accept every request,"
+  echo "whichever option you pick. You can change this later with 'manage.py set_request_access'."
+  echo "Option 3 is rate limited, and no email is sent to a requester until you verify them."
+  echo "Option 4 asks for your check-in API URL, your space's NUMBER in that system, and the"
+  echo "check-in purpose that allows borrowing. The roster is PUBLIC: a match proves that name"
+  echo "is checked in, not who is typing. See 'Check-in gated requests' in docs/INVARIANTS.md."
   read -r -p "Choice [2]: " REQUEST_ACCESS_CHOICE
   case "${REQUEST_ACCESS_CHOICE:-2}" in
     1) REQUEST_ACCESS=members ;;
@@ -32,7 +34,7 @@ ask_checkin_settings() {
   local url space_id purpose reason=""
   local url_pattern='^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~/?&=%:+-]*)?$'
   IFS= read -r -p "Check-in API URL (https://...): " url || url=""
-  IFS= read -r -p "Your space id in the check-in system: " space_id || space_id=""
+  IFS= read -r -p "Your space's number in the check-in system (digits only, e.g. 1): " space_id || space_id=""
   IFS= read -r -p "Required check-in purpose [Working on a project]: " purpose || purpose=""
   purpose="${purpose#"${purpose%%[![:space:]]*}"}"
   purpose="${purpose%"${purpose##*[![:space:]]}"}"
