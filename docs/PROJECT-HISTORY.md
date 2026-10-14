@@ -6,6 +6,13 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-14 — 0.8.5: fresh self-host installs work end to end, and CI is pip-audit only.**
+  Rolls up the 2026-10-13/14 batches below: the curl installer checks staged files through sudo,
+  MinIO's removed images are replaced by `pgsty/silo` + `pgsty/mc`, the producer-capability
+  installer imports without Django settings, deploys run through a self-hosted Actions runner,
+  the TLS Caddyfile denies `/api/v1/internal/*`, and the request-access prompt is a clear table.
+  GitHub CI now runs only `pip-audit`; the test suites run locally before pushing.
+
 - **2026-10-14 — Producer-capability installer import fix + in-app updates retired + deployment runner.** `BackupBuildError` moved to settings-free `apps/backup/errors.py` so the installer imports without Django settings; the update panel, admin API, `/control/` page and module key are removed, and makerspaces migration `0070_remove_in_app_updates` strips the stored `updates` module key; `apps/updates` keeps only its model for one release so rollback and compound backups keep working. The unreleased deployment receiver and its queue, proxy routes, Compose service/network and secret are replaced by an install-owner self-hosted Actions runner. Only `deploy.yml` targets it, after successful Continuous Release on `main` or manual dispatch on `main`, without checkout or repository code. Setup prints instructions after startup; the Linux/systemd installer verifies pinned v2.338.0 checksums, keeps tokens in environment only, supports safe reruns/removal, retires polling and checks fork PR approval policy when possible. Repository variable `SPACEWORKS_DEPLOY_RUNNER=true` enables jobs; all-outside-contributor approval and workflow review document the public-repository risk. Updates retain lock waiting, pinned releases, pointer-based backup, pre-pull and producer-proof restoration; they refresh orchestration/producer capability and retire the old tombstone before Django starts, and rollback skips migration dependencies. Existing curl installs stage a pinned host bundle after database backup, with persistent layer selection and no Git machinery.
 
 - **2026-10-13 — Maintained MinIO-compatible images.** Fresh installs failed at `docker compose pull`
