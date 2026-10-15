@@ -51,7 +51,7 @@ export function PublicOrganizationPage() {
         ) : null}
         {organization.data ? (
           <>
-            <div className="desk-panel p-6">
+            <div className="desk-panel p-6 [overflow-wrap:anywhere]">
               <p className="eyebrow text-secondary-ink">Organization directory</p>
               <h1 className="title-page mt-2">{organization.data.name}</h1>
               {organization.data.description ? <p className="mt-4 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-ink">{organization.data.description}</p> : null}
@@ -83,7 +83,7 @@ export function PublicOrganizationPage() {
                   {events.data.results.map((event) => (
                     <article className="desk-panel overflow-hidden p-0" key={event.public_token}>
                       {event.image_url ? <img className="h-44 w-full object-cover" src={event.image_url} alt="" loading="lazy" /> : null}
-                      <div className="p-5">
+                      <div className="min-w-0 p-5 [overflow-wrap:anywhere]">
                         <p className="eyebrow text-secondary-ink">Hosted by {event.host.name}</p>
                         <h3 className="title-section mt-2">{event.title}</h3>
                         <p className="mt-2 font-mono text-xs text-muted"><time dateTime={event.starts_at}>{dateRange(event)}</time></p>
@@ -91,7 +91,7 @@ export function PublicOrganizationPage() {
                         {event.description ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-ink">{event.description}</p> : null}
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                           <span className="chip chip-available">{event.availability}</span>
-                          <Link className="desk-button-primary" to={`/m/${event.host.slug}/events`}>
+                          <Link className="desk-button-primary max-w-full" to={`/m/${event.host.slug}/events`}>
                             Register at {event.host.name}
                           </Link>
                         </div>
@@ -101,7 +101,7 @@ export function PublicOrganizationPage() {
                 </div>
               ) : null}
               {events.data ? (
-                <div className="mt-5 flex items-center justify-between gap-3">
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                   <button className="desk-button" type="button" disabled={!events.data.previous} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</button>
                   <span className="font-mono text-xs text-muted">Page {page} · {events.data.count} events</span>
                   <button className="desk-button" type="button" disabled={!events.data.next} onClick={() => setPage((value) => value + 1)}>Next</button>

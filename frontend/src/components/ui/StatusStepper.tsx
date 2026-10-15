@@ -44,8 +44,8 @@ function StepBox({
   const className = (rejected && step === 0) || state === "issue"
     ? "status-box status-box-danger"
     : state === "completed" || state === "current"
-      ? `status-box ${STEP_TONE_CLASSES[step] ?? STEP_TONE_CLASSES[0]} shadow-soft`
-      : "status-box";
+      ? `status-box ${STEP_TONE_CLASSES[step] ?? STEP_TONE_CLASSES[0]} ${state === "current" ? "status-box-current" : ""}`
+      : "status-box status-box-upcoming";
 
   return (
     <span

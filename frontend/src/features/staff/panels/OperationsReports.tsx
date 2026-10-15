@@ -187,11 +187,11 @@ export function OperationsReports({
           {savedViews.length ? (
             <div className="flex flex-wrap gap-2">
               {savedViews.map((view) => (
-                <div key={view.id} className="flex items-center gap-1 rounded-md border border-line bg-bg px-2 py-1">
-                  <button className="desk-button-ghost justify-start text-left" type="button" onClick={() => applySavedView(view)}>
+                <div key={view.id} className="flex min-w-0 max-w-full flex-wrap items-center gap-1 rounded-md border border-line bg-bg px-2 py-1">
+                  <button className="desk-button-ghost min-w-0 max-w-full justify-start break-words text-left" type="button" onClick={() => applySavedView(view)}>
                     {view.name}
                   </button>
-                  <span className="text-xs text-muted">
+                  <span className="min-w-0 break-words text-xs text-muted">
                     {reportTitle(view.selectedReport, catalogEntries)} / {view.scopeLabel}
                   </span>
                   <button className="desk-button-danger" type="button" onClick={() => removeSavedView(view.id)} aria-label={`Remove ${view.name}`}>

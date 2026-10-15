@@ -80,7 +80,7 @@ export function EvidenceUpload({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="min-w-0 space-y-1">
       {label ? (
         <label className="block font-medium text-ink" htmlFor={inputId}>
           {label}
@@ -88,7 +88,7 @@ export function EvidenceUpload({
       ) : null}
       {/* When a visible <label> names the control, aria-label must go: it would override the
           visible text, leaving the accessible name saying something the sighted user never reads. */}
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         <input
           id={inputId}
           aria-label={label ? undefined : `${evidenceType} photo`}
@@ -99,10 +99,10 @@ export function EvidenceUpload({
             const file = event.target.files?.[0];
             if (file) handleFile(file);
           }}
-          className="block min-w-0 flex-1 text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-on-accent"
+          className="block min-w-0 max-w-full flex-[1_1_12rem] text-sm text-muted file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-on-accent"
         />
         {cameraSupported ? (
-          <button className="desk-button min-h-11" type="button" aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
             Camera
           </button>
         ) : null}
@@ -114,7 +114,7 @@ export function EvidenceUpload({
       <p
         role="status"
         aria-live="polite"
-        className={`text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
+        className={`break-words text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
       >
         {status === "uploading"
           ? `Uploading ${fileName}...`

@@ -86,7 +86,7 @@ export function PrintDetailsForm({
 }: PrintDetailsFormProps) {
   const noAvailablePools = poolsQuery.isSuccess && (poolsQuery.data?.length ?? 0) === 0;
   return (
-    <Card>
+    <Card className="@container">
       {identityStep ? <div className="mb-4">{identityStep}</div> : null}
       <h2 className="title-panel text-secondary-ink">
         Print Details
@@ -102,7 +102,7 @@ export function PrintDetailsForm({
           value={website}
           onChange={(event) => onWebsiteChange(event.target.value)}
         />
-        <fieldset className="space-y-4" disabled={submitPending || !identityReady}>
+        <fieldset className="min-w-0 space-y-4" disabled={submitPending || !identityReady}>
           <TextInput
             label="Title"
             required
@@ -119,7 +119,7 @@ export function PrintDetailsForm({
             value={form.preferredSettings}
             onChange={(value) => updateField("preferredSettings", value)}
           />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 @min-[36rem]:grid-cols-2">
             {noAvailablePools ? (
               <div>
                 <span className="eyebrow mb-1 block">Filament / material</span>
@@ -195,7 +195,7 @@ export function PrintDetailsForm({
             </label>
             <TextInput label="Source link (optional)" value={form.sourceLink} onChange={(value) => updateField("sourceLink", value)} />
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 @min-[36rem]:grid-cols-2">
             <FilePicker
               accept=".stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"
               files={modelFiles}

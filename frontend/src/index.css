@@ -1,9 +1,9 @@
 @import "tailwindcss";
-@import "./styles/chrome.css";
 @import "./styles/components.css";
+@import "./styles/chrome.css";
 @config "../tailwind.config.ts";
 
-/* Self-hosted fonts: Clash Display headings and JetBrains Mono labels. */
+/* Self-hosted type: display headings, Instrument Sans body, technical mono labels. */
 @font-face {
   font-family: "Clash Display";
   src: url("/fonts/ClashDisplay-Semibold.woff2") format("woff2");
@@ -26,6 +26,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/fonts/InstrumentSans-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     color-scheme: light;
@@ -42,16 +50,13 @@
     --color-on-warn: 61 52 0;
     --color-on-info: 0 55 74;
     --color-on-secondary: 90 22 51;
-    --color-ink: 31 46 53;
+    --color-ink: 27 28 25;
     --color-bg: 250 249 244;
     --color-surface: 239 238 233;
     --color-panel: 255 255 255;
-    /* Darkened from 107 119 128, which measured 4.35:1 on --color-bg and 3.95:1
-       on --color-surface — below the 4.5:1 AA floor for body text on the two
-       backgrounds it sits on most. This value clears 4.98:1 everywhere. */
-    --color-muted: 92 103 112;
-    --color-line: 227 225 216;
-    --color-outline: 196 193 182;
+    --color-muted: 63 72 78;
+    --color-line: 27 28 25;
+    --color-outline: 111 120 126;
     /* Focus indicator. Deliberately not the pastel accent: at the /40 alpha the
        rings used to carry it, the indicator fell below the 3:1 that WCAG 2.2
        SC 2.4.11 wants against adjacent colours. */
@@ -64,7 +69,7 @@
     --color-info-ink: 0 55 74;
     --color-danger: 164 36 59;
     --color-danger-ink: 90 22 32;
-    --shadow-color: 31 46 53;
+    --shadow-color: 27 28 25;
   }
 
   :root.dark {
@@ -86,10 +91,9 @@
     --color-bg: 22 22 28;
     --color-surface: 38 40 51;
     --color-panel: 29 30 38;
-    /* Dark-mode muted already measured 5.58:1 at worst, so it is unchanged. */
     --color-muted: 154 160 173;
-    --color-line: 51 52 63;
-    --color-outline: 71 73 86;
+    --color-line: 164 168 181;
+    --color-outline: 133 138 153;
     --color-focus: 186 230 253;
     --color-success: 116 221 156;
     --color-success-ink: 116 221 156;
@@ -105,12 +109,12 @@
   body {
     @apply bg-bg text-ink antialiased;
     font-family:
-      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-      sans-serif;
+      "Instrument Sans", ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-image:
       linear-gradient(to right, rgb(var(--color-ink) / 0.045) 1px, transparent 1px),
       linear-gradient(to bottom, rgb(var(--color-ink) / 0.045) 1px, transparent 1px);
-    background-size: 32px 32px;
+    background-size: 24px 24px;
   }
   :root.dark body {
     background-image:
@@ -125,6 +129,8 @@
 
   #root {
     min-height: 100vh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
 
   ::selection {

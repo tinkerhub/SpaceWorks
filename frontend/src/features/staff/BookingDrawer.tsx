@@ -84,7 +84,7 @@ export function BookingDrawer({ makerspaceId, spaceId, onClose }: {
                 <h3 id="space-bookings-title" className="title-section">Bookings <span className="font-mono">({bookings.data?.count ?? 0})</span></h3>
                 <p className="mt-1 text-xs text-muted">Contact details and custom answers are staff-only.</p>
               </div>
-              <div className="mb-3 grid gap-2 sm:grid-cols-3">
+              <div className="mb-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2">
                 <label className="grid gap-1 text-xs font-semibold text-muted">Status
                   <select className="desk-input" value={filters.status ?? ""} onChange={(event) => setFilter("status", event.target.value as BookingFilters["status"])}>
                     <option value="">All statuses</option>
@@ -132,7 +132,7 @@ export function BookingDrawer({ makerspaceId, spaceId, onClose }: {
                   ))}
                 </div>
               ) : null}
-              {bookings.data ? <div className="mt-3 flex items-center justify-between gap-2"><span className="font-mono text-xs text-muted">Page {page}</span><div className="flex gap-2"><button className="desk-button" type="button" disabled={!bookings.data.previous} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</button><button className="desk-button" type="button" disabled={!bookings.data.next} onClick={() => setPage((value) => value + 1)}>Next</button></div></div> : null}
+              {bookings.data ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted">Page {page}</span><div className="flex flex-wrap gap-2"><button className="desk-button" type="button" disabled={!bookings.data.previous} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</button><button className="desk-button" type="button" disabled={!bookings.data.next} onClick={() => setPage((value) => value + 1)}>Next</button></div></div> : null}
             </section>
             {actionError ? <p className="text-sm text-danger" role="alert">{errorText(actionError)}</p> : null}
           </div>

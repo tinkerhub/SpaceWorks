@@ -113,7 +113,7 @@ export function PublicEventsPage() {
       </Card> : null}
       {events.data && !events.data.length ? <div className="[&>div]:border-secondary"><EmptyState title="No upcoming events" description="New public events will appear here when they are published." /></div> : null}
       {groupedEvents.length ? <div className="grid gap-7">{groupedEvents.map((group) => <section key={group.key} aria-label={group.title ?? undefined}>
-        {group.title ? <div className="mb-3"><p className="eyebrow text-secondary-ink">Recurring series</p><h2 className="title-panel">{group.title}</h2></div> : null}
+        {group.title ? <div className="mb-3 [overflow-wrap:anywhere]"><p className="eyebrow text-secondary-ink">Recurring series</p><h2 className="title-panel">{group.title}</h2></div> : null}
         <div className="grid gap-5">{group.items.map((item) => {
         const unlimited = item.capacity === 0 || item.capacity === null;
         const waitlist = item.availability === "Full";
@@ -123,7 +123,7 @@ export function PublicEventsPage() {
           {/* Decorative: the title beside it already names the event, so alt is empty
               rather than a duplicate announcement for screen-reader users. */}
           {item.image_url ? <img src={item.image_url} alt="" loading="lazy" className="h-48 w-full object-cover sm:h-56" /> : null}
-          <div className="p-5">
+          <div className="min-w-0 p-5 [overflow-wrap:anywhere]">
           <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h3 className="title-panel">{item.title}</h3><p className="eyebrow mt-1"><time dateTime={item.starts_at}>{eventTime(item)}</time></p>{item.location ? <p className="eyebrow mt-1">{item.location}</p> : null}</div><StatusBadge status={item.status} /></div>
           {item.description ? <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-ink">{item.description}</p> : null}
           <dl className="mt-4 flex flex-wrap gap-4 text-sm"><div><dt className="eyebrow">Capacity</dt><dd className="font-mono font-semibold text-ink">{unlimited ? "Unlimited" : item.capacity}</dd></div><div><dt className="eyebrow">Availability</dt><dd className="font-mono font-semibold text-ink">{item.availability}</dd></div></dl>

@@ -14,7 +14,10 @@ export function PublicRequestHeader({
   requestAccess,
 }: Props) {
   return (
-    <Card className="shrink-0" padding="sm">
+    <Card className="shrink-0 border-ink" padding="sm">
+      <p className="blueprint-band -mx-3 -mt-3 mb-3 rounded-t-md border-b border-ink bg-secondary px-3 py-2 text-on-secondary">
+        Request desk
+      </p>
       <h2 className="title-panel text-secondary-ink">
         {activeTab === "borrow" && accountLess
           ? "Borrow something"

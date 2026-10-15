@@ -47,7 +47,7 @@ export function CheckinIdentityStep({
 
   if (confirmed) {
     return (
-      <div className="flex items-center gap-3 rounded-md border border-emerald-300 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950">
+      <div className="flex items-center gap-3 rounded-lg border border-success bg-success/15 p-3 text-ink">
         {confirmed.avatar ? (
           <img
             src={confirmed.avatar}
@@ -56,14 +56,14 @@ export function CheckinIdentityStep({
           />
         ) : null}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{confirmed.name}</p>
-          <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+          <p className="break-words text-sm font-medium">{confirmed.name}</p>
+          <p className="break-words text-xs text-muted">
             {confirmed.project_name}
           </p>
         </div>
         <button
           type="button"
-          className="shrink-0 text-xs underline disabled:opacity-40"
+          className="desk-button-ghost shrink-0 text-xs text-secondary-ink underline hover:bg-secondary/15"
           disabled={disabled}
           onClick={() => {
             onConfirm(null);
@@ -84,7 +84,7 @@ export function CheckinIdentityStep({
       <div className="flex gap-2">
         <input
           id="checkin-name"
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          className="desk-input min-w-0 flex-1"
           value={name}
           disabled={disabled}
           onChange={(event) => setName(event.target.value)}
@@ -97,7 +97,7 @@ export function CheckinIdentityStep({
         />
         <button
           type="button"
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900"
+          className="desk-button-secondary shrink-0"
           disabled={disabled || !name.trim() || lookup.isPending}
           onClick={() => lookup.mutate()}
         >
@@ -106,13 +106,13 @@ export function CheckinIdentityStep({
       </div>
 
       {lookup.isError ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm text-danger">
           We could not check the check-in list just now. Please try again.
         </p>
       ) : null}
 
       {matches !== null && matches.length === 0 ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm text-danger">
           No one is checked in under that name right now. Check the spelling, or check
           in first.
         </p>
@@ -123,7 +123,7 @@ export function CheckinIdentityStep({
           {matches.map((match) => (
             <li
               key={match.mid}
-              className="flex items-center gap-3 rounded-md border border-slate-200 p-2 dark:border-slate-800"
+              className="flex items-center gap-3 rounded-lg border border-line p-2"
             >
               {match.avatar ? (
                 <img
@@ -133,14 +133,14 @@ export function CheckinIdentityStep({
                 />
               ) : null}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm">{match.name}</p>
-                <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                <p className="break-words text-sm">{match.name}</p>
+                <p className="break-words text-xs text-muted">
                   {match.eligible ? match.project_name : REASONS[match.reason]}
                 </p>
               </div>
               <button
                 type="button"
-                className="shrink-0 rounded-md border border-slate-300 px-2 py-1 text-xs disabled:opacity-40 dark:border-slate-700"
+                className="desk-button shrink-0 text-xs"
                 disabled={!match.eligible}
                 onClick={() => onConfirm(match)}
               >

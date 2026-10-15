@@ -219,21 +219,21 @@ function OpenCameraCapture({ onClose, onCapture, label }: Omit<CameraCaptureProp
     <div
       ref={layerRef}
       inert={!amTop}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 sm:p-4"
+      className="dialog-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/70"
       onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}
     >
-      <div ref={panelRef} role="dialog" aria-modal={amTop ? "true" : undefined} aria-labelledby={titleId} tabIndex={-1} className="flex max-h-[90vh] w-full max-w-lg flex-col gap-3 overflow-y-auto rounded-lg border border-line bg-panel p-4 shadow-xl outline-none">
+      <div ref={panelRef} role="dialog" aria-modal={amTop ? "true" : undefined} aria-labelledby={titleId} tabIndex={-1} className="dialog-panel flex w-full max-w-lg flex-col gap-3 overflow-y-auto rounded-lg border border-line bg-panel p-4 shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
         <h2 id={titleId} className="text-lg font-semibold text-ink">{title}</h2>
         <div aria-live="assertive" aria-atomic="true">
           {error ? <p className="text-sm text-danger">{error}</p> : null}
         </div>
         <div className={captured ? "hidden" : "relative"}>
-          <video ref={videoRef} className="max-h-[60vh] w-full rounded-md bg-black object-contain" autoPlay playsInline muted onLoadedMetadata={updateReady} onCanPlay={updateReady} />
+          <video ref={videoRef} className="max-h-[60dvh] w-full rounded-md bg-black object-contain" autoPlay playsInline muted onLoadedMetadata={updateReady} onCanPlay={updateReady} />
           {!ready && !error ? <p className="absolute inset-0 grid place-items-center text-sm text-white">Starting camera...</p> : null}
         </div>
         {captured ? (
           <>
-            <img src={captured.preview} alt="Captured photo preview" className="max-h-[60vh] w-full rounded-md bg-black object-contain" />
+            <img src={captured.preview} alt="Captured photo preview" className="max-h-[60dvh] w-full rounded-md bg-black object-contain" />
             <div className="grid gap-2 sm:grid-cols-2">
               <button className="desk-button min-h-11" type="button" onClick={() => { setCaptured(null); setError(""); }}>
                 Retake

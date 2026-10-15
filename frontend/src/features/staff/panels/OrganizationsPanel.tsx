@@ -27,8 +27,8 @@ export function OrganizationsPanel() {
       {organizations.data && !organizations.data.results.length ? <EmptyState title="No organization access" description="This account does not have an active organization membership." /> : null}
       {organizations.data?.results.length ? (
         <div className="mb-5 flex flex-wrap items-end gap-3">
-          <label className="grid min-w-64 flex-1 gap-1 text-sm font-semibold">Organization
-            <select className="desk-input" value={selectedId ?? ""} onChange={(event) => setSelectedId(Number(event.target.value))}>
+          <label className="grid min-w-0 flex-1 basis-64 gap-1 text-sm font-semibold">Organization
+            <select className="desk-input min-w-0 max-w-full" value={selectedId ?? ""} onChange={(event) => setSelectedId(Number(event.target.value))}>
               {organizations.data.results.map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}
             </select>
           </label>

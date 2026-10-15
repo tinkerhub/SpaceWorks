@@ -82,7 +82,7 @@ export function MaintenanceDocuments({
       {!documents.length ? <span className="text-xs text-muted">No attachments.</span> : null}
       {!retired ? (
         <div className="flex flex-wrap items-end gap-2">
-          <label className="eyebrow grid min-w-0 flex-1 gap-1">
+          <label className="eyebrow grid min-w-0 max-w-full flex-[1_1_14rem] gap-1">
             Add supporting document
             <input
               ref={input}

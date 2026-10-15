@@ -61,7 +61,7 @@ export function CustomFormBuilder({
   };
 
   return (
-    <fieldset className="grid gap-3" disabled={disabled}>
+    <fieldset className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" disabled={disabled}>
       <div>
         <legend className="title-panel">{legend}</legend>
         <p className="eyebrow mt-1">Answers are visible only to authorized staff.</p>
@@ -120,26 +120,26 @@ function QuestionEditor({ question, index, count, allowedTypes, locked, onChange
   };
 
   return (
-    <div className={`rounded-xl border ${questionTone(question.id)} p-3`}>
+    <div className={`@container min-w-0 rounded-xl border ${questionTone(question.id)} p-3`}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="eyebrow">Question <span className="font-mono">{index + 1}</span></span>
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex min-w-0 flex-wrap gap-2">
           <button className="desk-button-ghost" type="button" disabled={index === 0} onClick={() => onMove(-1)} aria-label={"Move question " + (index + 1) + " up"}>Up</button>
           <button className="desk-button-ghost" type="button" disabled={index === count - 1} onClick={() => onMove(1)} aria-label={"Move question " + (index + 1) + " down"}>Down</button>
           <button className="desk-button-danger" type="button" disabled={locked} onClick={onRemove}>Remove</button>
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
-        <label className="grid gap-1 text-ink"><span className="eyebrow">Label</span>
+      <div className="grid min-w-0 gap-3 @min-[28rem]:grid-cols-[minmax(0,1fr)_180px]">
+        <label className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1 text-ink"><span className="eyebrow">Label</span>
           <input className="desk-input" required disabled={locked} maxLength={200} value={question.label} onChange={(event) => onChange({ ...question, label: event.target.value })} />
         </label>
-        <label className="grid gap-1 text-ink"><span className="eyebrow">Answer type</span>
+        <label className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1 text-ink"><span className="eyebrow">Answer type</span>
           <select className="desk-input" disabled={locked} value={question.type} onChange={changeType}>
             {allowedTypes.map((type) => <option key={type} value={type}>{QUESTION_TYPE_LABELS[type]}</option>)}
           </select>
         </label>
       </div>
-      <label className="mt-3 flex items-center gap-2 text-sm text-ink">
+      <label className="mt-3 flex min-h-11 items-center gap-2 text-sm text-ink">
         <input type="checkbox" disabled={locked} checked={question.required} onChange={(event) => onChange({ ...question, required: event.target.checked })} />
         Required question
       </label>
@@ -166,11 +166,11 @@ function OptionsEditor({ question, disabled, onChange }: {
   onChange: (question: CustomFormQuestion) => void;
 }) {
   return (
-    <div className="mt-3 grid gap-2">
+    <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2">
       <h3 className="title-section">Choices</h3>
       {question.options.map((option, index) => (
-        <div className="flex gap-2" key={question.id + "-option-" + index}>
-          <input className="desk-input min-w-0 flex-1" aria-label={"Choice " + (index + 1)} required disabled={disabled} maxLength={200} value={option} onChange={(event) => onChange({ ...question, options: question.options.map((item, itemIndex) => itemIndex === index ? event.target.value : item) })} />
+        <div className="flex min-w-0 flex-wrap gap-2" key={question.id + "-option-" + index}>
+          <input className="desk-input min-w-0 flex-[1_1_10rem]" aria-label={"Choice " + (index + 1)} required disabled={disabled} maxLength={200} value={option} onChange={(event) => onChange({ ...question, options: question.options.map((item, itemIndex) => itemIndex === index ? event.target.value : item) })} />
           <button className="desk-button-danger" type="button" disabled={disabled || question.options.length === 1} onClick={() => onChange({ ...question, options: question.options.filter((_, itemIndex) => itemIndex !== index) })}>Remove</button>
         </div>
       ))}

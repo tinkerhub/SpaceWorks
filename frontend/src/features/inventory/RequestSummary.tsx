@@ -6,7 +6,7 @@ import type { PublicRequestStatus } from "../../types/inventory";
 
 export function RequestSummary({ request }: { request: PublicRequestStatus }) {
   return (
-    <div className="rounded-xl border border-line bg-panel p-3 text-ink shadow-soft">
+    <div className="min-w-0 rounded-xl border border-line bg-panel p-3 text-ink shadow-soft [overflow-wrap:anywhere]">
       <StatusStepper status={request.status} />
       <div className="flex items-start justify-between gap-3">
         <div className="mt-3">
@@ -30,8 +30,8 @@ export function RequestSummary({ request }: { request: PublicRequestStatus }) {
             className="flex justify-between gap-3 text-sm opacity-80"
             key={`${request.public_token ?? request.created_at}-${item.product_name}`}
           >
-            <span>{item.product_name}</span>
-            <span className="font-mono">x{item.requested_quantity}</span>
+            <span className="min-w-0 flex-1">{item.product_name}</span>
+            <span className="shrink-0 font-mono">x{item.requested_quantity}</span>
           </div>
         ))}
       </div>

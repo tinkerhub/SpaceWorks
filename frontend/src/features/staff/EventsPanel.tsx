@@ -65,7 +65,7 @@ export function EventsPanel({ makerspaceId }: { makerspaceId: number }) {
     <EvidenceRetentionPanel makerspaceId={makerspaceId} />
     <CollaborationInbox makerspaceId={makerspaceId} />
     <EventSeriesCollaborationInbox makerspaceId={makerspaceId} />
-    <div className="mb-3 flex gap-2" role="group" aria-label="Event type"><button className={creationMode === "single" ? "desk-button-primary" : "desk-button"} type="button" onClick={() => setCreationMode("single")}>One-time event</button><button className={creationMode === "series" ? "desk-button-primary" : "desk-button"} type="button" onClick={() => setCreationMode("series")}>Recurring series</button></div>
+    <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Event type"><button className={creationMode === "single" ? "desk-button-primary" : "desk-button"} type="button" onClick={() => setCreationMode("single")}>One-time event</button><button className={creationMode === "series" ? "desk-button-primary" : "desk-button"} type="button" onClick={() => setCreationMode("series")}>Recurring series</button></div>
     <form className="mb-5 rounded-xl border border-line bg-bg p-4" onSubmit={creationMode === "single" ? submit : submitSeries}>
       <h3 className="title-section mb-3">Create draft {creationMode === "single" ? "event" : "series"}</h3>
       {creationMode === "single" ? <EventFields values={values} setValues={setValues} /> : <EventSeriesFields values={seriesValues} setValues={setSeriesValues} />}
@@ -89,7 +89,7 @@ export function EventsPanel({ makerspaceId }: { makerspaceId: number }) {
         </tr>)}</tbody>
       </table>
     </div> : null}
-    {events.data ? <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+    {events.data ? <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
       <button className="desk-button" type="button" disabled={!events.data.previous} onClick={() => setPage((current) => Math.max(1, current - 1))}>Previous</button>
       <span className="font-mono text-muted">Page {page}{" - "}{events.data.count} total</span>
       <button className="desk-button" type="button" disabled={!events.data.next} onClick={() => setPage((current) => current + 1)}>Next</button>

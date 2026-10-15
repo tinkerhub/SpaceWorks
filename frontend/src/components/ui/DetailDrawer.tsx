@@ -88,9 +88,9 @@ export function DetailDrawer({ open, title, onClose, children }: DetailDrawerPro
            tab row and its two-column forms both overflowed, so tabs were clipped mid-word and
            an "Add" button sat half outside the panel. Widened, and capped at the viewport so
            it can never exceed the screen on a small display. */
-        className="absolute right-0 top-0 flex h-full w-full max-w-[min(48rem,100vw)] flex-col border-l border-line bg-panel shadow-xl outline-none"
+        className="drawer-safe-area absolute right-0 top-0 flex h-full w-full max-w-[min(48rem,100vw)] flex-col border-l-2 border-line bg-panel shadow-brutal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
-        <header className="flex items-center gap-3 border-b border-line px-4 py-3">
+        <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
           <h2 id={titleId} className="title-panel min-w-0 truncate">
             {title}
           </h2>

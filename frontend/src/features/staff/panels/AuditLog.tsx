@@ -58,7 +58,7 @@ export function AuditLog() {
           </div>
         ))}
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
         <button className="desk-button-ghost" disabled={!logs.data?.previous} onClick={() => setPage((current) => Math.max(1, current - 1))}>
           Previous
         </button>

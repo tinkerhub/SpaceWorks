@@ -82,7 +82,7 @@ export function PublicBookingsPage() {
               return (
                 <article key={space.public_token} className={`desk-panel ${spaceTone(space.public_token)} overflow-hidden`}>
                   {space.image_url ? <img className="h-52 w-full border-b border-line object-cover" src={space.image_url} alt="" loading="lazy" /> : null}
-                  <div className="p-5">
+                  <div className="min-w-0 p-5 [overflow-wrap:anywhere]">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="title-panel">{space.name}</h2>

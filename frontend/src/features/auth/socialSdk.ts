@@ -113,7 +113,7 @@ export async function mountGoogleButton(
     type: "standard",
     theme: "outline",
     size: "large",
-    width: Math.min(360, Math.max(240, element.clientWidth || 320)),
+    width: Math.min(360, element.clientWidth || 320),
   });
 }
 

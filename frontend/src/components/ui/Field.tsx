@@ -18,7 +18,7 @@ export function Field({
     : children;
 
   return (
-    <label className={`grid gap-1 ${className}`}>
+    <label className={`grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1 ${className}`}>
       <span className="eyebrow">{label}</span>
       {field}
       {hint ? <span className="text-xs font-normal text-muted">{hint}</span> : null}

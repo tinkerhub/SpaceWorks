@@ -8,6 +8,7 @@ import { SiteFooter } from "../components/SiteFooter";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { Card } from "../components/ui/Card";
 import { Spinner } from "../components/ui/Spinner";
+import { catalogPresentation } from "../lib/catalogPresentation";
 import type { Makerspace } from "../types/inventory";
 import { usePublicMakerspaces } from "./inventory/usePublicInventory";
 
@@ -138,31 +139,39 @@ export function LandingPage() {
           ) : null}
 
           {filteredMakerspaces.length ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredMakerspaces.map((makerspace) => (
-                <article key={makerspace.slug} className="group relative flex flex-col rounded-xl border border-line bg-panel shadow-soft transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-soft-lg">
-                  <div className="relative h-40 overflow-hidden rounded-t-xl border-b border-line bg-surface">
-                    {makerspace.cover_image_url ? (
-                      <img src={makerspace.cover_image_url} alt={`${makerspace.name} cover`} loading="lazy" className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0" />
-                    ) : <div className="blueprint-bg h-full w-full" />}
-                    <span className="absolute left-3 top-3 chip chip-available"><span className="h-2 w-2 rounded-full bg-bg" /> Public</span>
+            <div className="grid gap-8 px-1 py-2 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredMakerspaces.map((makerspace) => {
+                const presentation = catalogPresentation(makerspace.slug);
+                return (
+                  <div key={makerspace.slug} className={presentation.tilt}>
+                    <article className={`blueprint-card group relative flex h-full flex-col rounded-lg border-2 border-ink bg-panel transition-transform duration-150 ${presentation.shadow}`}>
+                      <div className={`blueprint-band rounded-t-md border-b border-ink px-4 py-2 ${presentation.band}`}>
+                        Zone blueprint
+                      </div>
+                      <div className="blueprint-media relative h-40 overflow-hidden border-b border-ink bg-surface">
+                        {makerspace.cover_image_url ? (
+                          <img src={makerspace.cover_image_url} alt={`${makerspace.name} cover`} loading="lazy" className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0" />
+                        ) : <div className="blueprint-bg h-full w-full" />}
+                        <span className="absolute left-3 top-3 chip chip-available"><span className="h-2 w-2 rounded-full bg-bg" /> Public</span>
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col p-5">
+                        <MakerspaceBrand name={makerspace.name} logoUrl={makerspace.logo_url} size="md" />
+                        <MakerspaceMapLink makerspace={makerspace} className="relative z-10 mt-2" locationClassName="break-words font-mono text-xs text-muted" />
+                        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-5">
+                          <span className="chip min-w-0 truncate">{makerspace.public_code}</span>
+                          <Link
+                            className="inline-flex min-h-11 items-center gap-2 font-mono text-xs font-semibold uppercase tracking-tight text-secondary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus after:absolute after:inset-0 after:content-['']"
+                            to={`/m/${makerspace.slug}`}
+                            aria-label={`Open ${makerspace.name} catalog`}
+                          >
+                            Open catalog &rarr;
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
                   </div>
-                  <div className="flex min-w-0 flex-1 flex-col p-card-padding p-5">
-                    <MakerspaceBrand name={makerspace.name} logoUrl={makerspace.logo_url} size="md" />
-                    <MakerspaceMapLink makerspace={makerspace} className="relative z-10 mt-2" locationClassName="break-words font-mono text-xs text-muted" />
-                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-5">
-                      <span className="min-w-0 truncate font-mono text-xs text-muted">{makerspace.public_code}</span>
-                      <Link
-                        className="inline-flex items-center gap-2 font-mono text-xs font-semibold tracking-tight text-secondary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus after:absolute after:inset-0 after:content-['']"
-                        to={`/m/${makerspace.slug}`}
-                        aria-label={`Open ${makerspace.name} catalog`}
-                      >
-                        Open catalog &rarr;
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                );
+              })}
             </div>
           ) : null}
         </div>

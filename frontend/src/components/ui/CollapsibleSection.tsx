@@ -40,7 +40,7 @@ export function CollapsibleSection({
           aria-expanded={open}
           aria-controls={regionId}
           // min-h-11 is the ~44px minimum touch target.
-          className="flex min-h-11 w-full items-center gap-3 bg-surface px-3 py-2 text-left hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          className="flex min-h-11 w-full items-center gap-3 bg-surface px-3 py-2 text-left hover:bg-bg focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-focus"
         >
           <span
             aria-hidden="true"

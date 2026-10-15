@@ -81,7 +81,7 @@ export function StaffDockPopover({
   return (
     <div
       id={staffDockPopoverId(group.label)}
-      className="absolute max-h-[calc(100dvh-6rem)] w-64 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-line bg-panel p-2 shadow-soft-lg"
+      className="blueprint-dock-popover absolute max-h-[calc(100dvh-6rem)] w-64 max-w-[calc(100vw-2rem)] overflow-y-auto p-2"
       hidden={!open}
       style={position}
     >

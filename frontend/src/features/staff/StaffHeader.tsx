@@ -33,12 +33,12 @@ export function StaffHeader({
     : null;
 
   return (
-    <header className="border-b border-line bg-surface px-5 py-4">
+    <header className="border-b-2 border-line bg-panel px-5 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <SpaceWorksBadge className="shrink-0" />
-          <div className="min-w-0">
-            <p className="eyebrow truncate text-accent-ink">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+          <SpaceWorksBadge />
+          <div className="min-w-0 max-w-full flex-[1_1_12rem]">
+            <p className="chip chip-active max-w-full break-all">
               {activeMakerspace?.public_code ?? activeMakerspace?.slug ?? "No workspace"}
             </p>
             <h1 className="title-page break-words uppercase">
@@ -47,10 +47,10 @@ export function StaffHeader({
             {roleName ? <p className="eyebrow truncate">{roleName}</p> : null}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
           {!singleTenantLocked && makerspaces.length > 1 ? (
             <select
-              className="desk-input"
+              className="desk-input min-w-0 max-w-full sm:max-w-64"
               aria-label="Active makerspace"
               value={selected ?? ""}
               onChange={(event) => setSelected(Number(event.target.value))}

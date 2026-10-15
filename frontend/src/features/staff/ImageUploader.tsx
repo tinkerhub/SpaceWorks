@@ -118,7 +118,7 @@ export function ImageUploader({
   const inputRef = useRef<HTMLInputElement | null>(null);
   // Cover images are wide banners - give them a rectangular preview that matches
   // how they render publicly, instead of cropping into an 80x80 square.
-  const previewBox = shape === "wide" ? "h-24 w-full sm:h-20 sm:w-44" : "h-20 w-20";
+  const previewBox = shape === "wide" ? "h-24 w-full max-w-full sm:h-20 sm:w-44" : "h-20 w-20";
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [error, setError] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -184,7 +184,7 @@ export function ImageUploader({
   return (
     <div className="min-w-0 space-y-2">
       <label htmlFor={inputId} className="block font-mono text-xs uppercase tracking-tight text-muted">{label}</label>
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-wrap items-start gap-3">
         <div className={`${previewBox} shrink-0 overflow-hidden rounded-lg border border-line bg-surface`}>
           {preview ? (
             <img
@@ -198,8 +198,8 @@ export function ImageUploader({
             </div>
           )}
         </div>
-        <div className="min-w-0 max-w-full space-y-1">
-          <div className="flex min-w-0 items-center gap-2">
+        <div className="min-w-0 max-w-full flex-[1_1_16rem] space-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <input
               id={inputId}
               ref={inputRef}
@@ -210,10 +210,10 @@ export function ImageUploader({
                 const file = event.target.files?.[0];
                 if (file) handleFile(file);
               }}
-              className="block w-full max-w-full min-w-0 flex-1 text-sm text-muted file:mr-3 file:rounded-lg file:border file:border-line file:bg-accent file:px-3 file:py-1.5 file:font-mono file:text-xs file:font-semibold file:text-on-accent"
+              className="block max-w-full min-w-0 flex-[1_1_12rem] text-sm text-muted file:mr-3 file:min-h-11 file:rounded-lg file:border file:border-line file:bg-accent file:px-3 file:py-1.5 file:font-mono file:text-xs file:font-semibold file:text-on-accent"
             />
             {cameraSupported ? (
-              <button className="desk-button min-h-11" type="button" aria-label={`Take ${label} photo`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+              <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label} photo`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
                 Camera
               </button>
             ) : null}
@@ -235,7 +235,7 @@ export function ImageUploader({
           <p
             role="status"
             aria-live="polite"
-            className={status === "error" ? "text-xs text-danger" : "font-mono text-xs text-muted"}
+            className={status === "error" ? "break-words text-xs text-danger" : "break-words font-mono text-xs text-muted"}
           >
             {status === "uploading" ? "Working..." : status === "error" ? error : ""}
           </p>

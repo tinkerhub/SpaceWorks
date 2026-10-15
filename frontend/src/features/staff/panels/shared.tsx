@@ -103,7 +103,7 @@ export function JsonRows({ data }: { data: unknown[] }) {
 export function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="desk-panel overflow-hidden">
-      <div className="border-b border-line px-4 py-3">
+      <div className="border-b border-line bg-surface px-4 py-3">
         <h2 className="title-panel">{title}</h2>
       </div>
       <div className="desk-panel-body min-w-0 p-4">

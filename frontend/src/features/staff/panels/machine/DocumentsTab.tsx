@@ -66,14 +66,14 @@ export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdi
         ))}
       </div>
       {canEdit ? (
-        <form className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_10rem_auto] sm:items-end"
+        <form className="mt-3 flex min-w-0 flex-wrap items-end gap-2"
           onSubmit={(event) => { event.preventDefault(); upload.mutate(); }}>
-          <label className="eyebrow grid gap-1">File
+          <label className="eyebrow grid min-w-0 max-w-full flex-[1_1_14rem] gap-1">File
             <input ref={fileInput} className="desk-input" type="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)} required />
           </label>
-          <label className="eyebrow grid gap-1">Document type
+          <label className="eyebrow grid min-w-0 max-w-full flex-[1_1_10rem] gap-1">Document type
             <input className="desk-input" maxLength={16} value={docType}
               onChange={(event) => setDocType(event.target.value)} required />
           </label>

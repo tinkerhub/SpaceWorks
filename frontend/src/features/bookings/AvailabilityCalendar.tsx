@@ -33,13 +33,13 @@ export function AvailabilityCalendar({ makerspaceSlug, publicToken }: {
   const availability = usePublicAvailability(makerspaceSlug, publicToken, window.startsAt, window.endsAt);
 
   return (
-    <section className="rounded-lg border border-secondary bg-secondary/10 p-4" aria-labelledby={"availability-" + publicToken}>
+    <section className="min-w-0 rounded-lg border border-secondary bg-secondary/10 p-4 [overflow-wrap:anywhere]" aria-labelledby={"availability-" + publicToken}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0 max-w-full">
           <h3 id={"availability-" + publicToken} className="title-section">Published availability</h3>
           <p className="eyebrow mt-1 font-mono">{rangeLabel(window.startsAt, window.endsAt)}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex min-w-0 flex-wrap gap-2">
           <button className="desk-button-ghost" type="button" disabled={offset === 0} onClick={() => setOffset((value) => Math.max(0, value - 1))}>Previous 14 days</button>
           <button className="desk-button-ghost" type="button" onClick={() => setOffset((value) => value + 1)}>Next 14 days</button>
         </div>
