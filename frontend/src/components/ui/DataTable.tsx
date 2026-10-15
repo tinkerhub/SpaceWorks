@@ -67,7 +67,7 @@ export function DataTable<T>({
   if (!loading && !data.length) return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-panel">
+    <div className="blueprint-table">
       <table className="w-full min-w-[640px] text-left text-sm" aria-busy={loading}>
         <thead className="bg-surface text-xs text-muted">
           <tr className="border-b border-line">
@@ -84,7 +84,7 @@ export function DataTable<T>({
                 scope="col"
               >
                 {column.sortable ? (
-                  <button type="button" className="inline-flex items-center gap-1 font-semibold" onClick={() => toggleSort(column)}>
+                  <button type="button" className="inline-flex min-h-11 items-center gap-1 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => toggleSort(column)}>
                     {column.header}
                     <span aria-hidden="true">{sort?.key === column.key ? sort.direction : "sort"}</span>
                   </button>

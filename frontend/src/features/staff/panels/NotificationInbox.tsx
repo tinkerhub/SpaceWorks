@@ -129,7 +129,7 @@ export function NotificationInbox({ makerspace }: { makerspace: Makerspace }) {
           <p className="py-4 text-sm text-muted">No notifications.</p>
         ) : null}
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
         <button
           className="desk-button-ghost"
           disabled={!notifications.data?.previous}

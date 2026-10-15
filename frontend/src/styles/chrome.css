@@ -1,27 +1,18 @@
-/* Chrome + motion rules, split out of index.css.
-   index.css was already over the repo's ~300-line ceiling (349) before the Apple-design pass, and
-   the rule is to split an over-ceiling file before adding to it. The COLOUR TOKENS deliberately
-   stay in index.css: backend/tests/test_frontend_theme_contrast.py hand-parses that exact path for
-   `:root {` / `:root.dark {`, and moving them here would make that guard silently blind. */
-
+/* Solid workshop chrome; focus and motion remain shared across the app. */
 @layer components {
-  /* The one genuinely "Apple" primitive: a translucent, blurred material for nav and header
-     chrome. `@supports` falls back to the solid panel where backdrop-filter is unavailable. */
-  .material-chrome {
-    background-color: rgb(var(--color-panel) / 0.8);
-    backdrop-filter: blur(20px) saturate(180%);
-  }
-
-  @supports not (backdrop-filter: blur(1px)) {
-    .material-chrome {
-      background-color: rgb(var(--color-panel));
-    }
-  }
+  .material-chrome { background-color: rgb(var(--color-panel)); }
+  .blueprint-dock { @apply rounded-xl border-2 border-line bg-panel shadow-brutal; }
+  .blueprint-dock-popover { @apply rounded-lg border-2 border-line bg-panel shadow-brutal; }
+  .blueprint-dock button { @apply font-mono; }
+  .blueprint-dock button[aria-expanded="true"] { @apply border-line; }
 }
 
-/* Deliberately UNLAYERED: unlayered rules outrank every @layer, so these neutralise the hover
-   transforms declared on .brutal-hover and the .desk-button-* family without needing to restate
-   their selectors' specificity. WCAG 2.3.3 / HIG Motion "Make motion optional". */
+/* Tilted directory cards need breathing room on narrow screens. */
+@media (max-width: 639px) {
+  .card-tilt-1, .card-tilt-2 { transform: none; }
+}
+
+/* Unlayered rules override component and utility motion, including image zoom. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -29,7 +20,46 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .brutal-hover:hover { transform: none; }
+  .brutal-hover:hover, .blueprint-card:hover,
+  .card-tilt-1, .card-tilt-2,
   .desk-button-primary:hover, .desk-button-secondary:hover, .desk-button-success:hover,
-  .desk-button-warn:hover, .desk-button-danger:hover { transform: none; }
+  .desk-button-warn:hover, .desk-button-danger:hover {
+    transform: none !important;
+    translate: none !important;
+  }
+  .blueprint-card img { transform: none !important; scale: none !important; }
+}
+
+/* Respect browser chrome and display cutouts while keeping dialog contents scrollable. */
+.dialog-overlay {
+  --dialog-gutter: 0.75rem;
+  --dialog-top: max(var(--dialog-gutter), env(safe-area-inset-top, 0px));
+  --dialog-bottom: max(var(--dialog-gutter), env(safe-area-inset-bottom, 0px));
+  padding: var(--dialog-top) max(var(--dialog-gutter), env(safe-area-inset-right, 0px))
+    var(--dialog-bottom) max(var(--dialog-gutter), env(safe-area-inset-left, 0px));
+}
+.dialog-panel {
+  max-height: calc(100vh - var(--dialog-top) - var(--dialog-bottom));
+  max-height: calc(100dvh - var(--dialog-top) - var(--dialog-bottom));
+  overflow-wrap: anywhere;
+}
+.drawer-safe-area {
+  height: 100dvh;
+  max-height: 100%;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+@media (min-width: 640px) {
+  .dialog-overlay { --dialog-gutter: 1rem; }
+}
+/* Keep editable controls readable on phones/tablets, including raw controls outside desk-input. */
+@media (max-width: 1023px), (pointer: coarse) {
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea) {
+    font-size: max(16px, 1rem);
+  }
+}
+
+/* In short landscape windows, scroll the whole modal so tall headings and actions stay reachable. */
+@media (max-height: 30rem) {
+  .dialog-panel.desk-panel { display: block; }
 }

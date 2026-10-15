@@ -90,7 +90,7 @@ export function Modal({
     <div
       ref={layerRef}
       inert={!amTop}
-      className={`fixed inset-0 z-50 grid place-items-center ${backdropClass} p-3 sm:p-4`}
+      className={`dialog-overlay fixed inset-0 z-50 grid place-items-center ${backdropClass}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -103,14 +103,14 @@ export function Modal({
         aria-modal={amTop ? "true" : undefined}
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`desk-panel flex max-h-[calc(100dvh-1.5rem)] w-full ${maxWidthClass} flex-col overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:max-h-[calc(100dvh-2rem)]`}
+        className={`dialog-panel desk-panel flex w-full ${maxWidthClass} flex-col overflow-y-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
       >
-        <div className="shrink-0 border-b border-line px-4 py-3">
+        <div className="shrink-0 border-b border-line bg-surface px-4 py-3">
           <h2 id={titleId} className="title-section">
             {title}
           </h2>
         </div>
-        <div className="desk-panel-body overflow-y-auto overflow-x-hidden min-w-0 p-4">{children}</div>
+        <div className="desk-panel-body min-h-[min(8rem,25dvh)] overflow-y-auto overflow-x-hidden min-w-0 p-4">{children}</div>
         {footer ? <div className="shrink-0 border-t border-line px-4 py-3">{footer}</div> : null}
       </div>
     </div>

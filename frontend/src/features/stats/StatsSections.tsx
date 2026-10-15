@@ -233,7 +233,7 @@ export function CurrentLoansSection({
               <h3 className="title-section truncate">
                 {loan.item_name}
               </h3>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-sm text-muted [overflow-wrap:anywhere]">
                 With <span className="font-semibold text-ink">{loan.holder_name}</span>
               </p>
               <div className="mt-3 flex flex-wrap gap-2">

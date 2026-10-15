@@ -25,14 +25,14 @@ export function MakerspacePicker({
   return (
     <main className="desk-shell min-h-screen px-5 py-10">
       <div className="mx-auto w-full max-w-3xl">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
+        <div className="mb-6 flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="min-w-0 max-w-full">
             <SpaceWorksBadge className="mb-3" />
             <p className="eyebrow text-accent-ink">Super Admin</p>
-            <h1 className="title-page">Choose a makerspace to operate</h1>
-            <p className="mt-1 text-sm text-muted">Signed in as {username}. Pick a makerspace to manage its operations.</p>
+            <h1 className="title-page break-words">Choose a makerspace to operate</h1>
+            <p className="mt-1 break-words text-sm text-muted">Signed in as {username}. Pick a makerspace to manage its operations.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 max-w-full shrink-0 flex-wrap items-center gap-2">
             <ThemeToggle />
             <button className="desk-button-ghost" type="button" onClick={onSignOut}>
               Sign out
@@ -53,18 +53,18 @@ export function MakerspacePicker({
                 key={makerspace.id}
                 type="button"
                 onClick={() => onSelect(makerspace.id)}
-                className="desk-button h-auto w-full flex-col items-start gap-1 p-4 text-left hover:border-accent"
+                className="desk-button h-auto w-full min-w-0 flex-col items-start gap-1 p-4 text-left hover:border-accent"
               >
-                <span className="eyebrow text-accent-ink">
+                <span className="eyebrow max-w-full break-all text-accent-ink">
                   {makerspace.public_code ?? makerspace.slug}
                 </span>
-                <span className="title-panel text-left">{makerspace.name}</span>
+                <span className="title-panel max-w-full break-words text-left">{makerspace.name}</span>
                 {makerspace.superadmin_access_enabled === false ? (
                   <span className="mt-1">
                     <Badge tone="warn">Superadmin access: Off</Badge>
                   </span>
                 ) : null}
-                <span className="eyebrow mt-2 text-left normal-case">Operate this makerspace →</span>
+                <span className="eyebrow mt-2 max-w-full break-words text-left normal-case">Operate this makerspace →</span>
               </button>
             ))}
           </div>

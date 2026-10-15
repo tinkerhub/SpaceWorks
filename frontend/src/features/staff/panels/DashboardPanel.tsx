@@ -109,7 +109,7 @@ export function DashboardPanel({ makerspace, canManageMakerspace }: { makerspace
           return (
             <div
               key={tile.key}
-              className={`flex min-h-24 flex-col items-start justify-center gap-1 rounded-lg border p-4 shadow-soft ${
+              className={`flex min-h-24 flex-col items-start justify-center gap-1 rounded-lg border-2 p-4 shadow-brutal-sm ${
                 needsAttention ? tone.fill : "border-line bg-panel"
               }`}
             >

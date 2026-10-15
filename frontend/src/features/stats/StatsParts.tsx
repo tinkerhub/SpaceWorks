@@ -28,7 +28,7 @@ export function StatTile({
   tone?: StatTone;
 }) {
   return (
-    <div className={`rounded-md border p-3 ${STAT_TONE_CLASS[tone]}`}>
+    <div className={`min-w-0 rounded-md border p-3 [overflow-wrap:anywhere] ${STAT_TONE_CLASS[tone]}`}>
       <p className="font-mono text-2xl font-bold">{value}</p>
       <p className="eyebrow mt-1 text-current opacity-70">{label}</p>
     </div>
@@ -70,7 +70,7 @@ export function CompactList({
           <span className="min-w-0 flex-1 truncate text-ink" title={row.label}>
             {row.label}
           </span>
-          <span className="eyebrow shrink-0 text-right">{row.value}</span>
+          <span className="eyebrow min-w-0 max-w-full text-right [overflow-wrap:anywhere]">{row.value}</span>
         </li>
       ))}
     </ul>

@@ -233,6 +233,10 @@
   `apiRequests`; ~164 files import from `lib/api`, so add a symbol to a submodule AND the barrel. The
   in-memory access token, runtime publishable key, tenant key cache and auth-expired listeners live in
   `apiSession.ts` alone — duplicating that state across submodules would silently break auth.
+- `frontend/src/styles/components.css` owns the shared Blueprint controls and panels;
+  `styles/chrome.css` owns solid navigation chrome and reduced-motion overrides. Root
+  theme tokens and self-hosted font definitions remain in `frontend/src/index.css` for
+  the backend contrast guard. Design provenance is recorded in `docs/design-provenance.md`.
 - `frontend/src/features/events/` — the standalone anonymous PIN-station route. Its
   `EventCheckInStationPage.tsx` exchanges the event-scoped PIN, then reuses the offline roster/sync API,
   IndexedDB state and operator UI owned by `features/staff/eventCheckInOfflineApi.ts`,

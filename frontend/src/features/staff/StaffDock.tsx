@@ -153,11 +153,11 @@ export function StaffDock({
       ref={rootRef}
       data-staff-dock-root
       aria-label="Staff sections"
-      className="material-chrome fixed inset-x-0 bottom-3 z-40 mx-auto w-fit max-w-[calc(100vw-1rem)] rounded-2xl border border-line shadow-soft-lg pb-[env(safe-area-inset-bottom)]"
+      className="blueprint-dock fixed inset-x-0 bottom-3 z-40 mx-auto w-fit [--dock-safe-top:env(safe-area-inset-top,0px)] [--dock-safe-left:env(safe-area-inset-left,0px)] [--dock-safe-right:env(safe-area-inset-right,0px)] max-w-[calc(100vw-1.5rem-2*max(var(--dock-safe-left),var(--dock-safe-right)))] pb-[env(safe-area-inset-bottom)]"
     >
       <div
         data-staff-dock-scroller
-        className="flex max-w-[calc(100vw-1rem)] snap-x snap-mandatory gap-1 overflow-x-auto p-2 sm:snap-none"
+        className="flex max-w-full snap-x snap-mandatory gap-1 overflow-x-auto p-2 sm:snap-none"
       >
         {visibleGroups.map((group, index) => {
           const active = group.label === activeGroup?.label;
@@ -198,11 +198,8 @@ export function StaffDock({
               onKeyDown={(event) => handleButtonKeyDown(event, index, group.label)}
             >
               <Icon className="shrink-0" />
-              {/* Clash Display, title case. The sidebar deliberately made these <h2> so the base
-                  layer handed them the display face, reasoning that the display voice is what makes
-                  a group read as a TOPIC rather than as a mono `.eyebrow` label. A tab bar is not a
-                  heading list, so the face is applied directly instead of borrowing <h2> semantics. */}
-              <span className="whitespace-nowrap font-display text-sm font-medium leading-none">
+              {/* Mono labels match the shared workshop navigation vocabulary. */}
+              <span className="whitespace-nowrap font-mono text-xs font-semibold uppercase tracking-tight leading-none">
                 {group.label}
               </span>
               {ownsNotifications && unreadCount > 0 ? (

@@ -35,6 +35,7 @@ export default {
       fontFamily: {
         display: ['"Clash Display"', "ui-sans-serif", "system-ui", "sans-serif"],
         sans: [
+          '"Instrument Sans"',
           "-apple-system",
           "BlinkMacSystemFont",
           '"Segoe UI"',
@@ -46,11 +47,15 @@ export default {
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
+        "hardsoft-warn": "4px 4px 0 0 rgb(var(--shadow-color)), 0 0 12px 0 rgb(var(--color-warn) / 0.35)",
+        "hardsoft-success": "4px 4px 0 0 rgb(var(--shadow-color)), 0 0 12px 0 rgb(var(--color-success) / 0.35)",
+        "hardsoft-secondary": "4px 4px 0 0 rgb(var(--shadow-color)), 0 0 12px 0 rgb(var(--color-secondary) / 0.35)",
+        "hardsoft-accent": "4px 4px 0 0 rgb(var(--shadow-color)), 0 0 12px 0 rgb(var(--color-accent) / 0.35)",
         soft: "0 1px 2px rgb(var(--shadow-color) / 0.06), 0 6px 16px rgb(var(--shadow-color) / 0.07)",
         "soft-lg": "0 2px 4px rgb(var(--shadow-color) / 0.07), 0 12px 28px rgb(var(--shadow-color) / 0.10)",
-        brutal: "0 1px 2px rgb(var(--shadow-color) / 0.06), 0 6px 16px rgb(var(--shadow-color) / 0.07)",
-        "brutal-sm": "0 1px 2px rgb(var(--shadow-color) / 0.05), 0 3px 10px rgb(var(--shadow-color) / 0.06)",
-        "brutal-lg": "0 2px 4px rgb(var(--shadow-color) / 0.07), 0 12px 28px rgb(var(--shadow-color) / 0.10)",
+        brutal: "4px 4px 0 0 rgb(var(--shadow-color))",
+        "brutal-sm": "2px 2px 0 0 rgb(var(--shadow-color))",
+        "brutal-lg": "6px 6px 0 0 rgb(var(--shadow-color))",
         "elev-1": "0 1px 2px rgb(var(--shadow-color) / 0.04), 0 2px 6px rgb(var(--shadow-color) / 0.05)",
         "elev-2": "0 2px 4px rgb(var(--shadow-color) / 0.05), 0 8px 20px rgb(var(--shadow-color) / 0.08)",
         "elev-3": "0 4px 8px rgb(var(--shadow-color) / 0.06), 0 16px 40px rgb(var(--shadow-color) / 0.12)",
@@ -67,7 +72,7 @@ export default {
         "ease-out-soft": "cubic-bezier(0.32, 0.72, 0, 1)",
       },
       backgroundSize: {
-        blueprint: "32px 32px",
+        blueprint: "24px 24px",
       },
     },
   },

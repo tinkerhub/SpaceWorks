@@ -21,7 +21,7 @@ type PublicToolScanPanelProps = {
 
 function LoanResult({ loan }: { loan: PublicToolLoan }) {
   return (
-    <div className="rounded-xl border border-success bg-success px-3 py-2 text-on-success dark:bg-success/15 dark:text-success-ink">
+    <div className="min-w-0 rounded-xl border border-success bg-success px-3 py-2 text-on-success [overflow-wrap:anywhere] dark:bg-success/15 dark:text-success-ink">
       <h3 className="title-section capitalize text-on-success dark:text-success-ink">
         {loan.status.replace(/_/g, " ")}: {loan.items.map((item) => item.product_name).join(", ") || "Tool loan"}
       </h3>
@@ -29,8 +29,8 @@ function LoanResult({ loan }: { loan: PublicToolLoan }) {
       <div className="mt-2 space-y-1">
         {loan.items.map((item) => (
           <div className="flex justify-between gap-3 text-xs" key={item.product_name}>
-            <span>{item.product_name}</span>
-            <span className="font-mono">x{item.quantity}</span>
+            <span className="min-w-0 flex-1">{item.product_name}</span>
+            <span className="shrink-0 font-mono">x{item.quantity}</span>
           </div>
         ))}
       </div>
@@ -111,7 +111,7 @@ export function PublicToolScanPanel({
   const result = checkout.data ?? returnTool.data;
 
   return (
-    <Card>
+    <Card className="@container">
       <p className="eyebrow text-secondary-ink">
         QR Tool Checkout
       </p>
@@ -157,8 +157,8 @@ export function PublicToolScanPanel({
           </button>
         </p>
       ) : null}
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <section className="rounded-lg border border-line p-3">
+      <div className="mt-4 grid gap-4 @min-[36rem]:grid-cols-2">
+        <section className="min-w-0 rounded-lg border border-line p-3">
           <h3 className="title-section">Check out</h3>
           <PendingToolCheckoutControls
             payloads={pendingPayloads}
@@ -189,7 +189,7 @@ export function PublicToolScanPanel({
             </div>
           </PendingToolCheckoutControls>
         </section>
-        <section className="rounded-lg border border-line p-3">
+        <section className="min-w-0 rounded-lg border border-line p-3">
           <h3 className="title-section">Return</h3>
           <div className="mt-3">
             <PublicEvidenceUpload

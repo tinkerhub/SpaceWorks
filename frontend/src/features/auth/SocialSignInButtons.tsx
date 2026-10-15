@@ -92,7 +92,7 @@ export function SocialSignInButtons({
     <section className="mt-5 border-t border-line pt-5" aria-label="Social sign in">
       <p className="eyebrow mb-3 text-center">Or continue with</p>
       <div className="flex flex-col items-center gap-3">
-        {showGoogle ? <div ref={googleHost} className="min-h-10 w-full text-center" /> : null}
+        {showGoogle ? <div ref={googleHost} className="min-h-11 w-full max-w-full overflow-x-auto text-center" /> : null}
         {showApple ? (
           <button
             className="desk-button-secondary w-full max-w-[360px]"

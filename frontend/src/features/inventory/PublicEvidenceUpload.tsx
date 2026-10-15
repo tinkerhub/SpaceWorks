@@ -65,9 +65,9 @@ export function PublicEvidenceUpload({
   }
 
   return (
-    <div className="space-y-1">
-      <div className="flex min-w-0 items-end gap-2">
-        <label className="block min-w-0 flex-1">
+    <div className="min-w-0 space-y-1">
+      <div className="flex min-w-0 flex-wrap items-end gap-2">
+        <label className="block min-w-0 max-w-full flex-[1_1_12rem]">
           <span className="eyebrow mb-1 block">
             {label}
           </span>
@@ -84,7 +84,7 @@ export function PublicEvidenceUpload({
           />
         </label>
         {cameraSupported ? (
-          <button className="desk-button min-h-11" type="button" aria-label={`Take ${label}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
             Camera
           </button>
         ) : null}
@@ -96,7 +96,7 @@ export function PublicEvidenceUpload({
       <p
         role="status"
         aria-live="polite"
-        className={`text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
+        className={`break-words text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
       >
         {status === "uploading"
           ? `Uploading ${fileName}...`

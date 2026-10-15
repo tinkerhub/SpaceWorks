@@ -1,4 +1,5 @@
 import { Modal } from "../../components/ui/Modal";
+import { catalogPresentation } from "../../lib/catalogPresentation";
 import type { Product } from "../../types/inventory";
 import { AvailabilityBadge } from "./AvailabilityBadge";
 
@@ -22,6 +23,7 @@ export function ProductQuickViewModal({
   if (!product) return null;
 
   const description = product.description.trim() || "No description provided.";
+  const presentation = catalogPresentation(product.id);
 
   return (
     <Modal
@@ -32,15 +34,18 @@ export function ProductQuickViewModal({
       backdrop="blur"
       footer={(
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <button className="desk-button-primary" type="button" onClick={onClose}>
+          <button className="desk-button-secondary" type="button" onClick={onClose}>
             Close
           </button>
         </div>
       )}
     >
       <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="min-w-0 overflow-hidden rounded-xl border border-line bg-surface">
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface md:aspect-square">
+        <div className={`blueprint-card min-w-0 self-start rounded-lg border-2 border-ink bg-surface ${presentation.shadow}`}>
+          <div className={`blueprint-band rounded-t-md border-b border-ink px-4 py-2 ${presentation.band}`}>
+            Catalog item · {String(product.id).padStart(4, "0")}
+          </div>
+          <div className="blueprint-media relative aspect-[4/3] w-full overflow-hidden rounded-b-md bg-surface md:aspect-square">
             {product.image_url ? (
               <img
                 src={product.image_url}
@@ -58,12 +63,12 @@ export function ProductQuickViewModal({
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-4">
             <div className="min-w-0">
               <p className="eyebrow text-secondary-ink">
                 ID: {String(product.id).padStart(4, "0")}
               </p>
-              <h2 className="title-page mt-2 break-words leading-tight">
+              <h2 className="title-page mt-2 break-words uppercase leading-tight">
                 {product.name}
               </h2>
             </div>
@@ -79,7 +84,7 @@ export function ProductQuickViewModal({
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-line bg-bg p-4">
+          <div className="rounded-lg border border-ink bg-bg p-4">
             <h3 className="title-section">
               Description
             </h3>

@@ -82,8 +82,8 @@ export function BorrowRequestCard({
                 className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2"
                 key={item.productId}
               >
-                <span className="text-sm font-medium text-ink">{item.name}</span>
-                <span className="font-mono text-sm text-muted">x{item.quantity}</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-ink [overflow-wrap:anywhere]">{item.name}</span>
+                <span className="shrink-0 font-mono text-sm text-muted">x{item.quantity}</span>
               </div>
             ))}
           </div>

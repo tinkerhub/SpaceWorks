@@ -58,12 +58,12 @@ export function SpaceWorksLogo({
     return (
       <span
         className={[
-          "inline-flex items-center gap-2",
+          "inline-flex min-w-0 max-w-full items-center gap-2",
           className,
         ].filter(Boolean).join(" ")}
       >
         <SpaceWorksMark className="shrink-0" size={size} />
-        <span className="font-semibold tracking-wide">Space Works</span>
+        <span className="min-w-0 break-words font-semibold tracking-wide">Space Works</span>
       </span>
     );
   }
@@ -82,7 +82,7 @@ export function SpaceWorksHomeLink({
     <Link
       aria-label="Open makerspace listing"
       className={[
-        "inline-flex text-left transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+        "inline-flex min-w-0 max-w-full text-left transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
         className,
       ].filter(Boolean).join(" ")}
       to="/"

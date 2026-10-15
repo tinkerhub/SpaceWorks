@@ -88,8 +88,8 @@ export function FilePicker({
   }
 
   return (
-    <div>
-      <label className="block">
+    <div className="min-w-0">
+      <label className="block min-w-0">
         <span className="eyebrow mb-1 block">
           {label}
         </span>

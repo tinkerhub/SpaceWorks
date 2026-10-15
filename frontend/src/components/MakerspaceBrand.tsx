@@ -45,7 +45,7 @@ export function MakerspaceBrand({
       ) : null}
       {!hideName || !logoUrl ? (
         <span
-          className={`font-display font-bold leading-tight break-words min-w-0 text-ink ${NAME_SIZE[size]}`}
+          className={`font-display font-bold leading-tight [overflow-wrap:anywhere] min-w-0 text-ink ${NAME_SIZE[size]}`}
         >
           {name}
         </span>

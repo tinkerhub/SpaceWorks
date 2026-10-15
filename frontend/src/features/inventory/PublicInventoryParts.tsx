@@ -69,11 +69,11 @@ export function CatalogSidebar({
 
   return (
     <Card
-      className="lg:sticky lg:top-0 lg:max-h-[100dvh] lg:overflow-y-auto"
+      className="border-ink bg-bg lg:sticky lg:top-0 lg:max-h-[100dvh] lg:overflow-y-auto"
       padding="sm"
     >
       <nav aria-label="Catalog browse">
-        <h2 className="title-section px-3">
+        <h2 className="blueprint-band mb-3 rounded-md border border-ink bg-secondary px-3 py-2 text-on-secondary">
           Browse
         </h2>
         <div className="mt-2 flex gap-2 overflow-x-auto lg:block lg:space-y-1 lg:overflow-visible">
@@ -115,8 +115,8 @@ export function CatalogSidebar({
 
         {categories.length > 0 ? (
           <>
-            <div className="my-3 border-t border-line" />
-            <h3 className="title-section px-3">
+            <div className="my-3 border-t border-ink" />
+            <h3 className="eyebrow px-3 text-secondary-ink">
               Categories
             </h3>
             <div className="mt-2 flex gap-2 overflow-x-auto lg:block lg:space-y-1 lg:overflow-visible">

@@ -1,3 +1,4 @@
+import { catalogPresentation } from "../../lib/catalogPresentation";
 import type { Availability, Product } from "../../types/inventory";
 
 type ProductCardProps = {
@@ -47,11 +48,15 @@ export function ProductCard({
   const disabled = isUnavailable(product);
   const chip = statusChip(product.availability);
   const idLabel = `ID: ${String(product.id).padStart(4, "0")}`;
+  const presentation = catalogPresentation(product.id);
 
   return (
-    <article className="group flex h-full flex-col rounded-xl border border-line bg-panel shadow-soft transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-soft-lg">
+    <article className={`blueprint-card @container group flex h-full flex-col rounded-lg border-2 border-ink bg-panel transition-transform duration-150 ${presentation.shadow}`}>
+      <div className={`blueprint-band rounded-t-md border-b border-ink px-3 py-2 ${presentation.band}`}>
+        Catalog item
+      </div>
       <button
-        className="relative h-44 overflow-hidden rounded-t-xl border-b border-line bg-surface text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="blueprint-media relative h-44 overflow-hidden border-b border-ink bg-surface text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         type="button"
         onClick={onOpenDetails}
         aria-label={`Open details for ${product.name}`}
@@ -75,17 +80,17 @@ export function ProductCard({
         ) : null}
       </button>
 
-      <div className="flex flex-1 flex-col p-4">
-        <h2 className="title-panel">
+      <div className="flex min-w-0 flex-1 flex-col p-[12px] @min-[14rem]:p-4">
+        <h2 className="title-panel uppercase">
           <button
-            className="min-h-11 break-words text-left underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="min-h-11 w-full min-w-0 max-w-full [overflow-wrap:anywhere] text-left underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             type="button"
             onClick={onOpenDetails}
           >
             {product.name}
           </button>
         </h2>
-        <p className="eyebrow mt-1">{idLabel}</p>
+        <div className="mt-1"><span className="chip">{idLabel}</span></div>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
           {product.description || "No description provided."}
         </p>
@@ -96,22 +101,22 @@ export function ProductCard({
         ) : null}
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
-          <div className="flex items-center rounded-lg border border-line bg-bg">
+          <div className="flex min-w-0 max-w-full items-center rounded-full border border-ink bg-bg">
             <button
               aria-label={`Remove ${product.name}`}
-              className="h-11 w-11 font-mono text-lg font-semibold text-ink transition hover:bg-surface hover:text-ink disabled:cursor-not-allowed disabled:text-muted"
+              className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-l-full font-mono text-lg font-semibold leading-none text-ink transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted"
               disabled={quantity === 0}
               type="button"
               onClick={onDecrement}
             >
               -
             </button>
-            <span className="grid h-11 min-w-11 place-items-center border-x border-line px-2 font-mono text-sm font-semibold text-ink">
+            <span className="grid min-h-[44px] min-w-[44px] flex-1 place-items-center border-x border-ink px-[8px] font-mono text-sm font-semibold text-ink [overflow-wrap:anywhere]">
               {quantity}
             </span>
             <button
               aria-label={`Add ${product.name}`}
-              className="h-11 w-11 font-mono text-lg font-semibold text-ink transition hover:bg-surface hover:text-ink disabled:cursor-not-allowed disabled:text-muted"
+              className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-r-full font-mono text-lg font-semibold leading-none text-ink transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted"
               disabled={disabled}
               type="button"
               onClick={onIncrement}
@@ -124,7 +129,7 @@ export function ProductCard({
             type="button"
             onClick={onOpenDetails}
           >
-            Details
+            Details &rarr;
           </button>
         </div>
       </div>
