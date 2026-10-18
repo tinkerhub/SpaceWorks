@@ -28,9 +28,9 @@ printing models read-only, keeping the old endpoints as compatibility readers th
 
 ## What still exists today
 
-- **`machines.PrintingCutoverRepair`** — the forward-repair queue, surfaced through a **read-only**
-  admin (`PrintingCutoverRepairAdmin`). Existing rows are an audit artifact of the migration; imported
-  history is never edited.
+- **`machines.PrintingCutoverRepair`** and **`machines.PrintingCutoverState`** — the rows remain in
+  their tables as historical migration artifacts and their admin pages are deliberately unregistered.
+  Imported history is never edited.
 - **`apps/machines/printing_cutover_models.py`** and migration
   `machines/0013_printing_kernel_cutover_provenance` — the provenance fields the cutover wrote.
 - The legacy printing tables are **tombstoned** (B7d), not dropped.

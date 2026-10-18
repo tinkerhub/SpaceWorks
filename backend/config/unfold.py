@@ -167,7 +167,6 @@ UNFOLD = {
                 "items": [
                     _item("Users", "person", "admin:accounts_user_changelist"),
                     _item("Staff memberships", "badge", "admin:makerspaces_makerspacemembership_changelist"),
-                    _item("Groups", "groups", "admin:auth_group_changelist"),
                 ],
             },
             {
@@ -176,7 +175,7 @@ UNFOLD = {
                 "items": [
                     _item("API clients", "vpn_key", "admin:apiclients_apiclient_changelist"),
                     _item("API key requests", "approval", "admin:apiclients_apikeyrequest_changelist"),
-                    _item("Subdomain requests", "dns", "admin:makerspaces_subdomainrequest_changelist"),
+                    _managed_item("Subdomain requests", "dns", "admin:makerspaces_subdomainrequest_changelist"),
                     _item("Platform email", "mail", "admin:integrations_platformemailsettings_changelist"),
                     _item("Payments", "payments", "admin:payments_makerspacepaymentsettings_changelist", app_label="payments"),
                     _managed_item("Stripe Connect", "account_balance", "admin:payments_platformstripeconnectsettings_changelist", app_label="payments"),

@@ -19,6 +19,10 @@
 
 </div>
 
+> [!IMPORTANT]
+> **This is TinkerHub's version of Space Works, customised for TinkerSpace.**
+> For the main project, use **[SpaceWorks-HQ/SpaceWorks](https://github.com/SpaceWorks-HQ/SpaceWorks)**.
+
 ---
 
 Space Works started inside the **TinkerSpace Kochi** community, from a simple need: make it easy for a

@@ -29,8 +29,10 @@ a `pip-audit` CI job. The global CSP `script-src` omits `'unsafe-eval'`; a tiny
 origin to `img-src` **only for `/control/` responses** (django-unfold ships eval-requiring Alpine.js; the
 JSON API + public docs stay on the strict policy).
 
-**Django admin coverage** is complete (every domain model registered; immutable/workflow-owned models
-read-only; a `list_filter` per makerspace-scoped admin). The Unfold sidebar (`config/unfold.py`) is curated
+**Django admin coverage** is complete (every domain model registered except deliberately unregistered
+retired/unused pages: auth Groups, axes access/failure logs, printing-cutover state/repair;
+immutable/workflow-owned models read-only; a `list_filter` per makerspace-scoped admin).
+The Unfold sidebar (`config/unfold.py`) is curated
 into grouped sections and a test asserts every sidebar link resolves. `tests/test_admin_hidden_scope.py`
 walks every registered admin and forces an explicit scoped/global decision (via `NESTED_MAKERSPACE_LOOKUPS`
 / `GLOBAL_ADMIN_MODELS`) so a new admin can't silently leak across the superadmin hide/archive scoping.

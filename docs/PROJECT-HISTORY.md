@@ -6,6 +6,13 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-15 — Control-plane cleanup.** Groups page/sidebar item and the User page's
+  Groups/User-permissions pickers removed (SpaceWorks RBAC never reads them), axes
+  AccessLog/AccessFailureLog and the retired printing-cutover admin pages unregistered,
+  Subdomain requests hidden from the self-host sidebar, and 14 unreferenced admin/email print
+  templates deleted; AccessAttempt (unlock), token blacklist, is_staff and platform settings
+  pages deliberately kept.
+
 - **2026-10-14 — 0.8.5: fresh self-host installs work end to end, and CI is pip-audit only.**
   Rolls up the 2026-10-13/14 batches below: the curl installer checks staged files through sudo,
   MinIO's removed images are replaced by `pgsty/silo` + `pgsty/mc`, the producer-capability

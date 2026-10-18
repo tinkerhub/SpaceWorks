@@ -3,9 +3,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.admin import GroupAdmin as DjangoGroupAdmin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib.auth.models import Group
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -57,7 +55,12 @@ class UserAdmin(SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
-    fieldsets = DjangoUserAdmin.fieldsets + (
+    fieldsets = tuple(
+        (name, {**options, "fields": tuple(
+            field for field in options["fields"] if field not in ("groups", "user_permissions")
+        )})
+        for name, options in DjangoUserAdmin.fieldsets
+    ) + (
         (
             "Space Works Access",
             {
@@ -72,12 +75,13 @@ class UserAdmin(SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
         ),
     )
     list_display = ("username", "email", "role", "access_status", "is_staff")
-    list_filter = DjangoUserAdmin.list_filter + (
+    list_filter = tuple(field for field in DjangoUserAdmin.list_filter if field != "groups") + (
         "role",
         "access_status",
         "makerspace_memberships__makerspace",
     )
     inlines = (MakerspaceMembershipInline,)
+    filter_horizontal = ()
 
     def user_change_password(self, request, id, form_url=""):
         """Make the inherited password form an explicit account transition."""
@@ -280,15 +284,8 @@ class NativeAppRegistrationAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
             revoke_registration(obj, actor=request.user)
 
 
-admin.site.unregister(Group)
-
 from apps.accounts import admin_claim, admin_social  # noqa: E402,F401
-from apps.accounts import admin_password_reset  # noqa: E402,F401
-
-
-@admin.register(Group)
-class GroupAdmin(SuperuserOnlyModelAdmin, DjangoGroupAdmin, ModelAdmin):
-    pass
+from apps.accounts import admin_password_reset, admin_unregistered  # noqa: E402,F401
 
 
 def _api_exception_message(exc):
