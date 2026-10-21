@@ -86,6 +86,14 @@ def test_return_reminder_cron_requires_matching_secret():
 
 
 @override_settings(CRON_SECRET="s3cr3t")
+def test_return_reminder_cron_refuses_a_non_ascii_secret_instead_of_crashing():
+    # str compare_digest raises TypeError on non-ASCII input; the refusal must stay a 403.
+    response = APIClient().post(CRON_URL, HTTP_X_CRON_SECRET="s3crét", format="json")
+
+    assert response.status_code == 403
+
+
+@override_settings(CRON_SECRET="s3cr3t")
 def test_return_reminder_cron_sends_due_reminder_and_marks_request(monkeypatch):
     makerspace = make_space("cron-reminder")
     product = make_product(makerspace)

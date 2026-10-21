@@ -2,11 +2,13 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from apps.accounts import rbac
 from apps.admin_api.permissions import IsActiveStaff, require_action
 from apps.makerspaces.guards import require_module
+from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.models import Makerspace
 from apps.operations import services
 from apps.operations.models import StockTransfer
@@ -78,3 +80,18 @@ class StockTransferDetailView(generics.RetrieveAPIView):
         if not scope:
             return queryset.none()
         return queryset.filter(Q(source_makerspace_id__in=scope) | Q(destination_makerspace_id__in=scope))
+
+    def get_object(self):
+        transfer = super().get_object()
+        # A cross-space transfer belongs to both ends; it stays readable from whichever
+        # end the actor is scoped to, but only while that end has the module installed.
+        scope = rbac.makerspaces_for_action(self.request.user, rbac.Action.VIEW_INVENTORY)
+        ends = Makerspace.objects.filter(
+            pk__in={transfer.source_makerspace_id, transfer.destination_makerspace_id}
+        )
+        if not any(
+            (scope is rbac.ALL or end.pk in scope) and module_enabled(end, "stock_transfers")
+            for end in ends
+        ):
+            raise ValidationError({"module": "stock_transfers is disabled for this makerspace."})
+        return transfer

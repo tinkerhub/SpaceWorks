@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 
+import { SearchInput } from "./inputs";
+
 type FilterBarProps = {
   value: string;
   onChange: (value: string) => void;
@@ -10,6 +12,7 @@ type FilterBarProps = {
   actions?: ReactNode;
 };
 
+/** Pill search with a clear button, then filters, then actions pushed right. */
 export function FilterBar({
   value,
   onChange,
@@ -21,18 +24,19 @@ export function FilterBar({
   const searchId = useId();
 
   return (
-    <div className="desk-panel flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-center">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       <label className="sr-only" htmlFor={searchId}>
         {searchLabel}
       </label>
-      <input
-        id={searchId}
-        className="desk-input min-w-0 flex-1 sm:basis-48"
-        type="search"
-        value={value}
-        placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)}
-      />
+      <div className="min-w-0 flex-1 sm:basis-56">
+        <SearchInput
+          id={searchId}
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          onClear={() => onChange("")}
+        />
+      </div>
       {children ? <div className="flex min-w-0 flex-wrap items-center gap-2">{children}</div> : null}
       {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 sm:ml-auto">{actions}</div> : null}
     </div>

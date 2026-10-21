@@ -1,4 +1,12 @@
-"""Static model-backed origin scopes, split from request resolution logic."""
+"""Static model-backed origin scopes, split from request resolution logic.
+
+Each entry is ``url_name -> (model, tenant_field)`` or ``(model, tenant_field, kwarg)``.
+The object is looked up by the route kwarg named in the third element (``pk`` when
+omitted), so a route whose path declares ``<int:product_pk>`` or ``<uuid:archive_id>``
+resolves rather than being marked invalid. A row whose tenant field is NULL (a global
+API client, a deployment archive) resolves to no tenant and is refused on every tenant
+origin.
+"""
 
 BASE_MODEL_LOOKUPS = {
     'admin-membership-request-approve': ('makerspaces.MembershipRequest', 'makerspace_id'),
@@ -7,7 +15,12 @@ BASE_MODEL_LOOKUPS = {
     'admin-membership-role-m2': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
     'admin-membership-capabilities': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
     'admin-membership-revoke': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
-    'admin-presence-sessions-current': ('makerspaces.Makerspace', 'id'),
+    'admin-membership-verify': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
+    'admin-membership-unverify': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
+    'admin-membership-waiver-witness': ('makerspaces.MakerspaceMembership', 'makerspace_id'),
+    'admin-api-client': ('apiclients.ApiClient', 'makerspace_id'),
+    'admin-api-client-rotate-secret': ('apiclients.ApiClient', 'makerspace_id'),
+    'admin-backup-download-url': ('backup.BackupArchive', 'makerspace_id', 'archive_id'),
     'admin-maintenance-schedule-detail': ('maintenance.MaintenanceSchedule', 'machine__makerspace_id'),
     'admin-maintenance-schedule-deactivate': ('maintenance.MaintenanceSchedule', 'machine__makerspace_id'),
     'admin-maintenance-log-document-presign': ('maintenance.MaintenanceLog', 'machine__makerspace_id'),
@@ -67,11 +80,17 @@ BASE_MODEL_LOOKUPS = {
     'admin-event-collaboration-respond': ('events.EventCollaborator', 'makerspace_id'),
     'admin-machine-operator-candidates': ('machines.Machine', 'makerspace_id'),
     'admin-machine-publicity': ('machines.Machine', 'makerspace_id'),
-    'makerspace-verify-domain': ('makerspaces.Makerspace', 'id'),
     'admin-inventory-detail': ('inventory.InventoryProduct', 'makerspace_id'),
     'admin-inventory-image': ('inventory.InventoryProduct', 'makerspace_id'),
     'admin-inventory-asset-detail': ('inventory.InventoryAsset', 'makerspace_id'),
+    'admin-inventory-assets': ('inventory.InventoryProduct', 'makerspace_id', 'product_pk'),
+    'admin-inventory-asset-fix-status': ('inventory.InventoryAsset', 'makerspace_id'),
+    'admin-inventory-asset-qr-history': ('inventory.InventoryAsset', 'makerspace_id'),
+    'admin-inventory-qr-history': ('inventory.InventoryProduct', 'makerspace_id'),
+    'asset-generate': ('inventory.InventoryProduct', 'makerspace_id'),
+    'asset-qr': ('inventory.InventoryAsset', 'makerspace_id'),
     'admin-machine-warranty': ('machines.Machine', 'makerspace_id'),
+    'admin-asset-warranty': ('inventory.InventoryAsset', 'makerspace_id'),
     'admin-warranty-document-presign': ('warranty.Warranty', 'makerspace_id'),
     'admin-warranty-documents': ('warranty.Warranty', 'makerspace_id'),
     'admin-warranty-document-url': ('warranty.WarrantyDocument', 'warranty__makerspace_id'),

@@ -1,13 +1,11 @@
 ﻿import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Field } from "../../../components/ui";
+import { Field, SearchInput, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
-import { Pagination } from "../../../components/ui/Pagination";
 import { useDebouncedValue } from "../../../lib/useDebouncedValue";
 import { usePaginatedQuery } from "../../../lib/usePaginatedQuery";
-import { Panel, type Makerspace } from "./shared";
-import { RequestList } from "./QueuesList";
+import { errorText, Panel, type Makerspace } from "./shared";
 import { actionInvalidationScope, invalidateRequestQueues } from "./QueuesInvalidation";
 import {
   AssignIssueModal,
@@ -19,8 +17,8 @@ import {
   type ReturnDueValues,
   type ReturnRequestValues,
 } from "./QueuesModals";
-import { RequestListSkeleton } from "./QueuesSkeleton";
 import { AcceptRequestModal } from "./QueuesAcceptModal";
+import { AcceptedActions, ActiveActions, HistoryToggle, PendingActions, QueueSection } from "./QueuesSections";
 
 export type RequestItem = {
   id: number;
@@ -61,8 +59,15 @@ export type HardwareRequest = {
   assigned_box?: { code: string; label: string };
 };
 
-export function Queues({ makerspace, guestOnly, canViewAudit = false }: { makerspace: Makerspace; guestOnly: boolean; canViewAudit?: boolean }) {
+// `guestOnly` (the handover surface) hides review. Active loans are listed with ISSUE_REQUEST,
+// returned with RETURN_REQUEST and re-dated with ACCEPT_REQUEST, so a handover role that holds
+// `return_request` still gets Active loans -> Return, without the Set due it cannot use.
+export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnRequest, canReviewRequests }: {
+  makerspace: Makerspace; guestOnly: boolean; canViewAudit?: boolean; canReturnRequest: boolean; canReviewRequests: boolean;
+}) {
+  const showActiveLoans = !guestOnly || canReturnRequest;
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [acceptRow, setAcceptRow] = useState<HardwareRequest | null>(null);
   const [dueRow, setDueRow] = useState<HardwareRequest | null>(null);
   const [rejectRow, setRejectRow] = useState<HardwareRequest | null>(null);
@@ -73,33 +78,18 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false }: { makers
   const [showHistory, setShowHistory] = useState(false);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search);
+  const queue = (key: string, path: string, enabled = true) => ({
+    key: [key, makerspace.id],
+    path: `/admin/makerspace/${makerspace.id}/${path}`,
+    enabled,
+    search: debouncedSearch,
+    resetKey: String(makerspace.id),
+  });
 
-  const pending = usePaginatedQuery<HardwareRequest>({
-    key: ["pending", makerspace.id],
-    path: `/admin/makerspace/${makerspace.id}/pending-requests`,
-    enabled: !guestOnly,
-    search: debouncedSearch,
-    resetKey: String(makerspace.id),
-  });
-  const accepted = usePaginatedQuery<HardwareRequest>({
-    key: ["accepted", makerspace.id],
-    path: `/admin/makerspace/${makerspace.id}/accepted-requests`,
-    search: debouncedSearch,
-    resetKey: String(makerspace.id),
-  });
-  const active = usePaginatedQuery<HardwareRequest>({
-    key: ["active", makerspace.id],
-    path: `/admin/makerspace/${makerspace.id}/active-loans`,
-    search: debouncedSearch,
-    resetKey: String(makerspace.id),
-  });
-  const history = usePaginatedQuery<HardwareRequest>({
-    key: ["request-history", makerspace.id],
-    path: `/admin/makerspace/${makerspace.id}/request-history`,
-    enabled: showHistory,
-    search: debouncedSearch,
-    resetKey: String(makerspace.id),
-  });
+  const pending = usePaginatedQuery<HardwareRequest>(queue("pending", "pending-requests", !guestOnly));
+  const accepted = usePaginatedQuery<HardwareRequest>(queue("accepted", "accepted-requests"));
+  const active = usePaginatedQuery<HardwareRequest>(queue("active", "active-loans", showActiveLoans));
+  const history = usePaginatedQuery<HardwareRequest>(queue("request-history", "request-history", showHistory));
 
   const action = useMutation({
     mutationFn: ({ path, body }: { path: string; body?: object }) => staffRequest(path, { method: "POST", body: JSON.stringify(body ?? {}) }),
@@ -122,26 +112,37 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false }: { makers
     setReturnRow(null);
     setModalError("");
   };
-  const runAction = async (path: string, body?: object, onDone = closeModals) => {
+  const clearModals = () => {
+    setAcceptRow(null);
+    setDueRow(null);
+    setRejectRow(null);
+    setAssignIssueRow(null);
+    setReturnRow(null);
+    setModalError("");
+  };
+  const runAction = async (path: string, body: object, done: string, failed: string) => {
     setModalError("");
     try {
       await action.mutateAsync({ path, body });
-      onDone();
+      clearModals();
+      showToast(done, { tone: "success" });
     } catch (error) {
-      setModalError(error instanceof Error ? error.message : "Action failed.");
+      const message = errorText(error, failed);
+      setModalError(message);
+      showToast(message, { tone: "error" });
     }
   };
   const submitReturnDue = (values: ReturnDueValues) => {
-    if (dueRow) void runAction(`/admin/requests/${dueRow.id}/return-due`, { return_due_at: values.returnDueAt ? new Date(values.returnDueAt).toISOString() : null });
+    if (dueRow) void runAction(`/admin/requests/${dueRow.id}/return-due`, { return_due_at: values.returnDueAt ? new Date(values.returnDueAt).toISOString() : null }, values.returnDueAt ? "Due date saved." : "Due date cleared.", "Could not save the due date.");
   };
   const submitAccept = (acceptedQuantities: { item_id: number; quantity: number }[]) => {
-    if (acceptRow) void runAction(`/admin/requests/${acceptRow.id}/accept`, { accepted_quantities: acceptedQuantities });
+    if (acceptRow) void runAction(`/admin/requests/${acceptRow.id}/accept`, { accepted_quantities: acceptedQuantities }, `Request #${acceptRow.id} accepted.`, "Could not accept the request.");
   };
   const submitReject = (values: RejectRequestValues) => {
-    if (rejectRow) void runAction(`/admin/requests/${rejectRow.id}/reject`, { reason: values.reason });
+    if (rejectRow) void runAction(`/admin/requests/${rejectRow.id}/reject`, { reason: values.reason }, `Request #${rejectRow.id} rejected.`, "Could not reject the request.");
   };
   const submitReturn = (values: ReturnRequestValues) => {
-    if (returnRow) void runAction(`/admin/requests/${returnRow.id}/return`, { evidence_id: values.evidenceId, box_code: values.boxCode, remark: values.remark, resolutions: values.resolutions });
+    if (returnRow) void runAction(`/admin/requests/${returnRow.id}/return`, { evidence_id: values.evidenceId, box_code: values.boxCode, remark: values.remark, resolutions: values.resolutions }, `Return recorded for request #${returnRow.id}.`, "Could not record the return.");
   };
   const submitAssignIssue = async (values: AssignIssueValues) => {
     if (!assignIssueRow) return;
@@ -154,96 +155,55 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false }: { makers
         path: `/admin/requests/${assignIssueRow.id}/issue`,
         body: { evidence_id: values.evidenceId, remark: values.remark, rejects: values.rejects, asset_qr_payloads: values.assetQrPayloads },
       });
-      closeModals();
+      showToast(`Request #${assignIssueRow.id} issued.`, { tone: "success" });
+      clearModals();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Action failed.";
+      const message = errorText(error, "Could not issue the request.");
       setModalError(boxAssigned ? `Box assigned, but issue failed: ${message} The request still needs the issue step; retry with the assigned box.` : message);
+      showToast(boxAssigned ? "Box assigned, but the issue step failed." : message, { tone: "error" });
     }
   };
+  const searching = debouncedSearch.trim().length > 0;
+  const emptyText = (idle: string) => (searching ? `No requests match "${debouncedSearch.trim()}".` : idle);
 
   return (
-    <div className="grid gap-4">
-      <Field label="Search requests"><input className="desk-input" placeholder="Search requester name, email, phone, or purpose" value={search} onChange={(event) => setSearch(event.target.value)} /></Field>
-      {!guestOnly ? (
-        <Panel title="Pending review">
-          {pending.isLoading ? <RequestListSkeleton /> : <RequestList rows={pending.results} canViewAudit={canViewAudit} actions={(row) => <PendingActions row={row} disabled={action.isPending} openModal={openModal} setAcceptRow={setAcceptRow} setRejectRow={setRejectRow} setDueRow={setDueRow} />} />}
-          <Pagination page={pending.page} totalPages={pending.totalPages} onChange={pending.setPage} count={pending.count} pageSize={pending.pageSize} />
-          {pending.error instanceof Error ? <p className="mt-2 text-sm text-danger">{pending.error.message}</p> : null}
-        </Panel>
-      ) : null}
-      <Panel title="Ready for handover">
-        {accepted.isLoading ? <RequestListSkeleton /> : <RequestList rows={accepted.results} canViewAudit={canViewAudit} actions={(row) => <AcceptedActions row={row} disabled={action.isPending} openModal={openModal} setAssignIssueRow={setAssignIssueRow} setDueRow={setDueRow} />} />}
-        <Pagination page={accepted.page} totalPages={accepted.totalPages} onChange={accepted.setPage} count={accepted.count} pageSize={accepted.pageSize} />
-        {accepted.error instanceof Error ? <p className="mt-2 text-sm text-danger">{accepted.error.message}</p> : null}
-      </Panel>
-      {!guestOnly ? (
-        <Panel title="Active loans">
-          {active.isLoading ? <RequestListSkeleton /> : <RequestList rows={active.results} canViewAudit={canViewAudit} actions={(row) => <ActiveActions row={row} disabled={action.isPending} openModal={openModal} setDueRow={setDueRow} setReturnRow={setReturnRow} />} />}
-          <Pagination page={active.page} totalPages={active.totalPages} onChange={active.setPage} count={active.count} pageSize={active.pageSize} />
-          {active.error instanceof Error ? <p className="mt-2 text-sm text-danger">{active.error.message}</p> : null}
-        </Panel>
-      ) : null}
-      <HistoryPanel show={showHistory} loading={history.isLoading} rows={history.results} page={history.page} totalPages={history.totalPages} count={history.count} pageSize={history.pageSize} canViewAudit={canViewAudit} onPageChange={history.setPage} onToggle={() => setShowHistory((value) => !value)} />
+    <Panel
+      title="Requests"
+      description={guestOnly ? "Hand over accepted requests and take hardware back." : "Review requests, hand hardware over and take it back."}
+    >
+      <div className="grid gap-8">
+        <Field label="Search requests" hideLabel className="max-w-xl">
+          <SearchInput placeholder="Search requester name, email, phone or purpose" value={search} onChange={(event) => setSearch(event.target.value)} onClear={() => setSearch("")} />
+        </Field>
+        {!guestOnly ? (
+          <QueueSection title="Pending review" query={pending} canViewAudit={canViewAudit} emptyDescription={emptyText("New requests from the public page land here.")}
+            actions={(row) => <PendingActions row={row} disabled={action.isPending} openModal={openModal} setAcceptRow={setAcceptRow} setRejectRow={setRejectRow} setDueRow={setDueRow} />} />
+        ) : null}
+        <QueueSection title="Ready for handover" query={accepted} canViewAudit={canViewAudit} emptyDescription={emptyText("Accepted requests wait here until someone hands them over.")}
+          actions={(row) => <AcceptedActions row={row} disabled={action.isPending} openModal={openModal} setAssignIssueRow={setAssignIssueRow} setDueRow={canReviewRequests ? setDueRow : null} />} />
+        {showActiveLoans ? (
+          <QueueSection title="Active loans" query={active} canViewAudit={canViewAudit} emptyDescription={emptyText("Hardware that's out on loan shows up here.")}
+            actions={(row) => <ActiveActions row={row} disabled={action.isPending} openModal={openModal} setDueRow={canReviewRequests ? setDueRow : null} setReturnRow={canReturnRequest ? setReturnRow : null} />} />
+        ) : null}
+        <QueueSection
+          title="History"
+          description={showHistory ? undefined : "Returned, rejected and closed requests."}
+          query={history}
+          collapsed={!showHistory}
+          canViewAudit={canViewAudit}
+          emptyDescription={emptyText("Returned, rejected and closed requests show up here.")}
+          headingAction={<HistoryToggle show={showHistory} onToggle={() => setShowHistory((value) => !value)} />}
+          actions={() => null}
+        />
+      </div>
       <AcceptRequestModal row={acceptRow} open={Boolean(acceptRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAccept} />
       <ReturnDueModal row={dueRow} defaultValue={dueRow?.return_due_at ? localDateTimeValue(dueRow.return_due_at) : localDateTimeValue(defaultDueDate(Number(defaultLoanDays) || 7).toISOString())} open={Boolean(dueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturnDue} />
       <RejectRequestModal row={rejectRow} open={Boolean(rejectRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReject} />
       <AssignIssueModal row={assignIssueRow} open={Boolean(assignIssueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAssignIssue} makerspaceId={makerspace.id} />
       <ReturnRequestModal row={returnRow} open={Boolean(returnRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturn} makerspaceId={makerspace.id} />
-    </div>
-  );
-}
-
-function PendingActions({ row, disabled, openModal, setAcceptRow, setRejectRow, setDueRow }: QueueActionProps & { setAcceptRow: Setter; setRejectRow: Setter; setDueRow: Setter }) {
-  return <><button className="desk-button-success" disabled={disabled} onClick={() => openModal(setAcceptRow, row)}>Accept</button><button className="desk-button-danger" disabled={disabled} onClick={() => openModal(setRejectRow, row)}>Reject</button><button className="desk-button-warn" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</button></>;
-}
-
-function AcceptedActions({ row, disabled, openModal, setAssignIssueRow, setDueRow }: QueueActionProps & { setAssignIssueRow: Setter; setDueRow: Setter }) {
-  return <><button className="desk-button-primary" disabled={disabled} onClick={() => openModal(setAssignIssueRow, row)}>Assign + issue</button><button className="desk-button-warn" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</button></>;
-}
-
-function ActiveActions({ row, disabled, openModal, setDueRow, setReturnRow }: QueueActionProps & { setDueRow: Setter; setReturnRow: Setter }) {
-  return <><button className="desk-button-warn" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</button><button className="desk-button-success" disabled={disabled} onClick={() => openModal(setReturnRow, row)}>Return</button></>;
-}
-
-function HistoryPanel({
-  show,
-  loading,
-  rows,
-  page,
-  totalPages,
-  count,
-  pageSize,
-  canViewAudit,
-  onPageChange,
-  onToggle,
-}: {
-  show: boolean;
-  loading: boolean;
-  rows: HardwareRequest[];
-  page: number;
-  totalPages: number;
-  count: number;
-  pageSize: number;
-  canViewAudit: boolean;
-  onPageChange: (page: number) => void;
-  onToggle: () => void;
-}) {
-  return (
-    <Panel title="History">
-      <button type="button" className="desk-button-ghost" onClick={onToggle}>{show ? "Hide history" : "Show history (returned / rejected / closed with issue)"}</button>
-      {show ? (
-        <div className="mt-3">
-          {loading ? <p className="text-sm text-muted">Loading history...</p> : null}
-          <RequestList rows={rows} canViewAudit={canViewAudit} actions={() => null} />
-          <Pagination page={page} totalPages={totalPages} onChange={onPageChange} count={count} pageSize={pageSize} />
-        </div>
-      ) : null}
     </Panel>
   );
 }
-
-type Setter = (row: HardwareRequest | null) => void;
-type QueueActionProps = { row: HardwareRequest; disabled: boolean; openModal: (setter: Setter, row: HardwareRequest) => void };
 
 function defaultDueDate(days: number) {
   const date = new Date();
@@ -256,5 +216,3 @@ function localDateTimeValue(value: string) {
   const offset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
-
-

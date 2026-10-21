@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QrCode } from "lucide-react";
 
+import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
 import { MakerspaceBrand } from "../../components/MakerspaceBrand";
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
-import { Card } from "../../components/ui/Card";
+import { Button, Card, EmptyState, ErrorText, Field, PageHeader, SegmentedControl, Skeleton, Textarea, buttonClasses, useToast } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
 import { featureEnabled } from "../../lib/features";
-import { useTenant, useTenantPath } from "../../lib/tenant";
-import { formatSlug } from "./PublicInventoryParts";
+import { useModules } from "../../lib/modules";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { PendingToolCheckoutControls } from "./PendingToolCheckoutControls";
 import { PublicEvidenceUpload } from "./PublicEvidenceUpload";
@@ -16,7 +17,7 @@ import type { CheckinMatch } from "./api";
 import { checkoutTool, returnTool } from "./selfCheckoutApi";
 import { PublicSelfCheckoutResult } from "./PublicSelfCheckoutResult";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
-import { useTenantBootstrap } from "./usePublicInventory";
+import { useMakerspacePublic } from "./useMakerspacePublic";
 
 type Mode = "checkout" | "return";
 
@@ -26,10 +27,10 @@ type MutationInput =
 
 export function PublicSelfCheckoutPage() {
   const queryClient = useQueryClient();
-  const { slug } = useParams();
-  const tenant = useTenant();
-  const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
-  const tenantPath = useTenantPath(makerspaceSlug);
+  const { showToast } = useToast();
+  const space = useMakerspacePublic();
+  const { tenant, makerspaceSlug, tenantPath, bootstrapQuery, bootstrap, displayName } = space;
+  const { moduleEnabled } = useModules();
   const [mode, setMode] = useState<Mode>("checkout");
   const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(
     null,
@@ -41,14 +42,7 @@ export function PublicSelfCheckoutPage() {
   const [uploadKey, setUploadKey] = useState(0);
   const [scannerOpen, setScannerOpen] = useState(false);
 
-  const bootstrapQuery = useTenantBootstrap(makerspaceSlug, tenant.mode === "central");
-  const bootstrap = tenant.mode === "single" ? tenant.bootstrap : bootstrapQuery.data;
   const features = tenant.mode === "single" ? tenant.bootstrap?.features ?? [] : bootstrap?.features ?? [];
-  const displayName =
-    bootstrap?.branding.display_name ||
-    bootstrap?.makerspace.name ||
-    formatSlug(makerspaceSlug) ||
-    "Makerspace";
   const enabled = featureEnabled(features, "inventory.self_checkout");
   const requiresCheckin = bootstrap?.makerspace.request_access === "checked_in";
   const identityReady = !requiresCheckin || confirmedCheckin !== null;
@@ -83,7 +77,9 @@ export function PublicSelfCheckoutPage() {
         setReturnRemark("");
       }
       setUploadKey((key) => key + 1);
+      showToast(input.operation === "checkout" ? "Tool checked out" : "Tool returned", { tone: "success" });
     },
+    onError: (_, input) => showToast(input.operation === "checkout" ? "Checkout failed" : "Return failed", { tone: "error" }),
   });
   const canSubmitCheckout =
     identityReady && issueEvidenceId !== null && pendingPayloads.length > 0;
@@ -105,66 +101,41 @@ export function PublicSelfCheckoutPage() {
     }
   }
 
+  const ready = !bootstrapQuery.isLoading && !bootstrapQuery.isError;
+
   return (
-    <main className="desk-shell">
-      <header className="border-b border-line bg-panel">
-        <div className="mx-auto flex max-w-screen-xl flex-col gap-4 px-5 py-6 sm:px-8">
-          <p className="eyebrow text-secondary-ink">
-            Public Tool Checkout
-          </p>
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="title-page">
-                <MakerspaceBrand
-                  name={displayName}
-                  logoUrl={bootstrap?.makerspace.logo_url}
-                  size="lg"
-                />
-              </h1>
-              <p className="mt-2 text-sm text-muted">
-                Scan a physical tool label to check it out or return it.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <SpaceWorksBadge />
-              <Link className="desk-button" to={tenantPath()}>
-                Back to inventory
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Tool checkout" />}>
+      <PublicContainer width="sm">
+        <PageHeader
+          kicker="Public tool checkout"
+          title={<MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace?.logo_url} size="lg" />}
+          description="Scan a physical tool label to check it out or return it."
+        />
 
-      <section className="mx-auto max-w-screen-sm px-5 py-6 sm:px-8">
-        {bootstrapQuery.isLoading ? (
-          <Card>
-            <p className="text-sm text-muted">Loading checkout access...</p>
-          </Card>
-        ) : null}
+        <div className="mt-8">
+          {bootstrapQuery.isLoading ? (
+            <Card aria-busy="true" aria-label="Loading checkout access" className="space-y-3">
+              <Skeleton className="h-10 w-full rounded-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-11 w-full rounded-full" />
+            </Card>
+          ) : null}
 
-        {bootstrapQuery.isError ? (
-          <Card>
-            <p className="text-sm text-danger">Could not load checkout access. Try again in a moment.</p>
-          </Card>
-        ) : null}
-        {!bootstrapQuery.isLoading && !bootstrapQuery.isError && !enabled ? (
-          <Card>
-            <p className="eyebrow text-secondary-ink">
-              Self-checkout
-            </p>
-            <h2 className="title-panel mt-2">
-              Self-checkout is not enabled for this makerspace.
-            </h2>
-            <Link className="desk-button mt-4" to={tenantPath()}>
-              Back to inventory
-            </Link>
-          </Card>
-        ) : null}
+          {bootstrapQuery.isError ? (
+            <EmptyState tone="error" title="Checkout access didn't load" description="Try again in a moment." />
+          ) : null}
 
-        {!bootstrapQuery.isLoading && !bootstrapQuery.isError && enabled ? (
-          <Card>
-            {requiresCheckin ? (
-              <div className="mb-4">
+          {ready && !enabled ? (
+            <EmptyState
+              title="Self-checkout is not enabled for this makerspace."
+              description="Browse the inventory and send a borrow request instead."
+              action={<Link className={buttonClasses({ variant: "secondary" })} to={tenantPath()}>Back to inventory</Link>}
+            />
+          ) : null}
+
+          {ready && enabled ? (
+            <Card className="space-y-4">
+              {requiresCheckin ? (
                 <CheckinIdentityStep
                   makerspaceSlug={makerspaceSlug}
                   confirmed={confirmedCheckin}
@@ -176,47 +147,24 @@ export function PublicSelfCheckoutPage() {
                   }}
                   disabled={loanMutation.isPending}
                 />
-              </div>
-            ) : null}
-            <div
-              aria-label="Checkout mode"
-              className="desk-panel mt-4 flex gap-1 p-1"
-            >
-              <button
-                aria-pressed={mode === "checkout"}
-                className={
-                  mode === "checkout"
-                    ? "desk-tab desk-tab-active border-secondary bg-secondary text-on-secondary hover:bg-secondary hover:text-on-secondary"
-                    : "desk-tab hover:text-secondary-ink"
-                }
-                type="button"
-                onClick={() => setMode("checkout")}
-              >
-                Use (check out)
-              </button>
-              <button
-                aria-pressed={mode === "return"}
-                className={
-                  mode === "return"
-                    ? "desk-tab desk-tab-active border-secondary bg-secondary text-on-secondary hover:bg-secondary hover:text-on-secondary"
-                    : "desk-tab hover:text-secondary-ink"
-                }
-                type="button"
-                onClick={() => setMode("return")}
-              >
-                Return
-              </button>
-            </div>
+              ) : null}
+              <SegmentedControl
+                ariaLabel="Checkout mode"
+                className="grid w-full grid-cols-2"
+                value={mode}
+                onValueChange={setMode}
+                options={[
+                  { value: "checkout", label: "Use (check out)" },
+                  { value: "return", label: "Return" },
+                ]}
+              />
 
-            <div className="mt-4">
               {mode === "checkout" ? (
                 <PublicEvidenceUpload
                   key={`issue-${uploadKey}`}
                   slug={makerspaceSlug}
                   evidenceType="issue"
-                  checkinIdentity={
-                    requiresCheckin ? confirmedCheckin ?? undefined : undefined
-                  }
+                  checkinIdentity={requiresCheckin ? confirmedCheckin ?? undefined : undefined}
                   disabled={!identityReady || loanMutation.isPending}
                   onUploaded={setIssueEvidenceId}
                 />
@@ -226,73 +174,49 @@ export function PublicSelfCheckoutPage() {
                     key={`return-${uploadKey}`}
                     slug={makerspaceSlug}
                     evidenceType="return"
-                    checkinIdentity={
-                      requiresCheckin ? confirmedCheckin ?? undefined : undefined
-                    }
+                    checkinIdentity={requiresCheckin ? confirmedCheckin ?? undefined : undefined}
                     disabled={!identityReady || loanMutation.isPending}
                     onUploaded={setReturnEvidenceId}
                   />
-                  <label className="mt-3 block">
-                    <span className="eyebrow mb-1 block">
-                      Return condition notes
-                    </span>
-                    <textarea
-                      className="desk-input min-h-24 w-full"
-                      required
-                      value={returnRemark}
-                      onChange={(event) => setReturnRemark(event.target.value)}
-                    />
-                  </label>
+                  <Field label="Return condition notes" helperText="Describe the tool's condition as you hand it back.">
+                    <Textarea required value={returnRemark} onChange={(event) => setReturnRemark(event.target.value)} />
+                  </Field>
                 </>
               )}
-            </div>
 
-            {mode === "checkout" ? (
-              <PendingToolCheckoutControls
-                payloads={pendingPayloads}
-                isPending={loanMutation.isPending}
-                submitDisabled={!canSubmitCheckout}
-                showScanWhenEmpty
-                pendingLabel="Submitting..."
-                onRemove={(payload) =>
-                  setPendingPayloads((current) =>
-                    current.filter((item) => item !== payload),
-                  )
-                }
-                onScanAnother={() => setScannerOpen(true)}
-                onSubmit={() =>
-                  loanMutation.mutate({ operation: "checkout", payloads: pendingPayloads })
-                }
-              />
-            ) : (
-              <button
-                className="desk-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={!canReturn || loanMutation.isPending}
-                type="button"
-                onClick={() => setScannerOpen(true)}
-              >
-                {loanMutation.isPending ? "Submitting..." : "Scan QR"}
-              </button>
-            )}
+              {mode === "checkout" ? (
+                <PendingToolCheckoutControls
+                  payloads={pendingPayloads}
+                  isPending={loanMutation.isPending}
+                  submitDisabled={!canSubmitCheckout}
+                  showScanWhenEmpty
+                  pendingLabel="Submitting…"
+                  onRemove={(payload) => setPendingPayloads((current) => current.filter((item) => item !== payload))}
+                  onScanAnother={() => setScannerOpen(true)}
+                  onSubmit={() => loanMutation.mutate({ operation: "checkout", payloads: pendingPayloads })}
+                />
+              ) : (
+                <Button
+                  variant="primary"
+                  fullWidth
+                  startIcon={<QrCode />}
+                  disabled={!canReturn}
+                  loading={loanMutation.isPending}
+                  loadingLabel="Submitting…"
+                  onClick={() => setScannerOpen(true)}
+                >
+                  Scan QR
+                </Button>
+              )}
 
-            {loanMutation.isError ? (
-              <p className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-                {loanMutation.error.message}
-              </p>
-            ) : null}
+              {loanMutation.isError ? <ErrorText message={loanMutation.error.message} /> : null}
+              {loanMutation.isSuccess ? <PublicSelfCheckoutResult result={loanMutation.data} /> : null}
+            </Card>
+          ) : null}
+        </div>
+      </PublicContainer>
 
-            {loanMutation.isSuccess ? (
-              <div className="mt-4">
-                <PublicSelfCheckoutResult result={loanMutation.data} />
-              </div>
-            ) : null}
-          </Card>
-        ) : null}
-      </section>
-
-      {scannerOpen ? (
-        <QrScanner onClose={() => setScannerOpen(false)} onScan={scanTool} />
-      ) : null}
-    </main>
+      {scannerOpen ? <QrScanner onClose={() => setScannerOpen(false)} onScan={scanTool} /> : null}
+    </PublicShell>
   );
 }

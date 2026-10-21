@@ -277,7 +277,7 @@ def finalize_file(service_request, *, file_id, actor):
 
 def delete_staged_file(file, *, actor):
     with transaction.atomic():
-        locked = ServiceRequestFile.objects.select_for_update().select_related("makerspace").get(pk=file.pk)
+        locked = ServiceRequestFile.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=file.pk)
         if locked.service_request_id is not None or locked.attached_at is not None:
             raise ValidationError({"file_id": "Attached files cannot be deleted."}, code="invalid_attachment")
         audit.record(

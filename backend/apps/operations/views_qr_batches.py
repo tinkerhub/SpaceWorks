@@ -1,7 +1,8 @@
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -12,8 +13,9 @@ from apps.admin_api.permissions import IsActiveStaff, require_action
 from apps.audit import services as audit
 from apps.boxes.models import QrCode
 from apps.boxes.serializers import QrCodeSerializer
+from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.inventory.models import InventoryAsset, InventoryProduct
-from apps.makerspaces.guards import require_module
+from apps.makerspaces.guards import require_module, require_module_locked
 from apps.makerspaces.models import Makerspace
 from apps.operations import qr_zip, services
 from apps.operations.models import QrPrintBatch
@@ -29,9 +31,16 @@ from apps.operations.serializers import (
 )
 
 
+BATCH_ERRORS = {
+    400: OpenApiResponse(description="Invalid request, or the module is off for this makerspace."),
+    403: OpenApiResponse(description="Permission denied."),
+    404: OpenApiResponse(description="Not found in the caller's scope."),
+}
+
+
 @extend_schema_view(
     get=extend_schema(tags=["QR print batches"], summary="List QR print batches", request=None, responses={200: QrPrintBatchSerializer(many=True)}),
-    post=extend_schema(tags=["QR print batches"], summary="Create QR print batch", request=QrPrintBatchCreateSerializer, responses={201: QrPrintBatchSerializer}),
+    post=extend_schema(tags=["QR print batches"], summary="Create QR print batch", request=QrPrintBatchCreateSerializer, responses={201: QrPrintBatchSerializer, **BATCH_ERRORS}),
 )
 class QrPrintBatchListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsActiveStaff]
@@ -51,8 +60,10 @@ class QrPrintBatchListCreateView(generics.ListCreateAPIView):
         require_action(request.user, rbac.Action.MANAGE_QR, makerspace.id)
         serializer = QrPrintBatchCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        batch = QrPrintBatch.objects.create(makerspace=makerspace, title=serializer.validated_data["title"], created_by=request.user)
-        audit.record(request.user, "qr_print_batch.created", makerspace=makerspace, target=batch)
+        with transaction.atomic():
+            require_module_locked(makerspace.id, "qr_print_batches")
+            batch = QrPrintBatch.objects.create(makerspace=makerspace, title=serializer.validated_data["title"], created_by=request.user)
+            audit.record(request.user, "qr_print_batch.created", makerspace=makerspace, target=batch)
         return Response(QrPrintBatchSerializer(batch).data, status=status.HTTP_201_CREATED)
 
 
@@ -66,12 +77,17 @@ class QrPrintBatchDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         return rbac.scope_by_action(self.request.user, rbac.Action.MANAGE_QR, QrPrintBatch.objects.prefetch_related("items__qr_code"))
 
+    def get_object(self):
+        batch = super().get_object()
+        require_module(batch.makerspace, "qr_print_batches")
+        return batch
+
 
 class QrPrintBatchItemView(APIView):
     permission_classes = [IsActiveStaff]
     serializer_class = QrPrintBatchItemCreateSerializer
 
-    @extend_schema(tags=["QR print batches"], summary="Add QR code to print batch", request=QrPrintBatchItemCreateSerializer, responses={201: QrPrintBatchItemResultSerializer})
+    @extend_schema(tags=["QR print batches"], summary="Add QR code to print batch", request=QrPrintBatchItemCreateSerializer, responses={201: QrPrintBatchItemResultSerializer, **BATCH_ERRORS})
     def post(self, request, pk, *args, **kwargs):
         batch = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, QrPrintBatch.objects.all()), pk=pk)
         require_module(batch.makerspace, "qr_print_batches")
@@ -80,12 +96,14 @@ class QrPrintBatchItemView(APIView):
         qr = get_object_or_404(QrCode, pk=serializer.validated_data["qr_code_id"], makerspace=batch.makerspace)
         if qr.target_type not in {QrCode.TargetType.PRODUCT, QrCode.TargetType.ASSET}:
             raise ValidationError("QR print batches only accept inventory item or unit QR codes.")
-        item = services.add_qr_to_batch(
-            batch,
-            qr,
-            serializer.validated_data.get("label_text", ""),
-            serializer.validated_data.get("sort_order"),
-        )
+        with transaction.atomic():
+            require_module_locked(batch.makerspace_id, "qr_print_batches")
+            item = services.add_qr_to_batch(
+                batch,
+                qr,
+                serializer.validated_data.get("label_text", ""),
+                serializer.validated_data.get("sort_order"),
+            )
         return Response({"id": item.id}, status=status.HTTP_201_CREATED)
 
 
@@ -97,7 +115,7 @@ class QrPrintBatchDownloadView(APIView):
         tags=["QR print batches"],
         summary="Download QR print batch as a ZIP of captioned SVGs",
         request=None,
-        responses={(200, "application/zip"): OpenApiTypes.BINARY},
+        responses={(200, "application/zip"): OpenApiTypes.BINARY, **BATCH_ERRORS},
     )
     def get(self, request, pk, *args, **kwargs):
         batch = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, QrPrintBatch.objects.prefetch_related("items__qr_code")), pk=pk)
@@ -112,7 +130,17 @@ class AssetGenerateView(APIView):
     permission_classes = [IsActiveStaff]
     serializer_class = AssetGenerateSerializer
 
-    @extend_schema(tags=["Asset units"], summary="Generate asset units", request=AssetGenerateSerializer, responses={201: AssetGenerateResultSerializer})
+    @extend_schema(
+        tags=["Asset units"],
+        summary="Generate asset units",
+        request=AssetGenerateSerializer,
+        responses={
+            201: AssetGenerateResultSerializer,
+            400: OpenApiResponse(description="Invalid request, or the asset_units module is off."),
+            403: OpenApiResponse(description="Converting a quantity product to unit tracking requires edit_inventory."),
+            409: OpenApiResponse(ErrorSerializer, description="tracking_mode_locked: the product holds stock and cannot be converted."),
+        },
+    )
     def post(self, request, pk, *args, **kwargs):
         product = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, InventoryProduct.objects.all()), pk=pk)
         require_module(product.makerspace, "asset_units")
@@ -135,15 +163,17 @@ class AssetQrView(APIView):
     permission_classes = [IsActiveStaff]
     serializer_class = EmptySerializer
 
-    @extend_schema(tags=["Asset units"], summary="Create asset QR code", request=EmptySerializer, responses={201: QrCodeSerializer})
+    @extend_schema(tags=["Asset units"], summary="Create asset QR code", request=EmptySerializer, responses={201: QrCodeSerializer, **BATCH_ERRORS})
     def post(self, request, pk, *args, **kwargs):
         asset = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, InventoryAsset.objects.all()), pk=pk)
         require_module(asset.makerspace, "asset_units")
-        qr, _ = QrCode.objects.get_or_create(
-            makerspace=asset.makerspace,
-            target_type=QrCode.TargetType.ASSET,
-            target_id=asset.id,
-            status=QrCode.Status.ACTIVE,
-            defaults={"created_by": request.user},
-        )
+        with transaction.atomic():
+            require_module_locked(asset.makerspace_id, "asset_units")
+            qr, _ = QrCode.objects.get_or_create(
+                makerspace=asset.makerspace,
+                target_type=QrCode.TargetType.ASSET,
+                target_id=asset.id,
+                status=QrCode.Status.ACTIVE,
+                defaults={"created_by": request.user},
+            )
         return Response(QrCodeSerializer(qr).data, status=status.HTTP_201_CREATED)

@@ -10,8 +10,8 @@ const { query, staffRequest } = vi.hoisted(() => ({
 }));
 
 vi.mock("../../lib/api", () => ({ staffRequest }));
-vi.mock("./StaffPanels", async () => {
-  const actual = await vi.importActual<typeof import("./StaffPanels")>("./StaffPanels");
+vi.mock("./panels/shared", async () => {
+  const actual = await vi.importActual<typeof import("./panels/shared")>("./panels/shared");
   return { ...actual, useStaffGet: query };
 });
 

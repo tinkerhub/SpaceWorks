@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 
+import { CheckboxCard } from "../../components/ui";
 import type { ApiClientScopeOption } from "./apiClientsApi";
 
+/** Scopes grouped into fieldsets, one checkbox card per scope; locked scopes explain why. */
 export function ApiClientScopePicker({
   options,
   selected,
@@ -30,31 +32,32 @@ export function ApiClientScopePicker({
   };
 
   return (
-    <div className="grid gap-2" aria-label="API client scopes">
+    <div className="grid gap-4" aria-label="API client scopes">
       {Array.from(grouped.entries()).map(([group, groupOptions]) => (
-        <section key={group} className="grid gap-2 rounded-md border border-line p-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">{group}</h4>
-          {groupOptions.map((option) => (
-            <label key={option.value} className="flex items-start gap-3">
-              <input
-                className="mt-1 h-4 w-4 accent-accent"
-                type="checkbox"
+        <fieldset key={group} className="grid min-w-0 gap-2">
+          <legend className="mb-2 text-label text-ink-secondary">{group}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {groupOptions.map((option) => (
+              <CheckboxCard
+                key={option.value}
+                label={option.label}
+                description={(
+                  <>
+                    {option.description}
+                    {!option.grantable ? (
+                      <span className="mt-1 block text-danger-fg">
+                        {option.lock_reason ?? "This scope cannot be granted here."}
+                      </span>
+                    ) : null}
+                  </>
+                )}
                 checked={checked.has(option.value)}
                 disabled={disabled || !option.grantable}
-                onChange={() => toggle(option.value, option.grantable)}
+                onCheckedChange={() => toggle(option.value, option.grantable)}
               />
-              <span className="grid gap-0.5">
-                <span className="font-semibold text-ink">{option.label}</span>
-                <span className="text-xs text-muted">{option.description}</span>
-                {!option.grantable ? (
-                  <span className="text-xs text-danger">
-                    {option.lock_reason ?? "This scope cannot be granted here."}
-                  </span>
-                ) : null}
-              </span>
-            </label>
-          ))}
-        </section>
+            ))}
+          </div>
+        </fieldset>
       ))}
     </div>
   );

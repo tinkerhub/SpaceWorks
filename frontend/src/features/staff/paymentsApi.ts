@@ -60,3 +60,22 @@ export function invalidatePaymentViews(queryClient: QueryClient, makerspaceId: n
   queryClient.invalidateQueries({ queryKey: ["operations-report", "payment-reconciliation"] });
   queryClient.invalidateQueries({ queryKey: ["dashboard", makerspaceId] });
 }
+
+/** Chip tone for a payment status: settled = success, open = warning, written off = neutral. */
+export function paymentStatusTone(status: string): "success" | "warning" | "neutral" {
+  if (status === "paid_online" || status === "paid_offline") return "success";
+  if (status === "pending") return "warning";
+  return "neutral";
+}
+
+export function paymentStatusLabel(status: string) {
+  return PAYMENT_STATUSES.find(([key]) => key === status)?.[1] ?? status.replace(/_/g, " ");
+}
+
+export function formatMoney(amount: string, currency: string) {
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency.toUpperCase() }).format(Number(amount));
+  } catch {
+    return `${currency.toUpperCase()} ${amount}`;
+  }
+}

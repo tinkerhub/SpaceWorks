@@ -1,10 +1,27 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
-import { EmptyState, SkeletonRows } from "../../../components/ui";
-import { WarrantyStatusBadge } from "../WarrantyStatusBadge";
+import {
+  Button,
+  Chip,
+  Dialog,
+  EmptyState,
+  ErrorText,
+  Field,
+  FilterChip,
+  Input,
+  Pagination,
+  SkeletonRows,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "../../../components/ui";
+import { warrantyStatusLabel, WarrantyStatusBadge } from "../WarrantyStatusBadge";
 import { WarrantySection } from "../WarrantySection";
-import type { WarrantyReportRow, WarrantyStatus } from "../warrantyApi";
-import { Panel, type Makerspace, useStaffGet } from "./shared";
+import type { WarrantyHostKind, WarrantyReportRow, WarrantyStatus } from "../warrantyApi";
+import { errorText, Panel, type Makerspace, useStaffGet } from "./shared";
 
 type WarrantyResponse = {
   count: number;
@@ -16,6 +33,9 @@ type WarrantyResponse = {
 type StatusFilter = "all" | WarrantyStatus;
 
 const PAGE_SIZE = 50;
+const STATUS_FILTERS: StatusFilter[] = ["all", "active", "expiring_soon", "expired", "unknown"];
+const HEADERS = ["Host", "Vendor", "Purchased", "Expires", "Status", "Docs"];
+const HOST_KIND_LABELS: Record<WarrantyHostKind, string> = { asset: "Asset", printer: "Printer", machine: "Machine" };
 
 export function WarrantyPanel({
   makerspace,
@@ -28,7 +48,7 @@ export function WarrantyPanel({
   const [missingDocs, setMissingDocs] = useState(false);
   const [expiresBefore, setExpiresBefore] = useState("");
   const [page, setPage] = useState(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [managing, setManaging] = useState<WarrantyReportRow | null>(null);
   const canManageRow = (row: WarrantyReportRow) => {
     if (row.host_kind === "asset") return canEditInventory;
     if (row.host_kind === "printer") return false;
@@ -45,7 +65,6 @@ export function WarrantyPanel({
 
   const visibleRows = warranties.data?.results ?? [];
   const totalPages = Math.max(1, Math.ceil((warranties.data?.count ?? 0) / PAGE_SIZE));
-  const scopeLabel = "equipment you can manage";
   const filtersActive = status !== "all" || missingDocs || Boolean(expiresBefore);
 
   function updateStatus(value: StatusFilter) {
@@ -63,140 +82,95 @@ export function WarrantyPanel({
     setPage(1);
   }
 
+  function clearFilters() {
+    setStatus("all");
+    setMissingDocs(false);
+    setExpiresBefore("");
+    setPage(1);
+  }
+
   return (
-    <Panel title="Warranties">
-      <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-sm text-muted">Warranty coverage for {scopeLabel} in {makerspace.name}.</p>
-          {warranties.data ? <p className="mt-1 font-mono text-xs text-muted">{warranties.data.count} hosts total</p> : null}
+    <Panel
+      title="Warranties"
+      description={`Warranty coverage for equipment you can manage in ${makerspace.name}${warranties.data ? ` · ${warranties.data.count} hosts total` : ""}.`}
+    >
+      <div className="grid gap-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div role="group" aria-label="Status" className="flex flex-wrap items-center gap-2">
+            {STATUS_FILTERS.map((value) => (
+              <FilterChip key={value} selected={status === value} onClick={() => updateStatus(value)}>
+                {value === "all" ? "All" : warrantyStatusLabel[value]}
+              </FilterChip>
+            ))}
+            <FilterChip selected={missingDocs} onClick={() => updateMissingDocs(!missingDocs)}>Missing docs</FilterChip>
+          </div>
+          <Field label="Expires before" className="sm:w-48">
+            <Input type="date" value={expiresBefore} onChange={(event) => updateExpiresBefore(event.target.value)} />
+          </Field>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="eyebrow grid gap-1 sm:w-48">
-            Status
-            <select className="desk-input" value={status} onChange={(event) => updateStatus(event.target.value as StatusFilter)}>
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="expiring_soon">Expiring soon</option>
-              <option value="expired">Expired</option>
-              <option value="unknown">Uncovered / no warranty</option>
-            </select>
-          </label>
-          <label className="eyebrow grid gap-1 sm:w-44">
-            Expires before
-            <input className="desk-input" type="date" value={expiresBefore} onChange={(event) => updateExpiresBefore(event.target.value)} />
-          </label>
-          <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-ink">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-line"
-              checked={missingDocs}
-              onChange={(event) => updateMissingDocs(event.target.checked)}
-            />
-            Missing docs
-          </label>
-        </div>
-      </div>
 
-      {warranties.isLoading ? <WarrantyTableSkeleton /> : null}
-      {warranties.error instanceof Error ? <p className="mb-3 text-sm text-danger">{warranties.error.message}</p> : null}
-      {!warranties.isLoading && !warranties.error && !visibleRows.length ? (
-        <EmptyState title="No warranties" description={filtersActive ? "No hosts match these warranty filters." : "No warranty-covered hosts are in scope yet."} />
-      ) : null}
+        {warranties.error ? <ErrorText message={errorText(warranties.error, "Could not load warranties.")} /> : null}
+        {!warranties.isLoading && !warranties.error && !visibleRows.length ? (
+          <EmptyState
+            title="No warranties"
+            description={filtersActive ? "No hosts match these warranty filters." : "No warranty-covered hosts are in scope yet."}
+            action={filtersActive ? <Button size="sm" onClick={clearFilters}>Clear filters</Button> : undefined}
+          />
+        ) : null}
 
-      {visibleRows.length ? (
-        <div className="overflow-x-auto rounded-md border border-line">
-          <table className="min-w-[820px] divide-y divide-line text-left text-sm">
-            <thead className="eyebrow bg-bg">
+        {warranties.isLoading || visibleRows.length ? (
+          <Table label="Warranties" className="min-w-[820px]" aria-busy={warranties.isLoading || undefined}>
+            <THead>
               <tr>
-                <th scope="col" className="px-3 py-2">Host</th>
-                <th scope="col" className="px-3 py-2">Vendor</th>
-                <th scope="col" className="px-3 py-2">Purchased</th>
-                <th scope="col" className="px-3 py-2">Expires</th>
-                <th scope="col" className="px-3 py-2">Status</th>
-                <th scope="col" className="px-3 py-2 text-right">Docs</th>
-                <th scope="col" className="px-3 py-2 text-right">Manage</th>
+                {HEADERS.map((header) => <TH key={header} className={header === "Docs" ? "text-right" : undefined}>{header}</TH>)}
+                <TH><span className="sr-only">Manage</span></TH>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-line bg-surface">
-              {visibleRows.map((row) => {
-                const rowKey = `${row.host_kind}-${row.host_id}`;
-                const isOpen = expanded === rowKey;
-                const manageable = canManageRow(row);
-                return (
-                  <Fragment key={rowKey}>
-                    <tr>
-                      <td className="px-3 py-2 align-top">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-md border border-line bg-bg px-2 py-0.5 text-xs font-medium text-muted">
-                            {row.host_kind}
-                          </span>
-                          <span className="max-w-56 break-words font-medium text-ink">{row.host_label}</span>
-                        </div>
-                        {row.serial_number ? <p className="mt-1 text-xs text-muted">Serial: {row.serial_number}</p> : null}
-                      </td>
-                      <td className="px-3 py-2 align-top text-ink"><span className="block max-w-48 break-words">{row.vendor_name || "-"}</span></td>
-                      <td className="whitespace-nowrap px-3 py-2 align-top text-muted">{formatDate(row.purchased_on)}</td>
-                      <td className="whitespace-nowrap px-3 py-2 align-top text-muted">{formatDate(row.warranty_expires_on)}</td>
-                      <td className="whitespace-nowrap px-3 py-2 align-top"><WarrantyStatusBadge status={row.status} /></td>
-                      <td className="whitespace-nowrap px-3 py-2 text-right align-top text-muted">{row.document_count}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-right align-top">
-                        {manageable ? (
-                          <button className="desk-button-ghost" type="button" onClick={() => setExpanded(isOpen ? null : rowKey)}>
-                            {isOpen ? "Close" : "Manage"}
-                          </button>
-                        ) : <span className="text-xs text-muted">-</span>}
-                      </td>
-                    </tr>
-                    {isOpen && manageable ? (
-                      <tr key={`${rowKey}-edit`}>
-                        <td colSpan={7} className="bg-bg px-3 py-3">
-                          <WarrantySection hostKind={row.host_kind} hostId={row.host_id} />
-                        </td>
-                      </tr>
-                    ) : null}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
+            </THead>
+            <TBody>
+              {warranties.isLoading ? <SkeletonRows rows={4} cols={HEADERS.length + 1} /> : visibleRows.map((row) => (
+                <TR key={`${row.host_kind}-${row.host_id}`}>
+                  <TD className="align-top">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Chip size="sm">{HOST_KIND_LABELS[row.host_kind]}</Chip>
+                      <span className="max-w-56 break-words font-semibold">{row.host_label}</span>
+                    </div>
+                    {row.serial_number ? <p className="mt-1 text-caption text-ink-muted">Serial <span className="font-mono">{row.serial_number}</span></p> : null}
+                  </TD>
+                  <TD className="align-top"><span className="block max-w-48 break-words">{row.vendor_name || "—"}</span></TD>
+                  <TD className="whitespace-nowrap align-top text-ink-muted">{formatDate(row.purchased_on)}</TD>
+                  <TD className="whitespace-nowrap align-top text-ink-muted">{formatDate(row.warranty_expires_on)}</TD>
+                  <TD className="whitespace-nowrap align-top"><WarrantyStatusBadge status={row.status} /></TD>
+                  <TD className="whitespace-nowrap text-right align-top tabular-nums text-ink-muted">{row.document_count}</TD>
+                  <TD className="whitespace-nowrap text-right align-top">
+                    {canManageRow(row) ? (
+                      <Button size="sm" onClick={() => setManaging(row)}>Manage</Button>
+                    ) : <span className="text-caption text-ink-muted">—</span>}
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        ) : null}
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <button className="desk-button-ghost" type="button" disabled={!warranties.data?.previous} onClick={() => setPage((current) => Math.max(1, current - 1))}>
-          Previous
-        </button>
-        <span className="font-mono text-muted">Page {page} of {totalPages}</span>
-        <button className="desk-button-ghost" type="button" disabled={!warranties.data?.next} onClick={() => setPage((current) => current + 1)}>
-          Next
-        </button>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} count={warranties.data?.count} pageSize={PAGE_SIZE} disabled={warranties.isFetching} />
       </div>
+      <Dialog
+        open={managing !== null && canManageRow(managing)}
+        onClose={() => setManaging(null)}
+        title={managing?.host_label ?? "Warranty"}
+        description={managing ? `${HOST_KIND_LABELS[managing.host_kind]}${managing.serial_number ? ` · serial ${managing.serial_number}` : ""}` : undefined}
+        size="lg"
+        footer={<div className="flex justify-end"><Button onClick={() => setManaging(null)}>Done</Button></div>}
+      >
+        {managing ? <WarrantySection hostKind={managing.host_kind} hostId={managing.host_id} /> : null}
+      </Dialog>
     </Panel>
   );
 }
 
-function WarrantyTableSkeleton() {
-  return (
-    <div className="overflow-x-auto rounded-md border border-line" aria-hidden="true">
-      <table className="min-w-[820px] divide-y divide-line text-left text-sm">
-        <thead className="eyebrow bg-bg">
-          <tr>
-            {["Host", "Vendor", "Purchased", "Expires", "Status", "Docs", "Manage"].map((label) => (
-              <th scope="col" key={label} className="px-3 py-2">{label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line bg-surface">
-          <SkeletonRows rows={4} cols={7} />
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function formatDate(value: string | null) {
-  if (!value) return "-";
+  if (!value) return "—";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
+  if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PaymentReconcileActions } from "./PaymentReconcileActions";
@@ -37,7 +37,8 @@ describe("PaymentReconcileActions", () => {
   it("reconciles a pending payment and invalidates shared and domain views", async () => {
     const invalidate = renderActions();
 
-    fireEvent.click(screen.getByRole("button", { name: "Waive" }));
+    fireEvent.click(screen.getByRole("button", { name: "Waive…" }));
+    fireEvent.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Waive payment" }));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/makerspace/7/payments/41/waive",
@@ -51,7 +52,7 @@ describe("PaymentReconcileActions", () => {
     renderActions("paid_online");
 
     expect(screen.getByText(/Payment/)).toBeVisible();
-    expect(screen.queryByRole("button", { name: "Waive" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Waive…" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Mark offline" })).not.toBeInTheDocument();
   });
 });

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Button, Card, CardHeader, Dropdown, Field, Input, SettingsRow, StatusChip, useToast } from "../../components/ui";
 import type { Makerspace as MakerspaceContract, MembershipPolicyEnum } from "../../generated/api";
 import { staffRequest } from "../../lib/api";
-import type { Makerspace } from "./StaffPanels";
+import { errorText, type Makerspace } from "./panels/shared";
+import { SettingSwitch } from "./settingsControls";
 
 export function MakerspaceMembershipSettings({ makerspace, settings, loading }: {
   makerspace: Makerspace;
@@ -12,6 +13,7 @@ export function MakerspaceMembershipSettings({ makerspace, settings, loading }: 
   loading: boolean;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const membershipPolicy = settings?.membership_policy ?? makerspace.membership_policy ?? "request";
   const referralsEnabled = settings?.referrals_enabled ?? makerspace.referrals_enabled ?? false;
   const [duesAmount, setDuesAmount] = useState(
@@ -25,64 +27,74 @@ export function MakerspaceMembershipSettings({ makerspace, settings, loading }: 
     queryClient.invalidateQueries({ queryKey: ["makerspaces"] });
     queryClient.invalidateQueries({ queryKey: ["staff", "makerspaces"] });
   };
+  const failed = (fallback: string) => (error: Error) => showToast(errorText(error, fallback), { tone: "error" });
   const updateMembershipPolicy = useMutation({
     mutationFn: (next: MembershipPolicyEnum) => staffRequest<MakerspaceContract>(`/admin/makerspaces/${makerspace.id}`, {
       method: "PATCH", body: JSON.stringify({ membership_policy: next }),
     }),
-    onSuccess: refresh,
+    onSuccess: () => { refresh(); showToast("Joining policy saved", { tone: "success" }); },
+    onError: failed("Couldn't save the joining policy"),
   });
   const updateReferrals = useMutation({
     mutationFn: (next: boolean) => staffRequest<MakerspaceContract>(`/admin/makerspaces/${makerspace.id}`, {
       method: "PATCH", body: JSON.stringify({ referrals_enabled: next }),
     }),
-    onSuccess: refresh,
+    onSuccess: (_data, next) => { refresh(); showToast(next ? "Referrals are on" : "Referrals are off", { tone: "success" }); },
+    onError: failed("Couldn't change referrals"),
   });
   const updateDues = useMutation({
     mutationFn: () => staffRequest<MakerspaceContract>(`/admin/makerspaces/${makerspace.id}`, {
       method: "PATCH", body: JSON.stringify({ membership_dues_amount: duesAmount }),
     }),
-    onSuccess: refresh,
+    onSuccess: () => { refresh(); showToast("Dues saved", { tone: "success" }); },
+    onError: failed("Couldn't save the dues"),
   });
 
-  return <>
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(220px,280px)] md:items-start">
-        <div className="grid min-w-0 max-w-2xl gap-2">
-          <div className="flex flex-wrap items-center gap-2"><h3 className="text-base font-semibold text-ink">Membership joining</h3><Badge tone={membershipPolicy === "invite_only" ? "neutral" : "success"}>{membershipPolicyLabel(membershipPolicy)}</Badge></div>
-          <p className="text-sm text-muted">Choose whether people join immediately, request approval, or need an invitation. This only controls self-join; manager invitations remain available.</p>
-          {updateMembershipPolicy.error ? <p className="text-sm text-danger" role="alert">{updateMembershipPolicy.error.message}</p> : null}
-        </div>
-        <select aria-label="Membership joining policy" className="desk-input w-full" value={membershipPolicy} disabled={loading || updateMembershipPolicy.isPending} onChange={(event) => updateMembershipPolicy.mutate(event.target.value as MembershipPolicyEnum)}>
-          <option value="open">Join instantly</option><option value="request">Request approval</option><option value="invite_only">Invite-only</option>
-        </select>
-      </div>
-    </div>
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
-        <div className="grid min-w-0 max-w-2xl gap-2">
-          <div className="flex flex-wrap items-center gap-2"><h3 className="text-base font-semibold text-ink">Member referrals</h3><Badge tone={referralsEnabled ? "success" : "neutral"}>{referralsEnabled ? "On" : "Off"}</Badge></div>
-          <p className="text-sm text-muted">Allow eligible active members to invite someone. Individual referral permission is managed in the member roster.</p>
-          {updateReferrals.error ? <p className="text-sm text-danger" role="alert">{updateReferrals.error.message}</p> : null}
-        </div>
-        <label className="flex min-w-0 items-start gap-3 text-sm text-ink sm:justify-self-start md:justify-self-end"><input className="mt-1 h-4 w-4" type="checkbox" checked={referralsEnabled} disabled={loading || updateReferrals.isPending} onChange={(event) => updateReferrals.mutate(event.target.checked)} /><span className="font-semibold">Enable referrals</span></label>
-      </div>
-    </div>
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(220px,280px)] md:items-start">
-        <div className="grid min-w-0 max-w-2xl gap-2">
-          <h3 className="text-base font-semibold text-ink">Membership dues</h3>
-          <p className="text-sm text-muted">Set the amount charged when a membership is activated. Use 0 for no charge.</p>
-          {updateDues.error ? <p className="text-sm text-danger" role="alert">{updateDues.error.message}</p> : null}
-        </div>
-        <form className="grid gap-2" onSubmit={(event) => { event.preventDefault(); updateDues.mutate(); }}>
-          <label className="grid gap-1 text-sm font-semibold text-ink">Dues amount
-            <input className="desk-input" type="number" min="0" step="0.01" value={duesAmount} disabled={loading || updateDues.isPending} onChange={(event) => setDuesAmount(event.target.value)} />
-          </label>
-          <button className="desk-button" type="submit" disabled={loading || updateDues.isPending}>{updateDues.isPending ? "Saving..." : "Save dues"}</button>
+  return (
+    <Card as="section">
+      <CardHeader
+        title="Membership"
+        description="How people join, whether members can refer others, and what joining costs."
+        action={<StatusChip tone={membershipPolicy === "invite_only" ? "neutral" : "success"} size="sm">{membershipPolicyLabel(membershipPolicy)}</StatusChip>}
+      />
+      <SettingsRow
+        title="Membership joining"
+        description="Choose whether people join immediately, request approval, or need an invitation. This only controls self-join; manager invitations remain available."
+      >
+        <Field label="Membership joining policy" hideLabel error={updateMembershipPolicy.error?.message} className="max-w-xs">
+          <Dropdown
+            value={membershipPolicy}
+            disabled={loading || updateMembershipPolicy.isPending}
+            onChange={(event) => updateMembershipPolicy.mutate(event.target.value as MembershipPolicyEnum)}
+          >
+            <option value="open">Join instantly</option>
+            <option value="request">Request approval</option>
+            <option value="invite_only">Invite-only</option>
+          </Dropdown>
+        </Field>
+      </SettingsRow>
+      <SettingsRow
+        title="Member referrals"
+        description="Allow eligible active members to invite someone. Individual referral permission is managed in the member roster."
+      >
+        <SettingSwitch
+          label="Enable referrals"
+          checked={referralsEnabled}
+          disabled={loading || updateReferrals.isPending}
+          onCheckedChange={(checked) => updateReferrals.mutate(checked)}
+          error={updateReferrals.error?.message}
+        />
+      </SettingsRow>
+      <SettingsRow title="Membership dues" description="The amount charged when a membership is activated. Use 0 for no charge.">
+        <form className="flex min-w-0 flex-wrap items-end gap-3" onSubmit={(event) => { event.preventDefault(); updateDues.mutate(); }}>
+          <Field label="Dues amount" error={updateDues.error?.message} className="w-40">
+            <Input type="number" min="0" step="0.01" value={duesAmount} disabled={loading || updateDues.isPending} onChange={(event) => setDuesAmount(event.target.value)} />
+          </Field>
+          <Button type="submit" disabled={loading} loading={updateDues.isPending} loadingLabel="Saving…">Save dues</Button>
         </form>
-      </div>
-    </div>
-  </>;
+      </SettingsRow>
+    </Card>
+  );
 }
 
 function membershipPolicyLabel(policy: MembershipPolicyEnum) {

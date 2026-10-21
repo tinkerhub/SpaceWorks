@@ -1,5 +1,10 @@
+import { Minus, Plus } from "lucide-react";
+
+import { Button, Chip, IconButton } from "../../components/ui";
+import { cn } from "../../lib/cn";
 import { catalogPresentation } from "../../lib/catalogPresentation";
-import type { Availability, Product } from "../../types/inventory";
+import type { Product } from "../../types/inventory";
+import { AvailabilityBadge } from "./AvailabilityBadge";
 
 type ProductCardProps = {
   product: Product;
@@ -9,54 +14,27 @@ type ProductCardProps = {
   onOpenDetails: () => void;
 };
 
-function isUnavailable(product: Product): boolean {
-  return product.availability?.label === "Unavailable";
+export function productCode(product: Pick<Product, "id">) {
+  return `#${String(product.id).padStart(4, "0")}`;
 }
 
-function statusChip(availability: Availability): { text: string; cls: string } | null {
-  if (availability === null) {
-    return null;
-  }
-  const label = availability.label ?? "Available";
-  const count =
-    availability.mode === "exact_count" && availability.count != null
-      ? availability.count
-      : null;
-
-  if (label === "Unavailable") {
-    return { text: "Unavailable", cls: "chip" };
-  }
-  if (label === "Limited") {
-    return {
-      text: count != null ? `Limited (${count})` : "Limited",
-      cls: "chip border-warn bg-warn text-on-warn dark:bg-warn/15 dark:text-warn-ink",
-    };
-  }
-  return {
-    text: count != null ? `Available (${count})` : "Available",
-    cls: "chip chip-available",
-  };
+/** Image placeholder: the item's first letters on a stable brand tint. Decorative. */
+export function ProductInitials({ product, className }: { product: Product; className?: string }) {
+  return (
+    <div aria-hidden="true" className={cn("grid h-full w-full place-items-center", catalogPresentation(product.id).tint, className)}>
+      <span className="font-display text-4xl font-extrabold opacity-60">{product.name.slice(0, 2)}</span>
+    </div>
+  );
 }
 
-export function ProductCard({
-  product,
-  quantity,
-  onDecrement,
-  onIncrement,
-  onOpenDetails,
-}: ProductCardProps) {
-  const disabled = isUnavailable(product);
-  const chip = statusChip(product.availability);
-  const idLabel = `ID: ${String(product.id).padStart(4, "0")}`;
-  const presentation = catalogPresentation(product.id);
+/** Catalog card: image, name, code, short description, category, and the request stepper. */
+export function ProductCard({ product, quantity, onDecrement, onIncrement, onOpenDetails }: ProductCardProps) {
+  const unavailable = product.availability?.label === "Unavailable";
 
   return (
-    <article className={`blueprint-card @container group flex h-full flex-col rounded-lg border-2 border-ink bg-panel transition-transform duration-150 ${presentation.shadow}`}>
-      <div className={`blueprint-band rounded-t-md border-b border-ink px-3 py-2 ${presentation.band}`}>
-        Catalog item
-      </div>
+    <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-canvas transition-colors duration-180 ease-standard hover:border-line-strong">
       <button
-        className="blueprint-media relative h-44 overflow-hidden border-b border-ink bg-surface text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="relative block aspect-[4/3] w-full overflow-hidden border-b border-line bg-subtle text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
         type="button"
         onClick={onOpenDetails}
         aria-label={`Open details for ${product.name}`}
@@ -66,71 +44,49 @@ export function ProductCard({
             src={product.image_url}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-240 ease-standard group-hover:scale-[1.02] motion-reduce:group-hover:scale-100"
           />
         ) : (
-          <div className="blueprint-bg grid h-full w-full place-items-center">
-            <span className="font-display text-4xl font-bold uppercase text-ink/15">
-              {product.name.slice(0, 2)}
-            </span>
-          </div>
+          <ProductInitials product={product} />
         )}
-        {chip ? (
-          <span className={`absolute right-2 top-2 max-w-[calc(100%-1rem)] ${chip.cls}`}>{chip.text}</span>
-        ) : null}
+        <AvailabilityBadge availability={product.availability} className="absolute left-3 top-3 max-w-[calc(100%-1.5rem)]" />
       </button>
 
-      <div className="flex min-w-0 flex-1 flex-col p-[12px] @min-[14rem]:p-4">
-        <h2 className="title-panel uppercase">
-          <button
-            className="min-h-11 w-full min-w-0 max-w-full [overflow-wrap:anywhere] text-left underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            type="button"
-            onClick={onOpenDetails}
-          >
-            {product.name}
-          </button>
-        </h2>
-        <div className="mt-1"><span className="chip">{idLabel}</span></div>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
-          {product.description || "No description provided."}
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
+        <div className="min-w-0">
+          <h2 className="text-title text-ink">
+            <button
+              className="w-full min-w-0 max-w-full rounded-sm text-left [overflow-wrap:anywhere] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              type="button"
+              onClick={onOpenDetails}
+            >
+              {product.name}
+            </button>
+          </h2>
+          <p className="mt-0.5 font-mono text-caption text-ink-muted">{productCode(product)}</p>
+        </div>
+        <p className="line-clamp-2 text-body-ui text-ink-secondary">{product.description || "No description provided."}</p>
         {product.category_name ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="chip">{product.category_name}</span>
+          <div className="flex flex-wrap gap-2">
+            <Chip size="sm">{product.category_name}</Chip>
           </div>
         ) : null}
 
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
-          <div className="flex min-w-0 max-w-full items-center rounded-full border border-ink bg-bg">
-            <button
-              aria-label={`Remove ${product.name}`}
-              className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-l-full font-mono text-lg font-semibold leading-none text-ink transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted"
-              disabled={quantity === 0}
-              type="button"
-              onClick={onDecrement}
-            >
-              -
-            </button>
-            <span className="grid min-h-[44px] min-w-[44px] flex-1 place-items-center border-x border-ink px-[8px] font-mono text-sm font-semibold text-ink [overflow-wrap:anywhere]">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+          <div className="inline-flex items-center gap-1 rounded-full border border-line-strong bg-canvas p-0.5" role="group" aria-label={`Quantity of ${product.name}`}>
+            <IconButton label={`Remove ${product.name}`} variant="quiet" size="sm" disabled={quantity === 0} onClick={onDecrement}>
+              <Minus />
+            </IconButton>
+            <span className="min-w-7 text-center font-mono text-label tabular-nums text-ink" aria-live="polite">
               {quantity}
             </span>
-            <button
-              aria-label={`Add ${product.name}`}
-              className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-r-full font-mono text-lg font-semibold leading-none text-ink transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted"
-              disabled={disabled}
-              type="button"
-              onClick={onIncrement}
-            >
-              +
-            </button>
+            <IconButton label={`Add ${product.name}`} variant="quiet" size="sm" disabled={unavailable} onClick={onIncrement}>
+              <Plus />
+            </IconButton>
           </div>
-          <button
-            className="inline-flex min-h-11 min-w-0 items-center break-words font-mono text-xs font-semibold tracking-tight text-secondary-ink underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            type="button"
-            onClick={onOpenDetails}
-          >
-            Details &rarr;
-          </button>
+          <Button variant="quiet" size="sm" onClick={onOpenDetails}>
+            Details
+          </Button>
         </div>
       </div>
     </article>

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Button, Card, CardHeader, ConfirmDialog, ErrorText, Field, PasswordInput, SettingsRow, Skeleton, StatusChip, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import { type Makerspace, useStaffGet } from "./StaffPanels";
+import { moduleEnabled } from "../../lib/modules";
+import { errorText, type Makerspace, useStaffGet } from "./panels/shared";
 
 type ApiSettings = {
   slack_webhook_url_set: boolean;
@@ -11,11 +12,13 @@ type ApiSettings = {
   discord_webhook_url_set: boolean;
 };
 
-type ProviderCardProps = {
+type Provider = "slack" | "mattermost" | "discord";
+
+type ProviderRowProps = {
   configured: boolean;
   label: string;
   makerspaceId: number;
-  provider: "slack" | "mattermost" | "discord";
+  provider: Provider;
 };
 
 // Read webhook state under a dedicated cache key (same endpoint) so saving/clearing a
@@ -28,6 +31,12 @@ export const DELIVERY_SETTINGS_KEY = (makerspaceId: number) => [
   "delivery",
 ];
 
+const PROVIDERS: { provider: Provider; label: string }[] = [
+  { provider: "slack", label: "Slack" },
+  { provider: "mattermost", label: "Mattermost" },
+  { provider: "discord", label: "Discord" },
+];
+
 export function MakerspaceWebhookSettings({ makerspace }: { makerspace: Makerspace }) {
   const settings = useStaffGet<ApiSettings>(
     DELIVERY_SETTINGS_KEY(makerspace.id),
@@ -35,49 +44,31 @@ export function MakerspaceWebhookSettings({ makerspace }: { makerspace: Makerspa
   );
 
   return (
-    <div className="rounded-md border border-line bg-bg p-4">
-      <div className="grid max-w-2xl gap-2">
-        <h3 className="text-base font-semibold text-ink">Chat webhooks</h3>
-        <p className="text-sm text-muted">
-          Add incoming webhook URLs for Slack, Mattermost or Discord. Saving a webhook
-          configures the destination; enable delivery separately in the notification channel
-          matrix below. Each channel is also its own module, so a space ships only the ones
-          it uses.
-        </p>
-      </div>
-      <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        <ProviderCard
-          configured={settings.data?.slack_webhook_url_set ?? false}
-          label="Slack"
+    <Card as="section" aria-labelledby="chat-webhooks-title">
+      <CardHeader
+        title={<span id="chat-webhooks-title">Chat webhooks</span>}
+        description="Incoming webhook URLs for Slack, Mattermost or Discord. Saving one sets up the destination; turn delivery on in the notification channels below."
+      />
+      {settings.isLoading ? <Skeleton className="h-24 w-full" /> : null}
+      <ErrorText message={settings.error?.message} />
+      {PROVIDERS.filter(({ provider }) => moduleEnabled(makerspace.enabled_modules, provider)).map(({ provider, label }) => (
+        <ProviderRow
+          key={provider}
+          configured={settings.data?.[`${provider}_webhook_url_set` as const] ?? false}
+          label={label}
           makerspaceId={makerspace.id}
-          provider="slack"
+          provider={provider}
         />
-        <ProviderCard
-          configured={settings.data?.mattermost_webhook_url_set ?? false}
-          label="Mattermost"
-          makerspaceId={makerspace.id}
-          provider="mattermost"
-        />
-        <ProviderCard
-          configured={settings.data?.discord_webhook_url_set ?? false}
-          label="Discord"
-          makerspaceId={makerspace.id}
-          provider="discord"
-        />
-      </div>
-      {settings.isLoading ? (
-        <p className="mt-3 text-sm text-muted">Loading webhook settings...</p>
-      ) : null}
-      {settings.error ? (
-        <p className="mt-3 text-sm text-danger">{settings.error.message}</p>
-      ) : null}
-    </div>
+      ))}
+    </Card>
   );
 }
 
-function ProviderCard({ configured, label, makerspaceId, provider }: ProviderCardProps) {
+function ProviderRow({ configured, label, makerspaceId, provider }: ProviderRowProps) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [webhookUrl, setWebhookUrl] = useState("");
+  const [confirmClear, setConfirmClear] = useState(false);
   const field = `${provider}_webhook_url`;
   const path = `/admin/makerspace/${makerspaceId}/api-settings`;
 
@@ -93,7 +84,9 @@ function ProviderCard({ configured, label, makerspaceId, provider }: ProviderCar
     onSuccess: () => {
       setWebhookUrl("");
       invalidate();
+      showToast(`${label} webhook saved`, { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, `Couldn't save the ${label} webhook`), { tone: "error" }),
   });
 
   const clearWebhook = useMutation({
@@ -104,61 +97,63 @@ function ProviderCard({ configured, label, makerspaceId, provider }: ProviderCar
       }),
     onSuccess: () => {
       setWebhookUrl("");
+      setConfirmClear(false);
       invalidate();
+      showToast(`${label} webhook cleared`, { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, `Couldn't clear the ${label} webhook`), { tone: "error" }),
   });
 
   const pending = saveWebhook.isPending || clearWebhook.isPending;
 
   return (
-    <section className="rounded-md border border-line bg-surface p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="text-sm font-semibold text-ink">{label}</h4>
-        <Badge tone={configured ? "success" : "neutral"}>
-          {configured ? "Configured" : "Not configured"}
-        </Badge>
+    <SettingsRow
+      title={(
+        <span className="flex flex-wrap items-center gap-2">
+          {label}
+          <StatusChip tone={configured ? "success" : "neutral"} size="sm">{configured ? "Configured" : "Not configured"}</StatusChip>
+        </span>
+      )}
+      description="Paste an incoming webhook URL. The saved URL is never shown again."
+    >
+      <div className="grid gap-3">
+        <Field label={`${label} incoming webhook URL`}>
+          <PasswordInput
+            autoComplete="new-password"
+            showLabel="Show webhook URL"
+            hideLabel="Hide webhook URL"
+            value={webhookUrl}
+            onChange={(event) => setWebhookUrl(event.target.value)}
+          />
+        </Field>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={!webhookUrl.trim() || pending}
+            loading={saveWebhook.isPending}
+            loadingLabel="Saving…"
+            onClick={() => saveWebhook.mutate(webhookUrl.trim())}
+          >
+            {`Save ${label} webhook`}
+          </Button>
+          <Button variant="danger-quiet" size="sm" disabled={!configured || pending} onClick={() => setConfirmClear(true)}>
+            {`Clear ${label} webhook…`}
+          </Button>
+        </div>
+        <ErrorText message={saveWebhook.error?.message} />
+        <ErrorText message={clearWebhook.error?.message} />
       </div>
-      <p className="mt-2 text-sm text-muted">
-        Paste an incoming webhook URL. The saved URL is never displayed again.
-      </p>
-      <label className="mt-3 block text-sm font-semibold text-ink">
-        {label} incoming webhook URL
-        <input
-          autoComplete="new-password"
-          className="desk-input mt-1 w-full"
-          type="password"
-          value={webhookUrl}
-          onChange={(event) => setWebhookUrl(event.target.value)}
-        />
-      </label>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <button
-          className="desk-button-primary w-full"
-          type="button"
-          disabled={!webhookUrl.trim() || pending}
-          onClick={() => saveWebhook.mutate(webhookUrl.trim())}
-        >
-          {saveWebhook.isPending ? "Saving..." : `Save ${label} webhook`}
-        </button>
-        <button
-          className="desk-button w-full"
-          type="button"
-          disabled={!configured || pending}
-          onClick={() => clearWebhook.mutate()}
-        >
-          {clearWebhook.isPending ? "Clearing..." : `Clear ${label} webhook`}
-        </button>
-      </div>
-      {saveWebhook.error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {saveWebhook.error.message}
-        </p>
-      ) : null}
-      {clearWebhook.error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {clearWebhook.error.message}
-        </p>
-      ) : null}
-    </section>
+      <ConfirmDialog
+        open={confirmClear}
+        title={`Clear the ${label} webhook?`}
+        message={`${label} stops receiving notifications from this makerspace until you add a webhook again.`}
+        confirmLabel="Clear webhook"
+        tone="danger"
+        pending={clearWebhook.isPending}
+        onConfirm={() => clearWebhook.mutate()}
+        onCancel={() => setConfirmClear(false)}
+      />
+    </SettingsRow>
   );
 }

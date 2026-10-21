@@ -87,7 +87,7 @@ EXPORTED_MODEL_FIELDS = {
     "operations.ReportMetricRollup": "id makerspace source_module report_key metric_key bucket_start grain dimension_key dimensions value sample_count revision source_cutoff computed_at checksum",
     "operations.StocktakeLedgerEntry": "id makerspace stocktake line product asset bucket delta old_asset_status new_asset_status reason created_by created_at",
     "operations.StocktakeLine": "id stocktake product asset container expected_quantity counted_quantity variance_quantity condition notes",
-    "operations.StocktakeSession": "id makerspace container status started_by approved_by started_at completed_at approved_at notes",
+    "operations.StocktakeSession": "id makerspace container status started_by completed_by approved_by started_at completed_at approved_at notes",
     "operations.StockTransfer": "id makerspace source_container destination_container source_makerspace destination_makerspace created_by reason status created_at applied_at",
     "operations.StockTransferLine": "id transfer product asset quantity from_status to_status notes",
     "payments.MakerspacePaymentSettings": "id makerspace provider stripe_publishable_key stripe_secret_key stripe_webhook_secret default_currency connect_account_id connect_status connect_charges_enabled connect_payouts_enabled connect_account_assigned_at connect_status_updated_at razorpay_key_id razorpay_key_secret razorpay_webhook_secret",

@@ -1,20 +1,29 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Badge, Field } from "../../components/ui";
+import {
+  Button,
+  Card,
+  CardHeader,
+  ConfirmDialog,
+  ErrorText,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  useToast,
+} from "../../components/ui";
 import type {
   AdminMembership,
-  MembershipRequest,
   PaginatedAdminMembershipList,
   PaginatedMembershipRequestList,
   PatchedMembershipCapabilities,
 } from "../../generated/api";
 import { StructuredApiError, staffRequest } from "../../lib/api";
 import { Panel } from "./panels/shared";
-import { PaymentReconcileActions } from "./PaymentReconcileActions";
-
-type Presence = { display_name: string; role_label: string; started_at: string; expires_at: string };
-type Role = { id: number; name: string };
+import { assignableRolesFor, roleManagesMakerspace } from "./panels/rolesApi";
+import { MembersRoster, type MemberRole } from "./MembersRoster";
+import { MembersInvitations, MembersPresence, MembersWaiver, type Presence } from "./MembersSections";
 
 export const membershipErrorText = (error: unknown) =>
   error instanceof StructuredApiError ? error.detail ?? error.message : "Unable to update membership.";
@@ -26,8 +35,16 @@ export const membershipErrorText = (error: unknown) =>
 // Waiver management and witnessed acceptance are core liability controls. Invitation stays,
 // because a STAFF invitation keeps working with
 // the module off (`invite_membership` discriminates on the role's granted actions).
-export function MembersPanel({ makerspaceId, membershipEnabled }: { makerspaceId: number; membershipEnabled: boolean }) {
+// Role selects offer only roles under the actor's ceiling (assignableRolesFor), and a
+// non-superadmin never gets Revoke on a manage_makerspace row -- the backend refuses both.
+export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, isSuperadmin }: {
+  makerspaceId: number;
+  membershipEnabled: boolean;
+  actorActions: readonly string[];
+  isSuperadmin: boolean;
+}) {
   const client = useQueryClient();
+  const { showToast } = useToast();
   const key = ["members", makerspaceId];
   const roster = useQuery({
     queryKey: [...key, "roster"],
@@ -39,95 +56,125 @@ export function MembersPanel({ makerspaceId, membershipEnabled }: { makerspaceId
     enabled: membershipEnabled,
   });
   const presence = useQuery({ queryKey: [...key, "presence"], queryFn: () => staffRequest<Presence[]>(`/admin/makerspace/${makerspaceId}/presence-sessions/current`) });
-  const roles = useQuery({ queryKey: [...key, "roles"], queryFn: () => staffRequest<Role[]>(`/admin/makerspaces/${makerspaceId}/roles`) });
+  const roles = useQuery({ queryKey: [...key, "roles"], queryFn: () => staffRequest<MemberRole[]>(`/admin/makerspaces/${makerspaceId}/roles`) });
   const [roleId, setRoleId] = useState<number | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [waiver, setWaiver] = useState({ version: "", body: "" });
+  const [revokeTarget, setRevokeTarget] = useState<AdminMembership | null>(null);
   const refresh = () => client.invalidateQueries({ queryKey: key });
-  const revoke = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/memberships/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), onSuccess: refresh });
-  const revokeRequest = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), onSuccess: refresh });
-  const approve = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/approve`, { method: "POST", body: JSON.stringify({ role_id: roleId }) }), onSuccess: refresh });
-  const changeRole = useMutation({ mutationFn: ({ id, nextRoleId }: { id: number; nextRoleId: number }) => staffRequest(`/admin/memberships/${id}/role`, { method: "PATCH", body: JSON.stringify({ role_id: nextRoleId }) }), onSuccess: refresh });
+  // Every mutation refreshes the page's queries and confirms in a toast; failures also stay
+  // visible in the panel's error line below the header.
+  const notify = (message: string) => ({
+    onSuccess: () => { refresh(); showToast(message, { tone: "success" }); },
+    onError: (error: unknown) => showToast(membershipErrorText(error), { tone: "error" }),
+  });
+  const revoke = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/memberships/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), ...notify("Membership revoked") });
+  const revokeRequest = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), ...notify("Request revoked") });
+  const approve = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/approve`, { method: "POST", body: JSON.stringify({ role_id: roleId }) }), ...notify("Request approved") });
+  const changeRole = useMutation({ mutationFn: ({ id, nextRoleId }: { id: number; nextRoleId: number }) => staffRequest(`/admin/memberships/${id}/role`, { method: "PATCH", body: JSON.stringify({ role_id: nextRoleId }) }), ...notify("Role changed") });
   const capabilities = useMutation({
     mutationFn: ({ id, next }: { id: number; next: PatchedMembershipCapabilities }) =>
       staffRequest<AdminMembership>(`/admin/memberships/${id}/capabilities`, {
         method: "PATCH",
         body: JSON.stringify(next),
       }),
-    onSuccess: refresh,
+    ...notify("Member updated"),
   });
   const verify = useMutation({
     mutationFn: ({ id, verified }: { id: number; verified: boolean }) =>
       staffRequest<AdminMembership>(`/admin/memberships/${id}/${verified ? "verify" : "unverify"}`, {
         method: "POST",
       }),
-    onSuccess: refresh,
+    ...notify("Verification updated"),
   });
-  const invite = useMutation({ mutationFn: () => staffRequest(`/admin/makerspace/${makerspaceId}/membership-invitations`, { method: "POST", body: JSON.stringify({ invite_email: inviteEmail, role_id: roleId }) }), onSuccess: () => { setInviteEmail(""); refresh(); } });
-  const publishWaiver = useMutation({ mutationFn: () => staffRequest(`/admin/makerspaces/${makerspaceId}/waiver`, { method: "PUT", body: JSON.stringify(waiver) }), onSuccess: refresh });
-  const witnessWaiver = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/memberships/${id}/waiver/witness`, { method: "POST", body: JSON.stringify({}) }), onSuccess: refresh });
+  const invite = useMutation({
+    mutationFn: () => staffRequest(`/admin/makerspace/${makerspaceId}/membership-invitations`, { method: "POST", body: JSON.stringify({ invite_email: inviteEmail, role_id: roleId }) }),
+    onSuccess: () => { setInviteEmail(""); refresh(); showToast("Invitation sent", { tone: "success" }); },
+    onError: (error: unknown) => showToast(membershipErrorText(error), { tone: "error" }),
+  });
+  const publishWaiver = useMutation({ mutationFn: () => staffRequest(`/admin/makerspaces/${makerspaceId}/waiver`, { method: "PUT", body: JSON.stringify(waiver) }), ...notify("Waiver published") });
+  const witnessWaiver = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/memberships/${id}/waiver/witness`, { method: "POST", body: JSON.stringify({}) }), ...notify("Waiver acceptance recorded") });
   const error = revoke.error ?? revokeRequest.error ?? approve.error ?? changeRole.error ?? capabilities.error ?? verify.error ?? invite.error ?? publishWaiver.error ?? witnessWaiver.error;
-  const selectedRole = roleId ?? roles.data?.[0]?.id ?? null;
-  const rosterRows = roster.data?.results ?? [];
-  const requestRows = requests.data?.results ?? [];
+  const assignableRoles = assignableRolesFor(roles.data ?? [], actorActions, isSuperadmin);
+  const selectedRole = roleId ?? assignableRoles[0]?.id ?? null;
 
-  return <div className="grid gap-5">
-    <Panel title="Members">
-      <p className="mb-4 text-sm text-muted">Membership, referral and verification delegation, waiver compliance, and active presence for this makerspace.</p>
-      {rosterRows.map((row) => <MemberRow
-        key={row.id}
-        makerspaceId={makerspaceId}
-        member={row}
-        roles={roles.data ?? []}
-        changingRole={changeRole.isPending}
-        changingCapabilities={capabilities.isPending}
-        changingVerification={verify.isPending}
-        changingWitness={witnessWaiver.isPending}
-        onChangeRole={(nextRoleId) => changeRole.mutate({ id: row.id, nextRoleId })}
-        membershipEnabled={membershipEnabled}
-        onCapability={(next) => capabilities.mutate({ id: row.id, next })}
-        onVerify={() => verify.mutate({ id: row.id, verified: !Boolean(row.verified_at) })}
-        onWitness={() => witnessWaiver.mutate(row.id)}
-        onRevoke={() => revoke.mutate(row.id)}
-      />)}
-      {roster.isLoading ? <p className="text-sm text-muted">Loading members…</p> : null}
-      {roster.isError ? <p className="text-sm text-danger" role="alert">{membershipErrorText(roster.error)}</p> : null}
+  return (
+    <Panel title="Members" description="Membership, referral and verification delegation, waiver compliance, and who is in the space right now.">
+      <div className="grid gap-4">
+        {error ? <ErrorText message={membershipErrorText(error)} /> : null}
+        <Tabs defaultValue="roster">
+          <TabsList aria-label="Member sections">
+            <TabsTrigger value="roster">Members</TabsTrigger>
+            <TabsTrigger value="requests">{membershipEnabled ? "Requests" : "Invitations"}</TabsTrigger>
+            <TabsTrigger value="presence">Present now</TabsTrigger>
+            <TabsTrigger value="waiver">Waiver</TabsTrigger>
+          </TabsList>
+          <TabsContent value="roster" className="grid gap-3">
+            {roster.isError ? <ErrorText message={membershipErrorText(roster.error)} /> : null}
+            <MembersRoster
+              makerspaceId={makerspaceId}
+              rows={roster.data?.results ?? []}
+              loading={roster.isLoading}
+              roles={assignableRoles}
+              membershipEnabled={membershipEnabled}
+              managedByPlatform={(row) => !isSuperadmin && roleManagesMakerspace(roles.data ?? [], row.assigned_role?.id)}
+              pending={{ role: changeRole.isPending, capabilities: capabilities.isPending, verification: verify.isPending, witness: witnessWaiver.isPending }}
+              handlers={{
+                onChangeRole: (row, nextRoleId) => changeRole.mutate({ id: row.id, nextRoleId }),
+                onCapability: (row, next) => capabilities.mutate({ id: row.id, next }),
+                onVerify: (row) => verify.mutate({ id: row.id, verified: !row.verified_at }),
+                onWitness: (row) => witnessWaiver.mutate(row.id),
+                onRevoke: setRevokeTarget,
+              }}
+            />
+          </TabsContent>
+          <TabsContent value="requests">
+            <MembersInvitations
+              membershipEnabled={membershipEnabled}
+              roles={assignableRoles}
+              selectedRole={selectedRole}
+              onRoleChange={setRoleId}
+              inviteEmail={inviteEmail}
+              onInviteEmailChange={setInviteEmail}
+              inviting={invite.isPending}
+              onInvite={() => invite.mutate()}
+              requests={requests.data?.results ?? []}
+              requestsLoading={membershipEnabled && requests.isLoading}
+              approving={approve.isPending}
+              revoking={revokeRequest.isPending}
+              onApprove={(id) => approve.mutate(id)}
+              onRevoke={(id) => revokeRequest.mutate(id)}
+            />
+          </TabsContent>
+          <TabsContent value="presence">
+            <MembersPresence rows={presence.data ?? []} loading={presence.isLoading} />
+          </TabsContent>
+          <TabsContent value="waiver">
+            <Card as="section">
+              <CardHeader title="Current waiver" description="Members accept the latest version. Publishing a new version asks everyone to accept again." />
+              <MembersWaiver
+                waiver={waiver}
+                onChange={setWaiver}
+                action={(
+                  <Button variant="primary" className="w-fit" disabled={!waiver.version || !waiver.body} loading={publishWaiver.isPending} loadingLabel="Publishing…" onClick={() => publishWaiver.mutate()}>
+                    Publish waiver
+                  </Button>
+                )}
+              />
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+      <ConfirmDialog
+        open={revokeTarget !== null}
+        title="Revoke membership?"
+        tone="danger"
+        message={revokeTarget ? `${revokeTarget.user.display_name || revokeTarget.user.username} loses their membership here. Their account is not deleted.` : ""}
+        confirmLabel="Revoke membership"
+        pending={revoke.isPending}
+        onCancel={() => setRevokeTarget(null)}
+        onConfirm={() => { if (revokeTarget) revoke.mutate(revokeTarget.id, { onSuccess: () => setRevokeTarget(null) }); }}
+      />
     </Panel>
-    <Panel title={membershipEnabled ? "Membership requests" : "Invitations"}><div className="mb-3 flex flex-wrap gap-2"><Field label="Invite role"><select className="desk-input" value={selectedRole ?? ""} onChange={(event) => setRoleId(Number(event.target.value))}>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select></Field><Field label="Invite email"><input className="desk-input" type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} /></Field><button className="desk-button" disabled={!inviteEmail || !selectedRole || invite.isPending} onClick={() => invite.mutate()}>Invite</button></div>
-      {membershipEnabled ? requestRows.map((row) => <div className="flex items-center justify-between gap-3 border-t border-line py-3" key={row.id}><span className="text-sm text-ink">{requestLabel(row)} · {row.kind} · {row.state}</span>{row.state === "requested" ? <div className="flex gap-2"><button className="desk-button-primary" disabled={!selectedRole || approve.isPending} onClick={() => approve.mutate(row.id)}>Approve</button><button className="desk-button" onClick={() => revokeRequest.mutate(row.id)} disabled={revokeRequest.isPending}>Revoke</button></div> : null}</div>) : null}
-      {membershipEnabled && requests.isLoading ? <p className="text-sm text-muted">Loading requests…</p> : null}</Panel>
-    <Panel title="Currently present">{presence.data?.length ? presence.data.map((row) => <p className="border-t border-line py-2 text-sm text-ink" key={`${row.display_name}-${row.started_at}`}>{row.display_name} <span className="text-muted">· {row.role_label} · until {new Date(row.expires_at).toLocaleTimeString()}</span></p>) : <p className="text-sm text-muted">No active member presence sessions.</p>}</Panel>
-    <Panel title="Current waiver"><div className="grid gap-2"><Field label="Waiver version"><input className="desk-input" value={waiver.version} onChange={(event) => setWaiver({ ...waiver, version: event.target.value })} /></Field><Field label="Waiver text"><textarea className="desk-input min-h-28" value={waiver.body} onChange={(event) => setWaiver({ ...waiver, body: event.target.value })} /></Field><button className="desk-button-primary w-fit" disabled={!waiver.version || !waiver.body || publishWaiver.isPending} onClick={() => publishWaiver.mutate()}>Publish waiver</button></div></Panel>
-    {error ? <p className="text-sm text-danger" role="alert">{membershipErrorText(error)}</p> : null}
-  </div>;
-}
-
-function MemberRow({ makerspaceId, member, roles, membershipEnabled, changingRole, changingCapabilities, changingVerification, changingWitness, onChangeRole, onCapability, onVerify, onWitness, onRevoke }: {
-  makerspaceId: number;
-  member: AdminMembership;
-  roles: Role[];
-  membershipEnabled: boolean;
-  changingRole: boolean;
-  changingCapabilities: boolean;
-  changingVerification: boolean;
-  changingWitness: boolean;
-  onChangeRole: (roleId: number) => void;
-  onCapability: (next: PatchedMembershipCapabilities) => void;
-  onVerify: () => void;
-  onWitness: () => void;
-  onRevoke: () => void;
-}) {
-  const active = member.status === "active";
-  const displayName = member.user.display_name || member.user.username;
-  return <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-3">
-    <div><p className="font-semibold text-ink">{displayName}</p><p className="text-xs text-muted">{member.assigned_role?.name ?? "Member"} · {member.status} · waiver {member.waiver_required ? (member.waiver_current ? "current" : "needed") : "not required"}</p><PaymentReconcileActions makerspaceId={makerspaceId} payment={member.payment} invalidateKeys={[["members", makerspaceId]]} /></div>
-    <div className="flex flex-wrap items-center gap-2">
-      {membershipEnabled ? <Badge tone={member.verified_at ? "success" : "neutral"}>{member.verified_at ? "Verified" : "Not verified"}</Badge> : null}
-      {active ? <>{member.waiver_required && !member.waiver_current ? <button className="desk-button" type="button" disabled={changingWitness} onClick={onWitness}>Record witnessed acceptance</button> : null}{membershipEnabled ? <><label className="flex items-center gap-1 text-xs text-muted"><input type="checkbox" checked={member.can_refer} disabled={changingCapabilities} onChange={(event) => onCapability({ can_refer: event.target.checked })} />Can refer</label><label className="flex items-center gap-1 text-xs text-muted"><input type="checkbox" checked={member.can_verify} disabled={changingCapabilities} onChange={(event) => onCapability({ can_verify: event.target.checked })} />Can verify</label><button className="desk-button" type="button" disabled={changingVerification} onClick={onVerify}>{member.verified_at ? "Unverify" : "Verify"}</button></> : null}<select aria-label={`Role for ${displayName}`} className="desk-input" defaultValue={member.assigned_role?.id ?? ""} onChange={(event) => onChangeRole(Number(event.target.value))} disabled={changingRole}>{roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select><button className="desk-button" type="button" onClick={onRevoke}>Revoke</button></> : null}
-    </div>
-  </div>;
-}
-
-function requestLabel(request: MembershipRequest) {
-  return request.user?.username ?? request.invite_email;
+  );
 }

@@ -1,4 +1,5 @@
 import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
+import { Loader } from "../../components/ui";
 import { ChangePasswordGate } from "./ChangePasswordGate";
 import { LoginPanel } from "./LoginPanel";
 import { MakerspacePicker } from "./MakerspacePicker";
@@ -6,25 +7,21 @@ import { StaffAccessDenied } from "./StaffAccessDenied";
 import { StaffWorkspace } from "./StaffWorkspace";
 import { RecoveryQuarantinePanel } from "./RecoveryQuarantinePanel";
 import { useStaffSession } from "./useStaffSession";
-import { tabFromStaffPath } from "./staffTabs";
-import { useLocation } from "react-router-dom";
 
-function StaffLoading({ message, restoring = false }: { message: string; restoring?: boolean }) {
-  const panelClass = restoring
-    ? "desk-panel flex w-full max-w-md flex-col items-center gap-4 p-8 text-center text-sm font-semibold text-muted"
-    : "desk-panel w-full max-w-md p-6 text-sm font-semibold text-muted";
+// Route-level wait: the mark and a loader centred on the page, with the reason in words.
+function StaffLoading({ message }: { message: string }) {
   return (
-    <main className="desk-shell grid place-items-center px-5">
-      <div className={panelClass}>
-        <SpaceWorksBadge className={restoring ? undefined : "mb-5"} />
-        <span>{message}</span>
+    <main className="grid min-h-dvh place-items-center bg-subtle px-4 text-ink">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <SpaceWorksBadge />
+        <Loader label={message} />
+        <p aria-hidden="true" className="text-body-ui text-ink-muted">{message}</p>
       </div>
     </main>
   );
 }
 
 export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
-  const location = useLocation();
   const {
     activeMakerspace,
     chooseMakerspace,
@@ -46,7 +43,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     user,
   } = useStaffSession(guestOnly);
   if (restoring) {
-    return <StaffLoading message="Restoring session..." restoring />;
+    return <StaffLoading message="Restoring session…" />;
   }
 
   if (!user) {
@@ -77,7 +74,6 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
   }
 
   const isSuperadmin = user.is_superuser || user.role === "superadmin";
-  const globalOrganizationRoute = tabFromStaffPath(location.pathname, guestOnly) === "organizations";
 
   if (isSuperadmin && recovery.data?.mode === "quarantined") {
     return (
@@ -92,7 +88,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
   }
 
   if (singleTenantLocked && makerspaces.isLoading) {
-    return <StaffLoading message="Checking makerspace access..." />;
+    return <StaffLoading message="Checking makerspace access…" />;
   }
 
   const hasSingleTenantAccess =
@@ -108,18 +104,18 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
   }
 
   if (!singleTenantLocked && routeMakerspaceSlug && makerspaces.isLoading) {
-    return <StaffLoading message="Opening makerspace..." />;
+    return <StaffLoading message="Opening makerspace…" />;
   }
 
   if (!singleTenantLocked && routeMakerspace && routeMakerspace.id !== selected) {
-    return <StaffLoading message="Opening makerspace..." />;
+    return <StaffLoading message="Opening makerspace…" />;
   }
 
   if (!singleTenantLocked && selected !== null && makerspaces.isLoading) {
-    return <StaffLoading message="Restoring makerspace..." />;
+    return <StaffLoading message="Restoring makerspace…" />;
   }
 
-  if (!singleTenantLocked && isSuperadmin && selected !== null && !activeMakerspace && !globalOrganizationRoute) {
+  if (!singleTenantLocked && isSuperadmin && selected !== null && !activeMakerspace) {
     return (
       <MakerspacePicker
         makerspaces={makerspaces.data ?? []}
@@ -131,7 +127,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     );
   }
 
-  if (!singleTenantLocked && isSuperadmin && selected === null && !globalOrganizationRoute) {
+  if (!singleTenantLocked && isSuperadmin && selected === null) {
     return (
       <MakerspacePicker
         makerspaces={makerspaces.data ?? []}

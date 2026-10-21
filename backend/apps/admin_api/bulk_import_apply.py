@@ -5,7 +5,10 @@ from apps.admin_api.bulk_import_preview import preview_import
 from apps.admin_api.bulk_import_rows import QUANTITY_BUCKET_FIELDS
 from apps.audit import services as audit
 from apps.boxes.models import Box
+from apps.evidence.storage import StorageUnavailable
+from apps.inventory import availability, public_image_storage
 from apps.inventory.models import Category, InventoryProduct
+from apps.inventory.public_image_attach import PublicImageRejected, finalize_product_image
 from apps.makerspaces import limits
 
 
@@ -37,9 +40,20 @@ def apply_import(actor, makerspace, rows, mapping, progress_callback=None, allow
                 continue
             try:
                 with transaction.atomic():
-                    was_created = _apply_import_row(actor, makerspace, item)
+                    was_created = _apply_import_row(
+                        actor, makerspace, item, preview["mapping"]
+                    )
             except IntegrityError as exc:
-                _record_row_integrity_error(preview, item, exc)
+                _record_row_error(preview, item, _short_db_message(exc))
+                continue
+            except (
+                availability.TrackingModeChangeRefused,
+                PublicImageRejected,
+            ) as exc:
+                _record_row_error(preview, item, str(exc))
+                continue
+            except StorageUnavailable:
+                _record_row_error(preview, item, "Image storage is unavailable.")
                 continue
             if was_created:
                 created += 1
@@ -62,11 +76,12 @@ def apply_import(actor, makerspace, rows, mapping, progress_callback=None, allow
     }
 
 
-def _apply_import_row(actor, makerspace, item):
+def _apply_import_row(actor, makerspace, item, mapping):
     data = dict(item["data"])
     box_id = data.pop("box_id", None)
     box = Box.objects.filter(makerspace=makerspace, pk=box_id).first() if box_id else None
     name = data.pop("name")
+    image_key = data.pop("image_key", "")
     category_name = data.pop("category_name", "")
     if category_name:
         category, was_category_created = _category_for_name(makerspace, category_name)
@@ -79,12 +94,17 @@ def _apply_import_row(actor, makerspace, item):
                 target=category,
                 meta={"source": "bulk_import"},
             )
-    create_defaults = {**data, "box": box}
     product, was_created = InventoryProduct.objects.get_or_create(
-        makerspace=makerspace, name=name, defaults=create_defaults
+        makerspace=makerspace, name=name, defaults={**data, "box": box}
     )
     if was_created:
+        _attach_image(makerspace, product, image_key)
         return True
+    tracking_mode = data.pop("tracking_mode")
+    if mapping.get("tracking_mode"):
+        # Only a mapped column changes the mode, and only through the Availability
+        # module's guarded path; the parser's default must never convert a product.
+        product = availability.change_tracking_mode(product, tracking_mode)
     update_defaults = {
         field: value for field, value in data.items() if field not in QUANTITY_BUCKET_FIELDS
     }
@@ -92,12 +112,26 @@ def _apply_import_row(actor, makerspace, item):
     for field, value in update_defaults.items():
         setattr(product, field, value)
     product.save(update_fields=[*update_defaults.keys(), "updated_at"])
+    _attach_image(makerspace, product, image_key)
     return False
 
 
-def _record_row_integrity_error(preview, item, exc):
+def _attach_image(makerspace, product, image_key):
+    """Attach an imported key through the image endpoint's finalize/sniff pipeline.
+
+    A blank cell keeps the current image instead of silently dropping it."""
+    if not image_key or image_key == product.image_key:
+        return
+    size = finalize_product_image(makerspace.id, image_key, product_id=product.pk)
+    limits.add_storage(makerspace, size)
+    if product.image_key:
+        public_image_storage.release_public_image_on_commit(makerspace, product.image_key)
+    product.image_key = image_key
+    product.save(update_fields=["image_key", "updated_at"])
+
+
+def _record_row_error(preview, item, message):
     item["action"] = "error"
-    message = _short_db_message(exc)
     preview["errors"].append({"row": item["row"], "errors": {"__all__": message}})
     preview["valid"] = False
 

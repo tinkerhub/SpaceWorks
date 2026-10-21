@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { Badge } from "../../../components/ui";
+import { Card, Chip, EmptyState, ErrorBlock, Skeleton } from "../../../components/ui";
+import { cn } from "../../../lib/cn";
 import { staffRequest } from "../../../lib/api";
 import { EmailTemplateEditor, type SelectedTemplate, type TemplateSummary } from "./EmailTemplateEditor";
 import { Panel, type Makerspace } from "./shared";
@@ -58,18 +59,24 @@ export function EmailTemplatesPanel({ makerspace }: { makerspace: Makerspace }) 
   const grouped = useMemo(() => groupTemplates(rows), [rows]);
 
   return (
-    <Panel title="Email templates">
+    <Panel
+      title="Email templates"
+      description="Change what members and staff receive. Untouched templates keep sending the built-in wording."
+    >
       {list.isLoading ? (
-        <p className="text-sm text-muted">Loading email templates...</p>
+        <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]" aria-busy="true" aria-label="Loading email templates">
+          <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-72 w-full" />
+        </div>
       ) : list.error ? (
-        <p className="text-sm text-danger">{list.error.message}</p>
+        <ErrorBlock error={list.error} />
       ) : !rows.length ? (
-        <p className="text-sm text-muted">No editable email templates are available.</p>
+        <EmptyState title="No templates to edit" description="Turn on a module that sends email to customise its messages." />
       ) : (
         <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
-          <div className="rounded-md border border-line bg-bg p-3">
+          <Card padding="sm" as="section" aria-label="Templates" className="self-start">
             <TemplateList groups={grouped} selected={selected} onSelect={setSelected} />
-          </div>
+          </Card>
           {selected ? (
             <EmailTemplateEditor
               makerspaceId={makerspace.id}
@@ -96,14 +103,10 @@ function TemplateList({
     <div className="grid gap-4">
       {groups.map((stream) => (
         <div key={stream.stream} className="grid gap-2">
-          <h3 className="eyebrow">
-            {formatLabel(stream.stream)}
-          </h3>
+          <h3 className="px-2 text-label text-ink">{formatLabel(stream.stream)}</h3>
           {stream.audiences.map((audience) => (
-            <div key={audience.audience} className="grid gap-1">
-              <p className="font-mono text-xs uppercase text-muted">
-                {formatLabel(audience.audience)}
-              </p>
+            <div key={audience.audience} className="grid gap-0.5">
+              <p className="px-2 text-caption text-ink-muted">{formatLabel(audience.audience)}</p>
               {audience.templates.map((template) => (
                 <TemplateButton
                   key={`${template.stream}:${template.audience}:${template.key}`}
@@ -129,16 +132,19 @@ function TemplateButton({
   template: TemplateSummary;
   onSelect: (template: SelectedTemplate) => void;
 }) {
+  const edited = template.is_overridden || template.overridable_types.some((item) => item.is_overridden);
   return (
     <button
-      className={`${selected ? "desk-button-primary" : "desk-button-ghost"} min-w-0 justify-between text-left`}
+      aria-pressed={selected}
+      className={cn(
+        "flex min-h-10 min-w-0 items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-body-ui transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+        selected ? "bg-emphasis font-semibold text-ink" : "text-ink-secondary hover:bg-subtle hover:text-ink",
+      )}
       type="button"
-      onClick={() =>
-        onSelect(selectTemplate(template))
-      }
+      onClick={() => onSelect(selectTemplate(template))}
     >
-      <span className="min-w-0 truncate font-semibold">{template.label}</span>
-      {template.is_overridden || template.overridable_types.some((item) => item.is_overridden) ? <Badge tone="warn">Edited</Badge> : null}
+      <span className="min-w-0 truncate">{template.label}</span>
+      {edited ? <Chip tone="warning" size="sm">Edited</Chip> : null}
     </button>
   );
 }
@@ -182,5 +188,6 @@ function selectedAxisIsVisible(template: TemplateSummary, selected: SelectedTemp
 }
 
 function formatLabel(value: string) {
-  return value.replace(/_/g, " ");
+  const words = value.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }

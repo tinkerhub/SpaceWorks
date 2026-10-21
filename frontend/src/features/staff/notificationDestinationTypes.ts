@@ -48,3 +48,6 @@ export const EMPTY_SCOPE: DestinationScope = {
   machine_ids: [],
   category_ids: [],
 };
+
+export const DESTINATIONS_KEY = (makerspaceId: number) =>
+  ["notification-destinations", makerspaceId] as const;

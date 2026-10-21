@@ -40,6 +40,7 @@ STREAM_ACTIONS = {
 }
 
 STREAM_MODULES = {
+    "printing": "printing",
     "events": "events",
     "bookings": "bookings",
     "maintenance": "maintenance",

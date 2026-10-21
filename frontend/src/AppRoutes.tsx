@@ -18,10 +18,15 @@ import { ResetPasswordPage } from "./features/staff/ResetPasswordPage";
 import { StaffApp } from "./features/staff/StaffApp";
 import { EventCheckInStationPage } from "./features/events/EventCheckInStationPage";
 import { PublicStatsPage } from "./features/stats/PublicStatsPage";
+import { NotFoundPage } from "./components/NotFoundPage";
+import { RequireModule } from "./lib/modules";
 
-function NotFoundPage() {
-  return <main className="grid min-h-screen place-items-center bg-bg px-6"><div className="text-center"><p className="eyebrow font-mono">404</p><h1 className="title-page mt-2">Page not found</h1></div></main>;
-}
+// One module key per optional public page. A page whose module is off is a 404 -- it must
+// not render and fire requests the backend refuses.
+const events = (page: ReactNode) => <RequireModule module="events">{page}</RequireModule>;
+const machines = <RequireModule module="machines"><PublicMachinesPage /></RequireModule>;
+const bookings = <RequireModule module="bookings"><PublicBookingsPage /></RequireModule>;
+const print = <RequireModule module="printing"><PublicPrintRequestPage /></RequireModule>;
 
 export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landing: ReactNode }) {
   const location = useLocation();
@@ -34,12 +39,12 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
   if (mode === "single") return <Routes>
     <Route path="/" element={<PublicInventoryPage />} />
     <Route path="/checkout" element={<PublicSelfCheckoutPage />} />
-    <Route path="/events" element={<PublicEventsPage />} />
-    <Route path="/events/:publicToken/feedback" element={<PublicEventFeedbackPage />} />
-    <Route path="/event-check-in/:stationToken" element={<EventCheckInStationPage />} />
-    <Route path="/machines" element={<PublicMachinesPage />} />
-    <Route path="/bookings" element={<PublicBookingsPage />} />
-    <Route path="/print" element={<PublicPrintRequestPage />} />
+    <Route path="/events" element={events(<PublicEventsPage />)} />
+    <Route path="/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
+    <Route path="/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
+    <Route path="/machines" element={machines} />
+    <Route path="/bookings" element={bookings} />
+    <Route path="/print" element={print} />
     <Route path="/member" element={<MemberArea />} />
     <Route path="/stats" element={<PublicStatsPage />} />
     <Route path="/about" element={<AboutPage />} />
@@ -55,13 +60,13 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
     <Route path="/o/:organizationSlug" element={<PublicOrganizationPage />} />
     <Route path="/m/:slug" element={<PublicInventoryPage />} />
     <Route path="/m/:slug/checkout" element={<PublicSelfCheckoutPage />} />
-    <Route path="/m/:slug/events" element={<PublicEventsPage />} />
-    <Route path="/m/:slug/events/:publicToken/feedback" element={<PublicEventFeedbackPage />} />
-    <Route path="/m/:slug/event-check-in/:stationToken" element={<EventCheckInStationPage />} />
-    <Route path="/m/:slug/machines" element={<PublicMachinesPage />} />
-    <Route path="/m/:slug/bookings" element={<PublicBookingsPage />} />
+    <Route path="/m/:slug/events" element={events(<PublicEventsPage />)} />
+    <Route path="/m/:slug/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
+    <Route path="/m/:slug/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
+    <Route path="/m/:slug/machines" element={machines} />
+    <Route path="/m/:slug/bookings" element={bookings} />
     <Route path="/m/:slug/admin/*" element={<StaffApp />} />
-    <Route path="/m/:slug/print" element={<PublicPrintRequestPage />} />
+    <Route path="/m/:slug/print" element={print} />
     <Route path="/m/:slug/member" element={<MemberArea />} />
     <Route path="/member" element={<MemberArea />} />
     <Route path="/m/:slug/stats" element={<PublicStatsPage />} />

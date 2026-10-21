@@ -7,7 +7,9 @@ from apps.makerspaces import limits
 from apps.machines import role_scope
 from apps.machines.models import Machine, MachineServiceRequest, ServiceBucket, ServiceQueue, get_or_create_default_bucket
 from apps.machines.service_consumption import debit_consumptions
-from apps.machines.service_errors import ServiceConsumptionInvalid, ServiceInvalidTransition, ServiceMachineUnavailable
+# Re-exported: payment recording and reprints moved out for the file-size ceiling.
+from apps.machines.service_workflow_followups import create_reprint, record_manual_payment  # noqa: F401
+from apps.machines.service_errors import ServiceConsumptionInvalid, ServiceMachineUnavailable
 from apps.machines.service_workflow_helpers import (
     _assert_request_write_allowed,
     _assert_submission_write_allowed,
@@ -111,7 +113,7 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
         _require_edge(locked, MachineServiceRequest.Status.IN_PROGRESS)
         queue = None
         if locked.queue_id:
-            queue = ServiceQueue.objects.select_for_update().select_related("makerspace", "machine_type").get(pk=locked.queue_id)
+            queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=locked.queue_id)
             locked.queue = queue
         candidate_scope = role_scope.scope_q_for(
             machine_scope,
@@ -119,7 +121,7 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
             type_id_paths=("machine_type_id",),
         )
         if machine_id is None and queue and queue.allocation_policy == ServiceQueue.AllocationPolicy.FIRST_IDLE:
-            machine = Machine.objects.select_for_update().select_related("makerspace", "machine_type").filter(
+            machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").filter(
                 candidate_scope,
                 makerspace_id=locked.makerspace_id, machine_type_id=queue.machine_type_id,
                 is_active=True, status=Machine.Status.IDLE,
@@ -127,7 +129,7 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
         elif machine_id is None:
             raise ServiceMachineUnavailable("A machine is required to start service.")
         else:
-            machine = Machine.objects.select_for_update().select_related("makerspace", "machine_type").filter(
+            machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").filter(
                 candidate_scope,
                 pk=machine_id,
             ).first()
@@ -266,41 +268,3 @@ def collect(service_request, actor):
         _audit_transition(actor, locked, "collected")
         _notify_after_commit(locked, "collected")
         return locked
-
-
-def record_manual_payment(service_request, actor):
-    with transaction.atomic():
-        from apps.payments.models import Payment
-        from apps.payments.reconciliation import mark_offline
-        _assert_request_write_allowed(service_request)
-        locked = _locked_request(service_request)
-        _require_module(locked.makerspace)
-        payment = Payment.objects.select_for_update().filter(
-            makerspace_id=locked.makerspace_id, subject_type=Payment.SubjectType.MACHINE_SERVICE_REQUEST,
-            subject_id=locked.pk, status=Payment.Status.PENDING).first()
-        if payment is None:
-            raise ServiceInvalidTransition("Only pending payments can be recorded as paid.")
-        mark_offline(payment, actor)
-        _audit_transition(actor, locked, "manual_payment_recorded")
-        return locked
-
-
-def create_reprint(service_request, actor):
-    """Create an accepted child request that retains the original attachment root."""
-    with transaction.atomic():
-        _assert_request_write_allowed(service_request)
-        original = _locked_request(service_request)
-        if original.status not in {MachineServiceRequest.Status.FAILED, MachineServiceRequest.Status.COMPLETED, MachineServiceRequest.Status.COLLECTED}:
-            raise ServiceInvalidTransition("Only terminal service requests can be reprinted.")
-        root = original.reprint_of or original
-        child = MachineServiceRequest.objects.create(
-            bucket=original.bucket, queue=original.queue, makerspace=original.makerspace, requester=original.requester, member=original.member,
-            requester_name=original.requester_name, contact_email=original.contact_email, contact_phone=original.contact_phone,
-            title=original.title, description=original.description, source_link=original.source_link,
-            capability_payload=original.capability_payload, status=MachineServiceRequest.Status.ACCEPTED,
-            assigned_machine=original.assigned_machine if original.bucket_id else None, accepted_by=actor,
-            accepted_at=timezone.now(), estimated_minutes=original.estimated_minutes, planned_grams=original.planned_grams,
-            reprint_of=root,
-        )
-        _audit_transition(actor, child, "reprint_created", extra={"reprint_of_id": root.pk})
-        return child

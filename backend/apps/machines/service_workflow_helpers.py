@@ -19,14 +19,14 @@ _ALLOWED = {
 
 def _locked_submission_target(target):
     if isinstance(target, ServiceQueue):
-        queue = ServiceQueue.objects.select_for_update().select_related("makerspace", "machine_type").get(pk=target.pk)
+        queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=target.pk)
         if queue.machine_type.makerspace_id not in (None, queue.makerspace_id):
             raise ServiceMachineUnavailable("Service queue machine type is outside its makerspace.")
         return queue
     if isinstance(target, ServiceBucket):
         bucket = ServiceBucket.objects.select_related("machine__makerspace").get(pk=target.pk)
-        return Machine.objects.select_for_update().select_related("makerspace").get(pk=bucket.machine_id)
-    return Machine.objects.select_for_update().select_related("makerspace").get(pk=target.pk)
+        return Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=bucket.machine_id)
+    return Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=target.pk)
 
 
 def _locked_submission_machine(target):

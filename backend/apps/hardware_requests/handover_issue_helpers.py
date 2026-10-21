@@ -28,6 +28,16 @@ def validate_broken_rejects(locked, rejects_by_item):
                 "Individual-tracked items can't be rejected as broken at handover; "
                 "issue them and mark the specific unit damaged at return."
             )
+    # An "issue" that hands over nothing would leave an ISSUED request with no unit
+    # outstanding, which no return can ever close.
+    issued_total = sum(
+        item.accepted_quantity - rejects_by_item.get(item.id, (0, None))[0]
+        for item in items.values()
+    )
+    if issued_total <= 0:
+        raise RequestValidationError(
+            "Every accepted unit was rejected as broken, so nothing would be issued."
+        )
 
 
 def issue_individual_assets(actor, locked, asset_qr_payloads):

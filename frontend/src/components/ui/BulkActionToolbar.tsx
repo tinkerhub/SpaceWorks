@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { Button } from "./Button";
+
 type BulkActionToolbarProps = {
   selectedCount: number;
   onClear: () => void;
@@ -7,6 +9,7 @@ type BulkActionToolbarProps = {
   clearLabel?: string;
 };
 
+/** Appears while rows are selected: count, bulk actions, and a quiet clear. */
 export function BulkActionToolbar({
   selectedCount,
   onClear,
@@ -16,12 +19,12 @@ export function BulkActionToolbar({
   if (selectedCount <= 0) return null;
 
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 text-sm text-accent-ink">
+    <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg bg-info-bg px-4 py-2.5 text-sm text-info-fg">
       <span className="font-semibold">{selectedCount} selected</span>
-      {actions ? <div className="desk-actions flex min-w-0 flex-wrap items-center gap-2">{actions}</div> : null}
-      <button className="desk-button ml-0 w-full sm:ml-auto sm:w-auto" type="button" onClick={onClear}>
+      {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2">{actions}</div> : null}
+      <Button variant="quiet" size="sm" className="ml-0 text-info-fg sm:ml-auto" onClick={onClear}>
         {clearLabel}
-      </button>
+      </Button>
     </div>
   );
 }

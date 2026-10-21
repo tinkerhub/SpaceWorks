@@ -1,4 +1,6 @@
 import type { MembershipPolicyEnum } from "../../generated/api";
+import { Button } from "../../components/ui";
+import { AccountCard } from "../account/AccountCard";
 
 export type JoinCtaState = {
   title: string;
@@ -32,11 +34,20 @@ export function JoinMembershipCta({ policy, signedIn, pending, onJoin, onSignIn 
   onSignIn: () => void;
 }) {
   const state = joinCtaState(policy, signedIn);
-  return <section className="desk-panel p-5">
-    <h2 className="title-panel">{state.title}</h2>
-    <p className="mt-1 text-sm text-muted">{state.description}</p>
-    {state.action !== "none" ? <button className="desk-button-secondary mt-4" type="button" disabled={pending} onClick={state.action === "join" ? onJoin : onSignIn}>
-      {pending && state.action === "join" ? "Sending…" : state.actionLabel}
-    </button> : null}
-  </section>;
+  return (
+    <AccountCard
+      title={state.title}
+      description={state.description}
+      action={state.action !== "none" ? (
+        <Button
+          variant="primary"
+          loading={pending && state.action === "join"}
+          loadingLabel="Sending…"
+          onClick={state.action === "join" ? onJoin : onSignIn}
+        >
+          {state.actionLabel}
+        </Button>
+      ) : null}
+    />
+  );
 }

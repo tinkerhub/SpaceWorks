@@ -8,6 +8,7 @@ from apps.makerspaces.models import Makerspace, MakerspaceMembership
 from apps.makerspaces.origin_scope_routes import (
     MAKERSPACE_KWARG_ROUTES as _MAKERSPACE_KWARG_ROUTES,
     MODEL_LOOKUPS as _MODEL_LOOKUPS,
+    ORIGIN_FILTERED_ROUTES,
     TARGET_SET_LOOKUPS,
     request_route_targets,
 )
@@ -152,6 +153,10 @@ def staff_origin_scope_allows(request, view=None):
         )
     target = _target_makerspace_id(request, view, resolution=resolution)
     if target is None:
+        if url_name in ORIGIN_FILTERED_ROUTES:
+            # The view narrows to `scope` itself; only an unhinted, valid request
+            # reaches this branch (a hint would have produced a target above).
+            return bool(route_recognized and not invalid and not targets)
         return _global_endpoint_allowed(request)
     return target == scope
 

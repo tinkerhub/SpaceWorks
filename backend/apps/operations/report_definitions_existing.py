@@ -37,7 +37,7 @@ EXISTING_REPORT_DEFINITIONS = (
     ReportDefinition(
         "payment-reconciliation", "apps.operations.reports_payments.build_payment_reconciliation",
         ("currency", "subject_type", "status", "payment_count", "amount_total", "outstanding_amount"),
-        required_action=rbac.Action.MANAGE_MAKERSPACE, title="Payment reconciliation",
+        ("payments",), required_action=rbac.Action.MANAGE_MAKERSPACE, title="Payment reconciliation",
         chart_hint="stacked_bar",
     ),
 )

@@ -13,7 +13,7 @@ from apps.admin_api.serializers_member_memberships import (AdminMembershipSerial
 from apps.admin_api.serializers_payment_summary import scoped_payment_context
 from apps.admin_api.views_roles import ERRORS
 from apps.makerspaces import membership_services, waiver_services
-from apps.makerspaces.guards import require_module
+from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.models import MakerspaceMembership, MakerspaceRole, MakerspaceWaiver, MembershipRequest
 from apps.makerspaces.serializers_memberships import WaiverPublishSerializer
 from apps.makerspaces.servability import servable_queryset
@@ -84,10 +84,14 @@ class AdminMembershipRequestListView(APIView):
     @extend_schema(tags=["Admin memberships"], responses={200: MembershipRequestSerializer(many=True), **ERRORS})
     def get(self, request):
         makerspace = _makerspace(request.user, request.query_params.get("makerspace_id"))
-        # Gated alongside approve/revoke: staff must not be shown a queue of community
-        # join requests they have no enabled surface to action.
-        require_module(makerspace, "membership")
         queryset = MembershipRequest.objects.filter(makerspace=makerspace).select_related("user", "assigned_role")
+        if not module_enabled(makerspace, "membership"):
+            # Community join requests and invitations belong to the module and must not
+            # be listed without a surface to action them. Staff invitations are core
+            # RBAC and stay listed, or a claimed one could never be found to approve.
+            queryset = queryset.filter(
+                kind=MembershipRequest.Kind.INVITE, assigned_role__isnull=False,
+            ).exclude(assigned_role__granted_actions=[])
         if request.query_params.get("state"):
             queryset = queryset.filter(state=request.query_params["state"])
         pager = self.pagination_class()
@@ -114,7 +118,8 @@ class AdminRequestApproveView(APIView):
     def post(self, request, pk):
         item = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_MAKERSPACE, MembershipRequest.objects.select_related("makerspace")), pk=pk)
         makerspace = _makerspace(request.user, item.makerspace_id)
-        require_module(makerspace, "membership")
+        # The `membership` gate is applied to community requests only, under the
+        # makerspace lock, inside `approve_request` -- staff invitations stay approvable.
         serializer = RoleIdSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         membership = membership_services.approve_request(request.user, item, _role(makerspace, serializer.validated_data["role_id"]))
@@ -135,7 +140,8 @@ class AdminRequestRevokeView(APIView):
     @extend_schema(tags=["Admin memberships"], request=RevokeSerializer, responses={200: MembershipRequestSerializer, **ERRORS})
     def post(self, request, pk):
         item = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_MAKERSPACE, MembershipRequest.objects.select_related("makerspace")), pk=pk)
-        require_module(_makerspace(request.user, item.makerspace_id), "membership")
+        _makerspace(request.user, item.makerspace_id)
+        # Community requests are refused with `membership` off inside `revoke_request`.
         serializer = RevokeSerializer(data=request.data); serializer.is_valid(raise_exception=True)
         item = membership_services.revoke_request(request.user, item, serializer.validated_data.get("reason", ""))
         return Response(MembershipRequestSerializer(item).data)

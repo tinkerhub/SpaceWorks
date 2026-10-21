@@ -1,36 +1,32 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
 
+import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
 import { MakerspaceBrand } from "../../components/MakerspaceBrand";
 import { MakerspaceMapLink } from "../../components/MakerspaceMapLink";
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { ChartIcon, UserIcon } from "../../components/icons";
-import { Card, Field, IconLink } from "../../components/ui";
-import { useTenant, useTenantPath } from "../../lib/tenant";
+import { Button, Chip, Field, PageHeader, Pagination, SearchInput } from "../../components/ui";
+import { useModules } from "../../lib/modules";
 import type { Product, RequestCartItem } from "../../types/inventory";
 import { ProductCard } from "./ProductCard";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
-import {
-  CatalogSidebar,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  formatSlug,
-  type View,
-} from "./PublicInventoryParts";
+import { CatalogFilters, EmptyState, ErrorState, LoadingState, type View } from "./PublicInventoryParts";
 import { PublicRequestPanel } from "./PublicRequestPanel";
-import { SkipLink } from "../../components/SkipLink";
-import { usePublicCategories, usePublicInventory, useTenantBootstrap } from "./usePublicInventory";
+import { useMakerspacePublic } from "./useMakerspacePublic";
+import { usePublicCategories, usePublicInventory } from "./usePublicInventory";
 
 const PAGE_SIZE = 24;
 
+function maxQuantity(product: Product): number {
+  if (product.availability?.mode === "exact_count" && typeof product.availability.count === "number") {
+    return product.availability.count;
+  }
+  return 99;
+}
+
 export function PublicInventoryPage() {
-  const { slug } = useParams();
-  const tenant = useTenant();
-  const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
-  const tenantPath = useTenantPath(makerspaceSlug);
+  const space = useMakerspacePublic();
+  const { makerspaceSlug, bootstrap, displayName } = space;
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -39,58 +35,21 @@ export function PublicInventoryPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const categoryParam = view.kind === "category" ? view.slug : "";
   const sortParam = view.kind === "sort" ? view.sort : "name";
-  const bootstrapQuery = useTenantBootstrap(makerspaceSlug, tenant.mode === "central");
   const categoriesQuery = usePublicCategories(makerspaceSlug);
-  const inventoryQuery = usePublicInventory(
-    makerspaceSlug,
-    page,
-    query,
-    categoryParam,
-    sortParam,
-  );
-  const bootstrap = tenant.mode === "single" ? tenant.bootstrap : bootstrapQuery.data;
-  const displayName =
-    bootstrap?.branding.display_name ||
-    bootstrap?.makerspace.name ||
-    formatSlug(makerspaceSlug) ||
-    "Makerspace";
-  const modules = tenant.mode === "single" ? tenant.modules : new Set(bootstrap?.modules ?? []);
-  const requestEnabled = modules.has("request_workflow");
+  const inventoryQuery = usePublicInventory(makerspaceSlug, page, query, categoryParam, sortParam);
+  const { moduleEnabled } = useModules();
   const categories = categoriesQuery.data ?? [];
   const products = inventoryQuery.data?.results ?? [];
-  const pageCount = Math.max(
-    1,
-    Math.ceil((inventoryQuery.data?.count ?? 0) / PAGE_SIZE),
-  );
+  const count = inventoryQuery.data?.count;
+  const pageCount = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const selectedItems = useMemo(() => Object.values(cart), [cart]);
 
-  function maxQuantity(product: Product): number {
-    if (
-      product.availability?.mode === "exact_count" &&
-      typeof product.availability.count === "number"
-    ) {
-      return product.availability.count;
-    }
-
-    return 99;
-  }
-
   function incrementItem(product: Product) {
-    if (product.availability?.label === "Unavailable") {
-      return;
-    }
-
+    if (product.availability?.label === "Unavailable") return;
     setCart((current) => {
       const existing = current[product.id];
       const quantity = Math.min((existing?.quantity ?? 0) + 1, maxQuantity(product));
-      return {
-        ...current,
-        [product.id]: {
-          productId: product.id,
-          name: product.name,
-          quantity,
-        },
-      };
+      return { ...current, [product.id]: { productId: product.id, name: product.name, quantity } };
     });
   }
 
@@ -102,14 +61,7 @@ export function PublicInventoryPage() {
         delete next[product.id];
         return next;
       }
-
-      return {
-        ...current,
-        [product.id]: {
-          ...existing,
-          quantity: existing.quantity - 1,
-        },
-      };
+      return { ...current, [product.id]: { ...existing, quantity: existing.quantity - 1 } };
     });
   }
 
@@ -119,186 +71,81 @@ export function PublicInventoryPage() {
     setPage(1);
   }
 
+  function clearSearch() {
+    setSearchInput("");
+    setQuery("");
+    setPage(1);
+  }
+
   function selectView(next: View) {
     setView(next);
     setPage(1);
   }
 
   return (
-    <main className="desk-shell">
-      <SkipLink />
-      <header className="material-chrome border-b border-line">
-        <div className="mx-auto flex max-w-screen-2xl flex-col gap-2 px-5 py-4 sm:px-8">
-          <p className="eyebrow text-secondary-ink">
-            Public Inventory
-          </p>
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="title-page">
-                <MakerspaceBrand
-                  name={displayName}
-                  logoUrl={bootstrap?.makerspace.logo_url}
-                  size="xl"
-                />
-              </h1>
-              <p className="mt-1 text-sm text-muted">
-                Shared tools and equipment published by this makerspace.
-              </p>
-              <MakerspaceMapLink
-                makerspace={bootstrap?.makerspace}
-                className="mt-1"
-              />
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Inventory" />}>
+      <PublicContainer width="xl">
+        <PageHeader
+          kicker="Public inventory"
+          title={<MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace?.logo_url} size="xl" />}
+          description="Shared tools and equipment published by this makerspace."
+          actions={<Chip tone="secondary">{count ?? "–"} listed items</Chip>}
+        />
+        <MakerspaceMapLink makerspace={bootstrap?.makerspace} className="mt-2" />
+
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="min-w-0 space-y-5">
+            <div className="space-y-4">
+              <form className="flex flex-col gap-2.5 sm:flex-row" role="search" onSubmit={submitSearch}>
+                <Field className="min-w-0 flex-1" label="Search inventory" hideLabel>
+                  <SearchInput
+                    placeholder="Search tools, machines, kits or materials"
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                    onClear={searchInput || query ? clearSearch : undefined}
+                  />
+                </Field>
+                <Button type="submit" className="shrink-0">Search</Button>
+              </form>
+              <CatalogFilters categories={categories} view={view} onSelect={selectView} />
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center justify-end gap-2">
-                {bootstrap?.makerspace.public_stats_enabled ? (
-                  <IconLink label="Stats" to={tenantPath("stats")}>
-                    <ChartIcon />
-                  </IconLink>
-                ) : null}
-                <ThemeToggle variant="icon" />
-                <IconLink label="Staff login" to="/admin">
-                  <UserIcon />
-                </IconLink>
-              </div>
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <SpaceWorksBadge />
-                <div className="rounded-lg border border-secondary bg-secondary/15 px-3 py-2 font-mono text-sm text-secondary-ink">
-                  {inventoryQuery.data?.count ?? "-"} listed items
+
+            {inventoryQuery.isLoading ? <LoadingState /> : null}
+            {inventoryQuery.isError ? <ErrorState error={inventoryQuery.error} /> : null}
+            {inventoryQuery.data && products.length === 0 ? <EmptyState query={query} onClear={clearSearch} /> : null}
+
+            {products.length > 0 ? (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-busy={inventoryQuery.isFetching || undefined}>
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      quantity={cart[product.id]?.quantity ?? 0}
+                      onDecrement={() => decrementItem(product)}
+                      onIncrement={() => incrementItem(product)}
+                      onOpenDetails={() => setSelectedProduct(product)}
+                    />
+                  ))}
                 </div>
-                {modules.has("printing") ? (
-                  <Link className="desk-button" to={tenantPath("print")}>
-                    Request a 3D print
-                  </Link>
-                ) : null}
-                {modules.has("events") ? (
-                  <Link className="desk-button" to={tenantPath("events")}>
-                    Events
-                  </Link>
-                ) : null}
-                {modules.has("machines") ? (
-                  <Link className="desk-button" to={tenantPath("machines")}>
-                    Machines
-                  </Link>
-                ) : null}
-                {modules.has("bookings") ? (
-                  <Link className="desk-button" to={tenantPath("bookings")}>
-                    Book a space
-                  </Link>
-                ) : null}
-              </div>
-            </div>
+                <Pagination page={page} totalPages={pageCount} onChange={setPage} count={count} pageSize={PAGE_SIZE} />
+              </>
+            ) : null}
+          </div>
+
+          <div className="min-w-0">
+            <PublicRequestPanel
+              items={selectedItems}
+              makerspaceSlug={makerspaceSlug}
+              onClear={() => setCart({})}
+              disabled={!moduleEnabled("request_workflow")}
+              requestAccess={bootstrap?.makerspace?.request_access}
+            />
           </div>
         </div>
-      </header>
+      </PublicContainer>
 
-      <section className="mx-auto grid max-w-screen-2xl grid-cols-1 gap-5 px-5 py-6 sm:px-8 lg:grid-cols-[200px_minmax(0,1fr)_360px]" id="main-content" tabIndex={-1}>
-        <CatalogSidebar
-          categories={categories}
-          view={view}
-          onSelect={selectView}
-        />
-
-        <div className="min-w-0 space-y-4">
-          <Card>
-            <form className="flex flex-col gap-3 sm:flex-row" onSubmit={submitSearch}>
-              <Field className="min-w-0 flex-1" label="Search inventory">
-                <input
-                  className="desk-input min-w-0 flex-1"
-                  placeholder="Search tools, machines, kits, or materials"
-                  value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                />
-              </Field>
-              <button className="desk-button-primary" type="submit">
-                Search
-              </button>
-              {query ? (
-                <button
-                  className="desk-button"
-                  type="button"
-                  onClick={() => {
-                    setSearchInput("");
-                    setQuery("");
-                    setPage(1);
-                  }}
-                >
-                  Clear
-                </button>
-              ) : null}
-            </form>
-          </Card>
-
-          {inventoryQuery.isLoading ? <LoadingState /> : null}
-
-          {inventoryQuery.isError ? (
-            <ErrorState error={inventoryQuery.error} />
-          ) : null}
-
-          {inventoryQuery.data && products.length === 0 ? (
-            <EmptyState query={query} />
-          ) : null}
-
-          {products.length > 0 ? (
-            <>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    quantity={cart[product.id]?.quantity ?? 0}
-                    onDecrement={() => decrementItem(product)}
-                    onIncrement={() => incrementItem(product)}
-                    onOpenDetails={() => setSelectedProduct(product)}
-                  />
-                ))}
-              </div>
-              <div className="desk-panel flex flex-wrap items-center justify-between gap-3 p-3">
-                <p className="min-w-0 font-mono text-sm text-muted">
-                  Page {page} of {pageCount}
-                  {inventoryQuery.isFetching ? " loading..." : ""}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="desk-button"
-                    disabled={!inventoryQuery.data?.previous || page === 1}
-                    type="button"
-                    onClick={() => setPage((current) => Math.max(1, current - 1))}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    className="desk-button"
-                    disabled={!inventoryQuery.data?.next}
-                    type="button"
-                    onClick={() =>
-                      setPage((current) => Math.min(pageCount, current + 1))
-                    }
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </>
-          ) : null}
-        </div>
-
-        <div className="min-w-0">
-          <PublicRequestPanel
-            items={selectedItems}
-            makerspaceSlug={makerspaceSlug}
-            onClear={() => setCart({})}
-            disabled={!requestEnabled}
-            requestAccess={bootstrap?.makerspace.request_access}
-          />
-        </div>
-      </section>
-
-      <ProductQuickViewModal
-        product={selectedProduct}
-        open={Boolean(selectedProduct)}
-        onClose={() => setSelectedProduct(null)}
-      />
-    </main>
+      <ProductQuickViewModal product={selectedProduct} open={Boolean(selectedProduct)} onClose={() => setSelectedProduct(null)} />
+    </PublicShell>
   );
 }

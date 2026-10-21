@@ -1,7 +1,9 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 
-import { Spinner } from "../../components/ui/Spinner";
+import { Button, Callout, Chip, ErrorText, Field, Input, Skeleton, Textarea } from "../../components/ui";
+import { cn } from "../../lib/cn";
 import type { PrintStatus } from "./publicApi";
 
 export type TextInputProps = {
@@ -10,6 +12,8 @@ export type TextInputProps = {
   onChange: (value: string) => void;
   required?: boolean;
   type?: string;
+  optional?: boolean;
+  helperText?: string;
 };
 
 const steps = [
@@ -20,53 +24,19 @@ const steps = [
   { key: "collected", label: "Collected" },
 ];
 
-const STEP_TONE_CLASSES = [
-  "border-accent bg-accent text-on-accent dark:bg-accent/15 dark:text-accent-ink",
-  "border-warn bg-warn text-on-warn dark:bg-warn/15 dark:text-warn-ink",
-  "border-secondary bg-secondary text-on-secondary dark:bg-secondary/15 dark:text-secondary-ink",
-  "border-success bg-success text-on-success dark:bg-success/15 dark:text-success-ink",
-  "border-success bg-success text-on-success dark:bg-success/15 dark:text-success-ink",
-] as const;
-
-export function TextInput({
-  label,
-  value,
-  onChange,
-  required = false,
-  type = "text",
-}: TextInputProps) {
+export function TextInput({ label, value, onChange, required = false, type = "text", optional, helperText }: TextInputProps) {
   return (
-    <label className="block">
-      <span className="eyebrow mb-1 block">
-        {label}
-      </span>
-      <input
-        className="desk-input w-full"
-        required={required}
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <Field label={label} optional={optional} helperText={helperText}>
+      <Input required={required} type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+    </Field>
   );
 }
 
-export function TextArea({
-  label,
-  value,
-  onChange,
-}: TextInputProps) {
+export function TextArea({ label, value, onChange, optional, helperText }: TextInputProps) {
   return (
-    <label className="block">
-      <span className="eyebrow mb-1 block">
-        {label}
-      </span>
-      <textarea
-        className="desk-input min-h-24 w-full"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <Field label={label} optional={optional} helperText={helperText}>
+      <Textarea value={value} onChange={(event) => onChange(event.target.value)} />
+    </Field>
   );
 }
 
@@ -88,40 +58,31 @@ export function FilePicker({
   }
 
   return (
-    <div className="min-w-0">
-      <label className="block min-w-0">
-        <span className="eyebrow mb-1 block">
-          {label}
-        </span>
+    <div className="min-w-0 space-y-2">
+      <Field label={label}>
         <input
           accept={accept}
-          className="desk-input w-full"
+          className="block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas p-1 text-sm text-ink-muted file:mr-3 file:min-h-9 file:rounded-full file:border-0 file:bg-fill file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-emphasis focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60"
           multiple
           type="file"
           onChange={addFiles}
         />
-      </label>
+      </Field>
       {files.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">No files selected.</p>
+        <p className="text-caption text-ink-muted">No files selected.</p>
       ) : (
-        <ul className="mt-2 space-y-2">
+        <ul className="divide-y divide-line rounded-md border border-line">
           {files.map((file, index) => (
-            <li
-              className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2 text-sm"
-              key={`${file.name}-${file.lastModified}-${index}`}
-            >
-              <span className="min-w-0 truncate text-ink">{file.name}</span>
-              <button
-                className="min-h-11 px-2 text-xs font-semibold text-danger"
-                type="button"
-                onClick={() =>
-                  setFiles((current) =>
-                    current.filter((_, fileIndex) => fileIndex !== index),
-                  )
-                }
+            <li className="flex min-w-0 items-center justify-between gap-3 py-1 pl-3 pr-1" key={`${file.name}-${file.lastModified}-${index}`}>
+              <span className="min-w-0 truncate text-body-ui text-ink">{file.name}</span>
+              <Button
+                variant="danger-quiet"
+                size="sm"
+                aria-label={`Remove ${file.name}`}
+                onClick={() => setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index))}
               >
                 Remove
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -176,55 +137,55 @@ export function StatusStepper({ status }: { status: PrintStatus }) {
 
   if (terminalError) {
     return (
-      <div className="status-box status-box-danger w-full justify-start">
+      <Callout tone="danger" role="status">
         {status.title} is {status.status}.
-      </div>
+      </Callout>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <div className="space-y-4">
+      <ol className="space-y-0">
         {steps.map((step, index) => {
-          const state =
-            index < currentIndex
-              ? STEP_TONE_CLASSES[index] ?? STEP_TONE_CLASSES[0]
-              : index === currentIndex
-                ? STEP_TONE_CLASSES[index] ?? STEP_TONE_CLASSES[0]
-                : "";
+          const done = index < currentIndex;
+          const current = index === currentIndex;
           return (
-            <div
-              className={`status-box w-full ${state}`}
-              key={step.key}
-            >
-              <p className="break-words font-semibold leading-tight">{step.label}</p>
-            </div>
+            <li key={step.key} className="relative flex min-h-9 items-center gap-3 pb-1 last:pb-0" aria-current={current ? "step" : undefined}>
+              {index < steps.length - 1 ? (
+                <span aria-hidden="true" className={cn("absolute left-[11px] top-7 h-[calc(100%-1.25rem)] w-0.5 rounded-full", done ? "bg-success" : "bg-emphasis")} />
+              ) : null}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "relative inline-flex size-6 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[11px] font-bold",
+                  done && "border-success bg-success text-on-success",
+                  current && "border-accent-ink bg-accent text-on-accent",
+                  !done && !current && "border-line-strong bg-canvas text-ink-muted",
+                )}
+              >
+                {done ? <Check className="size-3.5" strokeWidth={3} /> : index + 1}
+              </span>
+              <span className={cn("break-words text-body-ui", current ? "font-semibold text-ink" : done ? "text-ink" : "text-ink-muted")}>
+                {step.label}
+                {done ? <span className="sr-only"> (done)</span> : null}
+              </span>
+            </li>
           );
         })}
-      </div>
+      </ol>
       {status.queue_position != null ? (
-        <div
-          aria-live="polite"
-          className="rounded-xl border border-line bg-panel px-3 py-2 text-center shadow-soft"
-        >
-          <p className="font-mono text-sm font-semibold text-ink">
-            #{status.queue_position} in the queue
-          </p>
-          <p className="eyebrow mt-1">
-            {queuePositionDetail(status)}
-          </p>
+        <div aria-live="polite" className="rounded-lg bg-subtle px-4 py-3 text-center">
+          <p className="font-display text-2xl font-extrabold text-ink">#{status.queue_position} in the queue</p>
+          <p className="mt-0.5 text-caption text-ink-muted">{queuePositionDetail(status)}</p>
         </div>
       ) : null}
       {timeLeft ? (
-        <p className="rounded-lg border border-accent bg-accent px-3 py-2 text-center font-mono text-sm font-semibold text-on-accent dark:bg-accent/15 dark:text-accent-ink">
-          {timeLeft}
+        <p className="text-center">
+          <Chip tone="info">{timeLeft}</Chip>
         </p>
       ) : null}
-      <p className="text-sm text-muted">
-        Current status:{" "}
-        <span className="font-mono font-semibold capitalize text-ink">
-          {status.status.replace("_", " ")}
-        </span>
+      <p className="text-body-ui text-ink-muted">
+        Current status: <span className="font-semibold text-ink">{status.status.replace("_", " ")}</span>
       </p>
     </div>
   );
@@ -241,27 +202,22 @@ export function StatusResult({
 }) {
   if (isPending) {
     return (
-      <div className="grid min-h-24 place-items-center">
-        <Spinner />
+      <div className="space-y-2" aria-busy="true" aria-label="Loading print status">
+        <Skeleton className="h-5 w-2/3" />
+        <Skeleton className="h-32 w-full" />
       </div>
     );
   }
 
   if (error) {
-    return (
-      <p className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-        {error.message}
-      </p>
-    );
+    return <ErrorText message={error.message} />;
   }
 
   return status ? (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div>
-        <h3 className="title-section break-words">{status.title}</h3>
-        <p className="eyebrow mt-1">
-          Created {new Date(status.created_at).toLocaleString()}
-        </p>
+        <h3 className="break-words text-title text-ink">{status.title}</h3>
+        <p className="mt-0.5 text-caption text-ink-muted">Created {new Date(status.created_at).toLocaleString()}</p>
       </div>
       <StatusStepper status={status} />
     </div>

@@ -34,6 +34,28 @@ a starting point. If your community works differently, make it your own.
 One deployment can host **many makerspaces** (tenants). Each owns its inventory, public URL, staff,
 Telegram group, QR namespace, and audit scope — fully isolated from the others.
 
+## Screenshots
+
+Captured from a local stack loaded with `manage.py seed_demo`.
+
+| Public catalogue | Staff sign-in |
+| --- | --- |
+| ![Public inventory catalogue with search, category filters and a borrow request panel](docs/screenshots/public-inventory.png) | ![Two-column staff sign-in page](docs/screenshots/staff-sign-in.png) |
+| **Staff dashboard** | **Inventory** |
+| ![Staff console dashboard with the collapsible sidebar and stat tiles](docs/screenshots/staff-dashboard.png) | ![Inventory table with live counts, status chips and row actions](docs/screenshots/staff-inventory.png) |
+| **Requests and handover** | **Machines** |
+| ![Request queue grouped into pending review, ready for handover and active loans](docs/screenshots/staff-requests.png) | ![Machine types as cards with the setup section below](docs/screenshots/staff-machines.png) |
+| **Stocktake** | **Settings** |
+| ![Stocktake page with its start action and empty state](docs/screenshots/staff-stocktake.png) | ![Makerspace settings in tabs with switches and setting rows](docs/screenshots/staff-settings.png) |
+| **Dark mode** | **Dark mode, public** |
+| ![Inventory table in dark mode](docs/screenshots/staff-inventory-dark.png) | ![Public catalogue in dark mode](docs/screenshots/public-inventory-dark.png) |
+
+<p align="center">
+  <img src="docs/screenshots/mobile-public-inventory.png" alt="Public catalogue on a phone" width="260">
+  &nbsp;
+  <img src="docs/screenshots/mobile-staff-dashboard.png" alt="Staff dashboard on a phone" width="260">
+</p>
+
 ## Features
 
 - **Public catalog** — browse by makerspace and category, request to borrow, and (when enabled)
@@ -93,7 +115,7 @@ curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/insta
 ```
 
 It installs to `/opt/spaceworks`; set `SPACEWORKS_DIR` on the `bash` side of the pipe to override that
-(on Windows Git Bash, use `SPACEWORKS_DIR="$HOME/SpaceWorks"`). It detects x86_64/aarch64 and the host
+(on Windows, run it from a WSL2 shell; native Git Bash and PowerShell are not supported). It detects x86_64/aarch64 and the host
 distribution, checks dependencies, Docker, release availability, ports, disk space and existing state
 **before changing anything**, then installs missing Linux dependencies through apt, dnf/yum, pacman or
 zypper. The downloaded source and backend/frontend images are pinned to the tagged release.
@@ -142,16 +164,19 @@ tick list, while `--modules-only`, `--all-modules`, `--without=a,b`, `--confirm-
 
 Unticking a module hides its surfaces and calls `uninstall_module`; it does **not** delete rows.
 `purge_module_data` is a separate destructive command and is never called by setup or update.
+Before applying, the tick list names every requirement it pulls in (ticking `events` or `bookings` also
+enables `membership`) and what turning `membership` on or off does to who may submit a borrow request.
+Modules this deployment does not ship are not offered, Stripe keys entered during setup pre-tick
+`payments`, and a selection that fails to apply makes setup and update exit non-zero.
 
 ### Windows support boundary
 
-- **Tier 1 — native:** install, run and upgrade with Docker Desktop plus Git Bash (or run the bash scripts
-  inside WSL). Because native Git Bash normally has no `flock`, the updater falls back to a PID/timestamp
-  directory lock, automatically clears a dead owner's lock, and provides `--override-lock` for a verified
-  wedged or unreadable owner.
-- **Tier 2 — WSL2 required:** in-place restore, backup import and compound host orchestration. Those
-  supervisors depend on Linux AF_UNIX sockets and root-owned-file trust semantics with no native Windows
-  equivalent; this tier does not have native parity.
+Windows is supported through **WSL2 only**: install Docker Desktop with its WSL2 integration, open a WSL2
+shell, and run the installer, `setup.sh`, `scripts/update.sh`, restore and recovery from there. Native Git
+Bash and PowerShell are not supported — the production host scripts need Linux `flock`, AF_UNIX sockets, root-owned-file trust semantics and Docker bind paths that Git Bash's MSYS path conversion rewrites. `setup.ps1` and
+`scripts/update.ps1` only print that refusal. On a host without `flock`, the updater falls back to a
+PID/timestamp directory lock, clears a dead owner's lock, and provides `--override-lock` for a verified
+wedged or unreadable owner.
 
 ## Modules
 
@@ -555,16 +580,17 @@ third party. The [Quick start](#quick-start) above is the recommended path. Afte
 Create the first superadmin + makerspace (the wizard does this for you; for a manual instance):
 
 ```bash
-scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py setup_instance
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py setup_instance --username admin --password 'a-strong-password' --makerspace-name 'My Makerspace'
 ```
 
-With no arguments it seeds **`superadmin` / `super123`** and forces a password change on first login.
+There is no default password: creating the superadmin needs `--password` (or
+`SETUP_SUPERADMIN_PASSWORD`), and the command refuses before writing anything without one.
 The in-app updater is retired: its panel, API, admin page and module key are gone, and migration
 `0070_remove_in_app_updates` strips the stored module key. Its table stays one more release.
 Guided installs can deploy the latest successful `main` release through a self-hosted Actions runner, with a backup
 and readiness check. If deployment fails, the application containers return to the previous retained
 release. Run
-`bash scripts/update.sh` on Linux or Windows Git Bash for an immediate update when the installed version
+`bash scripts/update.sh` on Linux (on Windows, from WSL2) for an immediate update when the installed version
 differs from the latest release; add `--force` to reinstall it. Set the repository variable
 `SPACEWORKS_DEPLOY_RUNNER=false` to stop automatic deployment jobs;
 see **[docs/self-hosting.md](docs/self-hosting.md)** for runner setup, public-repository risks, pinning, TLS and recovery.
@@ -636,7 +662,8 @@ Both sides are driven from the staff console; nothing here needs a shell.
 
 ## Tech stack
 
-Django 6 + DRF · React 19 + Vite 8 + Tailwind CSS 4 + TypeScript (TanStack Query v5) · PostgreSQL 16 ·
+Django 6 + DRF · React 19 + Vite 8 + Tailwind CSS 4 + TypeScript (TanStack Query v5, Radix UI
+primitives, lucide icons; Bricolage Grotesque, Figtree and JetBrains Mono via Fontsource) · PostgreSQL 16 ·
 Celery + Redis · MinIO (S3-compatible) · django-unfold admin · drf-spectacular / OpenAPI. Delivered as
 two Docker images (`spaceworks-backend`, `spaceworks-frontend`); everything else is official upstream images.
 

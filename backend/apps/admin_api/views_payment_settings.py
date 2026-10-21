@@ -12,6 +12,7 @@ from apps.admin_api.serializers_payments import (
 )
 from apps.audit import services as audit
 from apps.makerspaces.domain_verification import is_self_host
+from apps.makerspaces.guards import require_module
 from apps.makerspaces.servability import servable_queryset
 from apps.payments.connect import create_onboarding
 from apps.payments.models import MakerspacePaymentSettings
@@ -24,7 +25,7 @@ class MakerspacePaymentSettingsView(APIView):
     http_method_names = ["get", "patch", "head", "options"]
 
     def _makerspace(self, request, makerspace_id):
-        return get_object_or_404(
+        makerspace = get_object_or_404(
             rbac.scope_by_action(
                 request.user,
                 rbac.Action.MANAGE_MAKERSPACE,
@@ -33,12 +34,20 @@ class MakerspacePaymentSettingsView(APIView):
             ),
             pk=makerspace_id,
         )
+        # View-level for the PATCH too, deliberately not under the makerspace lock:
+        # credential validation reaches Stripe, and external I/O must never run while a
+        # row lock is held. Settings are configuration, not charges -- with the module
+        # off they are retained and simply unreachable, and every new charge is
+        # re-checked under the lock in `payments.availability.new_charges_allowed_locked`.
+        require_module(makerspace, "payments")
+        return makerspace
 
     @extend_schema(
         tags=["Admin payment settings"],
         summary="Retrieve makerspace payment settings",
         responses={
             200: MakerspacePaymentSettingsSerializer,
+            400: OpenApiResponse(description="The payments module is disabled for this makerspace."),
             403: PaymentSettingsErrorSerializer,
             404: PaymentSettingsErrorSerializer,
         },
@@ -54,7 +63,7 @@ class MakerspacePaymentSettingsView(APIView):
         request=MakerspacePaymentSettingsSerializer,
         responses={
             200: MakerspacePaymentSettingsSerializer,
-            400: OpenApiResponse(description="Invalid payment settings."),
+            400: OpenApiResponse(description="Invalid payment settings, or the payments module is disabled."),
             403: PaymentSettingsErrorSerializer,
             404: PaymentSettingsErrorSerializer,
         },
@@ -88,6 +97,7 @@ class StripeConnectOnboardingView(APIView):
         request=None,
         responses={
             200: StripeConnectOnboardingSerializer,
+            400: OpenApiResponse(description="The payments module is disabled for this makerspace."),
             403: PaymentSettingsErrorSerializer,
             404: PaymentSettingsErrorSerializer,
             503: PaymentSettingsErrorSerializer,
@@ -107,6 +117,7 @@ class StripeConnectOnboardingView(APIView):
             ),
             pk=makerspace_id,
         )
+        require_module(makerspace, "payments")
         try:
             authorize_url = create_onboarding(makerspace, request.user)
         except PaymentsUnavailable:

@@ -1,6 +1,8 @@
 import logging
 
+from apps.integrations.dispatch_channels import channel_module_blocks
 from apps.integrations.email import send_makerspace_email
+from apps.integrations.models import NotificationChannel
 from apps.integrations.telegram import send_message
 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,10 @@ def notify_subdomain_request_resolved(subdomain_request):
         )
 
     try:
-        send_message(makerspace, f"Subdomain request '{label}' was {status}.")
+        # Same channel/module gate as every lifecycle alert: a space without the
+        # `telegram` module gets no Telegram message, even with a bot configured.
+        if not channel_module_blocks(makerspace, NotificationChannel.TELEGRAM):
+            send_message(makerspace, f"Subdomain request '{label}' was {status}.")
     except Exception:
         logger.warning(
             "subdomain_request_telegram_notification_failed",

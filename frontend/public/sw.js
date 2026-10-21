@@ -1,4 +1,5 @@
-const CACHE_NAME = "spaceworks-static-v1";
+// Bumped from v1 so `activate` evicts any `/config.js` an older worker cached.
+const CACHE_NAME = "spaceworks-static-v2";
 const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font"]);
 
 self.addEventListener("activate", (event) => {
@@ -17,6 +18,9 @@ self.addEventListener("fetch", (event) => {
     || url.origin !== self.location.origin
     || url.pathname.startsWith("/api/")
     || url.pathname.startsWith("/api/v1/")
+    // Runtime deployment config (API base, tenant token) is per-deploy, not a static
+    // asset: a cached copy would pin the app to a stale tenant or API origin.
+    || url.pathname === "/config.js"
     || request.headers.has("Authorization")
     || !STATIC_DESTINATIONS.has(request.destination);
   if (bypass) return;

@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { CollaboratorList, type CollaboratorRow } from "./CollaboratorList";
 import { eventSeriesKeys } from "./eventSeriesApi";
 import { eventKeys } from "./eventsApi";
+import { eventErrorText } from "./eventUi";
 import { organizedEventKeys } from "./organizedEventsApi";
-
-type Collaborator = {
-  id: number; makerspace_name: string; makerspace_slug: string; status: string;
-};
 
 export function EventSeriesCollaborators({ seriesId, makerspaceId }: { seriesId: number; makerspaceId: number }) {
   const client = useQueryClient();
+  const { showToast } = useToast();
   const [slug, setSlug] = useState("");
   const path = `/admin/event-series/${seriesId}/collaborators/`;
   const query = useQuery({
     queryKey: eventSeriesKeys.collaborators(seriesId),
-    queryFn: () => staffRequest<Collaborator[]>(path),
+    queryFn: () => staffRequest<CollaboratorRow[]>(path),
   });
   const invalidate = () => Promise.all([
     client.invalidateQueries({ queryKey: eventSeriesKeys.collaborators(seriesId) }),
@@ -26,7 +26,7 @@ export function EventSeriesCollaborators({ seriesId, makerspaceId }: { seriesId:
     client.invalidateQueries({ queryKey: ["member"] }),
   ]);
   const replace = useMutation({
-    mutationFn: (slugs: string[]) => staffRequest<Collaborator[]>(path, {
+    mutationFn: (slugs: string[]) => staffRequest<CollaboratorRow[]>(path, {
       method: "PUT", body: JSON.stringify({ slugs }),
     }), onSuccess: invalidate,
   });
@@ -35,11 +35,33 @@ export function EventSeriesCollaborators({ seriesId, makerspaceId }: { seriesId:
     onSuccess: invalidate,
   });
   const rows = query.data ?? [];
-  return <section aria-labelledby="series-collaborators-title">
-    <h3 id="series-collaborators-title" className="title-section">Series partners</h3>
-    <p className="mt-1 text-sm text-muted">One accepted invitation applies to every current and future occurrence.</p>
-    <ul className="mt-3 space-y-2 text-sm">{rows.map((row) => <li key={row.id} className="flex items-center justify-between gap-2"><span>{row.makerspace_name} ({row.makerspace_slug}) · {row.status}</span><button className="desk-button text-danger" type="button" disabled={remove.isPending} onClick={() => remove.mutate(row.id)}>Remove</button></li>)}</ul>
-    <div className="mt-3 flex flex-wrap items-end gap-2"><label className="grid gap-1 text-sm font-semibold text-ink">Makerspace slug<input className="desk-input" value={slug} onChange={(e) => setSlug(e.target.value)} /></label><button className="desk-button" type="button" disabled={!slug.trim() || replace.isPending} onClick={() => replace.mutate(Array.from(new Set([...rows.map((row) => row.makerspace_slug), slug.trim().toLowerCase()])), { onSuccess: () => setSlug("") })}>Invite</button></div>
-    {query.error || replace.error || remove.error ? <p className="mt-2 text-sm text-danger" role="alert">Could not update series partners.</p> : null}
-  </section>;
+  const failed = (error: unknown) => showToast(eventErrorText(error), { tone: "error" });
+  const invite = () => {
+    const wanted = slug.trim().toLowerCase();
+    if (!wanted) return;
+    // Replaces the whole set: keep every existing partner (declined included) plus the new one.
+    replace.mutate(Array.from(new Set([...rows.map((row) => row.makerspace_slug), wanted])), {
+      onSuccess: () => { setSlug(""); showToast("Invitation sent", { tone: "success" }); },
+      onError: failed,
+    });
+  };
+
+  return (
+    <CollaboratorList
+      title="Series partners"
+      description="One accepted invitation applies to every current and future date in the series."
+      rows={rows}
+      loading={query.isLoading}
+      slug={slug}
+      onSlugChange={setSlug}
+      onInvite={invite}
+      inviting={replace.isPending}
+      removing={remove.isPending}
+      onRemove={(row, done) => remove.mutate(row.id, {
+        onSuccess: () => { done(); showToast(`${row.makerspace_name} removed`, { tone: "success" }); },
+        onError: (error) => { done(); failed(error); },
+      })}
+      error={query.error || replace.error || remove.error ? "Could not update series partners." : null}
+    />
+  );
 }

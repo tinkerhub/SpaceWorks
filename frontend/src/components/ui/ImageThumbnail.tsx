@@ -6,7 +6,7 @@ type ImageThumbnailProps = {
 
 export function ImageThumbnail({ src, alt, className = "h-12 w-12" }: ImageThumbnailProps) {
   return (
-    <div className={`${className} shrink-0 overflow-hidden rounded-md border border-line bg-surface`}>
+    <div className={`${className} shrink-0 overflow-hidden rounded-md border border-line bg-fill`}>
       {src ? (
         <img src={src} alt={alt} className="h-full w-full object-cover" />
       ) : (

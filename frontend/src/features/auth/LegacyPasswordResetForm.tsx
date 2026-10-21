@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
+import { AuthLayout } from "../../components/chrome/AuthLayout";
+import { Button, ErrorText, buttonClasses } from "../../components/ui";
 import { NewPasswordFields } from "./NewPasswordFields";
 import { CONFIRM_FAILURE_MESSAGE, confirmLegacyPasswordReset } from "./passwordRecovery";
 
@@ -28,34 +29,33 @@ export function LegacyPasswordResetForm({ uid, token }: { uid: string; token: st
     }
   };
 
+  if (updated) {
+    return (
+      <AuthLayout kicker="Account access" title="Password updated" description="Your password has been updated. You can now sign in.">
+        <Link className={buttonClasses({ variant: "primary", fullWidth: true })} to="/admin">Go to sign in</Link>
+      </AuthLayout>
+    );
+  }
+
   return (
-    <main className="desk-shell grid place-items-center px-5">
-      <section className="desk-panel w-full max-w-md p-6">
-        <SpaceWorksBadge className="mb-5" />
-        <p className="text-xs font-semibold tracking-wide text-accent-ink">Account access</p>
-        {updated ? (
-          <>
-            <h1 className="mt-2 text-2xl font-bold text-ink">Password updated</h1>
-            <p className="mt-4 text-sm text-muted">Your password has been updated. You can now sign in.</p>
-            <Link className="desk-button-secondary mt-5 w-full" to="/admin">Go to sign in</Link>
-          </>
-        ) : (
-          <form onSubmit={(event) => { event.preventDefault(); if (canSubmit) void submit(); }}>
-            <h1 className="mt-2 text-2xl font-bold text-ink">Set a new password</h1>
-            <NewPasswordFields
-              idPrefix="legacy-reset"
-              newPassword={newPassword}
-              confirmPassword={confirmPassword}
-              onNewPasswordChange={setNewPassword}
-              onConfirmPasswordChange={setConfirmPassword}
-            />
-            {error ? <p className="mt-3 text-sm text-danger" role="alert">{error}</p> : null}
-            <button className="desk-button-secondary mt-5 w-full" type="submit" disabled={!canSubmit}>
-              {pending ? "Updating..." : "Update password"}
-            </button>
-          </form>
-        )}
-      </section>
-    </main>
+    <AuthLayout kicker="Account access" title="Set a new password" description="Choose a password you have not used here before.">
+      <form
+        className="flex flex-col gap-4"
+        aria-label="Set a new password"
+        onSubmit={(event) => { event.preventDefault(); if (canSubmit) void submit(); }}
+      >
+        <NewPasswordFields
+          idPrefix="legacy-reset"
+          newPassword={newPassword}
+          confirmPassword={confirmPassword}
+          onNewPasswordChange={setNewPassword}
+          onConfirmPasswordChange={setConfirmPassword}
+        />
+        <ErrorText message={error} />
+        <Button variant="primary" type="submit" fullWidth disabled={!canSubmit} loading={pending}>
+          Update password
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

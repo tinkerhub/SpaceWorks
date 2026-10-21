@@ -1,8 +1,21 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Panel, useStaffGet, type Makerspace } from "./shared";
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorBlock,
+  SegmentedControl,
+  Skeleton,
+  StatusChip,
+  useToast,
+  type StatusTone,
+} from "../../../components/ui";
+import { cn } from "../../../lib/cn";
 import { staffRequest } from "../../../lib/api";
+import { absoluteTime, formatLogTime, LogPager } from "./StaffLogParts";
+import { errorText, Panel, useStaffGet, type Makerspace } from "./shared";
 
 type NotificationLevel = "info" | "warning" | "critical";
 
@@ -24,8 +37,15 @@ type NotificationResponse = {
   results: NotificationEntry[];
 };
 
+const LEVELS: Record<NotificationLevel, { label: string; tone: StatusTone }> = {
+  info: { label: "Info", tone: "info" },
+  warning: { label: "Warning", tone: "warning" },
+  critical: { label: "Critical", tone: "danger" },
+};
+
 export function NotificationInbox({ makerspace }: { makerspace: Makerspace }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [page, setPage] = useState(1);
   const params = new URLSearchParams();
@@ -38,140 +58,147 @@ export function NotificationInbox({ makerspace }: { makerspace: Makerspace }) {
   );
   const invalidateNotifications = () => {
     queryClient.invalidateQueries({ queryKey: ["notifications", makerspace.id] });
-    queryClient.invalidateQueries({ queryKey: ["notifications-unread-count", makerspace.id] });
+    // The sidebar badge (useUnreadNotifications) caches under this key.
+    queryClient.invalidateQueries({ queryKey: ["notifications-unread", makerspace.id] });
   };
   const markRead = useMutation({
     mutationFn: (id: number) =>
       staffRequest<NotificationEntry>(`/notifications/makerspace/${makerspace.id}/${id}/read`, {
         method: "POST",
       }),
-    onSuccess: invalidateNotifications,
+    onSuccess: () => {
+      invalidateNotifications();
+      showToast("Marked as read", { tone: "success" });
+    },
+    onError: (error) => showToast(errorText(error, "Couldn't mark it as read"), { tone: "error" }),
   });
   const markAllRead = useMutation({
     mutationFn: () =>
       staffRequest<{ updated: number }>(`/notifications/makerspace/${makerspace.id}/read-all`, {
         method: "POST",
       }),
-    onSuccess: invalidateNotifications,
+    onSuccess: () => {
+      invalidateNotifications();
+      showToast("All notifications marked as read", { tone: "success" });
+    },
+    onError: (error) => showToast(errorText(error, "Couldn't mark everything as read"), { tone: "error" }),
   });
 
   const updateUnreadOnly = (checked: boolean) => {
     setUnreadOnly(checked);
     setPage(1);
   };
+  const rows = notifications.data?.results ?? [];
 
   return (
-    <Panel title="Notifications">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <label className="eyebrow inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={unreadOnly}
-            onChange={(event) => updateUnreadOnly(event.target.checked)}
-          />
-          Unread only
-        </label>
-        <button
-          className="desk-button-success"
-          disabled={markAllRead.isPending || notifications.data?.count === 0}
+    <Panel
+      title="Notifications"
+      description="Alerts for this makerspace: overdue loans, machine faults and anything else that needs someone."
+      actions={
+        <Button
+          variant="primary"
+          loading={markAllRead.isPending}
+          disabled={notifications.data?.count === 0}
           onClick={() => markAllRead.mutate()}
         >
           Mark all read
-        </button>
-      </div>
-      {notifications.isLoading ? <p className="mb-3 text-sm text-muted">Loading notifications...</p> : null}
-      {notifications.error ? <p className="mb-3 text-sm text-danger">{notifications.error.message}</p> : null}
-      {markRead.error ? <p className="mb-3 text-sm text-danger">{markRead.error.message}</p> : null}
-      {markAllRead.error ? <p className="mb-3 text-sm text-danger">{markAllRead.error.message}</p> : null}
-      <div className="grid gap-3">
-        {notifications.data?.results.map((notification) => {
-          const unread = notification.read_at === null;
-          return (
-            <article
-              key={notification.id}
-              className={`rounded-lg border border-line bg-bg p-3 ${unread ? "shadow-soft" : "opacity-80"}`}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className={`status-box ${levelClassName(notification.level)}`}>
-                      {notification.level}
-                    </span>
-                    {notification.event ? <span className="text-xs text-muted">{notification.event}</span> : null}
-                    <span className="font-mono text-xs text-muted">{formatRelativeTime(notification.created_at)}</span>
-                  </div>
-                  <h3 className="title-section break-words">{notification.title}</h3>
-                  {notification.body ? (
-                    <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-muted">
-                      {notification.body}
-                    </p>
-                  ) : null}
-                  {notification.url_path ? (
-                    <a className="mt-2 inline-block text-sm font-medium text-accent-ink" href={notification.url_path}>
-                      Open
-                    </a>
-                  ) : null}
-                </div>
-                {unread ? (
-                  <button
-                    className="desk-button-success shrink-0"
-                    disabled={markRead.isPending}
-                    onClick={() => markRead.mutate(notification.id)}
-                  >
-                    Mark read
-                  </button>
-                ) : null}
+        </Button>
+      }
+    >
+      <div className="grid gap-4">
+        <SegmentedControl
+          ariaLabel="Show"
+          value={unreadOnly ? "unread" : "all"}
+          onValueChange={(value) => updateUnreadOnly(value === "unread")}
+          options={[
+            { value: "all", label: "All" },
+            { value: "unread", label: "Unread only" },
+          ]}
+          className="self-start justify-self-start"
+        />
+        <ErrorBlock error={notifications.error} />
+        <ErrorBlock error={markRead.error} />
+        <ErrorBlock error={markAllRead.error} />
+
+        {notifications.isLoading ? (
+          <Card padding="none" aria-busy="true" aria-label="Loading notifications">
+            {[0, 1, 2].map((key) => (
+              <div key={key} className="grid gap-2 border-b border-line p-4 last:border-b-0">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-4 w-full" />
               </div>
-            </article>
-          );
-        })}
-        {notifications.data && notifications.data.results.length === 0 ? (
-          <p className="py-4 text-sm text-muted">No notifications.</p>
+            ))}
+          </Card>
         ) : null}
-      </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <button
-          className="desk-button-ghost"
-          disabled={!notifications.data?.previous}
-          onClick={() => setPage((current) => Math.max(1, current - 1))}
-        >
-          Previous
-        </button>
-        <span className="text-muted">
-          Page {page}{" - "}{notifications.data?.count ?? 0} total
-        </span>
-        <button
-          className="desk-button-ghost"
-          disabled={!notifications.data?.next}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+
+        {notifications.data && rows.length === 0 ? (
+          <EmptyState
+            title={unreadOnly ? "You're all caught up" : "No notifications yet"}
+            description={unreadOnly ? "Nothing unread. Switch to All to see earlier alerts." : "Alerts for this makerspace will show up here."}
+          />
+        ) : null}
+
+        {rows.length ? (
+          <Card as="section" padding="none" aria-label="Notification list">
+            <ul>
+              {rows.map((notification) => {
+                const unread = notification.read_at === null;
+                const level = LEVELS[notification.level] ?? LEVELS.info;
+                return (
+                  <li
+                    key={notification.id}
+                    className={cn("flex flex-wrap items-start gap-3 border-b border-line p-4 last:border-b-0", unread && "bg-subtle")}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn("mt-2 size-2 shrink-0 rounded-full", unread ? "bg-accent-ink" : "bg-transparent")}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <StatusChip tone={level.tone} size="sm">{level.label}</StatusChip>
+                        {unread ? <span className="sr-only">Unread.</span> : null}
+                        {notification.event ? <span className="text-caption text-ink-muted">{humanize(notification.event)}</span> : null}
+                        <time className="text-caption text-ink-muted" dateTime={notification.created_at} title={absoluteTime(notification.created_at)}>
+                          {formatLogTime(notification.created_at)}
+                        </time>
+                      </div>
+                      <h3 className={cn("break-words text-title", unread ? "text-ink" : "text-ink-secondary")}>{notification.title}</h3>
+                      {notification.body ? (
+                        <p className="mt-1 whitespace-pre-wrap break-words text-body-ui text-ink-muted">{notification.body}</p>
+                      ) : null}
+                      {notification.url_path ? (
+                        <a className="mt-2 inline-block text-sm font-semibold text-accent-ink underline-offset-4 hover:underline" href={notification.url_path}>
+                          Open
+                        </a>
+                      ) : null}
+                    </div>
+                    {unread ? (
+                      <Button size="sm" variant="secondary" className="shrink-0" disabled={markRead.isPending} onClick={() => markRead.mutate(notification.id)}>
+                        Mark read
+                      </Button>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </Card>
+        ) : null}
+
+        <LogPager
+          page={page}
+          count={notifications.data?.count ?? 0}
+          hasPrevious={Boolean(notifications.data?.previous)}
+          hasNext={Boolean(notifications.data?.next)}
+          onPage={setPage}
+          disabled={notifications.isFetching}
+        />
       </div>
     </Panel>
   );
 }
 
-function levelClassName(level: NotificationLevel) {
-  if (level === "critical") return "status-box-danger";
-  if (level === "warning") return "status-box-pending";
-  return "status-box-active";
-}
-
-function formatRelativeTime(value: string) {
-  const timestamp = new Date(value).getTime();
-  if (!Number.isFinite(timestamp)) return "";
-  const diffSeconds = Math.round((timestamp - Date.now()) / 1000);
-  const absSeconds = Math.abs(diffSeconds);
-  const formatter = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  if (absSeconds < 60) return formatter.format(diffSeconds, "second");
-  const diffMinutes = Math.round(diffSeconds / 60);
-  if (Math.abs(diffMinutes) < 60) return formatter.format(diffMinutes, "minute");
-  const diffHours = Math.round(diffMinutes / 60);
-  if (Math.abs(diffHours) < 24) return formatter.format(diffHours, "hour");
-  const diffDays = Math.round(diffHours / 24);
-  if (Math.abs(diffDays) < 30) return formatter.format(diffDays, "day");
-  const diffMonths = Math.round(diffDays / 30);
-  if (Math.abs(diffMonths) < 12) return formatter.format(diffMonths, "month");
-  return formatter.format(Math.round(diffMonths / 12), "year");
+function humanize(value: string) {
+  const words = value.replace(/[_.]/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }

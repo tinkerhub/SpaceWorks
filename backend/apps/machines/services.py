@@ -67,7 +67,7 @@ def machine_usage_total(machine):
 def update_image(machine, actor, object_key):
     # No tenant-wide lock: a `machine/` key is pinned to that prefix by the attach view,
     # so only another Machine can claim it and this row lock is what serializes that.
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
     old_key = machine.image_key
@@ -89,7 +89,7 @@ def update_image(machine, actor, object_key):
 
 @transaction.atomic
 def remove_image(machine, actor):
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
     if machine.image_key:

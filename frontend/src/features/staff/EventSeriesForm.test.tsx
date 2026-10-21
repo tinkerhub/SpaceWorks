@@ -28,7 +28,8 @@ describe("EventSeriesFields", () => {
     expect(screen.getByText(
       "Wall-clock time stays fixed across daylight-saving changes.",
     )).toBeVisible();
-    fireEvent.change(screen.getByLabelText("Repeats"), { target: { value: "DAILY" } });
+    fireEvent.click(screen.getByRole("combobox", { name: "Repeats" }));
+    fireEvent.click(screen.getByRole("option", { name: "Daily" }));
     expect(screen.getByText(
       "Every day at 18:00 (America/New_York).",
     )).toBeVisible();

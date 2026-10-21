@@ -1,6 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Upload } from "lucide-react";
 
+import { Button, ConfirmDialog, ErrorText, Field, Input, Skeleton, useToast } from "../../components/ui";
+import { errorText } from "./panels/shared";
 import { WarrantyStatusBadge } from "./WarrantyStatusBadge";
 import {
   deleteWarrantyDocument,
@@ -9,6 +12,7 @@ import {
   saveWarranty,
   uploadWarrantyDocument,
   type Warranty,
+  type WarrantyDocument,
   type WarrantyHostKind,
   type WarrantyPayload,
 } from "./warrantyApi";
@@ -37,7 +41,8 @@ const acceptedDocumentTypes = "application/pdf,image/jpeg,image/png,image/webp";
 
 export function WarrantySection({ hostKind, hostId, disabled = false }: WarrantySectionProps) {
   const queryClient = useQueryClient();
-  const inputId = useId();
+  const { showToast } = useToast();
+  const headingId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const queryKey = ["warranty", hostKind, hostId] as const;
   const warranty = useQuery({
@@ -46,6 +51,7 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
   });
   const [form, setForm] = useState<WarrantyForm>(emptyForm);
   const [documentError, setDocumentError] = useState("");
+  const [removeTarget, setRemoveTarget] = useState<WarrantyDocument | null>(null);
 
   useEffect(() => {
     setForm(formFromWarranty(warranty.data ?? null));
@@ -61,7 +67,9 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKey, updated);
       queryClient.invalidateQueries({ queryKey: ["warranties"] });
+      showToast("Warranty saved.", { tone: "success" });
     },
+    onError: (err) => showToast(errorText(err, "Could not save warranty."), { tone: "error" }),
   });
 
   const upload = useMutation({
@@ -70,22 +78,38 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
       for (const file of files) {
         await uploadWarrantyDocument(warranty.data.id, file);
       }
+      return files.length;
     },
-    onSuccess: () => {
+    onSuccess: (count) => {
       setDocumentError("");
       if (inputRef.current) inputRef.current.value = "";
       invalidate();
+      showToast(count === 1 ? "Document attached." : `${count} documents attached.`, { tone: "success" });
     },
-    onError: (err) => setDocumentError(err instanceof Error ? err.message : "Upload failed."),
+    onError: (err) => {
+      // Files uploaded before the failing one are attached already; show them.
+      if (inputRef.current) inputRef.current.value = "";
+      invalidate();
+      const message = errorText(err, "Upload failed.");
+      setDocumentError(message);
+      showToast(message, { tone: "error" });
+    },
   });
 
   const remove = useMutation({
     mutationFn: deleteWarrantyDocument,
-    onSuccess: invalidate,
+    onSuccess: () => {
+      setRemoveTarget(null);
+      invalidate();
+      showToast("Document removed.", { tone: "success" });
+    },
+    onError: (err) => showToast(errorText(err, "Could not remove document."), { tone: "error" }),
   });
 
   const current = warranty.data;
   const documents = current?.documents ?? [];
+  const fieldsDisabled = disabled || save.isPending;
+  const setField = (field: keyof WarrantyForm) => (value: string) => setForm((currentForm) => ({ ...currentForm, [field]: value }));
 
   async function openDocument(documentId: number) {
     setDocumentError("");
@@ -93,112 +117,101 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
       const { url } = await getWarrantyDocumentUrl(documentId);
       window.open(url, "_blank", "noopener");
     } catch (err) {
-      setDocumentError(err instanceof Error ? err.message : "Could not open document.");
+      const message = errorText(err, "Could not open document.");
+      setDocumentError(message);
+      showToast(message, { tone: "error" });
     }
   }
 
   return (
-    <section className="min-w-0 rounded-md border border-line bg-bg p-3">
+    <section aria-labelledby={headingId} className="grid min-w-0 gap-4 rounded-lg border border-line bg-canvas p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h4 className="title-section">Warranty</h4>
+        <h3 id={headingId} className="text-title text-ink">Warranty</h3>
         <WarrantyStatusBadge status={current?.status ?? "unknown"} />
       </div>
 
-      {warranty.isLoading ? <p className="mt-2 text-xs text-muted">Loading warranty...</p> : null}
-      {warranty.error instanceof Error ? <p className="mt-2 text-xs text-danger">{warranty.error.message}</p> : null}
+      {warranty.isLoading ? <Skeleton className="h-24 w-full" /> : null}
+      {warranty.error ? <ErrorText message={errorText(warranty.error, "Could not load the warranty.")} /> : null}
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <WarrantyInput
-          label="Purchased"
-          type="date"
-          value={form.purchased_on}
-          disabled={disabled || save.isPending}
-          onChange={(value) => setForm((currentForm) => ({ ...currentForm, purchased_on: value }))}
-        />
-        <WarrantyInput
-          label="Expires"
-          type="date"
-          value={form.warranty_expires_on}
-          disabled={disabled || save.isPending}
-          onChange={(value) => setForm((currentForm) => ({ ...currentForm, warranty_expires_on: value }))}
-        />
-        <WarrantyInput
-          label="Vendor"
-          value={form.vendor_name}
-          disabled={disabled || save.isPending}
-          onChange={(value) => setForm((currentForm) => ({ ...currentForm, vendor_name: value }))}
-        />
-        <WarrantyInput
-          label="Contact"
-          value={form.vendor_contact}
-          disabled={disabled || save.isPending}
-          onChange={(value) => setForm((currentForm) => ({ ...currentForm, vendor_contact: value }))}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <WarrantyInput label="Purchased" type="date" value={form.purchased_on} disabled={fieldsDisabled} onChange={setField("purchased_on")} />
+        <WarrantyInput label="Expires" type="date" value={form.warranty_expires_on} disabled={fieldsDisabled} onChange={setField("warranty_expires_on")} />
+        <WarrantyInput label="Vendor" value={form.vendor_name} disabled={fieldsDisabled} onChange={setField("vendor_name")} />
+        <WarrantyInput label="Contact" value={form.vendor_contact} disabled={fieldsDisabled} onChange={setField("vendor_contact")} />
       </div>
 
       {!disabled ? (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button type="button" className="desk-button-primary" disabled={save.isPending} onClick={() => save.mutate()}>
-            {save.isPending ? "Saving..." : current ? "Save warranty" : "Create warranty"}
-          </button>
-          {save.error instanceof Error ? <span className="text-xs text-danger">{save.error.message}</span> : null}
+        <div className="grid gap-2">
+          <div>
+            <Button variant="primary" size="sm" loading={save.isPending} loadingLabel="Saving…" onClick={() => save.mutate()}>
+              {current ? "Save warranty" : "Create warranty"}
+            </Button>
+          </div>
+          {save.error ? <ErrorText message={errorText(save.error, "Could not save warranty.")} /> : null}
         </div>
       ) : null}
 
-      <div className="mt-3 border-t border-line pt-3">
-        <h5 className="title-section">Documents</h5>
+      <div className="grid gap-3 border-t border-line pt-4">
+        <h4 className="text-label text-ink">Documents</h4>
         {documents.length ? (
-          <div className="mt-2 grid gap-2">
+          <ul className="grid gap-2">
             {documents.map((document) => (
-              <div key={document.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border border-line bg-surface px-2 py-1.5 text-xs">
-                <span className="min-w-0 flex-1 break-words text-ink">{document.original_filename}</span>
-                <span className="font-mono text-muted">{formatBytes(document.size_bytes)}</span>
-                <button type="button" className="desk-button text-xs" onClick={() => openDocument(document.id)}>
-                  View
-                </button>
+              <li key={document.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2">
+                <span className="min-w-0 flex-1 break-words text-body-ui text-ink">{document.original_filename}</span>
+                <span className="text-caption tabular-nums text-ink-muted">{formatBytes(document.size_bytes)}</span>
+                <Button size="sm" variant="quiet" onClick={() => openDocument(document.id)}>View</Button>
                 {!disabled ? (
-                  <button
-                    type="button"
-                    className="desk-button-danger text-xs"
-                    disabled={remove.isPending}
-                    onClick={() => remove.mutate(document.id)}
-                  >
-                    Remove
-                  </button>
+                  <Button size="sm" variant="danger-quiet" disabled={remove.isPending} onClick={() => setRemoveTarget(document)}>
+                    Remove…
+                  </Button>
                 ) : null}
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
-          <p className="mt-2 text-xs text-muted">No documents attached.</p>
+          <p className="text-body-ui text-ink-muted">No documents attached.</p>
         )}
 
         {!disabled ? (
           current ? (
-            <div className="mt-2">
-              <label htmlFor={inputId} className="sr-only">Add warranty documents</label>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* The button opens this picker; the input itself stays out of the tab order. */}
               <input
-                id={inputId}
                 ref={inputRef}
                 type="file"
                 multiple
+                tabIndex={-1}
+                aria-hidden="true"
                 accept={acceptedDocumentTypes}
                 disabled={upload.isPending}
                 onChange={(event) => {
                   const files = Array.from(event.target.files ?? []);
                   if (files.length) upload.mutate(files);
                 }}
-                className="block w-full max-w-full min-w-0 text-xs text-muted file:mr-3 file:rounded-lg file:border file:border-line file:bg-accent file:px-3 file:py-1.5 file:font-mono file:text-xs file:font-semibold file:text-on-accent"
+                className="sr-only"
               />
-              {upload.isPending ? <p className="mt-1 text-xs text-muted">Uploading...</p> : null}
+              <Button size="sm" startIcon={<Upload />} loading={upload.isPending} loadingLabel="Uploading…" onClick={() => inputRef.current?.click()}>
+                Add warranty documents
+              </Button>
+              <span className="text-caption text-ink-muted">PDF, JPEG, PNG or WebP</span>
             </div>
           ) : (
-            <p className="mt-2 text-xs text-muted">Save warranty details first to attach documents.</p>
+            <p className="text-caption text-ink-muted">Save warranty details first to attach documents.</p>
           )
         ) : null}
-        {documentError ? <p className="mt-2 text-xs text-danger">{documentError}</p> : null}
-        {remove.error instanceof Error ? <p className="mt-2 text-xs text-danger">{remove.error.message}</p> : null}
+        <ErrorText message={documentError} />
+        {remove.error ? <ErrorText message={errorText(remove.error, "Could not remove document.")} /> : null}
       </div>
+      <ConfirmDialog
+        open={Boolean(removeTarget)}
+        title="Remove this document?"
+        message={removeTarget ? `${removeTarget.original_filename} will be detached from this warranty.` : ""}
+        confirmLabel="Remove document"
+        tone="danger"
+        pending={remove.isPending}
+        onCancel={() => setRemoveTarget(null)}
+        onConfirm={() => { if (removeTarget) remove.mutate(removeTarget.id); }}
+      />
     </section>
   );
 }
@@ -217,16 +230,9 @@ function WarrantyInput({
   type?: "text" | "date";
 }) {
   return (
-    <label className="grid min-w-0 gap-1 text-xs text-muted">
-      <span>{label}</span>
-      <input
-        className="desk-input min-w-0"
-        type={type}
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <Field label={label}>
+      <Input type={type} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} />
+    </Field>
   );
 }
 

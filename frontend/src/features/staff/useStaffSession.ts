@@ -179,8 +179,15 @@ export function useStaffSession(guestOnly: boolean) {
     setSelected(routeMakerspace.id);
   }, [routeMakerspace, selected, setSelected, singleTenantLocked]);
 
+  // Local sign-out must never depend on the network: a failed logout call still has to
+  // drop the in-memory session. logout() always clears the access token, and throws
+  // LogoutIncompleteError when the server did not confirm, which is caught here.
   const signOut = async () => {
-    await logoutStaff();
+    try {
+      await logoutStaff();
+    } catch {
+      // The server-side refresh cookie may survive; the local session is still cleared.
+    }
     await wipeOfflineScopes("staff:");
     setUser(null);
     setSelected(null);

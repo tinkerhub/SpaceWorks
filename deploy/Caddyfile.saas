@@ -11,6 +11,11 @@
     handle /api/v1/internal/* {
         respond 403
     }
+    # Readiness is a deployment probe, called inside the backend container; public
+    # liveness stays at /api/v1/health/.
+    handle /api/v1/health/readiness* {
+        respond 403
+    }
 
     @backend path /api/* /static/* /docs/* /redoc/* /schema/*
     reverse_proxy @backend backend:8000 {

@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 import { useEffect, useId, useRef, useSyncExternalStore } from "react";
+import { X } from "lucide-react";
+
+import { Button } from "./Button";
 import {
   consumePendingRestore,
   focusFirstDialogElement,
@@ -44,7 +47,8 @@ export function DetailDrawer({ open, title, onClose, children }: DetailDrawerPro
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!amTopRef.current) return;
-      if (event.key === "Escape") onCloseRef.current();
+      // A listbox or menu open inside the drawer handles (and prevents) its own Escape.
+      if (event.key === "Escape" && !event.defaultPrevented) onCloseRef.current();
       if (panel) trapDialogFocus(event, panel);
     };
 
@@ -75,7 +79,7 @@ export function DetailDrawer({ open, title, onClose, children }: DetailDrawerPro
       <button
         type="button"
         aria-label="Close detail drawer"
-        className="absolute inset-0 bg-ink/30"
+        className="sw-overlay-in absolute inset-0 bg-overlay"
         onClick={onClose}
       />
       <aside
@@ -88,20 +92,20 @@ export function DetailDrawer({ open, title, onClose, children }: DetailDrawerPro
            tab row and its two-column forms both overflowed, so tabs were clipped mid-word and
            an "Add" button sat half outside the panel. Widened, and capped at the viewport so
            it can never exceed the screen on a small display. */
-        className="drawer-safe-area absolute right-0 top-0 flex h-full w-full max-w-[min(48rem,100vw)] flex-col border-l-2 border-line bg-panel shadow-brutal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="drawer-safe-area sw-drawer-in absolute right-0 top-0 flex h-full w-full max-w-[min(48rem,100vw)] flex-col border-l border-line bg-canvas text-ink shadow-float focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
-        <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
-          <h2 id={titleId} className="title-panel min-w-0 truncate">
+        <header className="flex items-center gap-3 border-b border-line px-5 py-4">
+          <h2 id={titleId} className="min-w-0 truncate text-h4 text-ink">
             {title}
           </h2>
-          <button type="button" className="desk-button ml-auto shrink-0" onClick={onClose}>
+          <Button variant="secondary" size="sm" className="ml-auto shrink-0" startIcon={<X />} onClick={onClose}>
             Close
-          </button>
+          </Button>
         </header>
         {/* `min-w-0` so a wide child (a table, a long unbroken string) is constrained by the
             drawer and scrolls inside its own container, rather than stretching this flex column
             and pushing content out past the panel edge. */}
-        <div className="min-w-0 flex-1 overflow-y-auto p-4">{children}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto p-5">{children}</div>
       </aside>
     </div>
   );

@@ -1,22 +1,10 @@
 export type ReportCatalogItem = {
   key: string; title: string; fields: string[]; exportable: boolean; summary: boolean;
   required_modules: string[]; available: boolean | null; unavailable_reason: string | null;
-  grains: string[]; chart_hint: string; aggregate_supported: boolean;
+  grains: string[]; chart_hint: string;
 };
 export type ReportCatalog = { results: ReportCatalogItem[] };
 export type ReportKey = string;
-
-// The organization endpoint aggregates one report across a whole organization, and only
-// these keys have an aggregation strategy on the server (STRATEGIES in
-// apps/operations/org_report_strategies.py). Every other key is per-makerspace only —
-// offering one for an organization would call the endpoint with a key it rejects.
-const aggregateSupportedKeys = new Set([
-  "summary", "taken-items", "active-loans", "returns", "damaged-missing",
-  "damaged-lost", "qr-scans", "recently-added", "machine-usage", "most-lent",
-  "top-borrowers", "member-activity", "event-attendance", "booking-utilization",
-  "maintenance-activity", "fablab-health", "payment-reconciliation",
-  "evidence-compliance",
-]);
 
 export const reportDefinitions: ReportCatalogItem[] = [
   "summary", "taken-items", "active-loans", "returns", "damaged-missing",
@@ -31,7 +19,6 @@ export const reportDefinitions: ReportCatalogItem[] = [
   fields: [], exportable: key !== "summary", summary: key === "summary",
   required_modules: [], available: true, unavailable_reason: null,
   grains: ["day"], chart_hint: "table",
-  aggregate_supported: aggregateSupportedKeys.has(key),
 }));
 
 export type SavedReportView = {

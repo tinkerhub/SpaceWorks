@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge, CollapsibleSection, ErrorBlock } from "../../../../components/ui";
+import { Button, Chip, CollapsibleSection, EmptyState, ErrorBlock, Field, Input, ProgressBar, StatusChip, Switch } from "../../../../components/ui";
 import type { PrinterPool } from "../../../../generated/api";
 import { staffRequest } from "../../../../lib/api";
 import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
+import { useNotify } from "./machineUi";
 import { poolLabel, poolQueryKey } from "./servicePools";
 
 type Props = {
@@ -16,36 +17,30 @@ type Props = {
   onToggle: () => void;
 };
 
-type StockState = {
-  label: string;
-  band: string;
-  fill: string;
-};
+type StockState = { label: string; tone: "danger" | "warning" | "success" };
 
 export function poolStockState(pool: PrinterPool): StockState {
   const remaining = Number(pool.remaining_grams);
   const threshold = pool.low_threshold_grams === null || pool.low_threshold_grams === undefined
     ? null
     : Number(pool.low_threshold_grams);
-  if (remaining <= 0) {
-    return { label: "Empty", band: "bg-danger text-bg", fill: "bg-danger" };
-  }
-  if (threshold !== null && remaining <= threshold) {
-    return { label: "Low stock", band: "bg-warn text-on-warn", fill: "bg-warn" };
-  }
-  return { label: "In stock", band: "bg-success text-on-success", fill: "bg-success" };
+  if (remaining <= 0) return { label: "Empty", tone: "danger" };
+  if (threshold !== null && remaining <= threshold) return { label: "Low stock", tone: "warning" };
+  return { label: "In stock", tone: "success" };
 }
 
 export function SharedConsumablesSection({ makerspaceId, pools, existingPools, poolError, open, onToggle }: Props) {
   return (
     <CollapsibleSection title="Shared consumables" count={pools.length} open={open} onToggle={onToggle}>
-      <div className="grid gap-4 p-3">
-        <ConsumablePoolCreateForm makerspaceId={makerspaceId} existingPools={existingPools} />
-        <section>
-          <h4 className="title-section mb-2">Space-wide stock</h4>
+      <div className="grid gap-5 p-4">
+        <div className="rounded-lg border border-line bg-subtle p-4">
+          <ConsumablePoolCreateForm makerspaceId={makerspaceId} existingPools={existingPools} />
+        </div>
+        <section className="grid gap-3">
+          <h4 className="text-title text-ink">Space-wide stock</h4>
           <ConsumablePoolList makerspaceId={makerspaceId} pools={pools} />
         </section>
-        <ErrorBlock className="mt-2" error={poolError} />
+        <ErrorBlock error={poolError} />
       </div>
     </CollapsibleSection>
   );
@@ -53,6 +48,7 @@ export function SharedConsumablesSection({ makerspaceId, pools, existingPools, p
 
 export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: number; pools: PrinterPool[] }) {
   const queryClient = useQueryClient();
+  const notify = useNotify();
   const [adjustingId, setAdjustingId] = useState<number | null>(null);
   const [quantityDelta, setQuantityDelta] = useState("");
   const refresh = () => queryClient.invalidateQueries({ queryKey: poolQueryKey(makerspaceId) });
@@ -61,23 +57,33 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
       method: "POST",
       body: JSON.stringify({ quantity_delta, reason: "Manual correction" }),
     }),
-    onSuccess: async () => {
+    onSuccess: async (_result, { quantity_delta }) => {
+      notify.success(`Stock adjusted by ${Number(quantity_delta) > 0 ? "+" : ""}${quantity_delta}`);
       setAdjustingId(null);
       setQuantityDelta("");
       await refresh();
     },
+    onError: (error) => notify.failure("Couldn't adjust the stock.", error),
   });
   const visibility = useMutation({
     mutationFn: ({ id, isPublic }: { id: number; isPublic: boolean }) => staffRequest<PrinterPool>(`/admin/machine-service/consumable-pools/${id}`, {
       method: "PATCH",
       body: JSON.stringify({ is_public: isPublic }),
     }),
-    onSuccess: refresh,
+    onSuccess: async (_pool, { isPublic }) => {
+      notify.success(isPublic ? "Now visible to requesters" : "Hidden from requesters");
+      await refresh();
+    },
+    onError: (error) => notify.failure("Couldn't change visibility.", error),
   });
+
+  if (!pools.length) {
+    return <EmptyState title="No consumable pools" description="Add stock with the form above so jobs can draw from it." />;
+  }
 
   return (
     <>
-      <div className="grid gap-3">
+      <ul className="grid gap-3 md:grid-cols-2">
         {pools.map((pool) => {
           const label = poolLabel(pool);
           const unit = pool.unit ?? "grams";
@@ -88,93 +94,75 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
           const isPublic = pool.is_public !== false;
           const isAdjusting = adjustingId === pool.id;
           const validAdjustment = quantityDelta.trim() !== "" && Number.isFinite(Number(quantityDelta)) && Number(quantityDelta) !== 0;
+          const switchId = `pool-visibility-${pool.id}`;
           return (
-            <article className="overflow-hidden rounded-xl border border-line bg-bg" key={pool.id}>
-              <div className={`flex items-center justify-between gap-2 px-3 py-1.5 font-mono text-xs font-semibold ${state.band}`}>
-                <span>{state.label}</span>
-                <span>{Math.round(percent)}% remaining</span>
+            <li className="grid min-w-0 content-start gap-3 rounded-lg border border-line bg-canvas p-4" key={pool.id}>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <strong className="min-w-0 text-title text-ink">{label}</strong>
+                <StatusChip tone={state.tone} size="sm">{state.label}</StatusChip>
               </div>
-              <div className="grid gap-3 p-3">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <strong className="text-sm text-ink">{label}</strong>
-                    <div className="mt-1 flex flex-wrap gap-2">
-                      <Badge tone={pool.machine_id !== null ? "secondary" : pool.machine_type_id !== null ? "accent" : "neutral"}>
-                        {pool.machine_id !== null ? "Machine-specific" : pool.machine_type_id !== null ? "Type-wide" : "Space-wide"}
-                      </Badge>
-                      <span className="chip">
-                        <span
-                          aria-hidden="true"
-                          className="h-3 w-3 rounded-full border border-outline bg-surface"
-                          style={pool.color_hex || pool.color ? { backgroundColor: pool.color_hex || pool.color } : undefined}
-                        />
-                        Colour: {pool.color || "Not specified"}
-                      </span>
-                      {!isPublic ? <Badge tone="warn">Hidden from requesters</Badge> : null}
-                    </div>
-                  </div>
-                  {/* The accessible name must START with the visible text, or voice control cannot
-                      act on what the user reads (WCAG 2.5.3 Label in Name) -- "click Public" has to
-                      match. State lives in the label rather than aria-pressed: carrying both a
-                      changing name and a pressed state double-signals the same fact. */}
-                  <button
-                    aria-label={`${isPublic ? "Public" : "Hidden"}: ${label} — activate to ${isPublic ? "hide from" : "show to"} requesters`}
-                    className={isPublic ? "desk-button-warn" : "desk-button-success"}
-                    disabled={visibility.isPending}
-                    type="button"
-                    onClick={() => visibility.mutate({ id: pool.id, isPublic: !isPublic })}
-                  >
-                    {isPublic ? "Public" : "Hidden"}
-                  </button>
-                </div>
-                <div>
-                  <div
-                    aria-label={`${label} remaining`}
-                    aria-valuemax={initial}
-                    aria-valuemin={0}
-                    aria-valuenow={remaining}
-                    className="h-3 overflow-hidden rounded-full bg-surface"
-                    role="progressbar"
-                  >
-                    <div className={`h-full rounded-full ${state.fill}`} style={{ width: `${percent}%` }} />
-                  </div>
-                  <p className="mt-1 font-mono text-sm text-muted">
-                    <strong className="text-ink">{pool.remaining_grams}</strong> / {pool.initial_grams} {unit}
-                  </p>
-                </div>
-                {isAdjusting ? (
-                  <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); if (validAdjustment) adjustPool.mutate({ id: pool.id, quantity_delta: quantityDelta }); }}>
-                    <label className="eyebrow grid min-w-48 flex-1 gap-1">
-                      Adjustment ({unit}, + or −)
-                      <input
-                        autoFocus
-                        className="desk-input"
-                        inputMode="decimal"
-                        step="any"
-                        type="number"
-                        value={quantityDelta}
-                        onChange={(event) => setQuantityDelta(event.target.value)}
-                        required
-                      />
-                    </label>
-                    <button className="desk-button-primary" disabled={!validAdjustment || adjustPool.isPending} type="submit">
-                      {adjustPool.isPending ? "Saving..." : "Save adjustment"}
-                    </button>
-                    <button className="desk-button-ghost" disabled={adjustPool.isPending} type="button" onClick={() => { setAdjustingId(null); setQuantityDelta(""); adjustPool.reset(); }}>
-                      Cancel
-                    </button>
-                  </form>
-                ) : (
-                  <button className="desk-button-secondary justify-self-start" type="button" onClick={() => { setAdjustingId(pool.id); setQuantityDelta(""); adjustPool.reset(); }}>
-                    Adjust stock
-                  </button>
-                )}
+              <div className="flex flex-wrap gap-1.5">
+                <Chip size="sm" tone={pool.machine_id !== null ? "secondary" : pool.machine_type_id !== null ? "accent" : "neutral"}>
+                  {pool.machine_id !== null ? "Machine-specific" : pool.machine_type_id !== null ? "Type-wide" : "Space-wide"}
+                </Chip>
+                <Chip size="sm" tone="outline">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className="size-3 rounded-full border border-line-strong bg-fill"
+                      style={pool.color_hex || pool.color ? { backgroundColor: pool.color_hex || pool.color } : undefined}
+                    />
+                    Colour: {pool.color || "Not specified"}
+                  </span>
+                </Chip>
+                {!isPublic ? <Chip size="sm" tone="warning">Hidden from requesters</Chip> : null}
               </div>
-            </article>
+              <div className="grid gap-1.5">
+                <ProgressBar value={remaining} max={initial} tone={state.tone} label={`${label} remaining`} />
+                <div className="flex flex-wrap justify-between gap-2 text-caption text-ink-muted">
+                  <p className="tabular-nums"><strong className="text-ink">{pool.remaining_grams}</strong> / {pool.initial_grams} {unit}</p>
+                  <span>{Math.round(percent)}% remaining</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-3 border-t border-line pt-3">
+                {/* The accessible name STARTS with the visible text, so voice control can act on
+                    what the user reads (WCAG 2.5.3 Label in Name); the pool name keeps it unique. */}
+                <label htmlFor={switchId} className="cursor-pointer text-label text-ink">Visible to requesters</label>
+                <Switch
+                  id={switchId}
+                  aria-label={`Visible to requesters: ${label}`}
+                  checked={isPublic}
+                  disabled={visibility.isPending}
+                  onCheckedChange={(checked) => visibility.mutate({ id: pool.id, isPublic: checked })}
+                />
+              </div>
+              {isAdjusting ? (
+                <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); if (validAdjustment) adjustPool.mutate({ id: pool.id, quantity_delta: quantityDelta }); }}>
+                  <Field label={`Adjustment (${unit}, + or −)`} className="min-w-48 flex-1">
+                    <Input
+                      autoFocus
+                      inputMode="decimal"
+                      step="any"
+                      type="number"
+                      value={quantityDelta}
+                      onChange={(event) => setQuantityDelta(event.target.value)}
+                      required
+                    />
+                  </Field>
+                  <div className="flex gap-2">
+                    <Button type="submit" variant="primary" size="sm" loading={adjustPool.isPending} loadingLabel="Saving…" disabled={!validAdjustment}>Save adjustment</Button>
+                    <Button size="sm" variant="quiet" disabled={adjustPool.isPending} onClick={() => { setAdjustingId(null); setQuantityDelta(""); adjustPool.reset(); }}>Cancel</Button>
+                  </div>
+                </form>
+              ) : (
+                <Button className="justify-self-start" size="sm" onClick={() => { setAdjustingId(pool.id); setQuantityDelta(""); adjustPool.reset(); }}>
+                  Adjust stock
+                </Button>
+              )}
+            </li>
           );
         })}
-        {!pools.length ? <p className="text-sm text-muted">No consumable pools.</p> : null}
-      </div>
+      </ul>
       <ErrorBlock className="mt-2" error={adjustPool.error ?? visibility.error} />
     </>
   );

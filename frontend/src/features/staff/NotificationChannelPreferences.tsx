@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Callout, Card, CardHeader, ErrorBlock, Switch, Table, TBody, TD, TH, THead, TR, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { DELIVERY_SETTINGS_KEY } from "./MakerspaceWebhookSettings";
 import type {
@@ -23,6 +24,7 @@ type Props = {
 
 export function NotificationChannelPreferences({ makerspaceId, rules }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const rulesPath = `/admin/makerspace/${makerspaceId}/notification-rules`;
   const queryKey = ["notification-rules", makerspaceId] as const;
   const settings = useQuery({
@@ -50,10 +52,12 @@ export function NotificationChannelPreferences({ makerspaceId, rules }: Props) {
       );
       return { previous };
     },
-    onError: (_error, _change, context) => {
+    onSuccess: () => showToast("Channel setting saved", { tone: "success" }),
+    onError: (error, _change, context) => {
       if (context?.previous !== undefined) {
         queryClient.setQueryData(queryKey, context.previous);
       }
+      showToast(error.message || "Couldn't save the channel setting", { tone: "error" });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -63,91 +67,59 @@ export function NotificationChannelPreferences({ makerspaceId, rules }: Props) {
   const warnings = deliveryWarnings(rules.preferences, settings.data);
 
   return (
-    <section aria-labelledby="notification-channel-heading">
-      <h4 id="notification-channel-heading" className="text-sm font-semibold text-ink">
-        Notification channels
-      </h4>
-      <p className="mt-2 text-sm text-muted">
-        Checked = enabled for that feature and channel. The Staff email notifications switch and
-        per-member recipient toggles affect staff email only, not Telegram, Slack, or Mattermost.
-      </p>
-      <div className="mt-3 max-w-full overflow-x-auto rounded-md border border-line bg-bg">
-        <table className="w-max min-w-full border-collapse text-sm">
-          <caption className="sr-only">
-            Checked boxes enable each notification channel for a feature.
-          </caption>
-          <thead className="bg-surface text-xs uppercase text-muted">
-            <tr className="border-b border-line">
-              <th className="px-3 py-2 text-left font-semibold" scope="col">
-                Feature
-              </th>
-              {rules.channels.map((channel) => (
-                <th
-                  key={channel.key}
-                  className="min-w-28 px-3 py-2 text-center font-semibold"
-                  scope="col"
-                >
-                  {channel.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rules.features.map((feature) => (
-              <tr key={feature.key} className="border-b border-line last:border-b-0">
-                <th className="whitespace-nowrap px-3 py-2 text-left font-semibold text-ink" scope="row">
-                  {feature.label}
-                </th>
-                {rules.channels.map((channel) => {
-                  const cell = preferenceCell(rules.preferences, feature.key, channel.key);
-                  const checked = cell?.enabled ?? false;
-                  return (
-                    <td key={channel.key} className="px-3 py-2 text-center">
-                      <input
-                        aria-label={`${checked ? "Disable" : "Enable"} ${channel.label} for ${feature.label}`}
-                        className="h-4 w-4"
-                        type="checkbox"
-                        checked={checked}
-                        disabled={updatePreference.isPending}
-                        onChange={(event) =>
-                          updatePreference.mutate({
-                            feature: feature.key,
-                            channel: channel.key,
-                            enabled: event.target.checked,
-                          })
-                        }
-                      />
-                    </td>
-                  );
-                })}
-              </tr>
+    <Card as="section" aria-labelledby="notification-channel-heading">
+      <CardHeader
+        title={<span id="notification-channel-heading">Notification channels</span>}
+        description="Turn each channel on or off per feature. The staff email switch and per-member recipient toggles affect staff email only, not Telegram, Slack or Mattermost."
+      />
+      <Table label="Notification channels by feature">
+        <caption className="sr-only">Switches enable each notification channel for a feature.</caption>
+        <THead>
+          <tr>
+            <TH>Feature</TH>
+            {rules.channels.map((channel) => (
+              <TH key={channel.key} className="text-center">{channel.label}</TH>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </tr>
+        </THead>
+        <TBody>
+          {rules.features.map((feature) => (
+            <TR key={feature.key}>
+              <TH scope="row" className="text-label text-ink">{feature.label}</TH>
+              {rules.channels.map((channel) => {
+                const cell = preferenceCell(rules.preferences, feature.key, channel.key);
+                const checked = cell?.enabled ?? false;
+                return (
+                  <TD key={channel.key} className="text-center">
+                    <Switch
+                      aria-label={`${checked ? "Disable" : "Enable"} ${channel.label} for ${feature.label}`}
+                      checked={checked}
+                      disabled={updatePreference.isPending}
+                      onCheckedChange={(enabled) =>
+                        updatePreference.mutate({ feature: feature.key, channel: channel.key, enabled })
+                      }
+                    />
+                  </TD>
+                );
+              })}
+            </TR>
+          ))}
+        </TBody>
+      </Table>
       {warnings.length ? (
-        <div
-          className="mt-3 rounded-md border border-warn bg-warn/15 p-3 text-sm text-warn-ink"
-          role="status"
-          aria-live="polite"
-        >
-          <p className="font-semibold">Delivery setup needed</p>
+        <Callout tone="warning" role="status" title="Delivery setup needed" className="mt-4">
           <ul className="mt-1 list-disc pl-5">
             {warnings.map((warning) => (
               <li key={warning}>{warning}</li>
             ))}
           </ul>
-        </div>
+        </Callout>
       ) : null}
       {settings.error ? (
-        <p className="mt-3 text-sm text-danger">Unable to check channel setup: {settings.error.message}</p>
+        <p className="mt-3 text-sm text-danger-fg">Couldn't check channel setup: {settings.error.message}</p>
       ) : null}
-      {updatePreference.error ? (
-        <p className="mt-3 text-sm text-danger" role="alert" aria-live="assertive">
-          {updatePreference.error.message}
-        </p>
-      ) : null}
-    </section>
+      <ErrorBlock error={updatePreference.error} className="mt-3" />
+    </Card>
   );
 }
 

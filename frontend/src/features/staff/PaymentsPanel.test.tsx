@@ -1,5 +1,5 @@
 ﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StructuredApiError } from "../../lib/api";
@@ -52,16 +52,22 @@ async function waitForPayment() {
   await screen.findByText("Laser cutter booking");
 }
 
+/** Waiving asks first; confirm inside the dialog. */
+async function confirmWaive() {
+  const dialog = await screen.findByRole("alertdialog");
+  fireEvent.click(within(dialog).getByRole("button", { name: /^Waive payment/ }));
+}
+
 describe("PaymentsPanel", () => {
   it("renders all four subject filter choices", async () => {
     renderPanel();
     await waitForPayment();
 
-    const subjectFilter = screen.getByRole("combobox", { name: "Subject" });
-    expect(subjectFilter).toHaveTextContent("Machine service");
-    expect(subjectFilter).toHaveTextContent("Booking");
-    expect(subjectFilter).toHaveTextContent("Event registration");
-    expect(subjectFilter).toHaveTextContent("Membership dues");
+    fireEvent.click(screen.getByRole("combobox", { name: "Subject" }));
+    const listbox = await screen.findByRole("listbox");
+    for (const label of ["Machine service", "Booking", "Event registration", "Membership dues"]) {
+      expect(within(listbox).getByRole("option", { name: label })).toBeInTheDocument();
+    }
   });
 
   it("runs a single action and invalidates every payment view after success", async () => {
@@ -88,7 +94,8 @@ describe("PaymentsPanel", () => {
 
     fireEvent.click(screen.getByRole("checkbox", { name: "Select row 41" }));
     expect(screen.getByText("1 selected")).toBeVisible();
-    fireEvent.click(screen.getAllByRole("button", { name: "Waive" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Waive…" })[0]);
+    await confirmWaive();
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/makerspace/7/payments/bulk/waive",
@@ -110,7 +117,8 @@ describe("PaymentsPanel", () => {
     renderPanel();
     await waitForPayment();
 
-    fireEvent.click(screen.getByRole("button", { name: "Waive" }));
+    fireEvent.click(screen.getByRole("button", { name: "Waive…" }));
+    await confirmWaive();
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Payment status changed");
     await waitFor(() => expect(listRequests).toBe(2));

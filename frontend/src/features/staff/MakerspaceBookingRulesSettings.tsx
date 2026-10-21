@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Card, CardHeader, Dropdown, EmptyState, Field, Input, SettingsRow, Skeleton, useToast } from "../../components/ui";
 import { StructuredApiError, staffRequest } from "../../lib/api";
 import { useStaffGet } from "./StaffPanels";
 import type { Makerspace } from "./panels/shared";
@@ -46,26 +47,28 @@ export function MakerspaceBookingRulesSettings({ makerspace }: { makerspace: Mak
   const activeSpaces = spaces.data?.results.filter((space) => space.is_active) ?? [];
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <h3 className="text-base font-semibold text-ink">Booking rules per space</h3>
-      {spaces.isLoading ? <p className="mt-3 text-sm text-muted">Loading bookable spaces...</p> : null}
-      {!spaces.isLoading && activeSpaces.length === 0 ? (
-        <p className="mt-3 text-sm text-muted">No active bookable spaces.</p>
-      ) : null}
-      {activeSpaces.length > 0 ? (
-        <div className="mt-4 grid min-w-0 gap-4">
-          {activeSpaces.map((space) => (
-            <SpaceRuleRow key={space.id} makerspaceId={makerspace.id} space={space} />
-          ))}
+    <Card as="section">
+      <CardHeader title="Booking rules per space" description="How long, how far ahead and with whose approval each active space can be booked." />
+      {spaces.isLoading ? (
+        <div className="grid gap-3" aria-busy="true">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
       ) : null}
-      {spaces.error ? <p className="mt-3 text-sm text-danger">{spaces.error.message}</p> : null}
-    </div>
+      {!spaces.isLoading && !spaces.error && activeSpaces.length === 0 ? (
+        <EmptyState title="No active bookable spaces" description="Add or reactivate a space in Bookings, then set its rules here." />
+      ) : null}
+      {activeSpaces.map((space) => (
+        <SpaceRuleRow key={space.id} makerspaceId={makerspace.id} space={space} />
+      ))}
+      {spaces.error ? <p role="alert" className="mt-3 text-caption text-danger-fg">{spaces.error.message}</p> : null}
+    </Card>
   );
 }
 
 function SpaceRuleRow({ makerspaceId, space }: { makerspaceId: number; space: SpaceRules }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [draft, setDraft] = useState<RuleDraft>(() => draftFromSpace(space));
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [rowError, setRowError] = useState("");
@@ -103,68 +106,59 @@ function SpaceRuleRow({ makerspaceId, space }: { makerspaceId: number; space: Sp
       const parsed = parseRuleErrors(error);
       setFieldErrors(parsed.fieldErrors);
       setRowError(parsed.rowError);
+      showToast(`Couldn't save the rules for ${space.name}`, { tone: "error" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["booking-rule-spaces", makerspaceId] });
+      showToast(`Rules for ${space.name} saved`, { tone: "success" });
     },
   });
 
   return (
-    <form
-      className="grid min-w-0 gap-3 rounded-md border border-line p-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        updateRules.mutate();
-      }}
-    >
-      <h4 className="text-sm font-semibold text-ink">{space.name}</h4>
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {NUMBER_FIELDS.map(({ key, label, min }) => (
-          <label className="grid min-w-0 content-start gap-1 text-sm text-ink" key={key}>
-            <span className="font-semibold">{label}</span>
-            <input
-              aria-label={`${label} for ${space.name}`}
-              className="desk-input"
-              type="number"
-              min={min}
-              value={draft[key]}
+    <SettingsRow title={space.name} description={draft.approval_mode === "approve" ? "Staff approve each booking." : "Bookings confirm instantly."}>
+      <form
+        className="grid min-w-0 gap-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          updateRules.mutate();
+        }}
+      >
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          {NUMBER_FIELDS.map(({ key, label, min }) => (
+            <Field key={key} label={label} error={fieldErrors[key]}>
+              <Input
+                aria-label={`${label} for ${space.name}`}
+                type="number"
+                min={min}
+                value={draft[key]}
+                disabled={updateRules.isPending}
+                onChange={(event) => setDraft((current) => ({ ...current, [key]: event.target.value }))}
+              />
+            </Field>
+          ))}
+          <Field label="Approval mode" error={fieldErrors.approval_mode}>
+            <Dropdown
+              aria-label={`Approval mode for ${space.name}`}
+              value={draft.approval_mode}
               disabled={updateRules.isPending}
-              onChange={(event) => setDraft((current) => ({ ...current, [key]: event.target.value }))}
-            />
-            {fieldErrors[key] ? <span className="text-xs text-danger">{fieldErrors[key]}</span> : null}
-          </label>
-        ))}
-        <label className="grid min-w-0 content-start gap-1 text-sm text-ink">
-          <span className="font-semibold">Approval mode</span>
-          <select
-            aria-label={`Approval mode for ${space.name}`}
-            className="desk-input"
-            value={draft.approval_mode}
-            disabled={updateRules.isPending}
-            onChange={(event) => setDraft((current) => ({
-              ...current,
-              approval_mode: event.target.value as SpaceRules["approval_mode"],
-            }))}
-          >
-            <option value="instant">Instant confirmation</option>
-            <option value="approve">Staff approval required</option>
-          </select>
-          {fieldErrors.approval_mode ? (
-            <span className="text-xs text-danger">{fieldErrors.approval_mode}</span>
-          ) : null}
-        </label>
-      </div>
-      <div>
-        <button
-          className="desk-button-primary w-full max-w-full sm:w-auto"
-          type="submit"
-          disabled={updateRules.isPending}
-        >
-          {updateRules.isPending ? "Saving..." : "Save rules"}
-        </button>
-      </div>
-      {rowError ? <p className="text-sm text-danger">{rowError}</p> : null}
-    </form>
+              onChange={(event) => setDraft((current) => ({
+                ...current,
+                approval_mode: event.target.value as SpaceRules["approval_mode"],
+              }))}
+            >
+              <option value="instant">Instant confirmation</option>
+              <option value="approve">Staff approval required</option>
+            </Dropdown>
+          </Field>
+        </div>
+        {rowError ? <p role="alert" className="text-caption text-danger-fg">{rowError}</p> : null}
+        <div>
+          <Button type="submit" loading={updateRules.isPending} loadingLabel="Saving…">
+            Save rules
+          </Button>
+        </div>
+      </form>
+    </SettingsRow>
   );
 }
 

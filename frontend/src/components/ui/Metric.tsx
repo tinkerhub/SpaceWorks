@@ -1,12 +1,15 @@
+/** Compact label-over-value fact. Older sibling of StatTile, kept for dense staff grids. */
 export function Metric({ label, value, danger = false }: {
   label: string;
   value?: string | number;
   danger?: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-line bg-surface p-3 shadow-brutal-sm">
-      <p className="eyebrow">{label}</p>
-      <p className={`mt-1 text-lg font-semibold ${danger ? "text-danger" : "text-ink"}`}>{value ?? 0}</p>
+    <div className="min-w-0 rounded-lg border border-line bg-canvas p-3">
+      <p className="text-sm text-ink-muted">{label}</p>
+      <p className={`mt-0.5 font-display text-2xl font-extrabold leading-tight tracking-[-0.02em] ${danger ? "text-danger-fg" : "text-ink"}`}>
+        {value ?? 0}
+      </p>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
 
 type CollapsibleSectionProps = {
   title: string;
@@ -32,7 +33,7 @@ export function CollapsibleSection({
   const headingId = useId();
 
   return (
-    <section className="overflow-hidden rounded-xl border border-line bg-panel" aria-labelledby={headingId}>
+    <section className="overflow-hidden rounded-lg border border-line bg-canvas" aria-labelledby={headingId}>
       <h3 id={headingId} className="m-0">
         <button
           type="button"
@@ -40,18 +41,16 @@ export function CollapsibleSection({
           aria-expanded={open}
           aria-controls={regionId}
           // min-h-11 is the ~44px minimum touch target.
-          className="flex min-h-11 w-full items-center gap-3 bg-surface px-3 py-2 text-left hover:bg-bg focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-focus"
+          className="flex min-h-12 w-full items-center gap-3 px-4 py-2.5 text-left font-sans transition-colors hover:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-focus"
         >
-          <span
+          <ChevronRight
             aria-hidden="true"
-            className={`text-muted transition-transform ${open ? "rotate-90" : ""}`}
-          >
-            ▶
-          </span>
+            className={`size-[18px] shrink-0 text-ink-muted transition-transform duration-180 ease-standard ${open ? "rotate-90" : ""}`}
+          />
           {icon ? <span aria-hidden="true">{icon}</span> : null}
-          <span className="min-w-0 flex-1 truncate font-semibold text-ink">{title}</span>
+          <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-ink">{title}</span>
           {count !== undefined ? (
-            <span className="shrink-0 text-sm text-muted">
+            <span className="shrink-0 rounded-full bg-fill px-2 py-0.5 text-xs font-semibold text-ink-secondary">
               <span aria-hidden="true">{count}</span>
               {/* One text node, not `{count} items`: the accessible-name algorithm
                   trims each node and joins with no separator, so a split phrase is
@@ -69,7 +68,7 @@ export function CollapsibleSection({
           and dropping the element entirely leaves that pointing at an id that does not
           exist, which is an ARIA violation. Children are still unmounted while collapsed --
           that is what keeps them off the Tab order. */}
-      {open ? <div id={regionId}>{children}</div> : <div id={regionId} hidden />}
+      {open ? <div id={regionId} className="border-t border-line">{children}</div> : <div id={regionId} hidden />}
     </section>
   );
 }

@@ -370,3 +370,25 @@ def test_needs_fix_repair_over_shelf_count_returns_400():
     assert response.status_code == 400
     product.refresh_from_db()
     assert product.needs_fix_quantity == 1
+
+
+def test_issue_refuses_when_every_accepted_unit_is_rejected(monkeypatch):
+    # M2: an issue that hands over nothing would leave an ISSUED request no return can close.
+    makerspace = make_space("reject-all")
+    admin = make_member("reject-all-admin", makerspace)
+    product, request = _ready_request(makerspace, admin, 2)
+    evidence = make_issue_evidence(makerspace, admin)
+    monkeypatch.setattr("apps.evidence.storage.object_exists", Mock(return_value=True))
+
+    item = request.items.get()
+    response = authenticated_client(admin).post(
+        issue_url(request),
+        {"evidence_id": evidence.id, "rejects": [{"item_id": item.id, "broken": 2}]},
+        format="json",
+    )
+
+    assert response.status_code == 400
+    request.refresh_from_db()
+    assert request.status == HardwareRequest.Status.ACCEPTED
+    product.refresh_from_db()
+    assert (product.reserved_quantity, product.issued_quantity, product.needs_fix_quantity) == (2, 0, 0)

@@ -1,4 +1,4 @@
-import { Badge } from "../../../components/ui";
+import { FilterChip } from "../../../components/ui";
 
 export type MachineTypeOption = {
   id: number;
@@ -7,6 +7,7 @@ export type MachineTypeOption = {
   is_overridden: boolean;
 };
 
+/** Which copy of the template to edit: the space default or one machine type's override. */
 export function EmailTemplateTypeSelector({
   canEditSpaceDefault,
   types,
@@ -19,45 +20,25 @@ export function EmailTemplateTypeSelector({
   onSelect: (machineType: MachineTypeOption | null) => void;
 }) {
   return (
-    <div className="grid gap-2 rounded-md border border-line bg-bg p-3">
-      <p className="eyebrow">Machine type</p>
+    <div role="group" aria-labelledby="email-template-type-label" className="grid gap-2">
+      <p id="email-template-type-label" className="text-label text-ink">Machine type</p>
       <div className="flex flex-wrap gap-2">
         {canEditSpaceDefault ? (
-          <AxisButton selected={selectedTypeId === null} label="Space default" onClick={() => onSelect(null)} />
+          <FilterChip selected={selectedTypeId === null} onClick={() => onSelect(null)}>
+            Space default
+          </FilterChip>
         ) : null}
         {types.map((machineType) => (
-          <AxisButton
+          <FilterChip
             key={machineType.id}
             selected={selectedTypeId === machineType.id}
-            label={machineType.name}
-            edited={machineType.is_overridden}
             onClick={() => onSelect(machineType)}
-          />
+          >
+            {machineType.name}
+            {machineType.is_overridden ? <span className="text-caption opacity-80">· Edited</span> : null}
+          </FilterChip>
         ))}
       </div>
     </div>
-  );
-}
-
-function AxisButton({
-  selected,
-  label,
-  edited = false,
-  onClick,
-}: {
-  selected: boolean;
-  label: string;
-  edited?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      className={selected ? "desk-button-primary" : "desk-button-ghost"}
-      type="button"
-      onClick={onClick}
-    >
-      {label}
-      {edited ? <Badge tone="warn">Edited</Badge> : null}
-    </button>
   );
 }

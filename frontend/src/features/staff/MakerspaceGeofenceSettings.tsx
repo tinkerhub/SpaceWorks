@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Button, Card, CardHeader, Field, Input, SettingsRow, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import type { Makerspace } from "./StaffPanels";
+import { errorText, type Makerspace } from "./panels/shared";
+import { SettingSwitch } from "./settingsControls";
 
 type Props = { makerspace: Makerspace; settings?: Makerspace; loading: boolean };
 
 export function MakerspaceGeofenceSettings({ makerspace, settings, loading }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const current = settings ?? makerspace;
   const [enabled, setEnabled] = useState(current.geofence_enabled ?? false);
   const [latitude, setLatitude] = useState(String(current.geofence_latitude ?? ""));
@@ -33,13 +35,46 @@ export function MakerspaceGeofenceSettings({ makerspace, settings, loading }: Pr
       queryClient.invalidateQueries({ queryKey: ["makerspace-settings", makerspace.id] });
       queryClient.invalidateQueries({ queryKey: ["makerspaces"] });
       queryClient.invalidateQueries({ queryKey: ["tenant-bootstrap"] });
+      showToast("Geofence saved", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the geofence"), { tone: "error" }),
   });
   const changed = enabled !== (current.geofence_enabled ?? false) || latitude !== String(current.geofence_latitude ?? "") || longitude !== String(current.geofence_longitude ?? "") || radius !== String(current.geofence_radius_m ?? 25);
 
-  return <div className="min-w-0 rounded-md border border-line bg-bg p-4"><form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); if (changed) save.mutate(); }}>
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><div className="flex items-center gap-2"><h3 className="text-base font-semibold text-ink">Presence geofence</h3><Badge tone={enabled ? "success" : "neutral"}>{enabled ? "On" : "Off"}</Badge></div><p className="mt-1 max-w-2xl text-sm text-muted">Require member location only when a presence session starts. Browsers require HTTPS or localhost for location access.</p></div><label className="flex items-center gap-2 text-sm font-semibold text-ink"><input type="checkbox" checked={enabled} disabled={loading || save.isPending} onChange={(event) => setEnabled(event.target.checked)} /> Enable geofence</label></div>
-    <div className="grid gap-3 md:grid-cols-3"><label className="grid gap-1 text-sm font-semibold text-ink">Latitude<input className="desk-input" inputMode="decimal" value={latitude} onChange={(event) => setLatitude(event.target.value)} placeholder="12.971599" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Longitude<input className="desk-input" inputMode="decimal" value={longitude} onChange={(event) => setLongitude(event.target.value)} placeholder="77.594566" /></label><label className="grid gap-1 text-sm font-semibold text-ink">Radius (metres)<input className="desk-input" type="number" min="1" value={radius} onChange={(event) => setRadius(event.target.value)} /></label></div>
-    {save.error ? <p className="text-sm text-danger" role="alert">{save.error.message}</p> : null}<button className="desk-button-primary w-fit" type="submit" disabled={loading || save.isPending || !changed}>{save.isPending ? "Saving..." : "Save geofence"}</button>
-  </form></div>;
+  // The switch is part of one saved draft (it is meaningless without coordinates), so it
+  // changes local state and the Save button commits all four fields together.
+  return (
+    <Card as="section">
+      <CardHeader title="Presence geofence" description="Require member location only when a presence session starts. Browsers require HTTPS or localhost for location access." />
+      <form onSubmit={(event) => { event.preventDefault(); if (changed) save.mutate(); }}>
+        <SettingsRow title="Geofence" description="Turn it on, set the centre and radius, then save.">
+          <SettingSwitch
+            label="Enable geofence"
+            checked={enabled}
+            disabled={loading || save.isPending}
+            onCheckedChange={setEnabled}
+          />
+        </SettingsRow>
+        <SettingsRow title="Area" description="The centre point in decimal degrees and how far from it counts as present.">
+          <div className="grid min-w-0 gap-4">
+            <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+              <Field label="Latitude">
+                <Input inputMode="decimal" value={latitude} onChange={(event) => setLatitude(event.target.value)} placeholder="12.971599" />
+              </Field>
+              <Field label="Longitude">
+                <Input inputMode="decimal" value={longitude} onChange={(event) => setLongitude(event.target.value)} placeholder="77.594566" />
+              </Field>
+              <Field label="Radius (metres)">
+                <Input type="number" min="1" value={radius} onChange={(event) => setRadius(event.target.value)} />
+              </Field>
+            </div>
+            {save.error ? <p className="text-caption text-danger-fg" role="alert">{save.error.message}</p> : null}
+            <div>
+              <Button type="submit" disabled={loading || !changed} loading={save.isPending} loadingLabel="Saving…">Save geofence</Button>
+            </div>
+          </div>
+        </SettingsRow>
+      </form>
+    </Card>
+  );
 }

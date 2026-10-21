@@ -57,7 +57,10 @@ describe("MakerspaceArchiveRequestPanel", () => {
     expect(screen.getByText(/filing a request does not archive anything/i)).toBeVisible();
 
     fireEvent.change(reason, { target: { value: "  We are ending operations.  " } });
-    fireEvent.click(screen.getByRole("button", { name: "Request archival" }));
+    fireEvent.click(screen.getByRole("button", { name: "Request archival…" }));
+    // Filing is consequential, so it is confirmed first; nothing is sent before that.
+    expect(staffRequest).not.toHaveBeenCalledWith("/admin/makerspace/7/archive-requests", expect.objectContaining({ method: "POST" }));
+    fireEvent.click(await screen.findByRole("button", { name: "File request" }));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/makerspace/7/archive-requests",
@@ -90,7 +93,10 @@ describe("MakerspaceArchiveRequestPanel", () => {
     fireEvent.change(await screen.findByLabelText("Reason for archival"), {
       target: { value: "We no longer operate this location." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Request archival" }));
+    fireEvent.click(screen.getByRole("button", { name: "Request archival…" }));
+    // Filing is consequential, so it is confirmed first; nothing is sent before that.
+    expect(staffRequest).not.toHaveBeenCalledWith("/admin/makerspace/7/archive-requests", expect.objectContaining({ method: "POST" }));
+    fireEvent.click(await screen.findByRole("button", { name: "File request" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Please wait one hour after the last archive request before filing another.",

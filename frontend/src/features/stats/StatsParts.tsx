@@ -1,54 +1,26 @@
-import type React from "react";
+import type { ReactNode } from "react";
+
+import { Card, SectionHeading } from "../../components/ui";
 
 type ChartRow = { label: string; value: number };
 
-export type StatTone = "blue" | "yellow" | "mint" | "pink";
-
-// Pastel fill + matching ink, with the dark-mode deep-tint companion used
-// across the reskin. Each stat box picks one so the grid reads as a colourful
-// palette rather than a wall of identical surface tiles.
-export const STAT_TONE_CLASS: Record<StatTone, string> = {
-  blue:
-    "border-accent bg-accent text-on-accent dark:bg-accent/15 dark:text-accent-ink",
-  yellow:
-    "border-warn bg-warn text-on-warn dark:bg-warn/15 dark:text-warn-ink",
-  mint:
-    "border-success bg-success text-on-success dark:bg-success/15 dark:text-success-ink",
-  pink:
-    "border-secondary bg-secondary text-on-secondary dark:bg-secondary/15 dark:text-secondary-ink",
-};
-
-export function StatTile({
-  label,
-  value,
-  tone = "blue",
-}: {
-  label: string;
-  value: number | string;
-  tone?: StatTone;
-}) {
+/** A titled block of the stats page: section heading over its tiles and cards. */
+export function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
-    <div className={`min-w-0 rounded-md border p-3 [overflow-wrap:anywhere] ${STAT_TONE_CLASS[tone]}`}>
-      <p className="font-mono text-2xl font-bold">{value}</p>
-      <p className="eyebrow mt-1 text-current opacity-70">{label}</p>
-    </div>
+    <section className="space-y-4">
+      <SectionHeading title={title} description={description} />
+      {children}
+    </section>
   );
 }
 
-export function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+/** One flat card inside a section, with a small title. */
+export function Panel({ title, children, className }: { title: string; children: ReactNode; className?: string }) {
   return (
-    <section className="desk-panel overflow-hidden">
-      <div className="border-b border-line bg-surface px-4 py-3">
-        <h2 className="title-panel">{title}</h2>
-      </div>
-      <div className="space-y-4 p-4">{children}</div>
-    </section>
+    <Card className={className}>
+      <h3 className="text-title text-ink">{title}</h3>
+      {children}
+    </Card>
   );
 }
 
@@ -60,17 +32,17 @@ export function CompactList({
   empty: string;
 }) {
   if (!rows.length) {
-    return <p className="mt-3 text-sm text-muted">{empty}</p>;
+    return <p className="mt-3 text-body-ui text-ink-muted">{empty}</p>;
   }
 
   return (
-    <ul className="mt-3 space-y-2 text-sm">
+    <ul className="mt-3 divide-y divide-line">
       {rows.map((row) => (
-        <li className="flex min-w-0 items-start gap-3" key={`${row.label}-${row.value}`}>
-          <span className="min-w-0 flex-1 truncate text-ink" title={row.label}>
+        <li className="flex min-w-0 items-start gap-3 py-2 first:pt-0 last:pb-0" key={`${row.label}-${row.value}`}>
+          <span className="min-w-0 flex-1 truncate text-body-ui text-ink" title={row.label}>
             {row.label}
           </span>
-          <span className="eyebrow min-w-0 max-w-full text-right [overflow-wrap:anywhere]">{row.value}</span>
+          <span className="min-w-0 max-w-full text-right text-caption text-ink-muted [overflow-wrap:anywhere]">{row.value}</span>
         </li>
       ))}
     </ul>
@@ -86,25 +58,25 @@ export function BarChart({
 }) {
   const maxValue = Math.max(...rows.map((row) => row.value), 0);
   if (!rows.length || maxValue <= 0) {
-    return <p className="text-sm text-muted">No chart data.</p>;
+    return <p className="text-body-ui text-ink-muted">No chart data yet.</p>;
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {rows.map((row) => {
         const width = `${Math.max((row.value / maxValue) * 100, 4)}%`;
         return (
           <div
-            className="grid grid-cols-[minmax(0,1fr)_minmax(4rem,2fr)_auto] items-center gap-2 text-sm sm:grid-cols-[minmax(7rem,11rem)_1fr_auto]"
+            className="grid grid-cols-[minmax(0,1fr)_minmax(4rem,2fr)_auto] items-center gap-3 text-body-ui sm:grid-cols-[minmax(7rem,11rem)_1fr_auto]"
             key={row.label}
           >
             <span className="truncate text-ink" title={row.label}>
               {row.label}
             </span>
-            <div className="h-3 overflow-hidden rounded bg-bg">
-              <div className="h-full rounded bg-secondary" style={{ width }} />
+            <div className="h-2 overflow-hidden rounded-full bg-emphasis" aria-hidden="true">
+              <div className="h-full rounded-full bg-accent-ink" style={{ width }} />
             </div>
-            <span className="eyebrow min-w-14 text-right">
+            <span className="min-w-14 text-right text-caption tabular-nums text-ink-muted">
               {formatNumber(row.value)} {valueLabel}
             </span>
           </div>

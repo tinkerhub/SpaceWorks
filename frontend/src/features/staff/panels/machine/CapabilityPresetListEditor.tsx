@@ -1,4 +1,7 @@
 import { useId, useState } from "react";
+import { X } from "lucide-react";
+
+import { Button, Field, IconButton, Input } from "../../../../components/ui";
 
 type Props = {
   label: string;
@@ -9,10 +12,10 @@ type Props = {
 };
 
 export function CapabilityPresetListEditor({ label, singularLabel, values, disabled = false, onChange }: Props) {
-  const inputId = useId();
   const errorId = useId();
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
+  const noun = singularLabel.toLocaleLowerCase();
 
   const addValue = () => {
     const value = draft.trim();
@@ -30,41 +33,41 @@ export function CapabilityPresetListEditor({ label, singularLabel, values, disab
   };
 
   return (
-    <fieldset className="grid gap-2 rounded-lg border border-line p-3" disabled={disabled}>
-      <legend className="eyebrow px-1">{label}</legend>
+    <fieldset className="grid min-w-0 gap-3 rounded-lg border border-line p-4" disabled={disabled}>
+      <legend className="px-1 text-label text-ink">{label}</legend>
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-        <label className="eyebrow grid gap-1" htmlFor={inputId}>
-          New {singularLabel.toLocaleLowerCase()}
-          <input
-            id={inputId}
-            className="desk-input min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        <Field label={`New ${noun}`}>
+          <Input
             value={draft}
+            aria-invalid={error ? true : undefined}
             aria-describedby={error ? errorId : undefined}
             onChange={(event) => { setDraft(event.target.value); setError(""); }}
+            onKeyDown={(event) => {
+              // Enter adds the preset instead of submitting the surrounding type form.
+              if (event.key === "Enter") { event.preventDefault(); addValue(); }
+            }}
           />
-        </label>
-        <button className="desk-button-secondary min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" type="button" onClick={addValue}>
-          Add {singularLabel.toLocaleLowerCase()}
-        </button>
+        </Field>
+        <Button onClick={addValue}>Add {noun}</Button>
       </div>
-      {error ? <p id={errorId} className="text-sm text-danger" role="alert">{error}</p> : null}
+      {error ? <p id={errorId} className="text-caption text-danger-fg" role="alert">{error}</p> : null}
       {values.length ? (
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2" aria-label={`${label} presets`}>
           {values.map((value) => (
-            <li key={value} className="flex items-center gap-1 rounded-lg bg-surface p-1 pl-3 text-sm text-ink">
+            <li key={value} className="inline-flex items-center gap-1 rounded-full bg-fill py-0.5 pl-3 pr-0.5 text-sm font-semibold text-ink-secondary">
               <span>{value}</span>
-              <button
-                aria-label={`Remove ${singularLabel.toLocaleLowerCase()} ${value}`}
-                className="desk-button-ghost min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                type="button"
+              <IconButton
+                label={`Remove ${noun} ${value}`}
+                variant="quiet"
+                size="sm"
                 onClick={() => onChange(values.filter((existing) => existing !== value))}
               >
-                Remove
-              </button>
+                <X />
+              </IconButton>
             </li>
           ))}
         </ul>
-      ) : <p className="text-sm text-muted">No presets. The consumable form will use free text.</p>}
+      ) : <p className="text-caption text-ink-muted">No presets. The consumable form will use free text.</p>}
     </fieldset>
   );
 }

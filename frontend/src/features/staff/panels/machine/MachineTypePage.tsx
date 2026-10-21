@@ -1,14 +1,16 @@
-import { Skeleton, StatusBadge } from "../../../../components/ui";
+import { Button, Card, EmptyState, FilterChip, SectionHeading, SkeletonRows, Table, TBody, TD, TH, THead, TR } from "../../../../components/ui";
 import { ImageThumbnail } from "../../../../components/ui/ImageThumbnail";
 import type { PrinterPool } from "../../../../generated/api";
 import { isBuiltinPrinterType } from "../../machinesApi";
-import type { Machine, MachineType } from "../../machinesApi";
+import type { Machine, MachineStatus, MachineType } from "../../machinesApi";
 import { MachineServiceConsole } from "./MachineServiceConsole";
 import { PrinterServiceConsole } from "./PrinterServiceConsole";
 import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
-import { MachineCreateForm } from "./MachineCreateForm";
 import { ConsumablePoolList } from "./SharedConsumablesSection";
+import { MACHINE_STATUSES, MachineStatusChip, machineStatusLabel } from "./machineUi";
 import type { ServiceDraft } from "./serviceDrafts";
+
+export type StatusFilter = "all" | MachineStatus;
 
 type Props = {
   makerspaceId: number;
@@ -19,6 +21,8 @@ type Props = {
   machineType: MachineType;
   allMachines: Machine[];
   visibleMachines: Machine[];
+  statusFilter: StatusFilter;
+  onStatusFilter: (filter: StatusFilter) => void;
   typePools: PrinterPool[];
   formPools: PrinterPool[];
   existingPools: PrinterPool[];
@@ -28,8 +32,6 @@ type Props = {
   draft: ServiceDraft;
   setDraft: (update: (draft: ServiceDraft) => ServiceDraft) => void;
 };
-
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 /** One machine type's whole world: its machines, its bound consumables, its service queue.
  *
@@ -48,6 +50,8 @@ export function MachineTypePage({
   machineType,
   allMachines,
   visibleMachines,
+  statusFilter,
+  onStatusFilter,
   typePools,
   formPools,
   existingPools,
@@ -57,65 +61,92 @@ export function MachineTypePage({
   draft,
   setDraft,
 }: Props) {
+  const canCreate = canManage && machineType.can_create_machine === true;
+  const loaded = !machinesLoading && !machinesFailed;
+
   return (
-    <div className="grid gap-4">
-      <section aria-label={`${machineType.name} machines`} className="rounded-xl border border-line bg-panel">
-        <div className="hidden grid-cols-[minmax(0,2fr)_auto_auto] gap-3 border-b border-line px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-muted sm:grid">
-          <span>Name</span><span>Status</span><span className="text-right">Usage</span>
-        </div>
-        {canManage && machineType.can_create_machine === true ? (
-          <MachineCreateForm
-            makerspaceId={makerspaceId}
-            machineType={machineType}
-            onCreated={onSelectMachine}
-          />
-        ) : null}
-        {machinesLoading ? (
-          <div className="grid gap-2 p-3" aria-label={`Loading ${machineType.name} machines`}>
-            <Skeleton className="h-14 w-full" />
+    <div className="grid gap-8">
+      <section aria-label={`${machineType.name} machines`} className="grid gap-4">
+        <SectionHeading title="Machines" description="Open a machine for its status, usage, maintenance, documents and operators." />
+        {allMachines.length ? (
+          <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
+            {(["all", ...MACHINE_STATUSES] as StatusFilter[]).map((value) => (
+              <FilterChip key={value} selected={statusFilter === value} onClick={() => onStatusFilter(value)}>
+                {value === "all" ? "All statuses" : machineStatusLabel(value)}
+              </FilterChip>
+            ))}
           </div>
         ) : null}
+
         {/* Both empty states require a SUCCESSFUL load. A failed machines request also yields an
             empty array with `isLoading` false, and claiming "no machines are registered" beside
             the actual error tells the operator something untrue about their own fleet. */}
-        {!machinesLoading && !machinesFailed && !allMachines.length ? (
-          <p className="px-3 py-4 text-sm text-muted">No machines are registered for this type.</p>
-        ) : null}
-        {!machinesLoading && !machinesFailed && allMachines.length > 0 && !visibleMachines.length ? (
-          <p className="px-3 py-4 text-sm text-muted">No machines match the selected status.</p>
-        ) : null}
-        {visibleMachines.map((machine) => (
-          <button
-            key={machine.id}
-            type="button"
-            onClick={() => onSelectMachine(machine.id)}
-            className={`grid min-h-11 w-full gap-2 border-b border-line px-3 py-3 text-left last:border-b-0 hover:bg-surface sm:grid-cols-[minmax(0,2fr)_auto_auto] sm:items-center sm:gap-3 ${focusRing}`}
+        {loaded && !allMachines.length ? (
+          <EmptyState
+            title="No machines yet"
+            description="No machines are registered for this type."
           >
-            <span className="flex min-w-0 items-center gap-3">
-              {machine.image_url ? <ImageThumbnail src={machine.image_url} alt={machine.name} className="h-10 w-10" /> : null}
-              <span className="min-w-0">
-                <strong className="block truncate text-sm text-ink">{machine.name}</strong>
-                <span className="block truncate text-xs text-muted">
-                  {[machine.type_payload?.model, machine.location || "No location"].filter(Boolean).join(" · ")}
-                </span>
-              </span>
-            </span>
-            <span><StatusBadge status={machine.status} /></span>
-            <span className="font-mono text-sm text-muted sm:text-right">{machine.usage_hours} h</span>
-          </button>
-        ))}
+            {canCreate ? "Use Add machine to register the first one." : null}
+          </EmptyState>
+        ) : null}
+        {loaded && allMachines.length > 0 && !visibleMachines.length ? (
+          <EmptyState
+            title="Nothing to show"
+            description="No machines match the selected status."
+            action={<Button size="sm" onClick={() => onStatusFilter("all")}>Show all statuses</Button>}
+          />
+        ) : null}
+        {machinesLoading || visibleMachines.length ? (
+          <Table label="Machine list">
+            <THead>
+              <tr>
+                <TH>Name</TH>
+                <TH>Status</TH>
+                <TH className="text-right">Usage</TH>
+              </tr>
+            </THead>
+            <TBody aria-busy={machinesLoading || undefined}>
+              {machinesLoading ? <SkeletonRows rows={3} cols={3} /> : null}
+              {visibleMachines.map((machine) => (
+                <TR key={machine.id} className="cursor-pointer" onClick={() => onSelectMachine(machine.id)}>
+                  <TD>
+                    <span className="flex min-w-0 items-center gap-3">
+                      {machine.image_url ? <ImageThumbnail src={machine.image_url} alt={machine.name} className="h-10 w-10 shrink-0" /> : null}
+                      <span className="min-w-0">
+                        <button
+                          type="button"
+                          onClick={(event) => { event.stopPropagation(); onSelectMachine(machine.id); }}
+                          className="block max-w-full truncate rounded-sm text-left font-semibold text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        >
+                          <strong className="font-semibold">{machine.name}</strong>
+                        </button>
+                        <span className="block truncate text-caption text-ink-muted">
+                          {[machine.type_payload?.model, machine.location || "No location"].filter(Boolean).join(" · ")}
+                        </span>
+                      </span>
+                    </span>
+                  </TD>
+                  <TD><MachineStatusChip status={machine.status} /></TD>
+                  <TD className="whitespace-nowrap text-right tabular-nums text-ink-secondary">{machine.usage_hours} h</TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        ) : null}
       </section>
 
       {machineServiceEnabled && canManage ? (
         <>
-          <section className="grid gap-4 rounded-xl border border-line bg-panel p-3" aria-labelledby={`consumables-${machineType.id}`}>
+          <section className="grid gap-4" aria-labelledby={`consumables-${machineType.id}`}>
             <div>
-              <h3 className="title-panel" id={`consumables-${machineType.id}`}>Consumables</h3>
-              <p className="mt-1 text-sm text-muted">Manage stock used by this machine type and any pools reserved for one of its machines.</p>
+              <h2 className="text-h4 text-ink" id={`consumables-${machineType.id}`}>Consumables</h2>
+              <p className="mt-1 text-body-ui text-ink-muted">Stock used by this machine type and any pools reserved for one of its machines.</p>
             </div>
-            <ConsumablePoolCreateForm makerspaceId={makerspaceId} machineType={machineType} existingPools={existingPools} />
-            <div>
-              <h4 className="title-section mb-2">Stock</h4>
+            <Card>
+              <ConsumablePoolCreateForm makerspaceId={makerspaceId} machineType={machineType} existingPools={existingPools} />
+            </Card>
+            <div className="grid gap-3">
+              <h3 className="text-title text-ink">Stock</h3>
               <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} />
             </div>
           </section>

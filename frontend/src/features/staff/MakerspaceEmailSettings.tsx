@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Field } from "../../components/ui";
+import { Button, Card, CardHeader, CheckboxField, EmptyState, ErrorText, Field, Input, PasswordInput, SettingsRow, Skeleton, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import { type Makerspace, useStaffGet } from "./StaffPanels";
+import { errorText, type Makerspace, useStaffGet } from "./panels/shared";
 
 type ApiSettings = {
   smtp_host: string;
@@ -35,6 +35,7 @@ type NotificationRecipient = {
 
 export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [smtpForm, setSmtpForm] = useState<SmtpSettingsForm>({
     smtp_host: "",
     smtp_port: "587",
@@ -88,7 +89,9 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
     onSuccess: () => {
       setSmtpForm((current) => ({ ...current, smtp_password: "" }));
       queryClient.invalidateQueries({ queryKey: ["api-settings", makerspace.id] });
+      showToast("Email settings saved", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the email settings"), { tone: "error" }),
   });
 
   const clearSmtpPassword = useMutation({
@@ -100,7 +103,9 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
     onSuccess: () => {
       setSmtpForm((current) => ({ ...current, smtp_password: "" }));
       queryClient.invalidateQueries({ queryKey: ["api-settings", makerspace.id] });
+      showToast("SMTP password cleared", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't clear the SMTP password"), { tone: "error" }),
   });
   const saveRecipients = useMutation({
     mutationFn: () =>
@@ -125,131 +130,135 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
       );
       setRecipientsDirty(false);
       queryClient.invalidateQueries({ queryKey: ["notification-recipients", makerspace.id] });
+      showToast("Recipients saved", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the recipients"), { tone: "error" }),
   });
+
+  const set = (patch: Partial<SmtpSettingsForm>) => setSmtpForm((current) => ({ ...current, ...patch }));
 
   return (
     <>
-      <div className="rounded-md border border-line bg-bg p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid max-w-2xl gap-2">
-            <h3 className="text-base font-semibold text-ink">Email (SMTP)</h3>
-            <p className="text-sm text-muted">
-              Configure the sender used for staff lifecycle notifications.
-            </p>
+      <Card as="section" aria-labelledby="smtp-settings-title">
+        <CardHeader
+          title={<span id="smtp-settings-title">Email (SMTP)</span>}
+          description="The sender used for staff lifecycle notifications."
+          action={(
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={!settings.data?.smtp_password_set}
+                loading={clearSmtpPassword.isPending}
+                loadingLabel="Clearing…"
+                onClick={() => clearSmtpPassword.mutate()}
+              >
+                Clear SMTP password
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={!settings.isSuccess}
+                loading={saveSmtpSettings.isPending}
+                loadingLabel="Saving…"
+                onClick={() => saveSmtpSettings.mutate()}
+              >
+                Save email settings
+              </Button>
+            </>
+          )}
+        />
+        {settings.isLoading ? <Skeleton className="h-32 w-full" /> : null}
+        <ErrorText message={settings.error?.message} />
+        <SettingsRow title="Server" description="Host and port of your mail provider.">
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_140px]">
+            <Field label="SMTP host"><Input value={smtpForm.smtp_host} onChange={(event) => set({ smtp_host: event.target.value })} /></Field>
+            <Field label="SMTP port"><Input inputMode="numeric" value={smtpForm.smtp_port} onChange={(event) => set({ smtp_port: event.target.value })} /></Field>
           </div>
-          <div className="desk-actions flex flex-wrap gap-2">
-            <button
-              className="desk-button-primary"
-              type="button"
-              disabled={!settings.isSuccess || saveSmtpSettings.isPending}
-              onClick={() => saveSmtpSettings.mutate()}
-            >
-              {saveSmtpSettings.isPending ? "Saving..." : "Save email settings"}
-            </button>
-            <button
-              className="desk-button"
-              type="button"
-              disabled={!settings.data?.smtp_password_set || clearSmtpPassword.isPending}
-              onClick={() => clearSmtpPassword.mutate()}
-            >
-              {clearSmtpPassword.isPending ? "Clearing..." : "Clear SMTP password"}
-            </button>
-          </div>
-        </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          <Field label="SMTP host"><input className="desk-input" value={smtpForm.smtp_host} onChange={(event) => setSmtpForm({ ...smtpForm, smtp_host: event.target.value })} /></Field>
-          <Field label="SMTP port"><input className="desk-input" inputMode="numeric" value={smtpForm.smtp_port} onChange={(event) => setSmtpForm({ ...smtpForm, smtp_port: event.target.value })} /></Field>
-          <Field label="SMTP username"><input className="desk-input" value={smtpForm.smtp_username} onChange={(event) => setSmtpForm({ ...smtpForm, smtp_username: event.target.value })} /></Field>
-          <Field label="SMTP password"><input className="desk-input" placeholder={settings.data?.smtp_password_set ? "SMTP password set" : undefined} type="password" value={smtpForm.smtp_password} onChange={(event) => setSmtpForm({ ...smtpForm, smtp_password: event.target.value })} /></Field>
-          <Field className="sm:col-span-2" label="SMTP from email"><input className="desk-input sm:col-span-2" value={smtpForm.smtp_from_email} onChange={(event) => setSmtpForm({ ...smtpForm, smtp_from_email: event.target.value })} /></Field>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input
-              type="checkbox"
-              checked={smtpForm.smtp_use_tls}
-              onChange={(event) =>
-                setSmtpForm({ ...smtpForm, smtp_use_tls: event.target.checked, smtp_use_ssl: event.target.checked ? false : smtpForm.smtp_use_ssl })
-              }
-            />
-            Use STARTTLS (587)
-          </label>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input
-              type="checkbox"
-              checked={smtpForm.smtp_use_ssl}
-              onChange={(event) =>
-                setSmtpForm({ ...smtpForm, smtp_use_ssl: event.target.checked, smtp_use_tls: event.target.checked ? false : smtpForm.smtp_use_tls })
-              }
-            />
-            Use implicit SSL (465)
-          </label>
-        </div>
-        {settings.isLoading ? <p className="mt-2 text-sm text-muted">Loading email settings...</p> : null}
-        {settings.error ? <p className="mt-2 text-sm text-danger">{settings.error.message}</p> : null}
-        {saveSmtpSettings.error ? (
-          <p className="mt-2 text-sm text-danger">{saveSmtpSettings.error.message}</p>
-        ) : null}
-        {clearSmtpPassword.error ? (
-          <p className="mt-2 text-sm text-danger">{clearSmtpPassword.error.message}</p>
-        ) : null}
-      </div>
-
-      <div className="rounded-md border border-line bg-bg p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid max-w-2xl gap-2">
-            <h3 className="text-base font-semibold text-ink">Notification recipients</h3>
-            <p className="text-sm text-muted">
-              Unchecked managers will not receive hardware/printing lifecycle emails for this
-              makerspace.
-            </p>
-          </div>
-          <button
-            className="desk-button-primary"
-            type="button"
-            disabled={!recipients.isSuccess || !recipientsDirty || saveRecipients.isPending || !recipients.data?.length}
-            onClick={() => saveRecipients.mutate()}
-          >
-            {saveRecipients.isPending ? "Saving..." : "Save recipients"}
-          </button>
-        </div>
-        {recipients.isLoading ? <p className="mt-3 text-sm text-muted">Loading recipients...</p> : null}
-        <div className="mt-4 grid gap-2">
-          {recipients.data?.map((recipient) => (
-            <label
-              key={recipient.id}
-              className="flex items-start gap-3 rounded-md border border-line bg-surface p-3 text-sm text-ink"
-            >
-              <input
-                className="mt-1 h-4 w-4"
-                type="checkbox"
-                checked={recipientChecks[recipient.id] ?? recipient.receives_notifications}
-                onChange={(event) => {
-                  setRecipientChecks({
-                    ...recipientChecks,
-                    [recipient.id]: event.target.checked,
-                  });
-                  setRecipientsDirty(true);
-                }}
+        </SettingsRow>
+        <SettingsRow title="Sign-in" description="Leave the password blank to keep the saved one.">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="SMTP username"><Input value={smtpForm.smtp_username} onChange={(event) => set({ smtp_username: event.target.value })} /></Field>
+            <Field label="SMTP password" helperText={settings.data?.smtp_password_set ? "A password is saved." : undefined}>
+              <PasswordInput
+                autoComplete="new-password"
+                placeholder={settings.data?.smtp_password_set ? "SMTP password set" : undefined}
+                value={smtpForm.smtp_password}
+                onChange={(event) => set({ smtp_password: event.target.value })}
               />
-              <span>
-                <span className="font-semibold">{recipient.username}</span>
-                <span className="block text-muted">
-                  {recipient.email} - {roleLabel(recipient.role)}
-                </span>
-              </span>
-            </label>
+            </Field>
+          </div>
+        </SettingsRow>
+        <SettingsRow title="Sender" description="The address staff emails come from.">
+          <Field label="SMTP from email"><Input type="email" value={smtpForm.smtp_from_email} onChange={(event) => set({ smtp_from_email: event.target.value })} /></Field>
+        </SettingsRow>
+        <SettingsRow title="Encryption" description="Pick one. Most providers use STARTTLS on port 587.">
+          <div className="grid gap-3">
+            <CheckboxField
+              label="Use STARTTLS (587)"
+              checked={smtpForm.smtp_use_tls}
+              onCheckedChange={(value) => {
+                const checked = value === true;
+                set({ smtp_use_tls: checked, smtp_use_ssl: checked ? false : smtpForm.smtp_use_ssl });
+              }}
+            />
+            <CheckboxField
+              label="Use implicit SSL (465)"
+              checked={smtpForm.smtp_use_ssl}
+              onCheckedChange={(value) => {
+                const checked = value === true;
+                set({ smtp_use_ssl: checked, smtp_use_tls: checked ? false : smtpForm.smtp_use_tls });
+              }}
+            />
+          </div>
+        </SettingsRow>
+        <div className="grid gap-2">
+          <ErrorText message={saveSmtpSettings.error?.message} />
+          <ErrorText message={clearSmtpPassword.error?.message} />
+        </div>
+      </Card>
+
+      <Card as="section" aria-labelledby="notification-recipients-title">
+        <CardHeader
+          title={<span id="notification-recipients-title">Notification recipients</span>}
+          description="Unticked managers won't get hardware and printing lifecycle emails for this makerspace."
+          action={(
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={!recipients.isSuccess || !recipientsDirty || !recipients.data?.length}
+              loading={saveRecipients.isPending}
+              loadingLabel="Saving…"
+              onClick={() => saveRecipients.mutate()}
+            >
+              Save recipients
+            </Button>
+          )}
+        />
+        {recipients.isLoading ? <Skeleton className="h-20 w-full" /> : null}
+        <div className="grid gap-2">
+          {recipients.data?.map((recipient) => (
+            <CheckboxField
+              key={recipient.id}
+              className="rounded-md border border-line p-3"
+              label={<span className="font-semibold">{recipient.username}</span>}
+              description={`${recipient.email} · ${roleLabel(recipient.role)}`}
+              checked={recipientChecks[recipient.id] ?? recipient.receives_notifications}
+              onCheckedChange={(value) => {
+                setRecipientChecks({ ...recipientChecks, [recipient.id]: value === true });
+                setRecipientsDirty(true);
+              }}
+            />
           ))}
         </div>
         {!recipients.isLoading && recipients.data?.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">No managers to notify yet.</p>
+          <EmptyState title="No managers to notify yet" description="Managers appear here once they have a staff role in this makerspace." />
         ) : null}
-        {recipients.error ? <p className="mt-3 text-sm text-danger">{recipients.error.message}</p> : null}
-        {saveRecipients.error ? (
-          <p className="mt-3 text-sm text-danger">{saveRecipients.error.message}</p>
-        ) : null}
-      </div>
+        <div className="mt-3 grid gap-2">
+          <ErrorText message={recipients.error?.message} />
+          <ErrorText message={saveRecipients.error?.message} />
+        </div>
+      </Card>
     </>
   );
 }

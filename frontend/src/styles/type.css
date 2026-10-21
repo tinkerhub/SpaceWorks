@@ -1,0 +1,51 @@
+/* Type scale: mobile sizes first, desktop from 640px. Display/headings are Bricolage
+   Grotesque 800, UI/body is Figtree, codes are JetBrains Mono. These live in
+   @layer components so any utility (`text-ink`, `font-sans`, `text-sm`) still wins.
+   The legacy `title-*` / `eyebrow` names share the rules so ~450 call sites follow. */
+@layer components {
+  .text-display-xl, .text-display-l, .text-display-m,
+  .text-h1, .text-h2, .text-h3, .text-h4,
+  .title-page, .title-panel, .title-section {
+    font-family: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+  }
+  .text-display-xl { font-size: 44px; line-height: 0.98; letter-spacing: -0.035em; }
+  .text-display-l { font-size: 40px; line-height: 1; letter-spacing: -0.03em; }
+  .text-display-m { font-size: 36px; line-height: 1; letter-spacing: -0.03em; }
+  .text-h1, .title-page { font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; }
+  .text-h2 { font-size: 24px; line-height: 1.15; letter-spacing: -0.01em; }
+  .text-h3, .title-panel { font-size: 20px; line-height: 1.2; }
+  .text-h4 { font-size: 18px; line-height: 1.25; }
+  .title-section { font-size: 17px; line-height: 1.3; }
+  .title-page, .title-panel, .title-section { color: rgb(var(--color-ink)); }
+
+  /* Card and sub-section titles inside the app. */
+  .text-title { font-weight: 700; font-size: 16px; line-height: 1.35; }
+  .text-body-l { font-size: 17px; line-height: 1.6; }
+  .text-body { font-size: 16px; line-height: 1.6; }
+  .text-body-ui { font-size: 15px; line-height: 1.5; }
+  .text-label { font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .text-caption { font-size: 13px; line-height: 1.45; }
+  .text-overline, .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .eyebrow { color: rgb(var(--color-muted)); }
+  .text-mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; line-height: 1.5; }
+
+  @media (min-width: 640px) {
+    .text-display-xl { font-size: 76px; }
+    .text-display-l { font-size: 68px; }
+    .text-display-m { font-size: 54px; }
+    .text-h1, .title-page { font-size: 38px; }
+    .text-h2 { font-size: 30px; }
+    .text-h3, .title-panel { font-size: 24px; }
+    .text-h4 { font-size: 20px; }
+    .title-section { font-size: 18px; }
+    .text-body-l { font-size: 19px; }
+    .text-overline, .eyebrow { font-size: 13px; }
+  }
+}

@@ -1,5 +1,8 @@
-import { ErrorText } from "../../../components/ui";
+import { Button, EmptyState, ErrorText, SkeletonRows, Table, TBody, TD, TH, THead, TR } from "../../../components/ui";
+import { StatusWord } from "./shared";
 import type { Transfer } from "./StockTransferPanel";
+
+const COLUMNS = ["ID", "Status", "Source", "Destination", "Reason", "Created", "Lines"];
 
 export function TransferTable({
   transfers,
@@ -8,6 +11,7 @@ export function TransferTable({
   makerspaceNames,
   sourceContainerNames,
   destinationContainerNames,
+  onCreate,
 }: {
   transfers: Transfer[];
   loading: boolean;
@@ -15,37 +19,37 @@ export function TransferTable({
   makerspaceNames: Map<number, string>;
   sourceContainerNames: Map<number, string>;
   destinationContainerNames: Map<number, string>;
+  onCreate?: () => void;
 }) {
-  if (loading) return <p className="text-sm text-muted">Loading transfers...</p>;
   if (error) return <ErrorText message={error} />;
-  if (!transfers.length) return <p className="text-sm text-muted">No stock transfers recorded.</p>;
+  if (!loading && !transfers.length) {
+    return (
+      <EmptyState
+        title="No stock transfers yet"
+        description="Transfers you create show up here with where the stock came from and went."
+        action={onCreate ? <Button onClick={onCreate}>New transfer</Button> : undefined}
+      />
+    );
+  }
   return (
-    <div className="overflow-x-auto rounded-md border border-line">
-      <table className="min-w-[760px] divide-y divide-line text-left text-sm">
-        <thead className="eyebrow bg-surface">
-          <tr>
-            <th scope="col" className="px-3 py-2">ID</th>
-            <th scope="col" className="px-3 py-2">Source</th>
-            <th scope="col" className="px-3 py-2">Destination</th>
-            <th scope="col" className="px-3 py-2">Reason</th>
-            <th scope="col" className="px-3 py-2">Created</th>
-            <th scope="col" className="px-3 py-2">Lines</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line bg-bg text-ink">
-          {transfers.map((transfer) => (
-            <tr key={transfer.id}>
-              <td className="whitespace-nowrap px-3 py-2 font-mono font-medium">#{transfer.id}</td>
-              <td className="px-3 py-2"><span className="block max-w-56 break-words">{endpointLabel(transfer.source_makerspace ?? transfer.makerspace, transfer.source_container, makerspaceNames, sourceContainerNames)}</span></td>
-              <td className="px-3 py-2"><span className="block max-w-56 break-words">{endpointLabel(transfer.destination_makerspace ?? transfer.makerspace, transfer.destination_container, makerspaceNames, destinationContainerNames)}</span></td>
-              <td className="min-w-48 px-3 py-2 text-muted"><span className="block max-w-64 break-words">{transfer.reason}</span></td>
-              <td className="whitespace-nowrap px-3 py-2 font-mono text-muted">{formatDate(transfer.created_at)}</td>
-              <td className="whitespace-nowrap px-3 py-2">{transfer.lines.length}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table label="Stock transfers" className="min-w-[760px]" aria-busy={loading}>
+      <THead>
+        <tr>{COLUMNS.map((column) => <TH key={column}>{column}</TH>)}</tr>
+      </THead>
+      <TBody>
+        {loading ? <SkeletonRows rows={4} cols={COLUMNS.length} /> : transfers.map((transfer) => (
+          <TR key={transfer.id}>
+            <TD className="whitespace-nowrap font-mono">#{transfer.id}</TD>
+            <TD>{transfer.status ? <StatusWord status={transfer.status} /> : "-"}</TD>
+            <TD><span className="block max-w-56 break-words">{endpointLabel(transfer.source_makerspace ?? transfer.makerspace, transfer.source_container, makerspaceNames, sourceContainerNames)}</span></TD>
+            <TD><span className="block max-w-56 break-words">{endpointLabel(transfer.destination_makerspace ?? transfer.makerspace, transfer.destination_container, makerspaceNames, destinationContainerNames)}</span></TD>
+            <TD className="min-w-48 text-ink-secondary"><span className="block max-w-64 break-words">{transfer.reason}</span></TD>
+            <TD className="whitespace-nowrap text-ink-muted">{formatDate(transfer.created_at)}</TD>
+            <TD className="whitespace-nowrap tabular-nums">{transfer.lines.length}</TD>
+          </TR>
+        ))}
+      </TBody>
+    </Table>
   );
 }
 
@@ -56,5 +60,5 @@ function endpointLabel(spaceId: number, containerId: number | null, spaceNames: 
 
 function formatDate(value: string) {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }

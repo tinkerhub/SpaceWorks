@@ -93,7 +93,7 @@ function renderPage(requestAccess?: "anyone" | "checked_in") {
         request_access: requestAccess,
       },
       frontend: { type: "central", hostname: "", allowed_origins: [] },
-      modules: ["machine_service"],
+      modules: ["machine_service", "printing"],
       features: [],
       workflows: [],
       theme: {},

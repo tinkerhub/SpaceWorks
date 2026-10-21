@@ -219,10 +219,10 @@ function OpenCameraCapture({ onClose, onCapture, label }: Omit<CameraCaptureProp
     <div
       ref={layerRef}
       inert={!amTop}
-      className="dialog-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/70"
+      className="dialog-overlay fixed inset-0 z-[100] flex items-center justify-center bg-overlay"
       onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}
     >
-      <div ref={panelRef} role="dialog" aria-modal={amTop ? "true" : undefined} aria-labelledby={titleId} tabIndex={-1} className="dialog-panel flex w-full max-w-lg flex-col gap-3 overflow-y-auto rounded-lg border border-line bg-panel p-4 shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+      <div ref={panelRef} role="dialog" aria-modal={amTop ? "true" : undefined} aria-labelledby={titleId} tabIndex={-1} className="dialog-panel flex w-full max-w-lg flex-col gap-3 overflow-y-auto rounded-2xl border border-line bg-canvas p-5 shadow-float focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
         <h2 id={titleId} className="text-lg font-semibold text-ink">{title}</h2>
         <div aria-live="assertive" aria-atomic="true">
           {error ? <p className="text-sm text-danger">{error}</p> : null}

@@ -16,6 +16,10 @@ const makerspace = {
   telegram_group_chat_id: "",
   frontend_domain: null,
   hidden_from_central_directory: false,
+  enabled_modules: [
+    "public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads",
+    "machine_service", "printing", "maintenance", "payments", "stocktake",
+  ],
 };
 
 function renderPanel(canManageMakerspace = false) {
@@ -32,7 +36,9 @@ function renderPanel(canManageMakerspace = false) {
   );
 }
 
-beforeEach(() => staffRequest.mockReset());
+beforeEach(() => {
+  staffRequest.mockReset();
+});
 
 describe("DashboardPanel scope mode", () => {
   it("renders only server-declared machine tiles in restricted mode", async () => {
@@ -65,5 +71,22 @@ describe("DashboardPanel scope mode", () => {
     expect(await screen.findByText("Overdue loans")).toBeVisible();
     expect(screen.getByText("Pending payments")).toBeVisible();
     expect(screen.getByText("Maintenance overdue")).toBeVisible();
+  });
+});
+
+describe("DashboardPanel module gating", () => {
+  it("omits tiles whose module is switched off, even when the count is non-zero", async () => {
+    staffRequest.mockResolvedValue({ scope_mode: "full", pending_prints: 3, maintenance_overdue: 2, pending_payments: 1 });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <DashboardPanel makerspace={{ ...makerspace, enabled_modules: makerspace.enabled_modules.slice(0, 6) }} canManageMakerspace />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText("Overdue loans")).toBeVisible();
+    for (const label of ["Pending prints", "Active prints", "Ready to collect", "Stocktakes awaiting approval", "Maintenance overdue", "Pending payments"]) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
   });
 });

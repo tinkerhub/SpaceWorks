@@ -122,6 +122,10 @@ services:
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY}
       DEBUG: "False"
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set ALLOWED_HOSTS}
+      # Deployment-wide app tombstones (app labels, see `suggest_tombstones`). Every
+      # Django process must see the same list: URL routing, admin registration and the
+      # schema are process-global, so a worker or beat without it runs a different app set.
+      TOMBSTONED_APPS: ${TOMBSTONED_APPS:-}
       DATABASE_URL: ${DATABASE_URL:?use scripts/spaceworks-compose.sh}
       SPACEWORKS_DB_POINTER_GENERATION: ${SPACEWORKS_DB_POINTER_GENERATION:?use scripts/spaceworks-compose.sh}
       MANAGED_POSTGRES: ${MANAGED_POSTGRES:-False}

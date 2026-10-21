@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
+import { Button, Callout, CheckboxField, Dropdown, ErrorText, Field, Input, Textarea, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { errorText } from "./shared";
 
 type AssetEditRow = {
   id: number;
@@ -28,6 +30,7 @@ export function AssetEditForm({
   onSaved: () => void;
   onCancel: () => void;
 }) {
+  const { showToast } = useToast();
   const [assetTag, setAssetTag] = useState(asset.asset_tag);
   const [serial, setSerial] = useState(asset.serial_number);
   const [boxId, setBoxId] = useState(asset.box ? String(asset.box) : "");
@@ -47,58 +50,47 @@ export function AssetEditForm({
           public_self_checkout_enabled: publicEnabled,
         }),
       }),
-    onSuccess: onSaved,
+    onSuccess: () => {
+      showToast(`${assetTag.trim()} saved`, { tone: "success" });
+      onSaved();
+    },
+    onError: (error) => showToast(errorText(error, "Could not save the asset."), { tone: "error" }),
   });
 
   if (locked) {
     return (
-      <p className="mt-2 text-xs text-warn-ink">
-        This asset is currently {asset.status}; finish its loan before editing its details.
-      </p>
+      <Callout tone="warning" title={`This asset is ${asset.status}.`}>
+        Finish its loan before editing its details.
+      </Callout>
     );
   }
 
   return (
     <form
-      className="mt-2 grid gap-2 rounded-md border border-line bg-bg p-2"
+      className="grid gap-4 rounded-md bg-subtle p-4"
       onSubmit={(event) => {
         event.preventDefault();
         if (assetTag.trim()) save.mutate();
       }}
     >
-      <div className="grid gap-2 sm:grid-cols-2">
-        <label className="eyebrow grid gap-1">
-          <span>Asset tag</span>
-          <input className="desk-input" value={assetTag} onChange={(e) => setAssetTag(e.target.value)} required />
-        </label>
-        <label className="eyebrow grid gap-1">
-          <span>Serial number</span>
-          <input className="desk-input" value={serial} onChange={(e) => setSerial(e.target.value)} />
-        </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Asset tag"><Input value={assetTag} onChange={(e) => setAssetTag(e.target.value)} required /></Field>
+        <Field label="Serial number" optional><Input value={serial} onChange={(e) => setSerial(e.target.value)} /></Field>
       </div>
-      <label className="eyebrow grid gap-1">
-        <span>Container</span>
-        <select className="desk-input" value={boxId} onChange={(e) => setBoxId(e.target.value)}>
+      <Field label="Container">
+        <Dropdown value={boxId} onChange={(e) => setBoxId(e.target.value)}>
           <option value="">No container</option>
           {containers.map((container) => (
-            <option key={container.id} value={container.id}>{container.label}</option>
+            <option key={container.id} value={String(container.id)}>{container.label}</option>
           ))}
-        </select>
-      </label>
-      <label className="eyebrow grid gap-1">
-        <span>Notes</span>
-        <textarea className="desk-input min-h-16 w-full" value={notes} onChange={(e) => setNotes(e.target.value)} />
-      </label>
-      <label className="eyebrow flex items-center gap-2">
-        <input type="checkbox" checked={publicEnabled} onChange={(e) => setPublicEnabled(e.target.checked)} />
-        <span>Enabled for public self-checkout</span>
-      </label>
-      {save.error ? <p className="text-xs text-danger">{save.error.message}</p> : null}
-      <div className="desk-actions flex flex-wrap justify-end gap-2">
-        <button className="desk-button-ghost" type="button" disabled={save.isPending} onClick={onCancel}>Cancel</button>
-        <button className="desk-button-primary" type="submit" disabled={save.isPending || !assetTag.trim()}>
-          {save.isPending ? "Saving..." : "Save"}
-        </button>
+        </Dropdown>
+      </Field>
+      <Field label="Notes" optional><Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field>
+      <CheckboxField label="Enabled for public self-checkout" checked={publicEnabled} onCheckedChange={(checked) => setPublicEnabled(checked === true)} />
+      <ErrorText message={save.error?.message} />
+      <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <Button size="sm" disabled={save.isPending} onClick={onCancel}>Cancel</Button>
+        <Button size="sm" variant="secondary" type="submit" loading={save.isPending} loadingLabel="Saving…" disabled={!assetTag.trim()}>Save asset</Button>
       </div>
     </form>
   );

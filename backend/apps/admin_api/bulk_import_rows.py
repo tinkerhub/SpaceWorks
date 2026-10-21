@@ -28,6 +28,17 @@ QUANTITY_BUCKET_FIELDS = {
     "damaged_quantity",
     "lost_quantity",
 }
+# Stock that only the request/handover/return workflows may create: a new product
+# cannot arrive with phantom reservations, loans or losses no workflow ever recorded.
+CREATE_PROTECTED_BUCKET_FIELDS = (
+    "reserved_quantity",
+    "issued_quantity",
+    "damaged_quantity",
+    "lost_quantity",
+)
+# Well inside PositiveIntegerField, so a typo is a row error rather than a DB failure
+# that aborts the whole import.
+MAX_IMPORT_QUANTITY = 1_000_000
 DETAIL_WARNING_FIELDS = {"description", "storage_location", "category", "image_key"}
 
 
@@ -124,6 +135,8 @@ def _int_value(value, field, errors):
         return 0
     if parsed < 0:
         errors[field] = "Must be non-negative."
+    elif parsed > MAX_IMPORT_QUANTITY:
+        errors[field] = f"Must be at most {MAX_IMPORT_QUANTITY}."
     return parsed
 
 
@@ -151,3 +164,24 @@ def _row_action(normalized, existing_names):
     if not name:
         return "error"
     return "update" if name in existing_names else "create"
+
+
+def _create_bucket_errors(normalized):
+    errors = {
+        field: "A new product cannot be imported with this stock; record it through the workflows."
+        for field in CREATE_PROTECTED_BUCKET_FIELDS
+        if normalized.get(field)
+    }
+    # An individual-tracked product's counts are derived from its asset rows, and an
+    # import creates none: any quantity here would be phantom stock the next reconcile
+    # silently zeroes. The units must be generated (with their QR codes) afterwards.
+    if normalized.get("tracking_mode") == TrackingMode.INDIVIDUAL:
+        errors.update({
+            field: (
+                "Individual-tracked items are imported with 0 here; "
+                "generate their units with QR codes after the import."
+            )
+            for field in ("total_quantity", "available_quantity")
+            if normalized.get(field)
+        })
+    return errors

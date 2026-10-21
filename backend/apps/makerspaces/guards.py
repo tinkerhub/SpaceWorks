@@ -50,6 +50,19 @@ def require_module_locked(makerspace_or_id, module_key):
     return locked
 
 
+def require_module_locked_for_all(makerspace_ids, module_key):
+    """`require_module_locked` for a mutation spanning makerspaces (source + destination).
+
+    Rows are locked in ascending primary-key order, so two concurrent cross-space
+    mutations in opposite directions cannot deadlock on each other's makerspace row.
+    """
+    ids = sorted({int(pk) for pk in makerspace_ids})
+    locked = list(Makerspace.objects.select_for_update().filter(pk__in=ids).order_by("pk"))
+    if len(locked) != len(ids) or not all(module_enabled(row, module_key) for row in locked):
+        raise ValidationError({"module": f"{module_key} is disabled for this makerspace."})
+    return locked
+
+
 def require_feature(makerspace_or_id, feature_key):
     makerspace = (
         makerspace_or_id

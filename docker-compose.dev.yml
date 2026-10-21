@@ -59,6 +59,9 @@ services:
   migrate:
     environment:
       TRUSTED_PROXY_COUNT: "0"
+      # `migrate` runs the system checks, and accounts.E001 refuses the dev placeholder
+      # SECRET_KEY when DEBUG is False. Dev matches `backend` above: DEBUG on.
+      DEBUG: "True"
     volumes:
       - ./backend:/app
 

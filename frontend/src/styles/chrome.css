@@ -1,18 +1,43 @@
-/* Solid workshop chrome; focus and motion remain shared across the app. */
+/* Chrome, overlays and motion. Durations: 120 press, 180 hover/fade, 240 panels and
+   dialogs, 360 success moments; easing cubic-bezier(.2,.8,.2,1). */
 @layer components {
   .material-chrome { background-color: rgb(var(--color-panel)); }
-  .blueprint-dock { @apply rounded-xl border-2 border-line bg-panel shadow-brutal; }
-  .blueprint-dock-popover { @apply rounded-lg border-2 border-line bg-panel shadow-brutal; }
-  .blueprint-dock button { @apply font-mono; }
-  .blueprint-dock button[aria-expanded="true"] { @apply border-line; }
 }
 
-/* Tilted directory cards need breathing room on narrow screens. */
-@media (max-width: 639px) {
-  .card-tilt-1, .card-tilt-2 { transform: none; }
+@keyframes sw-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
+/* Dialogs centre with layout (grid / translate), so the keyframes animate only transform. */
+@keyframes sw-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sw-drawer-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sw-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sw-success-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+/* Loader: three dots hop one after another. */
+@keyframes sw-dot-jump {
+  0%, 45%, 100% { transform: translateY(0); }
+  20% { transform: translateY(-80%); }
+}
+.sw-overlay-in { animation: sw-fade-in 180ms ease-out both; }
+.sw-dialog-in { animation: sw-dialog-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sw-drawer-in { animation: sw-drawer-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sw-toast-in { animation: sw-toast-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sw-success-in { animation: sw-success-in 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sw-dot-jump { animation: sw-dot-jump 1.2s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
 
-/* Unlayered rules override component and utility motion, including image zoom. */
+/* Unlayered so it overrides component and utility motion: no translate/scale, fades only. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -20,14 +45,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .brutal-hover:hover, .blueprint-card:hover,
-  .card-tilt-1, .card-tilt-2,
-  .desk-button-primary:hover, .desk-button-secondary:hover, .desk-button-success:hover,
-  .desk-button-warn:hover, .desk-button-danger:hover {
+  :is(.desk-button, .desk-button-primary, .desk-button-secondary, .desk-button-success,
+    .desk-button-warn, .desk-button-danger, .desk-button-ghost):active,
+  .blueprint-card img {
     transform: none !important;
     translate: none !important;
+    scale: none !important;
   }
-  .blueprint-card img { transform: none !important; scale: none !important; }
 }
 
 /* Respect browser chrome and display cutouts while keeping dialog contents scrollable. */
@@ -53,7 +77,7 @@
   .dialog-overlay { --dialog-gutter: 1rem; }
 }
 /* Keep editable controls readable on phones/tablets, including raw controls outside desk-input. */
-@media (max-width: 1023px), (pointer: coarse) {
+@media (max-width: 1199px), (pointer: coarse) {
   :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea) {
     font-size: max(16px, 1rem);
   }

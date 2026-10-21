@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { Button, CheckboxCard, ErrorText, SectionHeading, Skeleton, useToast } from "../../components/ui";
 import type { StaffEvent } from "./eventsApi";
 import { useReplaceEventOrganizers } from "./eventsApi";
+import { eventErrorText } from "./eventUi";
 import { useOrganizations } from "./organizationsApi";
 
 export function EventOrganizers({ event, makerspaceId, disabled }: {
@@ -9,6 +11,7 @@ export function EventOrganizers({ event, makerspaceId, disabled }: {
   makerspaceId: number;
   disabled: boolean;
 }) {
+  const { showToast } = useToast();
   const organizations = useOrganizations();
   const [selected, setSelected] = useState<number[]>(event.organizers.map((item) => item.id));
   const replace = useReplaceEventOrganizers(makerspaceId, event.id);
@@ -21,29 +24,38 @@ export function EventOrganizers({ event, makerspaceId, disabled }: {
     setSelected((values) => values.includes(id) ? values.filter((item) => item !== id) : [...values, id]);
   }
 
+  const save = () => replace.mutate(selected, {
+    onSuccess: () => showToast("Organizers saved", { tone: "success" }),
+    onError: (error) => showToast(eventErrorText(error), { tone: "error" }),
+  });
+
   return (
-    <section className="rounded-xl border border-line bg-bg p-4" aria-labelledby={`event-${event.id}-organizers`}>
-      <h3 className="title-section" id={`event-${event.id}-organizers`}>Organization organizers</h3>
-      <p className="mt-1 text-sm text-muted">Attribution and event-specific authority only. The host makerspace remains the owner.</p>
-      {organizations.isLoading ? <p className="mt-3 text-sm text-muted">Loading organizations...</p> : null}
-      {organizations.error ? <p className="mt-3 text-sm text-danger" role="alert">{organizations.error.message}</p> : null}
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        {assignable.map((organization) => (
-          <label className="flex items-center gap-2 rounded-lg border border-line bg-surface p-3 text-sm" key={organization.id}>
-            <input type="checkbox" checked={selected.includes(organization.id)} disabled={disabled} onChange={() => toggle(organization.id)} />
-            <span><span className="font-semibold text-ink">{organization.name}</span><span className="ml-1 font-mono text-xs text-muted">({organization.slug})</span></span>
-          </label>
-        ))}
-        {retained.map((organization) => (
-          <label className="flex items-center gap-2 rounded-lg border border-line bg-surface p-3 text-sm text-muted" key={organization.id}>
-            <input type="checkbox" checked disabled />
-            {organization.name} (retained co-organizer)
-          </label>
-        ))}
-      </div>
-      {!assignable.length && !retained.length && !organizations.isLoading ? <p className="mt-3 text-sm text-muted">No active organization memberships are available to assign.</p> : null}
-      {!disabled ? <button className="desk-button-primary mt-3" type="button" disabled={replace.isPending} onClick={() => replace.mutate(selected)}>{replace.isPending ? "Saving..." : "Save organizers"}</button> : null}
-      {replace.error ? <p className="mt-2 text-sm text-danger" role="alert">{replace.error.message}</p> : null}
+    <section className="grid gap-3" aria-label="Organization organizers">
+      <SectionHeading as="h3" title="Organization organizers" description="Attribution and event-specific authority only. The host makerspace remains the owner." />
+      {organizations.isLoading ? <Skeleton className="h-16 w-full" /> : null}
+      <ErrorText message={organizations.error ? organizations.error.message : null} />
+      {assignable.length || retained.length ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {assignable.map((organization) => (
+            <CheckboxCard
+              key={organization.id}
+              label={organization.name}
+              description={<span className="font-mono">{organization.slug}</span>}
+              checked={selected.includes(organization.id)}
+              disabled={disabled}
+              onCheckedChange={() => toggle(organization.id)}
+            />
+          ))}
+          {retained.map((organization) => (
+            <CheckboxCard key={organization.id} label={organization.name} description="Retained co-organizer" checked disabled />
+          ))}
+        </div>
+      ) : null}
+      {!assignable.length && !retained.length && !organizations.isLoading ? (
+        <p className="rounded-lg border-[1.5px] border-dashed border-line-strong px-4 py-3 text-body-ui text-ink-muted">No active organization memberships are available to assign.</p>
+      ) : null}
+      {!disabled ? <div><Button onClick={save} loading={replace.isPending} loadingLabel="Saving…">Save organizers</Button></div> : null}
+      <ErrorText message={replace.error ? replace.error.message : null} />
     </section>
   );
 }

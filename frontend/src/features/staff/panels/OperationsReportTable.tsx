@@ -1,9 +1,10 @@
-import { formatReportCell, reportHeaders, reportRows, type ReportCell, type ReportRows } from "./OperationsReportState";
+import { Table, TBody, TD, TH, THead, TR } from "../../../components/ui";
+import { columnLabel, formatReportCell, reportHeaders, reportRows, type ReportCell, type ReportRows } from "./OperationsReportState";
 
 export function PerMakerspaceTables({ data, nameOf, emptyLabel = "No records." }: {
   data?: ReportRows; nameOf: (id: number) => string; emptyLabel?: string;
 }) {
-  if (!data?.rows?.length) return <p className="text-sm text-muted">{emptyLabel}</p>;
+  if (!data?.rows?.length) return <p className="text-body-ui text-ink-muted">{emptyLabel}</p>;
   const [header, ...body] = data.rows;
   const idx = header.findIndex((cell) => cell === "makerspace_id" || cell === "makerspace");
   if (idx === -1 || !body.length) return <ReportTable data={data} />;
@@ -14,24 +15,37 @@ export function PerMakerspaceTables({ data, nameOf, emptyLabel = "No records." }
   }
   const subHeader = header.filter((_, index) => index !== idx);
   return (
-    <div className="space-y-4">
+    <div className="grid gap-5">
       {[...groups].map(([key, rows]) => (
-        <div key={key}><h4 className="eyebrow mb-1">{nameOf(Number(key))}</h4><ReportTable data={{ rows: [subHeader, ...rows.map((row) => row.filter((_, index) => index !== idx))] }} /></div>
+        <div key={key}>
+          <h3 className="text-label text-ink">{nameOf(Number(key))}</h3>
+          <ReportTable data={{ rows: [subHeader, ...rows.map((row) => row.filter((_, index) => index !== idx))] }} />
+        </div>
       ))}
     </div>
   );
 }
 
-export function ReportTable({ data }: { data?: ReportRows }) {
+export function ReportTable({ data, label }: { data?: ReportRows; label?: string }) {
   const headers = reportHeaders(data);
   const rows = reportRows(data);
-  if (!headers.length || !rows.length) return <p className="text-sm text-muted">No records.</p>;
+  if (!headers.length || !rows.length) return <p className="mt-3 text-body-ui text-ink-muted">No records.</p>;
   return (
-    <div className="mt-4 max-h-80 overflow-x-auto overflow-y-auto rounded-md border border-line">
-      <table className="w-full divide-y divide-line text-left text-sm">
-        <thead className="eyebrow sticky top-0 bg-surface"><tr>{headers.map((header) => <th scope="col" key={header} className="whitespace-nowrap px-3 py-2">{header.replace(/_/g, " ")}</th>)}</tr></thead>
-        <tbody className="divide-y divide-line bg-bg text-ink">{rows.map((row, rowIndex) => <tr key={rowIndex}>{headers.map((header, cellIndex) => <td key={`${header}-${cellIndex}`} className="whitespace-nowrap px-3 py-2 font-mono text-sm">{formatReportCell(row[cellIndex])}</td>)}</tr>)}</tbody>
-      </table>
-    </div>
+    <Table label={label} containerClassName="mt-4 max-h-80 overflow-y-auto">
+      <THead className="sticky top-0 z-[1]">
+        <tr>{headers.map((header) => <TH key={header}>{columnLabel(header)}</TH>)}</tr>
+      </THead>
+      <TBody>
+        {rows.map((row, rowIndex) => (
+          <TR key={rowIndex}>
+            {headers.map((header, cellIndex) => (
+              <TD key={`${header}-${cellIndex}`} className={`whitespace-nowrap ${typeof row[cellIndex] === "number" ? "text-right tabular-nums" : ""}`}>
+                {formatReportCell(row[cellIndex])}
+              </TD>
+            ))}
+          </TR>
+        ))}
+      </TBody>
+    </Table>
   );
 }

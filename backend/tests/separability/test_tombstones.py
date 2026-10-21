@@ -175,6 +175,28 @@ def test_list_modules_reports_availability_separately_from_installation(tombston
     assert rows["reports"]["available"] is True
 
 
+@pytest.mark.django_db
+def test_list_modules_marks_unshipped_modules_so_the_tick_list_skips_them(tombstoned):
+    """scripts/module-selection.sh offers only `+`/`-` rows; an unshipped module gets `x`."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    space = make_space()
+    tombstoned()
+    out = StringIO()
+    call_command("list_modules", makerspace=space.slug, stdout=out)
+
+    rows = {
+        line.split()[1]: line
+        for line in out.getvalue().splitlines()
+        if line.startswith("  ") and len(line.split()) > 1
+    }
+    assert rows[TARGET].startswith(f"  x {TARGET}")
+    assert "not shipped by this deployment" in rows[TARGET]
+    assert rows["reports"][:4] in ("  - ", "  + ")
+
+
 # --------------------------------------------------------------------------
 # Retention: the half that must NOT disappear.
 # --------------------------------------------------------------------------

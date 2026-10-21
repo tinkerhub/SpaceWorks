@@ -11,7 +11,9 @@ const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 vi.mock("../../../../lib/api", () => ({ staffRequest }));
 
 describe("MachineServiceConsole", () => {
-  beforeEach(() => staffRequest.mockReset());
+  beforeEach(() => {
+    staffRequest.mockReset();
+  });
 
   it("uses its fixed machine type without rendering a type selector", async () => {
     const machineType: MachineType = {

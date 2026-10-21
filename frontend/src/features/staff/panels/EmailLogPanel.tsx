@@ -1,8 +1,26 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Panel, useStaffGet, type Makerspace } from "./shared";
+import {
+  Button,
+  Dropdown,
+  EmptyState,
+  ErrorBlock,
+  Field,
+  SkeletonRows,
+  StatusChip,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+  useToast,
+  type StatusTone,
+} from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { absoluteTime, formatLogTime, LogPager } from "./StaffLogParts";
+import { errorText, Panel, useStaffGet, type Makerspace } from "./shared";
 
 type EmailLogStatus = "" | "sent" | "failed" | "pending" | "sending";
 
@@ -27,8 +45,16 @@ type EmailLogResponse = {
   results: EmailLogEntry[];
 };
 
+const STATUS: Record<EmailLogEntry["status"], { label: string; tone: StatusTone }> = {
+  sent: { label: "Sent", tone: "success" },
+  failed: { label: "Failed", tone: "danger" },
+  pending: { label: "Pending", tone: "warning" },
+  sending: { label: "Sending", tone: "info" },
+};
+
 export function EmailLogPanel({ makerspace }: { makerspace: Makerspace }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [status, setStatus] = useState<EmailLogStatus>("");
   const [page, setPage] = useState(1);
   const params = new URLSearchParams();
@@ -45,123 +71,105 @@ export function EmailLogPanel({ makerspace }: { makerspace: Makerspace }) {
         method: "POST",
       }),
     onSuccess: () => {
+      showToast("Email queued to send again", { tone: "success" });
       queryClient.invalidateQueries({ queryKey: ["email-logs", makerspace.id] });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't retry this email"), { tone: "error" }),
   });
 
   const updateStatus = (value: EmailLogStatus) => {
     setStatus(value);
     setPage(1);
   };
+  const rows = logs.data?.results ?? [];
 
   return (
-    <Panel title="Email log">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <select
-          aria-label="Email log status"
-          className="desk-input w-full sm:w-48"
-          value={status}
-          onChange={(event) => updateStatus(event.target.value as EmailLogStatus)}
-        >
-          <option value="">All</option>
-          <option value="sent">Sent</option>
-          <option value="failed">Failed</option>
-          <option value="pending">Pending</option>
-          <option value="sending">Sending</option>
-        </select>
-      </div>
-      {logs.isLoading ? <p className="mb-3 text-sm text-muted">Loading email logs...</p> : null}
-      {logs.error ? <p className="mb-3 text-sm text-danger">{logs.error.message}</p> : null}
-      {retry.error ? <p className="mb-3 text-sm text-danger">{retry.error.message}</p> : null}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="eyebrow border-b border-line">
-            <tr>
-              <th scope="col" className="px-2 py-2">Created</th>
-              <th scope="col" className="px-2 py-2">To</th>
-              <th scope="col" className="px-2 py-2">Event</th>
-              <th scope="col" className="px-2 py-2">Status</th>
-              <th scope="col" className="px-2 py-2">Error</th>
-              <th scope="col" className="px-2 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.data?.results.map((log) => (
-              <tr key={log.id} className="border-b border-line/70 align-top">
-                <td className="whitespace-nowrap px-2 py-2 text-muted">
-                  {formatLocalDateTime(log.created_at)}
-                </td>
-                <td className="max-w-56 break-words px-2 py-2">{log.to_email}</td>
-                <td className="px-2 py-2">
-                  <span className="font-semibold">{log.event || "email"}</span>
-                  <span className="ml-2 text-muted">{log.stream || "general"}</span>
-                </td>
-                <td className="px-2 py-2">
-                  <span className={`status-box ${statusClassName(log.status)}`}>
-                    {log.status}
-                  </span>
-                </td>
-                <td className="max-w-72 break-words px-2 py-2 text-muted">
-                  {log.status === "failed" ? truncate(log.error) : ""}
-                </td>
-                <td className="whitespace-nowrap px-2 py-2">
-                  {log.status === "failed" || log.status === "sending" ? (
-                    <button
-                      className="desk-button-primary"
-                      disabled={retry.isPending}
-                      onClick={() => retry.mutate(log.id)}
-                    >
-                      Retry
-                    </button>
-                  ) : null}
-                </td>
+    <Panel title="Email log" description="Every email this makerspace sent or tried to send. Retry a failed one once the problem is fixed.">
+      <div className="grid gap-4">
+        <div className="w-full sm:w-56">
+          <Field label="Status">
+            <Dropdown
+              aria-label="Email log status"
+              value={status}
+              onChange={(event) => updateStatus(event.target.value as EmailLogStatus)}
+            >
+              <option value="">All</option>
+              <option value="sent">Sent</option>
+              <option value="failed">Failed</option>
+              <option value="pending">Pending</option>
+              <option value="sending">Sending</option>
+            </Dropdown>
+          </Field>
+        </div>
+        <ErrorBlock error={logs.error} />
+        <ErrorBlock error={retry.error} />
+        {!logs.isLoading && logs.data && rows.length === 0 ? (
+          <EmptyState
+            title={status ? "No emails with this status" : "No emails yet"}
+            description={status ? "Pick All to see every email." : "Emails appear here as soon as the makerspace sends one."}
+          />
+        ) : (
+          <Table label="Email log entries">
+            <THead>
+              <tr>
+                <TH>When</TH>
+                <TH>To</TH>
+                <TH>Event</TH>
+                <TH>Status</TH>
+                <TH>Error</TH>
+                <TH><span className="sr-only">Action</span></TH>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {logs.data && logs.data.results.length === 0 ? (
-          <p className="py-4 text-sm text-muted">No email logs.</p>
-        ) : null}
-      </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <button
-          className="desk-button-ghost"
-          disabled={!logs.data?.previous}
-          onClick={() => setPage((current) => Math.max(1, current - 1))}
-        >
-          Previous
-        </button>
-        <span className="text-muted">
-          Page {page}{" - "}{logs.data?.count ?? 0} total
-        </span>
-        <button
-          className="desk-button-ghost"
-          disabled={!logs.data?.next}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+            </THead>
+            <TBody>
+              {logs.isLoading ? <SkeletonRows rows={6} cols={6} /> : null}
+              {rows.map((log) => (
+                <TR key={log.id} className="align-top">
+                  <TD className="whitespace-nowrap text-ink-secondary">
+                    <time dateTime={log.created_at} title={absoluteTime(log.created_at)}>{formatLogTime(log.created_at)}</time>
+                  </TD>
+                  <TD className="max-w-56 break-words">{log.to_email}</TD>
+                  <TD>
+                    <span className="block font-semibold">{humanize(log.event || "email")}</span>
+                    <span className="block text-caption text-ink-muted">{humanize(log.stream || "general")}</span>
+                  </TD>
+                  <TD>
+                    <StatusChip tone={STATUS[log.status]?.tone ?? "neutral"} size="sm">
+                      {STATUS[log.status]?.label ?? log.status}
+                    </StatusChip>
+                  </TD>
+                  <TD className="max-w-72 break-words text-caption text-ink-muted">
+                    {log.status === "failed" ? truncate(log.error) : ""}
+                  </TD>
+                  <TD className="whitespace-nowrap text-right">
+                    {log.status === "failed" || log.status === "sending" ? (
+                      <Button size="sm" variant="secondary" disabled={retry.isPending} onClick={() => retry.mutate(log.id)}>
+                        Retry
+                      </Button>
+                    ) : null}
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
+        <LogPager
+          page={page}
+          count={logs.data?.count ?? 0}
+          hasPrevious={Boolean(logs.data?.previous)}
+          hasNext={Boolean(logs.data?.next)}
+          onPage={setPage}
+          disabled={logs.isFetching}
+        />
       </div>
     </Panel>
   );
 }
 
-function statusClassName(status: EmailLogEntry["status"]) {
-  if (status === "sent") return "status-box-done";
-  if (status === "failed") return "status-box-danger";
-  return "status-box-pending";
+function humanize(value: string) {
+  const words = value.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 function truncate(value: string) {
-  return value.length > 140 ? `${value.slice(0, 137)}...` : value;
-}
-
-function formatLocalDateTime(value: string) {
-  return new Date(value).toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return value.length > 140 ? `${value.slice(0, 137)}…` : value;
 }

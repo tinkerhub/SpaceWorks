@@ -7,12 +7,32 @@ from rest_framework.exceptions import ValidationError
 
 from apps.audit import services as audit
 from apps.makerspaces import limits
+from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.models import (
     Makerspace,
     MakerspaceMembership,
     MakerspaceRole,
     MembershipRequest,
 )
+
+
+def is_community_request(request, role):
+    """Whether a membership request belongs to the `membership` module.
+
+    A join request always does. An invitation is discriminated by the role it activates,
+    exactly as `invite_membership` discriminates it: a role granting no actions (the
+    protected Member role included) is community membership; a role granting actions is
+    a staff invitation, which must keep working with `membership` off.
+    """
+    if request.kind == MembershipRequest.Kind.REQUEST:
+        return True
+    return role is None or not role.granted_actions
+
+
+def require_membership_module(makerspace):
+    """Refuse a community membership change; call it with the makerspace row LOCKED."""
+    if not module_enabled(makerspace, "membership"):
+        raise ValidationError({"module": "membership is disabled for this makerspace."})
 
 
 def _activate_membership(actor, makerspace, user, role, *, request=None, source):
@@ -31,6 +51,11 @@ def _activate_membership(actor, makerspace, user, role, *, request=None, source)
                 raise ValidationError({"detail": "This membership request is no longer open."})
             if driving_request.user_id not in (None, user.pk):
                 raise ValidationError({"detail": "Membership request belongs to another account."})
+            if is_community_request(driving_request, role):
+                # Under the makerspace lock module_install also takes, so an uninstall
+                # cannot slip between the view's check and the activation. Staff
+                # invitations are core RBAC and are deliberately not gated (plan A7).
+                require_membership_module(makerspace)
             if driving_request.user_id is None:
                 driving_request.user = user
                 driving_request.save(update_fields=["user", "updated_at"])

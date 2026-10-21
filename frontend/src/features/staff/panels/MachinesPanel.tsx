@@ -1,21 +1,22 @@
 import { useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
 
+import { Callout, PageHeader, SectionHeading, Skeleton, buttonClasses } from "../../../components/ui";
 import type { PrinterPool } from "../../../generated/api";
-import { collectionResults, getMachines, getMachineTypes, machineKeys, type MachineStatus, type MachineType } from "../machinesApi";
+import { collectionResults, getMachines, getMachineTypes, machineKeys, type MachineType } from "../machinesApi";
 import { machineTypeSegment, parseMachineTypeSegment, staffSubPathFromPath, staffTabPath } from "../staffTabs";
 import { MachineDrawer } from "./machine/MachineDrawer";
 import { MachineTypeCards } from "./machine/MachineTypeCards";
-import { MachineTypePage } from "./machine/MachineTypePage";
+import { MachineCreateDialog } from "./machine/MachineCreateDialog";
+import { MachineTypePage, type StatusFilter } from "./machine/MachineTypePage";
 import { SharedConsumablesSection } from "./machine/SharedConsumablesSection";
 import { poolPath, poolQueryKey } from "./machine/servicePools";
 import { useServiceDrafts } from "./machine/serviceDrafts";
 import { MachineTypesPanel } from "./MachineTypesPanel";
 import { NotificationRecipientPicker } from "../NotificationRecipientPicker";
-import { Panel, useStaffGet } from "./shared";
-
-type StatusFilter = "all" | MachineStatus;
+import { useStaffGet } from "./shared";
 
 type Props = {
   makerspaceId: number;
@@ -30,8 +31,6 @@ type Props = {
   makerspaceSlug?: string | null;
   singleTenantLocked?: boolean;
 };
-
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function MachinesPanel({
   makerspaceId,
@@ -126,9 +125,11 @@ export function MachinesPanel({
   // early.
   if (requestedTypeId !== null && !selectedType && !sourcesSettled) {
     return (
-      <Panel title="Machines">
-        <div className="h-40 animate-pulse rounded-xl border border-line bg-surface" aria-label="Loading machine type" />
-      </Panel>
+      <section className="grid gap-6" aria-busy="true">
+        <PageHeader title="Machines" />
+        <Skeleton className="h-40 w-full rounded-lg" />
+        <span className="sr-only" role="status">Loading machine type</span>
+      </section>
     );
   }
 
@@ -141,45 +142,41 @@ export function MachinesPanel({
     (pool.machine_id !== null && machineIds.has(pool.machine_id)),
   );
   const onTypePage = shownType !== null && selectedType !== null;
+  const loadErrors = [
+    machineTypes.error instanceof Error ? `Machine types: ${machineTypes.error.message}` : null,
+    machines.error instanceof Error ? `Machines: ${machines.error.message}` : null,
+    // Panel level, not inside the Shared section: pools feed every type's start and
+    // manual-usage forms, and Shared may be collapsed. A failed load would otherwise hand
+    // those forms an empty selector with no indication stock failed to fetch, and an
+    // operator would retry a start that cannot succeed.
+    poolQuery.error instanceof Error ? `Consumable pools could not be loaded: ${poolQuery.error.message}` : null,
+  ].filter((message): message is string => message !== null);
+  const total = machines.data?.count;
 
   return (
-    <Panel title={shownType ? shownType.name : "Machines"}>
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          {onTypePage ? (
-            <Link className={`mb-1 inline-flex min-h-11 items-center gap-1 font-mono text-[11px] uppercase tracking-wide text-accent-ink hover:underline ${focusRing}`} to={indexHref}>
-              ← All machine types
-            </Link>
-          ) : null}
-          <p className="text-sm text-muted">
-            {shownType
-              ? `Machines, consumables and the service queue for ${shownType.name}.`
-              : "Manage shared equipment, operators, usage, documents, and operating status."}
-          </p>
-          {machines.data && !shownType ? (
-            <p className="mt-1 font-mono text-xs text-muted">{machines.data.count} machines total</p>
-          ) : null}
-        </div>
-        {shownType ? (
-          <label className="grid gap-1 font-mono text-[11px] uppercase tracking-wide text-muted sm:w-44">
-            Status
-            <select className={`desk-input min-h-11 ${focusRing}`} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}>
-              <option value="all">All statuses</option>
-              <option value="idle">Idle</option><option value="running">Running</option><option value="reserved">Reserved</option>
-              <option value="maintenance">Maintenance</option><option value="offline">Offline</option>
-            </select>
-          </label>
+    <section className="grid min-w-0 gap-6">
+      <div className="grid gap-2">
+        {onTypePage ? (
+          <Link className={buttonClasses({ variant: "quiet", size: "sm", className: "-ml-1.5 justify-self-start" })} to={indexHref}>
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            All machine types
+          </Link>
         ) : null}
+        <PageHeader
+          title={shownType ? `${shownType.icon ? `${shownType.icon} ` : ""}${shownType.name}` : "Machines"}
+          description={shownType
+            ? `Machines, consumables and the service queue for ${shownType.name}.`
+            : `Shared equipment, operators, usage, documents and operating status.${total !== undefined ? ` ${total} ${total === 1 ? "machine" : "machines"} in total.` : ""}`}
+          actions={shownType && canManage && shownType.can_create_machine === true ? (
+            <MachineCreateDialog makerspaceId={makerspaceId} machineType={shownType} onCreated={setSelectedId} />
+          ) : null}
+        />
       </div>
 
-      {machineTypes.error instanceof Error ? <p className="mb-3 text-sm text-danger">{machineTypes.error.message}</p> : null}
-      {machines.error instanceof Error ? <p className="mb-3 text-sm text-danger">{machines.error.message}</p> : null}
-      {/* Panel level, not inside the Shared section: pools feed every type's start and
-          manual-usage forms, and Shared may be collapsed. A failed load would otherwise hand
-          those forms an empty selector with no indication stock failed to fetch, and an
-          operator would retry a start that cannot succeed. */}
-      {poolQuery.error instanceof Error ? (
-        <p className="mb-3 text-sm text-danger">Consumable pools could not be loaded: {poolQuery.error.message}</p>
+      {loadErrors.length ? (
+        <Callout tone="danger" role="alert" title="Some machine data did not load">
+          <ul className="grid gap-0.5">{loadErrors.map((message) => <li key={message}>{message}</li>)}</ul>
+        </Callout>
       ) : null}
 
       {shownType ? (
@@ -192,6 +189,8 @@ export function MachinesPanel({
           machineType={shownType}
           allMachines={typeMachines}
           visibleMachines={typeMachines.filter((machine) => statusFilter === "all" || machine.status === statusFilter)}
+          statusFilter={statusFilter}
+          onStatusFilter={setStatusFilter}
           typePools={typePools}
           formPools={[...sharedPools, ...typePools]}
           existingPools={pools}
@@ -217,7 +216,8 @@ export function MachinesPanel({
           what makes "land straight on my type" safe: none of these controls can become
           unreachable for an actor who only ever has one type. */}
       {!onTypePage ? (
-        <div className="mt-4 grid gap-4 border-t border-line pt-4">
+        <div className="grid gap-4 border-t border-line pt-6">
+          <SectionHeading title="Setup" description="Machine types and pricing, who gets notified, and consumables shared across the space." />
           <MachineTypesPanel makerspaceId={makerspaceId} canConfigureMachineTypes={canConfigureMachineTypes} />
 
           {maintenanceEnabled && delegatedRecipientRulesEnabled ? (
@@ -231,6 +231,6 @@ export function MachinesPanel({
       ) : null}
 
       {selectedId !== null ? <MachineDrawer key={selectedId} machineId={selectedId} makerspaceId={makerspaceId} canManageMachines={canManage} maintenanceEnabled={maintenanceEnabled} onClose={() => setSelectedId(null)} /> : null}
-    </Panel>
+    </section>
   );
 }

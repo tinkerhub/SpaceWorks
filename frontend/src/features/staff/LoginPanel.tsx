@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { publicV1Request } from "../../lib/api";
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
+import { AuthLayout } from "../../components/chrome/AuthLayout";
+import { Button, ErrorText, Field, Input, PasswordInput, buttonClasses } from "../../components/ui";
 import { SocialSignInButtons } from "../auth/SocialSignInButtons";
 import type { SocialLoginResult } from "../auth/socialSdk";
 
@@ -48,70 +49,50 @@ export function LoginPanel({
   }, []);
 
   return (
-    <main className="desk-shell grid place-items-center px-5">
+    <AuthLayout
+      kicker={guestOnly ? "Guest admin desk" : "Space Manager desk"}
+      title="Sign in"
+      description={passwordLogin
+        ? "Use your staff account to manage requests, inventory, and handovers."
+        : "This deployment signs staff in through an identity provider."}
+    >
       <form
-        className="desk-panel w-full max-w-md p-6"
+        className="flex flex-col gap-4"
+        aria-label="Staff sign in"
         onSubmit={(event) => {
           event.preventDefault();
           if (isPending) return;
           onSubmit({ username, password });
         }}
       >
-        <SpaceWorksBadge className="mb-5" />
-        <p className="text-xs font-semibold tracking-wide text-accent-ink">
-          {guestOnly ? "Guest admin desk" : "Space Manager desk"}
-        </p>
-        <h1 className="mt-2 text-2xl font-bold text-ink">Sign in</h1>
-        <p className="mt-2 text-sm text-muted">
-          {passwordLogin
-            ? "Use your staff account to manage requests, inventory, and handovers."
-            : "This deployment signs staff in through an identity provider."}
-        </p>
         {passwordLogin ? (
           <>
-            <label className="mt-5 block text-sm font-semibold" htmlFor="staff-username">
-              Username
-            </label>
-            <input
-              id="staff-username"
-              className="desk-input mt-1 w-full"
-              name="username"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <label className="mt-3 block text-sm font-semibold" htmlFor="staff-password">
-              Password
-            </label>
-            <input
-              id="staff-password"
-              className="desk-input mt-1 w-full"
-              name="password"
-              autoComplete="current-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Field label="Username" id="staff-username">
+              <Input
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </Field>
+            <Field label="Password" id="staff-password">
+              <PasswordInput
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Field>
           </>
         ) : null}
-        {error ? <p className="mt-3 text-sm text-danger" role="alert">{error}</p> : null}
+        <ErrorText message={error} />
         {passwordLogin ? (
-          <button
-            className="desk-button-secondary mt-5 w-full"
-            type="submit"
-            disabled={isPending}
-          >
-            {isPending ? (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-bg/40 border-t-bg" />
-            ) : null}
-            {isPending ? "Signing in..." : "Sign in"}
-          </button>
+          <Button variant="primary" type="submit" fullWidth loading={isPending} loadingLabel="Signing in…">
+            Sign in
+          </Button>
         ) : null}
         {emailEnabled && passwordLogin ? (
-          <Link
-            className="desk-button-ghost mt-3 w-full"
-            to="/reset-password"
-          >
+          <Link className={buttonClasses({ variant: "quiet", fullWidth: true })} to="/reset-password">
             Forgot password?
           </Link>
         ) : null}
@@ -119,6 +100,6 @@ export function LoginPanel({
           <SocialSignInButtons surface="staff" onSuccess={onSocialSuccess} />
         ) : null}
       </form>
-    </main>
+    </AuthLayout>
   );
 }

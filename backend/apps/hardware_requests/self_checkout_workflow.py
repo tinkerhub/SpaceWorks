@@ -23,6 +23,7 @@ from apps.hardware_requests.self_checkout_helpers import (
     _reject_overlapping_checkout_targets,
     _return_request_items,
 )
+from apps.hardware_requests.self_checkout_return_guards import lock_loan_assets_for_return
 from apps.hardware_requests.workflow_errors import (
     InvalidTransition,
     RequestValidationError,
@@ -172,12 +173,14 @@ def return_tool(
         if not is_servable(makerspace):
             raise RequestValidationError("Makerspace is not available.")
         _lock_unused_evidence(evidence, issue=False)
-        charge_storage_once(evidence, finalized.size)
         qr = _locked_qr(makerspace, payload)
         loan = (
             PublicToolLoan.objects.select_for_update()
             .select_related("request", "requester")
-            .filter(status=PublicToolLoan.Status.CHECKED_OUT)
+            .filter(
+                status=PublicToolLoan.Status.CHECKED_OUT,
+                source=PublicToolLoan.Source.PUBLIC_SELF_CHECKOUT,
+            )
             .filter(Q(qr_code=qr) | Q(qr_ids__contains=[qr.id]))
             .first()
         )
@@ -185,13 +188,14 @@ def return_tool(
             raise InvalidTransition("This QR code is not currently checked out.")
         if loan.requester_id != requester.id:
             raise RequesterBlocked("This tool was checked out by a different user.")
+        assets = lock_loan_assets_for_return(loan, makerspace)
 
+        charge_storage_once(evidence, finalized.size)
         _return_request_items(loan.request)
-        if loan.asset_ids:
-            InventoryAsset.objects.select_for_update().filter(
-                pk__in=loan.asset_ids,
-                makerspace=makerspace,
-            ).update(status=InventoryAsset.Status.AVAILABLE)
+        if assets:
+            InventoryAsset.objects.filter(pk__in=[asset.pk for asset in assets]).update(
+                status=InventoryAsset.Status.AVAILABLE
+            )
 
         loan.status = PublicToolLoan.Status.RETURNED
         loan.returned_at = timezone.now()

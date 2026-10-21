@@ -5,8 +5,9 @@ import type { CollaborativeEvent } from "../../generated/api";
 import { CustomFormFields } from "../forms/CustomFormFields";
 import type { CustomAnswers, CustomFormSchema } from "../forms/customFormTypes";
 import { staffRequest } from "../../lib/api";
+import { Button, CheckboxField, Chip, ErrorText, useToast } from "../../components/ui";
+import { AccountCard } from "../account/AccountCard";
 
-const EVENT_TONES = ["border-accent", "border-secondary", "border-success", "border-warn"] as const;
 type CollaborativeEventWithPolicy = CollaborativeEvent & {
   registration_requires_approval: boolean;
   effective_registration_cutoff_at: string | null;
@@ -29,6 +30,7 @@ export function PartnerEvents({
   slug: string;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const events = useQuery({
     queryKey: ["member", slug, "partner-events"],
     queryFn: () => staffRequest<CollaborativeEventWithPolicy[]>(
@@ -62,13 +64,14 @@ export function PartnerEvents({
           }),
         },
       ),
-    onSuccess: async () => { await Promise.all([
+    onSuccess: async () => { showToast("Registration sent", { tone: "success" }); await Promise.all([
       // The activity payload carries the new registration and its check-in QR token, so it
       // has to be refetched or the member sees no code for the event they just joined.
       queryClient.invalidateQueries({ queryKey: ["member", slug, "activity"] }),
       queryClient.invalidateQueries({ queryKey: ["member", slug, "partner-events"] }),
     ]); setOpenId(null); setAnswers({}); setAcceptedWaiver(null); },
     onError: () => {
+      showToast("Registration not sent", { tone: "error" });
       // A rejection is usually the host having published new terms since this list loaded.
       // Without refetching, the component would keep showing and resubmitting the
       // superseded version on every retry until the user reloaded the page.
@@ -90,18 +93,14 @@ export function PartnerEvents({
   if (!rows.length) return null;
 
   return (
-    <section className="desk-panel p-5" aria-labelledby="partner-events-title">
-      <h2 id="partner-events-title" className="title-panel">
-        Events at partner makerspaces
-      </h2>
-      <p className="mt-1 text-sm text-muted">
-        Your makerspace collaborates with these hosts, so you can register even when the
-        event is not listed publicly.
-      </p>
-      <div className="mt-3 space-y-5 text-sm">
-        {groups.map((group) => <section key={group.key} aria-label={group.title ?? undefined}>
-          {group.title ? <div className="mb-2"><p className="eyebrow text-secondary-ink">Recurring series</p><h3 className="title-section">{group.title}</h3></div> : null}
-          <ul className="space-y-3">{group.events.map((event) => {
+    <AccountCard
+      title="Events at partner makerspaces"
+      description="Your makerspace collaborates with these hosts, so you can register even when the event is not listed publicly."
+    >
+      <div className="flex flex-col gap-5">
+        {groups.map((group) => <section key={group.key} aria-label={group.title ?? undefined} className="flex flex-col gap-2">
+          {group.title ? <div className="flex flex-wrap items-center gap-2"><h3 className="text-label text-ink">{group.title}</h3><Chip size="sm" tone="secondary">Series</Chip></div> : null}
+          <ul className="divide-y divide-line rounded-lg border border-line">{group.events.map((event) => {
           // A host may attach a custom form, and the backend validates required answers.
           // Without rendering those fields the button would post `{}` and such an event
           // would simply be unregisterable through this surface.
@@ -121,19 +120,22 @@ export function PartnerEvents({
             && acceptedWaiver.id === waiver?.id
             && acceptedWaiver.version === waiver?.version
           );
+          const Title = group.title ? "h4" : "h3";
           return (
-            <li key={event.id} className={`border-l-2 ${EVENT_TONES[event.id % EVENT_TONES.length]} py-2 pl-3`}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  {group.title ? <h4 className="title-section">{event.title}</h4> : <h3 className="title-section">{event.title}</h3>}
-                  <p className="eyebrow mt-1">
+            <li key={event.id} className="flex flex-col gap-3 px-4 py-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <Title className="font-semibold text-ink">{event.title}</Title>
+                  <p className="mt-0.5 text-caption text-ink-muted">
                     Hosted by {event.host_name} · <span className="font-mono">{new Date(event.starts_at).toLocaleString()}</span>
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="desk-button-secondary"
+                <Button
+                  size="sm"
+                  variant={open ? "primary" : "secondary"}
+                  className="self-start sm:self-auto"
                   disabled={!event.registration_open || register.isPending || (open && blocked)}
+                  loading={register.isPending && register.variables?.eventId === event.id}
                   onClick={() => {
                     if (mustExpand && !open) {
                       setAnswers({});
@@ -151,48 +153,38 @@ export function PartnerEvents({
                   }}
                 >
                   {!event.registration_open ? "Registration closed" : mustExpand && !open ? `${event.registration_requires_approval ? "Apply" : "Register"}…` : event.registration_requires_approval ? "Apply" : "Register"}
-                </button>
+                </Button>
               </div>
-              {!event.registration_open && event.effective_registration_cutoff_at ? <p className="mt-2 text-xs text-muted">Closed at {new Date(event.effective_registration_cutoff_at).toLocaleString()}</p> : null}
+              {!event.registration_open && event.effective_registration_cutoff_at ? <p className="text-caption text-ink-muted">Closed at {new Date(event.effective_registration_cutoff_at).toLocaleString()}</p> : null}
               {/* Unmounted when closed rather than hidden, so keyboard users cannot tab
                   into fields for an event they are not registering for. */}
               {open && waiver ? (
-                <div className="mt-3">
-                  <h4 className="title-section">
+                <div className="flex flex-col gap-2">
+                  <h4 className="text-label text-ink">
                     {event.host_name}&apos;s waiver (version {waiver.version})
                   </h4>
-                  <div className="mt-1 max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md border border-line bg-bg p-2 text-sm text-muted">
+                  <div className="max-h-40 overflow-y-auto whitespace-pre-wrap rounded-md border border-line bg-subtle p-3 text-body-ui text-ink-secondary">
                     {waiver.body}
                   </div>
-                  <label className="mt-2 flex items-center gap-2 text-sm text-ink">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      checked={!blocked}
-                      onChange={(e) => setAcceptedWaiver(
-                        e.target.checked && waiver
-                          ? { id: waiver.id, version: waiver.version }
-                          : null,
-                      )}
-                    />
-                    I accept {event.host_name}&apos;s waiver
-                  </label>
+                  <CheckboxField
+                    checked={!blocked}
+                    onCheckedChange={(checked) => setAcceptedWaiver(
+                      checked === true && waiver
+                        ? { id: waiver.id, version: waiver.version }
+                        : null,
+                    )}
+                    label={<>I accept {event.host_name}&apos;s waiver</>}
+                  />
                 </div>
               ) : null}
               {open && schema ? (
-                <div className="mt-3">
-                  <CustomFormFields schema={schema} answers={answers} onChange={setAnswers} />
-                </div>
+                <CustomFormFields schema={schema} answers={answers} onChange={setAnswers} />
               ) : null}
             </li>
           );
         })}</ul></section>)}
+        <ErrorText message={register.error ? (register.error instanceof Error ? register.error.message : "Could not register.") : null} />
       </div>
-      {register.error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {register.error instanceof Error ? register.error.message : "Could not register."}
-        </p>
-      ) : null}
-    </section>
+    </AccountCard>
   );
 }

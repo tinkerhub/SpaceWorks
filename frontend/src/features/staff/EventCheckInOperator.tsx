@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ScanLine } from "lucide-react";
 
+import { Button } from "../../components/ui";
 import EventCheckInScanner from "./EventCheckInScanner";
 import { EventStationSettings } from "./EventStationSettings";
 import { eventKeys } from "./eventsApi";
@@ -24,9 +26,23 @@ export function EventCheckInOperator({ makerspaceId, eventId, offlineEnabled }: 
     queryClient.invalidateQueries({ queryKey: eventKeys.checkinHistory(eventId) }),
     queryClient.invalidateQueries({ queryKey: organizedEventKeys.all }),
   ]); };
-  return <section aria-labelledby="event-checkin-operator-title">
-    <h4 id="event-checkin-operator-title" className="title-section mt-3">Attendance check-in</h4>
-    {scanning ? <EventCheckInScanner makerspaceId={makerspaceId} eventId={eventId} onClose={() => setScanning(false)} /> : <button className="desk-button mt-3" type="button" onClick={() => setScanning(true)}>Scan online</button>}
-    {offlineEnabled ? <><OfflineCheckInOperator scope={`staff:${eventId}`} download={() => downloadStaffRoster(eventId)} synchronize={(roster, operations) => syncStaffRoster(eventId, roster, operations)} onSynchronized={invalidate} /><EventStationSettings eventId={eventId} /></> : null}
-  </section>;
+  return (
+    <section aria-labelledby="event-checkin-operator-title" className="grid gap-3">
+      <div>
+        <h4 id="event-checkin-operator-title" className="text-title text-ink">Attendance check-in</h4>
+        <p className="mt-1 text-body-ui text-ink-muted">Scan a guest's code at the door, or keep a roster on this device for when the connection drops.</p>
+      </div>
+      {scanning ? (
+        <EventCheckInScanner makerspaceId={makerspaceId} eventId={eventId} onClose={() => setScanning(false)} />
+      ) : (
+        <Button className="w-fit" startIcon={<ScanLine />} onClick={() => setScanning(true)}>Scan online</Button>
+      )}
+      {offlineEnabled ? (
+        <>
+          <OfflineCheckInOperator scope={`staff:${eventId}`} download={() => downloadStaffRoster(eventId)} synchronize={(roster, operations) => syncStaffRoster(eventId, roster, operations)} onSynchronized={invalidate} />
+          <EventStationSettings eventId={eventId} />
+        </>
+      ) : null}
+    </section>
+  );
 }

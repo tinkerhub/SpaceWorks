@@ -18,6 +18,7 @@ from apps.makerspaces.models import (
     MakerspaceMembership,
     MakerspaceRole,
     MakerspaceWaiver,
+    MembershipRequest,
 )
 from apps.makerspaces.module_install import install_module, uninstall_module
 from tests.module_helpers import disable_module
@@ -109,15 +110,26 @@ def test_referrals_are_gated_even_when_referrals_enabled_is_set():
     assert "module" in exc.value.detail
 
 
-def test_request_queue_and_decisions_are_gated():
+def test_request_queue_lists_no_community_rows_without_the_module():
+    # The queue is no longer refused outright: a claimed STAFF invitation has to stay
+    # findable to be approved (D3). Community rows -- join requests and invitations to a
+    # role granting no actions -- are still never shown with the module off.
     off = space("queue-off", membership_enabled=False)
     staff = manager(off, "queue-manager")
     client = client_for(staff)
+    MembershipRequest.objects.create(
+        makerspace=off, invite_email="joiner@example.test",
+        kind=MembershipRequest.Kind.REQUEST, state=MembershipRequest.State.REQUESTED,
+    )
+    MembershipRequest.objects.create(
+        makerspace=off, invite_email="member@example.test", assigned_role=role(off, "member"),
+        kind=MembershipRequest.Kind.INVITE, state=MembershipRequest.State.INVITED,
+    )
 
     listed = client.get(reverse("admin-membership-requests"), {"makerspace_id": off.id})
 
-    assert listed.status_code == 400
-    assert "module" in listed.data
+    assert listed.status_code == 200
+    assert listed.data["results"] == []
 
 
 def test_verify_and_unverify_are_gated():

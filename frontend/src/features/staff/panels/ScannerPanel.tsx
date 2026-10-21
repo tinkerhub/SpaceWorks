@@ -1,28 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Camera } from "lucide-react";
 
+import { Button, Callout, Card, CardHeader, ConfirmDialog, ErrorText, Input, useToast } from "../../../components/ui";
 import QrScanner from "../../../components/ui/QrScanner";
 import { staffRequest, type StaffAuthUser } from "../../../lib/api";
-import { Panel, type Makerspace, type Product, useStaffGet } from "./shared";
+import { errorText, Panel, StatusWord, type Makerspace, type Product, useStaffGet } from "./shared";
+import { qrResolveErrorText } from "../evidenceUi";
 import { invalidateInventoryViews, invalidateQrViews } from "../queryInvalidation";
+import { BoxContentsList, MoveAssetForm, RebindForm, targetTitle, type BoxContents, type Rebound, type Resolved } from "./ScannerPanelForms";
 
-type ResolveTarget =
-  | { type: "product"; id: number; name: string }
-  | { type: "asset"; id: number; asset_tag: string; product: string; status: string }
-  | { type: "box"; id: number; label: string; code: string };
-type ResolvedQr = { id: number; makerspace: number; makerspace_id?: number; payload: string; status: string };
-type Resolved = { qr: ResolvedQr; target: ResolveTarget; allowed_actions: string[] };
-type Rebound = { qr: ResolvedQr; target: ResolveTarget };
-type BoxContents = {
-  products: { id: number; name: string; available_quantity: number }[];
-  assets: { id: number; asset_tag: string; product: string; status: string }[];
-};
 type ListResponse<T> = T[] | { results: T[] };
 
 function rows<T>(data?: ListResponse<T>) {
   if (!data) return [];
   return Array.isArray(data) ? data : data.results;
 }
+
+const HANDOUT_ACTIONS = ["checkout", "return", "direct_handout"];
 
 // The staff scanner page existed as an orphan route with dead action badges. This wires
 // the staff-reachable allowed_actions the backend returns: revoke (MANAGE_QR) and box
@@ -34,6 +29,7 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   makerspaces: Makerspace[];
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [payload, setPayload] = useState("");
   const [scanNote, setScanNote] = useState("");
   const [showScanner, setShowScanner] = useState(false);
@@ -41,6 +37,7 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   const [contents, setContents] = useState<BoxContents | null>(null);
   const [showRebind, setShowRebind] = useState(false);
   const [showMove, setShowMove] = useState(false);
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [destMakerspaceId, setDestMakerspaceId] = useState("");
   const [destProductId, setDestProductId] = useState("");
@@ -49,9 +46,7 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   const [successNote, setSuccessNote] = useState<string | null>(null);
   const resolvedQrMakerspaceId = resolved?.qr.makerspace_id ?? resolved?.qr.makerspace;
   const rebindMakerspaceId = resolvedQrMakerspaceId ?? makerspace.id;
-  const rebindMakerspace = makerspaces.find((space) => space.id === rebindMakerspaceId) ?? (
-    makerspace.id === rebindMakerspaceId ? makerspace : undefined
-  );
+  const rebindMakerspace = makerspaces.find((space) => space.id === rebindMakerspaceId) ?? (makerspace.id === rebindMakerspaceId ? makerspace : undefined);
 
   const products = useStaffGet<ListResponse<Product>>(
     ["inventory-all", rebindMakerspaceId],
@@ -65,14 +60,10 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   );
   const currentUser = useStaffGet<StaffAuthUser>(["staff", "me"], "/auth/me");
   const productRows = useMemo(() => rows(products.data), [products.data]);
-  const destinationProductRows = useMemo(
-    () => rows(destinationProducts.data).filter((product) => product.tracking_mode === "individual"),
-    [destinationProducts.data],
-  );
+  const destinationProductRows = useMemo(() => rows(destinationProducts.data).filter((product) => product.tracking_mode === "individual"), [destinationProducts.data]);
 
   const resolve = useMutation({
-    mutationFn: (value: string) =>
-      staffRequest<Resolved>("/admin/qr/resolve", { method: "POST", body: JSON.stringify({ payload: value.trim() }) }),
+    mutationFn: (value: string) => staffRequest<Resolved>("/admin/qr/resolve", { method: "POST", body: JSON.stringify({ payload: value.trim() }) }),
     onSuccess: (data) => {
       setResolved(data);
       setContents(null);
@@ -85,43 +76,51 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
       setNewName("");
       setMoveTag("");
       setSuccessNote(null);
+      loadContents.reset();
     },
   });
+  // Re-resolve after a change; when the QR left this makerspace the old card is stale.
+  const reResolve = (qrPayload: string, done: string) => {
+    setSuccessNote(done);
+    resolve.mutate(qrPayload, {
+      onSuccess: () => setSuccessNote(done),
+      onError: () => {
+        setResolved(null);
+        setContents(null);
+        setSuccessNote(`${done} Re-scan in the destination makerspace to view.`);
+      },
+    });
+  };
   const revoke = useMutation({
     mutationFn: (qrId: number) => staffRequest(`/admin/qr/${qrId}/revoke`, { method: "POST", body: JSON.stringify({}) }),
     onSuccess: () => {
+      setConfirmRevoke(false);
       if (resolvedQrMakerspaceId) invalidateQrViews(queryClient, resolvedQrMakerspaceId, resolved?.qr.id);
       if (resolved) resolve.mutate(resolved.qr.payload);
+      showToast("QR revoked", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Could not revoke the QR"), { tone: "error" }),
   });
   const loadContents = useMutation({
     mutationFn: (boxId: number) => staffRequest<BoxContents>(`/admin/containers/${boxId}/contents`),
     onSuccess: setContents,
+    onError: (error) => showToast(errorText(error, "Could not load the box contents"), { tone: "error" }),
   });
   const rebind = useMutation({
     mutationFn: () =>
       staffRequest<Rebound>(`/admin/qr/${resolved?.qr.id}/rebind-target`, {
         method: "POST",
-        body: JSON.stringify({
-          target_type: "product",
-          target_id: Number(selectedProductId),
-          new_name: newName.trim() || undefined,
-        }),
+        body: JSON.stringify({ target_type: "product", target_id: Number(selectedProductId), new_name: newName.trim() || undefined }),
       }),
     onSuccess: (data) => {
       if (resolvedQrMakerspaceId) invalidateInventoryViews(queryClient, resolvedQrMakerspaceId);
       invalidateQrViews(queryClient, data.qr.makerspace_id ?? data.qr.makerspace, data.qr.id);
       setShowRebind(false);
       setNewName("");
-      setSuccessNote("Rebound.");
-      resolve.mutate(data.qr.payload, {
-        onError: () => {
-          setResolved(null);
-          setContents(null);
-          setSuccessNote("Rebound. Re-scan in the destination makerspace to view.");
-        },
-      });
+      showToast("QR rebound", { tone: "success" });
+      reResolve(data.qr.payload, "Rebound.");
     },
+    onError: (error) => showToast(errorText(error, "Could not rebind the QR"), { tone: "error" }),
   });
   const moveAsset = useMutation({
     mutationFn: () => {
@@ -145,15 +144,10 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
       setDestMakerspaceId("");
       setDestProductId("");
       setMoveTag("");
-      setSuccessNote("Moved.");
-      resolve.mutate(data.qr.payload, {
-        onError: () => {
-          setResolved(null);
-          setContents(null);
-          setSuccessNote("Moved. Re-scan in the destination makerspace to view.");
-        },
-      });
+      showToast("Asset moved", { tone: "success" });
+      reResolve(data.qr.payload, "Moved.");
     },
+    onError: (error) => showToast(errorText(error, "Could not move the asset"), { tone: "error" }),
   });
 
   useEffect(() => {
@@ -175,20 +169,13 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   const resolveFromScan = (value: string) => {
     setShowScanner(false);
     if (!value.trim()) return;
-    setScanNote("Scanned - resolving...");
+    setScanNote("Scanned - resolving…");
     resolve.mutate(value);
   };
   const target = resolved?.target;
   const actions = resolved?.allowed_actions ?? [];
-  const resolveError = resolve.error instanceof Error ? resolve.error.message : undefined;
-  const revokeError = revoke.error instanceof Error ? revoke.error.message : undefined;
-  const rebindError = rebind.error instanceof Error ? rebind.error.message : undefined;
-  const moveError = moveAsset.error instanceof Error ? moveAsset.error.message : undefined;
-  const productError = products.error instanceof Error ? products.error.message : undefined;
-  const destinationProductError = destinationProducts.error instanceof Error ? destinationProducts.error.message : undefined;
-  const rebindActions = currentUser.data?.makerspaces.find(
-    (item) => item.id === resolvedQrMakerspaceId,
-  )?.actions ?? [];
+  const message = (error: unknown) => (error instanceof Error ? error.message : undefined);
+  const rebindActions = currentUser.data?.makerspaces.find((item) => item.id === resolvedQrMakerspaceId)?.actions ?? [];
   const hasRebindPermissions = isSuperadmin || (rebindActions.includes("manage_qr") && rebindActions.includes("edit_inventory"));
   // Rebind UI only targets PRODUCT QRs (the cross-makerspace quantity-product
   // transfer scenario). The form always submits target_type "product", so offering
@@ -196,176 +183,97 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   const canRebind = Boolean(resolved && target && target.type === "product" && hasRebindPermissions);
   const canMoveAsset = Boolean(resolved && target && target.type === "asset" && isSuperadmin);
   const destinationMakerspaces = makerspaces.filter((space) => space.id !== resolvedQrMakerspaceId);
+  const handoutActions = actions.filter((action) => HANDOUT_ACTIONS.includes(action));
 
   return (
-    <Panel title="Scanner">
-      <p className="mb-3 text-sm text-muted">Scan or paste a QR payload to resolve a box, product, or asset and act on it.</p>
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <input
-          aria-label="QR payload"
-          className="desk-input w-full font-mono sm:flex-1"
-          placeholder="Paste QR payload (or scan)"
-          value={payload}
-          onChange={(event) => setPayload(event.target.value)}
-          onKeyDown={(event) => { if (event.key === "Enter") doResolve(payload); }}
-        />
-        <button className="desk-button-primary w-full sm:w-auto" type="button" disabled={!payload.trim() || resolve.isPending} onClick={() => doResolve(payload)}>
-          {resolve.isPending ? "Resolving..." : "Resolve"}
-        </button>
-        <button className="desk-button-ghost w-full sm:w-auto" type="button" onClick={() => { setScanNote(""); setShowScanner(true); }}>Scan camera</button>
-      </div>
-      {scanNote && resolve.isPending ? <p className="mt-2 text-sm text-accent-ink">{scanNote}</p> : null}
-      {resolveError ? <p className="mt-2 text-sm text-danger">{resolveError}</p> : null}
-      {successNote ? <p className="mt-2 text-sm text-accent-ink">{successNote}</p> : null}
+    <Panel
+      title="Scanner"
+      description="Scan or paste a QR payload to find a box, product or asset and act on it."
+      actions={<Button variant="primary" startIcon={<Camera />} onClick={() => { setScanNote(""); setShowScanner(true); }}>Scan camera</Button>}
+    >
+      <div className="grid gap-4">
+        <form className="flex flex-col gap-2.5 sm:flex-row" onSubmit={(event) => { event.preventDefault(); doResolve(payload); }}>
+          <Input aria-label="QR payload" className="font-mono sm:flex-1" placeholder="Paste QR payload (or scan)" value={payload} onChange={(event) => setPayload(event.target.value)} />
+          <Button type="submit" disabled={!payload.trim()} loading={resolve.isPending} loadingLabel="Resolving…">Resolve</Button>
+        </form>
+        {scanNote && resolve.isPending ? <p role="status" className="text-body-ui text-ink-muted">{scanNote}</p> : null}
+        <ErrorText message={resolve.error ? qrResolveErrorText(resolve.error) : undefined} />
+        {successNote ? <p role="status" className="text-body-ui text-success-fg">{successNote}</p> : null}
 
-      {resolved && target ? (
-        <div className="mt-4 rounded-md border border-line bg-surface p-3">
-          <h3 className="title-section">
-            {target.type === "box" ? `Box: ${target.label} (${target.code})`
-              : target.type === "product" ? `Product: ${target.name}`
-              : `Asset: ${target.asset_tag} - ${target.product} (${target.status})`}
-          </h3>
-          <p className="mt-1 font-mono text-xs text-muted">QR #{resolved.qr.id} - {resolved.qr.status}</p>
-          <div className="desk-actions mt-3 flex flex-wrap gap-2 text-sm">
-            {actions.includes("contents") && target.type === "box" ? (
-              <button className="desk-button-ghost" type="button" disabled={loadContents.isPending} onClick={() => loadContents.mutate(target.id)}>View contents</button>
-            ) : null}
-            {actions.includes("revoke") ? (
-              <button type="button" className="desk-button-danger" disabled={revoke.isPending} onClick={() => revoke.mutate(resolved.qr.id)}>
-                {revoke.isPending ? "Revoking..." : "Revoke QR"}
-              </button>
-            ) : null}
-            {canRebind ? (
-              <button className="desk-button-ghost" type="button" onClick={() => setShowRebind((open) => !open)}>
-                Rename & rebind
-              </button>
-            ) : null}
-            {canMoveAsset ? (
-              <button className="desk-button-ghost" type="button" onClick={() => setShowMove((open) => !open)}>
-                Move to makerspace
-              </button>
-            ) : null}
-          </div>
-          {showRebind ? (
-            <form
-              className="mt-3 grid gap-2 rounded-md border border-line bg-bg p-3 text-sm"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (selectedProductId) rebind.mutate();
-              }}
-            >
-              <label className="grid gap-1">
-                <span className="eyebrow">QR makerspace</span>
-                <input
-                  className="desk-input"
-                  value={rebindMakerspace?.name ?? `Makerspace #${rebindMakerspaceId}`}
-                  disabled
+        {resolved && target ? (
+          <Card as="section">
+            <CardHeader
+              title={targetTitle(target)}
+              description={<span className="inline-flex flex-wrap items-center gap-2"><span className="font-mono">QR #{resolved.qr.id}{target.type === "box" ? ` · ${target.code}` : ""}</span><StatusWord status={resolved.qr.status} /></span>}
+              action={target.type === "asset" ? <StatusWord status={target.status} /> : undefined}
+            />
+            <div className="grid gap-4">
+              <div className="flex flex-wrap gap-2.5">
+                {actions.includes("contents") && target.type === "box" ? (
+                  <Button size="sm" loading={loadContents.isPending} onClick={() => loadContents.mutate(target.id)}>View contents</Button>
+                ) : null}
+                {canRebind ? <Button size="sm" aria-expanded={showRebind} onClick={() => setShowRebind((open) => !open)}>Rename & rebind</Button> : null}
+                {canMoveAsset ? <Button size="sm" aria-expanded={showMove} onClick={() => setShowMove((open) => !open)}>Move to makerspace</Button> : null}
+                {actions.includes("revoke") ? (
+                  <Button size="sm" variant="danger" disabled={revoke.isPending} onClick={() => setConfirmRevoke(true)}>Revoke QR…</Button>
+                ) : null}
+              </div>
+              {showRebind ? (
+                <RebindForm
+                  makerspaceName={rebindMakerspace?.name ?? `Makerspace #${rebindMakerspaceId}`}
+                  products={productRows}
+                  productsLoading={products.isLoading}
+                  productId={selectedProductId}
+                  onProductChange={setSelectedProductId}
+                  newName={newName}
+                  onNewNameChange={setNewName}
+                  pending={rebind.isPending}
+                  errors={[message(products.error), message(rebind.error)]}
+                  onSubmit={() => rebind.mutate()}
+                  onCancel={() => setShowRebind(false)}
                 />
-              </label>
-              <label className="grid gap-1">
-                <span className="eyebrow">Target product</span>
-                <select
-                  className="desk-input"
-                  value={selectedProductId}
-                  disabled={products.isLoading || !productRows.length}
-                  onChange={(event) => setSelectedProductId(event.target.value)}
-                >
-                  {productRows.map((product) => (
-                    <option key={product.id} value={product.id}>{product.name}</option>
-                  ))}
-                </select>
-              </label>
-              <input
-                className="desk-input"
-                aria-label="Rename target"
-                placeholder="Rename (optional)"
-                value={newName}
-                onChange={(event) => setNewName(event.target.value)}
-              />
-              <div className="flex flex-wrap gap-2">
-                <button className="desk-button-primary" type="submit" disabled={!selectedProductId || rebind.isPending}>
-                  {rebind.isPending ? "Saving..." : "Save"}
-                </button>
-                <button className="desk-button-ghost" type="button" onClick={() => setShowRebind(false)}>Cancel</button>
-              </div>
-              {productError ? <p className="text-sm text-danger">{productError}</p> : null}
-              {rebindError ? <p className="text-sm text-danger">{rebindError}</p> : null}
-            </form>
-          ) : null}
-          {canMoveAsset && showMove ? (
-            <form
-              className="mt-3 grid gap-2 rounded-md border border-line bg-bg p-3 text-sm"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (destMakerspaceId) moveAsset.mutate();
-              }}
-            >
-              <label className="grid gap-1">
-                <span className="eyebrow">Destination makerspace</span>
-                <select
-                  className="desk-input"
-                  required
-                  value={destMakerspaceId}
-                  onChange={(event) => {
-                    setDestMakerspaceId(event.target.value);
-                    setDestProductId("");
-                  }}
-                >
-                  <option value="">Select makerspace</option>
-                  {destinationMakerspaces.map((space) => (
-                    <option key={space.id} value={space.id}>{space.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1">
-                <span className="eyebrow">Destination product</span>
-                <select
-                  className="desk-input"
-                  value={destProductId}
-                  disabled={!destMakerspaceId || destinationProducts.isLoading}
-                  onChange={(event) => setDestProductId(event.target.value)}
-                >
-                  <option value="">Auto - match by name or create</option>
-                  {destinationProductRows.map((product) => (
-                    <option key={product.id} value={product.id}>{product.name}</option>
-                  ))}
-                </select>
-              </label>
-              <input
-                className="desk-input"
-                aria-label="New asset tag"
-                placeholder="New asset tag (optional)"
-                value={moveTag}
-                onChange={(event) => setMoveTag(event.target.value)}
-              />
-              <div className="flex flex-wrap gap-2">
-                <button className="desk-button-primary" type="submit" disabled={!destMakerspaceId || moveAsset.isPending}>
-                  {moveAsset.isPending ? "Moving..." : "Move"}
-                </button>
-                <button className="desk-button-ghost" type="button" onClick={() => setShowMove(false)}>Cancel</button>
-              </div>
-              {destinationProductError ? <p className="text-sm text-danger">{destinationProductError}</p> : null}
-              {moveError ? <p className="text-sm text-danger">{moveError}</p> : null}
-            </form>
-          ) : null}
-          {actions.some((action) => ["checkout", "return", "direct_handout"].includes(action)) ? (
-            <p className="mt-2 text-xs text-muted">
-              This item supports {actions.filter((a) => ["checkout", "return", "direct_handout"].includes(a)).join(" / ")} -
-              use the Direct handout tab (or the public self-checkout page) which collect the borrower identity.
-            </p>
-          ) : null}
-          {revokeError ? <p className="mt-2 text-sm text-danger">{revokeError}</p> : null}
-          {contents ? (
-            <div className="mt-3 rounded-md border border-line bg-bg p-2 text-xs text-muted">
-              <h4 className="title-section">Contents</h4>
-              {contents.products.map((product) => <p key={`p-${product.id}`}>{product.name} - {product.available_quantity} available</p>)}
-              {contents.assets.map((asset) => <p key={`a-${asset.id}`}>{asset.asset_tag} ({asset.status})</p>)}
-              {!contents.products.length && !contents.assets.length ? <p>Empty.</p> : null}
+              ) : null}
+              {canMoveAsset && showMove ? (
+                <MoveAssetForm
+                  makerspaces={destinationMakerspaces}
+                  destMakerspaceId={destMakerspaceId}
+                  onDestMakerspaceChange={(value) => { setDestMakerspaceId(value); setDestProductId(""); }}
+                  products={destinationProductRows}
+                  productsLoading={destinationProducts.isLoading}
+                  destProductId={destProductId}
+                  onDestProductChange={setDestProductId}
+                  moveTag={moveTag}
+                  onMoveTagChange={setMoveTag}
+                  pending={moveAsset.isPending}
+                  errors={[message(destinationProducts.error), message(moveAsset.error)]}
+                  onSubmit={() => moveAsset.mutate()}
+                  onCancel={() => setShowMove(false)}
+                />
+              ) : null}
+              {handoutActions.length ? (
+                <Callout tone="info">
+                  This item supports {handoutActions.join(" / ").replace(/_/g, " ")}. Use the Direct handout tab (or the public self-checkout page),
+                  which collects the borrower's identity.
+                </Callout>
+              ) : null}
+              <ErrorText message={message(revoke.error)} />
+              <ErrorText message={message(loadContents.error)} />
+              {contents ? <BoxContentsList contents={contents} /> : null}
             </div>
-          ) : null}
-        </div>
-      ) : null}
+          </Card>
+        ) : null}
+      </div>
 
+      <ConfirmDialog
+        open={confirmRevoke && Boolean(resolved)}
+        title="Revoke this QR?"
+        message={resolved && target ? `QR #${resolved.qr.id} for ${targetTitle(target)} will stop working. Print a new label to replace it.` : ""}
+        confirmLabel="Revoke QR"
+        tone="danger"
+        pending={revoke.isPending}
+        onCancel={() => setConfirmRevoke(false)}
+        onConfirm={() => { if (resolved) revoke.mutate(resolved.qr.id); }}
+      />
       {showScanner ? <QrScanner onScan={resolveFromScan} onClose={() => setShowScanner(false)} /> : null}
     </Panel>
   );

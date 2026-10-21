@@ -225,6 +225,10 @@ def create_role(*, makerspace, actor, name, granted_actions):
         return role
 
 
+def _is_protected_member_role(role):
+    return role.is_protected and role.slug == "member"
+
+
 def update_role(*, makerspace, role, actor, name=None, granted_actions=None):
     with transaction.atomic():
         makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
@@ -234,6 +238,17 @@ def update_role(*, makerspace, role, actor, name=None, granted_actions=None):
         if rbac.Action.MANAGE_MAKERSPACE not in actor_actions:
             raise PermissionDenied()
         changes, old_actions = [], set(role.granted_actions)
+        if _is_protected_member_role(role) and (
+            (name is not None and name.strip() != role.name)
+            or (granted_actions is not None and set(granted_actions) != old_actions)
+        ):
+            # Its slug is how invitations, referrals, open joins and tenant migration find
+            # the community role, and "grants no actions" is what makes an invitation a
+            # community one -- renaming or granting it actions would silently turn every
+            # member into staff. A no-op PATCH echoing the current values stays allowed.
+            raise RoleConflict(
+                "The protected Member role cannot be renamed or have its actions changed."
+            )
         if name is not None and name.strip() != role.name:
             if MakerspaceRole.objects.filter(makerspace=makerspace, name__iexact=name.strip()).exclude(pk=role.pk).exists():
                 raise ValidationError({"name": "A role with this name already exists."})

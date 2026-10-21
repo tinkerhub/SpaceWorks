@@ -19,6 +19,9 @@ export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: 
   queryClient.invalidateQueries({ queryKey: ["accepted", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["active", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["request-history", makerspaceId] });
+  // Pending-request and overdue-loan tiles count these queues; without this they lag
+  // up to the 30s staleTime behind every accept/reject/issue/return.
+  queryClient.invalidateQueries({ queryKey: ["dashboard", makerspaceId] });
 
   if (scope.inventory) {
     invalidateInventoryViews(queryClient, makerspaceId);

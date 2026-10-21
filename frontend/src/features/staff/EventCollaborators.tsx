@@ -1,18 +1,13 @@
 import { useState } from "react";
 
+import { useToast } from "../../components/ui";
+import { CollaboratorList, type CollaboratorRow } from "./CollaboratorList";
 import {
   useEventCollaborators,
   useRemoveEventCollaborator,
   useReplaceEventCollaborators,
 } from "./eventCollaborationsApi";
-
-const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
-
-const STATUS_LABEL: Record<string, string> = {
-  invited: "Invited — waiting for them to accept",
-  accepted: "Accepted — their members can register",
-  declined: "Declined",
-};
+import { eventErrorText } from "./eventUi";
 
 /** Host-side collaborator management for one event.
  *
@@ -29,11 +24,12 @@ export function EventCollaborators({
   makerspaceId: number;
   eventId: number;
 }) {
+  const { showToast } = useToast();
   const [slug, setSlug] = useState("");
   const collaborators = useEventCollaborators(eventId);
   const replace = useReplaceEventCollaborators(makerspaceId, eventId);
   const remove = useRemoveEventCollaborator(makerspaceId, eventId);
-  const rows = collaborators.data ?? [];
+  const rows: CollaboratorRow[] = collaborators.data ?? [];
   const error = replace.error || remove.error || collaborators.error;
 
   const invite = () => {
@@ -46,71 +42,28 @@ export function EventCollaborators({
     const slugs = Array.from(
       new Set([...rows.map((row) => row.makerspace_slug), wanted]),
     );
-    replace.mutate(slugs, { onSuccess: () => setSlug("") });
+    replace.mutate(slugs, {
+      onSuccess: () => { setSlug(""); showToast("Invitation sent", { tone: "success" }); },
+      onError: (failure) => showToast(eventErrorText(failure), { tone: "error" }),
+    });
   };
 
   return (
-    <section aria-labelledby="collaborators-title" className="mt-5">
-      <h3 id="collaborators-title" className="mb-1 font-semibold text-ink">
-        Partner makerspaces
-      </h3>
-      <p className="mb-3 text-sm text-muted">
-        Invite another makerspace by its slug and its members can register for this event,
-        even when the event is not public. They must accept the invitation first. You invite
-        by slug because makerspaces are not browsable from here.
-      </p>
-
-      {rows.length ? (
-        <ul className="mb-3 space-y-2 text-sm">
-          {rows.map((row) => (
-            <li key={row.id} className="flex flex-wrap items-center justify-between gap-2">
-              <span>
-                <span className="font-medium text-ink">{row.makerspace_name}</span>{" "}
-                <span className="text-muted">({row.makerspace_slug})</span>
-                <span className="block text-muted">
-                  {STATUS_LABEL[row.status] ?? row.status}
-                </span>
-              </span>
-              <button
-                type="button"
-                className={`desk-button text-danger ${FOCUS}`}
-                disabled={remove.isPending}
-                onClick={() => remove.mutate(row.id)}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mb-3 text-sm text-muted">No partner makerspaces yet.</p>
-      )}
-
-      <div className="flex flex-wrap items-end gap-2">
-        <label className="grid gap-1 text-sm font-semibold text-ink">
-          Makerspace slug
-          <input
-            className={`desk-input ${FOCUS}`}
-            value={slug}
-            onChange={(event) => setSlug(event.target.value)}
-            placeholder="partner-space"
-          />
-        </label>
-        <button
-          type="button"
-          className={`desk-button ${FOCUS}`}
-          disabled={!slug.trim() || replace.isPending}
-          onClick={invite}
-        >
-          {replace.isPending ? "Inviting…" : "Invite"}
-        </button>
-      </div>
-
-      {error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {error instanceof Error ? error.message : "Could not update partners."}
-        </p>
-      ) : null}
-    </section>
+    <CollaboratorList
+      title="Partner makerspaces"
+      description="Invite another makerspace by its slug and its members can register for this event, even when the event is not public. They must accept the invitation first. You invite by slug because makerspaces are not browsable from here."
+      rows={rows}
+      loading={collaborators.isLoading}
+      slug={slug}
+      onSlugChange={setSlug}
+      onInvite={invite}
+      inviting={replace.isPending}
+      removing={remove.isPending}
+      onRemove={(row, done) => remove.mutate(row.id, {
+        onSuccess: () => { done(); showToast(`${row.makerspace_name} removed`, { tone: "success" }); },
+        onError: (failure) => { done(); showToast(eventErrorText(failure), { tone: "error" }); },
+      })}
+      error={error ? (error instanceof Error ? error.message : "Could not update partners.") : null}
+    />
   );
 }

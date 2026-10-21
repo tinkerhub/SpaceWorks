@@ -39,7 +39,9 @@ function createdMachine(name = "Workshop printer") {
 }
 
 describe("MachineCreateForm", () => {
-  beforeEach(() => staffRequest.mockReset());
+  beforeEach(() => {
+    staffRequest.mockReset();
+  });
 
   it("creates a built-in printer with its make/model payload and location", async () => {
     staffRequest.mockResolvedValue(createdMachine());

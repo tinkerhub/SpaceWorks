@@ -73,7 +73,8 @@ describe("ArchivedPayments", () => {
     renderPage();
 
     expect(await screen.findByText("Laser cutter booking")).toBeVisible();
-    expect(screen.getByRole("listitem")).toHaveTextContent("pending");
+    // The page now sits in the public chrome, whose header and footer carry list items too.
+    expect(screen.getByText("Laser cutter booking").closest("li")).toHaveTextContent(/pending/i);
     expect(
       screen.getByRole("button", { name: "Generate payment link" }),
     ).toBeEnabled();

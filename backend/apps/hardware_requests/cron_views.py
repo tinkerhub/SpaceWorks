@@ -43,7 +43,9 @@ class ReturnReminderCronView(APIView):
         provided = request.headers.get("X-Cron-Secret", "")
         import secrets as _secrets
 
-        if not _secrets.compare_digest(provided, secret):
+        # Bytes, not str: str compare_digest raises TypeError on any non-ASCII character,
+        # so a crafted header would turn a refusal into a 500.
+        if not _secrets.compare_digest(provided.encode(), secret.encode()):
             return Response(status=403)
         result = run_return_reminders()
         return Response(result, status=200)

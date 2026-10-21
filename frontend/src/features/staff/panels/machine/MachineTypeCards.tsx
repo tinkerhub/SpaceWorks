@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
-import { EmptyState } from "../../../../components/ui";
+import { Chip, EmptyState, Skeleton, StatusChip, type StatusTone } from "../../../../components/ui";
 import type { Machine, MachineType, MachineStatus } from "../../machinesApi";
 
 type Props = {
@@ -13,18 +14,16 @@ type Props = {
   hrefFor: (machineType: MachineType) => string;
 };
 
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
-
 // Only the states worth surfacing on a card. `idle` is the resting state and says nothing;
 // `reserved` is normal scheduling. What an operator scans this grid for is "what is busy"
 // and "what is not usable".
-const HIGHLIGHT: { status: MachineStatus; label: string; tone: string }[] = [
-  { status: "running", label: "running", tone: "bg-success text-on-success" },
-  { status: "maintenance", label: "in maintenance", tone: "bg-warn text-on-warn" },
-  { status: "offline", label: "offline", tone: "bg-danger text-bg" },
+const HIGHLIGHT: { status: MachineStatus; label: string; tone: StatusTone }[] = [
+  { status: "running", label: "running", tone: "info" },
+  { status: "maintenance", label: "in maintenance", tone: "warning" },
+  { status: "offline", label: "offline", tone: "danger" },
 ];
 
-/** The machines index: one card per reachable machine type.
+/** The machines index: one flat card per reachable machine type.
  *
  * The card grid is built from the SERVER-SCOPED type list merged with the types nested in
  * the machines response -- never from effective action strings. A `MANAGE_MACHINES` grant
@@ -43,9 +42,12 @@ export function MachineTypeCards({
 }: Props) {
   if (typesLoading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading machine types">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Loading machine types">
         {[0, 1, 2].map((slot) => (
-          <div key={slot} className="h-28 animate-pulse rounded-xl border border-line bg-surface" />
+          <div key={slot} className="grid gap-3 rounded-lg border border-line bg-canvas p-4">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="h-4 w-1/3" />
+          </div>
         ))}
       </div>
     );
@@ -58,13 +60,13 @@ export function MachineTypeCards({
     return (
       <EmptyState
         title="No machine types available"
-        description="No reachable machine types are configured for you in this makerspace."
+        description="No reachable machine types are configured for you in this makerspace. Ask a space manager to add a type or give your role access to one."
       />
     );
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {machineTypes.map((machineType) => {
         const owned = machines.filter((machine) => machine.machine_type.id === machineType.id);
         const highlights = HIGHLIGHT.map(({ status, label, tone }) => ({
@@ -74,36 +76,40 @@ export function MachineTypeCards({
         })).filter((entry) => entry.count > 0);
 
         return (
-          <Link
-            key={machineType.id}
-            to={hrefFor(machineType)}
-            className={`group grid gap-3 rounded-xl border border-line bg-panel p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-soft-lg ${focusRing}`}
-          >
-            <span className="flex min-w-0 items-center gap-2">
-              {machineType.icon ? <span aria-hidden="true" className="text-lg">{machineType.icon}</span> : null}
-              <span className="truncate font-display text-lg font-semibold text-ink">{machineType.name}</span>
-            </span>
-            <span className="flex flex-wrap items-center gap-2">
-              {/* A count is stated as fact, so it must not be stated while the fleet is
-                  still loading or after the request failed. */}
-              {machinesLoading ? (
-                <span className="font-mono text-xs text-muted">counting…</span>
-              ) : machinesFailed ? (
-                <span className="font-mono text-xs text-muted">count unavailable</span>
-              ) : (
-                <span className="chip">{owned.length} {owned.length === 1 ? "machine" : "machines"}</span>
-              )}
-              {!machinesLoading && !machinesFailed
-                ? highlights.map((entry) => (
-                    <span key={entry.label} className={`status-box ${entry.tone}`}>
-                      {entry.count} {entry.label}
-                    </span>
-                  ))
-                : null}
-            </span>
-          </Link>
+          <li key={machineType.id} className="min-w-0">
+            <Link
+              to={hrefFor(machineType)}
+              className="group flex h-full min-w-0 items-start gap-3 rounded-lg border border-line bg-canvas p-4 transition-colors duration-180 ease-standard hover:bg-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            >
+              <span aria-hidden="true" className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-fill text-lg text-ink">
+                {machineType.icon || machineType.name.charAt(0).toUpperCase()}
+              </span>
+              <span className="grid min-w-0 flex-1 gap-2">
+                <span className="truncate text-title text-ink">{machineType.name}</span>
+                <span className="flex flex-wrap items-center gap-1.5">
+                  {/* A count is stated as fact, so it must not be stated while the fleet is
+                      still loading or after the request failed. */}
+                  {machinesLoading ? (
+                    <span className="text-caption text-ink-muted">Counting…</span>
+                  ) : machinesFailed ? (
+                    <span className="text-caption text-ink-muted">Count unavailable</span>
+                  ) : (
+                    <Chip size="sm">{owned.length} {owned.length === 1 ? "machine" : "machines"}</Chip>
+                  )}
+                  {!machinesLoading && !machinesFailed
+                    ? highlights.map((entry) => (
+                        <StatusChip key={entry.label} tone={entry.tone} size="sm">
+                          {entry.count} {entry.label}
+                        </StatusChip>
+                      ))
+                    : null}
+                </span>
+              </span>
+              <ChevronRight aria-hidden="true" className="mt-2.5 size-[18px] shrink-0 text-ink-muted transition-transform duration-180 ease-standard group-hover:translate-x-0.5 motion-reduce:transition-none" />
+            </Link>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

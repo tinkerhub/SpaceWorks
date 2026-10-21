@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Button, Card, CardHeader, ErrorText, Field, Input, SettingsRow, Skeleton, StatusChip, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import { type Makerspace, useStaffGet } from "./StaffPanels";
+import { errorText, type Makerspace, useStaffGet } from "./panels/shared";
 
 type Props = {
   makerspace: Makerspace;
@@ -22,6 +22,7 @@ type SubdomainRequestResponse = { results: SubdomainRequest[] };
 
 export function MakerspaceSubdomainSettings({ makerspace, settings }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [requestedLabel, setRequestedLabel] = useState("");
   const managed = settings?.platform_hosting ?? makerspace.platform_hosting ?? false;
   const requests = useStaffGet<SubdomainRequestResponse>(
@@ -40,7 +41,9 @@ export function MakerspaceSubdomainSettings({ makerspace, settings }: Props) {
       setRequestedLabel("");
       queryClient.invalidateQueries({ queryKey: ["subdomain-requests", makerspace.id] });
       queryClient.invalidateQueries({ queryKey: ["makerspace-settings", makerspace.id] });
+      showToast("Subdomain request sent", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't send the subdomain request"), { tone: "error" }),
   });
 
   if (!managed) return null;
@@ -59,21 +62,19 @@ export function MakerspaceSubdomainSettings({ makerspace, settings }: Props) {
     requests.isLoading || submitRequest.isPending || Boolean(pendingRequest) || !requestedLabel.trim();
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="grid min-w-0 gap-4">
-        <div className="grid min-w-0 max-w-2xl gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold text-ink">Request a subdomain</h3>
-            {hasActiveSubdomain ? <Badge tone="success">Active</Badge> : null}
-          </div>
-          <p className="text-sm text-muted">
-            Ask the platform team to provision a dedicated subdomain for this makerspace.
-          </p>
-        </div>
-
+    <Card as="section" aria-labelledby="subdomain-title">
+      <CardHeader
+        title={<span id="subdomain-title">Request a subdomain</span>}
+        description="Ask the platform team to set up a dedicated subdomain for this makerspace."
+        action={hasActiveSubdomain ? <StatusChip tone="success">Active</StatusChip> : null}
+      />
+      <SettingsRow
+        title={hasActiveSubdomain ? "Active subdomain" : "Desired subdomain"}
+        description={hasActiveSubdomain ? "Your makerspace is served here." : "Lowercase letters, numbers and dashes."}
+      >
         {hasActiveSubdomain ? (
-          <p className="text-sm text-ink">
-            Active subdomain: <span className="font-semibold">{activeSubdomain}</span>
+          <p className="text-body-ui text-ink">
+            Active subdomain: <span className="font-mono font-semibold">{activeSubdomain}</span>
           </p>
         ) : (
           <form
@@ -83,56 +84,50 @@ export function MakerspaceSubdomainSettings({ makerspace, settings }: Props) {
               if (!submitDisabled) submitRequest.mutate();
             }}
           >
-            <label className="grid gap-2 text-sm font-semibold text-ink" htmlFor="subdomain-label">
-              Desired subdomain label
-              <input
-                id="subdomain-label"
-                className="desk-input"
+            <Field label="Desired subdomain label" id="subdomain-label">
+              <Input
                 placeholder="alpha"
                 value={requestedLabel}
                 disabled={requests.isLoading || Boolean(pendingRequest)}
                 onChange={(event) => setRequestedLabel(event.target.value)}
               />
-            </label>
-            <button className="desk-button-primary" type="submit" disabled={submitDisabled}>
-              {submitRequest.isPending ? "Submitting..." : "Submit request"}
-            </button>
+            </Field>
+            <Button variant="primary" type="submit" disabled={submitDisabled} loading={submitRequest.isPending} loadingLabel="Sending…">
+              Submit request
+            </Button>
           </form>
         )}
-
         {pendingRequest && !hasActiveSubdomain ? (
-          <p className="text-sm text-muted">Request pending review</p>
+          <p className="mt-2 text-caption text-ink-muted">Request pending review</p>
         ) : null}
-        {submitRequest.error ? (
-          <p className="text-sm text-danger">{submitRequest.error.message}</p>
-        ) : null}
-        {requests.error ? <p className="text-sm text-danger">{requests.error.message}</p> : null}
-
-        {requests.isLoading ? <p className="text-sm text-muted">Loading requests...</p> : null}
-        {history.length > 0 ? (
+        <div className="mt-2 grid gap-2">
+          <ErrorText message={submitRequest.error?.message} />
+          <ErrorText message={requests.error?.message} />
+        </div>
+      </SettingsRow>
+      {requests.isLoading ? <Skeleton className="h-16 w-full" /> : null}
+      {history.length > 0 ? (
+        <SettingsRow title="Request history">
           <ul className="grid gap-2">
             {history.map((request) => (
-              <li
-                className="flex flex-wrap items-center gap-2 rounded-md border border-line bg-surface p-3 text-sm"
-                key={request.id}
-              >
-                <span className="font-semibold text-ink">{request.requested_label}</span>
-                <Badge tone={statusTone(request.status)}>{statusLabel(request.status)}</Badge>
-                {request.note ? <span className="text-muted">{request.note}</span> : null}
-                <time className="text-xs text-muted" dateTime={request.created_at}>
+              <li className="flex flex-wrap items-center gap-2 rounded-md border border-line p-3 text-body-ui" key={request.id}>
+                <span className="font-mono font-semibold text-ink">{request.requested_label}</span>
+                <StatusChip tone={statusTone(request.status)} size="sm">{statusLabel(request.status)}</StatusChip>
+                {request.note ? <span className="text-ink-muted">{request.note}</span> : null}
+                <time className="text-caption text-ink-muted" dateTime={request.created_at}>
                   {new Date(request.created_at).toLocaleString()}
                 </time>
               </li>
             ))}
           </ul>
-        ) : null}
-      </div>
-    </div>
+        </SettingsRow>
+      ) : null}
+    </Card>
   );
 }
 
 function statusTone(status: SubdomainRequest["status"]) {
-  return status === "approved" ? "success" : status === "rejected" ? "danger" : "warn";
+  return status === "approved" ? "success" : status === "rejected" ? "danger" : "warning";
 }
 
 function statusLabel(status: SubdomainRequest["status"]) {

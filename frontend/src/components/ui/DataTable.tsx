@@ -1,5 +1,6 @@
 import type { Key, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 import { EmptyState } from "./EmptyState";
 import { SkeletonRows } from "./Skeleton";
@@ -67,26 +68,26 @@ export function DataTable<T>({
   if (!loading && !data.length) return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
 
   return (
-    <div className="blueprint-table">
-      <table className="w-full min-w-[640px] text-left text-sm" aria-busy={loading}>
-        <thead className="bg-surface text-xs text-muted">
+    <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-line bg-canvas">
+      <table className="w-full min-w-[640px] border-collapse text-left text-body-ui" aria-busy={loading}>
+        <thead className="bg-subtle text-[13px] text-ink-muted">
           <tr className="border-b border-line">
             {selectionEnabled ? (
-              <th className="w-10 px-3 py-2" scope="col">
-                <input ref={selectAllRef} type="checkbox" aria-label="Select all rows" checked={allSelected} onChange={(event) => changeAll(event.target.checked)} />
+              <th className="w-10 px-4 py-3" scope="col">
+                <input ref={selectAllRef} type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label="Select all rows" checked={allSelected} onChange={(event) => changeAll(event.target.checked)} />
               </th>
             ) : null}
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-2 font-semibold ${column.className ?? ""}`}
+                className={`whitespace-nowrap px-4 py-3 font-semibold ${column.className ?? ""}`}
                 aria-sort={sort?.key === column.key ? ariaSort(sort.direction) : undefined}
                 scope="col"
               >
                 {column.sortable ? (
-                  <button type="button" className="inline-flex min-h-11 items-center gap-1 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => toggleSort(column)}>
+                  <button type="button" className="-mx-1 inline-flex min-h-9 items-center gap-1 rounded-md px-1 font-semibold hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => toggleSort(column)}>
                     {column.header}
-                    <span aria-hidden="true">{sort?.key === column.key ? sort.direction : "sort"}</span>
+                    <SortIcon direction={sort?.key === column.key ? sort.direction : null} />
                   </button>
                 ) : column.header}
               </th>
@@ -98,7 +99,7 @@ export function DataTable<T>({
             <SkeletonRows rows={6} cols={skeletonCols} />
           ) : loading ? (
             <tr>
-              <td className="px-3 py-8 text-center" colSpan={columns.length + (selectionEnabled ? 1 : 0)}>
+              <td className="px-4 py-8 text-center" colSpan={columns.length + (selectionEnabled ? 1 : 0)}>
                 <Spinner />
               </td>
             </tr>
@@ -106,14 +107,14 @@ export function DataTable<T>({
             sortedData.map((row) => {
               const id = getRowId(row);
               return (
-                <tr key={id} className="border-b border-line last:border-b-0">
+                <tr key={id} className="border-b border-emphasis transition-colors last:border-b-0 hover:bg-subtle/60">
                   {selectionEnabled ? (
-                    <td className="px-3 py-2">
-                      <input type="checkbox" aria-label={`Select row ${String(id)}`} checked={selectedSet.has(id)} onChange={(event) => changeRow(id, event.target.checked)} />
+                    <td className="px-4 py-3">
+                      <input type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label={`Select row ${String(id)}`} checked={selectedSet.has(id)} onChange={(event) => changeRow(id, event.target.checked)} />
                     </td>
                   ) : null}
                   {columns.map((column) => (
-                    <td key={column.key} className={`px-3 py-2 text-ink ${column.className ?? ""}`}>
+                    <td key={column.key} className={`px-4 py-3 align-middle text-ink ${column.className ?? ""}`}>
                       {column.render ? column.render(row) : String(getCellValue(row, column.key) ?? "")}
                     </td>
                   ))}
@@ -125,6 +126,11 @@ export function DataTable<T>({
       </table>
     </div>
   );
+}
+
+function SortIcon({ direction }: { direction: "asc" | "desc" | null }) {
+  const Icon = direction === "asc" ? ArrowUp : direction === "desc" ? ArrowDown : ArrowUpDown;
+  return <Icon aria-hidden="true" className={`size-3.5 ${direction ? "text-ink" : "text-ink-disabled"}`} />;
 }
 
 function defaultGetRowId<T>(row: T): Key {

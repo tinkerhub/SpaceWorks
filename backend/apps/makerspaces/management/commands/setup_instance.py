@@ -16,7 +16,11 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--username", default=None)
         parser.add_argument("--email", default=os.getenv("SETUP_SUPERADMIN_EMAIL", "admin@example.com"))
-        parser.add_argument("--password", default=None)
+        parser.add_argument(
+            "--password",
+            default=None,
+            help="Required when the superadmin does not exist yet (or set SETUP_SUPERADMIN_PASSWORD).",
+        )
         parser.add_argument("--makerspace-name", default=os.getenv("SETUP_MAKERSPACE_NAME", "My Makerspace"))
         parser.add_argument("--makerspace-slug", default=os.getenv("SETUP_MAKERSPACE_SLUG", ""))
         parser.add_argument(
@@ -28,11 +32,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         username = options["username"] or os.getenv("SETUP_SUPERADMIN_USERNAME") or "superadmin"
-        env_password = os.getenv("SETUP_SUPERADMIN_PASSWORD")
-        explicit_password = bool(options["password"] or env_password)
-        password = options["password"] or env_password or "super123"
+        password = options["password"] or os.getenv("SETUP_SUPERADMIN_PASSWORD")
 
         User = get_user_model()
+        # No built-in default: a shipped password is a known credential on every install
+        # whose operator has not logged in yet. Checked before any write, so a refused
+        # run leaves no half-created superadmin or makerspace behind.
+        if not password and not User.objects.filter(username=username).exists():
+            raise CommandError(
+                "Pass --password (or set SETUP_SUPERADMIN_PASSWORD) to create the "
+                f"superadmin {username!r}; there is no default password."
+            )
         user, created = User.objects.get_or_create(
             username=username,
             defaults={
@@ -48,7 +58,6 @@ class Command(BaseCommand):
             raise CommandError(f"Cannot set up {username!r}: the existing user is a walk-in.")
         if created:
             user.set_password(password)
-            user.must_change_password = not explicit_password
             user.save()
         else:
             changed = False
@@ -87,11 +96,4 @@ class Command(BaseCommand):
                 f"Installed the '{options['profile']}' module profile "
                 f"({len(makerspace.enabled_modules)} modules). "
                 "Change it with: python manage.py list_modules / install_module <key>."
-            )
-        if created and not explicit_password:
-            self.stdout.write(
-                self.style.WARNING(
-                    f"Default superadmin username is {user.username}; "
-                    "the default password must be changed on first login."
-                )
             )

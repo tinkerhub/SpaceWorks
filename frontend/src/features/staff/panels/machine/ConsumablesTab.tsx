@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Button, ConfirmDialog, Dropdown, EmptyState, Field, Input, SectionHeading, SegmentedControl, Skeleton, StatusChip } from "../../../../components/ui";
 import {
   getConsumableCandidates,
   getMachineConsumables,
@@ -11,19 +12,23 @@ import {
   type ConsumableMeasurement,
   type MachineConsumable,
 } from "../../machinesApi";
+import { useNotify } from "./machineUi";
 
-export function ConsumablesTab({ machineId, canEdit, canOperate }: {
+export function ConsumablesTab({ machineId, canEdit, canOperate, retired = false }: {
   machineId: number;
   canEdit: boolean;
   canOperate: boolean;
+  retired?: boolean;
 }) {
   const queryClient = useQueryClient();
+  const notify = useNotify();
   const [measurement, setMeasurement] = useState<ConsumableMeasurement>("count");
   const [productId, setProductId] = useState("");
   const [label, setLabel] = useState("");
   const [remaining, setRemaining] = useState("");
   const [lowThreshold, setLowThreshold] = useState("");
   const [note, setNote] = useState("");
+  const [unlinking, setUnlinking] = useState<MachineConsumable | null>(null);
   const consumables = useQuery({
     queryKey: machineKeys.consumables(machineId),
     queryFn: () => getMachineConsumables(machineId),
@@ -53,121 +58,152 @@ export function ConsumablesTab({ machineId, canEdit, canOperate }: {
       low_threshold: lowThreshold || null,
       note: note.trim(),
     }),
-    onSuccess: async () => {
+    onSuccess: async (linked) => {
+      notify.success(`${linked?.product_name ?? linked?.label ?? "Consumable"} linked`);
       setProductId(""); setLabel(""); setRemaining(""); setLowThreshold(""); setNote("");
       await refresh();
     },
+    onError: (error) => notify.failure("Couldn't link the consumable.", error),
   });
   const unlink = useMutation({
     mutationFn: (id: number) => unlinkMachineConsumable(machineId, id),
-    onSuccess: refresh,
+    onSuccess: async () => {
+      notify.success(`${unlinking?.product_name ?? unlinking?.label ?? "Consumable"} unlinked`);
+      setUnlinking(null);
+      await refresh();
+    },
+    onError: (error) => notify.failure("Couldn't unlink the consumable.", error),
   });
 
   return (
-    <section className="grid gap-3">
-      <h3 className="title-section">Consumables</h3>
-      {consumables.isLoading ? <p className="text-sm text-muted">Loading consumables...</p> : null}
-      {consumables.error instanceof Error ? <p className="text-sm text-danger">{consumables.error.message}</p> : null}
-      {!consumables.isLoading && !consumables.error && !items.length ? (
-        <p className="text-sm text-muted">No consumables linked.</p>
+    <section className="grid gap-4">
+      <SectionHeading as="h3" title="Consumables" description="Stock this machine draws from: inventory products by count, or a local ledger in grams." />
+      {consumables.isLoading ? (
+        <div className="grid gap-2" role="status" aria-label="Loading consumables">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
       ) : null}
-      <div className="grid gap-2">
-        {items.map((item) => (
-          <ConsumableRow key={item.id} item={item} machineId={machineId} canOperate={canOperate}
-            canEdit={canEdit} removing={unlink.isPending} onRemove={() => unlink.mutate(item.id)}
-            onLogged={refresh} />
-        ))}
-      </div>
-      {canEdit ? (
-        <form className="grid gap-2 rounded-md border border-line bg-bg p-3"
-          onSubmit={(event) => { event.preventDefault(); link.mutate(); }}>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <label className="eyebrow grid gap-1">Measurement
-              <select className="desk-input" value={measurement}
-                onChange={(event) => setMeasurement(event.target.value as ConsumableMeasurement)}>
-                <option value="count">Count (inventory)</option>
-                <option value="grams">Grams (local ledger)</option>
-              </select>
-            </label>
+      {consumables.error instanceof Error ? <EmptyState tone="error" title="Couldn't load consumables" description={consumables.error.message} /> : null}
+      {!consumables.isLoading && !consumables.error && !items.length ? (
+        <EmptyState title="No consumables linked" description={canEdit && !retired ? "Link an inventory product or start a grams ledger below." : "Nothing is linked to this machine yet."} />
+      ) : null}
+      {items.length ? (
+        <ul className="grid gap-2">
+          {items.map((item) => (
+            <ConsumableRow key={item.id} item={item} machineId={machineId} canLog={canOperate && !retired}
+              canEdit={canEdit} onRemove={() => setUnlinking(item)} onLogged={refresh} />
+          ))}
+        </ul>
+      ) : null}
+      {canEdit && !retired ? (
+        <form className="grid gap-4 rounded-lg border border-line bg-subtle p-4" onSubmit={(event) => { event.preventDefault(); link.mutate(); }}>
+          <h4 className="text-title text-ink">Link a consumable</h4>
+          <SegmentedControl
+            ariaLabel="Measurement"
+            size="sm"
+            value={measurement}
+            onValueChange={setMeasurement}
+            options={[
+              { value: "count", label: "Count (inventory)" },
+              { value: "grams", label: "Grams (local ledger)" },
+            ]}
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
             {measurement === "count" ? (
-              <label className="eyebrow grid gap-1">Inventory product
-                <select className="desk-input" value={productId} onChange={(event) => setProductId(event.target.value)} required>
-                  <option value="">Select a product</option>
-                  {eligible.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.available} available)</option>)}
-                </select>
-              </label>
+              <Field label="Inventory product">
+                <Dropdown value={productId} onChange={(event) => setProductId(event.target.value)} required>
+                  <option value="" disabled>{candidates.isLoading ? "Loading products…" : "Select a product"}</option>
+                  {eligible.map((item) => <option key={item.id} value={String(item.id)}>{item.name} ({item.available} available)</option>)}
+                </Dropdown>
+              </Field>
             ) : (
-              <label className="eyebrow grid gap-1">Label
-                <input className="desk-input" maxLength={200} value={label}
-                  onChange={(event) => setLabel(event.target.value)} required />
-              </label>
+              <Field label="Label">
+                <Input maxLength={200} value={label} onChange={(event) => setLabel(event.target.value)} required />
+              </Field>
             )}
             {measurement === "grams" ? (
-              <label className="eyebrow grid gap-1">Starting grams
-                <input className="desk-input" type="number" min="0" step="0.01" value={remaining}
-                  onChange={(event) => setRemaining(event.target.value)} />
-              </label>
+              <Field label="Starting grams">
+                <Input type="number" min="0" step="0.01" inputMode="decimal" value={remaining} onChange={(event) => setRemaining(event.target.value)} />
+              </Field>
             ) : null}
-            <label className="eyebrow grid gap-1">Low threshold ({measurement})
-              <input className="desk-input" type="number" min="0" step={measurement === "count" ? "1" : "0.01"}
-                value={lowThreshold} onChange={(event) => setLowThreshold(event.target.value)} />
-            </label>
+            <Field label={`Low threshold (${measurement})`} helperText="Shows a Low warning at or below this.">
+              <Input type="number" min="0" step={measurement === "count" ? "1" : "0.01"} value={lowThreshold} onChange={(event) => setLowThreshold(event.target.value)} />
+            </Field>
+            <Field label="Note" className="sm:col-span-full">
+              <Input maxLength={255} value={note} onChange={(event) => setNote(event.target.value)} />
+            </Field>
           </div>
-          <label className="eyebrow grid gap-1">Note
-            <input className="desk-input" maxLength={255} value={note} onChange={(event) => setNote(event.target.value)} />
-          </label>
-          <button className="desk-button-primary justify-self-start" type="submit"
-            disabled={link.isPending || (measurement === "count" ? !productId : !label.trim())}>
-            {link.isPending ? "Linking..." : measurement === "count" ? "Link product" : "Add grams consumable"}
-          </button>
+          {link.error instanceof Error ? <p className="text-caption text-danger-fg">{link.error.message}</p> : null}
+          <Button className="justify-self-start" type="submit" loading={link.isPending} loadingLabel="Linking…"
+            disabled={measurement === "count" ? !productId : !label.trim()}>
+            {measurement === "count" ? "Link product" : "Add grams consumable"}
+          </Button>
         </form>
       ) : null}
-      {[link.error, unlink.error].map((error, index) => error instanceof Error
-        ? <p key={index} className="text-sm text-danger">{error.message}</p> : null)}
+      {(canEdit || canOperate) && retired ? <p className="text-caption text-ink-muted">Retired machines can't link or log consumables. Unlinking still works.</p> : null}
+      {candidates.error instanceof Error ? <p className="text-caption text-danger-fg">{candidates.error.message}</p> : null}
+      {unlink.error instanceof Error ? <p className="text-caption text-danger-fg">{unlink.error.message}</p> : null}
+      <ConfirmDialog
+        open={unlinking !== null}
+        title={`Unlink ${unlinking?.product_name ?? unlinking?.label ?? "this consumable"}?`}
+        message="The machine stops drawing from it. Stock already used stays recorded."
+        confirmLabel="Unlink"
+        tone="danger"
+        pending={unlink.isPending}
+        onConfirm={() => { if (unlinking) unlink.mutate(unlinking.id); }}
+        onCancel={() => setUnlinking(null)}
+      />
     </section>
   );
 }
 
-function ConsumableRow({ item, machineId, canOperate, canEdit, removing, onRemove, onLogged }: {
+function ConsumableRow({ item, machineId, canLog, canEdit, onRemove, onLogged }: {
   item: MachineConsumable;
   machineId: number;
-  canOperate: boolean;
+  canLog: boolean;
   canEdit: boolean;
-  removing: boolean;
   onRemove: () => void;
   onLogged: () => Promise<unknown>;
 }) {
+  const notify = useNotify();
   const [quantity, setQuantity] = useState("");
   const balance = item.measurement === "count" ? item.available : Number(item.remaining);
   const threshold = item.low_threshold === null ? null : Number(item.low_threshold);
   const isLow = threshold !== null && balance !== null && Number(balance) <= threshold;
+  const name = item.product_name ?? item.label;
   const log = useMutation({
     mutationFn: () => logMachineConsumption(machineId, item.id, quantity),
-    onSuccess: async () => { setQuantity(""); await onLogged(); },
+    onSuccess: async () => {
+      notify.success(`${quantity} ${item.measurement === "count" ? "used" : "g used"} from ${name}`);
+      setQuantity("");
+      await onLogged();
+    },
+    onError: (error) => notify.failure("Couldn't log consumption.", error),
   });
 
   return (
-    <div className="rounded-md border border-line bg-bg p-3 text-sm">
+    <li className="grid gap-3 rounded-lg border border-line bg-canvas p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <strong className="text-ink">{item.product_name ?? item.label}</strong>
-        <span className="font-mono text-muted">{item.measurement === "count" ? `${item.available ?? 0} available` : `${item.remaining ?? "0.00"} g remaining`}</span>
-        {isLow ? <span className="rounded-md bg-warn/15 px-2 py-0.5 text-xs font-medium text-warn-ink">Low</span> : null}
-        {canEdit ? <button className="desk-button-danger ml-auto" type="button" disabled={removing} onClick={onRemove}>Unlink</button> : null}
+        <strong className="text-title text-ink">{name}</strong>
+        <span className="tabular-nums text-body-ui text-ink-secondary">
+          {item.measurement === "count" ? `${item.available ?? 0} available` : `${item.remaining ?? "0.00"} g remaining`}
+        </span>
+        {isLow ? <StatusChip tone="warning" size="sm">Low</StatusChip> : null}
+        {canEdit ? <Button className="ml-auto" variant="danger-quiet" size="sm" onClick={onRemove}>Unlink…</Button> : null}
       </div>
-      {item.note ? <p className="mt-1 text-muted">{item.note}</p> : null}
-      {canOperate ? (
-        <form className="mt-2 flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); log.mutate(); }}>
-          <label className="eyebrow grid gap-1">Use ({item.measurement})
-            <input className="desk-input w-32" type="number" min={item.measurement === "count" ? "1" : "0.01"}
+      {item.note ? <p className="text-caption text-ink-muted">{item.note}</p> : null}
+      {canLog ? (
+        <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); log.mutate(); }}>
+          <Field label={`Use (${item.measurement})`} className="w-36">
+            <Input type="number" min={item.measurement === "count" ? "1" : "0.01"}
               step={item.measurement === "count" ? "1" : "0.01"} value={quantity}
               onChange={(event) => setQuantity(event.target.value)} required />
-          </label>
-          <button className="desk-button-primary" type="submit" disabled={log.isPending || !quantity}>
-            {log.isPending ? "Logging..." : "Log consumption"}
-          </button>
+          </Field>
+          <Button type="submit" loading={log.isPending} loadingLabel="Logging…" disabled={!quantity}>Log consumption</Button>
         </form>
       ) : null}
-      {log.error instanceof Error ? <p className="mt-2 text-sm text-danger">{log.error.message}</p> : null}
-    </div>
+      {log.error instanceof Error ? <p className="text-caption text-danger-fg">{log.error.message}</p> : null}
+    </li>
   );
 }

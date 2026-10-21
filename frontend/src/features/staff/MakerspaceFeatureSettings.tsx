@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Card, CardHeader, Chip, SwitchRow, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { FEATURE_DEFINITIONS } from "../../lib/features";
-import type { Makerspace } from "./panels/shared";
+import { moduleEnabled } from "../../lib/modules";
+import { errorText, type Makerspace } from "./panels/shared";
 
 type Props = {
   makerspace: Makerspace;
@@ -25,6 +26,7 @@ const MODULE_FEATURES = Object.entries(
 
 export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const enabledModules = settings?.enabled_modules ?? makerspace.enabled_modules ?? [];
   const enabledFeatures = settings?.enabled_features ?? makerspace.enabled_features ?? [];
   const update = useMutation({
@@ -37,7 +39,9 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
       queryClient.invalidateQueries({ queryKey: ["makerspace-settings", makerspace.id] });
       queryClient.invalidateQueries({ queryKey: ["makerspaces"] });
       queryClient.invalidateQueries({ queryKey: ["staff", "makerspaces"] });
+      showToast("Features updated", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't update the features"), { tone: "error" }),
   });
 
   const toggleFeature = (key: string, checked: boolean) => {
@@ -48,41 +52,43 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
   };
 
   return (
-    <section className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="grid min-w-0 gap-2">
-        <h3 className="text-base font-semibold text-ink">Feature settings</h3>
-        <p className="text-sm text-muted">
-          Modules are set by the platform administrator. Enable the available sub-features for this makerspace.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {enabledModules.map((module) => <Badge key={module} tone="neutral">{module}</Badge>)}
+    <Card as="section">
+      <CardHeader
+        title="Features"
+        description="Modules are set by the platform administrator. Turn on the sub-features this makerspace uses."
+      />
+      {enabledModules.length ? (
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {enabledModules.map((module) => <Chip key={module} tone="neutral" size="sm">{module}</Chip>)}
         </div>
-        {update.error ? <p className="text-sm text-danger" role="alert">{update.error.message}</p> : null}
-      </div>
-      <div className="mt-4 grid gap-3">
-        {MODULE_FEATURES.map(([module, features]) => {
+      ) : null}
+      {update.error ? <p className="mb-3 text-caption text-danger-fg" role="alert">{update.error.message}</p> : null}
+      <div className="grid gap-3">
+        {MODULE_FEATURES.map(([module, allFeatures]) => {
           const isGeneral = module === GENERAL;
-          const moduleEnabled = isGeneral || enabledModules.includes(module);
+          // A fieldset for a switched-off module is not rendered at all, and a `payments.*`
+          // sub-feature also needs the payments module itself (capabilities.py requires it).
+          if (!isGeneral && !moduleEnabled(enabledModules, module)) return null;
+          const features = allFeatures.filter(
+            (feature) => !feature.key.startsWith("payments.") || moduleEnabled(enabledModules, "payments"),
+          );
+          if (!features.length) return null;
           return (
-            <fieldset key={module} className="grid gap-2 rounded border border-line p-3">
-              <legend className="px-1 text-sm font-semibold text-ink">{isGeneral ? "General" : module}</legend>
-              {!moduleEnabled ? <p className="text-sm text-muted">Module disabled by the platform administrator.</p> : null}
+            <fieldset key={module} className="grid gap-3 rounded-md border border-line p-4">
+              <legend className="px-1 text-label text-ink">{isGeneral ? "General" : module}</legend>
               {features.map((feature) => (
-                <label key={feature.key} className="flex items-start gap-3 text-sm text-ink">
-                  <input
-                    className="mt-1 h-4 w-4"
-                    type="checkbox"
-                    checked={enabledFeatures.includes(feature.key)}
-                    disabled={loading || update.isPending || !moduleEnabled}
-                    onChange={(event) => toggleFeature(feature.key, event.target.checked)}
-                  />
-                  <span>{feature.label}</span>
-                </label>
+                <SwitchRow
+                  key={feature.key}
+                  label={feature.label}
+                  checked={enabledFeatures.includes(feature.key)}
+                  disabled={loading || update.isPending}
+                  onCheckedChange={(checked) => toggleFeature(feature.key, checked)}
+                />
               ))}
             </fieldset>
           );
         })}
       </div>
-    </section>
+    </Card>
   );
 }

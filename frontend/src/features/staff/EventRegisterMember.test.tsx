@@ -23,6 +23,14 @@ function renderPanel() {
   );
 }
 
+/** Picks a member from the listbox once the eligible-member list has loaded. */
+async function pickMember(name: string) {
+  const picker = screen.getByRole("combobox", { name: "Register a member" });
+  await waitFor(() => expect(picker).not.toBeDisabled());
+  fireEvent.click(picker);
+  fireEvent.click(await screen.findByRole("option", { name }));
+}
+
 const MEMBERS = [
   { member_id: 11, display_name: "Walk In A" },
   { member_id: 22, display_name: "Walk In B" },
@@ -45,9 +53,7 @@ describe("EventRegisterMember", () => {
     // `StructuredApiError.message` flattens values only, so it reads "This field cannot
     // be blank." with no field name. A prompt keyed on the message never appears.
     renderPanel();
-    await screen.findByRole("option", { name: "Walk In A" });
-
-    fireEvent.change(screen.getByLabelText("Register a member"), { target: { value: "11" } });
+    await pickMember("Walk In A");
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
 
     expect(await screen.findByLabelText("Contact email")).toBeTruthy();
@@ -57,15 +63,12 @@ describe("EventRegisterMember", () => {
     // Otherwise walk-in B is registered with walk-in A's address -- and because B has no
     // account email either, the backend accepts it and B's event mail goes to A.
     renderPanel();
-    await screen.findByRole("option", { name: "Walk In A" });
-    const picker = screen.getByLabelText("Register a member");
-
-    fireEvent.change(picker, { target: { value: "11" } });
+    await pickMember("Walk In A");
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
     const emailField = await screen.findByLabelText("Contact email");
     fireEvent.change(emailField, { target: { value: "walk-in-a@example.test" } });
 
-    fireEvent.change(picker, { target: { value: "22" } });
+    await pickMember("Walk In B");
 
     expect(screen.queryByLabelText("Contact email")).toBeNull();
 

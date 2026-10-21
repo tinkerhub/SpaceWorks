@@ -1,7 +1,7 @@
 from .bulk_import_apply import (
     _apply_import_row,
     _category_for_name,
-    _record_row_integrity_error,
+    _record_row_error,
     _refresh_summary,
     _short_db_message,
     apply_import,

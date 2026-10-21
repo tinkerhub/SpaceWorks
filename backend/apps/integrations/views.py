@@ -127,4 +127,5 @@ def _webhook_secret_ok(request):
     if not secret:
         return False
     provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
-    return hmac.compare_digest(provided, secret)
+    # Bytes: str compare_digest raises TypeError on non-ASCII input (a 500, not a 403).
+    return hmac.compare_digest(provided.encode(), secret.encode())

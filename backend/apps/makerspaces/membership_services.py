@@ -8,8 +8,11 @@ from apps.accounts import rbac
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.makerspaces import role_services
-from apps.makerspaces.guards import require_module
-from apps.makerspaces.membership_activation import _activate_membership
+from apps.makerspaces.membership_activation import (
+    _activate_membership,
+    is_community_request,
+    require_membership_module,
+)
 from apps.makerspaces.membership_verification import (
     set_can_refer,
     set_can_verify,
@@ -89,6 +92,7 @@ def request_membership(user, makerspace):
         raise ValidationError({"detail": "An active account with a verified email is required."})
     with transaction.atomic():
         makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        require_membership_module(makerspace)
         if makerspace.membership_policy == Makerspace.MembershipPolicy.INVITE_ONLY:
             raise ValidationError({"detail": "This makerspace is invite-only."})
         if makerspace.membership_policy == Makerspace.MembershipPolicy.OPEN:
@@ -125,7 +129,7 @@ def invite_membership(actor, makerspace, invite_email, assigned_role):
             raise ValidationError({"role_id": "Role must belong to this makerspace."})
         role_services.can_assign_role(actor, makerspace, role)
         if _is_community_invitation(role):
-            require_module(makerspace, "membership")
+            require_membership_module(makerspace)
         user = User.objects.filter(email__iexact=email).first()
         try:
             request = MembershipRequest.objects.create(
@@ -155,7 +159,7 @@ def refer_membership(actor, makerspace, invite_email):
         ).first()
         # Additive: the module gate sits alongside the existing readiness checks and
         # does not replace them.
-        require_module(makerspace, "membership")
+        require_membership_module(makerspace)
         if not makerspace.referrals_enabled or not actor_membership or not actor_membership.can_refer:
             raise PermissionDenied()
         target = User.objects.filter(email__iexact=email).first()
@@ -256,6 +260,8 @@ def revoke_request(actor, request, reason=""):
     with transaction.atomic():
         makerspace = Makerspace.objects.select_for_update().get(pk=request.makerspace_id)
         request = MembershipRequest.objects.select_for_update().get(pk=request.pk)
+        if is_community_request(request, request.assigned_role):
+            require_membership_module(makerspace)
         if request.state == MembershipRequest.State.ACTIVE and request.user_id:
             membership = MakerspaceMembership.objects.filter(makerspace=makerspace, user=request.user).first()
             if membership:

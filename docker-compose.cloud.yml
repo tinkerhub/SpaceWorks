@@ -53,6 +53,10 @@ x-app-env: &app-env
   SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY}
   DEBUG: "False"
   ALLOWED_HOSTS: ${ALLOWED_HOSTS:?set ALLOWED_HOSTS}
+  # Deployment-wide app tombstones (app labels, see `suggest_tombstones`). Every
+  # Django process must see the same list: URL routing, admin registration and the
+  # schema are process-global, so a worker or beat without it runs a different app set.
+  TOMBSTONED_APPS: ${TOMBSTONED_APPS:-}
   # Managed Postgres (Supabase, Neon, RDS). MANAGED_POSTGRES=True matters for purge:
   # those hosts forbid session_replication_role, so immutability triggers are suspended
   # through the app.allow_immutable_delete GUC instead.

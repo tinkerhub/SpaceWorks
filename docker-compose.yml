@@ -89,6 +89,10 @@ services:
     environment: &backend-env
       SECRET_KEY: ${SECRET_KEY:-dev-insecure-change-me}
       DEBUG: ${DEBUG:-False}
+      # Deployment-wide app tombstones (app labels, see `suggest_tombstones`). Every
+      # Django process must see the same list: URL routing, admin registration and the
+      # schema are process-global, so a worker or beat without it runs a different app set.
+      TOMBSTONED_APPS: ${TOMBSTONED_APPS:-}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
       DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_APP_USER:-spaceworks_app}:${POSTGRES_APP_PASSWORD:-spaceworks-app-dev}@db:5432/makerspace_manager}
       SPACEWORKS_DB_POINTER_GENERATION: ${SPACEWORKS_DB_POINTER_GENERATION:-1}

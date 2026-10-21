@@ -816,6 +816,7 @@ REST_FRAMEWORK = {
         "phone_otp_number": env("THROTTLE_PHONE_OTP_NUMBER", default="5/hour"),
         "phone_login_confirm": env("THROTTLE_PHONE_LOGIN_CONFIRM", default="10/min"),
         "phone_confirm_number": env("THROTTLE_PHONE_CONFIRM_NUMBER", default="15/hour"),
+        "change_password": env("THROTTLE_CHANGE_PASSWORD", default="5/min"),
         "password_reset_request": env(
             "THROTTLE_PASSWORD_RESET_REQUEST",
             default="5/min",
@@ -909,6 +910,9 @@ REST_FRAMEWORK = {
             "THROTTLE_EVENT_CALENDAR_FEED_IP", default="300/hour"
         ),
         "public_stats": env("THROTTLE_PUBLIC_STATS", default="30/min"),
+        # Proxied readiness callers only (a provider health probe hitting it through its
+        # edge); direct in-container probes are exempt. See operations.views_health.
+        "readiness": env("THROTTLE_READINESS", default="60/min"),
         "client_public": env("THROTTLE_CLIENT_PUBLIC", default="30/min"),
         "client_standard": env("THROTTLE_CLIENT_STANDARD", default="120/min"),
         "client_trusted": env("THROTTLE_CLIENT_TRUSTED", default="600/min"),

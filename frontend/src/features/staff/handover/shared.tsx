@@ -1,5 +1,6 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 
+import { ErrorText, Field, Input } from "../../../components/ui";
 import type { HandoverRequest, HandoverRequestItem, ReturnField, ReturnValues } from "./types";
 
 export function submit(event: FormEvent<HTMLFormElement>, action: () => void) {
@@ -9,8 +10,7 @@ export function submit(event: FormEvent<HTMLFormElement>, action: () => void) {
 
 export function DialogError({ error }: { error: unknown }) {
   if (!error) return null;
-  const message = error instanceof Error ? error.message : "Request failed";
-  return <p className="text-sm text-danger">{message}</p>;
+  return <ErrorText message={error instanceof Error && error.message ? error.message : "That didn't go through. Try again."} />;
 }
 
 export function QuantityInput({
@@ -23,17 +23,9 @@ export function QuantityInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <input
-        className="desk-input"
-        type="number"
-        min="0"
-        step="1"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </label>
+    <Field label={label}>
+      <Input type="number" min="0" step="1" inputMode="numeric" value={value} onChange={(event) => onChange(event.target.value)} />
+    </Field>
   );
 }
 

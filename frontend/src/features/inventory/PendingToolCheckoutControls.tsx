@@ -1,4 +1,7 @@
 import type { ReactNode } from "react";
+import { QrCode } from "lucide-react";
+
+import { Button } from "../../components/ui";
 
 type PendingToolCheckoutControlsProps = {
   payloads: string[];
@@ -17,7 +20,7 @@ export function PendingToolCheckoutControls({
   isPending,
   submitDisabled,
   showScanWhenEmpty = false,
-  pendingLabel = "Checking out...",
+  pendingLabel = "Checking out…",
   children,
   onRemove,
   onScanAnother,
@@ -26,51 +29,37 @@ export function PendingToolCheckoutControls({
   return (
     <>
       {payloads.length > 0 ? (
-        <div className="mt-3 space-y-2" aria-label="Pending tools">
+        <ul className="mt-3 divide-y divide-line rounded-md border border-line" aria-label="Pending tools">
           {payloads.map((payload, index) => (
-            <div
-              className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-sm"
-              key={payload}
-            >
+            <li className="flex items-center justify-between gap-3 px-3 py-2" key={payload}>
               <span className="min-w-0">
-                <span className="block font-semibold">Tool {index + 1}</span>
-                <span className="block truncate font-mono text-xs text-muted">
-                  {payload}
-                </span>
+                <span className="block text-label text-ink">Tool {index + 1}</span>
+                <span className="block truncate font-mono text-xs text-ink-muted">{payload}</span>
               </span>
-              <button
-                className="desk-button shrink-0"
-                type="button"
-                aria-label={`Remove tool ${index + 1}`}
-                onClick={() => onRemove(payload)}
-              >
+              <Button variant="quiet" size="sm" aria-label={`Remove tool ${index + 1}`} onClick={() => onRemove(payload)}>
                 Remove
-              </button>
-            </div>
+              </Button>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : null}
       {showScanWhenEmpty || payloads.length > 0 ? (
-        <button
-          className="desk-button mt-3 w-full"
-          disabled={isPending}
-          type="button"
-          onClick={onScanAnother}
-        >
+        <Button className="mt-3" fullWidth startIcon={<QrCode />} disabled={isPending} onClick={onScanAnother}>
           {payloads.length > 0 ? "Scan another" : "Scan QR"}
-        </button>
+        </Button>
       ) : null}
       {children}
-      <button
-        className="desk-button-primary mt-3 w-full disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={submitDisabled || isPending}
-        type="button"
+      <Button
+        className="mt-3"
+        variant="primary"
+        fullWidth
+        disabled={submitDisabled}
+        loading={isPending}
+        loadingLabel={pendingLabel}
         onClick={onSubmit}
       >
-        {isPending
-          ? pendingLabel
-          : `Check out ${payloads.length} ${payloads.length === 1 ? "tool" : "tools"}`}
-      </button>
+        {`Check out ${payloads.length} ${payloads.length === 1 ? "tool" : "tools"}`}
+      </Button>
     </>
   );
 }

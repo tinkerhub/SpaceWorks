@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { Camera, ImageIcon } from "lucide-react";
 
-import { CameraCapture } from "../../components/ui";
+import { Button, CameraCapture, useToast } from "../../components/ui";
 import { publicV1Request, staffRequest } from "../../lib/api";
 
 type PresignResponse = {
@@ -119,6 +120,7 @@ export function ImageUploader({
   // Cover images are wide banners - give them a rectangular preview that matches
   // how they render publicly, instead of cropping into an 80x80 square.
   const previewBox = shape === "wide" ? "h-24 w-full max-w-full sm:h-20 sm:w-44" : "h-20 w-20";
+  const { showToast } = useToast();
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [error, setError] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -147,6 +149,8 @@ export function ImageUploader({
     setPreview(objectUrlRef.current);
   }
 
+  const busy = disabled || status === "uploading";
+
   async function handleFile(file: File) {
     setStatus("uploading");
     setError("");
@@ -154,10 +158,13 @@ export function ImageUploader({
       await uploadPublicImage(endpoint, file, extraBody);
       setStatus("idle");
       setLocalPreview(file);
+      showToast(`${label} updated`, { tone: "success" });
       onChanged();
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Upload failed.");
+      const message = err instanceof Error ? err.message : "Upload failed.";
+      setError(message);
+      showToast(message, { tone: "error" });
     } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -174,18 +181,21 @@ export function ImageUploader({
         objectUrlRef.current = null;
       }
       setPreview(null);
+      showToast(`${label} removed`, { tone: "success" });
       onChanged();
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Could not remove image.");
+      const message = err instanceof Error ? err.message : "Could not remove image.";
+      setError(message);
+      showToast(message, { tone: "error" });
     }
   }
 
   return (
-    <div className="min-w-0 space-y-2">
-      <label htmlFor={inputId} className="block font-mono text-xs uppercase tracking-tight text-muted">{label}</label>
-      <div className="flex min-w-0 flex-wrap items-start gap-3">
-        <div className={`${previewBox} shrink-0 overflow-hidden rounded-lg border border-line bg-surface`}>
+    <div className="grid min-w-0 gap-2">
+      <label htmlFor={inputId} className="text-label text-ink">{label}</label>
+      <div className="flex min-w-0 flex-wrap items-start gap-4">
+        <div className={`${previewBox} shrink-0 overflow-hidden rounded-md border border-line bg-subtle`}>
           {preview ? (
             <img
               src={preview}
@@ -193,41 +203,39 @@ export function ImageUploader({
               className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"}`}
             />
           ) : (
-            <div className="blueprint-bg grid h-full w-full place-items-center font-mono text-[10px] uppercase text-muted">
-              none
+            <div className="grid h-full w-full place-items-center text-ink-muted" aria-hidden="true">
+              <ImageIcon className="size-6" />
             </div>
           )}
         </div>
-        <div className="min-w-0 max-w-full flex-[1_1_16rem] space-y-1">
+        <div className="grid min-w-0 max-w-full flex-[1_1_16rem] gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <input
               id={inputId}
               ref={inputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              disabled={disabled || status === "uploading"}
+              disabled={busy}
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) handleFile(file);
               }}
-              className="block max-w-full min-w-0 flex-[1_1_12rem] text-sm text-muted file:mr-3 file:min-h-11 file:rounded-lg file:border file:border-line file:bg-accent file:px-3 file:py-1.5 file:font-mono file:text-xs file:font-semibold file:text-on-accent"
+              className="block min-w-0 max-w-full flex-[1_1_12rem] text-sm text-ink-muted file:mr-3 file:min-h-9 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
             />
             {cameraSupported ? (
-              <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label} photo`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+              <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label} photo`} disabled={busy} onClick={() => setCameraOpen(true)}>
                 Camera
-              </button>
+              </Button>
             ) : null}
           </div>
           <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label} />
+          <p className="text-caption text-ink-muted">JPEG, PNG or WebP.</p>
           {preview ? (
-            <button
-              type="button"
-              className="desk-button-ghost px-0 font-mono text-xs uppercase text-danger"
-              disabled={disabled || status === "uploading"}
-              onClick={clearImage}
-            >
-              Remove
-            </button>
+            <div>
+              <Button size="sm" variant="danger-quiet" disabled={busy} onClick={clearImage}>
+                Remove
+              </Button>
+            </div>
           ) : null}
           {/* ONE persistent live region, not two conditional ones: a role="status" element that is
               inserted at the same moment its text appears is frequently not announced, because the
@@ -235,9 +243,9 @@ export function ImageUploader({
           <p
             role="status"
             aria-live="polite"
-            className={status === "error" ? "break-words text-xs text-danger" : "break-words font-mono text-xs text-muted"}
+            className={status === "error" ? "break-words text-caption text-danger-fg" : "break-words text-caption text-ink-muted"}
           >
-            {status === "uploading" ? "Working..." : status === "error" ? error : ""}
+            {status === "uploading" ? "Working…" : status === "error" ? error : ""}
           </p>
         </div>
       </div>

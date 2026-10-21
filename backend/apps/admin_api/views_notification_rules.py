@@ -14,12 +14,14 @@ from apps.admin_api.serializers_notification_rules import (
 from apps.audit import services as audit
 from apps.integrations import notification_catalog, notification_rules
 from apps.integrations.dispatch_channels import channel_module_blocks
+from apps.integrations.recipients_selection import feature_available
 from apps.integrations.models import (
     EmailNotificationMute,
     NotificationChannel,
     NotificationFeature,
     NotificationPreference,
 )
+from apps.admin_api.views_email_templates_common import _stream_module_available
 from apps.makerspaces.servability import servable_queryset
 
 
@@ -39,9 +41,11 @@ class NotificationRulesView(APIView):
             pk=makerspace_id,
         )
 
-    def _catalog(self):
+    def _catalog(self, makerspace):
         catalog = []
         for (stream, audience), events in notification_rules.EVENT_CATALOG.items():
+            if not _stream_module_available(makerspace, stream):
+                continue
             targets = [
                 target
                 for target in notification_rules.valid_targets_for_stream(stream)
@@ -86,13 +90,18 @@ class NotificationRulesView(APIView):
         channels = [
             {"key": channel.value, "label": channel.label} for channel in available
         ]
+        # A feature whose module is off is omitted for the same reason as a channel: its
+        # row could be ticked and stored and then would never fire.
+        available_features = [
+            feature for feature in NotificationFeature if feature_available(makerspace, feature)
+        ]
         features = [
             {
                 "key": feature.value,
                 "label": feature.label,
                 "events": list(notification_catalog.FEATURE_EVENTS[feature]),
             }
-            for feature in NotificationFeature
+            for feature in available_features
         ]
         preferences = [
             {
@@ -108,22 +117,24 @@ class NotificationRulesView(APIView):
                     else "default"
                 ),
             }
-            for feature in NotificationFeature
+            for feature in available_features
             # Same list as the columns, or the response would carry preference cells for
             # a channel the matrix renders no column for.
             for channel in available
         ]
         return {
-            "catalog": self._catalog(),
+            "catalog": self._catalog(makerspace),
             "mutes": mutes,
             "channels": channels,
             "features": features,
             "preferences": preferences,
         }
 
-    def _validation_error(self, change):
+    def _validation_error(self, makerspace, change):
         target = change["target"]
         stream = change["stream"]
+        if not _stream_module_available(makerspace, stream):
+            return f"Stream '{stream}' is not installed for this makerspace."
         event = change["event"]
         audience = change["audience"]
         expected_audience = notification_rules.TARGETS.get(target)
@@ -157,7 +168,7 @@ class NotificationRulesView(APIView):
 
         desired_mutes = {}
         for change in changes:
-            error = self._validation_error(change)
+            error = self._validation_error(makerspace, change)
             if error:
                 return Response({"detail": error}, status=status.HTTP_400_BAD_REQUEST)
             key = (
@@ -170,6 +181,11 @@ class NotificationRulesView(APIView):
 
         desired_preferences = {}
         for preference in preference_changes:
+            if not feature_available(makerspace, preference["feature"]):
+                return Response(
+                    {"detail": f"Feature '{preference['feature']}' is not installed for this makerspace."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             key = (preference["feature"], preference["channel"])
             desired_preferences[key] = preference["enabled"]
 

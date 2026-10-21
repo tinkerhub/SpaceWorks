@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
@@ -6,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError as Django
 from django.db import transaction
 from django.template.response import TemplateResponse
 from django.urls import path
+from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import (
@@ -20,28 +20,16 @@ from apps.audit import services as audit
 from apps.inventory import availability
 from apps.inventory import admin_assets  # noqa: F401
 from apps.inventory.admin_bulk_import import bulk_import_view
-from apps.inventory.admin_image_uploads import PublicImageAdminForm, PublicImageAdminMixin
+from apps.inventory.admin_forms import (
+    InventoryProductAdminForm,
+    InventoryQuantityAdjustmentForm,
+    NeedsFixQuantityForm,
+)
+from apps.inventory.admin_image_uploads import PublicImageAdminMixin
 from apps.inventory.models import Category, InventoryProduct
 from apps.operations import services as operations_services
 from apps.operations.serializers import AssetGenerateSerializer
 from config.admin_access import SuperuserOnlyModelAdmin
-
-
-class InventoryQuantityAdjustmentForm(forms.Form):
-    delta_available = forms.IntegerField(required=True)
-    delta_damaged = forms.IntegerField(required=True)
-    delta_lost = forms.IntegerField(required=True)
-    reason = forms.CharField(required=True, widget=forms.Textarea)
-
-
-class NeedsFixQuantityForm(forms.Form):
-    quantity = forms.IntegerField(required=True, min_value=1)
-
-
-class InventoryProductAdminForm(PublicImageAdminForm):
-    class Meta:
-        model = InventoryProduct
-        fields = "__all__"
 
 
 @admin.register(Category)
@@ -96,6 +84,11 @@ class InventoryProductAdmin(PublicImageAdminMixin, SuperuserOnlyModelAdmin, Mode
     list_filter_submit = True
     list_per_page = 50
     readonly_fields = ("image_preview",)
+
+    def get_readonly_fields(self, request, obj=None):
+        # After creation, tracking mode and buckets change only via the Availability module.
+        owned = availability.AVAILABILITY_OWNED_FIELDS if obj is not None else ()
+        return (*super().get_readonly_fields(request, obj), *owned)
 
     def get_urls(self):
         return [
@@ -152,7 +145,10 @@ class InventoryProductAdmin(PublicImageAdminMixin, SuperuserOnlyModelAdmin, Mode
                     product,
                     serializer.validated_data,
                 )
-            except (DRFValidationError, DjangoValidationError, ObjectDoesNotExist) as exc:
+            except (
+                DRFValidationError, DjangoValidationError, DRFPermissionDenied,
+                ObjectDoesNotExist, availability.TrackingModeChangeRefused,
+            ) as exc:
                 self.message_user(request, f"{product.pk}: {exc}", level=messages.ERROR)
             else:
                 success_count += 1

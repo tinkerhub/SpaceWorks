@@ -88,18 +88,55 @@ module_confirm_removals() {
   [[ "$answer" == "$slug" ]] || { module_warn "Module removals cancelled; no changes were applied."; return 1; }
 }
 
+# Runs after the operator's choices and before anything is applied (reads the caller's
+# keys/state/orig/requires arrays). install_module enables a module's requirements
+# itself, so a requirement that is not installed yet is ticked here and named, rather
+# than appearing as an unexplained extra install. Then the borrow-request consequence of
+# the membership switch is spelled out, because that module decides who may submit.
+module_preview_changes() {
+  local slug="$1" i j dep pulled=1
+  local deps=()
+  while ((pulled)); do
+    pulled=0
+    for ((i=0; i<${#keys[@]}; i++)); do
+      [[ "${state[i]}" == x && -n "${requires[i]}" ]] || continue
+      IFS=', ' read -r -a deps <<< "${requires[i]}"
+      for dep in "${deps[@]}"; do
+        for ((j=0; j<${#keys[@]}; j++)); do
+          if [[ "${keys[j]}" == "$dep" && "${state[j]}" != x && "${orig[j]}" != x ]]; then
+            state[j]=x; pulled=1
+            say "${keys[i]} requires $dep, so $dep will be enabled too."
+          fi
+        done
+      done
+    done
+  done
+  for ((i=0; i<${#keys[@]}; i++)); do
+    [[ "${keys[i]}" == membership && "${state[i]}" != "${orig[i]}" ]] || continue
+    if [[ "${state[i]}" == x ]]; then
+      module_warn "membership ON: only active members of $slug can submit borrow requests. Account-less and check-in borrow requests are switched off, and stay off if membership is removed later."
+    else
+      module_warn "membership OFF: anyone with a signed-in account can submit borrow requests, unless an account-less or check-in mode is set (manage.py set_request_access)."
+    fi
+  done
+}
+
 module_change_one() {
-  local slug="$1" raw line mark rest key desc i input tok pass changed=0 removals=0 apply_failed=0
+  local slug="$1" raw line mark rest key desc req i input tok pass changed=0 removals=0 apply_failed=0
   local result without_key found
-  local keys=() descs=() state=() orig=() without=()
+  local keys=() descs=() requires=() state=() orig=() without=()
   module_list_output "$slug" || return 1
   raw="$MODULE_OUTPUT"
+  # Only `+`/`-` rows are offered: core rows (`*`) are always on, and rows the deployment
+  # does not ship (`x`, see list_modules) would only be refused by install_module.
   while IFS= read -r line; do
     case "$line" in
       "  + "*|"  - "*)
         mark="${line:2:1}"; rest="${line:4}"; key="${rest%% *}"
         desc="${rest#"$key"}"; desc="${desc#"${desc%%[![:space:]]*}"}"
-        keys+=("$key"); descs+=("$desc")
+        req=""
+        if [[ "$desc" == *"[requires "*"]"* ]]; then req="${desc##*\[requires }"; req="${req%%]*}"; fi
+        keys+=("$key"); descs+=("$desc"); requires+=("$req")
         [[ "$mark" == + ]] && state+=(x) || state+=(" ")
         ;;
     esac
@@ -170,6 +207,7 @@ module_change_one() {
     done
   fi
 
+  module_preview_changes "$slug"
   for ((i=0; i<${#keys[@]}; i++)); do
     [[ "${orig[$i]}" == x && "${state[$i]}" != x ]] && removals=$((removals + 1))
   done

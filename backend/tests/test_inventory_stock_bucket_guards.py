@@ -92,16 +92,29 @@ def test_bulk_import_update_does_not_overwrite_existing_quantity_buckets():
     assert product.issued_quantity == 2
 
 
-def test_bulk_import_create_can_seed_quantity_buckets():
+def test_bulk_import_create_seeds_total_and_available_but_refuses_workflow_buckets():
     makerspace = make_space("bucket-bulk-create")
     admin = make_member("bucket-bulk-create-admin", makerspace)
+    url = f"/api/v1/admin/makerspace/{makerspace.id}/inventory/import/apply"
 
-    response = authenticated_client(admin).post(
-        f"/api/v1/admin/makerspace/{makerspace.id}/inventory/import/apply",
+    seeded = authenticated_client(admin).post(
+        url,
+        {"rows": [{"name": "Loan Kit", "total_quantity": "6", "available_quantity": "2"}]},
+        format="json",
+    )
+
+    assert seeded.status_code == 200
+    assert seeded.data["created"] == 1
+    product = InventoryProduct.objects.get(makerspace=makerspace, name="Loan Kit")
+    assert product.total_quantity == 6
+    assert product.available_quantity == 2
+
+    refused = authenticated_client(admin).post(
+        url,
         {
             "rows": [
                 {
-                    "name": "Loan Kit",
+                    "name": "Phantom Kit",
                     "total_quantity": "6",
                     "available_quantity": "2",
                     "reserved_quantity": "1",
@@ -114,12 +127,6 @@ def test_bulk_import_create_can_seed_quantity_buckets():
         format="json",
     )
 
-    assert response.status_code == 200
-    assert response.data["created"] == 1
-    product = InventoryProduct.objects.get(makerspace=makerspace, name="Loan Kit")
-    assert product.total_quantity == 6
-    assert product.available_quantity == 2
-    assert product.reserved_quantity == 1
-    assert product.issued_quantity == 1
-    assert product.damaged_quantity == 1
-    assert product.lost_quantity == 1
+    assert refused.status_code == 200
+    assert refused.data["applied"] is False
+    assert not InventoryProduct.objects.filter(makerspace=makerspace, name="Phantom Kit").exists()

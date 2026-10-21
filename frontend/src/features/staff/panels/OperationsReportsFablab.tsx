@@ -1,9 +1,11 @@
-import { DataState, PerMakerspaceTables, ReportTable, StatCards } from "./OperationsReportsParts";
+import { StatusChip } from "../../../components/ui";
+import { DataState, EmptyReport, PerMakerspaceTables, ReportCard, ReportTable, StatCards } from "./OperationsReportsParts";
 import { OperationsReportsBookings } from "./OperationsReportsBookings";
 import { OperationsReportsEvents } from "./OperationsReportsEvents";
 import { OperationsReportsMachineUsage } from "./OperationsReportsMachineUsage";
 import { OperationsReportsMaintenance } from "./OperationsReportsMaintenance";
-import { Panel, type Makerspace } from "./shared";
+import { moduleEnabled as listHas } from "../../../lib/modules";
+import type { Makerspace } from "./shared";
 import { useFablabReport, type FabLabHealthRow, type FablabPanelProps } from "./operationsReportsFablabApi";
 
 export function OperationsReportsFablab({
@@ -16,16 +18,18 @@ export function OperationsReportsFablab({
   endDate: string;
   makerspaceName: (id: number) => string;
 }) {
-  const modules = new Set(makerspace.enabled_modules ?? []);
-  const reportsEnabled = aggregate || modules.has("reports");
+  const modules = makerspace.enabled_modules;
+  const reportsEnabled = aggregate || listHas(modules, "reports");
   const base: FablabPanelProps = {
     makerspaceId: makerspace.id, aggregate, startDate, endDate, makerspaceName,
     enabled: canViewAudit && reportsEnabled,
   };
-  const health = useFablabReport<FabLabHealthRow>("fablab-health", base);
+  const moduleEnabled = (module: string) => base.enabled && (aggregate || listHas(modules, module));
+  // The health strip covers four optional modules; with none of them on it has nothing to say.
+  const anyFablabModule = ["events", "bookings", "machines", "maintenance"].some(moduleEnabled);
+  const health = useFablabReport<FabLabHealthRow>("fablab-health", { ...base, enabled: base.enabled && anyFablabModule });
   if (!canViewAudit) return null;
 
-  const moduleEnabled = (module: string) => base.enabled && (aggregate || modules.has(module));
   const healthRow = health.data?.typed_rows[0];
   const healthStats: [string, number | undefined][] = [];
   if (healthRow?.events_available) healthStats.push(["Events in period", healthRow.events_in_period ?? 0], ["Registrations", healthRow.events_registrations ?? 0]);
@@ -33,27 +37,27 @@ export function OperationsReportsFablab({
   if (healthRow?.maintenance_available) healthStats.push(["Maintenance logs", healthRow.maintenance_logs ?? 0], ["Overdue schedules (snapshot)", healthRow.maintenance_overdue_schedules ?? 0]);
   if (healthRow?.bookings_available) healthStats.push(["Upcoming bookings", healthRow.bookings_upcoming ?? 0]);
   return (
-    <section className="space-y-4" aria-label="FabLab analytics">
-      <Panel title="FabLab health">
-        {!reportsEnabled ? <p className="text-sm text-muted">Module disabled</p> : (
+    <section className="grid gap-6" aria-label="FabLab analytics">
+      {anyFablabModule ? <ReportCard title="FabLab health" description="Events, bookings, machines and maintenance at a glance.">
+        {!reportsEnabled ? <EmptyReport /> : (
           <DataState loading={health.isLoading} error={health.error} empty={!health.data?.typed_rows.length}>
             {aggregate ? (
               <PerMakerspaceTables data={health.data} nameOf={makerspaceName} />
             ) : healthRow ? (
               <>
                 {healthStats.length ? <StatCards stats={healthStats} /> : null}
-                <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                  <HealthState label="Events" enabled={healthRow.events_enabled} available={healthRow.events_available} />
-                  <HealthState label="Bookings" enabled={healthRow.bookings_enabled} available={healthRow.bookings_available} />
-                  <HealthState label="Machines" enabled={healthRow.machines_enabled} available={healthRow.machines_available} />
-                  <HealthState label="Maintenance" enabled={healthRow.maintenance_enabled} available={healthRow.maintenance_available} />
-                </div>
+                <ul className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Module data">
+                  {moduleEnabled("events") && healthRow.events_enabled ? <HealthState label="Events" enabled available={healthRow.events_available} /> : null}
+                  {moduleEnabled("bookings") && healthRow.bookings_enabled ? <HealthState label="Bookings" enabled available={healthRow.bookings_available} /> : null}
+                  {moduleEnabled("machines") && healthRow.machines_enabled ? <HealthState label="Machines" enabled available={healthRow.machines_available} /> : null}
+                  {moduleEnabled("maintenance") && healthRow.maintenance_enabled ? <HealthState label="Maintenance" enabled available={healthRow.maintenance_available} /> : null}
+                </ul>
                 <ReportTable data={health.data} />
               </>
             ) : null}
           </DataState>
         )}
-      </Panel>
+      </ReportCard> : null}
       <OperationsReportsMachineUsage {...base} enabled={moduleEnabled("machines")} />
       <OperationsReportsEvents {...base} enabled={moduleEnabled("events")} />
       <OperationsReportsBookings {...base} enabled={moduleEnabled("bookings")} />
@@ -64,11 +68,10 @@ export function OperationsReportsFablab({
 
 function HealthState({ label, enabled, available }: { label: string; enabled: boolean; available: boolean }) {
   const state = !enabled ? "Module disabled" : available ? "Available" : "Data unavailable";
-  const tones: Record<string, string> = {
-    Events: "border-accent bg-accent/15",
-    Bookings: "border-secondary bg-secondary/15",
-    Machines: "border-success bg-success/15",
-    Maintenance: "border-warn bg-warn/15",
-  };
-  return <div className={`rounded-md border px-3 py-2 ${tones[label] ?? "border-line bg-bg"}`}><span className="font-semibold text-ink">{label}</span><span className="ml-2 text-muted">{state}</span></div>;
+  return (
+    <li className="flex items-center justify-between gap-2 rounded-md bg-subtle px-3 py-2">
+      <span className="text-label text-ink">{label}</span>
+      <StatusChip size="sm" tone={!enabled ? "neutral" : available ? "success" : "warning"}>{state}</StatusChip>
+    </li>
+  );
 }

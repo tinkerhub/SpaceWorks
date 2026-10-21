@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-
-import { Badge } from "../../../components/ui";
-import { ProcurementReceipts, type ToBuyReceipt } from "./ProcurementReceipts";
+import { Button, Chip, StatusChip, TD, TR, type StatusTone } from "../../../components/ui";
+import type { ToBuyReceipt } from "./ProcurementReceipts";
 
 export type Kind = "hardware" | "printing";
 export type ToBuyStatus = "requested" | "approved" | "ordered" | "received" | "cancelled";
@@ -60,54 +58,62 @@ export function groupProcurementRows(rows: ToBuyItem[]): ProcurementGroup[] {
   });
 }
 
-export function ProcurementRow({ item, makerspaceSlug, updatePending, deletePending, onSave, onDelete, onMove, onReceiptsChanged }: {
+const statusTones: Record<ToBuyStatus, StatusTone> = {
+  requested: "warning",
+  approved: "info",
+  ordered: "info",
+  received: "success",
+  cancelled: "neutral",
+};
+
+export function ProcurementStatus({ status }: { status: ToBuyStatus }) {
+  return <StatusChip tone={statusTones[status]} size="sm">{labelStatus(status)}</StatusChip>;
+}
+
+/** One read-only list row; editing happens in the item dialog. */
+export function ProcurementRow({ item, makerspaceSlug, onEdit, onMove }: {
   item: ToBuyItem;
   makerspaceSlug: string;
-  updatePending: boolean;
-  deletePending: boolean;
-  onSave: (draft: RowDraft) => void;
-  onDelete: () => void;
+  onEdit: () => void;
   onMove: () => void;
-  onReceiptsChanged: () => void;
 }) {
-  const [draft, setDraft] = useState<RowDraft>(() => draftFromItem(item));
-
-  useEffect(() => setDraft(draftFromItem(item)), [item]);
-
+  const movable = item.status === "received" && !item.moved_to_inventory_at;
   return (
-    <tr>
-      <td className="px-3 py-2 text-xs uppercase text-muted">{item.kind}</td>
-      <td className="px-3 py-2"><span className="block max-w-56 break-words">{item.name}</span>{item.source_pool ? <span className="mt-1 block"><Badge tone="warn">Auto - low stock</Badge></span> : null}</td>
-      <td className="px-3 py-2 font-mono">{item.quantity}</td>
-      <td className="px-3 py-2"><ItemLink link={item.link} /></td>
-      <td className="px-3 py-2 font-mono">{item.estimated_unit_cost ?? "-"}</td>
-      <td className="px-3 py-2"><input className="desk-input w-36" aria-label={`Vendor for ${item.name}`} value={draft.vendor_name} onChange={(event) => setDraft({ ...draft, vendor_name: event.target.value })} /></td>
-      <td className="px-3 py-2"><input className="desk-input w-28" aria-label={`Actual unit cost for ${item.name}`} type="number" min={0} step="0.01" value={draft.actual_unit_cost} onChange={(event) => setDraft({ ...draft, actual_unit_cost: event.target.value })} /></td>
-      <td className="px-3 py-2 text-muted"><span className="block max-w-36 break-words">{item.purchaser_username ?? "-"}</span></td>
-      <td className="px-3 py-2 font-mono text-xs text-muted">{formatDateTime(item.ordered_at)}</td>
-      <td className="px-3 py-2 font-mono text-xs text-muted">{formatDateTime(item.received_at)}</td>
-      <td className="px-3 py-2"><ProcurementReceipts itemId={item.id} receipts={item.receipts ?? []} onChanged={onReceiptsChanged} /></td>
-      <td className="px-3 py-2">
-        <select className="desk-input w-32" aria-label={`Status for ${item.name}`} value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as ToBuyStatus })}>
-          {statusOptions.map((status) => <option key={status} value={status}>{labelStatus(status)}</option>)}
-        </select>
-      </td>
-      <td className="px-3 py-2 text-xs text-muted"><MoveState item={item} makerspaceSlug={makerspaceSlug} /></td>
-      <td className="px-3 py-2 text-right">
-        <div className="flex flex-col gap-2">
-          {item.status === "received" && !item.moved_to_inventory_at ? <button type="button" className="desk-button-success" onClick={onMove}>Move</button> : null}
-          <button type="button" className="desk-button-primary" disabled={updatePending || !isDraftChanged(item, draft)} onClick={() => onSave(draft)}>Save</button>
-          <button type="button" className="desk-button-danger" disabled={deletePending} onClick={onDelete}>Delete</button>
+    <TR>
+      <TD className="align-top">
+        <button type="button" className="block max-w-56 break-words text-left font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={onEdit}>
+          {item.name}
+        </button>
+        <span className="mt-1 flex flex-wrap items-center gap-1.5">
+          <Chip size="sm">{item.kind === "printing" ? "Printing" : "Hardware"}</Chip>
+          {item.source_pool ? <Chip size="sm" tone="warning">Auto · low stock</Chip> : null}
+          <ItemLink link={item.link} />
+        </span>
+      </TD>
+      <TD className="text-right tabular-nums">{item.quantity}</TD>
+      <TD className="text-right tabular-nums text-ink-secondary">{item.estimated_unit_cost ?? "—"}</TD>
+      <TD className="text-right tabular-nums text-ink-secondary">{item.actual_unit_cost ?? "—"}</TD>
+      <TD><span className="block max-w-36 break-words text-ink-secondary">{item.vendor_name || "—"}</span></TD>
+      <TD><span className="block max-w-36 break-words text-ink-secondary">{item.purchaser_username ?? "—"}</span></TD>
+      <TD className="whitespace-nowrap text-caption text-ink-muted">{formatDateTime(item.ordered_at)}</TD>
+      <TD className="whitespace-nowrap text-caption text-ink-muted">{formatDateTime(item.received_at)}</TD>
+      <TD className="tabular-nums text-ink-secondary">{item.receipts?.length ?? 0}</TD>
+      <TD><ProcurementStatus status={item.status} /></TD>
+      <TD className="text-caption text-ink-muted"><MoveState item={item} makerspaceSlug={makerspaceSlug} /></TD>
+      <TD className="text-right">
+        <div className="flex justify-end gap-2">
+          {movable ? <Button size="sm" onClick={onMove}>Move</Button> : null}
+          <Button size="sm" onClick={onEdit}>Edit</Button>
         </div>
-      </td>
-    </tr>
+      </TD>
+    </TR>
   );
 }
 
 function MoveState({ item, makerspaceSlug }: { item: ToBuyItem; makerspaceSlug: string }) {
-  if (!item.moved_to_inventory_at) return <>-</>;
+  if (!item.moved_to_inventory_at) return <>—</>;
   if (item.resulting_product) {
-    return <a className="text-accent-ink underline" href={`/m/${makerspaceSlug}/admin/inventory`}>Inventory #{item.resulting_product}</a>;
+    return <a className="font-semibold text-accent-ink underline underline-offset-4" href={`/m/${makerspaceSlug}/admin/inventory`}>Inventory #{item.resulting_product}</a>;
   }
   if (item.resulting_pool) return <>Pool #{item.resulting_pool}</>;
   if (item.resulting_machine) return <>Machine #{item.resulting_machine}</>;
@@ -116,16 +122,16 @@ function MoveState({ item, makerspaceSlug }: { item: ToBuyItem; makerspaceSlug: 
 
 function ItemLink({ link }: { link: string }) {
   const href = safeHref(link);
-  if (href) return <a className="text-accent-ink underline" href={href} target="_blank" rel="noreferrer">link</a>;
-  if (link) return <span className="block max-w-56 break-all text-muted" title={link}>{link}</span>;
-  return <>-</>;
+  if (href) return <a className="text-caption font-semibold text-accent-ink underline underline-offset-4" href={href} target="_blank" rel="noreferrer">Link<span className="sr-only"> (opens in a new tab)</span></a>;
+  if (link) return <span className="block max-w-56 break-all text-caption text-ink-muted" title={link}>{link}</span>;
+  return null;
 }
 
 function safeHref(link: string): string | null {
   return /^https?:\/\//i.test(link) ? link : null;
 }
 
-function draftFromItem(item: ToBuyItem): RowDraft {
+export function draftFromItem(item: ToBuyItem): RowDraft {
   return {
     status: item.status,
     vendor_name: item.vendor_name ?? "",
@@ -133,7 +139,7 @@ function draftFromItem(item: ToBuyItem): RowDraft {
   };
 }
 
-function isDraftChanged(item: ToBuyItem, draft: RowDraft) {
+export function isDraftChanged(item: ToBuyItem, draft: RowDraft) {
   return item.status !== draft.status || (item.vendor_name ?? "") !== draft.vendor_name || (item.actual_unit_cost ?? "") !== draft.actual_unit_cost;
 }
 
@@ -148,6 +154,6 @@ export function labelStatus(status: ToBuyStatus) {
 }
 
 function formatDateTime(value: string | null) {
-  if (!value) return "-";
+  if (!value) return "—";
   return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }

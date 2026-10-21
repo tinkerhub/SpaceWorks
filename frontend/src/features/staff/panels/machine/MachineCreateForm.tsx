@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Callout, Field, Input, SectionHeading } from "../../../../components/ui";
 import { staffRequest } from "../../../../lib/api";
 import { ImageUploader } from "../../ImageUploader";
 import {
@@ -11,11 +12,16 @@ import {
   type Machine,
   type MachineType,
 } from "../../machinesApi";
+import { useNotify } from "./machineUi";
 
 type Props = {
   makerspaceId: number;
   machineType: MachineType;
   onCreated: (machineId: number) => void;
+  /** Leave before anything was created. */
+  onCancel?: () => void;
+  /** Finish after the optional photo / warranty step. */
+  onDone?: () => void;
 };
 
 type WarrantyForm = {
@@ -31,10 +37,11 @@ const emptyWarranty: WarrantyForm = {
   vendor_name: "",
   vendor_contact: "",
 };
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
-export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Props) {
+/** Two steps: name the machine (creates it), then optionally add a photo and warranty. */
+export function MachineCreateForm({ makerspaceId, machineType, onCreated, onCancel, onDone }: Props) {
   const queryClient = useQueryClient();
+  const notify = useNotify();
   const confirmationRef = useRef<HTMLParagraphElement>(null);
   const [name, setName] = useState("");
   const [model, setModel] = useState("");
@@ -42,6 +49,13 @@ export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Prop
   const [createdMachine, setCreatedMachine] = useState<Machine | null>(null);
   const [warrantyForm, setWarrantyForm] = useState<WarrantyForm>(emptyWarranty);
   const wantsModel = isBuiltinPrinterType(machineType);
+
+  const refreshMachine = async (machineId: number) => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: machineKeys.detail(machineId) }),
+      queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
+    ]);
+  };
 
   const create = useMutation({
     mutationFn: () => createMachine(makerspaceId, {
@@ -56,8 +70,10 @@ export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Prop
     onSuccess: async (machine) => {
       setCreatedMachine(machine);
       onCreated(machine.id);
+      notify.success(`${machine.name} added`);
       await queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) });
     },
+    onError: (error) => notify.failure("Couldn't add the machine.", error),
   });
 
   const warranty = useMutation({
@@ -71,6 +87,17 @@ export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Prop
         body: JSON.stringify(payload),
       });
     },
+    onSuccess: async () => {
+      notify.success("Warranty saved");
+      if (!createdMachine) return;
+      // The list row carries `warranty_status`, and the drawer's Warranty tab caches the record.
+      await Promise.all([
+        refreshMachine(createdMachine.id),
+        queryClient.invalidateQueries({ queryKey: ["warranty", "machine", createdMachine.id] }),
+        queryClient.invalidateQueries({ queryKey: ["warranties"] }),
+      ]);
+    },
+    onError: (error) => notify.failure("Couldn't save the warranty.", error),
   });
 
   useEffect(() => {
@@ -91,92 +118,51 @@ export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Prop
     setCreatedMachine(null);
     create.reset();
     warranty.reset();
-  };
-
-  const refreshMachine = async () => {
-    if (!createdMachine) return;
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: machineKeys.detail(createdMachine.id) }),
-      queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
-    ]);
+    onDone?.();
   };
 
   return (
-    <section className="grid gap-4 border-b border-line p-3" aria-labelledby={`add-machine-${machineType.id}`}>
-      <form
-        className="grid gap-3 sm:grid-cols-2 sm:items-end"
-        onSubmit={(event) => { event.preventDefault(); create.mutate(); }}
-      >
-        <h3 className="title-section sm:col-span-2" id={`add-machine-${machineType.id}`}>
-          Add {machineType.name}
-        </h3>
-        <label className="sr-only" htmlFor={`machine-name-${machineType.id}`}>Machine name</label>
-        <label className="eyebrow grid gap-1" htmlFor={`machine-name-${machineType.id}`}>
-          Name
-          <input
-            id={`machine-name-${machineType.id}`}
-            className={`desk-input min-h-11 ${focusRing}`}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-            disabled={!!createdMachine}
-          />
-        </label>
-        {wantsModel ? (
-          <>
-            <label className="sr-only" htmlFor={`machine-model-${machineType.id}`}>Printer model</label>
-            <label className="eyebrow grid gap-1" htmlFor={`machine-model-${machineType.id}`}>
-              Make and model
-              <input
-                id={`machine-model-${machineType.id}`}
-                className={`desk-input min-h-11 ${focusRing}`}
-                value={model}
-                onChange={(event) => setModel(event.target.value)}
-                placeholder="e.g. Prusa MK4"
-                disabled={!!createdMachine}
-              />
-            </label>
-          </>
-        ) : null}
-        <label className="eyebrow grid gap-1">
-          Location
-          <input
-            className={`desk-input min-h-11 ${focusRing}`}
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            disabled={!!createdMachine}
-          />
-        </label>
-        <button
-          className={`desk-button-primary min-h-11 ${focusRing}`}
-          type="submit"
-          disabled={create.isPending || !name.trim() || !!createdMachine}
-        >
-          {create.isPending ? `Adding ${machineType.name}...` : createdMachine ? "Machine created" : `Add ${machineType.name}`}
-        </button>
-        {create.error instanceof Error ? (
-          <p className="text-sm text-danger sm:col-span-2">{create.error.message}</p>
-        ) : null}
+    <div className="grid gap-5">
+      <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); create.mutate(); }}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Name" className="sm:col-span-2">
+            <Input aria-label="Machine name" value={name} onChange={(event) => setName(event.target.value)} required disabled={!!createdMachine} />
+          </Field>
+          {wantsModel ? (
+            <Field label="Make and model">
+              <Input aria-label="Printer model" value={model} onChange={(event) => setModel(event.target.value)} placeholder="e.g. Prusa MK4" disabled={!!createdMachine} />
+            </Field>
+          ) : null}
+          <Field label="Location">
+            <Input value={location} onChange={(event) => setLocation(event.target.value)} disabled={!!createdMachine} />
+          </Field>
+        </div>
+        {create.error instanceof Error ? <p className="text-caption text-danger-fg" role="alert">{create.error.message}</p> : null}
+        {createdMachine ? null : (
+          <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+            {onCancel ? <Button onClick={onCancel} disabled={create.isPending}>Cancel</Button> : null}
+            <Button variant="primary" type="submit" loading={create.isPending} loadingLabel="Adding…" disabled={!name.trim()}>
+              {`Add ${machineType.name}`}
+            </Button>
+          </div>
+        )}
       </form>
 
       {createdMachine ? (
-        <div className="grid gap-5 border-t border-line pt-4">
-          <p
-            ref={confirmationRef}
-            tabIndex={-1}
-            role="status"
-            className={`rounded-lg bg-success px-3 py-2 text-on-success ${focusRing}`}
-          >
-            {createdMachine.name} was created. Photo and warranty details are optional.
-          </p>
+        <div className="grid gap-5 border-t border-line pt-5">
+          <Callout tone="success">
+            <p ref={confirmationRef} tabIndex={-1} role="status" className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+              {createdMachine.name} was created. Photo and warranty details are optional.
+            </p>
+          </Callout>
 
           <section className="grid gap-3">
-            <h3 className="title-section">Machine photo</h3>
+            <SectionHeading as="h3" title="Machine photo" />
             <ImageUploader
               endpoint={machineImageEndpoint(createdMachine.id)}
               currentUrl={createdMachine.image_url}
               label="Machine photo"
-              onChanged={() => { void refreshMachine(); }}
+              onChanged={() => { void refreshMachine(createdMachine.id); }}
             />
           </section>
 
@@ -185,50 +171,37 @@ export function MachineCreateForm({ makerspaceId, machineType, onCreated }: Prop
             aria-labelledby={`machine-warranty-${createdMachine.id}`}
             onSubmit={(event) => { event.preventDefault(); warranty.mutate(); }}
           >
-            <h3 className="title-section" id={`machine-warranty-${createdMachine.id}`}>Warranty</h3>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <WarrantyField label="Purchased on" type="date" value={warrantyForm.purchased_on}
-                onChange={(value) => updateWarranty("purchased_on", value)} />
-              <WarrantyField label="Warranty expires on" type="date" value={warrantyForm.warranty_expires_on}
-                onChange={(value) => updateWarranty("warranty_expires_on", value)} />
-              <WarrantyField label="Vendor name" value={warrantyForm.vendor_name} maxLength={200}
-                onChange={(value) => updateWarranty("vendor_name", value)} />
-              <WarrantyField label="Vendor contact" value={warrantyForm.vendor_contact} maxLength={200}
-                onChange={(value) => updateWarranty("vendor_contact", value)} />
+            <h3 className="text-h4 text-ink" id={`machine-warranty-${createdMachine.id}`}>Warranty</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Purchased on">
+                <Input type="date" value={warrantyForm.purchased_on} onChange={(event) => updateWarranty("purchased_on", event.target.value)} />
+              </Field>
+              <Field label="Warranty expires on">
+                <Input type="date" value={warrantyForm.warranty_expires_on} onChange={(event) => updateWarranty("warranty_expires_on", event.target.value)} />
+              </Field>
+              <Field label="Vendor name">
+                <Input maxLength={200} value={warrantyForm.vendor_name} onChange={(event) => updateWarranty("vendor_name", event.target.value)} />
+              </Field>
+              <Field label="Vendor contact">
+                <Input maxLength={200} value={warrantyForm.vendor_contact} onChange={(event) => updateWarranty("vendor_contact", event.target.value)} />
+              </Field>
             </div>
-            <button className={`desk-button-secondary min-h-11 justify-self-start ${focusRing}`} type="submit"
-              disabled={warranty.isPending || !hasWarrantyDetails}>
-              {warranty.isPending ? "Saving warranty..." : "Save warranty"}
-            </button>
-            {warranty.isSuccess ? <p className="text-sm text-success-ink">Warranty details saved.</p> : null}
+            <Button className="justify-self-start" type="submit" loading={warranty.isPending} loadingLabel="Saving…" disabled={!hasWarrantyDetails}>
+              Save warranty
+            </Button>
+            {warranty.isSuccess ? <p className="text-caption text-success-fg" role="status">Warranty details saved.</p> : null}
             {warranty.error instanceof Error ? (
-              <p className="text-sm text-danger" role="alert">
+              <p className="text-caption text-danger-fg" role="alert">
                 {createdMachine.name} is still created. Warranty details were not saved: {warranty.error.message}
               </p>
             ) : null}
           </form>
 
-          <button className={`desk-button-success min-h-11 justify-self-start ${focusRing}`} type="button" onClick={finish}>
-            Done
-          </button>
+          <div className="flex justify-end">
+            <Button variant="primary" onClick={finish}>Done</Button>
+          </div>
         </div>
       ) : null}
-    </section>
-  );
-}
-
-function WarrantyField({ label, value, onChange, type = "text", maxLength }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: "text" | "date";
-  maxLength?: number;
-}) {
-  return (
-    <label className="eyebrow grid gap-1">
-      {label}
-      <input className={`desk-input min-h-11 ${focusRing}`} type={type} value={value} maxLength={maxLength}
-        onChange={(event) => onChange(event.target.value)} />
-    </label>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts import rbac
-from apps.admin_api.permissions import IsActiveStaff, IsActiveSuperAdmin, require_action
+from apps.admin_api.permissions import IsActiveStaff, require_action
 from apps.makerspaces.guards import require_module
 from apps.makerspaces.models import Makerspace
 from apps.operations import services
@@ -53,7 +53,7 @@ class StocktakeListCreateView(generics.ListCreateAPIView):
         serializer = StocktakeCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         stocktake = services.create_stocktake(request.user, makerspace, serializer.validated_data)
-        return Response(StocktakeSerializer(stocktake).data, status=status.HTTP_201_CREATED)
+        return Response(StocktakeSerializer(stocktake, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
 
 @extend_schema_view(
@@ -65,6 +65,11 @@ class StocktakeDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return rbac.scope_by_action(self.request.user, rbac.Action.VIEW_INVENTORY, StocktakeSession.objects.prefetch_related("lines"))
+
+    def get_object(self):
+        stocktake = super().get_object()
+        require_module(stocktake.makerspace, "stocktake")
+        return stocktake
 
 
 class StocktakeCountLineView(APIView):
@@ -100,27 +105,40 @@ class StocktakeCompleteView(APIView):
     @extend_schema(tags=["Stocktake"], summary="Complete stocktake", request=EmptySerializer, responses={200: StocktakeSerializer, **STOCKTAKE_ERROR_RESPONSES})
     def post(self, request, pk, *args, **kwargs):
         stocktake = _stocktake_for_action(request.user, pk, rbac.Action.EDIT_INVENTORY)
-        return Response(StocktakeSerializer(services.complete_stocktake(request.user, stocktake)).data)
+        return Response(StocktakeSerializer(services.complete_stocktake(request.user, stocktake), context={"request": request}).data)
 
 
+REVIEW_ERROR_RESPONSES = {
+    **STOCKTAKE_ERROR_RESPONSES,
+    403: OpenApiResponse(
+        description="Needs manage_makerspace in the stocktake's makerspace and must not be "
+        "the person who completed it; stocktakes with no recorded completer are superadmin-only.",
+    ),
+}
+
+
+# Approve/apply authority (superadmin, or a manage_makerspace holder who did not complete
+# the count) is enforced inside the locked services so /control/ obeys it too.
 class StocktakeApproveView(APIView):
-    permission_classes = [IsActiveSuperAdmin]
+    permission_classes = [IsActiveStaff]
     serializer_class = EmptySerializer
 
-    @extend_schema(tags=["Stocktake"], summary="Approve stocktake", request=EmptySerializer, responses={200: StocktakeSerializer, **STOCKTAKE_ERROR_RESPONSES})
+    @extend_schema(tags=["Stocktake"], summary="Approve stocktake", request=EmptySerializer, responses={200: StocktakeSerializer, **REVIEW_ERROR_RESPONSES})
     def post(self, request, pk, *args, **kwargs):
-        stocktake = _stocktake_for_action(request.user, pk, rbac.Action.EDIT_INVENTORY)
-        return Response(StocktakeSerializer(services.approve_stocktake(request.user, stocktake)).data)
+        stocktake = _stocktake_for_action(request.user, pk, rbac.Action.VIEW_INVENTORY)
+        approved = services.approve_stocktake(request.user, stocktake)
+        return Response(StocktakeSerializer(approved, context={"request": request}).data)
 
 
 class StocktakeApplyAdjustmentsView(APIView):
-    permission_classes = [IsActiveSuperAdmin]
+    permission_classes = [IsActiveStaff]
     serializer_class = EmptySerializer
 
-    @extend_schema(tags=["Stocktake"], summary="Apply stocktake adjustments", request=EmptySerializer, responses={200: StocktakeSerializer, **STOCKTAKE_ERROR_RESPONSES})
+    @extend_schema(tags=["Stocktake"], summary="Apply stocktake adjustments", request=EmptySerializer, responses={200: StocktakeSerializer, **REVIEW_ERROR_RESPONSES})
     def post(self, request, pk, *args, **kwargs):
-        stocktake = _stocktake_for_action(request.user, pk, rbac.Action.EDIT_INVENTORY)
-        return Response(StocktakeSerializer(services.apply_stocktake_adjustments(request.user, stocktake)).data)
+        stocktake = _stocktake_for_action(request.user, pk, rbac.Action.VIEW_INVENTORY)
+        applied = services.apply_stocktake_adjustments(request.user, stocktake)
+        return Response(StocktakeSerializer(applied, context={"request": request}).data)
 
 
 def _stocktake_for_action(user, pk, action):

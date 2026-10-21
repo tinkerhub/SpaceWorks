@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button, Skeleton } from "../../components/ui";
 import { usePublicAvailability } from "./publicBookingsApi";
 
 const WINDOW_DAYS = 14;
@@ -33,36 +36,43 @@ export function AvailabilityCalendar({ makerspaceSlug, publicToken }: {
   const availability = usePublicAvailability(makerspaceSlug, publicToken, window.startsAt, window.endsAt);
 
   return (
-    <section className="min-w-0 rounded-lg border border-secondary bg-secondary/10 p-4 [overflow-wrap:anywhere]" aria-labelledby={"availability-" + publicToken}>
+    <section className="min-w-0 rounded-lg border border-line bg-canvas p-4 [overflow-wrap:anywhere] sm:p-5" aria-labelledby={"availability-" + publicToken}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 max-w-full">
-          <h3 id={"availability-" + publicToken} className="title-section">Published availability</h3>
-          <p className="eyebrow mt-1 font-mono">{rangeLabel(window.startsAt, window.endsAt)}</p>
+          <h3 id={"availability-" + publicToken} className="text-title text-ink">Published availability</h3>
+          <p className="mt-0.5 text-caption text-ink-muted">{rangeLabel(window.startsAt, window.endsAt)}</p>
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
-          <button className="desk-button-ghost" type="button" disabled={offset === 0} onClick={() => setOffset((value) => Math.max(0, value - 1))}>Previous 14 days</button>
-          <button className="desk-button-ghost" type="button" onClick={() => setOffset((value) => value + 1)}>Next 14 days</button>
+          <Button size="sm" startIcon={<ChevronLeft />} disabled={offset === 0} onClick={() => setOffset((value) => Math.max(0, value - 1))}>Previous 14 days</Button>
+          <Button size="sm" endIcon={<ChevronRight />} onClick={() => setOffset((value) => value + 1)}>Next 14 days</Button>
         </div>
       </div>
-      {availability.isLoading ? <p className="mt-3 text-sm text-muted" aria-live="polite">Checking confirmed bookings...</p> : null}
+      {availability.isLoading ? (
+        <div className="mt-3 grid gap-2" aria-live="polite" aria-busy="true">
+          <span className="sr-only">Checking confirmed bookings…</span>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ) : null}
       {availability.error ? (
-        <div className="mt-3" role="alert">
-          <p className="text-sm text-danger">Availability could not be checked. This does not mean the space is free.</p>
-          <button className="desk-button-ghost mt-2" type="button" onClick={() => availability.refetch()}>Retry</button>
+        <div className="mt-3 flex flex-wrap items-center gap-2" role="alert">
+          <p className="text-body-ui text-danger-fg">Availability could not be checked. This does not mean the space is free.</p>
+          <Button size="sm" onClick={() => availability.refetch()}>Retry</Button>
         </div>
       ) : null}
       {availability.data?.availability === null ? (
-        <p className="mt-3 text-sm text-muted">Availability is not published. You may still submit your selected time for the makerspace to check.</p>
+        <p className="mt-3 text-body-ui text-ink-muted">Availability is not published. You may still submit your selected time for the makerspace to check.</p>
       ) : null}
       {availability.data?.availability?.length === 0 ? (
-        <p className="mt-3 text-sm text-muted">No confirmed bookings are published in this window.</p>
+        <p className="mt-3 rounded-md border-[1.5px] border-dashed border-line-strong px-3 py-3 text-body-ui text-ink-muted">No confirmed bookings are published in this window.</p>
       ) : null}
       {availability.data?.availability?.length ? (
-        <ul className="mt-3 grid gap-2">
+        <ul className="mt-3 divide-y divide-line rounded-md border border-line">
           {availability.data.availability.map((interval) => (
-            <li className="rounded-lg border border-success bg-success/15 px-3 py-2 text-sm text-ink" key={interval.starts_at + interval.ends_at}>
-              <time className="font-mono" dateTime={interval.starts_at}>{intervalLabel(interval.starts_at, interval.ends_at)}</time>
-              {interval.booker_name !== null ? <span className="ml-2 font-semibold">{interval.booker_name}</span> : null}
+            <li className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5 text-body-ui text-ink" key={interval.starts_at + interval.ends_at}>
+              <span className="inline-flex items-center gap-2 rounded-full bg-warning-bg px-2.5 py-0.5 text-xs font-semibold text-warning-fg">Booked</span>
+              <time dateTime={interval.starts_at}>{intervalLabel(interval.starts_at, interval.ends_at)}</time>
+              {interval.booker_name !== null ? <span className="font-semibold">{interval.booker_name}</span> : null}
             </li>
           ))}
         </ul>

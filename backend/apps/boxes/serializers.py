@@ -22,7 +22,9 @@ class BoxSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "code", "created_at", "updated_at"]
+        # makerspace comes from the URL scope on create and is never reassigned: a
+        # writable field let a PATCH move a container (and its contents) to another tenant.
+        read_only_fields = ["id", "makerspace", "code", "created_at", "updated_at"]
 
     def get_qr_code_id(self, obj) -> int | None:
         # Every box gets an active BOX QrCode at creation. Surfacing its id lets

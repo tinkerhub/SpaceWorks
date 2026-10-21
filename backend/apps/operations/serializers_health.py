@@ -18,8 +18,11 @@ class ArchiveCustodyReadinessSerializer(serializers.Serializer):
 
 class ReadinessSerializer(serializers.Serializer):
     status = serializers.CharField()
-    database = serializers.CharField()
-    archive_custody = ArchiveCustodyReadinessSerializer()
+    # The fields below are returned only to a direct, unproxied caller inside the
+    # deployment (container healthcheck, `update.sh`); a proxied caller sees `status`.
+    database = serializers.CharField(required=False)
+    archive_custody = ArchiveCustodyReadinessSerializer(required=False)
+    detail = serializers.CharField(required=False)
 
 
 class EmptySerializer(serializers.Serializer):

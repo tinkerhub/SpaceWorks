@@ -12,6 +12,10 @@ envVarGroups:
     envVars:
       - key: SECRET_KEY
         sync: false
+      # Deployment-wide app tombstones (app labels); blank ships every app. One group
+      # feeds web, worker and beat, so every Django process sees the same list.
+      - key: TOMBSTONED_APPS
+        sync: false
       - key: API_CLIENT_ENC_KEY
         sync: false
       # Audit row-MAC attestation. Blank is a valid state and leaves rows honestly

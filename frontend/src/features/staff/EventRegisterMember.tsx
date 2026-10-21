@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { Button, Card, Dropdown, ErrorText, Field, Input, useToast } from "../../components/ui";
 import { CustomFormFields } from "../forms/CustomFormFields";
 import {
   customAnswerErrors,
@@ -47,6 +48,7 @@ export function EventRegisterMember({
   const [answerErrors, setAnswerErrors] = useState<Record<string, string>>({});
   const members = useEventEligibleMembers(eventId, !disabled);
   const register = useRegisterMemberForEvent(makerspaceId, eventId);
+  const { showToast } = useToast();
 
   if (disabled) return null;
 
@@ -70,6 +72,7 @@ export function EventRegisterMember({
       },
       {
         onSuccess: () => {
+          showToast("Member registered", { tone: "success" });
           setMemberId("");
           setPhone("");
           setNeedsPhone(false);
@@ -88,6 +91,7 @@ export function EventRegisterMember({
           // A record missing both fields is refused on one of them at a time, so these
           // accumulate rather than replace each other — clearing the phone prompt when
           // the next attempt fails on email would hide the answer just given.
+          showToast(error instanceof Error ? error.message : "Could not register.", { tone: "error" });
           if (!(error instanceof StructuredApiError)) return;
           if (error.body.phone) setNeedsPhone(true);
           if (error.body.email) setNeedsEmail(true);
@@ -97,96 +101,69 @@ export function EventRegisterMember({
   };
 
   return (
-    <div className="mt-3 rounded-lg border border-line bg-surface p-3">
-      <label className="block text-sm font-semibold text-ink" htmlFor="event-register-member">
-        Register a member
-      </label>
-      <div className="mt-1 flex flex-col gap-2 sm:flex-row">
-        <select
-          id="event-register-member"
-          className="desk-input w-full"
-          value={memberId}
-          disabled={members.isLoading}
-          onChange={(event) => {
-            setMemberId(event.target.value);
-            // A fallback contact belongs to one specific person and must never carry
-            // across to another.
-            setPhone("");
-            setNeedsPhone(false);
-            setEmail("");
-            setNeedsEmail(false);
-          }}
-        >
-          <option value="">
-            {members.isLoading ? "Loading members…" : "Select a member"}
-          </option>
-          {(members.data ?? []).map((row) => (
-            <option key={row.member_id} value={row.member_id}>
-              {row.display_name}
+    <Card padding="sm" className="grid gap-3 bg-subtle">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+        <Field label="Register a member" className="min-w-0 flex-1">
+          <Dropdown
+            id="event-register-member"
+            value={memberId}
+            disabled={members.isLoading}
+            onChange={(event) => {
+              setMemberId(event.target.value);
+              // A fallback contact belongs to one specific person and must never carry
+              // across to another.
+              setPhone("");
+              setNeedsPhone(false);
+              setEmail("");
+              setNeedsEmail(false);
+            }}
+          >
+            <option value="">
+              {members.isLoading ? "Loading members…" : "Select a member"}
             </option>
-          ))}
-        </select>
-        <button
-          className="desk-button-primary shrink-0"
-          type="button"
-          disabled={!memberId || register.isPending}
+            {(members.data ?? []).map((row) => (
+              <option key={row.member_id} value={String(row.member_id)}>
+                {row.display_name}
+              </option>
+            ))}
+          </Dropdown>
+        </Field>
+        <Button
+          variant="primary"
+          className="shrink-0"
+          disabled={!memberId}
+          loading={register.isPending}
+          loadingLabel="Registering…"
           onClick={submit}
         >
-          {register.isPending ? "Registering…" : "Register"}
-        </button>
+          Register
+        </Button>
       </div>
       {customForm?.length ? (
-        <div className="mt-3">
-          <CustomFormFields
-            schema={customForm}
-            answers={answers}
-            onChange={setAnswers}
-            errors={{ ...answerErrors, ...serverAnswerErrors }}
-            disabled={register.isPending}
-          />
-        </div>
+        <CustomFormFields
+          schema={customForm}
+          answers={answers}
+          onChange={setAnswers}
+          errors={{ ...answerErrors, ...serverAnswerErrors }}
+          disabled={register.isPending}
+        />
       ) : null}
       {needsPhone ? (
-        <div className="mt-2">
-          <label className="block text-sm font-semibold text-ink" htmlFor="event-register-phone">
-            Contact number
-          </label>
-          <input
-            id="event-register-phone"
-            className="desk-input mt-1 w-full"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-          />
-          <p className="mt-1 text-xs text-muted">
-            This member&apos;s account has no number on file.
-          </p>
-        </div>
+        <Field label="Contact number" helperText="This member's account has no number on file.">
+          <Input id="event-register-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} />
+        </Field>
       ) : null}
       {needsEmail ? (
-        <div className="mt-2">
-          <label className="block text-sm font-semibold text-ink" htmlFor="event-register-email">
-            Contact email
-          </label>
-          <input
-            id="event-register-email"
-            type="email"
-            className="desk-input mt-1 w-full"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <p className="mt-1 text-xs text-muted">
-            This member&apos;s account has no address on file.
-          </p>
-        </div>
+        <Field label="Contact email" helperText="This member's account has no address on file.">
+          <Input id="event-register-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </Field>
       ) : null}
       {register.error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {register.error instanceof Error ? register.error.message : "Could not register."}
-        </p>
+        <ErrorText message={register.error instanceof Error ? register.error.message : "Could not register."} />
       ) : null}
       {members.data && !members.data.length ? (
-        <p className="mt-2 text-sm text-muted">Every member is already registered.</p>
+        <p className="text-body-ui text-ink-muted">Every member is already registered.</p>
       ) : null}
-    </div>
+    </Card>
   );
 }

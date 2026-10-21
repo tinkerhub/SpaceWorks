@@ -21,6 +21,7 @@ from apps.machines.service_queue_position import queue_counts_for
 from apps.machines.service_storage import create_staged_queue_file, finalize_file
 from apps.machines.service_workflow import submit
 from apps.makerspaces import limits
+from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.servability import servable_queryset
 
 
@@ -165,6 +166,9 @@ def public_status(public_token):
         public_token=public_token,
         queue__machine_type=printer_type,
     ), relation="makerspace").first()
-    if kernel is None:
+    # The token outlives the module: with `printing` off the status page answers exactly
+    # like an unknown token, so it neither serves nor confirms a job on a surface the
+    # space switched off.
+    if kernel is None or not module_enabled(kernel.makerspace, "printing"):
         raise NotFound()
     return _StatusProjection(kernel), queue_counts_for([kernel])

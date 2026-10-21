@@ -1,7 +1,7 @@
 const ALL_TABS = [
-  "dashboard", "notifications", "requests", "direct", "handover", "inventory", "needsfix", "categories", "machines", "events", "organized", "bookings", "members", "tobuy", "transfers",
+  "dashboard", "notifications", "requests", "direct", "handover", "inventory", "needsfix", "categories", "machines", "events", "bookings", "members", "tobuy", "transfers",
   "stocktake", "containers", "ledger", "reports", "accountability", "warranty", "bulk", "qr", "scanner", "api", "settings", "emailtemplates", "users", "platform", "audit",
-  "email-logs", "payments", "organizations", "organization-analytics", "modules", "exports", "backups", "migration",
+  "email-logs", "payments", "modules", "exports", "backups", "migration",
 ] as const;
 
 export const STAFF_TAB_KEYS: readonly string[] = ALL_TABS;
@@ -24,13 +24,10 @@ export const TAB_LABELS: Record<string, string> = {
   scanner: "Scanner",
   machines: "Machines",
   events: "Events",
-  organized: "Organized events",
   bookings: "Bookings",
   members: "Members",
   tobuy: "To Buy",
   reports: "Reports",
-  "organization-analytics": "Organization analytics",
-  organizations: "Organizations",
   accountability: "Accountability",
   warranty: "Warranties",
   audit: "Audit log",
@@ -51,11 +48,10 @@ export const TAB_GROUPS: { label: string; tabs: string[] }[] = [
   { label: "Operate", tabs: ["dashboard", "notifications", "requests", "direct", "handover", "payments", "ledger", "transfers", "stocktake", "tobuy"] },
   { label: "Inventory", tabs: ["inventory", "categories", "needsfix", "containers", "bulk", "qr", "scanner"] },
   { label: "Machines", tabs: ["machines"] },
-  { label: "Events", tabs: ["events", "organized"] },
+  { label: "Events", tabs: ["events"] },
   { label: "Bookings", tabs: ["bookings"] },
   { label: "Members", tabs: ["members"] },
-  { label: "Insights", tabs: ["reports", "organization-analytics", "accountability", "warranty", "audit"] },
-  { label: "Organizations", tabs: ["organizations"] },
+  { label: "Insights", tabs: ["reports", "accountability", "warranty", "audit"] },
   { label: "Admin", tabs: ["users", "settings", "emailtemplates", "email-logs", "api", "exports", "backups", "migration", "modules", "platform"] },
 ];
 
@@ -86,11 +82,13 @@ export function getStaffAccess(
   const canManageQr = has("manage_qr");
   const canManageMakerspace = has("manage_makerspace");
   const canIssueDirectLoan = has("issue_direct_loan");
+  const canIssueRequest = has("issue_request");
+  const canReturnRequest = has("return_request");
+  const canReviewRequests = has("accept_request");
   const canSeeHardware = isSuperadmin || ["accept_request", "reject_request", "assign_box", "issue_request", "issue_direct_loan", "return_request"].some((action) => actions.includes(action));
   const canUseToBuy = has("edit_inventory") || has("manage_printing") || has("manage_machines") || has("manage_makerspace");
   const canChooseToBuyKind = has("manage_makerspace");
   const canSeeDashboard = has("view_inventory") || has("manage_printing") || has("manage_machines") || has("manage_makerspace");
-  const governanceOnly = !isSuperadmin && actions.length === 0 && !singleTenantLocked;
   // Mirrors rbac.HANDOUT_ACTIONS / _HANDOUT_MUTATIONS. `collect_service_request` belongs
   // here so a front-desk role that also hands over finished machine jobs still reads as
   // handover-only and keeps the narrow tab set, rather than being shown the whole console.
@@ -102,12 +100,16 @@ export function getStaffAccess(
   const canCollectServiceRequests = has("collect_service_request") || canManageMachines;
   const printingOnly = canSeePrinting && !canEditInventory && !canManageMakerspace;
   const baseTabs = handoutOnly ? (["requests", "direct", "handover"] as const) : ALL_TABS;
-  const allowedTabs: readonly string[] = governanceOnly ? ["organizations"] : baseTabs.filter((tabName) => {
+  const allowedTabs: readonly string[] = baseTabs.filter((tabName) => {
     if (tabName === "dashboard") return !handoutOnly && (isSuperadmin || canSeeDashboard);
     // The inbox has no machine provenance and its read state is makerspace-wide, so the
     // backend withholds it from a per-type maintainer entirely. Omit the tab rather than
     // render one that 403s — the same reason a tombstoned app's sidebar entry is dropped.
-    if (tabName === "notifications") return !handoutOnly && !isMachineOnly;
+    // Past those two refusals the inbox still needs VIEW_INVENTORY, MANAGE_PRINTING (which
+    // MANAGE_MACHINES implies) or MANAGE_MAKERSPACE -- `_makerspace_for_manager` on the server.
+    if (tabName === "notifications") {
+      return !handoutOnly && !isMachineOnly && (canViewInventory || canSeePrinting || canManageMakerspace);
+    }
     if (tabName === "tobuy") return canUseToBuy;
     if (tabName === "needsfix") return canEditInventory;
     if (tabName === "categories") return canEditInventory;
@@ -123,36 +125,32 @@ export function getStaffAccess(
     if (tabName === "scanner") return canManageQr;
     if (tabName === "audit") return canViewAudit;
     if (tabName === "accountability") return canViewAudit;
-    if (tabName === "reports") return canViewAudit || canSeePrinting || canManageMachines;
+    // The report catalog and every per-makerspace report are scoped by VIEW_INVENTORY or
+    // VIEW_AUDIT; a printing/machine-only role would land on a page that 404s.
+    if (tabName === "reports") return canViewInventory || canViewAudit;
     if (tabName === "warranty") return canEditInventory || canSeePrinting;
     if (tabName === "users") return canManageMakerspace;
     if (tabName === "settings") return canManageMakerspace;
     if (tabName === "emailtemplates") return canEditInventory || canSeePrinting;
     if (tabName === "email-logs") return canManageMakerspace;
+    if (tabName === "api") return canManageMakerspace;
     if (tabName === "platform") return isSuperadmin && !singleTenantLocked;
     // Superadmin-only, matching the backend: `enabled_modules` is superadmin-owned and a
     // staff PATCH carrying it is a hard 403. Unlike `platform` this IS available in a
     // single-tenant deployment -- that operator is exactly who needs to install modules.
     if (tabName === "modules") return isSuperadmin;
-    if (tabName === "machines") return canManageMachines;
+    // `machines.access.can_see_machines` also admits a role that holds a machine type's
+    // `managing_action` (manage_printing for the built-in 3D printer type) outright.
+    if (tabName === "machines") return canSeePrinting;
     if (tabName === "events") return canManageEvents;
-    // Organizer authority is per event and cross-venue; selected-space actions cannot
-    // describe it. Superadmins are excluded because the organizer endpoint excludes them.
-    // Excluded in a single-tenant deployment too: the organizer list is a TARGETLESS global
-    // route, and origin_scope._global_endpoint_allowed permits only `admin-makerspaces` on a
-    // hard-scoped staff origin, so on a verified custom domain the tab would render and then
-    // 403 on every load. Those users reach it through the central console instead.
-    if (tabName === "organized") return !isSuperadmin && !singleTenantLocked;
-    // Like organized events, organization analytics is targetless and cross-makerspace.
-    // A hard-scoped tenant origin rejects it before application authorization runs.
-    if (tabName === "organization-analytics") return !isSuperadmin && !singleTenantLocked;
-    if (tabName === "organizations") return !singleTenantLocked;
     if (tabName === "bookings") return canManageBookings;
     if (tabName === "members") return canManageMakerspace;
     if (tabName === "payments") return canManageMakerspace;
     if (tabName === "exports") return canManageMakerspace;
     if (tabName === "backups") return canManageMakerspace;
-    if (tabName === "migration") return isSuperadmin;
+    // Tenant migration lives under /admin/platform/ like `platform`, and the backend refuses
+    // that surface on an origin-locked (single-tenant) site, so the tab would only 403.
+    if (tabName === "migration") return isSuperadmin && !singleTenantLocked;
     if (tabName === "requests") return canSeeHardware;
     return true;
   });
@@ -165,6 +163,9 @@ export function getStaffAccess(
     canEditInventory,
     canViewInventory,
     canIssueDirectLoan,
+    canIssueRequest,
+    canReturnRequest,
+    canReviewRequests,
     canViewAudit,
     canManageQr,
     canManageMakerspace,

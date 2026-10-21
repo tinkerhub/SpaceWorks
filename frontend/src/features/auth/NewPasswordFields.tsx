@@ -1,3 +1,5 @@
+import { Field, PasswordInput } from "../../components/ui";
+
 export function NewPasswordFields({
   idPrefix,
   newPassword,
@@ -16,51 +18,29 @@ export function NewPasswordFields({
 
   return (
     <>
-      <label className="mt-3 block text-sm font-semibold" htmlFor={`${idPrefix}-password`}>
-        New password
-      </label>
-      <input
+      <Field
         id={`${idPrefix}-password`}
-        className="desk-input mt-1 w-full"
-        type="password"
-        autoComplete="new-password"
-        value={newPassword}
-        aria-describedby={tooShort ? `${idPrefix}-password-error` : undefined}
-        aria-invalid={tooShort}
-        onChange={(event) => onNewPasswordChange(event.target.value)}
-      />
-      {tooShort ? (
-        <p
-          id={`${idPrefix}-password-error`}
-          className="mt-2 text-sm text-danger"
-          role="alert"
-        >
-          Password must be at least 8 characters.
-        </p>
-      ) : null}
-
-      <label className="mt-3 block text-sm font-semibold" htmlFor={`${idPrefix}-confirm`}>
-        Confirm password
-      </label>
-      <input
+        label="New password"
+        helperText="At least 8 characters."
+        error={tooShort ? <span role="alert">Password must be at least 8 characters.</span> : undefined}
+      >
+        <PasswordInput
+          autoComplete="new-password"
+          value={newPassword}
+          onChange={(event) => onNewPasswordChange(event.target.value)}
+        />
+      </Field>
+      <Field
         id={`${idPrefix}-confirm`}
-        className="desk-input mt-1 w-full"
-        type="password"
-        autoComplete="new-password"
-        value={confirmPassword}
-        aria-describedby={mismatch ? `${idPrefix}-confirm-error` : undefined}
-        aria-invalid={mismatch}
-        onChange={(event) => onConfirmPasswordChange(event.target.value)}
-      />
-      {mismatch ? (
-        <p
-          id={`${idPrefix}-confirm-error`}
-          className="mt-2 text-sm text-danger"
-          role="alert"
-        >
-          Passwords do not match.
-        </p>
-      ) : null}
+        label="Confirm password"
+        error={mismatch ? <span role="alert">Passwords do not match.</span> : undefined}
+      >
+        <PasswordInput
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(event) => onConfirmPasswordChange(event.target.value)}
+        />
+      </Field>
     </>
   );
 }

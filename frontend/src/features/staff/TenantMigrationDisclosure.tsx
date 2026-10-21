@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Callout, Card, CardHeader, CheckboxCard, CheckboxField, ConfirmDialog, Skeleton, useToast } from "../../components/ui";
 import {
   approveDisclosure,
   getDisclosureClosure,
@@ -8,10 +9,12 @@ import {
   revokeDisclosure,
   tenantMigrationKeys,
 } from "./tenantMigrationApi";
-import { ErrorText, StatusPill } from "./tenantMigrationUi";
+import { ErrorText, migrationError, StatusPill } from "./tenantMigrationUi";
 
 export function TenantMigrationDisclosure({ makerspaceId }: { makerspaceId: number }) {
   const client = useQueryClient();
+  const { showToast } = useToast();
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
   const [review, setReview] = useState<{ digest: string; decisions: Record<number, boolean>; acknowledged: boolean }>({
     digest: "", decisions: {}, acknowledged: false,
   });
@@ -23,6 +26,7 @@ export function TenantMigrationDisclosure({ makerspaceId }: { makerspaceId: numb
     queryKey: tenantMigrationKeys.approvals(makerspaceId),
     queryFn: () => listDisclosureApprovals(makerspaceId),
   });
+  const refresh = () => client.invalidateQueries({ queryKey: tenantMigrationKeys.approvals(makerspaceId) });
   const approve = useMutation({
     mutationFn: () => approveDisclosure(makerspaceId, {
       digest: closure.data!.digest,
@@ -31,11 +35,14 @@ export function TenantMigrationDisclosure({ makerspaceId }: { makerspaceId: numb
         approved: decisions[identity.id] ?? false,
       })),
     }),
-    onSuccess: () => client.invalidateQueries({ queryKey: tenantMigrationKeys.approvals(makerspaceId) }),
+    onSuccess: () => { refresh(); showToast("Closure approved", { tone: "success" }); },
+    onError: (error) => showToast(migrationError(error, "digest"), { tone: "error" }),
   });
   const revoke = useMutation({
     mutationFn: (approvalId: string) => revokeDisclosure(makerspaceId, approvalId),
-    onSuccess: () => client.invalidateQueries({ queryKey: tenantMigrationKeys.approvals(makerspaceId) }),
+    onSuccess: () => { refresh(); showToast("Approval revoked", { tone: "success" }); },
+    onError: (error) => showToast(migrationError(error), { tone: "error" }),
+    onSettled: () => setConfirmRevoke(false),
   });
   const activeApproval = approvals.data?.find(
     (item) => !item.revoked_at && item.closure_digest === closure.data?.digest,
@@ -46,86 +53,94 @@ export function TenantMigrationDisclosure({ makerspaceId }: { makerspaceId: numb
   const reviewMatches = review.digest === closure.data?.digest;
   const decisions = reviewMatches ? review.decisions : {};
   const acknowledged = reviewMatches && review.acknowledged;
+  const setDecision = (id: number, approved: boolean) => setReview((current) => ({
+    digest: closure.data!.digest,
+    acknowledged: current.digest === closure.data!.digest && current.acknowledged,
+    decisions: { ...(current.digest === closure.data!.digest ? current.decisions : {}), [id]: approved },
+  }));
 
   return (
-    <section aria-labelledby="migration-disclosure-title" className="rounded-md border border-line bg-bg p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow">Safety gate</p>
-          <h3 className="title-section" id="migration-disclosure-title">Disclosure closure review</h3>
-        </div>
-        {activeApproval ? <StatusPill tone="success">APPROVED</StatusPill> : <StatusPill tone="warn">REVIEW REQUIRED</StatusPill>}
-      </div>
-      <p className="mt-2 text-sm text-ink">
-        The selected people’s email, name, and phone will be disclosed to the target deployment.
+    <Card as="section" aria-labelledby="migration-disclosure-title">
+      <CardHeader
+        title={<span id="migration-disclosure-title">Disclosure closure review</span>}
+        description="Safety gate: the selected people's email, name and phone travel to the target deployment."
+        action={activeApproval ? <StatusPill tone="success">Approved</StatusPill> : <StatusPill tone="warn">Review required</StatusPill>}
+      />
+      <p className="text-body-ui text-ink-secondary">
         Review every identity and decide whether it may travel in this exact export closure.
       </p>
 
-      {closure.isLoading || approvals.isLoading ? <p className="mt-3 text-sm text-muted">Computing the exact identity closure…</p> : null}
+      {closure.isLoading || approvals.isLoading ? <Skeleton className="mt-4 h-24 w-full" /> : null}
       <ErrorText error={closure.error ?? approvals.error} />
       {voidApprovals.map((approval) => (
-        <div className="mt-3 rounded-md border border-danger/40 bg-danger/10 p-3" key={approval.id} role="status">
-          <p className="font-semibold text-danger">VOID — disclosure closure changed after approval</p>
-          <p className="mt-1 text-xs text-muted">Previously approved digest: <span className="font-mono break-all">{approval.closure_digest}</span></p>
-        </div>
+        <Callout className="mt-4" tone="danger" role="status" key={approval.id} title="Void — disclosure closure changed after approval">
+          Previously approved digest: <span className="break-all font-mono">{approval.closure_digest}</span>
+        </Callout>
       ))}
 
       {closure.data ? (
-        <>
-          <p className="mt-3 text-xs text-muted">Exact closure digest</p>
-          <p className="break-all font-mono text-xs text-ink" data-testid="closure-digest">{closure.data.digest}</p>
-          <div className="mt-3 grid gap-2">
-            {closure.data.identities.length === 0 ? <p className="text-sm text-muted">This closure contains no identities.</p> : null}
+        <div className="mt-4 grid gap-4">
+          <div>
+            <p className="text-label text-ink-secondary">Exact closure digest</p>
+            <p className="mt-1 break-all font-mono text-xs text-ink" data-testid="closure-digest">{closure.data.digest}</p>
+          </div>
+          <div className="grid gap-2">
+            {closure.data.identities.length === 0 ? <p className="text-body-ui text-ink-muted">This closure contains no identities.</p> : null}
             {closure.data.identities.map((identity) => (
-              <label className="flex min-h-11 items-start gap-3 rounded-md border border-line bg-surface p-3" key={identity.id}>
-                <input
-                  className="mt-1 h-5 w-5 accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                  type="checkbox"
-                  checked={decisions[identity.id] ?? false}
-                  disabled={Boolean(activeApproval)}
-                  onChange={(event) => setReview((current) => ({
-                    digest: closure.data!.digest,
-                    acknowledged: current.digest === closure.data!.digest && current.acknowledged,
-                    decisions: {
-                      ...(current.digest === closure.data!.digest ? current.decisions : {}),
-                      [identity.id]: event.target.checked,
-                    },
-                  }))}
-                />
-                <span className="min-w-0 text-sm text-ink">
-                  <span className="block font-semibold">{identity.display_name || identity.username}</span>
-                  <span className="block break-words text-muted">{identity.email || "No email"} · {identity.phone || "No phone"}</span>
-                  <span className="block text-xs text-muted">{identity.first_name} {identity.last_name} · @{identity.username} · user {identity.id}</span>
-                  <span className="block text-xs text-muted">Joined {new Date(identity.date_joined).toLocaleString()}</span>
-                  <span className="mt-1 block text-xs font-semibold">{decisions[identity.id] ? "Disclose this identity" : "Withhold this identity"}</span>
-                </span>
-              </label>
+              <CheckboxCard
+                key={identity.id}
+                checked={decisions[identity.id] ?? false}
+                disabled={Boolean(activeApproval)}
+                onCheckedChange={(checked) => setDecision(identity.id, checked === true)}
+                label={identity.display_name || identity.username}
+                description={(
+                  <>
+                    <span className="block break-words">{identity.email || "No email"} · {identity.phone || "No phone"}</span>
+                    <span className="block">{identity.first_name} {identity.last_name} · @{identity.username} · user {identity.id}</span>
+                    <span className="block">Joined {new Date(identity.date_joined).toLocaleString()}</span>
+                    <span className="mt-1 block font-semibold text-ink">{decisions[identity.id] ? "Disclose this identity" : "Withhold this identity"}</span>
+                  </>
+                )}
+              />
             ))}
           </div>
           {activeApproval ? (
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <p className="text-sm text-success-ink">{activeApproval.approved_count} of {activeApproval.identity_count} identities approved for this digest.</p>
-              <button className="desk-button-danger" type="button" disabled={revoke.isPending} onClick={() => revoke.mutate(activeApproval.id)}>Revoke approval</button>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-body-ui text-success-fg">{activeApproval.approved_count} of {activeApproval.identity_count} identities approved for this digest.</p>
+              <Button variant="danger" size="sm" disabled={revoke.isPending} onClick={() => setConfirmRevoke(true)}>Revoke approval…</Button>
             </div>
           ) : (
-            <div className="mt-3">
-              <label className="flex min-h-11 items-center gap-2 text-sm text-ink">
-                <input className="h-5 w-5 accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" type="checkbox" checked={acknowledged} onChange={(event) => setReview((current) => ({
+            <div className="grid gap-3">
+              <CheckboxField
+                checked={acknowledged}
+                onCheckedChange={(checked) => setReview((current) => ({
                   digest: closure.data!.digest,
-                  acknowledged: event.target.checked,
+                  acknowledged: checked === true,
                   decisions: current.digest === closure.data!.digest ? current.decisions : {},
-                }))} />
-                I reviewed every person and understand the approved fields leave this deployment.
-              </label>
-              <button className="desk-button-primary mt-2" type="button" disabled={!acknowledged || approve.isPending} onClick={() => approve.mutate()}>
-                {approve.isPending ? "Approving exact closure…" : "Approve exact closure"}
-              </button>
+                }))}
+                label="I reviewed every person and understand the approved fields leave this deployment."
+              />
+              <div>
+                <Button variant="primary" disabled={!acknowledged} loading={approve.isPending} loadingLabel="Approving exact closure…" onClick={() => approve.mutate()}>
+                  Approve exact closure
+                </Button>
+              </div>
             </div>
           )}
           <ErrorText error={approve.error} field="digest" />
           <ErrorText error={revoke.error} />
-        </>
+        </div>
       ) : null}
-    </section>
+      <ConfirmDialog
+        open={confirmRevoke && Boolean(activeApproval)}
+        tone="danger"
+        title="Revoke this approval?"
+        message="Exports can't use this closure until the people in it are reviewed and approved again."
+        confirmLabel="Revoke approval"
+        pending={revoke.isPending}
+        onConfirm={() => activeApproval && revoke.mutate(activeApproval.id)}
+        onCancel={() => setConfirmRevoke(false)}
+      />
+    </Card>
   );
 }

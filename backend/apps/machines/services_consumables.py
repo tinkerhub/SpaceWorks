@@ -51,7 +51,7 @@ def link_consumable(
 ):
     if not access.can_manage_machine(actor, machine):
         raise PermissionDenied()
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
     _active(machine)
@@ -115,7 +115,7 @@ def link_consumable(
 def unlink_consumable(machine, actor, consumable):
     if not access.can_manage_machine(actor, machine):
         raise PermissionDenied()
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
     row = MachineConsumable.objects.select_for_update(of=("self",)).filter(
@@ -137,7 +137,7 @@ def unlink_consumable(machine, actor, consumable):
 def log_consumption(machine, actor, consumable, quantity):
     if not access.can_operate_machine(actor, machine):
         raise PermissionDenied()
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
     _active(machine)

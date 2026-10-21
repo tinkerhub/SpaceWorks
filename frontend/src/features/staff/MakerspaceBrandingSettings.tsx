@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Card, CardHeader, Field, Input, SettingsRow, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { ImageUploader } from "./ImageUploader";
-import type { Makerspace } from "./StaffPanels";
+import { errorText, type Makerspace } from "./panels/shared";
 
 type Props = {
   makerspace: Makerspace;
@@ -13,6 +14,7 @@ type Props = {
 
 export function MakerspaceBrandingSettings({ makerspace, settings, loading }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const currentRegisteredName = settings?.name ?? makerspace.name;
   const [registeredNameInput, setRegisteredNameInput] = useState(currentRegisteredName);
   const [displayNameInput, setDisplayNameInput] = useState("");
@@ -38,7 +40,11 @@ export function MakerspaceBrandingSettings({ makerspace, settings, loading }: Pr
         method: "PATCH",
         body: JSON.stringify({ name: value }),
       }),
-    onSuccess: refreshBranding,
+    onSuccess: () => {
+      refreshBranding();
+      showToast("Registered name saved", { tone: "success" });
+    },
+    onError: (error) => showToast(errorText(error, "Couldn't save the registered name"), { tone: "error" }),
   });
 
   const updateDisplayName = useMutation({
@@ -47,7 +53,11 @@ export function MakerspaceBrandingSettings({ makerspace, settings, loading }: Pr
         method: "PATCH",
         body: JSON.stringify({ public_display_name: value }),
       }),
-    onSuccess: refreshBranding,
+    onSuccess: () => {
+      refreshBranding();
+      showToast("Display name saved", { tone: "success" });
+    },
+    onError: (error) => showToast(errorText(error, "Couldn't save the display name"), { tone: "error" }),
   });
 
   const trimmedRegisteredName = registeredNameInput.trim();
@@ -59,103 +69,84 @@ export function MakerspaceBrandingSettings({ makerspace, settings, loading }: Pr
   const displayNameSaveDisabled = loading || updateDisplayName.isPending || !displayNameChanged;
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <h3 className="text-base font-semibold text-ink">Branding</h3>
-      <p className="mt-1 text-sm text-muted">
-        Logo and cover image shown on this makerspace&apos;s public pages. When no logo is set,
-        the makerspace name is shown as the wordmark.
-      </p>
-      <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
-        <ImageUploader
-          endpoint={`/admin/makerspace/${makerspace.id}/logo`}
-          currentUrl={settings?.logo_url}
-          label="Logo"
-          fit="contain"
-          onChanged={refreshBranding}
-        />
-        <ImageUploader
-          endpoint={`/admin/makerspace/${makerspace.id}/cover`}
-          currentUrl={settings?.cover_image_url}
-          label="Cover image (wide banner)"
-          shape="wide"
-          onChanged={refreshBranding}
-        />
-      </div>
-      <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
-        <form
-          className="grid min-w-0 gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!registeredNameSaveDisabled) {
-              updateRegisteredName.mutate(trimmedRegisteredName);
-            }
-          }}
-        >
-          <label className="text-sm font-semibold text-ink" htmlFor="registered-name">
-            Registered name
-          </label>
-          <input
-            id="registered-name"
-            className="desk-input"
-            value={registeredNameInput}
-            disabled={loading}
-            onChange={(event) => setRegisteredNameInput(event.target.value)}
+    <Card as="section">
+      <CardHeader
+        title="Branding"
+        description="Logo and cover image shown on this makerspace's public pages. When no logo is set, the makerspace name is shown as the wordmark."
+      />
+      <SettingsRow title="Images" description="A square-ish logo and a wide banner for the public pages.">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+          <ImageUploader
+            endpoint={`/admin/makerspace/${makerspace.id}/logo`}
+            currentUrl={settings?.logo_url}
+            label="Logo"
+            fit="contain"
+            onChanged={refreshBranding}
           />
-          <p className="text-xs text-muted">
-            The official name of this makerspace. Used across the app and as the public wordmark
-            when no logo or public display name is set.
-          </p>
-          <div>
-            <button
-              className="desk-button-primary w-full max-w-full sm:w-auto"
-              type="submit"
-              disabled={registeredNameSaveDisabled}
-            >
-              {updateRegisteredName.isPending ? "Saving..." : "Save registered name"}
-            </button>
-          </div>
-          {updateRegisteredName.error ? (
-            <p className="text-sm text-danger">{updateRegisteredName.error.message}</p>
-          ) : null}
-        </form>
+          <ImageUploader
+            endpoint={`/admin/makerspace/${makerspace.id}/cover`}
+            currentUrl={settings?.cover_image_url}
+            label="Cover image (wide banner)"
+            shape="wide"
+            onChanged={refreshBranding}
+          />
+        </div>
+      </SettingsRow>
+      <SettingsRow
+        title="Registered name"
+        description="The official name of this makerspace. Used across the app and as the public wordmark when no logo or public display name is set."
+      >
         <form
-          className="grid min-w-0 gap-2"
+          className="grid min-w-0 max-w-md gap-3"
           onSubmit={(event) => {
             event.preventDefault();
-            if (!displayNameSaveDisabled) {
-              updateDisplayName.mutate(trimmedDisplayName);
-            }
+            if (!registeredNameSaveDisabled) updateRegisteredName.mutate(trimmedRegisteredName);
           }}
         >
-        <label className="text-sm font-semibold text-ink" htmlFor="public-display-name">
-          Public display name
-        </label>
-        <input
-          id="public-display-name"
-          className="desk-input"
-          placeholder={makerspace.name}
-          value={displayNameInput}
-          disabled={loading}
-          onChange={(event) => setDisplayNameInput(event.target.value)}
-        />
-        <p className="text-xs text-muted">
-          Shown on this makerspace&apos;s public pages. Leave blank to use the registered name (
-          <span className="font-semibold text-ink">{makerspace.name}</span>).
-        </p>
-        <div>
-          <button
-            className="desk-button-primary w-full max-w-full sm:w-auto"
-            type="submit"
-            disabled={displayNameSaveDisabled}
-          >
-            {updateDisplayName.isPending ? "Saving..." : "Save display name"}
-          </button>
-        </div>
-        {updateDisplayName.error ? (
-          <p className="text-sm text-danger">{updateDisplayName.error.message}</p>
-        ) : null}
+          <Field label="Registered name" error={updateRegisteredName.error?.message}>
+            <Input
+              id="registered-name"
+              value={registeredNameInput}
+              disabled={loading}
+              onChange={(event) => setRegisteredNameInput(event.target.value)}
+            />
+          </Field>
+          <div>
+            <Button type="submit" disabled={registeredNameSaveDisabled} loading={updateRegisteredName.isPending} loadingLabel="Saving…">
+              Save registered name
+            </Button>
+          </div>
         </form>
-      </div>
-    </div>
+      </SettingsRow>
+      <SettingsRow title="Public display name" description="Shown on this makerspace's public pages instead of the registered name.">
+        <form
+          className="grid min-w-0 max-w-md gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!displayNameSaveDisabled) updateDisplayName.mutate(trimmedDisplayName);
+          }}
+        >
+          <Field
+            label="Public display name"
+            optional
+            error={updateDisplayName.error?.message}
+            helperText={<>Leave blank to use the registered name (<span className="font-semibold text-ink">{makerspace.name}</span>).</>}
+          >
+            <Input
+              id="public-display-name"
+              placeholder={makerspace.name}
+              value={displayNameInput}
+              disabled={loading}
+              onChange={(event) => setDisplayNameInput(event.target.value)}
+            />
+          </Field>
+          <div>
+            <Button type="submit" disabled={displayNameSaveDisabled} loading={updateDisplayName.isPending} loadingLabel="Saving…">
+              Save display name
+            </Button>
+          </div>
+        </form>
+      </SettingsRow>
+    </Card>
   );
 }
