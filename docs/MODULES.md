@@ -357,8 +357,9 @@ Required by `events` and `bookings`.
   anyone checked in on an upstream roster ([checkin-mode.md](checkin-mode.md)). Turning it ON resets the
   stored mode to "account required" (audited, never silent): the account-less and check-in paths bypass
   the membership check entirely, so leaving them on would let a stranger walk past the requirement you
-  just switched on. Turning it back off does **not** re-open them — that is an explicit choice, made with
-  `manage.py set_request_access --mode anyone` or `--mode checked_in --checkin-space-id N`.
+  just switched on. Turning it back off does **not** re-open them — that is an explicit choice, made in
+  **Settings → Domain & access → Check-in** or with `manage.py set_request_access --mode anyone` or
+  `--mode checked_in --checkin-space-id N`.
 - **Console** — the **Members** tab exists only while this module is on. Staff accounts, roles and
   password resets are always under **Users** ([staff-roles.md](staff-roles.md)).
 - **Data** — purgeable: join requests and member profiles with their projects and imagery. Memberships,

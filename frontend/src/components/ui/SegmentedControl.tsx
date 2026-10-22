@@ -33,7 +33,7 @@ export function SegmentedControl<T extends string>({ value, onValueChange, optio
           aria-label={option.ariaLabel}
           className={cn(
             "inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4",
-            size === "sm" ? "min-h-8 px-3 text-[13px]" : "min-h-9 px-4 text-sm",
+            size === "sm" ? "min-h-8 px-3 text-[13px] pointer-coarse:min-h-11" : "min-h-9 px-4 text-sm pointer-coarse:min-h-11",
           )}
         >
           {option.icon ? <span aria-hidden="true" className="inline-flex">{option.icon}</span> : null}
@@ -54,7 +54,7 @@ export const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(functio
       type={type ?? "button"}
       aria-pressed={selected}
       className={cn(
-        "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm font-semibold transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4",
+        "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 pointer-coarse:min-h-11 text-sm font-semibold transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4",
         selected ? "border-[1.5px] border-accent-ink bg-primary text-on-primary" : "border-line-strong bg-canvas text-ink-secondary hover:bg-subtle hover:text-ink",
         className,
       )}

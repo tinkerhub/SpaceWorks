@@ -220,7 +220,7 @@ export function ImageUploader({
                 const file = event.target.files?.[0];
                 if (file) handleFile(file);
               }}
-              className="block min-w-0 max-w-full flex-[1_1_12rem] text-sm text-ink-muted file:mr-3 file:min-h-9 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
+              className="block min-w-0 max-w-full flex-[1_1_15rem] text-sm text-ink-muted file:mr-3 file:min-h-9 pointer-coarse:file:min-h-11 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
             />
             {cameraSupported ? (
               <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label} photo`} disabled={busy} onClick={() => setCameraOpen(true)}>

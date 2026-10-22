@@ -82,7 +82,7 @@ export function SpaceWorksHomeLink({
     <Link
       aria-label="Open makerspace listing"
       className={[
-        "inline-flex min-w-0 max-w-full text-left transition hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+        "inline-flex min-w-0 max-w-full text-left transition pointer-coarse:min-h-11 pointer-coarse:items-center hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
         className,
       ].filter(Boolean).join(" ")}
       to="/"

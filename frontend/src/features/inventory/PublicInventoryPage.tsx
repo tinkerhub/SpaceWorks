@@ -13,6 +13,7 @@ import { ProductCard } from "./ProductCard";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
 import { CatalogFilters, EmptyState, ErrorState, LoadingState, type View } from "./PublicInventoryParts";
 import { PublicRequestPanel } from "./PublicRequestPanel";
+import { RequestCartBar } from "./RequestCartBar";
 import { useMakerspacePublic } from "./useMakerspacePublic";
 import { usePublicCategories, usePublicInventory } from "./usePublicInventory";
 
@@ -44,6 +45,7 @@ export function PublicInventoryPage() {
   const count = inventoryQuery.data?.count;
   const pageCount = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
   const selectedItems = useMemo(() => Object.values(cart), [cart]);
+  const selectedCount = selectedItems.reduce((total, item) => total + item.quantity, 0);
 
   function incrementItem(product: Product) {
     if (product.availability?.label === "Unavailable") return;
@@ -84,8 +86,8 @@ export function PublicInventoryPage() {
   }
 
   return (
-    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Inventory" />}>
-      <PublicContainer width="xl">
+    <PublicShell width="xl" header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Inventory" />}>
+      <PublicContainer width="xl" className={selectedCount > 0 ? "pb-24 md:pb-10" : undefined}>
         <PageHeader
           kicker="Public inventory"
           title={<MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace?.logo_url} size="xl" />}
@@ -94,7 +96,7 @@ export function PublicInventoryPage() {
         />
         <MakerspaceMapLink makerspace={bootstrap?.makerspace} className="mt-2" />
 
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0 space-y-5">
             <div className="space-y-4">
               <form className="flex flex-col gap-2.5 sm:flex-row" role="search" onSubmit={submitSearch}>
@@ -134,7 +136,7 @@ export function PublicInventoryPage() {
             ) : null}
           </div>
 
-          <div className="min-w-0">
+          <div id="request-desk" tabIndex={-1} className="min-w-0 scroll-mt-20 outline-none">
             <PublicRequestPanel
               items={selectedItems}
               makerspaceSlug={makerspaceSlug}
@@ -150,6 +152,7 @@ export function PublicInventoryPage() {
         </div>
       </PublicContainer>
 
+      {moduleEnabled("request_workflow") ? <RequestCartBar count={selectedCount} targetId="request-desk" /> : null}
       <ProductQuickViewModal product={selectedProduct} open={Boolean(selectedProduct)} onClose={() => setSelectedProduct(null)} />
     </PublicShell>
   );

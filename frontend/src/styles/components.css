@@ -35,7 +35,7 @@
     .desk-button-warn, .desk-button-danger, .desk-button-ghost) svg {
     @apply size-[18px] shrink-0;
   }
-  .desk-button-sm { @apply min-h-9 px-3.5 py-1.5 text-sm; }
+  .desk-button-sm { @apply min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11; }
   .desk-button-lg { @apply min-h-[52px] px-6 py-3 text-[17px]; }
 
   /* Neutral second action: canvas fill, strong line. */
@@ -121,7 +121,19 @@
     @apply rounded-t-[15px] border-b border-line px-4 py-2 text-xs font-bold uppercase tracking-[0.06em];
   }
   .blueprint-media { @apply overflow-hidden border-b border-line bg-surface; }
-  .blueprint-table { @apply overflow-x-auto rounded-lg border border-line bg-panel; }
+  /* `relative`: an absolutely positioned child (an sr-only header) must be clipped by this
+     scroller; otherwise its containing block is outside and it widens the whole page. */
+  .blueprint-table { @apply relative overflow-x-auto rounded-lg border border-line bg-panel; }
+  /* Horizontal scroll hint for wide tables: an edge shade appears on whichever side has
+     more columns, and the canvas-coloured covers (attached to the content) hide it at the ends. */
+  .sw-scroll-x {
+    background:
+      linear-gradient(to right, rgb(var(--color-panel)) 30%, rgb(var(--color-panel) / 0)) left center / 2.5rem 100% no-repeat local,
+      linear-gradient(to left, rgb(var(--color-panel)) 30%, rgb(var(--color-panel) / 0)) right center / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgb(var(--color-ink) / 0.14), transparent) left center / 0.875rem 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgb(var(--color-ink) / 0.14), transparent) right center / 0.875rem 100% no-repeat scroll,
+      rgb(var(--color-panel));
+  }
   .blueprint-table thead { @apply bg-bg text-[13px] text-muted; }
   .blueprint-table th { @apply border-b border-line font-semibold; }
   .blueprint-table tbody tr { @apply transition-colors hover:bg-bg/60; }

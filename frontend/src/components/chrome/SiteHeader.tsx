@@ -48,7 +48,7 @@ export function SiteHeader({ brand, links, actions, extra }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md">
-      <nav aria-label="Main navigation" className="mx-auto flex min-h-16 max-w-[1200px] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6">
+      <nav aria-label="Main navigation" className="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6">
         <div className="min-w-0 shrink">{brand}</div>
         <ul className="hidden items-center gap-1 md:flex">
           {links.map((link) => (
@@ -57,7 +57,7 @@ export function SiteHeader({ brand, links, actions, extra }: SiteHeaderProps) {
                 to={link.to}
                 aria-current={isActive(pathname, link) ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+                  "inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
                   isActive(pathname, link) && "bg-fill font-semibold text-ink",
                 )}
               >

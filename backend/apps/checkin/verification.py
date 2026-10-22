@@ -22,22 +22,35 @@ from rest_framework.exceptions import APIException
 
 from apps.checkin import client
 from apps.checkin.client import CheckinUnavailable
+from apps.checkin.config import checkin_config
 from apps.checkin.eligibility import ELIGIBLE, REASON_PROJECT, REASON_PURPOSE, refusal_reason
 from apps.checkin.errors import denied
 from apps.checkin.matching import normalize
-from apps.checkin.provider import required_purpose
+from apps.checkin.transport import REASON_NOT_CONFIGURED
+
+UNAVAILABLE_DETAIL = "Check-in service is unavailable."
+NOT_CONFIGURED_DETAIL = (
+    "Check-in is not set up for this makerspace yet. Please ask the staff at the desk."
+)
+
+
+def unavailable_detail(exc=None) -> str:
+    """The borrower-facing 503 text: a missing roster is named, every outage is not."""
+    if getattr(exc, "reason", None) == REASON_NOT_CONFIGURED:
+        return NOT_CONFIGURED_DETAIL
+    return UNAVAILABLE_DETAIL
 
 
 class CheckinServiceUnavailable(APIException):
     status_code = 503
 
-    def __init__(self):
+    def __init__(self, detail=UNAVAILABLE_DETAIL):
         # The body is built explicitly rather than left to DRF's default rendering,
         # which emits `{"detail": ...}` with no machine-readable key. The client
         # distinguishes "we could not check" from "you are not checked in" to decide
         # whether retrying is worth offering, so `code` has to be present.
         self.detail = {
-            "detail": "Check-in service is unavailable.",
+            "detail": detail,
             "code": "checkin_unavailable",
         }
 
@@ -53,9 +66,10 @@ def verify(makerspace, *, mid, typed_name):
         # module-level `from ... import fetch_roster` freezes whatever the attribute
         # was when this module was first imported, which for a lazily-imported view
         # module is not a stable moment.
-        roster = client.fetch_roster(cached=False)
+        roster = client.fetch_roster(makerspace, cached=False)
     except CheckinUnavailable as exc:
-        raise CheckinServiceUnavailable() from exc
+        raise CheckinServiceUnavailable(unavailable_detail(exc)) from exc
+    purpose = checkin_config(makerspace).purpose
 
     entry = next((item for item in roster if item.mid == mid), None)
     if entry is None:
@@ -66,11 +80,13 @@ def verify(makerspace, *, mid, typed_name):
     if normalize(entry.name) != normalize(typed_name):
         raise denied("not_checked_in", "You are not currently checked in.")
 
-    reason = refusal_reason(entry, timezone.now(), space_id=makerspace.checkin_space_id)
+    reason = refusal_reason(
+        entry, timezone.now(), space_id=makerspace.checkin_space_id, purpose=purpose
+    )
     if reason in (REASON_PURPOSE, REASON_PROJECT):
         raise denied(
             "project_required",
-            f"Set your check-in to '{required_purpose()}' and choose a project, "
+            f"Set your check-in to '{purpose}' and choose a project, "
             "then try again.",
         )
     if reason != ELIGIBLE:

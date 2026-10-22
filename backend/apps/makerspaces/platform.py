@@ -208,8 +208,8 @@ def bootstrap_payload(makerspace):
     if policy == CHECKED_IN:
         # Names the upstream in borrower copy; emitted only on checked_in, like the policy.
         makerspace_payload["checkin"] = {
-            "provider": provider_name(),
-            "purpose": required_purpose(),
+            "provider": provider_name(makerspace),
+            "purpose": required_purpose(makerspace),
         }
     # Advisory geofence: expose the flag ONLY when configured AND the feature is on, so
     # dormant/self-host bootstrap payloads stay byte-for-byte unchanged (self-host

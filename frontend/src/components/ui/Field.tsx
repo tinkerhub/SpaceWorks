@@ -62,7 +62,7 @@ export function Field({ label, helperText, hint, error, optional, hideLabel, req
 
   if (!isWirable(children)) {
     return (
-      <label className={cn("grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1.5", className)}>
+      <label className={cn("grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5", className)}>
         {labelText}
         {children}
         <FieldMessage error={hasError ? error : undefined} helper={helper} />
@@ -79,7 +79,7 @@ export function Field({ label, helperText, hint, error, optional, hideLabel, req
     required: required ?? children.props.required,
   });
   return (
-    <div className={cn("grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1.5", className)}>
+    <div className={cn("grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5", className)}>
       <label htmlFor={controlId} className="min-w-0">{labelText}</label>
       {control}
       <FieldMessage id={messageId} error={hasError ? error : undefined} helper={helper} />

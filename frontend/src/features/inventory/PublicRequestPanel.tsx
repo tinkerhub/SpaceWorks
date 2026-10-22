@@ -192,7 +192,7 @@ export function PublicRequestPanel({
     !submitMutation.isPending;
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-6rem)] lg:flex-col lg:overflow-hidden">
+    <aside className="space-y-4 md:sticky md:top-20 md:flex md:max-h-[calc(100dvh-6rem)] md:flex-col md:overflow-hidden">
       {disabled ? (
         <Card>
           <p className="text-body-ui text-ink-muted">Requests</p>
@@ -216,7 +216,7 @@ export function PublicRequestPanel({
 
           {scanAvailable ? <RequestDeskTabs activeTab={activeTab} onChange={setActiveTab} /> : null}
 
-          <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+          <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
             {activeTab === "borrow" ? (
               <div
                 id="public-request-borrow-panel"

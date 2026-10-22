@@ -10,7 +10,7 @@ export type ActiveTab = "borrow" | "scan";
 export function RequestDeskTabs({ activeTab, onChange }: { activeTab: ActiveTab; onChange: (tab: ActiveTab) => void }) {
   function tabClass(tab: ActiveTab) {
     return cn(
-      "inline-flex min-h-9 min-w-0 items-center justify-center rounded-full px-3 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+      "inline-flex min-h-9 min-w-0 items-center justify-center rounded-full px-3 pointer-coarse:min-h-11 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
       activeTab === tab ? "bg-canvas text-ink shadow-segment" : "text-ink-muted hover:text-ink",
     );
   }

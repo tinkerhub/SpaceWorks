@@ -29,7 +29,7 @@ export function inventoryColumns({ canEditInventory, showToBuy, unarchivePending
       </div>
     ) },
     { key: "name", header: "Name", sortable: true, render: (product) => (
-      <button type="button" className="rounded-sm text-left font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => onOpen(product)}>
+      <button type="button" className="rounded-sm text-left font-semibold text-ink pointer-coarse:-my-3 pointer-coarse:py-3 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => onOpen(product)}>
         {product.name}
       </button>
     ) },

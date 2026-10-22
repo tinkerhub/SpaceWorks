@@ -3,16 +3,16 @@ import { Link } from "react-router-dom";
 import { SpaceWorksLogo } from "./SpaceWorksLogo";
 
 const linkClasses =
-  "rounded-sm text-body-ui text-ink-secondary underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 // Shared public footer: the Space Works lockup, the About and License links, copyright.
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
     <footer className="mt-auto border-t border-line bg-canvas">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-5 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex max-w-[var(--sw-chrome-max,1200px)] flex-col gap-5 px-4 py-8 sm:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <Link to="/" aria-label="Open makerspace listing" className="inline-flex items-center self-start rounded-md text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+          <Link to="/" aria-label="Open makerspace listing" className="inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
             <SpaceWorksLogo size={24} withWordmark />
           </Link>
           <nav aria-label="Footer">

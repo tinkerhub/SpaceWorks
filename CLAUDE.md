@@ -75,7 +75,8 @@ channel only. Two architectural rules are load-bearing and easy to violate if yo
   object bytes may expire under the evidence-retention policy and are never public.
 - **Check-In API Client** — **REINSTATED** for the `checked_in` request policy, after the Part M7
   retirement (`73a480c`) that this document described for one release. `apps/checkin/` exists again and
-  reads one upstream roster (`CHECKIN_API_URL`), matches a typed name against it and mints a stable
+  reads an upstream roster (the makerspace's own URL, else `CHECKIN_API_URL`; resolved only by
+  `apps/checkin/config.py`), matches a typed name against it and mints a stable
   per-person principal. It is a **presence filter, not authentication**: the roster is world-readable
   and carries no secret, so anyone can read it and claim any eligible identity on it. Fails closed —
   every unreadable response is a 503, never a denial. Full rules: **Check-in gated requests** in

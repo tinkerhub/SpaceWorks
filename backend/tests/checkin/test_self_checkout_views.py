@@ -135,7 +135,7 @@ def test_checked_in_walk_in_can_check_out_and_return(monkeypatch):
         order.append(("throttle", request.checkin_mid, request.checkin_makerspace_id))
         return True
 
-    def fetch_roster(*, cached):
+    def fetch_roster(makerspace=None, *, cached):
         order.append(("upstream", cached))
         return [_entry()]
 
@@ -200,7 +200,7 @@ def test_different_checked_in_person_cannot_return_the_first_persons_tool(monkey
     client = APIClient(REMOTE_ADDR="10.20.30.41")
     monkeypatch.setattr(
         "apps.checkin.client.fetch_roster",
-        lambda *, cached: [_entry(), _entry(mid=884, name="Bee Sample")],
+        lambda makerspace=None, *, cached: [_entry(), _entry(mid=884, name="Bee Sample")],
     )
     _stub_storage(monkeypatch)
 

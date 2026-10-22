@@ -20,7 +20,7 @@ const TILES = ["bg-accent", "bg-warn", "bg-success", "bg-secondary"] as const;
  */
 export function AuthLayout({ kicker, title, description, children }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-dvh min-w-0 bg-canvas text-ink md:grid-cols-2">
+    <div className="grid min-h-dvh min-w-0 bg-canvas text-ink md:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_880px]">
       <SkipLink />
       <div className="flex min-w-0 flex-col px-4 py-5 sm:px-8 sm:py-6">
         <header>

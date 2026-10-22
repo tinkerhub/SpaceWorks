@@ -2,7 +2,7 @@
 
 The **Space Works — Open Source Makerspace Manager** visual identity. This folder is the single source of
 truth for the logo, colour, and type. The live app consumes the same values via
-`frontend/src/components/SpaceWorksLogo.tsx`, `frontend/public/spaceworks-logo.svg` (favicon), and the Tailwind
+`frontend/src/components/SpaceWorksLogo.tsx`, `frontend/public/spaceworks-logo.svg`, and the Tailwind
 theme tokens.
 
 ## Concept — the "Parts-Crate"
@@ -22,7 +22,7 @@ whole point of the product.
 | `logomark-lettered.svg` | Crate with O-S-M-M pixels — standalone mark |
 | `app-icon.svg` | Dark rounded tile + lettered mark — app/store icon |
 
-The banner lockup lives at `../banner.svg`; the browser favicon at `../../frontend/public/spaceworks-logo.svg`.
+The banner lockup lives at `../banner.svg`; the browser favicon (Tinker Space Inventory tile) at `../../frontend/public/favicon.png`.
 
 ## Colour
 

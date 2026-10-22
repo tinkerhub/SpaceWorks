@@ -2,10 +2,16 @@
 
 import socket
 from dataclasses import dataclass
-from ipaddress import ip_address
+from ipaddress import ip_address, ip_network
 from urllib.parse import SplitResult, urlsplit
 
 from rest_framework import serializers
+
+
+# RFC 6598 shared address space (carrier-grade NAT). Python's `is_private` is False
+# for it by design, yet it is never a public destination: on a cloud host it reaches
+# provider-internal services.
+_SHARED_ADDRESS_SPACE = ip_network("100.64.0.0/10")
 
 
 class UnsafeWebhookUrl(ValueError):
@@ -61,6 +67,7 @@ def _is_forbidden_address(raw_address: str) -> bool:
             address.is_multicast,
             address.is_reserved,
             address.is_unspecified,
+            address.version == 4 and address in _SHARED_ADDRESS_SPACE,
         )
     )
 

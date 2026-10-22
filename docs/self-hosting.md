@@ -560,10 +560,10 @@ Keep an offline copy of `.env` and the age identity file. A restore writes the a
 | `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
 | `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
 | `SPACEWORKS_DEPLOY_RUNNER` | repository variable for automatic deploys | Set `true` in GitHub Actions variables after runner setup; `false` disables automatic deployment jobs. This is not a host `.env` setting |
-| `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
-| `CHECKIN_PROVIDER_NAME` | no | Name of your check-in system shown to borrowers; empty means "TinkerHub" for a TinkerHub roster URL, otherwise neutral wording. See [checkin-mode.md](checkin-mode.md) |
-| `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N`. See [checkin-mode.md](checkin-mode.md) |
-| `CHECKIN_TIMEOUT`, `CHECKIN_CACHE_SECONDS` | no (`5.0`, `30`) | Roster request timeout and name-search cache, in seconds |
+| `CHECKIN_API_URL` | for `checked_in` mode, unless every such makerspace sets its own roster | **Deployment default** public upstream roster URL; matching establishes presence eligibility, not identity. A makerspace can set its own roster URL in **Settings → Domain & access → Check-in** (or `set_request_access --checkin-api-url`), which overrides this for that makerspace only |
+| `CHECKIN_PROVIDER_NAME` | no | Default name of your check-in system shown to borrowers; empty means "TinkerHub" for a TinkerHub roster URL, otherwise neutral wording. A makerspace with its own roster URL does not inherit it. See [checkin-mode.md](checkin-mode.md) |
+| `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Default required roster purpose; a makerspace may override it. The makerspace mode and upstream space ID are set in the console's Check-in card or with `manage.py set_request_access --mode checked_in --checkin-space-id N`. See [checkin-mode.md](checkin-mode.md) |
+| `CHECKIN_TIMEOUT`, `CHECKIN_CACHE_SECONDS` | no (`5.0`, `30`) | Roster request timeout (must be positive; checked at startup) and name-search cache, in seconds. Apply to every roster, the deployment's and each makerspace's |
 | `MINIO_IMAGE` | no (default `pgsty/silo`) | Server image repository only; optional registry port, no `:tag` or `@digest` |
 | `MINIO_IMAGE_TAG` | no (default `RELEASE.2026-09-16T00-00-00Z`) | Server image tag; must exist in `MINIO_IMAGE` |
 | `MC_IMAGE` | no (default `pgsty/mc`) | Client image repository only; optional registry port, no `:tag` or `@digest` |

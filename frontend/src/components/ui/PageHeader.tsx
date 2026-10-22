@@ -49,10 +49,11 @@ export function SectionHeading({ title, description, action, as: Heading = "h2",
 
 type SettingsRowProps = { title: ReactNode; description?: ReactNode; children: ReactNode; className?: string };
 
-/** Settings row: label column (title + helper) on the left, fields on the right; stacks on phones. */
+/** Settings row: label column (title + helper) on the left, fields on the right. Stacks below lg:
+ * beside the staff sidebar, a 960-1199px window leaves the field column too narrow. */
 export function SettingsRow({ title, description, children, className }: SettingsRowProps) {
   return (
-    <div className={cn("grid gap-4 border-b border-line py-6 last:border-b-0 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)] md:gap-10", className)}>
+    <div className={cn("grid gap-4 border-b border-line py-6 last:border-b-0 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] lg:gap-10", className)}>
       <div>
         <h3 className="font-sans text-label text-ink">{title}</h3>
         {description ? <p className="mt-1 text-caption text-ink-muted">{description}</p> : null}

@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 from apps.checkin import matching
 from apps.checkin import client
 from apps.checkin.client import CheckinUnavailable
+from apps.checkin.config import checkin_config
 from apps.checkin.eligibility import ELIGIBLE, REASON_SPACE, refusal_reason
 from apps.checkin.serializers import (
     CheckinLookupRequestSerializer,
@@ -26,6 +27,7 @@ from apps.checkin.throttles import (
     CheckinLookupIpHourThrottle,
     CheckinLookupMemberThrottle,
 )
+from apps.checkin.verification import unavailable_detail
 from apps.hardware_requests.view_helpers import PUBLIC_ERROR_RESPONSES
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.request_access import checkin_requests_allowed
@@ -68,20 +70,21 @@ class CheckinLookupView(APIView):
         try:
             # Cached: this is a UI affordance, not the authorization decision. Submit
             # refetches without the cache -- see `client.fetch_roster`.
-            roster = client.fetch_roster(cached=True)
-        except CheckinUnavailable:
+            roster = client.fetch_roster(makerspace, cached=True)
+        except CheckinUnavailable as exc:
             return Response(
-                {"detail": "Check-in service is unavailable.", "code": "checkin_unavailable"},
+                {"detail": unavailable_detail(exc), "code": "checkin_unavailable"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         now = timezone.now()
         space_id = makerspace.checkin_space_id
+        purpose = checkin_config(makerspace).purpose
         matches = []
         for entry in matching.candidates(roster, serializer.validated_data["name"]):
-            reason = refusal_reason(entry, now, space_id=space_id)
+            reason = refusal_reason(entry, now, space_id=space_id, purpose=purpose)
             if reason == REASON_SPACE:
-                # Discarded, not reported. The roster is deployment-global, so an entry
+                # Discarded, not reported. A roster may serve many spaces, so an entry
                 # bound to another upstream spaceId belongs to a different makerspace;
                 # returning it here would republish that space's mid, display name,
                 # avatar, purpose and project name through this tenant's endpoint.

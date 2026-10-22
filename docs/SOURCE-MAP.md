@@ -79,8 +79,14 @@
   terminal expired state without mutating the `EvidencePhoto` row. `sweep_evidence_retention()` is the
   single sweep entry point, `tasks.py` is its Celery/scheduled-task adapter, and `views_retention.py` exposes
   the policy and preview API.
-- `backend/apps/checkin/` — the upstream check-in roster: `client.py` (fail-closed fetch and
-  parse), `matching.py` (normalised-exact name matching), `eligibility.py` (the purpose/project
+- `backend/apps/checkin/` — the upstream check-in roster: `config.py` (`checkin_config(makerspace)`,
+  the ONLY resolver of roster URL/purpose/provider: the makerspace's own value, else the deployment
+  setting), `transport.py` (body fetch: the deployment URL via `requests`, a makerspace URL through the
+  `integrations.webhook_validation` SSRF guard on a pinned connection), `client.py` (per-URL cached
+  `fetch_roster` and fail-closed parse), `settings_service.py` (the console Check-in card's read,
+  write and test-connection; mode changes go through `request_access.set_request_access`; HTTP surface
+  in `admin_api/views_checkin_settings.py`, UI in `features/staff/MakerspaceCheckinSettings.tsx`),
+  `matching.py` (normalised-exact name matching), `eligibility.py` (the purpose/project
   gate), `identity.py` + `models.py` (`CheckinIdentity`, one walk-in principal per upstream mid),
   `verification.py` (submit-time re-verification), `views.py` (the public name lookup),
   `errors.py` (the shared `denied()`/503 shapes both `verification` and `identity` raise),

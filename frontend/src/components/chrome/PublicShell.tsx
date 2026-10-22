@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { cn } from "../../lib/cn";
 import { SiteFooter } from "../SiteFooter";
@@ -6,11 +6,13 @@ import { SkipLink } from "../SkipLink";
 
 /**
  * Public page frame: skip link, the site header passed in, the page's <main> landmark
- * (the skip-link target) and the shared footer. Headers stay outside <main>.
+ * (the skip-link target) and the shared footer. Headers stay outside <main>. `width` is the
+ * page's widest column: the header and footer line up with it (1200px unless a page is xl).
  */
-export function PublicShell({ header, children }: { header: ReactNode; children: ReactNode }) {
+export function PublicShell({ header, children, width }: { header: ReactNode; children: ReactNode; width?: "xl" }) {
+  const chrome = width === "xl" ? ({ "--sw-chrome-max": "1440px" } as CSSProperties) : undefined;
   return (
-    <div className="flex min-h-screen min-w-0 flex-col bg-bg text-ink">
+    <div className="flex min-h-screen min-w-0 flex-col bg-bg text-ink" style={chrome}>
       <SkipLink />
       {header}
       <main id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col outline-none">
