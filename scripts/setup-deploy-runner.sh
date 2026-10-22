@@ -4,9 +4,13 @@
 ask_deploy_runner() {
   AUTOUPDATE=N
   [[ "$FIRST_RUN" == 1 ]] || return 0
-  read -r -p "Enable automatic production updates from main? [Y/n]: " AUTOUPDATE
-  AUTOUPDATE="${AUTOUPDATE:-Y}"
-  # ^[Yy] not ^[Yy]$: typing "yes" at a [Y/n] prompt must not fall through to "off".
+  # Opt-in: it needs a systemd host and a runner token from the GitHub repository this
+  # server deploys from, which most self-hosters (installing someone else's repo) lack.
+  printf 'Automatic updates register this server as a GitHub Actions runner for YOUR fork.
+'
+  read -r -p "Enable automatic production updates from main? [y/N]: " AUTOUPDATE
+  AUTOUPDATE="${AUTOUPDATE:-N}"
+  # ^[Yy] not ^[Yy]$: typing "yes" must still count as "on".
 }
 
 # Later updates run without the operator's shell, so remember the Compose layer.

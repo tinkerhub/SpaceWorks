@@ -32,7 +32,8 @@ bash scripts/init-host-orchestration.sh
 scripts/spaceworks-compose.sh bundled up -d
 ```
 
-Set these values before first boot:
+Set these values before first boot. The guided installer generates all of them; by hand, replace every
+placeholder (a placeholder `SECRET_KEY` fails system check `accounts.E001` and `migrate` refuses):
 
 ```env
 POSTGRES_PASSWORD=replace-with-a-strong-password
@@ -112,6 +113,12 @@ scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role manageme
 ```
 
 The command is idempotent. It creates missing records and upgrades the named user to a superadmin if needed.
+There is no default password: `--password` (or `SETUP_SUPERADMIN_PASSWORD`) is required to create the
+user, and rerunning it for an existing user does **not** change that user's password (see
+[staff-roles.md](staff-roles.md#passwords)).
+
+After signing in, a superadmin lands on **Choose a makerspace to operate**; pick the makerspace to open
+its staff console.
 
 ## Health Checks
 
@@ -124,7 +131,8 @@ GET /api/v1/health/readiness/  # deployment probe: host marker, migrations, encr
 
 The Compose files include health checks for Postgres, backend readiness, and frontend HTTP serving.
 Readiness is meant for callers inside the deployment: the bundled Caddy and nginx proxies answer `403`
-for it, and the Compose healthcheck and `scripts/update.sh` call it on `localhost:8000` inside the
+for it (an existing TLS install must add the Caddy block by hand; see
+[Upgrade notes](#upgrade-notes-manual-steps-per-release)), and the Compose healthcheck and `scripts/update.sh` call it on `localhost:8000` inside the
 backend container. A direct, unproxied caller gets the failure reason and archive-custody counts; a
 caller that arrives through any proxy (an `X-Forwarded-For` header) gets only `status`, the same
 `200`/`503`, and is rate limited by `THROTTLE_READINESS` (default `60/min`).
@@ -154,8 +162,9 @@ released commit is still the main branch head. The self-host updater uses that r
 as its gate, creates a PostgreSQL backup, deploys the exact immutable tag, runs migrations through the
 Compose migration service, and records the version only after the readiness check passes.
 
-Guided setup asks **Enable automatic production updates from main?** before starting the stack.
-**Yes** prints runner setup instructions after the stack is up; setup does not mint or save a token.
+Guided setup asks **Enable automatic production updates from main?** before starting the stack. The
+default is **No**: the runner needs a systemd host and a runner token from the GitHub repository you deploy
+from (your own fork). **Yes** prints runner setup instructions after the stack is up; setup does not mint or save a token.
 Automatic deployment requires Linux x64/arm64, running systemd and sudo. Run the installer as the
 current, non-root install owner; the runner lives in `$HOME/spaceworks-actions-runner` and its service
 runs as that user. The installer verifies the pinned Actions runner v2.338.0 archive's SHA-256 and
@@ -319,6 +328,59 @@ read-only bind mount, so replacing the file can leave the running container on t
 `init-host-orchestration.sh` rerun is needed for a Caddyfile-only change, because the topology record
 fingerprints only `.env` and the selected Compose files.
 
+### Upgrade notes: manual steps per release
+
+A plain `bash scripts/update.sh` (and the runner deploy, which calls the installed copy) pulls new
+images, migrates and restarts. From the release after 0.8.5-main.11 it also brings
+`deploy/Caddyfile` and `deploy/Caddyfile.saas` up to the release being deployed (downloaded from that
+tag; the curl installer's update uses its staged copy) and recreates a running Caddy, **but only when
+your file is byte-identical to a version some release shipped**. The replaced copy is kept under
+`backups/proxy-config-*/`. A customised Caddyfile (for example a redirect for a split deployment) is
+never overwritten: the updater writes the release's version beside it as `deploy/Caddyfile.release`
+and prints a warning; merge it by hand, then recreate Caddy as above. An `update.sh` run with no new
+release performs the same check. Hosts on 0.8.5-main.11 or older run their installed updater, which
+lacks this step, so apply the notes below by hand once, or rerun the curl installer and choose an
+update (which installs the new updater and applies the same unedited-only rule).
+
+**2026-10 (0.8.5): block public readiness at the proxy.** Add this inside the `{$PUBLIC_DOMAIN}` site
+block of `/opt/spaceworks/deploy/Caddyfile`, next to the existing `/api/v1/internal/*` handle and
+before the `reverse_proxy` lines:
+
+```caddy
+    # Readiness is a deployment probe: healthchecks and update.sh call it inside the
+    # backend container. Public liveness stays at /api/v1/health/.
+    handle /api/v1/health/readiness* {
+        respond 403
+    }
+```
+
+Then recreate Caddy and check both endpoints:
+
+```bash
+cd /opt/spaceworks
+SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled up -d --force-recreate caddy
+curl -s -o /dev/null -w '%{http_code}\n' https://YOUR_DOMAIN/api/v1/health/readiness/   # 403
+curl -s -o /dev/null -w '%{http_code}\n' https://YOUR_DOMAIN/api/v1/health/             # 200
+```
+
+Without the block nothing breaks: a proxied caller already gets only `{"status": ...}`, rate limited.
+The block keeps the probe off the public internet entirely.
+
+Behaviour changes in the same release that operators notice:
+
+- **`setup_instance` has no default password.** Pass `--password` or set `SETUP_SUPERADMIN_PASSWORD`;
+  without one it refuses before writing anything. There is no `super123` or similar built-in login.
+- **`SECRET_KEY` is checked.** With `DEBUG=False`, a value under 32 characters or a placeholder such as
+  `replace-with-a-long-random-secret` fails system check `accounts.E001`, so `migrate` (and therefore
+  the update) refuses. Installer-generated keys pass.
+- **A module that is off is absent.** Its console tabs, settings cards, public pages and API surfaces
+  disappear rather than showing empty; turning it back on restores everything, data included.
+- **Staff are managed under Users.** The **Members** tab exists only while the `membership` module is
+  on; staff accounts, roles and password resets live in **Users** either way. See
+  [staff-roles.md](staff-roles.md).
+- **Check-in mode checks in everyone.** On a `checked_in` makerspace every public borrower, signed in
+  or not, is matched against the roster. See [checkin-mode.md](checkin-mode.md).
+
 ## Publishing new images (maintainers)
 
 `release.yml` no longer runs directly on pushes. Its `workflow_run` trigger waits for CI to complete
@@ -438,7 +500,7 @@ box; it stays dormant here.) End-to-end:
 
    Caddy (`deploy/Caddyfile`) terminates HTTPS and forwards both the public site and the `/admin`
    staff console to this deployment.
-3. **Set the domain in Settings.** As a **superadmin**, open the makerspace's Settings → **Custom
+3. **Set the domain in Settings.** As a **superadmin**, open the makerspace's **Settings → Domain & access → Custom
    domain**, enter the hostname, and Save. It shows **Active** immediately (no TXT record, no Verify
    step). Only a superadmin may set it — the staff-auth/CORS allowlist is process-global (not
    tenant-scoped), so on a multi-makerspace box an untrusted Space Manager must never be able to inject
@@ -448,7 +510,10 @@ box; it stays dormant here.) End-to-end:
 4. **Point the branded frontend at this backend.** Set the frontend container's
    `TENANT_ORIGIN_BOOTSTRAP=true` (resolve the makerspace by request origin) **or**
    `TENANT_TOKEN=<public_code>`, plus `TENANT_API_URL=/api`. See
-   [single-tenant-frontend.md](single-tenant-frontend.md).
+   [single-tenant-frontend.md](single-tenant-frontend.md). `docker-compose.prod.yml` does not pass
+   these to the `frontend` service, so on the bundled stack the domain serves the central layout
+   (public catalogue at `/m/<slug>`, console at `/admin`) until you add them to that service's
+   `environment:`. Staff sign-in and origin scoping work either way.
 
 If an instance flips from managed → self-host after deploy, run
 `python manage.py reconcile_selfhost_domains` once to promote any existing custom domains to trusted
@@ -456,22 +521,49 @@ If an instance flips from managed → self-host after deploy, run
 
 ## Environment reference
 
+The installer (`setup.sh`) generates every secret marked *generated* below and writes `.env` for
+you; this table is for checking or hand-editing it. Values reach the backend only through the
+`environment:` block of the Compose file, so a variable listed as *not forwarded* has no effect when
+set in `.env` on the bundled stack. After any `.env` edit, rerun `bash scripts/init-host-orchestration.sh`
+and `scripts/spaceworks-compose.sh bundled up -d`.
+
+**Secrets that must be set, and backed up, in production:**
+
+| Variable | Generated | Without it |
+|---|---|---|
+| `SECRET_KEY` | yes (50 chars) | The backend does not start. A value under 32 characters, with fewer than 5 distinct characters, or containing a placeholder word (`replace-with`, `change-me`, `changeme`, `insecure`) fails system check `accounts.E001` when `DEBUG=False`, so `migrate` and every update refuse |
+| `API_CLIENT_ENC_KEY` | yes (Fernet) | Saving a Telegram token, SMTP password or chat webhook returns **503** (`secret_storage_unavailable`); API-client, payment and platform-email secrets fail to save. Changing it makes every stored secret unreadable |
+| `AUDIT_MAC_MASTER_KEY` | yes (Fernet) | Warning `audit.W001`; audit rows are not sealed with a per-scope MAC. An invalid value is error `audit.E001` |
+| `BACKUP_AGE_RECIPIENT`, `BACKUP_ARCHIVE_SIGNING_PRIVATE_KEY`, `BACKUP_ARCHIVE_VERIFY_PUBLIC_KEY` | yes (the age identity lives in `/var/lib/spaceworks/ops/work/age-identity.txt`) | Backups and tenant exports refuse to run. Without the age identity a backup cannot be decrypted |
+| `POSTGRES_PASSWORD`, `POSTGRES_APP_PASSWORD`, `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD` | yes | The stack does not start |
+
+Keep an offline copy of `.env` and the age identity file. A restore writes the archived continuity keys
+(`SECRET_KEY`, `API_CLIENT_ENC_KEY`, `AUDIT_MAC_MASTER_KEY`, …) back into `.env`.
+
 | Variable | Required | Purpose |
 |---|---|---|
 | `POSTGRES_PASSWORD` | yes | Maintenance/owner database password; never used by application processes |
 | `POSTGRES_APP_PASSWORD` | yes | Separate non-owner runtime database password used by backend/worker/beat/cron |
 | `SECRET_KEY` | yes | Django cryptographic secret. With `DEBUG=False`, a placeholder or a value under 32 characters fails system check `accounts.E001`, so `migrate` refuses to run |
 | `ALLOWED_HOSTS` | yes | Comma-separated hostnames the backend will serve |
+| `TRUSTED_PROXY_COUNT` | yes (bundled default `1`) | Reverse proxies in front of the backend, used to find the client IP for rate limits. With `DEBUG=False` an unset value stops the backend; use `0` only when clients reach Django directly |
 | `DATABASE_URL` | no | Never put this in static `.env`; the atomic ops pointer is its only Compose source |
-| `CORS_ALLOWED_ORIGINS` | no | Browser origins allowed to call the API |
-| `PUBLIC_APP_BASE_URL` | yes for email links | Absolute frontend base URL used for password-reset and invitation links |
-| `API_CLIENT_ENC_KEY` | recommended | Fernet key encrypting integration secrets at rest |
+| `CORS_ALLOWED_ORIGINS` | yes | Browser origins allowed to call the API (exact `scheme://host`, comma-separated). The bundled install writes its own origin |
+| `PUBLIC_APP_BASE_URL` | yes | Absolute frontend base URL for links in email (invitations, member-area and machine-job links) and payment returns. Unset falls back to `http://localhost:5000`. Password reset sends a code, not a link |
+| `API_CLIENT_ENC_KEY` | yes | See the secrets table above |
+| `AUDIT_MAC_MASTER_KEY` | yes | See the secrets table above |
+| `TOMBSTONED_APPS` | no | App labels whose runtime surfaces are removed deployment-wide; get the line from `manage.py suggest_tombstones` |
+| `GITHUB_API_TOKEN` | no | Enables the GitHub contribution count on maker profiles. Not forwarded by the bundled Compose files yet |
+| `TELEGRAM_BOT_TOKEN` | no | Deployment-wide fallback bot for makerspaces without their own token. Not forwarded by `docker-compose.prod.yml`; set tokens in the console ([notifications-setup.md](notifications-setup.md)) |
+| `TELEGRAM_WEBHOOK_SECRET` | no | Authenticates Telegram's webhook calls, which are acknowledged and ignored (alerts are outbound only). Not forwarded by `docker-compose.prod.yml` |
 | `SPACEWORKS_REPOSITORY` | no (default `SpaceWorks-HQ/SpaceWorks`) | GitHub `owner/repo` whose latest release the host follows; fresh installs derive image names from its lowercased owner |
 | `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
 | `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
 | `SPACEWORKS_DEPLOY_RUNNER` | repository variable for automatic deploys | Set `true` in GitHub Actions variables after runner setup; `false` disables automatic deployment jobs. This is not a host `.env` setting |
 | `CHECKIN_API_URL` | when using `checked_in` request mode | Public upstream roster URL; matching establishes presence eligibility, not identity |
-| `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N` |
+| `CHECKIN_PROVIDER_NAME` | no | Name of your check-in system shown to borrowers; empty means "TinkerHub" for a TinkerHub roster URL, otherwise neutral wording. See [checkin-mode.md](checkin-mode.md) |
+| `CHECKIN_REQUIRED_PURPOSE` | no (default `Working on a project`) | Required roster purpose; the makerspace mode and upstream space ID are set separately with `manage.py set_request_access --mode checked_in --checkin-space-id N`. See [checkin-mode.md](checkin-mode.md) |
+| `CHECKIN_TIMEOUT`, `CHECKIN_CACHE_SECONDS` | no (`5.0`, `30`) | Roster request timeout and name-search cache, in seconds |
 | `MINIO_IMAGE` | no (default `pgsty/silo`) | Server image repository only; optional registry port, no `:tag` or `@digest` |
 | `MINIO_IMAGE_TAG` | no (default `RELEASE.2026-09-16T00-00-00Z`) | Server image tag; must exist in `MINIO_IMAGE` |
 | `MC_IMAGE` | no (default `pgsty/mc`) | Client image repository only; optional registry port, no `:tag` or `@digest` |
@@ -489,13 +581,13 @@ If an instance flips from managed → self-host after deploy, run
 | `MINIO_CORS_ALLOWED_ORIGINS` | yes for uploads | Comma-separated frontend origins allowed to POST/GET objects (sets MinIO's `MINIO_API_CORS_ALLOW_ORIGIN`; defaults to `*`) |
 | `PUBLIC_DOMAIN` | when using the TLS overlay | Application hostname served by Caddy |
 | `ENABLE_HTTPS` | no (default false) | Turns on SSL redirect, Secure cookies, HSTS |
-| `AUTH_COOKIE_SAMESITE` | topology-dependent | `Lax` for the bundled same-origin frontend; `None` for a frontend on a separate origin |
-| `AUTH_COOKIE_SECURE` | topology-dependent | `False` only for plain HTTP; the TLS overlay forces `True` |
+| `AUTH_COOKIE_SAMESITE` | topology-dependent (code default `None`; setup writes `Lax`) | `Lax` for the bundled same-origin frontend; `None` for a frontend on a separate origin ([deploy-netlify.md](deploy-netlify.md)) |
+| `AUTH_COOKIE_SECURE` | topology-dependent (code default `True`; setup writes `False`) | `False` only for plain HTTP; the TLS overlay forces `True` |
 | `TRUST_X_FORWARDED_PROTO` | no (default false) | Trusts `X-Forwarded-Proto` only for the TLS proxy overlay |
 | `CSRF_TRUSTED_ORIGINS` | when HTTPS | `https://` origin(s) trusted for login POSTs |
 | `AXES_FAILURE_LIMIT` | no (default 5) | Failed admin logins before lockout |
 | `HTTP_PORT` | no (default 80) | Published frontend port |
-| `EMAIL_*`, `DEFAULT_FROM_EMAIL` | no | Global fallback SMTP (per-makerspace SMTP overrides it) |
+| `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | for password recovery | Platform SMTP sender, used when neither the superadmin's Platform email settings nor a makerspace's own SMTP apply. Without any sender, **Forgot password?** is hidden. See [notifications-setup.md](notifications-setup.md#email) |
 | `MANAGED_POSTGRES` | no (default `False`) | `True` on managed Postgres (Supabase): purge suspends immutability triggers via a custom GUC instead of `session_replication_role` (which needs superuser) |
 | `CONN_MAX_AGE` | no (default `0`) | Persistent DB connection lifetime; keep `0` on the Supabase transaction pooler |
 | `DISABLE_SERVER_SIDE_CURSORS` | no (default `False`) | Set `True` on the Supabase transaction pooler (no server-side cursors) |
@@ -634,7 +726,7 @@ One backend can serve **many makerspaces**. A makerspace without its own server 
 additional tenant on another makerspace's instance — each tenant gets its own makerspace record,
 public URL/slug, branding, and (optionally) its own branded domain, all isolated by makerspace
 scoping. To give a tenant its own branded site, set its **Custom domain**
-(`Makerspace.frontend_domain`) in the staff console Settings tab; that single field drives CORS,
+(`Makerspace.frontend_domain`) under **Settings → Domain & access**; that single field drives CORS,
 bootstrap resolution, and the staff-auth allowlist. See `docs/single-tenant-frontend.md`.
 
 Browser frontends must use publishable configuration only. Do not place HMAC secrets in JavaScript bundles.
@@ -648,10 +740,12 @@ Use `GET /api/v1/bootstrap?tenant=<public-code>` or `GET /api/v1/bootstrap?slug=
 - publishable public API hints
 
 The React public and staff frontends use `enabled_modules` as live navigation gates. If a tenant does
-not see a workflow, check the makerspace module flags first: `self_checkout` gates public
-self-checkout and staff direct handout, `printing` gates 3D-printing workflows, `stocktake` gates
-stocktake, `containers` gates container tools, `qr_management` gates QR tools/scanner, and reports
-appear for `reports` or printing-related workflows.
+not see a workflow, check the makerspace module flags first: a module that is off is absent from
+both the public site and the console, not shown empty. For example the `inventory.self_checkout`
+feature gates public self-checkout and staff direct handout, `printing` gates 3D printing, `stocktake`
+gates stocktake, `containers` gates container tools, `qr_print_batches` gates QR tools, `scanner` the
+scanner, `reports` the reports, and `membership` the Members tab. The full map is in
+[MODULES.md](MODULES.md).
 
 A makerspace's `frontend_domain` and its `cors_allowed_origins` (API-client origins) are used for
 per-tenant browser access; only the `frontend_domain` origin may hold a staff session.

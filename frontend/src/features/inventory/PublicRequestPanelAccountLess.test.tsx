@@ -10,6 +10,7 @@
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { submitPublicRequest, getAccessToken, refreshAccessToken } = vi.hoisted(() => ({
@@ -189,10 +190,12 @@ describe("account-less borrow requests", () => {
   });
 
   it("asks a members-only space for no contact details and sends no key", async () => {
+    getAccessToken.mockReturnValue("an-access-token");
     renderPanel(false);
 
     expect(screen.queryByLabelText(/your name/i)).toBeNull();
     fill(/request purpose/i, "Bench diagnostics");
+    await waitFor(() => expect(screen.getByRole("button", { name: /submit request/i })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
 
     await waitFor(() => expect(submitPublicRequest).toHaveBeenCalledTimes(1));
@@ -264,5 +267,68 @@ describe("account-less races", () => {
     fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
 
     await waitFor(() => expect(screen.queryByText("tok-abc-123")).toBeNull());
+  });
+});
+
+describe("account-required policies with nobody signed in", () => {
+  beforeEach(() => {
+    submitPublicRequest.mockReset();
+    submitPublicRequest.mockResolvedValue({ public_token: "" });
+    getAccessToken.mockReset();
+    getAccessToken.mockReturnValue("");
+    refreshAccessToken.mockReset();
+    refreshAccessToken.mockResolvedValue(false);
+  });
+
+  function renderSignedOut(extra: { memberAccountsOn?: boolean; membershipOn?: boolean } = {}) {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <PublicRequestPanel items={ITEMS} makerspaceSlug="makerspace" onClear={() => {}} memberAreaHref="/m/makerspace/member" {...extra} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+  }
+
+  it("points a signed-out visitor at member sign-in instead of letting the submit 401", async () => {
+    renderSignedOut();
+    fill(/request purpose/i, "Bench diagnostics");
+
+    const signIn = await screen.findByRole("link", { name: "Sign in" });
+    expect(signIn).toHaveAttribute("href", "/m/makerspace/member");
+    expect(screen.getByText(/so sign in first/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /submit request/i })).toBeDisabled();
+  });
+
+  it("keeps the member rules and adds sign-in on a members space", async () => {
+    renderSignedOut({ membershipOn: true });
+
+    expect(await screen.findByRole("link", { name: "Sign in" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Member borrowing" })).toBeTruthy();
+  });
+
+  it("sends a visitor to the desk when the space has no member accounts to sign in with", async () => {
+    renderSignedOut({ memberAccountsOn: false });
+
+    expect(await screen.findByRole("heading", { name: "Borrow at the desk" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Sign in" })).toBeNull();
+    expect(screen.queryByText(/signed-in account/i)).toBeNull();
+    fill(/request purpose/i, "Bench diagnostics");
+    expect(screen.getByRole("button", { name: /submit request/i })).toBeDisabled();
+  });
+
+  it("restores a reloaded session from the refresh cookie and files the request under it", async () => {
+    // The access token lives in memory only; after a reload it is behind the cookie.
+    refreshAccessToken.mockResolvedValue(true);
+    renderSignedOut({ memberAccountsOn: false });
+
+    fill(/request purpose/i, "Bench diagnostics");
+    await waitFor(() => expect(screen.getByRole("button", { name: /submit request/i })).toBeEnabled());
+    expect(screen.getByRole("heading", { name: "Borrow with your account" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Sign in" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /submit request/i }));
+    await waitFor(() => expect(submitPublicRequest).toHaveBeenCalledTimes(1));
+    expect(refreshAccessToken).toHaveBeenCalled();
   });
 });

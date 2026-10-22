@@ -9,6 +9,7 @@ import { submitPublicRequest, type CheckinMatch } from "./api";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
 import { PublicRequestHeader, type DeskIdentity } from "./PublicRequestHeader";
+import { useCheckinProvider } from "./useCheckinProvider";
 import { PublicToolScanPanel } from "./PublicToolScanPanel";
 import { RequestDeskTabs, type ActiveTab } from "./RequestDeskTabs";
 
@@ -26,6 +27,10 @@ type PublicRequestPanelProps = {
   membershipOn?: boolean;
   // The `inventory.self_checkout` feature. Off (or unusable) hides the scan tab.
   selfCheckout?: boolean;
+  // The `member_accounts` module: whether a signed-out visitor has anywhere to sign in, and
+  // where that is. Off, the only accounts are staff accounts.
+  memberAccountsOn?: boolean;
+  memberAreaHref?: string;
 };
 
 // The header is required for account-less submissions, and it is what makes a retry
@@ -48,6 +53,8 @@ export function PublicRequestPanel({
   requestAccess,
   membershipOn = false,
   selfCheckout = false,
+  memberAccountsOn = true,
+  memberAreaHref,
 }: PublicRequestPanelProps) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -73,9 +80,10 @@ export function PublicRequestPanel({
   const sessionProbe = useQuery({
     queryKey: ["public-request-session", makerspaceSlug],
     queryFn: async () => (getAccessToken() ? true : refreshAccessToken()),
-    // Only `anyone` cares who is signed in. On `checked_in` the roster is the identity for
-    // everyone, signed in or not, so there is nothing to probe.
-    enabled: requestAccess === "anyone" && !disabled,
+    // On `checked_in` the roster is the identity for everyone, signed in or not, so there is
+    // nothing to probe. Every other policy files the request under the signed-in caller, and
+    // without the probe a reload made a signed-in borrower's submit go out bare and 401.
+    enabled: requestAccess !== "checked_in" && !disabled,
     staleTime: Infinity,
     retry: false,
   });
@@ -92,13 +100,21 @@ export function PublicRequestPanel({
   // session, otherwise the caller's own account (membership, waiver and presence only
   // with `membership` on).
   const checkedIn = requestAccess === "checked_in";
+  const checkinProvider = useCheckinProvider(makerspaceSlug);
+  // The `accounts` and `members` policies with nobody signed in: the backend can only 401,
+  // so the desk says where to sign in -- or, with no member accounts, that there is nowhere.
+  const signedOut = !requestAccess && sessionProbe.isFetched && !authenticated;
   const borrowIdentity: DeskIdentity = checkedIn
     ? "checkin"
     : accountLess
       ? "contact"
-      : requestAccess || !membershipOn
-        ? "account"
-        : "member";
+      : signedOut && !memberAccountsOn
+        ? "desk"
+        : signedOut && !membershipOn
+          ? "signin"
+          : requestAccess || !membershipOn
+            ? "account"
+            : "member";
   const totalItems = useMemo(
     () => items.reduce((total, item) => total + item.quantity, 0),
     [items],
@@ -165,8 +181,9 @@ export function PublicRequestPanel({
   // While the probe is unresolved `accountLess` is still false, so `contactReady` is
   // vacuously true and the button would go live before the contact fields exist. On a
   // slow refresh a visitor could submit a member-shaped body and take a 400.
-  const policyResolved = requestAccess !== "anyone" || sessionProbe.isFetched;
+  const policyResolved = checkedIn || sessionProbe.isFetched;
   const canSubmit =
+    !signedOut &&
     requestedFor.trim().length > 0 &&
     items.length > 0 &&
     contactReady &&
@@ -187,12 +204,14 @@ export function PublicRequestPanel({
       ) : (
         <>
           <PublicRequestHeader
+            appearsIn={checkinProvider.appearsIn}
             tab={activeTab}
             identity={activeTab === "scan" ? (requestAccess === "checked_in" ? "checkin" : "member") : borrowIdentity}
             requestAccess={requestAccess}
             // A signed-in caller is only known NOT to be a member here once the probe
             // settles; until then the borrow desk must not tell staff they are outsiders.
             authenticated={authenticated}
+            signInHref={signedOut && memberAccountsOn ? memberAreaHref : undefined}
           />
 
           {scanAvailable ? <RequestDeskTabs activeTab={activeTab} onChange={setActiveTab} /> : null}

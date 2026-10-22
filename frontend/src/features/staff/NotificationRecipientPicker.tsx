@@ -21,9 +21,11 @@ const RECIPIENTS_KEY = (makerspaceId: number) =>
 export function NotificationRecipientPicker({
   makerspaceId,
   delegated = false,
+  machinesOn = true,
 }: {
   makerspaceId: number;
   delegated?: boolean;
+  machinesOn?: boolean;
 }) {
   const path = `/admin/makerspace/${makerspaceId}/notification-recipient-rules`;
   const data = useQuery({
@@ -31,7 +33,7 @@ export function NotificationRecipientPicker({
     queryFn: () => staffRequest<RecipientRulesResponse>(path),
   });
   const [selected, setSelected] = useState<{ feature: string; event: string } | null>(null);
-  const broadOptions = useScopeOptions(makerspaceId, !delegated);
+  const broadOptions = useScopeOptions(makerspaceId, !delegated, machinesOn);
   const options = delegated && data.data
     ? {
         machineTypes: data.data.scope_options.machine_types,

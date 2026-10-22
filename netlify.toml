@@ -2,10 +2,13 @@
 # The generated API client (frontend/src/generated/api.ts) is committed, so the build
 # never has to reach your server.
 #
-# Point the app at your API with VITE_API_URL in the Netlify UI
-# (Site configuration -> Environment variables), e.g. https://api.example.org/api.
-# The backend needs matching CORS/CSRF/cookie settings -- see "Split deployment:
-# backend on your server, frontend on Netlify" in README.md.
+# Set in the Netlify UI (Site configuration -> Environment variables); they are read at
+# BUILD time, so redeploy after changing one:
+#   VITE_API_URL=https://api.example.org/api       (required)
+#   VITE_TENANT_TOKEN=<makerspace public code>      (optional: one-makerspace site, clean routes)
+# The backend needs matching CORS/CSRF/cookie/storage settings and the site host saved as the
+# makerspace's custom domain, or staff are signed out on every reload. Full checklist and a
+# preflight curl to verify it: docs/deploy-netlify.md.
 
 [build]
   base = "frontend"

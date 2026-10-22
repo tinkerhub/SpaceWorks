@@ -34,9 +34,9 @@ history intact. Deleting rows is a separate, deliberate second command — see [
 data](#deleting-a-modules-data).
 
 ```bash
-docker compose run --rm --no-deps backend --role management python manage.py list_modules
-docker compose run --rm --no-deps backend --role management python manage.py install_module bookings
-docker compose run --rm --no-deps backend --role management python manage.py uninstall_module bookings
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py list_modules
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py install_module bookings
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py uninstall_module bookings
 ```
 
 A module another installed module depends on cannot be uninstalled until the dependant goes first, and
@@ -351,14 +351,16 @@ Required by `events` and `bookings`.
   role granting actions is staff administration, not community membership.
 - **Deliberately does not require `member_accounts`.** Identity can come from external OIDC or a staff-created
   person record, so the two are independent switches.
-- **It decides who may submit a borrow request, and installing it closes account-less requests.** With this
-  module on, submitting requires an active member of the makerspace. With it off, any signed-in account may
-  submit — a request is only a proposal that staff must accept, and waiver acceptance cannot be recorded
-  without a membership row anyway. Turning it ON therefore forces `anonymous_requests_enabled` OFF (audited,
-  never silent): the account-less path bypasses the membership check entirely, so leaving both on would let
-  a stranger walk past the requirement you just switched on. Turning it back off does **not** re-open
-  account-less requests — that is an explicit choice, made with
-  `manage.py set_request_access --mode anyone`.
+- **It decides who may submit a borrow request, and installing it closes account-less and check-in
+  requests.** With this module on, submitting requires an active member of the makerspace. With it off,
+  the makerspace's request mode applies: any signed-in account (the default), anyone with no account, or
+  anyone checked in on an upstream roster ([checkin-mode.md](checkin-mode.md)). Turning it ON resets the
+  stored mode to "account required" (audited, never silent): the account-less and check-in paths bypass
+  the membership check entirely, so leaving them on would let a stranger walk past the requirement you
+  just switched on. Turning it back off does **not** re-open them — that is an explicit choice, made with
+  `manage.py set_request_access --mode anyone` or `--mode checked_in --checkin-space-id N`.
+- **Console** — the **Members** tab exists only while this module is on. Staff accounts, roles and
+  password resets are always under **Users** ([staff-roles.md](staff-roles.md)).
 - **Data** — purgeable: join requests and member profiles with their projects and imagery. Memberships,
   waivers and acceptance evidence **stay** — they are core RBAC and liability state.
 
@@ -452,9 +454,10 @@ stored credential**, so re-enabling needs no re-entry.
   dashboards, accessible charts with table fallbacks, the ledger, problem reports and every registered
   report. The catalog covers every module either with a substantive report or an explicitly gated row in
   a composite operational-health report.
-- **Without it** — no analytics screens and no exports from the console. It is a **standalone area
-  rather than part of Inventory** on purpose: switching Inventory off would otherwise take the machine
-  and event reports with it.
+- **Without it** — no analytics screens and no exports from the console, and no **Accountability** tab:
+  problem-report triage and restoring a restricted borrower's access live there, so a space that
+  restricts borrowers should keep `reports` on. It is a standalone area so it can be switched off on its
+  own; it lists only reports whose modules are on.
 - **Data** — closed historical buckets are stored as append-only, non-PII metric rollups; corrections add
   a revision rather than rewriting history. Automatic evidence retention must finalize its rollup fence
   first, so it cannot change historical figures. Whole-tenant purge removes the rollups through tenant
@@ -554,8 +557,8 @@ Uninstalling only hides. If you also want a module's rows *gone*, that is a sepa
 step — so that no single command can both hide and destroy:
 
 ```bash
-docker compose run --rm --no-deps backend --role management python manage.py purge_module_data bookings --list
-docker compose run --rm --no-deps backend --role management python manage.py purge_module_data bookings --makerspace my-space
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py purge_module_data bookings --list
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py purge_module_data bookings --makerspace my-space
 ```
 
 - **The module must already be uninstalled.** Purging an installed module is refused.

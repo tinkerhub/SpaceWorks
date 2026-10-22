@@ -18,7 +18,7 @@ const makerspace = {
   hidden_from_central_directory: false,
   enabled_modules: [
     "public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads",
-    "machine_service", "printing", "maintenance", "payments", "stocktake",
+    "machine_service", "printing", "maintenance", "payments", "stocktake", "reports",
   ],
 };
 
@@ -71,6 +71,7 @@ describe("DashboardPanel scope mode", () => {
     expect(await screen.findByText("Overdue loans")).toBeVisible();
     expect(screen.getByText("Pending payments")).toBeVisible();
     expect(screen.getByText("Maintenance overdue")).toBeVisible();
+    expect(screen.getByText("Problem reports")).toBeVisible();
   });
 });
 
@@ -85,7 +86,7 @@ describe("DashboardPanel module gating", () => {
     );
 
     expect(await screen.findByText("Overdue loans")).toBeVisible();
-    for (const label of ["Pending prints", "Active prints", "Ready to collect", "Stocktakes awaiting approval", "Maintenance overdue", "Pending payments"]) {
+    for (const label of ["Pending prints", "Active prints", "Ready to collect", "Stocktakes awaiting approval", "Maintenance overdue", "Pending payments", "Problem reports"]) {
       expect(screen.queryByText(label)).not.toBeInTheDocument();
     }
   });

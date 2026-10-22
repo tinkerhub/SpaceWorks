@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { deskCopy, type DeskIdentity, type DeskTab } from "./PublicRequestHeader";
 
-const IDENTITIES: DeskIdentity[] = ["contact", "checkin", "account", "member"];
+const IDENTITIES: DeskIdentity[] = ["contact", "checkin", "account", "member", "signin", "desk"];
 const TABS: DeskTab[] = ["borrow", "scan"];
 const POLICIES = [undefined, "anyone", "checked_in"] as const;
 
@@ -52,5 +52,13 @@ describe("request desk copy", () => {
     expect(deskCopy({ identity: "member", tab: "borrow", authenticated: true }).body)
       .toMatch(/active membership, waiver acceptance, and current presence/);
     expect(deskCopy({ identity: "member", tab: "scan", authenticated: true }).title).toBe("Member self-checkout");
+  });
+
+  it("names the configured check-in provider, and stays neutral without one", () => {
+    const named = deskCopy({ identity: "checkin", tab: "borrow", requestAccess: "checked_in", authenticated: false, appearsIn: "in Maker Gate" });
+    expect(named.body).toMatch(/as it appears in Maker Gate/);
+    const neutral = deskCopy({ identity: "checkin", tab: "borrow", requestAccess: "checked_in", authenticated: false });
+    expect(neutral.body).toMatch(/as it appears on the check-in list/);
+    expect(neutral.body).not.toMatch(/TinkerHub/);
   });
 });

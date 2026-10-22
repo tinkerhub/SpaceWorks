@@ -73,8 +73,8 @@ say "Architecture: $ARCH; host: $HOST_KIND${PACKAGE_FAMILY:+/$PACKAGE_FAMILY}."
 missing=()
 MISSING_DOCKER=0
 MISSING_COMPOSE=0
-command -v curl >/dev/null 2>&1 || missing+=(curl)
-command -v tar >/dev/null 2>&1 || missing+=(tar)
+# python3 runs the Compose wrapper validator and setup helpers on the host itself.
+for tool in curl tar python3; do command -v "$tool" >/dev/null 2>&1 || missing+=("$tool"); done
 if ! command -v docker >/dev/null 2>&1; then
   missing+=(docker-engine docker-compose-v2)
   MISSING_DOCKER=1
@@ -85,13 +85,13 @@ elif ! docker compose version >/dev/null 2>&1; then
 fi
 if ((${#missing[@]} > 0)); then
   if [[ "$HOST_KIND" != linux ]]; then
-    die "Missing: ${missing[*]}. Install Docker Desktop (with Compose V2), curl, and tar, then rerun."
+    die "Missing: ${missing[*]}. Install Docker Desktop (with Compose V2), curl, tar, and python3, then rerun."
   fi
   if [[ "$(id -u)" != 0 ]]; then
     command -v sudo >/dev/null 2>&1 || die "Missing ${missing[*]} and sudo is unavailable. Install them as root, then rerun."
     RUN_ROOT=(sudo)
   fi
-  say "After preflight, the $PACKAGE_FAMILY family installer will install/ensure: curl, tar, Docker Engine, and Docker Compose V2."
+  say "After preflight, the $PACKAGE_FAMILY family installer will install/ensure: curl, tar, python3, Docker Engine, and Docker Compose V2."
 else
   say "Dependencies are already present."
   if [[ "$HOST_KIND" == linux && "$(id -u)" != 0 && ! -w "$(dirname "$INSTALL_DIR")" ]]; then
@@ -191,7 +191,7 @@ install_linux_dependencies() {
   case "$PACKAGE_FAMILY" in
     apt)
       "${RUN_ROOT[@]}" apt-get update
-      "${RUN_ROOT[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y curl tar
+      "${RUN_ROOT[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y curl tar python3
       [[ "$MISSING_DOCKER" == 0 ]] \
         || "${RUN_ROOT[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io
       if [[ "$MISSING_COMPOSE" == 1 ]]; then
@@ -202,7 +202,7 @@ install_linux_dependencies() {
       ;;
     dnf)
       manager=dnf; command -v dnf >/dev/null 2>&1 || manager=yum
-      "${RUN_ROOT[@]}" "$manager" install -y curl tar
+      "${RUN_ROOT[@]}" "$manager" install -y curl tar python3
       if [[ "$MISSING_DOCKER" == 1 ]]; then
         repo_os=centos
         [[ "${ID:-}" == fedora ]] && repo_os=fedora
@@ -220,8 +220,8 @@ install_linux_dependencies() {
         "${RUN_ROOT[@]}" "$manager" install -y docker-compose-plugin || true
       fi
       ;;
-    pacman) "${RUN_ROOT[@]}" pacman -Sy --noconfirm --needed curl tar docker docker-compose ;;
-    zypper) "${RUN_ROOT[@]}" zypper --non-interactive install curl tar docker docker-compose ;;
+    pacman) "${RUN_ROOT[@]}" pacman -Sy --noconfirm --needed curl tar python docker docker-compose ;;
+    zypper) "${RUN_ROOT[@]}" zypper --non-interactive install curl tar python3 docker docker-compose ;;
   esac
 }
 if ((${#missing[@]} > 0)); then install_linux_dependencies; fi

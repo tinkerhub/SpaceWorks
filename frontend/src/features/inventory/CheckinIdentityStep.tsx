@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import { Button, Input, initials } from "../../components/ui";
 import { lookupCheckin, type CheckinMatch } from "./api";
+import { useCheckinProvider } from "./useCheckinProvider";
 
 type Props = {
   makerspaceSlug: string;
@@ -12,18 +13,23 @@ type Props = {
 };
 
 // Why a reason string rather than one generic error: "you are not checked in" is a dead
-// end, but "you are checked in, just not as working on a project" is fixable in the
-// TinkerHub app in about ten seconds. Collapsing them would cost every one of those
+// end, but "you are checked in, just not for the required purpose" is fixable in the
+// check-in app in about ten seconds. Collapsing them would cost every one of those
 // people their request.
-const REASONS: Record<CheckinMatch["reason"], string> = {
-  "": "",
-  purpose:
-    "You are checked in, but not as 'Working on a project'. Change it in the TinkerHub app, then search again.",
-  project:
-    "You are checked in to work on a project but have not chosen one. Pick your project in the TinkerHub app, then search again.",
-  expired: "That check-in session has ended.",
-  space: "That check-in is for a different space.",
-};
+function reasonText(reason: CheckinMatch["reason"], purpose: string, app: string): string {
+  switch (reason) {
+    case "purpose":
+      return `You are checked in, but not as '${purpose}'. Change it in ${app}, then search again.`;
+    case "project":
+      return `You are checked in but have not chosen a project. Pick your project in ${app}, then search again.`;
+    case "expired":
+      return "That check-in session has ended.";
+    case "space":
+      return "That check-in is for a different space.";
+    default:
+      return "";
+  }
+}
 
 /** Decorative: the name is always printed beside it. */
 function Face({ name, src, className }: { name: string; src: string; className: string }) {
@@ -42,6 +48,7 @@ export function CheckinIdentityStep({
   onConfirm,
   disabled,
 }: Props) {
+  const checkin = useCheckinProvider(makerspaceSlug);
   const [name, setName] = useState("");
   const [matches, setMatches] = useState<CheckinMatch[] | null>(null);
 
@@ -84,7 +91,7 @@ export function CheckinIdentityStep({
   return (
     <div className="space-y-2">
       <label className="block text-label text-ink" htmlFor="checkin-name">
-        Your name, as it appears in TinkerHub
+        Your name, as it appears {checkin.appearsIn}
       </label>
       <div className="flex gap-2">
         <Input
@@ -132,7 +139,7 @@ export function CheckinIdentityStep({
               <div className="min-w-0 flex-1">
                 <p className="break-words text-body-ui text-ink">{match.name}</p>
                 <p className="break-words text-caption text-ink-muted">
-                  {match.eligible ? match.project_name : REASONS[match.reason]}
+                  {match.eligible ? match.project_name : reasonText(match.reason, checkin.purpose, checkin.app)}
                 </p>
               </div>
               <Button size="sm" className="shrink-0" disabled={!match.eligible} onClick={() => onConfirm(match)}>

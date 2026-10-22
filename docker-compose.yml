@@ -315,6 +315,10 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+        # nginx resolves `backend` once at start. When Compose recreates backend (new image,
+        # or a changed .env as setup.sh does for the backup keys) it gets a new IP, and a
+        # frontend left running answers 502 for every /api call until restarted.
+        restart: true
 volumes:
   makerspace_manager_pgdata:
   minio_data:

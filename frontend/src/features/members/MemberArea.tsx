@@ -61,9 +61,9 @@ function MemberAreaContent() {
   const bootstrap = useQuery({ queryKey: ["member", slug, "bootstrap"], queryFn: () => bootstrapTenant({ slug: slug || undefined }), retry: false });
   const resolvedSlug = slug || bootstrap.data?.makerspace.slug || "";
   const makerspaceId = bootstrap.data?.makerspace.id ?? -1;
-  // Only the module-specific sections are gated. Payments (receipts, history, archived
-  // payments), the membership card, waiver, presence and staff-invitation claims stay:
-  // they are deliberate survivors of their modules being switched off.
+  // Payments (receipts, history, archived payments) and staff-invitation claims are the
+  // deliberate survivors (`test_offstate_d3_survivors.SURVIVORS`). The membership card,
+  // waiver and presence are `membership`'s own surfaces and go with it.
   const membershipOn = moduleEnabled(bootstrap.data?.modules, "membership");
   const eventsOn = moduleEnabled(bootstrap.data?.modules, "events");
   // Present only when the deployment switched member accounts off. Then the only accounts
@@ -78,8 +78,8 @@ function MemberAreaContent() {
   const requested = memberships.data?.requests.some((row) => row.makerspace.slug === resolvedSlug && row.state === "requested");
   const profile = useQuery({ queryKey: ["member", "profile"], queryFn: () => memberRequest<Profile>("/auth/me"), enabled: Boolean(memberships.data), retry: false });
   const invitations = useQuery({ queryKey: ["member", "invitations"], queryFn: () => memberRequest<Invitations>("/memberships/invitations"), enabled: Boolean(memberships.data), retry: false });
-  const waiver = useQuery({ queryKey: ["member", resolvedSlug, "waiver"], queryFn: () => memberRequest<Waiver>(`/member/makerspaces/${makerspaceId}/waiver`), enabled: makerspaceId >= 0 && active, retry: false });
-  const presence = useQuery({ queryKey: ["member", resolvedSlug, "presence"], queryFn: () => memberRequest<Presence>(`/public/${resolvedSlug}/presence-sessions/current`), enabled: Boolean(resolvedSlug) && active, retry: false });
+  const waiver = useQuery({ queryKey: ["member", resolvedSlug, "waiver"], queryFn: () => memberRequest<Waiver>(`/member/makerspaces/${makerspaceId}/waiver`), enabled: membershipOn && makerspaceId >= 0 && active, retry: false });
+  const presence = useQuery({ queryKey: ["member", resolvedSlug, "presence"], queryFn: () => memberRequest<Presence>(`/public/${resolvedSlug}/presence-sessions/current`), enabled: membershipOn && Boolean(resolvedSlug) && active, retry: false });
   const activity = useQuery({ queryKey: ["member", resolvedSlug, "activity"], queryFn: () => memberRequest<MemberActivity>(`/member/makerspaces/${makerspaceId}/activity`), enabled: membershipOn && makerspaceId >= 0 && active, retry: false });
   const payments = useQuery({ queryKey: ["member", resolvedSlug, "payments"], queryFn: () => memberRequest<MemberPayment[]>(`/member/makerspaces/${makerspaceId}/payments`), enabled: makerspaceId >= 0 && active, retry: false });
   // Deliberately NOT gated on `memberships.data`. A member whose only makerspace is archived
@@ -143,7 +143,7 @@ function MemberAreaContent() {
         <MemberHeaderCard
           spaceName={spaceName}
           username={profile.data?.username}
-          membership={membership}
+          membership={membershipOn ? membership : undefined}
           emailVerified={memberAccounts ? profile.data?.email_verified : undefined}
           action={memberships.isError && memberAccounts ? signInButton : null}
         />

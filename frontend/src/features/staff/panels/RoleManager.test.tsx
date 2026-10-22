@@ -77,3 +77,42 @@ describe("RoleManager capability catalog", () => {
     expect(requestedPaths().some((path) => path.includes("role_id="))).toBe(false);
   });
 });
+
+describe("RoleManager on a space without some modules", () => {
+  const defaults = (overrides: Partial<StaffRole>): StaffRole => ({ ...role, is_default: true, is_protected: true, member_count: 0, ...overrides });
+  const machineManager = defaults({ id: 8, name: "Machine Manager", slug: "machine_manager", granted_actions: ["manage_machines"] });
+  const member = defaults({ id: 9, name: "Member", slug: "member", granted_actions: [] });
+
+  function renderWith(roles: StaffRole[], membershipOn: boolean) {
+    staffRequest.mockImplementation((path: string) => {
+      if (path === "/admin/makerspaces/7/roles") return Promise.resolve(roles);
+      if (path === "/admin/makerspaces/7/roles/capabilities") return Promise.resolve(plainCatalog);
+      return Promise.resolve({});
+    });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <RoleManager msId={7} actorActions={["manage_makerspace"]} isSuperadmin={false} membershipOn={membershipOn} onRolesChanged={vi.fn()} />
+      </QueryClientProvider>,
+    );
+  }
+
+  it("lists only grants the installed modules offer, never a raw action key", async () => {
+    renderWith([role], false);
+    expect(await screen.findByText("View inventory")).toBeVisible();
+    expect(screen.queryByText(/manage_events/)).toBeNull();
+  });
+
+  it("hides unused defaults that describe only switched-off modules", async () => {
+    renderWith([role, machineManager, member], false);
+    expect(await screen.findByText("Events crew")).toBeVisible();
+    expect(screen.queryByText("Machine Manager")).toBeNull();
+    expect(screen.queryByText("Member")).toBeNull();
+  });
+
+  it("keeps such a default while someone still holds it, and Member with membership on", async () => {
+    renderWith([{ ...machineManager, member_count: 1 }, member], true);
+    expect(await screen.findByText("Machine Manager")).toBeVisible();
+    expect(screen.getByText("Member")).toBeVisible();
+  });
+});

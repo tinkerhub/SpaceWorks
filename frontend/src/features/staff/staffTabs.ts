@@ -35,6 +35,9 @@ const TAB_MODULES: Record<string, string[]> = {
   qr: ["qr_print_batches"],
   scanner: ["scanner"],
   reports: ["reports"],
+  // Its endpoint (and problem-report triage) is `require_module("reports")` server-side,
+  // so without the module the tab could only say "reports is disabled".
+  accountability: ["reports"],
   payments: ["payments"],
   // The community surface (roster with referral/verification, waiver, presence, join queue).
   // Gating it cannot lock a space out of its own administration (plan A7): the never-gated

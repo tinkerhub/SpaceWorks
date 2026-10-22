@@ -68,6 +68,13 @@ describe("tenant migration authority", () => {
     expect(getStaffAccess([], true, false).allowedTabs).toContain("migration");
   });
 
+  it("ties accountability to the reports module its endpoint requires", () => {
+    const space = { id: 1, name: "Forge", enabled_modules: ["staff_admin"] };
+    expect(filterTabsByEnabledModules(["audit", "accountability"], space)).toEqual(["audit"]);
+    const withReports = { ...space, enabled_modules: ["staff_admin", "reports"] };
+    expect(filterTabsByEnabledModules(["audit", "accountability"], withReports)).toEqual(["audit", "accountability"]);
+  });
+
   it("omits the tab when the tenant_migration app is tombstoned", () => {
     const space = { id: 1, name: "Forge", unavailable_apps: ["tenant_migration"] };
     expect(filterTabsByEnabledModules(["dashboard", "migration"], space)).toEqual(["dashboard"]);

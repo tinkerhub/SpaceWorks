@@ -1,3 +1,4 @@
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -77,20 +78,25 @@ class CreateBoxQrView(QrPermissionMixin, APIView):
         parent = None
         if data.get("parent_id"):
             parent = get_object_or_404(Box, pk=data["parent_id"], makerspace=makerspace)
-        box = Box.objects.create(
-            makerspace=makerspace,
-            parent=parent,
-            label=data["label"],
-            location=data.get("location", ""),
-            description=data.get("description", ""),
-        )
-        QrCode.objects.create(
-            makerspace=makerspace,
-            payload=box.code,
-            target_type=QrCode.TargetType.BOX,
-            target_id=box.id,
-            created_by=request.user,
-        )
+        try:
+            with transaction.atomic():
+                box = Box.objects.create(
+                    makerspace=makerspace,
+                    parent=parent,
+                    label=data["label"],
+                    location=data.get("location", ""),
+                    description=data.get("description", ""),
+                )
+                QrCode.objects.create(
+                    makerspace=makerspace,
+                    payload=box.code,
+                    target_type=QrCode.TargetType.BOX,
+                    target_id=box.id,
+                    created_by=request.user,
+                )
+        except IntegrityError:
+            # `uniq_box_label_per_makerspace`: a duplicate label was a bare 500.
+            raise ValidationError({"label": ["A container with this label already exists in this makerspace."]})
         audit.record(request.user, "qr.box_created", makerspace=makerspace, target=box)
         return Response(BoxSerializer(box).data, status=status.HTTP_201_CREATED)
 

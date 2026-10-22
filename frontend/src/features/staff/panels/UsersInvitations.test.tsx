@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 
 import type { StaffAuthUser } from "../../../lib/api";
 import type { Makerspace } from "./shared";
@@ -121,6 +121,31 @@ describe("Users people list", () => {
       const options = Array.from(dialog.querySelectorAll("option")).map((option) => option.textContent);
       expect(options).toContain("Inventory Manager");
       expect(options).not.toContain("Member");
+    });
+  });
+
+  it("never offers a role whose every grant belongs to a switched-off module", async () => {
+    const machineRole = { ...roles[0], id: 8, name: "Machine Manager", slug: "machine_manager", granted_actions: ["manage_machines"], legacy_role: "machine_manager" };
+    // Within the actor's ceiling, so only the catalog (which omits `manage_machines`) can drop it.
+    const actions = user.makerspaces[0].actions;
+    user.makerspaces[0].actions = [...actions, "manage_machines"];
+    onTestFinished(() => { user.makerspaces[0].actions = actions; });
+    staffRequest.mockImplementation((url: string) => {
+      if (url.endsWith("/roles")) return Promise.resolve([...roles, machineRole]);
+      if (url.endsWith("/memberships")) return Promise.resolve([]);
+      if (url.endsWith("/roles/capabilities")) return Promise.resolve([{ value: "edit_inventory", label: "Edit inventory", description: "", group: "Inventory", grantable: true, lock_reason: null }]);
+      return Promise.resolve({});
+    });
+    renderUsers(["staff_admin"]);
+
+    const add = await screen.findByRole("button", { name: /add staff/i });
+    await waitFor(() => expect(add).toBeEnabled());
+    fireEvent.click(add);
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() => {
+      const options = Array.from(dialog.querySelectorAll("option")).map((option) => option.textContent);
+      expect(options).toContain("Inventory Manager");
+      expect(options).not.toContain("Machine Manager");
     });
   });
 });

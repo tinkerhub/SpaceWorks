@@ -59,12 +59,17 @@ beforeEach(() => {
 });
 
 describe("member area with only the core modules", () => {
-  it("keeps payments, the membership card and invitations but drops membership and events sections", async () => {
+  it("keeps payments and invitations but drops the membership card, presence and events sections", async () => {
     routeMember(CORE);
 
     expect(await screen.findByText("Laser time")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Membership" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Pending invitations" })).toBeInTheDocument();
+    // The card, waiver and presence belong to `membership`; a staff row must not read as a member.
+    expect(screen.queryByRole("heading", { name: "Membership" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Presence" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Active member")).not.toBeInTheDocument();
+    expect(memberRequest).not.toHaveBeenCalledWith("/member/makerspaces/1/waiver");
+    expect(memberRequest).not.toHaveBeenCalledWith("/public/forge/presence-sessions/current");
     expect(screen.queryByRole("heading", { name: "Refer someone" })).not.toBeInTheDocument();
     expect(memberRequest).not.toHaveBeenCalledWith("/member/makerspaces/1/activity");
     // Profile, directory and partner events fetch through staffRequest; none may mount.
@@ -77,6 +82,8 @@ describe("member area with only the core modules", () => {
     routeMember([...CORE, "membership", "events"]);
 
     expect(await screen.findByRole("heading", { name: "Refer someone" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Membership" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Presence" })).toBeInTheDocument();
     await waitFor(() => expect(memberRequest).toHaveBeenCalledWith("/member/makerspaces/1/activity"));
     expect(staffRequest).toHaveBeenCalledWith("/member/makerspaces/1/collaborative-events/");
     expect(staffRequest).toHaveBeenCalledWith("/member/makerspaces/1/profile");

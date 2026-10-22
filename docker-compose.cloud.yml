@@ -79,6 +79,27 @@ x-app-env: &app-env
   CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
   CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
   CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
+  CHECKIN_PROVIDER_NAME: ${CHECKIN_PROVIDER_NAME:-}
+  # Optional integrations and secrets the code reads. Each must be listed here or a
+  # value set in .env never reaches Django. Blank keeps the feature off / at its default.
+  EVENT_STATION_PIN_PEPPER: ${EVENT_STATION_PIN_PEPPER:-}
+  PUSH_TOKEN_HMAC_KEY: ${PUSH_TOKEN_HMAC_KEY:-}
+  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+  TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+  GITHUB_API_TOKEN: ${GITHUB_API_TOKEN:-}
+  STRIPE_CONNECT_REDIRECT_URI: ${STRIPE_CONNECT_REDIRECT_URI:-}
+  PUBLIC_IMAGE_MAX_BYTES: ${PUBLIC_IMAGE_MAX_BYTES:-10485760}
+  PUBLIC_IMAGE_URL_TTL_SECONDS: ${PUBLIC_IMAGE_URL_TTL_SECONDS:-300}
+  PLATFORM_STAFF_ORIGINS: ${PLATFORM_STAFF_ORIGINS:-}
+  CRON_SECRET: ${CRON_SECRET:-}
+  TELEGRAM_API_URL: ${TELEGRAM_API_URL:-https://api.telegram.org}
+  # HTTPS is the default here, so HSTS is too (settings derive 0 only when HTTPS is off).
+  SECURE_HSTS_SECONDS: ${SECURE_HSTS_SECONDS:-31536000}
+  # R2 wants "auto"; AWS wants the bucket region.
+  AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME:-us-east-1}
+  # Split SPA/API origins need SameSite=None + Secure; see "Split deployment" in README.md.
+  AUTH_COOKIE_SAMESITE: ${AUTH_COOKIE_SAMESITE:-None}
+  AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-True}
   API_CLIENT_ENC_KEY: ${API_CLIENT_ENC_KEY:?set API_CLIENT_ENC_KEY}
   AUDIT_MAC_MASTER_KEY: ${AUDIT_MAC_MASTER_KEY:-}
   AUDIT_ATTESTATION_DEPLOYMENT_ID: ${AUDIT_ATTESTATION_DEPLOYMENT_ID:-}
@@ -248,3 +269,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+        # nginx resolves `backend` once at start. When Compose recreates backend (new image,
+        # or a changed .env as setup.sh does for the backup keys) it gets a new IP, and a
+        # frontend left running answers 502 for every /api call until restarted.
+        restart: true

@@ -67,3 +67,31 @@ describe("DirectLoans with the membership modules", () => {
     expect(screen.getByText("Member claim code")).toBeVisible();
   });
 });
+
+describe("DirectLoans and the containers module", () => {
+  it("offers no container picker and never asks for containers while the module is off", async () => {
+    renderPanel(CORE);
+
+    expect(await screen.findByRole("combobox", { name: "Borrower" })).toBeVisible();
+    expect(screen.queryByRole("combobox", { name: /container/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Scan container" })).toBeNull();
+    expect(screen.getByText(/add at least one item or QR code/)).toBeVisible();
+    expect(staffRequest.mock.calls.some(([path]) => String(path).includes("/containers"))).toBe(false);
+  });
+
+  it("keeps the container picker with the module on", async () => {
+    renderPanel([...CORE, "containers"]);
+
+    expect(await screen.findByRole("button", { name: "Scan container" })).toBeVisible();
+    expect(screen.getByText(/add at least one item, QR code or container/)).toBeVisible();
+  });
+});
+
+describe("DirectLoans with member accounts but no membership", () => {
+  it("calls the claim code an account code, not a membership", async () => {
+    renderPanel([...CORE, "member_accounts"]);
+
+    expect(await screen.findByText("Account claim code")).toBeVisible();
+    expect(screen.queryByText("Member claim code")).toBeNull();
+  });
+});

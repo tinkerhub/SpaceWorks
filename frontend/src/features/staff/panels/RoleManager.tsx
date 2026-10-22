@@ -19,14 +19,16 @@ import {
   TR,
   useToast,
 } from "../../../components/ui";
-import { capabilitiesPath, deleteRole, listCapabilities, type Capability, type StaffRole } from "./rolesApi";
+import { capabilitiesPath, deleteRole, liveActions, listCapabilities, type Capability, type StaffRole } from "./rolesApi";
 import { RoleEditor } from "./RoleEditor";
 import { errorText, useStaffGet } from "./shared";
 
-export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }: {
+export function RoleManager({ msId, actorActions, isSuperadmin, membershipOn = true, onRolesChanged }: {
   msId: number;
   actorActions: readonly string[];
   isSuperadmin: boolean;
+  /** Off: the grant-less Member default is a community role this space does not run. */
+  membershipOn?: boolean;
   onRolesChanged: () => void;
 }) {
   const queryClient = useQueryClient();
@@ -49,6 +51,11 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
     ? roleCatalog.data ?? (roleCatalog.isError ? capabilities.data : undefined)
     : capabilities.data;
   const labels = new Map((capabilities.data ?? []).map((item) => [item.value, item.label]));
+  // An unused protected default whose every grant belongs to a switched-off module (or, for
+  // Member, whose community module is off) describes nothing this space can do.
+  const inertDefault = (role: StaffRole) => role.is_default && role.member_count === 0 && Boolean(capabilities.data)
+    && (role.granted_actions.length ? liveActions(role, capabilities.data).length === 0 : !membershipOn);
+  const visibleRoles = roles.data?.filter((role) => !inertDefault(role));
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["staff", "roles", msId] });
     onRolesChanged();
@@ -79,7 +86,7 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
       />
       <div className="grid gap-3">
         <ErrorText message={roles.error?.message ?? deleteError} />
-        {!roles.isLoading && !roles.error && !roles.data?.length ? (
+        {!roles.isLoading && !roles.error && !visibleRoles?.length ? (
           <EmptyState
             title="No roles yet"
             description="Create a role, then assign it to staff."
@@ -97,7 +104,7 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
             </THead>
             <TBody>
               {roles.isLoading ? <SkeletonRows rows={3} cols={4} /> : null}
-              {roles.data?.map((role) => (
+              {visibleRoles?.map((role) => (
                 <TR key={role.id}>
                   <TD>
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -108,7 +115,7 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
                   </TD>
                   <TD className="whitespace-nowrap text-ink-secondary">{memberCount(role.member_count)}</TD>
                   <TD className="max-w-md text-caption text-ink-muted">
-                    {role.granted_actions.map((action) => labels.get(action) ?? action).join(", ") || "No capabilities"}
+                    {capabilities.data ? liveActions(role, capabilities.data).map((action) => labels.get(action) ?? action).join(", ") || "No capabilities" : null}
                   </TD>
                   <TD>
                     <div className="flex justify-end gap-2">

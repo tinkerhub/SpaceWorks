@@ -492,7 +492,12 @@ revocation and is never module-gated (its Invitations sub-tab exists only with m
 `member_accounts` on, the one configuration where the staff-invitation survivor can be claimed). The member
 area (`/m/<slug>/member`) is a 404 when `member_accounts` is off, apart from archived-payment discovery. The
 notification-rules matrix offers native push only while `mobile.push` is effective. Evidence-retention
-settings live in Settings and are gated on `MANAGE_MAKERSPACE`, not on an events action.
+settings live in Settings and are gated on `MANAGE_MAKERSPACE`, not on an events action. Further
+(profile matrix, same day): with `membership` off the member area drops the Membership card, waiver and
+presence (and their fetches); Accountability requires `reports`; the Settings Notifications tab exists only
+with `email` or a chat module on, and its Rooms card only with a chat module; default roles that grant no
+live action here (Machine Manager without `machines`, Member without `membership`) are hidden and not
+assignable; direct handout shows no container controls without `containers`.
 
 **The deliberate survivors — open with their module off, by decision.**
 `tests/modules/test_offstate_d3_survivors.py::SURVIVORS` is the authoritative list, each entry mapped to
@@ -2905,6 +2910,21 @@ applies the membership + waiver + presence check with `membership` installed and
 otherwise, matching the borrow-request split.
 
 ## Container / deployment invariants
+
+**Every custom request header the SPA sends must be in `CORS_ALLOW_HEADERS`.** The supported split
+deployment (SPA on Netlify, API on its own origin) sends every request cross-origin, so a header missing
+from `backend/config/settings.py` `CORS_ALLOW_HEADERS` fails the browser preflight while same-origin
+installs and the test suite keep passing. `Idempotency-Key` was missing until `0.8.5-main.11` and broke
+every check-in and account-less borrow submit in production. Add the header in the same change that
+first sends it; the operator check is the preflight `curl` in `docs/deploy-netlify.md`.
+
+**`scripts/update.sh` refreshes `deploy/Caddyfile*` only when the installed file is unedited.**
+`scripts/refresh-proxy-config.sh` replaces a file only if its sha256 is in `SHIPPED_PROXY_CONFIG_SHA256`
+(every version a release shipped); an edited file is kept and the release copy is written beside it as
+`<file>.release` with a warning. A change to either Caddyfile must therefore append its new digest to that
+list (`backend/tests/test_proxy_config_refresh.py` fails until it does) and still needs an "Upgrade notes"
+entry in `docs/self-hosting.md`, for customised hosts and for hosts whose installed updater predates the
+refresh. `scripts/install-host-bundle.sh` must never copy the Caddyfiles itself.
 
 **Only `deploy.yml` may target the production self-hosted runner; host tooling executes deployments.**
 No other `.github/workflows` file may contain `self-hosted` or `spaceworks-prod`. `deploy.yml` has only

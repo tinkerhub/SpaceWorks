@@ -288,3 +288,34 @@ def test_bootstrap_withholds_request_access_when_membership_makes_it_impossible(
 
     assert response.status_code == 200
     assert "request_access" not in response.data["makerspace"]
+
+
+def test_bootstrap_answers_a_signed_in_member_session():
+    # The SPA sends its bearer token on every public call; a member-surface session is
+    # refused outside its allowlist, which made bootstrap 403 for every signed-in member.
+    makerspace = make_space("platform-member-session")
+    User.objects.create_user(username="boot-member", email="boot-member@example.test", password="Boot member pw 947!")
+    login = APIClient().post(
+        "/api/v1/auth/login",
+        {"username": "boot-member@example.test", "password": "Boot member pw 947!", "surface": "member"},
+        format="json",
+    )
+    assert login.status_code == 200
+    assert login.data["surface"] == "member"
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+
+    response = client.get(f"/api/v1/bootstrap?slug={makerspace.slug}")
+
+    assert response.status_code == 200
+    assert response.data["makerspace"]["slug"] == makerspace.slug
+    # Still refused everywhere a member session should be.
+    assert client.get("/api/v1/admin/makerspaces").status_code == 403
+
+
+def test_bootstrap_ignores_a_stale_bearer_token():
+    makerspace = make_space("platform-stale-token")
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION="Bearer not-a-real-token")
+
+    assert client.get(f"/api/v1/bootstrap?slug={makerspace.slug}").status_code == 200

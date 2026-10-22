@@ -19,6 +19,9 @@ export function EmailTemplateTypeSelector({
   selectedTypeId: number | null;
   onSelect: (machineType: MachineTypeOption | null) => void;
 }) {
+  // No per-type copy to pick (machines off, or a stream no machine type overrides): a
+  // selector holding only "Space default" would name a module the space may not run.
+  if (!types.length) return null;
   return (
     <div role="group" aria-labelledby="email-template-type-label" className="grid gap-2">
       <p id="email-template-type-label" className="text-label text-ink">Machine type</p>

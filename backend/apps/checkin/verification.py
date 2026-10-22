@@ -25,6 +25,7 @@ from apps.checkin.client import CheckinUnavailable
 from apps.checkin.eligibility import ELIGIBLE, REASON_PROJECT, REASON_PURPOSE, refusal_reason
 from apps.checkin.errors import denied
 from apps.checkin.matching import normalize
+from apps.checkin.provider import required_purpose
 
 
 class CheckinServiceUnavailable(APIException):
@@ -69,7 +70,7 @@ def verify(makerspace, *, mid, typed_name):
     if reason in (REASON_PURPOSE, REASON_PROJECT):
         raise denied(
             "project_required",
-            "Set your check-in to 'Working on a project' and choose a project, "
+            f"Set your check-in to '{required_purpose()}' and choose a project, "
             "then try again.",
         )
     if reason != ELIGIBLE:

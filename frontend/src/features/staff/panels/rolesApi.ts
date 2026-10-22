@@ -124,6 +124,18 @@ export function assignableRolesFor<R extends Pick<StaffRole, "granted_actions">>
   );
 }
 
+// The grants a role can use on this makerspace. The plain capability catalog omits every
+// action of a switched-off module, so a grant outside it is inert here (Machine Manager on a
+// space without `machines`). An unloaded catalog keeps them all rather than guessing.
+export function liveActions(
+  role: Pick<StaffRole, "granted_actions">,
+  catalog: readonly Pick<Capability, "value">[] | undefined,
+): string[] {
+  if (!Array.isArray(catalog)) return role.granted_actions;
+  const known = new Set(catalog.map((item) => item.value));
+  return role.granted_actions.filter((action) => known.has(action));
+}
+
 // True when the role holds manage_makerspace. Falls back to the legacy enum when the row has
 // no assigned role or the roles list has not loaded it (yet).
 export function roleManagesMakerspace(

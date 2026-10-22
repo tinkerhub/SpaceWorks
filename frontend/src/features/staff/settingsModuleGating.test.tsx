@@ -41,7 +41,7 @@ import { MakerspaceSettingsPanel } from "./MakerspaceSettingsPanel";
 import type { Makerspace } from "./panels/shared";
 
 const CORE = ["public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads"];
-const GATED_CARDS = ["membership", "geofence", "payments", "booking-emails", "booking-rules", "filament", "email", "webhooks", "telegram"];
+const GATED_CARDS = ["membership", "geofence", "payments", "booking-emails", "booking-rules", "filament", "email", "webhooks", "telegram", "destinations"];
 
 function space(modules: string[]): Makerspace {
   return {
@@ -85,8 +85,10 @@ describe("settings cards follow the module switches", () => {
   it("mounts no card for a switched-off module", async () => {
     renderSettings(CORE);
     const { seen, tabs } = await mountedAcrossTabs();
-    // A tab whose cards are all switched off is not offered at all.
-    expect(tabs).toEqual(["General", "Notifications", "Integrations", "Domain & access"]);
+    // A tab whose cards are all switched off is not offered at all -- with no email or
+    // chat module there is nothing to notify through, so Notifications goes too.
+    expect(tabs).toEqual(["General", "Integrations", "Domain & access"]);
+    expect(seen.has("destinations")).toBe(false);
     expect(seen.has("general")).toBe(true);
     for (const card of GATED_CARDS) expect(seen.has(card)).toBe(false);
     for (const title of INLINE_CARDS) expect(seen.has(title)).toBe(false);
@@ -108,6 +110,13 @@ describe("settings cards follow the module switches", () => {
     expect(tabs).toEqual(["General", "Bookings", "Machines", "Notifications", "Integrations", "Domain & access"]);
     for (const card of GATED_CARDS) expect(seen.has(card)).toBe(true);
     for (const title of INLINE_CARDS) expect(seen.has(title)).toBe(true);
+  });
+
+  it("offers chat rooms only with a chat module", async () => {
+    renderSettings([...CORE, "email"]);
+    const { seen, tabs } = await mountedAcrossTabs();
+    expect(tabs).toEqual(["General", "Notifications", "Integrations", "Domain & access"]);
+    expect(seen.has("destinations")).toBe(false);
   });
 
   it("offers evidence retention in General with events off, to managers only", async () => {
@@ -150,7 +159,7 @@ describe("feature settings fieldsets", () => {
   });
 
   it("shows no raw module keys and labels each module group", () => {
-    wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "notifications"])} loading={false} />);
+    wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "notifications", "maintenance"])} loading={false} />);
     expect(screen.queryByText("public_inventory")).not.toBeInTheDocument();
     expect(screen.queryByText("notifications")).not.toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Notifications" })).toBeInTheDocument();
@@ -166,7 +175,7 @@ describe("feature settings fieldsets", () => {
   });
 
   it("does not echo features stranded by a switched-off module when toggling another", async () => {
-    const makerspace = { ...space([...CORE, "notifications"]), enabled_features: ["mobile.push", "payments.enabled", "inventory.self_checkout"] };
+    const makerspace = { ...space([...CORE, "notifications", "maintenance"]), enabled_features: ["mobile.push", "payments.enabled", "inventory.self_checkout"] };
     staffRequest.mockResolvedValue(makerspace);
     wrap(<MakerspaceFeatureSettings makerspace={makerspace} loading={false} />);
 
@@ -178,6 +187,14 @@ describe("feature settings fieldsets", () => {
         body: JSON.stringify({ enabled_features: ["inventory.self_checkout", "notifications.delegated_recipients"] }),
       }),
     ));
+  });
+
+  it("offers delegated maintenance recipients only with the maintenance module", () => {
+    const { unmount } = wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "notifications"])} loading={false} />);
+    expect(screen.queryByRole("switch", { name: "Delegated maintenance recipients" })).not.toBeInTheDocument();
+    unmount();
+    wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "notifications", "maintenance"])} loading={false} />);
+    expect(screen.getByRole("switch", { name: "Delegated maintenance recipients" })).toBeInTheDocument();
   });
 
   it("drops payments.* sub-features while the payments module is off", () => {

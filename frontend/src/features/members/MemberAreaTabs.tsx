@@ -64,7 +64,7 @@ export function MemberAreaTabs(props: MemberAreaTabsProps) {
       </TabsList>
       <TabsContent value="overview" forceMount className={panel}>
         {props.standing}
-        {membership ? (
+        {membership && membershipOn ? (
           <MembershipCards
             membership={membership}
             waiver={props.waiver}

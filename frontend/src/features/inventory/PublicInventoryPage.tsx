@@ -143,6 +143,8 @@ export function PublicInventoryPage() {
               requestAccess={bootstrap?.makerspace?.request_access}
               membershipOn={moduleEnabled("membership")}
               selfCheckout={featureEnabled(bootstrap?.features ?? [], "inventory.self_checkout")}
+              memberAccountsOn={moduleEnabled("member_accounts")}
+              memberAreaHref={`${space.header.homePath.replace(/\/+$/, "")}/member`}
             />
           </div>
         </div>
