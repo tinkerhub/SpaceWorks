@@ -88,7 +88,8 @@ def _run_update(tmp_path, current, args=(), failure="", layer="", pinned=""):
     scripts = tmp_path / "scripts"
     scripts.mkdir()
     for name in ("update.sh", "update-lock.sh", "module-selection.sh", "env-file.sh", "host-image.sh",
-                 "retire-update-polling.sh", "retire-update-tombstone.sh", "install-host-bundle.sh"):
+                 "retire-update-polling.sh", "retire-update-tombstone.sh", "install-host-bundle.sh",
+                 "refresh-proxy-config.sh"):
         shutil.copy(ROOT / "scripts" / name, scripts / name)
     (tmp_path / ".env").write_text("TOMBSTONED_APPS=updates,payments\n", encoding="utf-8")
     # The backup reads the active database from the host pointer, not a running backend.

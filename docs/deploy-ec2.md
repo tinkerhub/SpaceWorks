@@ -10,7 +10,7 @@ Run the server commands below in your SSH session unless stated otherwise.
 The deployment chain is:
 
 ```text
-Owner pushes main -> CI (tests + pip-audit) -> release images and GitHub Release
+Owner pushes main -> CI (pip-audit) -> release images and GitHub Release
   -> successful Continuous Release -> self-hosted Actions runner -> host updater
   -> database backup -> pull immutable images
   -> migrate and restart -> readiness check -> record installed version
@@ -111,6 +111,8 @@ the `checkin` module profile, then sets `checked_in` request mode and the upstre
 database. The default timeout is `CHECKIN_TIMEOUT=5.0` seconds and lookup cache lifetime is
 `CHECKIN_CACHE_SECONDS=30` seconds. If applying the mode fails, setup retains account-required access.
 
+What the roster must look like and what borrowers and staff see: [checkin-mode.md](checkin-mode.md).
+
 **Trust boundary:** the roster is public. A match proves presence eligibility, not identity; anyone
 can enter another checked-in person's name. Staff still accept every borrow request and record
 hand-over evidence. Read [Check-in gated requests](INVARIANTS.md#check-in-gated-requests) before
@@ -164,14 +166,18 @@ The request workflow and staff ledger are core. Review the final module selectio
 conflicts with account-less check-in requests and prevents the mode from being applied.
 
 Enabling Telegram does not configure its credentials. Log into the React staff console at `/admin`,
-select this makerspace and, as a Super Admin, open **API access → Integration settings**. Enter the
-**Telegram bot token** and **Telegram group chat ID**, save, then use **Send Telegram test alert**.
-Add the bot to that group first. To configure additional destinations, open
-**Settings → Notification channels → Rooms → Add a room**, choose Telegram, and enter its
-**Telegram chat ID**. Rooms share this makerspace's bot token. Telegram sends alerts; request
-accept/reject decisions remain in the staff console.
+select this makerspace and open **Settings → Integrations → Telegram alerts** (Space Manager or
+Super Admin). Add the bot to the group first, enter the **Telegram group chat ID** and **Telegram bot
+token**, save, then use **Send Telegram test alert**. Additional groups are **Rooms** under
+**Settings → Notifications**; they share this makerspace's bot token. Telegram sends alerts only;
+request decisions remain in the staff console. Full guide, including every test-alert failure reason:
+[notifications-setup.md](notifications-setup.md).
 
 ## HTTPS with a domain
+
+This section serves the app and API from one hostname. To serve the frontend from Netlify and only the
+API from this server, follow it with the API hostname as `PUBLIC_DOMAIN`, then apply
+[deploy-netlify.md](deploy-netlify.md).
 
 Create DNS **A** records for `inventory.example.org` and `files.inventory.example.org`, both pointing
 to the Elastic IP. Replace those example hostnames with yours. Wait until both resolve correctly.
@@ -273,6 +279,9 @@ SPACEWORKS_COMPOSE_LAYER=tls scripts/spaceworks-compose.sh bundled run --rm --no
 
 Replace `YOUR_SLUG` and `N`; omit the TLS prefix on HTTP hosts. This command selects the request
 policy and upstream space ID; setting the URL alone does not enable the policy.
+
+Releases that change `deploy/Caddyfile` need a manual step on hosts updated by the runner; check
+[Upgrade notes](self-hosting.md#upgrade-notes-manual-steps-per-release) after each release.
 
 ## Rolling back
 

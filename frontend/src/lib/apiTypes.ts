@@ -17,6 +17,9 @@ export type TenantBootstrap = {
     // `checked_in` is the same idea with a gate: no account, but the requester must be
     // on the upstream check-in roster and working on a project.
     request_access?: "anyone" | "checked_in";
+    // Only with `request_access === "checked_in"`: the upstream check-in system's name for
+    // borrower copy ("" when unnamed) and the purpose it requires.
+    checkin?: { provider: string; purpose: string };
   };
   frontend: {
     type: string;

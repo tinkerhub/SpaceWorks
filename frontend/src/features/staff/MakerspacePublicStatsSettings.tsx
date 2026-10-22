@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Card, CardHeader, SettingsRow, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { moduleEnabled } from "../../lib/modules";
 import { errorText, type Makerspace } from "./panels/shared";
 import { SettingSwitch } from "./settingsControls";
 
@@ -50,7 +51,10 @@ export function MakerspacePublicStatsSettings({ makerspace, settings, loading }:
 
   return (
     <Card as="section">
-      <CardHeader title="Public stats" description="A public activity page with print hours, popular hardware and current loans." />
+      <CardHeader
+        title="Public stats"
+        description={`A public activity page with ${moduleEnabled(settings?.enabled_modules ?? makerspace.enabled_modules, "printing") ? "print hours, " : ""}popular hardware and current loans.`}
+      />
       <SettingsRow
         title="Public stats page"
         description={
@@ -70,7 +74,7 @@ export function MakerspacePublicStatsSettings({ makerspace, settings, loading }:
       </SettingsRow>
       <SettingsRow
         title="Public borrower names"
-        description="When on, each current loan publishes the borrower's name on the unauthenticated public stats page. When off, every borrower is shown as “Member”."
+        description="When on, each current loan publishes the borrower's name on the unauthenticated public stats page. When off, every borrower is shown as “Borrower”."
       >
         <SettingSwitch
           label="Publish borrower names publicly"

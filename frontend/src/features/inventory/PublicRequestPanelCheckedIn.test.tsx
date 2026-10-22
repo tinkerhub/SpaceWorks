@@ -202,7 +202,7 @@ describe("checked-in borrow requests", () => {
 
     expect(await screen.findByRole("heading", { name: "Borrow with check-in" })).toBeInTheDocument();
     expect(screen.getByText(/always uses check-in, even while you are signed in/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/your name, as it appears in tinkerhub/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name, as it appears/i)).toBeInTheDocument();
     expect(screen.queryByText(/your account|membership|waiver|presence|member account/i)).not.toBeInTheDocument();
     expect(memberRequest).not.toHaveBeenCalled();
   });
@@ -240,7 +240,7 @@ describe("checked-in borrow requests", () => {
     );
     await confirmIdentity();
 
-    expect(await screen.findByText(/have not chosen one/i)).toBeInTheDocument();
+    expect(await screen.findByText(/have not chosen a project/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /that's me/i })).toBeDisabled();
   });
 

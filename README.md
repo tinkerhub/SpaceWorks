@@ -69,8 +69,9 @@ Captured from a local stack loaded with `manage.py seed_demo`.
   a desk with no signal), post-event feedback, attendance certificates, printable badges, member
   calendar feeds, and bookable spaces.
 - **Organizations across makerspaces** — a network, university or chain registered as an organization
-  linked to any number of spaces, with a public profile and a cross-makerspace event catalogue. An
-  organization grant confers **actions, never identity**.
+  linked to any number of spaces, with a public profile and a cross-makerspace event catalogue,
+  managed by the superadmin in the `/control/` control plane. An organization grant confers
+  **actions, never identity**.
 - **QR everywhere** — boxes, tools, and individual assets; immutable scan history.
 - **Action-based staff console** — editable per-makerspace roles over a fixed action set, four seeded
   defaults, and a superadmin-only Django control plane.
@@ -97,8 +98,8 @@ Captured from a local stack loaded with `manage.py seed_demo`.
 > create with that provider, and phone sign-in needs an SMS account — none of them can ship
 > preconfigured, because they are issued against *your* domain. `setup.sh` walks you through Google
 > and you can skip it; password login is unaffected either way. The GitHub contribution count on
-> maker profiles is the same shape: set `GITHUB_API_TOKEN` in `.env` to enable it, and leave it unset
-> for the section to simply never appear.
+> maker profiles is the same shape: it needs `GITHUB_API_TOKEN` in the backend's environment (the
+> bundled Compose file does not pass it through yet), and without it the section never appears.
 
 ## Quick start
 
@@ -222,9 +223,9 @@ recommended state corresponds to this profile table; management commands can als
 retained** and reinstalling brings it back:
 
 ```bash
-docker compose run --rm --no-deps backend --role management python manage.py list_modules
-docker compose run --rm --no-deps backend --role management python manage.py install_module bookings
-docker compose run --rm --no-deps backend --role management python manage.py uninstall_module bookings
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py list_modules
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py install_module bookings
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py uninstall_module bookings
 ```
 
 Core modules cannot be uninstalled, nor can one another installed module depends on.
@@ -235,8 +236,8 @@ Uninstalling only hides. If you also want a module's rows *gone*, that is a sepa
 second step — so that no single command can both hide and destroy:
 
 ```bash
-docker compose run --rm --no-deps backend --role management python manage.py purge_module_data bookings --list
-docker compose run --rm --no-deps backend --role management python manage.py purge_module_data bookings --makerspace my-space
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py purge_module_data bookings --list
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py purge_module_data bookings --makerspace my-space
 ```
 
 - **The module must already be uninstalled.** Purging an installed module is refused.
@@ -368,22 +369,24 @@ People still get named, two ways:
 #### Who may ask to borrow something
 
 Borrow requests are only ever a *proposal* — staff still accept them, and staff acceptance is what
-reserves stock — so who may submit one is a separate switch from who may sign in. There are three
-states, and you never set them both:
+reserves stock — so who may submit one is a separate switch from who may sign in. Each makerspace has exactly one of
+four policies:
 
-| Member accounts | Account-less requests | Who may submit |
+| `membership` module | Request mode | Who may submit |
 | --- | --- | --- |
-| on | off | **Members** — an active member of that makerspace |
-| off | off | **Account holders** — anyone signed in (the default without the module) |
-| off | **on** | **Anyone** — no account at all |
+| on | (ignored) | **Members** — an active member of that makerspace |
+| off | `accounts` (default) | **Account holders** — anyone signed in |
+| off | `anyone` | **Anyone** — no account at all, name and contact details |
+| off | `checked_in` | **Anyone checked in** at the space on an upstream check-in roster — see [docs/checkin-mode.md](docs/checkin-mode.md) |
 
-The last row is opt-in per makerspace, and turning **Member accounts** on turns it back off: enabling
-membership means asking for membership, so a stranger must not still walk past it. Account-less
+The last two are opt-in per makerspace, and installing `membership` overrides both: enabling
+membership means asking for membership, so a stranger must not still walk past it. In `checked_in`
+mode **every** public borrower checks in, including signed-in staff. Account-less
 submissions ask for a name, email and phone, require an `Idempotency-Key`, and are rate-limited per IP
 and per email address; every one of them is recorded against a single shared requester principal, which
 is deliberately excluded from every per-person ranking so a hundred strangers never add up to one
 fictional "top borrower". `setup.sh` asks this question during first-run setup, and it can be changed
-later with `manage.py set_request_access`.
+later with `manage.py set_request_access --mode accounts|anyone|checked_in`.
 
 ### Choosing which ways in you offer
 
@@ -408,7 +411,7 @@ provider — this page would then be unreachable.
 ### Rooms: sending different alerts to different places
 
 A chat channel can have more than one **room** — a Slack channel, a Discord channel, a Telegram group.
-Add them under **Settings → Notification channels → Rooms**. A room with nothing selected receives
+Add them under **Settings → Notifications → Rooms**. A room with nothing selected receives
 everything; narrow one to a machine, a machine type or an inventory category and it receives only
 those alerts. "All the 3D printers, plus the laser" needs no extra concept — the selections are a
 union.
@@ -427,7 +430,7 @@ as before. Nothing changes until you add your first room.
 ### Choosing who hears about what
 
 By default every alert goes to everyone whose role covers it — a booking alert reaches whoever can
-manage bookings. Under **Settings → Notification channels → Who gets notified** you can override that
+manage bookings. Under **Settings → Notifications → Who gets notified** you can override that
 per event, for events, bookings, maintenance and members. A recipient can be:
 
 | Recipient | Means |
@@ -446,7 +449,7 @@ ever *reduce* who is notified: a person is never alerted about a machine their r
 
 ### Editing the wording
 
-**Settings → Email templates** covers hardware, printing, events, bookings, maintenance and
+The **Email templates** tab covers hardware, printing, events, bookings, maintenance and
 membership, for both the member-facing and staff-facing message. Each template lists the variables it
 can use and previews against sample data, and a saved template can be reset to the built-in wording at
 any time. Chat messages have one editable body per event, shared by all four chat channels — so you
@@ -462,7 +465,7 @@ Uninstalling is per makerspace. A deployment that will *never* use an area can d
 too — no routes, no admin, no OpenAPI paths — while keeping every row and migration:
 
 ```bash
-docker compose run --rm --no-deps backend --role management python manage.py suggest_tombstones   # prints the line to paste
+scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role management python manage.py suggest_tombstones   # prints the line to paste
 ```
 
 Add the result to `.env` as `TOMBSTONED_APPS=`. It is deliberately conservative: an app is only
@@ -475,7 +478,13 @@ suggested when **no** makerspace on the deployment uses any of its modules.
 | What a **module** is and what happens without it | **[docs/MODULES.md](docs/MODULES.md)** |
 | A **plain-language, non-technical** walkthrough | **[docs/setup-for-makerspaces.md](docs/setup-for-makerspaces.md)** |
 | **Production** reference (env vars, TLS, upgrades, releases) | **[docs/self-hosting.md](docs/self-hosting.md)** |
-| **Advanced** config (Telegram, HMAC, Supabase, cron) | **[.github/ADVANCED.md](.github/ADVANCED.md)** |
+| Manual steps when **upgrading** an existing install | **[docs/self-hosting.md → Upgrade notes](docs/self-hosting.md#upgrade-notes-manual-steps-per-release)** |
+| **Frontend on Netlify**, API on your own server | **[docs/deploy-netlify.md](docs/deploy-netlify.md)** |
+| An **AWS EC2** walkthrough with automatic deploys | **[docs/deploy-ec2.md](docs/deploy-ec2.md)** |
+| **Borrow by checking in**, no member accounts | **[docs/checkin-mode.md](docs/checkin-mode.md)** |
+| **Telegram** and **email** setup | **[docs/notifications-setup.md](docs/notifications-setup.md)** |
+| **Staff roles**, stocktake approval, passwords | **[docs/staff-roles.md](docs/staff-roles.md)** |
+| **Advanced** config (chat rooms, HMAC, Supabase, cron) | **[.github/ADVANCED.md](.github/ADVANCED.md)** |
 | **Develop / contribute** (run from source, tests, releases) | **[.github/DEVELOPMENT.md](.github/DEVELOPMENT.md)** |
 
 ## Roadmap
@@ -524,6 +533,11 @@ Every makerspace starts with four protected default roles:
 | **Inventory Manager** | Full hardware lifecycle + inventory + QR + evidence + audit | No machines, staff or settings |
 | **Machine Manager** | `manage_machines` — every machine in the space, end to end: usage, warranty, maintenance, and handing finished jobs over | Implies `manage_printing` and `collect_service_request`, so it absorbed the old Print Manager |
 | **Member** | None | A role granting no actions *is* a community membership — that is how staff and member invitations are told apart |
+
+Staff accounts, roles and password resets live under **Users** (the **Members** tab only exists while
+the `membership` module is on). A stocktake must be approved by a different person from the one who
+completed the count; the superadmin is the exception. What each role sees, the handover role and the
+password flows are in **[docs/staff-roles.md](docs/staff-roles.md)**.
 
 Beyond those, a Space Manager can **create custom roles** with any subset of actions they themselves
 hold, and can edit the defaults — including renaming them and narrowing what they grant. One limit
@@ -603,42 +617,29 @@ supported restore topology.
 
 ### Split deployment: backend on your server, frontend on Netlify
 
-Supported, and `netlify.toml` in the repo root configures it. Netlify builds **only** the React app —
-it never touches the Dockerfiles or compose files, and because `frontend/src/generated/api.ts` is
-committed, the build never has to reach your server.
+Supported, and `netlify.toml` in the repo root configures the Netlify side (base `frontend`,
+`npm run build`, publish `dist`, Node 22, and the catch-all rewrite that keeps deep links such as
+`/m/<slug>` and `/admin/*` working on refresh). Netlify builds only the React app; the committed
+`frontend/src/generated/api.ts` means the build never has to reach your server. Every one of these
+must be set, or something fails in the browser:
 
-Netlify picks up `base = frontend`, `npm run build`, `publish = dist` and `NODE_VERSION = 22` from
-that file (Vite 8 needs Node 20.19+/22.12+, and Netlify's default image can be older). It also adds
-the catch-all rewrite to `index.html`, without which every deep link — `/m/<slug>`, `/admin/*`,
-`/event-check-in/<token>` — 404s on refresh. Set **`VITE_API_URL`** in the Netlify UI to your API,
-e.g. `https://api.example.org/api`.
+| Where | Setting | Why |
+|---|---|---|
+| Netlify (build time) | `VITE_API_URL=https://api.example.org/api` | Where the app calls the API |
+| Netlify (optional) | `VITE_TENANT_TOKEN=<makerspace public code>` | One-makerspace site with clean routes and no makerspace switcher |
+| Server `.env` | `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS` = the site origin | The browser may call the API |
+| Server `.env` | `AUTH_COOKIE_SAMESITE=None`, `AUTH_COOKIE_SECURE=True`, `ENABLE_HTTPS=true` | Cross-site refresh cookie; needs HTTPS on both sides. Setup writes `Lax`/`False`, so change them |
+| Server `.env` | `PUBLIC_APP_BASE_URL` = the site origin | Links in email point at the site, not the API |
+| Server `.env` | `AWS_S3_PUBLIC_ENDPOINT_URL`, `PUBLIC_IMAGE_BASE_URL` (public HTTPS), `MINIO_CORS_ALLOWED_ORIGINS` = the site origin | Uploads and images work from the site |
+| Staff console | **Settings → Domain & access → Custom domain** = the site host (superadmin) | Staff stay signed in across reloads. This **origin-locks** the site to that makerspace: platform-wide admin pages answer `403` there |
 
-The backend then has to accept a browser on a different origin. Auth already defaults to cross-site
-cookies (`AUTH_COOKIE_SAMESITE=None`, `AUTH_COOKIE_SECURE=True`), **which only works if both sides
-are HTTPS**:
+Custom request headers must be in `CORS_ALLOW_HEADERS` (`backend/config/settings.py`): a missing
+`Idempotency-Key` once broke every check-in and account-less borrow submit from Netlify while
+same-origin installs worked. The full checklist, a preflight `curl` to verify it and what
+origin-locking implies are in **[docs/deploy-netlify.md](docs/deploy-netlify.md)**.
 
-```env
-ENABLE_HTTPS=True
-ALLOWED_HOSTS=api.example.org
-CORS_ALLOWED_ORIGINS=https://your-site.netlify.app
-CSRF_TRUSTED_ORIGINS=https://your-site.netlify.app
-```
-
-Three more that are easy to miss:
-
-- **Set each makerspace's `frontend_domain`** to the site's domain. Origin scoping validates it, so
-  tenant-scoped routes are rejected without it.
-- **Object storage must be addressed publicly.** `AWS_S3_PUBLIC_ENDPOINT_URL` and
-  `PUBLIC_IMAGE_BASE_URL` are baked into presigned URLs and every public image `src`, so a
-  `localhost` value yields a site that works only from the server console and shows broken images to
-  everyone else. On R2 or S3 also set `STORAGE_PRESIGN_METHOD=put`, and allow your site's origin in
-  the bucket's CORS rules **in the provider dashboard**.
-- **Keep a scheduler.** Hosting the frontend elsewhere does not affect scheduled work, but the
-  backend profile you choose does: `docker-compose.prod.yml` runs Celery `beat`, while
-  `docker-compose.cloud.yml` has no beat and relies on its `cron` service instead. With neither,
-  `.delay()` still runs inline so nothing looks broken, yet return reminders, the evidence-retention
-  sweep and event-series extension silently never fire. If you use the cloud profile, drop only its
-  `frontend` service — never `cron`.
+Keep a scheduler: `docker-compose.prod.yml` runs Celery `beat`. Without one, return reminders, the
+evidence-retention sweep and event-series extension silently never fire.
 
 ### Moving a makerspace onto its own server
 

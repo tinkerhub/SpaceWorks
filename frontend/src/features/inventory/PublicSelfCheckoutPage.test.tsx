@@ -56,7 +56,7 @@ describe("public self-checkout availability", () => {
   it("serves the roster form on a checked-in space with membership off", () => {
     renderPage({ modules: CORE, requestAccess: "checked_in" });
 
-    expect(screen.getByLabelText(/your name, as it appears in tinkerhub/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name, as it appears/i)).toBeInTheDocument();
     expect(screen.queryByText(/not enabled/i)).not.toBeInTheDocument();
   });
 
@@ -71,6 +71,6 @@ describe("public self-checkout availability", () => {
     renderPage({ modules: [...CORE, "membership"] });
 
     expect(screen.queryByText(/not enabled/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/as it appears in tinkerhub/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/as it appears/i)).not.toBeInTheDocument();
   });
 });

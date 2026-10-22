@@ -48,7 +48,7 @@ MODULES = (
         frontend_workflows=("staff_inventory", "staff_requests"),
     ),
     ModuleDefinition(
-        "guest_handover", "Guest handover", "Guest admin issue and return of accepted requests.",
+        "guest_handover", "Guest handover", "Handover staff issue and return accepted requests.",
         "hardware_requests", GUARD, group=GROUP_INVENTORY, frontend_workflows=("guest_issue", "guest_return"),
     ),
     ModuleDefinition(

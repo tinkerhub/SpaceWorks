@@ -21,7 +21,7 @@ import {
   type StaffForm,
 } from "./UsersModals";
 import { emptyMakerspaceForm, emptyResetPasswordForm, emptyRestrictForm, emptyStaffForm, makerspacePayload, staffPayload } from "./usersForms";
-import { assignableRolesFor, assignRole, createMembership, isStaffMembership, type StaffMembershipRow, type StaffRole } from "./rolesApi";
+import { assignableRolesFor, assignRole, capabilitiesPath, createMembership, isStaffMembership, liveActions, type Capability, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 
 export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }: {
   makerspaces: Makerspace[];
@@ -66,10 +66,13 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
   // invitee can sign in to claim one -- with member_accounts off nobody can.
   const modules = makerspaces.find((space) => space.id === msId)?.enabled_modules;
   const showInvitations = !moduleEnabled(modules, "membership") && moduleEnabled(modules, "member_accounts");
+  // Shares RoleManager's cache entry: the catalog of actions this space's modules offer.
+  const capabilities = useStaffGet<Capability[]>(["staff", "capabilities", msId], capabilitiesPath(msId), msId > 0);
   const assignableRoles = useMemo(
-    // Staff roles only: a role granting no actions (Member) is a community membership.
-    () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin).filter((role) => role.granted_actions.length > 0),
-    [rolesList.data, isSuperadmin, actorActions],
+    // Staff roles only: a role granting no actions (Member) is a community membership, and
+    // one granting only switched-off modules' actions would hand over an empty console.
+    () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin).filter((role) => liveActions(role, capabilities.data).length > 0),
+    [rolesList.data, isSuperadmin, actorActions, capabilities.data],
   );
 
   const staffRows = useMemo(
@@ -222,7 +225,7 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
               </TabsContent>
             ) : null}
             <TabsContent value="roles">
-              <RoleManager msId={msId} actorActions={actorActions} isSuperadmin={isSuperadmin} onRolesChanged={afterStaffChange} />
+              <RoleManager msId={msId} actorActions={actorActions} isSuperadmin={isSuperadmin} membershipOn={moduleEnabled(modules, "membership")} onRolesChanged={afterStaffChange} />
             </TabsContent>
           </Tabs>
         ) : people}

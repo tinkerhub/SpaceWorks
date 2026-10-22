@@ -27,10 +27,12 @@ const MODULE_LABELS: Record<string, string> = {
   notifications: "Notifications",
 };
 
-// A standalone feature that only does something alongside a module: presence sessions
-// are started by members, so the geofence switch is noise without `membership`.
+// A feature that only does something alongside a module: presence sessions are started
+// by members, so the geofence switch is noise without `membership`; delegated recipients
+// route maintenance alerts, which only exist with `maintenance`.
 const FEATURE_NEEDS_MODULE: Record<string, string> = {
   "presence.geofence": "membership",
+  "notifications.delegated_recipients": "maintenance",
 };
 
 const MODULE_FEATURES = Object.entries(

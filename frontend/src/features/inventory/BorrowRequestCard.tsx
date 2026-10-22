@@ -7,6 +7,8 @@ const EMPTY_HINT: Record<DeskIdentity, string> = {
   checkin: "Add public items from the inventory list, confirm your check-in name, then submit the request.",
   account: "Add public items from the inventory list, then submit the request from your signed-in account.",
   member: "Add public items from the inventory list, then submit the request with your signed-in member account.",
+  signin: "Add public items from the inventory list, then sign in to submit the request.",
+  desk: "Staff at the desk can lend you anything listed here.",
 };
 
 type BorrowRequestCardProps = {

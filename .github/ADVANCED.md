@@ -1,24 +1,25 @@
 # Space Works — Advanced configuration
 
 Optional configuration for operators. None of this is needed for a standard self-hosted install —
-the [Quick start](../README.md#quick-start-run-it) covers the common case. See
+the [Quick start](../README.md#quick-start) covers the common case. See
 [docs/self-hosting.md](../docs/self-hosting.md) for the full environment reference.
 
-## Telegram alerts & accept/reject callbacks
+## Telegram alerts
 
-Set the group chat ID + bot token in the staff `API clients → Integration settings` panel; set
-`TELEGRAM_WEBHOOK_SECRET` for webhook callbacks. The bot token is encrypted at rest with
-`API_CLIENT_ENC_KEY` (a Fernet key).
+Set the group chat ID and bot token in the staff console under **Settings → Integrations → Telegram
+alerts**; step-by-step setup and every test-alert failure reason are in
+[docs/notifications-setup.md](../docs/notifications-setup.md). The bot token is encrypted at rest with
+`API_CLIENT_ENC_KEY` (a Fernet key); without that key, saving it returns 503.
 
-To post into more than one group, add **rooms** under `Settings → Notification channels → Rooms`
-instead of a second bot. Every room shares the makerspace's bot: Telegram delivers all button
-presses to one registered webhook authenticated by the single `TELEGRAM_WEBHOOK_SECRET`, so a second
-bot's callbacks could not be authenticated or routed — its accept/reject buttons would be dead.
-Adding one bot to several groups is the normal Telegram flow and costs nothing.
+Telegram is outbound only. Alerts carry no buttons, and the webhook route only acknowledges and
+discards callbacks (`TELEGRAM_WEBHOOK_SECRET` authenticates them), so a deployment that once ran
+`setWebhook` does not get endless retries. To post into more than one group, add **rooms** under
+**Settings → Notifications → Rooms** and add the same bot to each group; there is one bot per
+makerspace.
 
 ## Chat rooms and stored credentials
 
-`Settings → Notification channels → Rooms` holds one row per Slack/Mattermost/Discord/Telegram
+**Settings → Notifications → Rooms** holds one row per Slack/Mattermost/Discord/Telegram
 destination, each with its own encrypted credential and optional machine/type/category narrowing.
 Two operational notes:
 
@@ -31,7 +32,7 @@ Two operational notes:
   stored secrets. Delivery history survives either way — the log keeps the room's name after the room
   is gone, so a past failure stays attributable.
 
-`Settings → Integration health` reports every room: whether a credential is stored, when it last
+**Settings → Integrations → Integration health** reports every room: whether a credential is stored, when it last
 delivered, and its last error. It is the only place a revoked webhook becomes visible.
 
 ## Server-to-server HMAC clients

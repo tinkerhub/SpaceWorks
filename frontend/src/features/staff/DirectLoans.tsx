@@ -68,7 +68,9 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
   // Fetch ALL containers (distinct cache key from the shared ["containers"] entry so a
   // truncated first page can't leak in): the dropdown + the scan membership check both
   // need the complete list, else a valid container past page one falsely reads as "not found".
-  const containers = useStaffGet<ContainerResponse>(["containers-all", makerspace.id], `/admin/makerspace/${makerspace.id}/containers?page_size=1000`);
+  // The `containers` module guards that endpoint: without it there is nothing to pick.
+  const containersOn = moduleEnabled(makerspace.enabled_modules, "containers");
+  const containers = useStaffGet<ContainerResponse>(["containers-all", makerspace.id], `/admin/makerspace/${makerspace.id}/containers?page_size=1000`, containersOn);
   // A DRF ListAPIView answers with the paginated envelope, not a bare array; listResults
   // unwraps both, so `.map` can never take the whole panel down.
   const members = useStaffGet<DirectLoanMemberResponse>(["direct-loan-members", makerspace.id], `/admin/makerspace/${makerspace.id}/direct-loan-members?page_size=1000`);
@@ -154,7 +156,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
   const claimCodesOn = moduleEnabled(makerspace.enabled_modules, "member_accounts");
   const missing = [
     !borrowerId ? (membershipOn ? "choose the borrowing member" : "choose the borrower") : null,
-    !hasIssueContent ? "add at least one item, QR code or container" : null,
+    !hasIssueContent ? `add at least one item${containersOn ? ", QR code or container" : " or QR code"}` : null,
     issueEvidenceId === null ? "upload an issue photo" : null,
   ].filter(Boolean);
 
@@ -176,7 +178,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
             key={formKey}
             products={activeProducts}
             productsLoading={products.isLoading}
-            containers={containerOptions}
+            containers={containersOn ? containerOptions : null}
             containersLoading={containers.isLoading}
             containerId={containerId}
             onContainerChange={setContainerId}
@@ -205,7 +207,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
             </Button>
           </div>
         </Card>
-        {claimCodesOn ? <MemberClaimCodes makerspaceId={makerspace.id} members={memberOptions} /> : null}
+        {claimCodesOn ? <MemberClaimCodes makerspaceId={makerspace.id} members={memberOptions} membershipOn={membershipOn} /> : null}
         <div className="grid gap-3">
           <DirectLoanList loans={loans.results} loading={loans.isLoading} error={loans.error} onReturn={openReturnModal} />
           <Pagination page={loans.page} totalPages={loans.totalPages} onChange={loans.setPage} count={loans.count} pageSize={loans.pageSize} />

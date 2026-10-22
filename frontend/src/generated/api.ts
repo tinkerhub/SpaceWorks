@@ -6047,6 +6047,11 @@ export type TenantBootstrap = {
   "public_api": TenantBootstrapPublicApi;
 };
 
+export type TenantBootstrapCheckin = {
+  "provider": string;
+  "purpose": string;
+};
+
 export type TenantBootstrapFrontend = {
   "type": string;
   "hostname": string;
@@ -6066,6 +6071,7 @@ export type TenantBootstrapMakerspace = {
   "public_stats_enabled": boolean;
   "membership_policy": MembershipPolicyEnum;
   "request_access"?: RequestAccessEnum;
+  "checkin"?: TenantBootstrapCheckin;
 };
 
 export type TenantBootstrapPublicApi = {

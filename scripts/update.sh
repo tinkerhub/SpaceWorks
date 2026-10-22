@@ -45,6 +45,7 @@ RELEASE_API="https://api.github.com/repos/$REPOSITORY/releases/latest"
 source "$UPDATE_SCRIPT_DIR/retire-update-tombstone.sh"
 source "$UPDATE_SCRIPT_DIR/retire-update-polling.sh"
 source "$UPDATE_SCRIPT_DIR/install-host-bundle.sh"
+source "$UPDATE_SCRIPT_DIR/refresh-proxy-config.sh"
 
 force_arg=()
 while (($# > 0)); do
@@ -154,6 +155,13 @@ producer_marker() {
 }
 trap cleanup EXIT
 acquire_update_lock
+# Before setup created backups/ itself, Docker made it root-owned for the db bind mount,
+# and every update by the non-root install owner then died on chmod.
+if [[ -d "$ROOT/backups" && ! -O "$ROOT/backups" ]]; then
+  docker run --rm --user 0:0 --entrypoint chown -v "$ROOT/backups:/b" \
+    "$BACKEND_IMAGE:$(resolve_image_tag "$ROOT")" "$(id -u):$(id -g)" /b \
+    || die "backups/ is not owned by $(id -un) and could not be repaired; chown it, then rerun."
+fi
 # Preserve the selected topology for unattended updates, including upgraded TLS hosts.
 layer="${SPACEWORKS_COMPOSE_LAYER:-}"
 [[ -n "$layer" || "${SPACEWORKS_COMPOSE_BUILD_LAYER:-0}" != 1 ]] || layer=build
@@ -203,6 +211,7 @@ previous_version="$current"
 
 if [[ ${#force_arg[@]} == 0 && "$current" == "$version" ]]; then
   say "$version is already installed."
+  apply_release_proxy_config "$tag"
   if [[ "$MODULE_REQUESTED" == 1 ]]; then
     change_modules || die "One or more requested module changes were not applied."
     say "Module review complete."
@@ -260,6 +269,7 @@ update_complete=1
 producer_marker 'rm -f /p/.producer-capability.previous' || true
 find "$ROOT/backups" -maxdepth 1 -type f -name 'pre-update-*.sql.gz' -mtime +14 -delete
 say "Release update complete: $version."
+apply_release_proxy_config "$tag"
 if [[ "$MODULE_REQUESTED" == 1 ]]; then
   change_modules || die "Release $version is healthy, but one or more module changes were not applied."
 fi

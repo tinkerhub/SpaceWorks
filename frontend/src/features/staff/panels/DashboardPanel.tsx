@@ -37,7 +37,7 @@ const TILES: Tile[] = [
   { key: "overdue_loans", label: "Overdue loans", actionNeeded: true, danger: true, hint: "Past their return date" },
   { key: "pending_requests", label: "Pending requests", actionNeeded: true, hint: "Waiting for a review" },
   { key: "awaiting_issue", label: "Awaiting issue", actionNeeded: true, hint: "Accepted, not handed out yet" },
-  { key: "open_problem_reports", label: "Problem reports", actionNeeded: true, danger: true, hint: "Open and unresolved" },
+  { key: "open_problem_reports", label: "Problem reports", actionNeeded: true, danger: true, hint: "Open and unresolved", module: "reports" },
   { key: "low_stock", label: "Out of stock", actionNeeded: true, danger: true, hint: "Nothing left to lend" },
   { key: "pending_prints", label: "Pending prints", actionNeeded: false, hint: "In the print queue", module: "printing" },
   { key: "active_prints", label: "Active prints", actionNeeded: false, hint: "Printing now", module: "printing" },

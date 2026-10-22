@@ -47,7 +47,7 @@ export function NotificationDestinations({
     queryKey: DESTINATIONS_KEY(makerspaceId),
     queryFn: () => staffRequest<NotificationDestination[]>(basePath),
   });
-  const options = useScopeOptions(makerspaceId);
+  const options = useScopeOptions(makerspaceId, true, availableChannels.includes("machines"));
 
   const remove = useMutation({
     mutationFn: (id: number) => staffRequest(`${basePath}/${id}`, { method: "DELETE" }),

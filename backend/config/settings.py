@@ -429,6 +429,9 @@ CHECKIN_CACHE_SECONDS = env.int("CHECKIN_CACHE_SECONDS", default=30)
 CHECKIN_REQUIRED_PURPOSE = env("CHECKIN_REQUIRED_PURPOSE", default="Working on a project")
 CHECKIN_MAX_RESPONSE_BYTES = env.int("CHECKIN_MAX_RESPONSE_BYTES", default=1048576)
 CHECKIN_MAX_ROWS = env.int("CHECKIN_MAX_ROWS", default=2000)
+# Display name of the check-in system, shown to borrowers ("as it appears in <name>").
+# Blank lets the UI use a generic wording. Presentation only; it authorizes nothing.
+CHECKIN_PROVIDER_NAME = env("CHECKIN_PROVIDER_NAME", default="")
 
 # Read-only token for the GitHub GraphQL API, used only to cache a member's public
 # contribution total onto their maker profile. Unset means the feature is dormant: no

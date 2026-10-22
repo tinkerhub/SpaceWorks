@@ -46,9 +46,12 @@ type IssuedClaimCode = ClaimCode & { code: string; qr_svg: string };
 export function MemberClaimCodes({
   makerspaceId,
   members,
+  membershipOn = true,
 }: {
   makerspaceId: number;
   members: ClaimableMember[];
+  /** Off: the code claims a plain account, so the copy must not promise a membership. */
+  membershipOn?: boolean;
 }) {
   const queryClient = useQueryClient();
   const queryKey = ["member-claim-codes", makerspaceId];
@@ -102,12 +105,12 @@ export function MemberClaimCodes({
   return (
     <Card as="section">
       <CardHeader
-        title="Member claim code"
+        title={membershipOn ? "Member claim code" : "Account claim code"}
         description="Issue only while the walk-in is here in person. Hand over the code or QR; never email or text it."
       />
       <div className="grid gap-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <Field label="Walk-in member" hideLabel className="min-w-0 flex-1">
+          <Field label={membershipOn ? "Walk-in member" : "Walk-in"} hideLabel className="min-w-0 flex-1">
             <Dropdown value={membershipId} onChange={(event) => setMembershipId(event.target.value)}>
               <option value="" disabled>Select an eligible walk-in</option>
               {walkIns.map((member) => (

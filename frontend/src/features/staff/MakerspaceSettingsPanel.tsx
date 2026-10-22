@@ -99,7 +99,10 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
       ),
     });
   }
-  sections.push({
+  // Rooms are chat destinations, and every channel here is its own module: with none of
+  // them on (a minimal install) there is nothing to route, so the tab goes too.
+  const chatOn = ["telegram", "slack", "mattermost", "discord"].some(on);
+  if (on("email") || chatOn) sections.push({
     key: "notifications",
     label: "Notifications",
     content: (
@@ -109,8 +112,8 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
         <section className="grid min-w-0 gap-4">
           <SectionHeading title="Notification channels" description="Which events reach which people, and where they are delivered." />
           <NotificationMuteMatrix makerspaceId={makerspace.id} />
-          <NotificationRecipientPicker makerspaceId={makerspace.id} />
-          <NotificationDestinations availableChannels={enabledModules} makerspaceId={makerspace.id} />
+          <NotificationRecipientPicker makerspaceId={makerspace.id} machinesOn={on("machines")} />
+          {chatOn ? <NotificationDestinations availableChannels={enabledModules} makerspaceId={makerspace.id} /> : null}
         </section>
       </>
     ),

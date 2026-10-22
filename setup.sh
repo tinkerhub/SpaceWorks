@@ -120,8 +120,8 @@ API_CLIENT_ENC_KEY=$(fernet_key)
 AUDIT_MAC_MASTER_KEY=$(fernet_key)
 ALLOWED_HOSTS=${WEBHOST},localhost,127.0.0.1,backend
 CORS_ALLOWED_ORIGINS=http://${WEBHOST}
-# Absolute base for links in outbound email (password reset, invitations). Without it
-# those links are emitted as bare paths like "/reset-password?..." and are unclickable.
+# Absolute address of the app, for links that leave the site (email notices, invitations,
+# event-station and payment-return links). Without it they are bare paths or localhost.
 PUBLIC_APP_BASE_URL=http://${WEBHOST}
 # Browser-facing object storage. These MUST name the address your users type, not
 # localhost: they are baked into presigned evidence upload/view URLs and into every
@@ -140,6 +140,15 @@ AUTH_COOKIE_SAMESITE=Lax
 AUTH_COOKIE_SECURE=False
 EOF
 fi
+# Older .env files may lack these keys (or carry the example file's empty value). Fill
+# only a missing or empty one; an existing key is never changed, it decrypts stored data.
+AUDIT_KEY_ADDED=0
+for key in API_CLIENT_ENC_KEY AUDIT_MAC_MASTER_KEY; do
+  [[ -z "$(env_file_get .env "$key")" ]] || continue
+  sed -E -i.bak "/^${key}=[[:space:]]*(\"\"|'')?[[:space:]]*$/d" .env && rm -f .env.bak
+  env_file_append_if_absent .env "$key" "$(fernet_key)" || die "Could not add $key to .env."
+  [[ "$key" != AUDIT_MAC_MASTER_KEY ]] || AUDIT_KEY_ADDED=1
+done
 # Existing installations predate the non-owner runtime database role. The privileged
 # orchestration bootstrap creates/re-keys it before migrations or application startup.
 if ! grep -q '^POSTGRES_APP_PASSWORD=' .env; then
@@ -184,6 +193,8 @@ retire_update_tombstone
 retire_update_polling
 record_compose_layer
 chmod 600 .env
+# Create backups/ as the install owner; left to Docker it is root-owned and update.sh fails.
+mkdir -p backups && chmod 700 backups
 prepare_compose_wrapper
 if [[ "$BUILD_FROM_SOURCE" == 1 ]]; then
   say "Building and starting the app from source (first run can take a few minutes)..."
@@ -223,6 +234,10 @@ for _ in $(seq 1 60); do
   sleep 3
 done
 [ "$ready" = 1 ] || die "The app did not become ready in time. Check logs with: ${COMPOSE[*]} logs backend"
+if [[ "$AUDIT_KEY_ADDED" == 1 && "$FIRST_RUN" == 0 ]]; then
+  "${COMPOSE[@]}" run --rm --no-deps -T backend --role management python manage.py provision_audit_mac_keys --all \
+    || warn "Could not provision audit MAC keys; run manage.py provision_audit_mac_keys --all."
+fi
 
 if [ "$FIRST_RUN" = 1 ]; then
   say "Creating your admin account and makerspace..."

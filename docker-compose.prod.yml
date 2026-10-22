@@ -132,8 +132,8 @@ services:
       CONN_MAX_AGE: ${CONN_MAX_AGE:-0}
       DISABLE_SERVER_SIDE_CURSORS: ${DISABLE_SERVER_SIDE_CURSORS:-False}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
-      # Absolute base for links in outbound email. Unset => links are emitted as bare
-      # paths (e.g. "/reset-password?...") and password reset is unusable.
+      # Absolute app address for links that leave the site (email notices, invitations,
+      # event-station and payment-return links). Unset => bare paths or localhost.
       PUBLIC_APP_BASE_URL: ${PUBLIC_APP_BASE_URL:-}
       # Upstream check-in roster for the `checked_in` public-request mode. Blank leaves the
       # integration dormant; a tenant must also be switched into the mode and bound to a
@@ -144,6 +144,18 @@ services:
       CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
       CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
       CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
+      CHECKIN_PROVIDER_NAME: ${CHECKIN_PROVIDER_NAME:-}
+      # Optional integrations and secrets the code reads. Each must be listed here or a
+      # value set in .env never reaches Django. Blank keeps the feature off / at its default.
+      EVENT_STATION_PIN_PEPPER: ${EVENT_STATION_PIN_PEPPER:-}
+      PUSH_TOKEN_HMAC_KEY: ${PUSH_TOKEN_HMAC_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      GITHUB_API_TOKEN: ${GITHUB_API_TOKEN:-}
+      STRIPE_CONNECT_REDIRECT_URI: ${STRIPE_CONNECT_REDIRECT_URI:-}
+      PUBLIC_IMAGE_MAX_BYTES: ${PUBLIC_IMAGE_MAX_BYTES:-10485760}
+      PUBLIC_IMAGE_URL_TTL_SECONDS: ${PUBLIC_IMAGE_URL_TTL_SECONDS:-300}
+      PLATFORM_STAFF_ORIGINS: ${PLATFORM_STAFF_ORIGINS:-}
       API_CLIENT_ENC_KEY: ${API_CLIENT_ENC_KEY:-}
       AUDIT_MAC_MASTER_KEY: ${AUDIT_MAC_MASTER_KEY:-}
       AUDIT_ATTESTATION_DEPLOYMENT_ID: ${AUDIT_ATTESTATION_DEPLOYMENT_ID:-}
@@ -328,6 +340,10 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+        # nginx resolves `backend` once at start. When Compose recreates backend (new image,
+        # or a changed .env as setup.sh does for the backup keys) it gets a new IP, and a
+        # frontend left running answers 502 for every /api call until restarted.
+        restart: true
 
 volumes:
   makerspace_manager_pgdata:

@@ -2,6 +2,7 @@ from urllib.parse import urlencode, urlparse
 
 from django.conf import settings
 
+from apps.checkin.provider import provider_name, required_purpose
 from apps.inventory import public_image_storage
 from apps.integrations.email import email_enabled
 from apps.makerspaces.models import Makerspace, default_branding_config, default_theme_config
@@ -204,6 +205,12 @@ def bootstrap_payload(makerspace):
     policy = effective_policy(makerspace)
     if policy in (ANYONE, CHECKED_IN):
         makerspace_payload["request_access"] = policy
+    if policy == CHECKED_IN:
+        # Names the upstream in borrower copy; emitted only on checked_in, like the policy.
+        makerspace_payload["checkin"] = {
+            "provider": provider_name(),
+            "purpose": required_purpose(),
+        }
     # Advisory geofence: expose the flag ONLY when configured AND the feature is on, so
     # dormant/self-host bootstrap payloads stay byte-for-byte unchanged (self-host
     # invariant) and a disabled feature cannot leave the client asking for coordinates

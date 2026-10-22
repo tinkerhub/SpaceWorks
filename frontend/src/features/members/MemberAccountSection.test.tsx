@@ -65,7 +65,7 @@ describe("member must-change-password gate", () => {
 
     expect(await screen.findByRole("heading", { level: 1, name: "Set a new password" })).toBeInTheDocument();
     expect(screen.getByText("maker")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Membership" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Pending invitations" })).not.toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
 
     mustChange = false;
@@ -74,7 +74,7 @@ describe("member must-change-password gate", () => {
     fireEvent.change(screen.getByLabelText("Confirm new password"), { target: { value: "my-own-pass-123" } });
     fireEvent.click(screen.getByRole("button", { name: "Save new password" }));
 
-    expect(await screen.findByRole("heading", { name: "Membership" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Pending invitations" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Set a new password" })).not.toBeInTheDocument();
     expect(memberRequest).toHaveBeenCalledWith("/auth/change-password", expect.objectContaining({ method: "POST", credentials: "include" }));
   });

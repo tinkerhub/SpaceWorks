@@ -78,6 +78,21 @@ def test_cannot_revoke_qr_with_outstanding_loan():
     assert qr.status == QrCode.Status.ACTIVE
 
 
+def test_duplicate_box_label_is_a_field_error_not_a_500():
+    makerspace = make_space("qr-api-dup")
+    admin = make_member("qr-admin-dup", makerspace)
+    client = authenticated_client(admin)
+    body = {"makerspace_id": makerspace.id, "label": "Return Bin"}
+
+    first = client.post("/api/v1/admin/qr/boxes", body, format="json")
+    second = client.post("/api/v1/admin/qr/boxes", body, format="json")
+
+    assert first.status_code == 201
+    assert second.status_code == 400
+    assert "label" in second.json()
+    assert QrCode.objects.filter(target_type=QrCode.TargetType.BOX).count() == 1
+
+
 def test_admin_can_create_scan_and_revoke_box_qr():
     makerspace = make_space("qr-api")
     admin = make_member("qr-admin", makerspace)

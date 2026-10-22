@@ -17,7 +17,8 @@ import { isQrNotRecognised, qrResolveErrorText } from "./evidenceUi";
 type DirectLoanItemsProps = {
   products: ProductOption[];
   productsLoading: boolean;
-  containers: ContainerOption[];
+  /** `null` when the `containers` module is off: no container picker at all. */
+  containers: ContainerOption[] | null;
   containersLoading: boolean;
   containerId: string;
   onContainerChange: (containerId: string) => void;
@@ -73,7 +74,7 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
         setContainerScanError("That QR code isn't a container. Scan the label on the container.");
         return;
       }
-      if (!containers.some((container) => container.id === target.id)) {
+      if (!containers?.some((container) => container.id === target.id)) {
         setContainerScanError("That container isn't available for handout (inactive or not found).");
         return;
       }
@@ -88,7 +89,7 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-2">
+      {containers ? <div className="grid gap-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
           <Field label="Container" optional className="min-w-0 flex-1">
             <Dropdown id="direct-loan-container" value={containerId} disabled={containersLoading} onChange={(event) => onContainerChange(event.target.value)}>
@@ -103,7 +104,7 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
           </Button>
         </div>
         <ErrorText message={containerScanError} />
-      </div>
+      </div> : null}
 
       <div className="grid gap-3">
         <SectionHeading as="h3" title="Items" action={<Button size="sm" startIcon={<Plus />} onClick={addLine}>Add item</Button>} />

@@ -41,6 +41,16 @@ TenantBootstrapSerializer = inline_serializer(
                     choices=[("anyone", "anyone"), ("checked_in", "checked_in")],
                     required=False,
                 ),
+                # Only with `request_access == "checked_in"`: how borrower copy names the
+                # upstream check-in system ("" = unnamed) and the purpose it requires.
+                "checkin": inline_serializer(
+                    name="TenantBootstrapCheckin",
+                    fields={
+                        "provider": serializers.CharField(allow_blank=True),
+                        "purpose": serializers.CharField(allow_blank=True),
+                    },
+                    required=False,
+                ),
             },
         ),
         "frontend": inline_serializer(
@@ -72,6 +82,12 @@ TenantBootstrapSerializer = inline_serializer(
 
 
 class BootstrapView(APIView):
+    # Anonymous and identity-free: the payload depends only on the tenant resolved from the
+    # query/origin/host. Every SPA call carries the in-memory bearer token, and a member
+    # session is refused on any path outside its allowlist -- so authenticating here turned
+    # a signed-in member's catalogue and member area into a 403. Same shape as
+    # `PublicConfigView`.
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     @extend_schema(

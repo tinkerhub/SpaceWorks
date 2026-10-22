@@ -33,6 +33,10 @@ The production frontend container writes `/config.js` at startup from:
 If those are unset, the same startup script falls back to `VITE_API_URL` and
 `VITE_TENANT_TOKEN`.
 
+On a static host with no container (Netlify, Cloudflare Pages), `/config.js` is the empty placeholder
+from `frontend/public/`, so set `VITE_API_URL` and `VITE_TENANT_TOKEN` as **build-time** variables
+instead and redeploy after changing them. See [deploy-netlify.md](deploy-netlify.md).
+
 Startup validation rejects unsafe runtime config before writing `/config.js`.
 `TENANT_API_URL` uses a loose prefix check: values starting with `/`, `http://`,
 or `https://` are accepted. `TENANT_TOKEN` may only contain letters, numbers,
@@ -53,12 +57,12 @@ Central multi-tenant mode is the default and needs no configuration:
 - staff console: shared `/admin`
 
 For a branded site, set the makerspace's **Custom domain** in the staff console
-Settings tab (Makerspace settings → Custom domain), for example
+(**Settings → Domain & access → Custom domain**), for example
 `alphamakerspace.com`. This is the single `Makerspace.frontend_domain` field, and
 it is the only setting required. That one value:
 
 - serves all of the makerspace's public and staff routes from that domain
-  (`/`, `/items/:id`, `/print`, `/checkout`, `/admin`, `/guest-admin`, `/scanner`),
+  (`/`, `/print`, `/checkout`, `/machines`, `/admin`, `/guest-admin`, `/scanner`),
 - resolves the tenant by request origin at `GET /api/v1/bootstrap`, and
 - feeds general CORS, the staff refresh/logout CSRF allowlist, and publishable-key
   public API validation.
@@ -85,11 +89,12 @@ Central mode remains unchanged:
 
 - `/` - makerspace directory
 - `/m/:slug` - public catalog
-- `/m/:slug/items/:id` - item detail
 - `/m/:slug/print` - public print requests
 - `/m/:slug/checkout` - public self-checkout
+- `/m/:slug/machines`, `/m/:slug/events`, `/m/:slug/bookings` - optional public pages (404 while their module is off)
+- `/m/:slug/member` - member area
 - `/admin` - shared staff console with makerspace switching
-- `/guest-admin` - guest handover console with makerspace switching
+- `/guest-admin` - narrow console for handover-only roles, with makerspace switching
 - `/scanner` - shared staff scanner
 - `/superadmin` - platform superadmin console
 - `/kiosk/:slug` - public kiosk view
@@ -98,11 +103,12 @@ Central mode remains unchanged:
 Single-tenant mode uses clean root routes:
 
 - `/` - configured makerspace catalog
-- `/items/:id` - item detail
 - `/print` - public print requests
 - `/checkout` - public self-checkout
+- `/machines`, `/events`, `/bookings` - optional public pages (404 while their module is off)
+- `/member` - member area
 - `/admin` - staff console locked to the configured makerspace
-- `/guest-admin` - guest handover console locked to the configured makerspace
+- `/guest-admin` - narrow console for handover-only roles, locked to the configured makerspace
 - `/scanner` - staff scanner locked to the configured makerspace
 - `/reset-password` - staff password reset
 

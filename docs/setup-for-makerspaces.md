@@ -63,6 +63,7 @@ The script will ask you a few simple questions (press Enter to accept the sugges
 |---|---|
 | Web address people will type | `localhost` to start (you can change it later) |
 | Name of your makerspace | e.g. `Riverside Makerspace` |
+| Who can submit borrow requests? | `2` (anyone with an account) is the safe default, but people sign up with an email code, so it needs working email: set the `EMAIL_*` SMTP values in `.env` (see [notifications-setup.md](notifications-setup.md)) or nobody can finish signing up. Profiles without `member_accounts` (minimal, workshop, check-in) have no public sign-up at all, so with `2` only staff can borrow from the public page and visitors are told to ask at the desk; pick `3` (anyone) or `4` (check-in) there instead. `4` lets people borrow by checking in on an upstream check-in app, with no accounts — see [checkin-mode.md](checkin-mode.md) |
 | Admin login username | `admin` is fine |
 | Admin email | your email |
 | Admin password | type one, or leave blank and it makes a strong one for you |
@@ -94,25 +95,25 @@ Log into the **staff console** address (`/admin`) and:
 1. **Add your inventory** — the tools and equipment people can borrow.
 2. **Turn on public visibility** — open your makerspace and enable **"public inventory"** so it
    shows on the public catalog.
-3. **Add your team** — create accounts for staff and assign one of the protected default or custom
-   action-based roles. Front-desk handover is a custom role, not a built-in Guest Admin role.
-4. **Check enabled modules** - in makerspace settings, enable the workflows your space actually
-   uses. Public self-checkout/direct handout, 3D printing, stocktake, containers, QR tools, reports,
-   transfers, and procurement are shown or hidden from the public/staff screens based on these module
-   switches.
-5. **(Optional) Email & Telegram alerts** - set your makerspace's email (SMTP) and Telegram bot in
-   the staff console's **Integration settings**. These are stored encrypted and never shown again.
-6. **(Optional) Decide who hears what** - in **Settings → Notification channels** you can tick which
-   kinds of alert go out by email, Telegram, Slack, Mattermost or Discord, choose who receives each
-   one, and reword the messages.
+3. **Add your team** — **Users → People → Add staff**: a username, a starting password and a role
+   (Space Manager, Inventory Manager, Machine Manager, or a role you create). Front-desk handover is a
+   custom role, not a built-in. See [staff-roles.md](staff-roles.md) for what each role can do.
+4. **Check enabled modules** — as the superadmin, open the **Modules** tab (or run
+   `bash scripts/update.sh --modules-only`). A module that is off disappears completely from the
+   public and staff screens; turning it back on brings everything back, data included.
+5. **(Optional) Email & Telegram alerts** — Telegram under **Settings → Integrations**, your own mail
+   server under **Settings → Notifications → Email (SMTP)**. Both have a test button. Step by step:
+   [notifications-setup.md](notifications-setup.md).
+6. **(Optional) Decide who hears what** — in **Settings → Notifications** you can tick which kinds of
+   alert go out by email, Telegram, Slack, Mattermost or Discord and choose who receives each one;
+   reword the messages in the **Email templates** tab.
 
 ### Who gets told, and where
 
 Out of the box, an alert goes to everyone whose job covers it — a booking alert reaches the people
 who manage bookings. You do not have to configure anything for that to work.
 
-If you want something different, three settings do it, all under **Settings → Notification
-channels**:
+If you want something different, three settings do it, all under **Settings → Notifications**:
 
 - **Who gets notified** — pick recipients for one kind of alert: a role, one named member, everybody,
   or the person the message is about. Leaving it empty means "notify by role", which is the default.
@@ -135,9 +136,10 @@ By default it's at `localhost` (only that computer). To let others at your space
 
 1. Find that computer's address on your network (its local IP, like `192.168.1.50`, or its
    hostname).
-2. Edit the
-   `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` lines in the `.env` file to include it, then run
-   `scripts/spaceworks-compose.sh bundled up -d`.
+2. In the `.env` file, replace `localhost` with that address in `ALLOWED_HOSTS`,
+   `CORS_ALLOWED_ORIGINS`, `PUBLIC_APP_BASE_URL`, `AWS_S3_PUBLIC_ENDPOINT_URL`, `PUBLIC_IMAGE_BASE_URL`
+   and `MINIO_CORS_ALLOWED_ORIGINS` (keep `localhost,127.0.0.1` in `ALLOWED_HOSTS` too), then run
+   `bash scripts/init-host-orchestration.sh` and `scripts/spaceworks-compose.sh bundled up -d`.
 3. People then visit `http://<that-address>/` in their browser.
 
 > For a public website with a real domain and HTTPS, you'll want someone technical to put a
@@ -152,9 +154,10 @@ You have two good options before giving up:
    nearby makerspace already runs it on their server, ask them to add yours as another "tenant" —
    you'll get your own catalog, your own web address, and your own admin, all on their shared
    backend. Most makers are glad to help another space, and it's an easy way for them to contribute.
-2. **Use a hosted database (Supabase).** If partnering isn't possible, you can host the app on a
-   cloud platform and use a free **Supabase** Postgres database. This is more technical — see
-   **Option C** in the [README](../README.md#hosting).
+2. **Rent a small cloud server.** A 2 vCPU / 4 GB virtual machine runs the same installer. This is
+   more technical — see [deploy-ec2.md](deploy-ec2.md) for an AWS walkthrough. (The older
+   Supabase/Render path in [deploy-production.md](deploy-production.md) is for demos only; it is not
+   a supported backup-and-restore setup.)
 
 ---
 

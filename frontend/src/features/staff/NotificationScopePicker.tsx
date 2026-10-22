@@ -69,16 +69,17 @@ export function ScopePicker({
 
 /**
  * Scope targets a room or rule can name. Each list is optional — a makerspace with no
- * machines simply gets no machine column rather than an empty picker.
+ * machines simply gets no machine column rather than an empty picker. With the `machines`
+ * module off the machine endpoints refuse, so they are not asked at all.
  */
-export function useScopeOptions(makerspaceId: number, enabled = true): ScopeOptions {
+export function useScopeOptions(makerspaceId: number, enabled = true, machinesOn = true): ScopeOptions {
   const machineTypes = useQuery({
     queryKey: ["machine-types", makerspaceId, "scope"],
     queryFn: () =>
       staffRequest<{ id: number; name: string }[]>(
         `/admin/makerspace/${makerspaceId}/machine-types`,
       ).catch(() => []),
-    enabled,
+    enabled: enabled && machinesOn,
   });
   const machines = useQuery({
     queryKey: ["machines", makerspaceId, "scope"],
@@ -86,7 +87,7 @@ export function useScopeOptions(makerspaceId: number, enabled = true): ScopeOpti
       staffRequest<{ results?: { id: number; name: string }[] } | { id: number; name: string }[]>(
         `/admin/makerspace/${makerspaceId}/machines`,
       ).catch(() => []),
-    enabled,
+    enabled: enabled && machinesOn,
   });
   const categories = useQuery({
     queryKey: ["categories", makerspaceId, "scope"],
@@ -98,8 +99,8 @@ export function useScopeOptions(makerspaceId: number, enabled = true): ScopeOpti
   });
 
   return {
-    machineTypes: unwrap(machineTypes.data),
-    machines: unwrap(machines.data),
+    machineTypes: machinesOn ? unwrap(machineTypes.data) : [],
+    machines: machinesOn ? unwrap(machines.data) : [],
     categories: unwrap(categories.data),
   };
 }

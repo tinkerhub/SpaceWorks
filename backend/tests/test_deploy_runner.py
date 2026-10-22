@@ -172,7 +172,7 @@ def test_setup_installs_the_runner_after_the_stack_is_up():
 
 
 @pytest.mark.parametrize(("answer", "installer_exit", "runs"), [
-    ("Y", 0, True), ("yes", 0, True), ("", 0, True), ("N", 0, False), ("Y", 1, True),
+    ("Y", 0, True), ("yes", 0, True), ("", 0, False), ("N", 0, False), ("Y", 1, True),
 ])
 def test_setup_runner_opt_in_runs_the_installer_and_never_fails_setup(tmp_path, answer, installer_exit, runs):
     (tmp_path / "scripts").mkdir()

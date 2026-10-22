@@ -6,14 +6,16 @@ install_staged_host_bundle() {
   [[ "$source_root" != "$ROOT" ]] || return 0
   backup="$ROOT/backups/host-config-$(date -u +%Y%m%dT%H%M%SZ)-$$"
   HOST_CONFIG_BACKUP_DIR="$backup"
+  # deploy/Caddyfile* are operator-editable; refresh-proxy-config.sh replaces them only when unedited.
   local files=(
     setup.sh install.sh setup.ps1
     docker-compose.prod.yml docker-compose.cloud.yml docker-compose.yml
     docker/compose.build.yml docker/compose.tls.yml docker/compose.saas.yml
-    deploy/Caddyfile deploy/Caddyfile.saas frontend/nginx.conf
+    frontend/nginx.conf
     scripts/bundled-database-url.py scripts/configure-compose-wrapper.py
     scripts/host-capability.py scripts/import-backup.sh
     scripts/init-host-orchestration.sh scripts/install-deploy-runner.sh scripts/install-host-bundle.sh
+    scripts/refresh-proxy-config.sh
     scripts/setup-deploy-runner.sh
     scripts/env-file.sh scripts/host-image.sh scripts/module-selection.sh scripts/request-access-selection.sh
     scripts/restore.sh scripts/retire-update-polling.sh scripts/retire-update-tombstone.sh

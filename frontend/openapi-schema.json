@@ -33756,9 +33756,6 @@
                     "Tenant bootstrap"
                 ],
                 "security": [
-                    {
-                        "jwtAuth": []
-                    },
                     {}
                 ],
                 "responses": {
@@ -63376,6 +63373,21 @@
                     "workflows"
                 ]
             },
+            "TenantBootstrapCheckin": {
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "type": "string"
+                    },
+                    "purpose": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "provider",
+                    "purpose"
+                ]
+            },
             "TenantBootstrapFrontend": {
                 "type": "object",
                 "properties": {
@@ -63447,6 +63459,9 @@
                     },
                     "request_access": {
                         "$ref": "#/components/schemas/RequestAccessEnum"
+                    },
+                    "checkin": {
+                        "$ref": "#/components/schemas/TenantBootstrapCheckin"
                     }
                 },
                 "required": [

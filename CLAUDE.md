@@ -175,6 +175,14 @@ the Auth module** — forgetting this is a cross-tenant data leak, not just a bu
   pins two function *bodies* to `accounts/rbac.py` by `(path, function)`, and
   `tenant_migration/authority_guards.py` pins whole *files* via `AUTHORIZATION_SOURCES` — the latter goes
   silently blind rather than failing if you move code out from under it.
+- **Operator docs move with the code.** Setup behaviour is documented for operators in
+  `docs/self-hosting.md` (environment reference and per-release **Upgrade notes**), `docs/deploy-netlify.md`
+  (split SPA/API deployment), `docs/checkin-mode.md`, `docs/notifications-setup.md` and
+  `docs/staff-roles.md`. Changing an env var, a settings path in the console, a role, the check-in roster
+  contract or `deploy/Caddyfile` means updating the matching page in the same commit. Two traps:
+  **every custom request header the SPA sends must be in `CORS_ALLOW_HEADERS`** (the split deployment
+  sends everything cross-origin), and **`update.sh` refreshes an installed Caddyfile only when it is unedited**, so a
+  proxy change must add its digest to `scripts/refresh-proxy-config.sh` and still needs an Upgrade-notes entry.
 - **Production-level code, not prototype code.** Validate all inputs at the boundary, handle external-service
   failure explicitly (especially outbound integrations — Stripe, Telegram, SMTP, object storage — fail safe,
   never crash a request flow), use structured logging, return consistent typed error responses, and never
