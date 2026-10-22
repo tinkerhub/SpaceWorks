@@ -1,15 +1,12 @@
 import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 
-import { EmptyState, Skeleton } from "../../../../components/ui";
+import { EmptyState, SectionHeading, Skeleton } from "../../../../components/ui";
 import { MaintenanceDocuments } from "./MaintenanceDocuments";
+import { MaintenanceLogForm } from "./MaintenanceLogForm";
 import { MaintenanceSchedules } from "./MaintenanceSchedules";
-import {
-  useLogMaintenance,
-  useMaintenanceLogs,
-  useMaintenanceSchedules,
-  type LogInput,
-  type MaintenanceSchedule,
-} from "./maintenanceApi";
+import { useMaintenanceLogs, useMaintenanceSchedules, type MaintenanceSchedule } from "./maintenanceApi";
+import { When } from "./machineUi";
 
 type MaintenanceTabProps = {
   makerspaceId: number;
@@ -29,7 +26,7 @@ export function MaintenanceTab({
 
   if (schedules.isLoading || logs.isLoading) {
     return (
-      <div className="grid gap-3" aria-label="Loading maintenance details">
+      <div className="grid gap-3" role="status" aria-label="Loading maintenance details">
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-40 w-full" />
       </div>
@@ -38,14 +35,14 @@ export function MaintenanceTab({
 
   const queryError = schedules.error ?? logs.error;
   if (queryError instanceof Error) {
-    return <EmptyState title="Unable to load maintenance" description={queryError.message} />;
+    return <EmptyState tone="error" title="Unable to load maintenance" description={queryError.message} />;
   }
 
   const scheduleRows = schedules.data?.results ?? [];
   const logRows = logs.data?.results ?? [];
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-8">
       <MaintenanceSchedules
         makerspaceId={makerspaceId}
         machineId={machineId}
@@ -55,207 +52,60 @@ export function MaintenanceTab({
         onComplete={setCompleting}
       />
       {completing ? (
-        <ScheduleCompletionForm
+        <MaintenanceLogForm
           key={completing.id}
           makerspaceId={makerspaceId}
           machineId={machineId}
           schedule={completing}
           onCancel={() => setCompleting(null)}
-          onCompleted={() => setCompleting(null)}
+          onLogged={() => setCompleting(null)}
         />
       ) : null}
-      {canOperate && !retired ? (
+      {canOperate && !retired && !completing ? (
         <MaintenanceLogForm makerspaceId={makerspaceId} machineId={machineId} />
       ) : null}
       <section className="grid gap-3" aria-labelledby="maintenance-history-title">
-        <h3 id="maintenance-history-title" className="title-section">
-          Maintenance history
-        </h3>
+        <SectionHeading as="h3" title={<span id="maintenance-history-title">Maintenance history</span>} description="Open a record for its parts notes and attachments." />
         {!logRows.length ? (
           <EmptyState
             title="No maintenance logged"
             description="Completed maintenance records will appear here."
           />
         ) : null}
-        {logRows.map((log) => (
-          <details key={log.id} className="rounded-lg border border-line bg-bg p-3">
-            <summary className="cursor-pointer list-none text-sm marker:hidden">
-              <span className="flex flex-wrap items-start justify-between gap-2">
-                <strong className="min-w-0 flex-1 text-ink">{log.summary}</strong>
-                <span className="font-mono text-xs text-muted">{formatDateTime(log.performed_at)}</span>
-              </span>
-              {log.cost ? <span className="mt-1 block font-mono text-xs text-muted">Cost: {log.cost}</span> : null}
-            </summary>
-            <div className="mt-3 border-t border-line pt-3 text-sm text-muted">
-              {log.parts_note ? (
-                <p className="whitespace-pre-wrap break-words">{log.parts_note}</p>
-              ) : <p>No parts notes.</p>}
-              <MaintenanceDocuments
-                machineId={machineId}
-                logId={log.id}
-                documents={log.documents}
-                canDelete={canEdit}
-                retired={retired}
-              />
-            </div>
-          </details>
-        ))}
+        {logRows.length ? (
+          <ul className="grid gap-2">
+            {logRows.map((log) => (
+              <li key={log.id}>
+                <details className="group rounded-lg border border-line bg-canvas">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-start gap-3 rounded-lg p-4 hover:bg-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+                    <ChevronRight aria-hidden="true" className="mt-0.5 size-[18px] shrink-0 text-ink-muted transition-transform duration-180 ease-standard group-open:rotate-90" />
+                    <span className="grid min-w-0 flex-1 gap-0.5">
+                      <strong className="text-body-ui font-semibold text-ink">{log.summary}</strong>
+                      <span className="text-caption text-ink-muted">
+                        <When value={log.performed_at} />
+                        {log.cost ? ` · Cost ${log.cost}` : ""}
+                        {log.documents.length ? ` · ${log.documents.length} ${log.documents.length === 1 ? "attachment" : "attachments"}` : ""}
+                      </span>
+                    </span>
+                  </summary>
+                  <div className="grid gap-3 border-t border-line p-4 text-body-ui text-ink-secondary">
+                    {log.parts_note ? (
+                      <p className="whitespace-pre-wrap break-words">{log.parts_note}</p>
+                    ) : <p className="text-ink-muted">No parts notes.</p>}
+                    <MaintenanceDocuments
+                      machineId={machineId}
+                      logId={log.id}
+                      documents={log.documents}
+                      canDelete={canEdit}
+                      retired={retired}
+                    />
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </section>
     </div>
   );
-}
-
-function ScheduleCompletionForm({ makerspaceId, machineId, schedule, onCancel, onCompleted }: {
-  makerspaceId: number;
-  machineId: number;
-  schedule: MaintenanceSchedule;
-  onCancel: () => void;
-  onCompleted: () => void;
-}) {
-  const [summary, setSummary] = useState(schedule.description);
-  const [performedAt, setPerformedAt] = useState("");
-  const [cost, setCost] = useState("");
-  const [partsNote, setPartsNote] = useState("");
-  const [setIdle, setSetIdle] = useState(false);
-  const complete = useLogMaintenance(makerspaceId, machineId);
-
-  return (
-    <section aria-labelledby={`complete-maintenance-${schedule.id}`}>
-      <h3 id={`complete-maintenance-${schedule.id}`} className="title-section mb-3">
-        Complete scheduled maintenance
-      </h3>
-      <form
-        className="grid gap-2 rounded-lg border border-line bg-surface p-3 sm:grid-cols-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          complete.mutate({
-            summary: summary.trim(),
-            performed_at: performedAt ? new Date(performedAt).toISOString() : undefined,
-            cost: cost.trim() || null,
-            parts_note: partsNote.trim(),
-            set_idle: setIdle,
-            schedule_id: schedule.id,
-          }, { onSuccess: onCompleted });
-        }}
-      >
-        <label className="eyebrow grid gap-1 sm:col-span-2">
-          Summary
-          <input className="desk-input" value={summary}
-            onChange={(event) => setSummary(event.target.value)} required />
-        </label>
-        <label className="eyebrow grid gap-1">
-          Performed at (optional)
-          <input className="desk-input" type="datetime-local" value={performedAt}
-            onChange={(event) => setPerformedAt(event.target.value)} />
-        </label>
-        <label className="eyebrow grid gap-1">
-          Cost (optional)
-          <input className="desk-input" type="number" min="0" step="0.01" value={cost}
-            onChange={(event) => setCost(event.target.value)} />
-        </label>
-        <label className="eyebrow grid gap-1 sm:col-span-2">
-          Parts and notes (optional)
-          <textarea className="desk-input min-h-20" value={partsNote}
-            onChange={(event) => setPartsNote(event.target.value)} />
-        </label>
-        <label className="eyebrow flex items-center gap-2 sm:col-span-2">
-          <input type="checkbox" checked={setIdle}
-            onChange={(event) => setSetIdle(event.target.checked)} />
-          Set machine status to idle
-        </label>
-        <div className="flex gap-2 sm:col-span-2">
-          <button className="desk-button-primary" type="submit"
-            disabled={complete.isPending || !summary.trim()}>
-            {complete.isPending ? "Completing..." : "Complete maintenance"}
-          </button>
-          <button className="desk-button-ghost" type="button" onClick={onCancel} disabled={complete.isPending}>
-            Cancel
-          </button>
-        </div>
-      </form>
-      {complete.error instanceof Error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">{complete.error.message}</p>
-      ) : null}
-    </section>
-  );
-}
-
-function MaintenanceLogForm({ makerspaceId, machineId }: {
-  makerspaceId: number;
-  machineId: number;
-}) {
-  const [summary, setSummary] = useState("");
-  const [performedAt, setPerformedAt] = useState("");
-  const [cost, setCost] = useState("");
-  const [partsNote, setPartsNote] = useState("");
-  const [setIdle, setSetIdle] = useState(false);
-  const log = useLogMaintenance(makerspaceId, machineId);
-
-  const reset = () => {
-    setSummary("");
-    setPerformedAt("");
-    setCost("");
-    setPartsNote("");
-    setSetIdle(false);
-  };
-
-  return (
-    <section aria-labelledby="log-maintenance-title">
-      <h3 id="log-maintenance-title" className="title-section mb-3">
-        Log maintenance
-      </h3>
-      <form
-        className="grid gap-2 rounded-lg border border-line bg-surface p-3 sm:grid-cols-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const input: LogInput = {
-            summary: summary.trim(),
-            performed_at: performedAt ? new Date(performedAt).toISOString() : undefined,
-            cost: cost.trim() || null,
-            parts_note: partsNote.trim(),
-            set_idle: setIdle,
-          };
-          log.mutate(input, { onSuccess: reset });
-        }}
-      >
-        <label className="eyebrow grid gap-1 sm:col-span-2">
-          Summary
-          <input className="desk-input" value={summary}
-            onChange={(event) => setSummary(event.target.value)} required />
-        </label>
-        <label className="eyebrow grid gap-1">
-          Performed at (optional)
-          <input className="desk-input" type="datetime-local" value={performedAt}
-            onChange={(event) => setPerformedAt(event.target.value)} />
-        </label>
-        <label className="eyebrow grid gap-1">
-          Cost (optional)
-          <input className="desk-input" type="number" min="0" step="0.01" value={cost}
-            onChange={(event) => setCost(event.target.value)} />
-        </label>
-        <label className="eyebrow grid gap-1 sm:col-span-2">
-          Parts and notes (optional)
-          <textarea className="desk-input min-h-20" value={partsNote}
-            onChange={(event) => setPartsNote(event.target.value)} />
-        </label>
-        <label className="eyebrow flex items-center gap-2 sm:col-span-2">
-          <input type="checkbox" checked={setIdle}
-            onChange={(event) => setSetIdle(event.target.checked)} />
-          Set machine status to idle
-        </label>
-        <button className="desk-button-primary justify-self-start" type="submit"
-          disabled={log.isPending || !summary.trim()}>
-          {log.isPending ? "Logging..." : "Log maintenance"}
-        </button>
-      </form>
-      {log.error instanceof Error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">{log.error.message}</p>
-      ) : null}
-    </section>
-  );
-}
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }

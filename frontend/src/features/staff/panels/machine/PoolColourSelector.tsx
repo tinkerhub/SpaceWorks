@@ -1,10 +1,14 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Check, Plus } from "lucide-react";
+
+import { Button, Field, Input } from "../../../../components/ui";
 import type { PrinterPool } from "../../../../generated/api";
 import { staffRequest, type StaffAuthUser } from "../../../../lib/api";
 import { machineKeys, updateMachineType, type MachineType } from "../../machinesApi";
 import { PoolColourSwatchControl } from "./PoolColourSwatchControl";
+import { useNotify } from "./machineUi";
 
 type Props = {
   makerspaceId: number;
@@ -15,7 +19,6 @@ type Props = {
   onSelect: (name: string, hex: string) => void;
 };
 
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 const commonColourHex: Record<string, string> = {
   black: "#000000",
   white: "#ffffff",
@@ -53,6 +56,7 @@ function latestPoolHexes(pools: PrinterPool[]) {
 
 export function PoolColourSelector({ makerspaceId, machineType, existingPools, value, valueHex, onSelect }: Props) {
   const queryClient = useQueryClient();
+  const notify = useNotify();
   const [addingCustom, setAddingCustom] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customHex, setCustomHex] = useState("#000000");
@@ -91,6 +95,7 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
       });
     },
     onSuccess: async (_updatedType, custom) => {
+      notify.success(`${custom.name} added to the colour presets`);
       setAddedColours((current) => [...current, custom]);
       onSelect(custom.name, custom.hex);
       setCustomName("");
@@ -99,6 +104,7 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
       setAddingCustom(false);
       await queryClient.invalidateQueries({ queryKey: machineKeys.types(makerspaceId) });
     },
+    onError: (error) => notify.failure("Couldn't save the custom colour.", error),
   });
 
   const confirmCustom = () => {
@@ -123,24 +129,24 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
   return (
     <div className="grid gap-3">
       {configuredColours.length ? (
-        <fieldset className="grid gap-2 rounded-xl border border-line p-3">
-          <legend className="eyebrow px-1">Colour</legend>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        <fieldset className="grid min-w-0 gap-2">
+          <legend className="mb-1.5 text-label text-ink">Colour</legend>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {colourNames.map((name) => {
               const hex = hexFor(name);
               const selected = normaliseName(value) === normaliseName(name);
               return (
                 <button
                   aria-pressed={selected}
-                  className={`desk-button relative grid h-auto min-h-11 items-stretch justify-stretch gap-0 overflow-hidden bg-bg p-0 text-left ${focusRing} ${selected ? "border-2 border-accent shadow-soft" : "border border-line"}`}
+                  className={`grid min-h-11 overflow-hidden rounded-md bg-canvas text-left transition-colors duration-180 ease-standard hover:bg-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${selected ? "border-[1.5px] border-accent-ink" : "border border-line"}`}
                   key={normaliseName(name)}
                   type="button"
                   onClick={() => onSelect(name, hex)}
                 >
-                  {hex ? <span aria-hidden="true" className="h-10 border-b border-line" style={{ backgroundColor: hex }} /> : null}
-                  <span className={`flex min-h-11 items-center justify-between gap-2 px-2 py-1 text-sm font-semibold text-ink ${hex ? "bg-bg" : "bg-surface"}`}>
+                  {hex ? <span aria-hidden="true" className="h-9 border-b border-line" style={{ backgroundColor: hex }} /> : null}
+                  <span className={`flex min-h-11 items-center justify-between gap-2 px-3 py-1 text-sm font-semibold text-ink ${hex ? "" : "bg-fill"}`}>
                     <span>{name}</span>
-                    {selected ? <span aria-hidden="true" className="text-accent-ink">✓</span> : null}
+                    {selected ? <Check aria-hidden="true" className="size-4 text-accent-ink" /> : null}
                   </span>
                 </button>
               );
@@ -148,15 +154,9 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
           </div>
         </fieldset>
       ) : (
-        <label className="eyebrow grid gap-1">
-          Colour
-          <input
-            className="desk-input"
-            value={value}
-            onChange={(event) => onSelect(event.target.value, valueHex)}
-            placeholder="e.g. Signal red"
-          />
-        </label>
+        <Field label="Colour">
+          <Input value={value} onChange={(event) => onSelect(event.target.value, valueHex)} placeholder="e.g. Signal red" />
+        </Field>
       )}
 
       {!configuredColours.length ? (
@@ -165,33 +165,28 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
 
       {canConfigure && machineType ? (
         addingCustom ? (
-          <fieldset className="grid gap-3 rounded-xl border border-line bg-surface p-3">
-            <legend className="eyebrow px-1">Add custom colour</legend>
-            <label className="eyebrow grid gap-1">
-              Custom colour name
-              <input
+          <fieldset className="grid min-w-0 gap-3 rounded-lg border border-line bg-subtle p-4">
+            <legend className="px-1 text-label text-ink">Add custom colour</legend>
+            <Field label="Custom colour name">
+              <Input
                 aria-describedby={customError ? "custom-colour-error" : undefined}
-                className="desk-input"
+                aria-invalid={customError ? true : undefined}
                 value={customName}
                 onChange={(event) => { setCustomName(event.target.value); setCustomError(""); appendColour.reset(); }}
               />
-            </label>
+            </Field>
             <PoolColourSwatchControl legend="Custom colour swatch" value={customHex} onChange={setCustomHex} />
+            {customError ? <p className="text-caption text-danger-fg" id="custom-colour-error" role="alert">{customError}</p> : null}
+            {appendColour.error instanceof Error ? <p className="text-caption text-danger-fg" role="alert">{appendColour.error.message}</p> : null}
             <div className="flex flex-wrap gap-2">
-              <button className="desk-button-primary" disabled={appendColour.isPending} type="button" onClick={confirmCustom}>
-                {appendColour.isPending ? "Saving..." : "Save custom colour"}
-              </button>
-              <button className="desk-button-ghost" type="button" onClick={() => { setAddingCustom(false); setCustomError(""); appendColour.reset(); }}>
-                Cancel
-              </button>
+              <Button loading={appendColour.isPending} loadingLabel="Saving…" onClick={confirmCustom}>Save custom colour</Button>
+              <Button variant="quiet" onClick={() => { setAddingCustom(false); setCustomError(""); appendColour.reset(); }}>Cancel</Button>
             </div>
-            {customError ? <p className="text-sm text-danger" id="custom-colour-error" role="alert">{customError}</p> : null}
-            {appendColour.error instanceof Error ? <p className="text-sm text-danger" role="alert">{appendColour.error.message}</p> : null}
           </fieldset>
         ) : (
-          <button className="desk-button-secondary justify-self-start" type="button" onClick={() => setAddingCustom(true)}>
+          <Button className="justify-self-start" size="sm" startIcon={<Plus />} onClick={() => setAddingCustom(true)}>
             Add a custom colour
-          </button>
+          </Button>
         )
       ) : null}
     </div>

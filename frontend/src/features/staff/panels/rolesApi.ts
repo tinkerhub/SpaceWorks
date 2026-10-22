@@ -79,8 +79,18 @@ export function setRoleMachineScope(
   });
 }
 
-export function listCapabilities(msId: number) {
-  return staffRequest<Capability[]>(`/admin/makerspaces/${msId}/roles/capabilities`);
+/**
+ * The capability catalog. Pass the role being edited: the server then keeps listing
+ * actions that role already holds even when their module is switched off, so an edit
+ * shows (and preserves) every grant instead of silently hiding some.
+ */
+export function capabilitiesPath(msId: number, roleId?: number | null) {
+  const base = `/admin/makerspaces/${msId}/roles/capabilities`;
+  return roleId == null ? base : `${base}?role_id=${roleId}`;
+}
+
+export function listCapabilities(msId: number, roleId?: number | null) {
+  return staffRequest<Capability[]>(capabilitiesPath(msId, roleId));
 }
 
 export function listMemberships(msId: number) {
@@ -97,4 +107,30 @@ export function assignRole(msId: number, membershipId: number, roleId: number) {
   return staffRequest<StaffMembershipRow>(`/admin/makerspaces/${msId}/memberships/${membershipId}/role`, {
     method: "PATCH", body: JSON.stringify({ role_id: roleId }),
   });
+}
+
+// Roles an actor may hand out: superadmins assign anything; everyone else only roles that
+// stay within their own action ceiling and never grant manage_makerspace. Mirrors the
+// backend's role-assignment ceiling so the UI never offers a choice the server refuses.
+export function assignableRolesFor<R extends Pick<StaffRole, "granted_actions">>(
+  roles: readonly R[],
+  actorActions: readonly string[],
+  isSuperadmin: boolean,
+): R[] {
+  if (isSuperadmin) return [...roles];
+  const ceiling = new Set(actorActions.filter((action) => action !== "manage_makerspace"));
+  return roles.filter(
+    (role) => !role.granted_actions.includes("manage_makerspace") && role.granted_actions.every((action) => ceiling.has(action)),
+  );
+}
+
+// True when the role holds manage_makerspace. Falls back to the legacy enum when the row has
+// no assigned role or the roles list has not loaded it (yet).
+export function roleManagesMakerspace(
+  roles: readonly Pick<StaffRole, "id" | "granted_actions">[],
+  roleId: number | null | undefined,
+  legacyRole?: string | null,
+): boolean {
+  const role = roleId == null ? undefined : roles.find((item) => item.id === roleId);
+  return role ? role.granted_actions.includes("manage_makerspace") : legacyRole === "space_manager";
 }

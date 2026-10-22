@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
+import { Camera, CheckCircle2 } from "lucide-react";
 
-import { CameraCapture } from "../../../components/ui";
+import { Button, CameraCapture, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 
 type UploadResponse = {
@@ -33,6 +34,7 @@ export function EvidenceUpload({
   onUploaded: (evidenceId: number | null) => void;
 }) {
   const inputId = useId();
+  const { showToast } = useToast();
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
@@ -74,15 +76,17 @@ export function EvidenceUpload({
       onUploaded(presigned.evidence_id);
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Upload failed.");
+      const message = err instanceof Error ? err.message : "Upload failed.";
+      setError(message);
+      showToast(`Photo upload failed. ${message}`, { tone: "error" });
       onUploaded(null);
     }
   }
 
   return (
-    <div className="min-w-0 space-y-1">
+    <div className="grid min-w-0 gap-1.5">
       {label ? (
-        <label className="block font-medium text-ink" htmlFor={inputId}>
+        <label className="text-label text-ink" htmlFor={inputId}>
           {label}
         </label>
       ) : null}
@@ -99,12 +103,12 @@ export function EvidenceUpload({
             const file = event.target.files?.[0];
             if (file) handleFile(file);
           }}
-          className="block min-w-0 max-w-full flex-[1_1_12rem] text-sm text-muted file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-on-accent"
+          className="block min-w-0 max-w-full flex-[1_1_12rem] text-sm text-ink-muted file:mr-3 file:min-h-9 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
         />
         {cameraSupported ? (
-          <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
             Camera
-          </button>
+          </Button>
         ) : null}
       </div>
       <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label ?? `${evidenceType} photo`} />
@@ -114,10 +118,11 @@ export function EvidenceUpload({
       <p
         role="status"
         aria-live="polite"
-        className={`break-words text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
+        className={`flex items-center gap-1.5 break-words text-caption ${status === "error" ? "text-danger-fg" : status === "done" ? "text-success-fg" : "text-ink-muted"}`}
       >
+        {status === "done" ? <CheckCircle2 aria-hidden="true" className="size-4 shrink-0" /> : null}
         {status === "uploading"
-          ? `Uploading ${fileName}...`
+          ? `Uploading ${fileName}…`
           : status === "done"
             ? "Photo uploaded"
             : status === "error"

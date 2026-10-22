@@ -67,7 +67,7 @@ case "$kernel" in
     ;;
   MINGW*|MSYS*|CYGWIN*) HOST_KIND=windows ;;
   Darwin) HOST_KIND=macos ;;
-  *) die "Unsupported host '$kernel'. Use Linux, Windows Git Bash, or macOS with Docker Desktop." ;;
+  *) die "Unsupported host '$kernel'. Use Linux (on Windows, a WSL2 shell) or macOS with Docker Desktop." ;;
 esac
 say "Architecture: $ARCH; host: $HOST_KIND${PACKAGE_FAMILY:+/$PACKAGE_FAMILY}."
 missing=()
@@ -295,6 +295,6 @@ STAGE_DIR=""
 if [[ "$(id -u)" != 0 && ${#RUN_ROOT[@]} -gt 0 ]]; then
   "${RUN_ROOT[@]}" chown -R "$(id -u):$(id -g)" "$INSTALL_DIR"
 fi
-run_installed "$setup_command"
+setup_status=0; run_installed "$setup_command" || setup_status=$?; [[ "$setup_status" =~ ^[03]$ ]] || exit "$setup_status"
 printf '%s\n' "$VERSION" > "$INSTALL_DIR/.spaceworks-version"
-say "Installed SpaceWorks $VERSION in $INSTALL_DIR."
+[[ "$setup_status" == 0 ]] || die "Installed SpaceWorks $VERSION, but setup exited 3: the module selection was not applied. Re-run this installer and choose module changes."; say "Installed SpaceWorks $VERSION in $INSTALL_DIR."

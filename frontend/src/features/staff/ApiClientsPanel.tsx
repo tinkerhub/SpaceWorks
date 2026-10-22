@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { useToast } from "../../components/ui";
 import { ApiClientCreateCard } from "./ApiClientCreateCard";
 import { ApiClientListCard } from "./ApiClientListCard";
+import { ApiClientSecretDialog } from "./ApiClientSecretDialog";
 import {
   apiClientsQueryKey,
   apiClientScopesQueryKey,
@@ -21,7 +23,7 @@ import {
   updateApiClientScopes,
 } from "./apiClientsApi";
 import { ApiClientsAccessSummary } from "./ApiClientsAccessSummary";
-import { ApiClientsTelegramSettings } from "./ApiClientsTelegramSettings";
+import { errorText } from "./panels/shared";
 import { Panel, type Makerspace, useStaffGet } from "./StaffPanels";
 
 export function ApiClientsPanel({
@@ -34,6 +36,7 @@ export function ApiClientsPanel({
   canManageMakerspace: boolean;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [label, setLabel] = useState("");
   const [reason, setReason] = useState("");
   const [origins, setOrigins] = useState("");
@@ -64,6 +67,8 @@ export function ApiClientsPanel({
   const selectableCreateScopes = scopes.filter((scope) => (
     catalog.some((option) => option.value === scope && option.grantable)
   ));
+  const refreshClients = () => queryClient.invalidateQueries({ queryKey: apiClientsQueryKey(makerspace.id) });
+  const failed = (fallback: string) => (error: Error) => showToast(errorText(error, fallback), { tone: "error" });
 
   const requestKey = useMutation({
     mutationFn: () => requestApiKey(makerspace.id, label, reason, splitOrigins(origins)),
@@ -73,43 +78,48 @@ export function ApiClientsPanel({
       setOrigins("");
       setSubmitted(true);
       queryClient.invalidateQueries({ queryKey: apiKeyRequestsQueryKey(makerspace.id) });
+      showToast("Request sent", { tone: "success" });
     },
+    onError: failed("Couldn't send the request"),
   });
   const createClient = useMutation({
-    mutationFn: () => createApiClient(
-      makerspace.id,
-      label,
-      splitOrigins(origins),
-      selectableCreateScopes,
-    ),
+    mutationFn: () => createApiClient(makerspace.id, label, splitOrigins(origins), selectableCreateScopes),
     onSuccess: (created) => {
       setLabel("");
       setOrigins("");
       setScopes([]);
       setOneTimeSecret(created);
-      queryClient.invalidateQueries({ queryKey: apiClientsQueryKey(makerspace.id) });
+      refreshClients();
+      showToast("API client created", { tone: "success" });
     },
+    onError: failed("Couldn't create the client"),
   });
   const deleteClient = useMutation({
     mutationFn: deleteApiClient,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: apiClientsQueryKey(makerspace.id) });
+      refreshClients();
+      showToast("API client deleted", { tone: "success" });
     },
+    onError: failed("Couldn't delete the client"),
   });
   const rotateClient = useMutation({
     mutationFn: rotateApiClient,
     onSuccess: (rotated) => {
       setOneTimeSecret(rotated);
-      queryClient.invalidateQueries({ queryKey: apiClientsQueryKey(makerspace.id) });
+      refreshClients();
+      showToast("Secret rotated", { tone: "success" });
     },
+    onError: failed("Couldn't rotate the secret"),
   });
   const updateScopes = useMutation({
     mutationFn: ({ clientId, nextScopes }: { clientId: number; nextScopes: string[] }) => (
       updateApiClientScopes(clientId, nextScopes)
     ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: apiClientsQueryKey(makerspace.id) });
+      refreshClients();
+      showToast("Scopes saved", { tone: "success" });
     },
+    onError: failed("Couldn't save the scopes"),
   });
 
   const handleLabelChange = (value: string) => {
@@ -126,57 +136,54 @@ export function ApiClientsPanel({
   };
 
   return (
-    <Panel title="API access">
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="space-y-3">
-          <ApiClientCreateCard
-            canManageMakerspace={canManageMakerspace}
-            label={label}
-            reason={reason}
-            origins={origins}
-            submitted={submitted}
-            oneTimeSecret={oneTimeSecret}
-            isPending={canManageMakerspace ? createClient.isPending : requestKey.isPending}
-            error={canManageMakerspace ? createClient.error : requestKey.error}
-            scopeOptions={catalog}
-            scopes={selectableCreateScopes}
-            scopesLoading={scopeOptions.isLoading}
-            scopesError={scopeOptions.error}
-            onLabelChange={handleLabelChange}
-            onReasonChange={handleReasonChange}
-            onOriginsChange={handleOriginsChange}
-            onScopesChange={setScopes}
-            onSubmit={() => canManageMakerspace ? createClient.mutate() : requestKey.mutate()}
-            onDismissSecret={() => setOneTimeSecret(null)}
-          />
-
-          {isSuperadmin ? <ApiClientsTelegramSettings makerspace={makerspace} /> : null}
-        </div>
-
-        <div className="space-y-3">
-          <ApiClientsAccessSummary makerspace={makerspace} isSuperadmin={isSuperadmin} settings={settings.data} />
-
-          <ApiClientListCard
-            canManageMakerspace={canManageMakerspace}
-            clients={apiClients.data?.results}
-            clientsLoading={apiClients.isLoading}
-            clientsError={apiClients.error}
-            requests={requests.data?.results}
-            deletePending={deleteClient.isPending}
-            deleteError={deleteClient.error}
-            rotatePending={rotateClient.isPending}
-            rotateError={rotateClient.error}
-            scopeOptions={catalog}
-            scopesLoading={scopeOptions.isLoading}
-            scopesError={scopeOptions.error}
-            scopeUpdatePending={updateScopes.isPending}
-            scopeUpdateError={updateScopes.error}
-            onDelete={(clientId) => deleteClient.mutate(clientId)}
-            onRotate={(clientId) => rotateClient.mutate(clientId)}
-            onScopesUpdate={(clientId, nextScopes) => updateScopes.mutate({ clientId, nextScopes })}
-          />
-        </div>
+    <Panel
+      title="API access"
+      description={canManageMakerspace
+        ? "Give other systems scoped, rotatable access to this makerspace."
+        : "Ask for a key when another system needs to read this makerspace."}
+    >
+      <div className="grid gap-6">
+        <ApiClientsAccessSummary makerspace={makerspace} isSuperadmin={isSuperadmin} settings={settings.data} />
+        <ApiClientCreateCard
+          canManageMakerspace={canManageMakerspace}
+          label={label}
+          reason={reason}
+          origins={origins}
+          submitted={submitted}
+          isPending={canManageMakerspace ? createClient.isPending : requestKey.isPending}
+          error={canManageMakerspace ? createClient.error : requestKey.error}
+          scopeOptions={catalog}
+          scopes={selectableCreateScopes}
+          scopesLoading={scopeOptions.isLoading}
+          scopesError={scopeOptions.error}
+          onLabelChange={handleLabelChange}
+          onReasonChange={handleReasonChange}
+          onOriginsChange={handleOriginsChange}
+          onScopesChange={setScopes}
+          onSubmit={() => canManageMakerspace ? createClient.mutate() : requestKey.mutate()}
+        />
+        <ApiClientListCard
+          canManageMakerspace={canManageMakerspace}
+          clients={apiClients.data?.results}
+          clientsLoading={apiClients.isLoading}
+          clientsError={apiClients.error}
+          requests={requests.data?.results}
+          requestsLoading={requests.isLoading}
+          deletePending={deleteClient.isPending}
+          deleteError={deleteClient.error}
+          rotatePending={rotateClient.isPending}
+          rotateError={rotateClient.error}
+          scopeOptions={catalog}
+          scopesLoading={scopeOptions.isLoading}
+          scopesError={scopeOptions.error}
+          scopeUpdatePending={updateScopes.isPending}
+          scopeUpdateError={updateScopes.error}
+          onDelete={(clientId) => deleteClient.mutateAsync(clientId).catch(() => undefined)}
+          onRotate={(clientId) => rotateClient.mutateAsync(clientId).catch(() => undefined)}
+          onScopesUpdate={(clientId, nextScopes) => updateScopes.mutate({ clientId, nextScopes })}
+        />
       </div>
+      <ApiClientSecretDialog secret={oneTimeSecret} onClose={() => setOneTimeSecret(null)} />
     </Panel>
   );
 }

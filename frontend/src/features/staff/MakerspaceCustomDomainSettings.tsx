@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Badge } from "../../components/ui";
+import { Button, Callout, Card, CardHeader, CheckboxField, ErrorText, Field, Input, SettingsRow, StatusChip, useToast } from "../../components/ui";
 import type { ApiPath } from "../../generated/api";
 import { staffRequest } from "../../lib/api";
-import type { Makerspace } from "./StaffPanels";
+import { errorText, type Makerspace } from "./panels/shared";
 
 type Props = {
   makerspace: Makerspace;
   settings?: Makerspace;
   loading: boolean;
+  isSuperadmin: boolean;
 };
 
 type VerifyDomainResponse = {
@@ -29,8 +30,9 @@ function verifyDomainStaffPath(makerspaceId: number) {
   return VERIFY_DOMAIN_API_PATH.replace("/api/v1", "").replace("{makerspace_id}", String(makerspaceId));
 }
 
-export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }: Props) {
+export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, isSuperadmin }: Props) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [domainInput, setDomainInput] = useState("");
   const [hideFromDirectory, setHideFromDirectory] = useState(false);
   const [verifyDetail, setVerifyDetail] = useState("");
@@ -41,6 +43,9 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }
   const status = settings?.frontend_domain_status ?? makerspace.frontend_domain_status ?? "pending";
   const record = settings?.domain_verification_record ?? makerspace.domain_verification_record ?? null;
   const token = settings?.domain_verification_token ?? makerspace.domain_verification_token ?? "";
+  // On a self-hosted instance (`platform_hosting` false) the backend lets only a superadmin
+  // change the domain (`validate_frontend_domain`). Unknown hosting reads as self-hosted.
+  const domainReadOnly = !isSuperadmin && (settings?.platform_hosting ?? makerspace.platform_hosting) !== true;
 
   useEffect(() => {
     setDomainInput(currentDomain ?? "");
@@ -80,7 +85,9 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }
       );
       setVerifyDetail("");
       refreshSettings();
+      showToast("Domain saved", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the domain"), { tone: "error" }),
   });
 
   const verifyDomain = useMutation({
@@ -91,7 +98,9 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }
     onSuccess: (result) => {
       setVerifyDetail(result.detail);
       refreshSettings();
+      showToast(result.status === "verified" ? "Domain verified" : "Domain not verified yet", { tone: result.status === "verified" ? "success" : "warning" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't check the domain"), { tone: "error" }),
   });
 
   const domainSaveDisabled =
@@ -105,9 +114,9 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }
     Boolean(currentDomain) && !record && status === "verified" && !domainChanged;
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
+    <Card as="section" aria-labelledby="custom-domain-title">
       <form
-        className="grid min-w-0 gap-4"
+        className="grid min-w-0"
         onSubmit={(event) => {
           event.preventDefault();
           if (!domainSaveDisabled) {
@@ -115,128 +124,123 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading }
           }
         }}
       >
-        <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
-          <div className="grid min-w-0 max-w-2xl gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-base font-semibold text-ink">Custom domain</h3>
-              <Badge tone={isSelfHostActive ? "success" : domainStatusTone(status)}>
-                {isSelfHostActive ? "Active" : domainStatusLabel(status)}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted">
-              Route this makerspace&apos;s public and staff surfaces through a dedicated domain.
-            </p>
+        <CardHeader
+          className="mb-0"
+          title={<span id="custom-domain-title">Custom domain</span>}
+          description="Route this makerspace's public and staff pages through a dedicated domain."
+          action={(
+            <StatusChip tone={isSelfHostActive ? "success" : domainStatusTone(status)}>
+              {isSelfHostActive ? "Active" : domainStatusLabel(status)}
+            </StatusChip>
+          )}
+        />
+
+        <SettingsRow title="Address" description="Staff use it at /admin; the public site lives at its root.">
+          <div className="grid min-w-0 max-w-xl gap-4">
+            <Field
+              label="Domain"
+              id="custom-domain"
+              helperText={domainReadOnly ? "Only a superadmin can change the custom domain on this instance." : undefined}
+            >
+              <Input
+                placeholder="alphamakerspace.com"
+                readOnly={domainReadOnly}
+                value={domainInput}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setDomainInput(next);
+                  if (!next.trim()) {
+                    setHideFromDirectory(false);
+                  }
+                }}
+              />
+            </Field>
+            <CheckboxField
+              label="Hide from central directory"
+              description="Available only after a custom domain is set."
+              checked={effectiveHidden}
+              disabled={!hasDomainInput}
+              onCheckedChange={(value) => setHideFromDirectory(value === true)}
+            />
           </div>
-          <button
-            className="desk-button-primary w-full max-w-full justify-self-start sm:w-auto md:justify-self-end"
-            type="submit"
-            disabled={domainSaveDisabled}
-          >
-            {updateCustomDomain.isPending ? "Saving..." : "Save domain"}
-          </button>
-        </div>
-
-        <div className="grid min-w-0 max-w-xl gap-2">
-          <label className="text-sm font-semibold text-ink" htmlFor="custom-domain">
-            Domain
-          </label>
-          <input
-            id="custom-domain"
-            className="desk-input"
-            placeholder="alphamakerspace.com"
-            value={domainInput}
-            onChange={(event) => {
-              const next = event.target.value;
-              setDomainInput(next);
-              if (!next.trim()) {
-                setHideFromDirectory(false);
-              }
-            }}
-          />
-        </div>
-
-        <label className="flex min-w-0 max-w-xl items-start gap-3 text-sm text-ink">
-          <input
-            className="mt-1 h-4 w-4"
-            type="checkbox"
-            checked={effectiveHidden}
-            disabled={!hasDomainInput}
-            onChange={(event) => setHideFromDirectory(event.target.checked)}
-          />
-          <span>
-            <span className="font-semibold">Hide from central directory</span>
-            <span className="block text-muted">Available only after a custom domain is set.</span>
-          </span>
-        </label>
+        </SettingsRow>
 
         {hasDomainInput ? (
-          <div className="grid min-w-0 gap-3 rounded-md border border-line bg-surface p-3 text-sm text-muted">
-            <div className="min-w-0 overflow-x-auto">
-              <p className="font-semibold text-ink">Resulting URLs</p>
-              <ul className="mt-2 grid gap-1">
-                {customDomainUrls.map((url) => (
-                  <li className="break-all" key={url}>{url}</li>
-                ))}
-              </ul>
-            </div>
-            {visibleRecord ? <DnsRecord record={visibleRecord} /> : null}
-            <p>
-              TLS and reverse proxy routing must terminate HTTPS for this hostname and forward both
-              the public site and <code>/admin</code> staff console to this deployment.
-            </p>
-            {isSelfHostActive ? (
-              <p className="text-sm text-ink">
-                This custom domain is active. Staff and public traffic on this hostname are
-                trusted automatically on a self-hosted instance.
-              </p>
-            ) : (
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  className="desk-button w-full max-w-full sm:w-auto"
-                  type="button"
-                  disabled={verifyDisabled}
-                  onClick={() => verifyDomain.mutate()}
-                >
-                  {verifyDomain.isPending ? "Checking..." : "Verify domain"}
-                </button>
-                {token ? <span className="break-all text-xs text-muted">Token: {token}</span> : null}
+          <SettingsRow title="Setup" description="Point DNS and your reverse proxy at this deployment.">
+            <div className="grid min-w-0 gap-4 text-body-ui text-ink-secondary">
+              <div className="min-w-0">
+                <p className="text-label text-ink">Resulting URLs</p>
+                <ul className="mt-1.5 grid gap-1">
+                  {customDomainUrls.map((url) => (
+                    <li className="break-all font-mono text-sm" key={url}>{url}</li>
+                  ))}
+                </ul>
               </div>
-            )}
-          </div>
+              {visibleRecord ? <DnsRecord record={visibleRecord} /> : null}
+              <p>
+                TLS and reverse proxy routing must terminate HTTPS for this hostname and forward both
+                the public site and <code className="font-mono">/admin</code> staff console to this deployment.
+              </p>
+              {isSelfHostActive ? (
+                <Callout tone="success">
+                  This custom domain is active. Staff and public traffic on this hostname are
+                  trusted automatically on a self-hosted instance.
+                </Callout>
+              ) : (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={verifyDisabled}
+                    loading={verifyDomain.isPending}
+                    loadingLabel="Checking…"
+                    onClick={() => verifyDomain.mutate()}
+                  >
+                    Verify domain
+                  </Button>
+                  {token ? <span className="break-all text-caption text-ink-muted">Token: <span className="font-mono">{token}</span></span> : null}
+                </div>
+              )}
+              {domainChanged && currentDomain ? (
+                <p className="text-caption text-ink-muted">Save the new domain before verifying DNS.</p>
+              ) : null}
+              {verifyDetail ? <p className="text-body-ui text-ink" role="status">{verifyDetail}</p> : null}
+            </div>
+          </SettingsRow>
         ) : null}
-        {domainChanged && currentDomain ? (
-          <p className="text-sm text-muted">Save the new domain before verifying DNS.</p>
-        ) : null}
-        {verifyDetail ? <p className="text-sm text-ink">{verifyDetail}</p> : null}
-        {updateCustomDomain.error ? (
-          <p className="text-sm text-danger">{updateCustomDomain.error.message}</p>
-        ) : null}
-        {verifyDomain.error ? (
-          <p className="text-sm text-danger">{verifyDomain.error.message}</p>
-        ) : null}
+
+        <div className="grid gap-2">
+          <ErrorText message={updateCustomDomain.error?.message} />
+          <ErrorText message={verifyDomain.error?.message} />
+        </div>
+        <div className="flex justify-end pt-4">
+          <Button variant="primary" type="submit" disabled={domainSaveDisabled} loading={updateCustomDomain.isPending} loadingLabel="Saving…">
+            Save domain
+          </Button>
+        </div>
       </form>
-    </div>
+    </Card>
   );
 }
 
 function DnsRecord({ record }: { record: DomainRecord }) {
   return (
     <div className="grid min-w-0 gap-2">
-      <p className="font-semibold text-ink">DNS TXT record</p>
-      <dl className="grid min-w-0 gap-2 sm:grid-cols-[96px_minmax(0,1fr)]">
-        <dt className="font-mono text-xs uppercase text-muted">Host</dt>
-        <dd className="break-all font-mono text-xs text-ink">{record.host}</dd>
-        <dt className="font-mono text-xs uppercase text-muted">Type</dt>
-        <dd className="font-mono text-xs text-ink">{record.type}</dd>
-        <dt className="font-mono text-xs uppercase text-muted">Value</dt>
-        <dd className="break-all font-mono text-xs text-ink">{record.value}</dd>
+      <p className="text-label text-ink">DNS TXT record</p>
+      <dl className="grid min-w-0 gap-x-4 gap-y-2 rounded-md border border-line bg-subtle p-3 sm:grid-cols-[96px_minmax(0,1fr)]">
+        <dt className="text-caption text-ink-muted">Host</dt>
+        <dd className="break-all font-mono text-sm text-ink">{record.host}</dd>
+        <dt className="text-caption text-ink-muted">Type</dt>
+        <dd className="font-mono text-sm text-ink">{record.type}</dd>
+        <dt className="text-caption text-ink-muted">Value</dt>
+        <dd className="break-all font-mono text-sm text-ink">{record.value}</dd>
       </dl>
     </div>
   );
 }
 
 function domainStatusTone(status: DomainStatus) {
-  return status === "verified" ? "success" : status === "failed" ? "danger" : "warn";
+  return status === "verified" ? "success" : status === "failed" ? "danger" : "warning";
 }
 
 function domainStatusLabel(status: DomainStatus) {

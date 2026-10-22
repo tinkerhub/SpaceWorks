@@ -1,18 +1,14 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
 
-import { MakerspaceBrand } from "../../components/MakerspaceBrand";
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
-import { SiteFooter } from "../../components/SiteFooter";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { Card, CollapsibleSection, EmptyState, Skeleton, StatusBadge } from "../../components/ui";
+import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
+import { CollapsibleSection, EmptyState, PageHeader, Skeleton, StatusBadge } from "../../components/ui";
 import type { ApiPath } from "../../generated/api";
 import { StructuredApiError, tenantPublicRequest } from "../../lib/api";
-import { useTenant, useTenantPath } from "../../lib/tenant";
-import { formatSlug } from "./PublicInventoryParts";
-import { useTenantBootstrap } from "./usePublicInventory";
-import { SkipLink } from "../../components/SkipLink";
+import { useModules } from "../../lib/modules";
+import { PublicLoadError } from "./PublicInventoryParts";
+import { useMakerspacePublic } from "./useMakerspacePublic";
 
 type PublicMachine = {
   name: string;
@@ -38,12 +34,9 @@ function publicMachinesPath(slug: string) {
 }
 
 export function PublicMachinesPage() {
-  const { slug } = useParams();
-  const tenant = useTenant();
-  const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
-  const tenantPath = useTenantPath(makerspaceSlug);
-  const bootstrapQuery = useTenantBootstrap(makerspaceSlug, tenant.mode === "central");
-  const bootstrap = tenant.mode === "single" ? tenant.bootstrap : bootstrapQuery.data;
+  const space = useMakerspacePublic();
+  const { makerspaceSlug } = space;
+  const { moduleEnabled } = useModules();
   const machines = useQuery({
     queryKey: ["public-machines", makerspaceSlug],
     queryFn: () => tenantPublicRequest<PaginatedMachines>(
@@ -71,52 +64,48 @@ export function PublicMachinesPage() {
     return next;
   });
 
-  const displayName = bootstrap?.branding.display_name || bootstrap?.makerspace.name || formatSlug(makerspaceSlug) || "Makerspace";
-  const apiError = machines.error instanceof StructuredApiError ? machines.error : null;
-  const unavailable = apiError?.status === 400;
-  const missing = apiError?.status === 404;
-  const throttled = apiError?.status === 429;
-
-  return <main className="desk-shell flex min-h-screen flex-col">
-    <SkipLink />
-    <header className="border-b border-line bg-panel">
-      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-        <div><p className="eyebrow text-secondary-ink">Our Machines</p>
-          <MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace.logo_url} size="lg" />
+  return (
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Machines" />}>
+      <PublicContainer>
+        <PageHeader kicker="Our machines" title="Machines" description="Equipment available in this makerspace, grouped by kind." />
+        <div className="mt-8 grid gap-4">
+          {machines.isLoading ? (
+            <div className="grid gap-4" aria-busy="true" aria-label="Loading machines">
+              {[0, 1, 2].map((item) => <Skeleton key={item} className="h-40 w-full rounded-lg" />)}
+            </div>
+          ) : null}
+          {machines.error ? <PublicLoadError error={machines.error} noun="machines" onRetry={() => machines.refetch()} /> : null}
+          {machines.data && !groups.length ? (
+            <EmptyState title="No machines listed" description="This makerspace has not published any machines yet." />
+          ) : null}
+          {groups.map((group) => (
+            <CollapsibleSection
+              key={group.name}
+              title={group.name}
+              icon={group.icon || null}
+              count={group.machines.length}
+              open={!collapsed.has(group.name)}
+              onToggle={() => toggleGroup(group.name)}
+            >
+              <ul className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.machines.map((machine) => (
+                  <li key={machine.name} className="overflow-hidden rounded-lg border border-line bg-canvas">
+                    {/* Decorative: the machine name is rendered right below it. */}
+                    {machine.image_url ? <img src={machine.image_url} alt="" loading="lazy" className="aspect-[16/9] w-full border-b border-line object-cover" /> : null}
+                    <div className="grid gap-2 p-4">
+                      <h3 className="truncate text-title text-ink">{machine.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <StatusBadge status={machine.status} />
+                        <span className="text-caption text-ink-muted">{machine.usage_hours} h logged</span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CollapsibleSection>
+          ))}
         </div>
-        <div className="flex flex-wrap items-center gap-2"><SpaceWorksBadge /><Link className="desk-button" to={tenantPath()}>Inventory</Link><ThemeToggle /></div>
-      </div>
-    </header>
-    <section className="mx-auto w-full max-w-5xl flex-1 px-5 py-8" id="main-content" tabIndex={-1}>
-      <div className="mb-6"><h1 className="title-page">Machines</h1><p className="mt-2 text-sm text-muted">Equipment available in this makerspace, grouped by kind.</p></div>
-      {machines.isLoading ? <div className="grid gap-4" aria-label="Loading machines">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-40 w-full" />)}</div> : null}
-      {machines.error ? <Card><h2 className="title-panel">{throttled ? "Please slow down" : unavailable ? "Machines are not enabled" : missing ? "Makerspace not found" : "Machines are unavailable"}</h2>
-        <p className="mt-2 text-sm text-muted">{throttled ? "Too many requests were made. Wait a moment and retry." : apiError?.detail ?? machines.error.message}</p>
-        {!missing && !unavailable ? <button className="desk-button mt-4" type="button" onClick={() => machines.refetch()}>Retry</button> : null}
-      </Card> : null}
-      {machines.data && !groups.length ? <div className="[&>div]:border-secondary"><EmptyState title="No machines listed" description="This makerspace has not published any machines yet." /></div> : null}
-      {groups.length ? <div className="grid gap-4">{groups.map((group) => (
-        <CollapsibleSection key={group.name} title={group.name} icon={group.icon || null}
-          count={group.machines.length} open={!collapsed.has(group.name)}
-          onToggle={() => toggleGroup(group.name)}>
-          <ul className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-            {group.machines.map((machine) => (
-              <li key={machine.name} className="overflow-hidden rounded-xl border border-line bg-bg">
-                {/* Decorative: the machine name is rendered right below it. */}
-                {machine.image_url ? <img src={machine.image_url} alt="" loading="lazy" className="h-36 w-full object-cover" /> : null}
-                <div className="grid gap-2 p-3">
-                  <h3 className="title-section truncate">{machine.name}</h3>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge status={machine.status} />
-                    <span className="eyebrow">{machine.usage_hours} h logged</span>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CollapsibleSection>
-      ))}</div> : null}
-    </section>
-    <SiteFooter />
-  </main>;
+      </PublicContainer>
+    </PublicShell>
+  );
 }

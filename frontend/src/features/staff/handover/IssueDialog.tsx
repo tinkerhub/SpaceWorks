@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { DetailDrawer } from "../../../components/ui";
+import { Button, Callout, DetailDrawer, Field, Input, Textarea, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 import { EvidenceUpload } from "../panels/EvidenceUpload";
+import { errorText } from "../panels/shared";
 import { DialogError, submit } from "./shared";
 import type { DialogProps } from "./types";
 
 export function IssueDialog({ row, makerspace, onClose }: DialogProps) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [evidenceId, setEvidenceId] = useState<number | null>(null);
   const [remark, setRemark] = useState("");
   const [assetInputs, setAssetInputs] = useState<Record<string, string>>({});
@@ -33,70 +35,57 @@ export function IssueDialog({ row, makerspace, onClose }: DialogProps) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries();
+      showToast(`Request #${row.id} issued.`, { tone: "success" });
       onClose();
     },
+    onError: (failure) => showToast(errorText(failure, "Could not issue the request."), { tone: "error" }),
   });
   const canSubmit = Boolean(evidenceId) && assetQrPayloads.length === requiredAssetCount;
+  const close = () => {
+    if (!mutation.isPending) onClose();
+  };
 
   return (
-    <DetailDrawer open title={`Issue request #${row.id}`} onClose={onClose}>
+    <DetailDrawer open title={`Issue request #${row.id}`} onClose={close}>
       <form
-        className="grid gap-4 text-sm"
+        className="grid gap-5"
         onSubmit={(event) => submit(event, () => {
           if (canSubmit) mutation.mutate();
         })}
       >
         {row.assigned_box_code ? (
-          <p className="rounded-md border border-line bg-surface px-3 py-2 text-muted">
-            Assigned box: <span className="font-medium text-ink">{row.assigned_box_code}</span>
-          </p>
+          <Callout tone="info" title="Assigned box">
+            <span className="font-mono">{row.assigned_box_code}</span>
+          </Callout>
         ) : (
-          <p className="rounded-md border border-warn/40 bg-warn/10 px-3 py-2 text-warn">
-            No box is assigned to this request.
-          </p>
+          <Callout tone="warning" title="No box is assigned to this request.">
+            Assign and scan a box before issuing.
+          </Callout>
         )}
-        <EvidenceUpload
-          makerspaceId={makerspace.id}
-          evidenceType="issue"
-          label="Evidence photo"
-          onUploaded={setEvidenceId}
-        />
-        <label className="grid gap-1">
-          <span className="font-medium text-ink">Remark</span>
-          <textarea
-            className="desk-input min-h-24"
-            value={remark}
-            onChange={(event) => setRemark(event.target.value)}
-          />
-        </label>
+        <EvidenceUpload makerspaceId={makerspace.id} evidenceType="issue" label="Evidence photo" disabled={mutation.isPending} onUploaded={setEvidenceId} />
+        <Field label="Remark" optional>
+          <Textarea value={remark} onChange={(event) => setRemark(event.target.value)} />
+        </Field>
         {individualItems.length ? (
-          <div className="grid gap-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Asset QR codes</h3>
+          <fieldset className="grid gap-3">
+            <legend className="mb-1 text-label text-ink">Asset QR codes</legend>
             {assetFields.map((field) => (
-              <label className="grid gap-1" key={field.key}>
-                <span className="font-medium text-ink">{field.label}</span>
-                <input
-                  className="desk-input"
+              <Field key={field.key} label={field.label}>
+                <Input
+                  className="font-mono"
                   value={assetInputs[field.key] ?? ""}
-                  onChange={(event) =>
-                    setAssetInputs((current) => ({
-                      ...current,
-                      [field.key]: event.target.value,
-                    }))
-                  }
+                  onChange={(event) => setAssetInputs((current) => ({ ...current, [field.key]: event.target.value }))}
                 />
-              </label>
+              </Field>
             ))}
-          </div>
+          </fieldset>
         ) : null}
         <DialogError error={mutation.error} />
-        <div className="desk-actions flex flex-wrap justify-end gap-2">
-          <button className="desk-button" type="button" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="desk-button" type="submit" disabled={!canSubmit || mutation.isPending}>
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button disabled={mutation.isPending} onClick={close}>Cancel</Button>
+          <Button variant="primary" type="submit" disabled={!canSubmit} loading={mutation.isPending} loadingLabel="Issuing…">
             Issue
-          </button>
+          </Button>
         </div>
       </form>
     </DetailDrawer>

@@ -1,18 +1,13 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
 
-import { MakerspaceBrand } from "../../components/MakerspaceBrand";
-import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
-import { SiteFooter } from "../../components/SiteFooter";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { Badge, Card, EmptyState, Skeleton } from "../../components/ui";
-import { StructuredApiError } from "../../lib/api";
-import { useTenant, useTenantPath } from "../../lib/tenant";
-import { formatSlug } from "../inventory/PublicInventoryParts";
-import { useTenantBootstrap } from "../inventory/usePublicInventory";
+import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
+import { Button, Chip, EmptyState, PageHeader, Skeleton } from "../../components/ui";
+import { useModules } from "../../lib/modules";
+import { PublicLoadError } from "../inventory/PublicInventoryParts";
+import { useMakerspacePublic } from "../inventory/useMakerspacePublic";
 import { PublicBookingForm } from "./PublicBookingForm";
 import { usePublicSpaces, type PublicBookableSpace } from "./publicBookingsApi";
-import { SkipLink } from "../../components/SkipLink";
 
 const KIND_LABELS: Record<PublicBookableSpace["kind"], string> = {
   dev_room: "Development room",
@@ -21,91 +16,64 @@ const KIND_LABELS: Record<PublicBookableSpace["kind"], string> = {
   other: "Other",
 };
 
-const SPACE_TONES = ["border-accent", "border-secondary", "border-success", "border-warn"] as const;
-
-function spaceTone(publicToken: string) {
-  const total = [...publicToken].reduce((sum, character) => sum + character.codePointAt(0)!, 0);
-  return SPACE_TONES[total % SPACE_TONES.length];
-}
-
 export function PublicBookingsPage() {
-  const { slug } = useParams();
-  const tenant = useTenant();
-  const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
-  const tenantPath = useTenantPath(makerspaceSlug);
-  const bootstrapQuery = useTenantBootstrap(makerspaceSlug, tenant.mode === "central");
-  const bootstrap = tenant.mode === "single" ? tenant.bootstrap : bootstrapQuery.data;
-  const modules = tenant.mode === "single" ? tenant.modules : new Set(bootstrap?.modules ?? []);
+  const space = useMakerspacePublic();
+  const { makerspaceSlug } = space;
+  const modules = useModules();
   const spaces = usePublicSpaces(makerspaceSlug);
   const [activeToken, setActiveToken] = useState<string | null>(null);
-  const apiError = spaces.error instanceof StructuredApiError ? spaces.error : null;
-  const unavailable = apiError?.status === 400;
-  const missing = apiError?.status === 404;
-  const throttled = apiError?.status === 429;
-  const displayName = bootstrap?.branding.display_name || bootstrap?.makerspace.name || formatSlug(makerspaceSlug) || "Makerspace";
 
   return (
-    <main className="desk-shell flex min-h-screen flex-col">
-      <SkipLink />
-      <header className="border-b border-line bg-panel">
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-          <div>
-            <p className="eyebrow text-secondary-ink">Space bookings</p>
-            <MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace.logo_url} size="lg" />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <SpaceWorksBadge />
-            <Link className="desk-button-ghost" to={tenantPath()}>Inventory</Link>
-            {modules.has("events") ? <Link className="desk-button-ghost" to={tenantPath("events")}>Events</Link> : null}
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-      <section className="mx-auto w-full max-w-5xl flex-1 px-5 py-8" id="main-content" tabIndex={-1}>
-        <div className="mb-6">
-          <h1 className="title-page">Book a makerspace</h1>
-          <p className="mt-2 text-sm text-muted">Choose a public space, check published bookings, and request a time.</p>
-        </div>
-        {spaces.isLoading ? <div className="grid gap-4" aria-label="Loading spaces">{[0, 1, 2].map((item) => <Skeleton key={item} className="h-64 w-full" />)}</div> : null}
-        {spaces.error ? (
-          <Card>
-            <h2 className="title-panel">{throttled ? "Please slow down" : unavailable ? "Bookings are not enabled" : missing ? "Makerspace not found" : "Spaces are unavailable"}</h2>
-            <p className="mt-2 text-sm text-muted">{throttled ? "Too many requests were made. Wait a moment and retry." : apiError?.detail ?? spaces.error.message}</p>
-            {!missing && !unavailable ? <button className="desk-button-ghost mt-4" type="button" onClick={() => spaces.refetch()}>Retry</button> : null}
-          </Card>
-        ) : null}
-        {spaces.data && !spaces.data.length ? <div className="rounded-xl "><EmptyState title="No spaces available" description="Public bookable spaces will appear here when they are enabled." /></div> : null}
-        {spaces.data?.length ? (
-          <div className="grid gap-5">
-            {spaces.data.map((space) => {
-              const open = activeToken === space.public_token;
-              return (
-                <article key={space.public_token} className={`desk-panel ${spaceTone(space.public_token)} overflow-hidden`}>
-                  {space.image_url ? <img className="h-52 w-full border-b border-line object-cover" src={space.image_url} alt="" loading="lazy" /> : null}
-                  <div className="min-w-0 p-5 [overflow-wrap:anywhere]">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h2 className="title-panel">{space.name}</h2>
-                        {space.location ? <p className="mt-1 text-sm text-muted">{space.location}</p> : null}
-                      </div>
-                      <Badge tone="neutral">{KIND_LABELS[space.kind]}</Badge>
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={modules.moduleEnabled} page="Bookings" />}>
+      <PublicContainer width="md">
+        <PageHeader kicker="Space bookings" title="Book a makerspace" description="Choose a public space, check published bookings and request a time." />
+        <div className="mt-8 grid gap-5">
+          {spaces.isLoading ? (
+            <div className="grid gap-5" aria-busy="true" aria-label="Loading spaces">
+              {[0, 1, 2].map((item) => <Skeleton key={item} className="h-64 w-full rounded-lg" />)}
+            </div>
+          ) : null}
+          {spaces.error ? <PublicLoadError error={spaces.error} noun="bookings" onRetry={() => spaces.refetch()} /> : null}
+          {spaces.data && !spaces.data.length ? (
+            <EmptyState title="No spaces available" description="Public bookable spaces will appear here when they are enabled." />
+          ) : null}
+          {spaces.data?.map((item) => {
+            const open = activeToken === item.public_token;
+            return (
+              <article key={item.public_token} className="min-w-0 overflow-hidden rounded-lg border border-line bg-canvas">
+                {item.image_url ? <img className="aspect-[16/7] w-full border-b border-line object-cover" src={item.image_url} alt="" loading="lazy" /> : null}
+                <div className="min-w-0 p-5 [overflow-wrap:anywhere] sm:p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h2 className="text-h4 text-ink">{item.name}</h2>
+                      {item.location ? <p className="mt-1 text-body-ui text-ink-muted">{item.location}</p> : null}
                     </div>
-                    {space.description ? <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-ink">{space.description}</p> : null}
-                    <dl className="mt-4 flex flex-wrap gap-6 text-sm">
-                      <div><dt className="eyebrow">Capacity</dt><dd className="font-mono font-semibold text-ink">{space.capacity === 0 ? "Not specified" : space.capacity}</dd></div>
-                      <div><dt className="eyebrow">Confirmation</dt><dd className="font-semibold text-ink">{space.approval_mode === "approve" ? "Staff approval required" : "Instant when available"}</dd></div>
-                    </dl>
-                    <p className="mt-3 text-sm text-muted">{space.approval_mode === "approve" ? "Your request stays pending until makerspace staff review it." : "A non-overlapping slot is confirmed immediately."}</p>
-                    <button className="desk-button-secondary mt-4" type="button" aria-expanded={open} onClick={() => setActiveToken(open ? null : space.public_token)}>{open ? "Close booking form" : "Choose a time"}</button>
-                    {open ? <div className="mt-5"><PublicBookingForm key={space.public_token} makerspaceSlug={makerspaceSlug} space={space} /></div> : null}
+                    <Chip size="sm">{KIND_LABELS[item.kind]}</Chip>
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        ) : null}
-      </section>
-      <SiteFooter />
-    </main>
+                  {item.description ? <p className="mt-4 whitespace-pre-wrap text-body-ui text-ink-secondary">{item.description}</p> : null}
+                  <dl className="mt-4 grid gap-3 rounded-lg bg-subtle p-4 sm:grid-cols-2">
+                    <div>
+                      <dt className="text-caption text-ink-muted">Capacity</dt>
+                      <dd className="mt-0.5 text-label text-ink">{item.capacity === 0 ? "Not specified" : item.capacity}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-caption text-ink-muted">Confirmation</dt>
+                      <dd className="mt-0.5 text-label text-ink">{item.approval_mode === "approve" ? "Staff approval required" : "Instant when available"}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-3 text-caption text-ink-muted">
+                    {item.approval_mode === "approve" ? "Your request stays pending until makerspace staff review it." : "A non-overlapping slot is confirmed immediately."}
+                  </p>
+                  <Button className="mt-4" aria-expanded={open} onClick={() => setActiveToken(open ? null : item.public_token)}>
+                    {open ? "Close booking form" : "Choose a time"}
+                  </Button>
+                  {open ? <div className="mt-5"><PublicBookingForm key={item.public_token} makerspaceSlug={makerspaceSlug} space={item} /></div> : null}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </PublicContainer>
+    </PublicShell>
   );
 }

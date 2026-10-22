@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Skeleton, StatusBadge } from "../../components/ui";
+import { Button, ErrorText, Field, Input, SectionHeading, Skeleton, StatTile, StatusChip, SwitchRow, Textarea, useToast } from "../../components/ui";
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 import type { CustomFormQuestion } from "../forms/customFormTypes";
 import {
@@ -26,6 +26,7 @@ export function EventFeedbackPanel({ eventId, makerspaceId }: { eventId: number;
   const configure = useConfigureFeedbackSurvey(eventId, makerspaceId);
   const open = useOpenFeedbackSurvey(eventId, makerspaceId);
   const close = useCloseFeedbackSurvey(eventId, makerspaceId);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!survey) return;
@@ -38,30 +39,55 @@ export function EventFeedbackPanel({ eventId, makerspaceId }: { eventId: number;
   const error = configure.error || open.error || close.error;
   const pending = configure.isPending || open.isPending || close.isPending;
 
-  return <section className="border-t border-line pt-5" aria-labelledby="feedback-title">
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <div><h3 id="feedback-title" className="title-section">Post-event feedback</h3>
-        <p className="text-sm text-muted">Answered questions stay immutable; unopened questions remain editable.</p>
-      </div>
-      {survey ? <StatusBadge status={survey.is_open ? "open" : "closed"} /> : null}
-    </div>
-    {surveyQuery.isLoading ? <Skeleton className="mt-3 h-32 w-full" /> : null}
-    {surveyQuery.error ? <p className="mt-3 text-sm text-danger">{eventErrorText(surveyQuery.error)}</p> : null}
-    {!surveyQuery.isLoading ? <form className="mt-4 grid gap-3" onSubmit={(event) => {
-      event.preventDefault();
-      configure.mutate({ title, thank_you_text: thankYou, questions, certificate_enabled: certificateEnabled });
-    }}>
-      <label className="grid gap-1"><span className="eyebrow">Survey title</span><input className="desk-input" required maxLength={200} value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-      <label className="grid gap-1"><span className="eyebrow">Thank-you message</span><textarea className="desk-input min-h-20" maxLength={2000} value={thankYou} onChange={(event) => setThankYou(event.target.value)} /></label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={certificateEnabled} onChange={(event) => setCertificateEnabled(event.target.checked)} />Require an attended member and issue an attendance certificate</label>
-      <CustomFormBuilder value={questions} onChange={(value) => setQuestions(value ?? [])} allowedTypes={FEEDBACK_TYPES} lockedQuestionIds={survey?.answered_question_ids} legend="Feedback questions" emptyMessage="Add at least one question before opening the survey." />
-      <div className="flex flex-wrap gap-2">
-        <button className="desk-button-primary" type="submit" disabled={pending}>Save survey</button>
-        {survey && !survey.is_open ? <button className="desk-button-success" type="button" disabled={pending} onClick={() => open.mutate()}>Open responses</button> : null}
-        {survey?.is_open ? <button className="desk-button-danger" type="button" disabled={pending} onClick={() => close.mutate()}>Close responses</button> : null}
-      </div>
-    </form> : null}
-    {error ? <p className="mt-2 text-sm text-danger" role="alert">{eventErrorText(error)}</p> : null}
-    {survey ? <EventFeedbackResponses eventId={eventId} makerspaceId={makerspaceId} responseCount={survey.response_count ?? 0} /> : null}
-  </section>;
+  const saved = (message: string) => ({
+    onSuccess: () => showToast(message, { tone: "success" }),
+    onError: (cause: unknown) => showToast(eventErrorText(cause), { tone: "error" }),
+  });
+
+  return (
+    <section className="grid gap-4 border-t border-line pt-5" aria-labelledby="feedback-title">
+      <SectionHeading
+        as="h3"
+        title={<span id="feedback-title">Post-event feedback</span>}
+        description="Answered questions stay fixed; questions nobody has answered stay editable."
+        action={survey ? <StatusChip tone={survey.is_open ? "success" : "neutral"} size="sm">{survey.is_open ? "Open" : "Closed"}</StatusChip> : null}
+      />
+      {survey ? (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-3">
+          <StatTile label="Responses" value={survey.response_count ?? 0} />
+          <StatTile label="Questions" value={survey.questions.length} />
+          <StatTile label="Certificates" value={survey.certificate_enabled ? "On" : "Off"} />
+        </div>
+      ) : null}
+      {surveyQuery.isLoading ? <Skeleton className="h-32 w-full" /> : null}
+      {surveyQuery.error ? <ErrorText message={eventErrorText(surveyQuery.error)} /> : null}
+      {!surveyQuery.isLoading ? (
+        <form className="grid gap-4" onSubmit={(event) => {
+          event.preventDefault();
+          configure.mutate({ title, thank_you_text: thankYou, questions, certificate_enabled: certificateEnabled }, saved("Survey saved"));
+        }}>
+          <Field label="Survey title">
+            <Input required maxLength={200} value={title} onChange={(event) => setTitle(event.target.value)} />
+          </Field>
+          <Field label="Thank-you message" optional>
+            <Textarea rows={3} maxLength={2000} value={thankYou} onChange={(event) => setThankYou(event.target.value)} />
+          </Field>
+          <SwitchRow
+            label="Issue attendance certificates"
+            description="Only attended members can answer, and each one gets a certificate."
+            checked={certificateEnabled}
+            onCheckedChange={setCertificateEnabled}
+          />
+          <CustomFormBuilder value={questions} onChange={(value) => setQuestions(value ?? [])} allowedTypes={FEEDBACK_TYPES} lockedQuestionIds={survey?.answered_question_ids} legend="Feedback questions" emptyMessage="Add at least one question before opening the survey." />
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" type="submit" disabled={pending} loading={configure.isPending} loadingLabel="Saving…">Save survey</Button>
+            {survey && !survey.is_open ? <Button variant="success" disabled={pending} loading={open.isPending} onClick={() => open.mutate(undefined, saved("Responses open"))}>Open responses</Button> : null}
+            {survey?.is_open ? <Button variant="danger" disabled={pending} loading={close.isPending} onClick={() => close.mutate(undefined, saved("Responses closed"))}>Close responses</Button> : null}
+          </div>
+        </form>
+      ) : null}
+      {error ? <ErrorText message={eventErrorText(error)} /> : null}
+      {survey ? <EventFeedbackResponses eventId={eventId} makerspaceId={makerspaceId} responseCount={survey.response_count ?? 0} /> : null}
+    </section>
+  );
 }

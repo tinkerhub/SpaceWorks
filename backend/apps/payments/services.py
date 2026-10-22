@@ -37,6 +37,10 @@ def create_payment(
     *, makerspace, subject_type, subject_id, member, amount, currency, created_by,
     via_makerspace=None, subject_label="",
 ):
+    from apps.payments.availability import new_charges_allowed_locked
+
+    if not new_charges_allowed_locked(makerspace):
+        raise stripe_client.PaymentsUnavailable("Payments are disabled for this makerspace.")
     source = resolve_payment_source(makerspace)
     if source is None:
         raise stripe_client.PaymentsUnavailable(

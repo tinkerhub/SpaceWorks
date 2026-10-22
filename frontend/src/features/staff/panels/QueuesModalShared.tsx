@@ -1,12 +1,15 @@
 import type React from "react";
 import { useEffect, useState } from "react";
+import { QrCode } from "lucide-react";
 
 import QrScanner from "../../../components/ui/QrScanner";
-import { Field } from "../../../components/ui";
+import { Button, Chip, Dropdown, Field, Input } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { qrResolveErrorText } from "../evidenceUi";
 
 export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value: string; onChange: (code: string) => void; makerspaceId: number; pending: boolean }) {
   const [containers, setContainers] = useState<ContainerOption[]>([]);
+  const [loadError, setLoadError] = useState(false);
   const [scanned, setScanned] = useState<{ code: string; label: string } | null>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [scanError, setScanError] = useState("");
@@ -14,19 +17,24 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(false);
     staffRequest<{ results: ContainerOption[] }>(`/admin/makerspace/${makerspaceId}/containers?page_size=1000`)
       .then((res) => {
         if (!cancelled) setContainers((res.results ?? []).filter((c) => c.is_active !== false && c.code));
       })
       .catch(() => {
-        if (!cancelled) setContainers([]);
+        if (!cancelled) {
+          setContainers([]);
+          setLoadError(true);
+        }
       });
     return () => {
       cancelled = true;
     };
   }, [makerspaceId]);
 
-  const displayLabel = containers.find((container) => container.code === value)?.label ?? (scanned && scanned.code === value ? scanned.label : "");
+  const listed = containers.find((container) => container.code === value);
+  const displayLabel = listed?.label ?? (scanned && scanned.code === value ? scanned.label : "");
 
   const handleScan = async (payload: string) => {
     setScanOpen(false);
@@ -42,38 +50,39 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
         setScanned({ code: res.target.code, label: res.target.label ?? "" });
         setScanError("");
       } else {
-        setScanError("Scanned QR is not a box/container.");
+        setScanError("That QR isn't a box or container. Scan the container's label.");
       }
-    } catch {
-      setScanError("Could not resolve the scanned QR.");
+    } catch (error) {
+      setScanError(qrResolveErrorText(error, "Could not read that QR. Try again, or pick the container from the list."));
     }
   };
 
   return (
-    <div className="grid gap-1 text-sm">
-      <span className="font-medium text-ink">Container</span>
-      <div className="flex min-w-0 flex-wrap gap-2">
-        <div className="min-w-0 flex-1 rounded-md border border-line bg-surface px-3 py-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <span className={value ? "min-w-0 truncate font-medium text-ink" : "min-w-0 truncate text-muted"}>{value ? displayLabel || value : "No container selected"}</span>
-            {value ? <span className="shrink-0 rounded-full border border-line px-2 py-0.5 text-xs text-muted">Selected</span> : null}
+    <div className="grid gap-3">
+      <div className="grid gap-1.5">
+        <span className="text-label text-ink">Container</span>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <div className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md border border-line bg-subtle px-3.5 py-2">
+            <span className={value ? "min-w-0 truncate font-semibold text-ink" : "min-w-0 truncate text-ink-muted"}>{value ? displayLabel || value : "No container selected"}</span>
+            {value ? <Chip tone="success" size="sm">Selected</Chip> : null}
           </div>
+          <Button startIcon={<QrCode />} disabled={pending} onClick={() => setScanOpen(true)}>Scan</Button>
         </div>
-        <button className="desk-button-ghost shrink-0" type="button" disabled={pending} onClick={() => setScanOpen(true)}>Scan</button>
       </div>
       {containers.length ? (
         <Field label="Available container">
-          <select className="desk-input" value="" disabled={pending} onChange={(event) => event.target.value && onChange(event.target.value)}>
-            <option value="">Choose an available container...</option>
+          <Dropdown value={listed ? value : ""} disabled={pending} onChange={(event) => event.target.value && onChange(event.target.value)}>
+            <option value="" disabled>Choose an available container…</option>
             {containers.map((container) => <option key={container.id} value={container.code ?? ""}>{container.label}</option>)}
-          </select>
+          </Dropdown>
         </Field>
       ) : null}
-      <button className="desk-button-ghost justify-self-start" type="button" disabled={pending} onClick={() => setManualOpen((open) => !open)}>
+      {loadError ? <p className="text-caption text-ink-muted">Couldn't load the container list. Scan the box or enter its code.</p> : null}
+      <Button variant="quiet" size="sm" className="justify-self-start" disabled={pending} onClick={() => setManualOpen((open) => !open)}>
         {manualOpen ? "Hide manual code entry" : "Enter code manually"}
-      </button>
-      {manualOpen ? <Field label="Container code"><input className="desk-input min-w-0" value={value} disabled={pending} onChange={(event) => onChange(event.target.value)} /></Field> : null}
-      {scanError ? <p className="text-xs text-danger">{scanError}</p> : null}
+      </Button>
+      {manualOpen ? <Field label="Container code"><Input className="font-mono" value={value} disabled={pending} onChange={(event) => onChange(event.target.value)} /></Field> : null}
+      {scanError ? <p role="alert" className="text-caption text-danger-fg">{scanError}</p> : null}
       {scanOpen ? <QrScanner onScan={handleScan} onClose={() => setScanOpen(false)} /> : null}
     </div>
   );
@@ -81,9 +90,9 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
 
 export function FormFooter({ formId, pending, submitLabel, tone = "default", onCancel }: { formId: string; pending: boolean; submitLabel: string; tone?: "danger" | "default"; onCancel: () => void }) {
   return (
-    <div className="desk-actions flex flex-wrap justify-end gap-2">
-      <button className="desk-button-ghost" type="button" disabled={pending} onClick={onCancel}>Cancel</button>
-      <button className={tone === "danger" ? "desk-button-danger" : "desk-button-success"} type="submit" form={formId} disabled={pending}>{pending ? "Working..." : submitLabel}</button>
+    <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+      <Button variant="secondary" disabled={pending} onClick={onCancel}>Cancel</Button>
+      <Button variant={tone === "danger" ? "danger" : "primary"} type="submit" form={formId} loading={pending}>{submitLabel}</Button>
     </div>
   );
 }
@@ -92,7 +101,7 @@ export function FormFooter({ formId, pending, submitLabel, tone = "default", onC
 // fetch or return the item during handover. Renders nothing when no shelf is recorded.
 export function ShelfLine({ location }: { location?: string | null }) {
   return location ? (
-    <p className="text-xs text-muted">Shelf: <span className="font-medium text-ink">{location}</span></p>
+    <p className="text-caption text-ink-muted">Shelf: <span className="font-semibold text-ink">{location}</span></p>
   ) : null;
 }
 

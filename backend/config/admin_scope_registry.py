@@ -54,10 +54,7 @@ GLOBAL_ADMIN_MODELS = {
     # Platform-scoped for the same reason as the built-in providers: identity resolves
     # before a makerspace is selected, so an OIDC provider cannot belong to one.
     "accounts.oidcprovider",
-    "auth.group",
     "axes.accessattempt",
-    "axes.accessfailurelog",
-    "axes.accesslog",
     "integrations.platformemailsettings",
     "integrations.platformpushsettings",
     # Platform-scoped for the same reason identity is: a sign-in code is sent before any

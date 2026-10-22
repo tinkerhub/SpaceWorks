@@ -23,6 +23,8 @@ MAKERSPACE_KWARG_ROUTES = {
     'admin-notification-recipients': 'makerspace_id',
     'admin-notification-rules': 'makerspace_id',
     'admin-machine-service-request-list-create': 'makerspace_id',
+    'admin-presence-sessions-current': 'makerspace_id',
+    'makerspace-verify-domain': 'makerspace_id',
 }
 # These routes have no tenant-bearing path segment by design: each is a listing whose
 # queryset is explicitly narrowed by the named makerspace query parameter.
@@ -34,6 +36,30 @@ QUERY_SCOPED_ROUTES = {
     'admin-needs-fix-shelf',        # tenant repair shelf; ?makerspace=
     'ledger-aggregate',             # superadmin aggregate listing; ?makerspace=
     'ledger-export-aggregate',      # matching aggregate export; ?makerspace=
+}
+# Listings with no tenant in the path whose VIEW narrows the queryset to the origin's
+# makerspace itself (`origin_scope.staff_origin_scope`) whenever a tenant origin is
+# active. Allowed without a target only because of that narrowing; a body/query
+# makerspace hint, when given, must still match the origin.
+ORIGIN_FILTERED_ROUTES = {
+    'admin-users-space-managers',
+    'admin-users-inventory-managers',
+    'admin-users-machine-managers',
+}
+# Create routes with no tenant in the path whose serializer REQUIRES a body
+# `makerspace_id` and resolves the makerspace from it. The body hint is their target: it
+# must be present and match the origin, so a hintless request is refused, never guessed.
+BODY_TARGET_ROUTES = {
+    'qr-boxes',
+    'qr-containers',
+    'qr-tools',
+}
+# Routes keyed only by the opaque, globally-unique QR payload in the body. The payload's
+# own QrCode row names the tenant; an unknown or missing payload is an invalid target
+# and refused on every tenant origin (no "not found" that could differ by tenant).
+QR_PAYLOAD_ROUTES = {
+    'qr-resolve',
+    'qr-scan',
 }
 NATIVE_HEADER_GLOBAL_ROUTES = {
     'auth-me',
@@ -86,6 +112,16 @@ def request_route_targets(request, view=None):
     url_name, targets, invalid, route_recognized = _authoritative_route_targets(
         request, view
     )
+    # Body-resolved routes are recognized only here, never in the authoritative
+    # resolution the tenant-migration gate uses, so its locking is unchanged by them.
+    if url_name in BODY_TARGET_ROUTES:
+        route_recognized = True
+    elif url_name in QR_PAYLOAD_ROUTES:
+        route_recognized = True
+        resolved = _qr_payload_makerspace_id(request)
+        invalid = invalid or resolved is None
+        if resolved is not None:
+            targets = targets | {resolved}
     hints = []
     query = getattr(request, 'query_params', None)
     if query is None:
@@ -142,7 +178,8 @@ def _authoritative_route_targets(request, view=None):
         registered or 'makerspace_id' in kwargs
         or (url_name == 'admin-makerspace' and 'pk' in kwargs)
         or url_name in MODEL_LOOKUPS or url_name in TARGET_SET_LOOKUPS
-        or url_name in QUERY_SCOPED_ROUTES or url_name in NATIVE_HEADER_GLOBAL_ROUTES)
+        or url_name in QUERY_SCOPED_ROUTES or url_name in NATIVE_HEADER_GLOBAL_ROUTES
+        or url_name in ORIGIN_FILTERED_ROUTES)
     route_value = None
     if registered:
         route_value = kwargs.get(registered)
@@ -158,7 +195,7 @@ def _authoritative_route_targets(request, view=None):
             targets.add(parsed)
 
     if url_name in MODEL_LOOKUPS:
-        pk = kwargs.get('pk')
+        pk = kwargs.get(model_lookup_kwarg(url_name))
         resolved = _lookup_makerspace_id(url_name, pk) if pk is not None else None
         invalid = invalid or resolved is None
         if resolved is not None:
@@ -171,6 +208,22 @@ def _authoritative_route_targets(request, view=None):
     return url_name, targets, invalid, route_recognized
 
 
+def _qr_payload_makerspace_id(request):
+    if getattr(request, 'method', 'GET') in {'GET', 'HEAD', 'OPTIONS', 'TRACE'}:
+        return None
+    body = getattr(request, 'data', {})
+    payload = body.get('payload') if hasattr(body, 'get') else None
+    if not isinstance(payload, str) or not payload.strip():
+        return None
+    # Mirrors the serializer's whitespace trim so both look up the same row.
+    return (
+        apps.get_model('boxes.QrCode').objects
+        .filter(payload=payload.strip())
+        .values_list('makerspace_id', flat=True)
+        .first()
+    )
+
+
 def _positive_int(value):
     try:
         parsed = int(value)
@@ -179,8 +232,14 @@ def _positive_int(value):
     return parsed if parsed > 0 and str(parsed) == str(value).strip() else None
 
 
+def model_lookup_kwarg(url_name):
+    """The route kwarg a MODEL_LOOKUPS entry looks its object up by (default ``pk``)."""
+    entry = MODEL_LOOKUPS[url_name]
+    return entry[2] if len(entry) > 2 else 'pk'
+
+
 def _lookup_makerspace_id(url_name, pk):
-    model_path, field = MODEL_LOOKUPS[url_name]
+    model_path, field = MODEL_LOOKUPS[url_name][:2]
     model = apps.get_model(model_path)
     try:
         return model.objects.values_list(field, flat=True).get(pk=pk)

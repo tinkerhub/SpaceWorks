@@ -1,7 +1,7 @@
-import { Modal } from "../../components/ui/Modal";
-import { catalogPresentation } from "../../lib/catalogPresentation";
+import { Button, Chip, Modal } from "../../components/ui";
 import type { Product } from "../../types/inventory";
 import { AvailabilityBadge } from "./AvailabilityBadge";
+import { ProductInitials, productCode } from "./ProductCard";
 
 type ProductQuickViewModalProps = {
   product: Product | null;
@@ -15,83 +15,43 @@ function trackingLabel(product: Product): string {
   return "Catalog item";
 }
 
-export function ProductQuickViewModal({
-  product,
-  open,
-  onClose,
-}: ProductQuickViewModalProps) {
+/** Item detail: large image beside the name, code, availability, chips and full description. */
+export function ProductQuickViewModal({ product, open, onClose }: ProductQuickViewModalProps) {
   if (!product) return null;
 
   const description = product.description.trim() || "No description provided.";
-  const presentation = catalogPresentation(product.id);
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="Item quick view"
+      title={product.name}
+      description={`Item ${productCode(product)}`}
       size="xl"
-      backdrop="blur"
-      footer={(
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <button className="desk-button-secondary" type="button" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      )}
+      footer={<Button onClick={onClose}>Close</Button>}
     >
-      <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={`blueprint-card min-w-0 self-start rounded-lg border-2 border-ink bg-surface ${presentation.shadow}`}>
-          <div className={`blueprint-band rounded-t-md border-b border-ink px-4 py-2 ${presentation.band}`}>
-            Catalog item · {String(product.id).padStart(4, "0")}
-          </div>
-          <div className="blueprint-media relative aspect-[4/3] w-full overflow-hidden rounded-b-md bg-surface md:aspect-square">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="blueprint-bg grid h-full w-full place-items-center">
-                <span className="font-display text-6xl font-bold uppercase text-ink/15">
-                  {product.name.slice(0, 2)}
-                </span>
-              </div>
-            )}
-          </div>
+      <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="relative aspect-[4/3] w-full min-w-0 self-start overflow-hidden rounded-lg border border-line bg-subtle md:aspect-square">
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+          ) : (
+            <ProductInitials product={product} className="[&>span]:text-6xl" />
+          )}
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-4">
-            <div className="min-w-0">
-              <p className="eyebrow text-secondary-ink">
-                ID: {String(product.id).padStart(4, "0")}
-              </p>
-              <h2 className="title-page mt-2 break-words uppercase leading-tight">
-                {product.name}
-              </h2>
-            </div>
-            <AvailabilityBadge availability={product.availability} />
+          <div className="flex flex-wrap items-center gap-2">
+            <AvailabilityBadge availability={product.availability} size="md" />
+            <Chip tone="info">{trackingLabel(product)}</Chip>
+            {product.category_name ? <Chip>{product.category_name}</Chip> : null}
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="chip chip-active border-secondary bg-secondary text-on-secondary">
-              {trackingLabel(product)}
-            </span>
-            {product.category_name ? (
-              <span className="chip">{product.category_name}</span>
-            ) : null}
-          </div>
-
-          <div className="rounded-lg border border-ink bg-bg p-4">
-            <h3 className="title-section">
-              Description
-            </h3>
-            <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-ink">
-              {description}
-            </p>
-          </div>
+          <section className="rounded-lg border border-line bg-subtle p-4">
+            <h3 className="text-label text-ink">Description</h3>
+            <p className="mt-2 whitespace-pre-wrap break-words text-body-ui text-ink-secondary">{description}</p>
+          </section>
+          <p className="text-caption text-ink-muted">
+            Add this item from the catalog to include it in a borrow request.
+          </p>
         </div>
       </div>
     </Modal>

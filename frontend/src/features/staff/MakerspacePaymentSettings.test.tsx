@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { MakerspacePaymentSettings } from "./MakerspacePaymentSettings";
-import type { Makerspace } from "./StaffPanels";
+import type { Makerspace } from "./panels/shared";
 
 
 const { query, staffRequest } = vi.hoisted(() => ({
@@ -13,8 +13,8 @@ const { query, staffRequest } = vi.hoisted(() => ({
 
 vi.mock("../../lib/api", () => ({ staffRequest }));
 
-vi.mock("./StaffPanels", async () => {
-  const actual = await vi.importActual<typeof import("./StaffPanels")>("./StaffPanels");
+vi.mock("./panels/shared", async () => {
+  const actual = await vi.importActual<typeof import("./panels/shared")>("./panels/shared");
   return { ...actual, useStaffGet: query };
 });
 
@@ -92,6 +92,9 @@ describe("MakerspacePaymentSettings", () => {
     const clearButton = screen.getByRole("button", { name: /clear raw configuration/i });
     await waitFor(() => expect(clearButton).not.toBeDisabled());
     fireEvent.click(clearButton);
+    // Clearing the keys is destructive, so it asks first and only the confirm sends it.
+    expect(staffRequest).toHaveBeenCalledTimes(1);
+    fireEvent.click(await screen.findByRole("button", { name: "Clear keys" }));
     await waitFor(() => expect(staffRequest).toHaveBeenCalledTimes(2));
     const clearCall = staffRequest.mock.calls[1];
     const clearBody = JSON.parse(clearCall[1]?.body as string);

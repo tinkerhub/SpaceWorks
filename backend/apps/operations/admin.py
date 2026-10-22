@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from rest_framework.exceptions import PermissionDenied as DRFPermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
@@ -173,7 +174,7 @@ class StocktakeSessionAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         for stocktake in queryset:
             try:
                 service_func(request.user, stocktake)
-            except (DRFValidationError, DjangoValidationError) as exc:
+            except (DRFValidationError, DjangoValidationError, DRFPermissionDenied) as exc:
                 self.message_user(request, f"{stocktake.pk}: {exc}", level=messages.ERROR)
             else:
                 success_count += 1

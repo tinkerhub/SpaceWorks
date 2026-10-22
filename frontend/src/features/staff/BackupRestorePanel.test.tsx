@@ -18,7 +18,9 @@ function withQueryClient(element: ReactNode) {
   );
 }
 
-beforeEach(() => staffRequest.mockReset());
+beforeEach(() => {
+  staffRequest.mockReset();
+});
 
 describe("BackupRestorePanel", () => {
   it("states the purge boundary and shows an all-table restore report", async () => {
@@ -36,7 +38,7 @@ describe("BackupRestorePanel", () => {
     expect(await screen.findByText(/204 tables compared; 1 differ/i)).toBeVisible();
     expect(screen.getByText(/accounts_user/)).toBeVisible();
     expect(screen.getByText(/security-relevant/)).toBeVisible();
-    expect(screen.getByRole("button", { name: "Abort safely" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Abort safely…" })).toBeEnabled();
   });
 
   it("persists operator retention settings", async () => {
@@ -53,6 +55,34 @@ describe("BackupRestorePanel", () => {
       "/admin/platform/backup-settings",
       { method: "PATCH", body: JSON.stringify({ retention_days: 45 }) },
     ));
+  });
+});
+
+describe("BackupRestorePanel on an origin-locked site", () => {
+  const platformPaths = ["/admin/platform/backups", "/admin/platform/backup-settings", "/admin/platform/restores"];
+
+  it("hides the deployment section and never calls the platform routes", async () => {
+    staffRequest.mockResolvedValue([]);
+    withQueryClient(<BackupRestorePanel makerspaceId={7} isSuperadmin singleTenantLocked />);
+
+    expect(await screen.findByRole("heading", { name: "Makerspace backups" })).toBeVisible();
+    await waitFor(() => expect(staffRequest).toHaveBeenCalledWith("/admin/makerspace/7/backups"));
+    expect(screen.queryByRole("region", { name: "Deployment backup and restore" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Create full deployment archive" })).not.toBeInTheDocument();
+    const paths = staffRequest.mock.calls.map(([path]) => path as string);
+    expect(paths.filter((path) => platformPaths.some((prefix) => path.startsWith(prefix)))).toEqual([]);
+  });
+
+  it("shows the deployment section to a superadmin without the lock", async () => {
+    staffRequest.mockImplementation((path: string) => Promise.resolve(path === "/admin/platform/backup-settings"
+      ? { automatic_backups_enabled: false, retention_days: 30, last_scheduled_at: null, last_success_at: null, last_error: "" }
+      : []));
+    withQueryClient(<BackupRestorePanel makerspaceId={7} isSuperadmin />);
+
+    expect(await screen.findByRole("region", { name: "Deployment backup and restore" })).toBeVisible();
+    await waitFor(() => expect(staffRequest).toHaveBeenCalledWith("/admin/platform/backups"));
+    expect(staffRequest).toHaveBeenCalledWith("/admin/platform/backup-settings");
+    expect(staffRequest).toHaveBeenCalledWith("/admin/platform/restores");
   });
 });
 

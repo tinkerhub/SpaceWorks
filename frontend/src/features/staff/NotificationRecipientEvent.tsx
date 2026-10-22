@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Dropdown, ErrorText, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import { ScopePicker, useScopeOptions } from "./NotificationDestinations";
+import { ScopePicker, type ScopeOptions } from "./NotificationScopePicker";
 import {
   type DestinationScope,
   type RecipientKind,
@@ -32,10 +33,11 @@ export function EventRecipients({
   event: string;
   feature: string;
   makerspaceId: number;
-  options: ReturnType<typeof useScopeOptions>;
+  options: ScopeOptions;
   path: string;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const saved = useMemo(
     () => data.rules.filter((rule) => rule.feature === feature && rule.event === event),
     [data.rules, event, feature],
@@ -56,12 +58,16 @@ export function EventRecipients({
       }),
     onSuccess: () => {
       setDrafts(null);
+      showToast("Recipients saved", { tone: "success" });
       queryClient.invalidateQueries({
         queryKey: ["notification-recipient-rules", makerspaceId],
       });
     },
-    onError: (err: unknown) =>
-      setError(err instanceof Error ? err.message : "Could not save recipients."),
+    onError: (err: unknown) => {
+      const message = err instanceof Error && err.message ? err.message : "Couldn't save recipients.";
+      setError(message);
+      showToast(message, { tone: "error" });
+    },
   });
 
   const update = (next: Draft[]) => {
@@ -70,16 +76,16 @@ export function EventRecipients({
   };
 
   return (
-    <div className="mt-3 grid gap-2 rounded-md border border-line bg-bg p-3">
+    <div className="grid gap-3 rounded-lg border border-line bg-subtle p-4">
       {rules.length === 0 ? (
-        <p className="text-sm text-muted">
+        <p className="text-body-ui text-ink-muted">
           {delegated
             ? "No recipient is selected in your scoped partition."
             : "Nobody selected — everyone whose role covers this area is notified."}
         </p>
       ) : null}
       {marker ? (
-        <p className="text-sm text-muted">
+        <p className="text-body-ui text-ink-muted">
           {/* Deliberately names no author. A hidden remainder used to be a Space
               Manager's row by construction; a shared requester/members row can now hold
               another maintainer's links too, so claiming a manager wrote it would be a
@@ -90,7 +96,7 @@ export function EventRecipients({
       ) : null}
 
       {rules.map((rule, index) => (
-        <div className="grid gap-2 border-b border-line pb-2 last:border-0" key={index}>
+        <div className="grid gap-3 border-b border-line pb-3 last:border-0 last:pb-0" key={index}>
           <RecipientTarget
             data={data}
             index={index}
@@ -109,35 +115,35 @@ export function EventRecipients({
         </div>
       ))}
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      <ErrorText message={error} />
       {hasUnscopedRule ? (
-        <p className="text-sm text-danger">
+        <p className="text-sm text-danger-fg">
           Each delegated rule needs at least one machine or machine type.
         </p>
       ) : null}
-      <div className="flex flex-wrap gap-2">
-        <button
-          className="desk-button"
+      <div className="flex flex-wrap gap-2.5">
+        <Button
+          variant="primary"
+          disabled={drafts === null || hasUnscopedRule}
+          loading={save.isPending}
+          loadingLabel="Saving…"
+          onClick={() => save.mutate(rules)}
+        >
+          Save recipients
+        </Button>
+        <Button
+          variant="secondary"
           onClick={() => update([
             ...rules,
             { kind: "role", role_id: null, user_id: null, scope: EMPTY_SCOPE },
           ])}
-          type="button"
         >
           Add recipient
-        </button>
-        <button
-          className="desk-button-primary"
-          disabled={save.isPending || drafts === null || hasUnscopedRule}
-          onClick={() => save.mutate(rules)}
-          type="button"
-        >
-          {save.isPending ? "Saving…" : "Save recipients"}
-        </button>
+        </Button>
         {drafts !== null ? (
-          <button className="desk-button-ghost" onClick={() => setDrafts(null)} type="button">
+          <Button variant="quiet" onClick={() => setDrafts(null)}>
             Discard changes
-          </button>
+          </Button>
         ) : null}
       </div>
     </div>
@@ -154,53 +160,58 @@ function RecipientTarget({ data, index, rule, rules, update }: {
   const replace = (fields: Partial<Draft>) =>
     update(rules.map((item, position) => position === index ? { ...item, ...fields } : item));
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <select
-        aria-label={`Recipient ${index + 1} type`}
-        className="desk-input"
-        onChange={(changed) => replace({
-          kind: changed.target.value as RecipientKind,
-          role_id: null,
-          user_id: null,
-        })}
-        value={rule.kind}
-      >
-        <option value="role">A role</option>
-        <option value="user">A named member</option>
-        <option value="members">All members</option>
-        <option value="requester">The person it is about</option>
-      </select>
-      {rule.kind === "role" ? (
-        <select
-          aria-label={`Recipient ${index + 1} role`}
-          className="desk-input"
-          onChange={(changed) => replace({ role_id: Number(changed.target.value) })}
-          value={rule.role_id ?? ""}
+    <div className="flex flex-wrap items-center gap-2.5">
+      <div className="w-full sm:w-56">
+        <Dropdown
+          aria-label={`Recipient ${index + 1} type`}
+          onChange={(changed) => replace({
+            kind: changed.target.value as RecipientKind,
+            role_id: null,
+            user_id: null,
+          })}
+          value={rule.kind}
         >
-          <option value="">Choose a role…</option>
-          {data.roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
-        </select>
+          <option value="role">A role</option>
+          <option value="user">A named member</option>
+          <option value="members">All members</option>
+          <option value="requester">The person it is about</option>
+        </Dropdown>
+      </div>
+      {rule.kind === "role" ? (
+        <div className="w-full sm:w-56">
+          <Dropdown
+            aria-label={`Recipient ${index + 1} role`}
+            onChange={(changed) => replace({ role_id: Number(changed.target.value) })}
+            value={rule.role_id == null ? "" : String(rule.role_id)}
+          >
+            <option value="" disabled>Choose a role…</option>
+            {data.roles.map((role) => <option key={role.id} value={String(role.id)}>{role.name}</option>)}
+          </Dropdown>
+        </div>
       ) : null}
       {rule.kind === "user" ? (
-        <select
-          aria-label={`Recipient ${index + 1} member`}
-          className="desk-input"
-          onChange={(changed) => replace({ user_id: Number(changed.target.value) })}
-          value={rule.user_id ?? ""}
-        >
-          <option value="">Choose a member…</option>
-          {data.members.map((member) => (
-            <option key={member.id} value={member.id}>{member.username}</option>
-          ))}
-        </select>
+        <div className="w-full sm:w-56">
+          <Dropdown
+            aria-label={`Recipient ${index + 1} member`}
+            onChange={(changed) => replace({ user_id: Number(changed.target.value) })}
+            value={rule.user_id == null ? "" : String(rule.user_id)}
+          >
+            <option value="" disabled>Choose a member…</option>
+            {data.members.map((member) => (
+              <option key={member.id} value={String(member.id)}>{member.username}</option>
+            ))}
+          </Dropdown>
+        </div>
       ) : null}
-      <button
-        className="desk-button-danger ml-auto"
+      <Button
+        className="ml-auto"
+        size="sm"
+        variant="danger-quiet"
+        aria-label={`Remove recipient ${index + 1}`}
         onClick={() => update(rules.filter((_, position) => position !== index))}
-        type="button"
       >
         Remove
-      </button>
+      </Button>
     </div>
   );
 }

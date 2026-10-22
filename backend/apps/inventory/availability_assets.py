@@ -18,7 +18,15 @@ ASSET_QUANTITY_FIELDS = tuple(dict.fromkeys(ASSET_QUANTITY_BUCKETS.values()))
 
 
 def reconcile_individual_product_from_assets(product):
-    """Make individual-tracked product buckets match serialized asset rows."""
+    """Make individual-tracked product buckets match serialized asset rows.
+
+    Reservations are the one bucket asset rows do not carry: accepting a request moves
+    units available -> reserved on the product but leaves the asset rows AVAILABLE until
+    handover (see `assert_individual_assets_available`). Those unmarked reservations are
+    kept and carved out of the AVAILABLE rows instead of being reset to zero -- wiping
+    them made every later issue of the accepted request fail on "insufficient reserved".
+    The caller must hold the product row lock.
+    """
     if product.tracking_mode != TrackingMode.INDIVIDUAL:
         return product
 
@@ -33,6 +41,15 @@ def reconcile_individual_product_from_assets(product):
             counts[bucket] += row["count"]
 
     total = sum(counts.values())
+    unmarked_reserved = max(product.reserved_quantity - counts["reserved_quantity"], 0)
+    if unmarked_reserved > counts["available_quantity"]:
+        raise InsufficientStock(
+            f"Product {product.pk} has {unmarked_reserved} reserved units but only "
+            f"{counts['available_quantity']} available assets to hold them."
+        )
+    counts["available_quantity"] -= unmarked_reserved
+    counts["reserved_quantity"] += unmarked_reserved
+
     changed = []
     for field, value in counts.items():
         if getattr(product, field) != value:

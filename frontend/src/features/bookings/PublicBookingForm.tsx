@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
-import { Field } from "../../components/ui";
+import { Button, Callout, ErrorText, Field, Input, useToast } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
 import { CustomFormFields } from "../forms/CustomFormFields";
 import {
@@ -46,6 +46,7 @@ export function PublicBookingForm({ makerspaceSlug, space }: {
   const [answerErrors, setAnswerErrors] = useState<Record<string, string>>({});
   const successRef = useRef<HTMLDivElement>(null);
   const booking = useSubmitPublicBooking(makerspaceSlug, space.public_token);
+  const { showToast } = useToast();
   const apiError = booking.error instanceof StructuredApiError ? booking.error : null;
   const serverAnswerErrors = customAnswerErrors(apiError?.body.custom_answers);
 
@@ -56,11 +57,10 @@ export function PublicBookingForm({ makerspaceSlug, space }: {
   if (booking.data) {
     const pending = booking.data.status === "pending";
     return (
-      <div ref={successRef} className={`rounded-lg border ${pending ? "border-warn bg-warn/15" : "border-success bg-success/15"} p-4 outline-none`} role="status" tabIndex={-1}>
-        <h3 className="title-section">{pending ? "Booking request received" : "Space booked"}</h3>
-        <p className="mt-1 text-sm text-muted">
+      <div ref={successRef} className="rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" role="status" tabIndex={-1}>
+        <Callout tone={pending ? "warning" : "success"} title={pending ? "Booking request received" : "Space booked"}>
           {pending ? "Staff must approve this request before the slot is confirmed." : "Your selected slot is confirmed and booked."}
-        </p>
+        </Callout>
       </div>
     );
   }
@@ -83,6 +83,9 @@ export function PublicBookingForm({ makerspaceSlug, space }: {
       ends_at: new Date(endsAt).toISOString(),
       custom_answers: Object.keys(answers).length ? answers : null,
       website,
+    }, {
+      onSuccess: (result) => showToast(result.status === "pending" ? "Booking request sent" : "Space booked", { tone: "success" }),
+      onError: () => showToast("Booking didn't go through", { tone: "error" }),
     });
   };
   const errorFor = (field: keyof StandardErrors) => standardErrors[field] || apiFieldError(apiError, field);
@@ -90,23 +93,23 @@ export function PublicBookingForm({ makerspaceSlug, space }: {
   return (
     <div className="grid gap-4">
       <AvailabilityCalendar makerspaceSlug={makerspaceSlug} publicToken={space.public_token} />
-      <form className="grid gap-4 rounded-lg border border-secondary bg-bg p-4" onSubmit={submit} noValidate>
+      <form className="grid gap-4 rounded-lg border border-line bg-subtle p-4 sm:p-5" onSubmit={submit} noValidate>
         <div>
-          <h3 className="title-section">Request this space</h3>
-          <p className="eyebrow mt-1">Times are shown in your device timezone.</p>
+          <h3 className="text-title text-ink">Request this space</h3>
+          <p className="mt-1 text-caption text-ink-muted">Times are shown in your device timezone.</p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Starts" error={errorFor("starts_at")}><input className="desk-input" type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} required /></Field>
-          <Field label="Ends" error={errorFor("ends_at")}><input className="desk-input" type="datetime-local" value={endsAt} onChange={(event) => setEndsAt(event.target.value)} required /></Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Starts" error={errorFor("starts_at")}><Input type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} required /></Field>
+          <Field label="Ends" error={errorFor("ends_at")}><Input type="datetime-local" value={endsAt} onChange={(event) => setEndsAt(event.target.value)} required /></Field>
         </div>
         <CustomFormFields schema={space.custom_form} answers={answers} onChange={setAnswers} errors={{ ...answerErrors, ...serverAnswerErrors }} disabled={booking.isPending} />
         <label className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Website
           <input name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
         </label>
-        {booking.error ? <p className="text-sm text-danger" role="alert">{failureMessage(apiError)}</p> : null}
-        <button className="desk-button-secondary" type="submit" disabled={booking.isPending}>
-          {booking.isPending ? "Submitting..." : space.approval_mode === "approve" ? "Submit booking request" : "Book this slot"}
-        </button>
+        {booking.error ? <ErrorText message={failureMessage(apiError)} /> : null}
+        <Button variant="primary" type="submit" className="justify-self-start" loading={booking.isPending} loadingLabel="Submitting…">
+          {space.approval_mode === "approve" ? "Submit booking request" : "Book this slot"}
+        </Button>
       </form>
     </div>
   );

@@ -103,7 +103,8 @@ plus their prior verdict returned both approvals in minutes.
      No host virtualenv, no host `npm install`.
   2. **Everything in Docker, production-shaped.** `docker compose up -d --build` — gunicorn + nginx serving
      the baked `dist`, i.e. what a makerspace operator actually runs. Frontend :8080, backend :8002. Code
-     changes need a rebuild.
+     changes need a rebuild. It runs with `DEBUG=False`, so `.env` must set a real `SECRET_KEY` (32+
+     random characters): `migrate` refuses the compose placeholder with system check `accounts.E001`.
   3. **Infrastructure only in Docker, app on the host — fallback.** `./scripts/dev-local.sh` (gitignored,
      machine-specific) exports host-facing rewrites of the container hostnames. Kept because host `pytest`
      and one-off `manage.py` runs are faster than `exec`-ing into a container.

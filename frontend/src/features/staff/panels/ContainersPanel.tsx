@@ -1,141 +1,135 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
+import {
+  Button, CheckboxField, DetailDrawer, Dialog, EmptyState, ErrorText, Field, Input, SearchInput, SkeletonRows,
+  StatusChip, Table, TBody, TD, TH, THead, TR, Textarea, useToast,
+} from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
-import { WarrantySection } from "../WarrantySection";
 import { invalidateContainerViews } from "../queryInvalidation";
-import { Panel, type Makerspace, useStaffGet } from "./shared";
-import { QrImage } from "./QrImage";
+import { errorText, Panel, type Makerspace, useStaffGet } from "./shared";
+import { ContainerDetail, type Container } from "./ContainersPanelDetail";
 
-type Container = { id: number; code?: string; label: string; location?: string; is_active?: boolean };
-type Contents = {
-  products: { id: number; name: string; available_quantity: number; tracking_mode: string }[];
-  assets: { id: number; asset_tag: string; product: string; status: string }[];
-  children: Container[];
-};
-type History = { scans: { id: string; source: string; context: string; actor: number | null; created_at: string }[] };
+const COLUMNS = ["Container", "Code", "Location", "Status", ""];
 
 // Containers had list + create (in QR tools) but no edit/move/contents/history surface in
 // React - they were only manageable in the Django admin. This panel wires the operations
-// container endpoints (MANAGE_QR for edit/move, VIEW_INVENTORY for contents/history).
+// container endpoints (MANAGE_QR for create/edit/move, VIEW_INVENTORY for contents/history).
+// The tab itself is gated on MANAGE_QR, so every viewer here may create and edit.
 export function ContainersPanel({ makerspace, canEditInventory }: { makerspace: Makerspace; canEditInventory: boolean }) {
   const containers = useStaffGet<{ results: Container[] }>(["containers", makerspace.id], `/admin/makerspace/${makerspace.id}/containers?page_size=1000`);
+  const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<Container | "new" | null>(null);
+  const [viewing, setViewing] = useState<Container | null>(null);
+  const term = search.trim().toLowerCase();
+  const rows = useMemo(
+    () => (containers.data?.results ?? []).filter((box) => !term || [box.label, box.code, box.location].some((value) => value?.toLowerCase().includes(term))),
+    [containers.data?.results, term],
+  );
+  const hasAny = Boolean(containers.data?.results?.length);
+
   return (
-    <Panel title="Containers">
-      {containers.isLoading ? <p className="text-sm text-muted">Loading containers...</p> : null}
-      {containers.error instanceof Error ? <p className="text-sm text-danger">{containers.error.message}</p> : null}
-      <div className="grid gap-2">
-        {containers.data?.results?.map((container) => (
-          <ContainerRow key={container.id} container={container} makerspaceId={makerspace.id} canEditInventory={canEditInventory} />
-        ))}
-        {!containers.isLoading && !containers.error && !containers.data?.results?.length ? (
-          <p className="text-sm text-muted">No containers yet. Create one in QR tools.</p>
+    <Panel
+      title="Containers"
+      description="Boxes, shelves and bins that hold stock. Each one gets its own QR."
+      actions={<Button variant="primary" startIcon={<Plus />} onClick={() => setEditing("new")}>New container</Button>}
+    >
+      <div className="grid gap-4">
+        {hasAny ? (
+          <div className="max-w-md">
+            <SearchInput aria-label="Search containers" placeholder="Search by name, code or location" value={search} onChange={(event) => setSearch(event.target.value)} onClear={() => setSearch("")} />
+          </div>
+        ) : null}
+        {containers.error instanceof Error ? <ErrorText message={containers.error.message} /> : null}
+        {!containers.isLoading && !containers.error && !rows.length ? (
+          hasAny
+            ? <EmptyState title="No containers match" description="Try another name, code or location." action={<Button onClick={() => setSearch("")}>Clear search</Button>} />
+            : <EmptyState title="No containers yet" description="Create one for each box or shelf, then print its QR label." action={<Button onClick={() => setEditing("new")}>New container</Button>} />
+        ) : !containers.error ? (
+          <Table label="Containers" className="min-w-[640px]">
+            <THead><tr>{COLUMNS.map((column, index) => <TH key={index}>{column || <span className="sr-only">Actions</span>}</TH>)}</tr></THead>
+            <TBody>
+              {containers.isLoading ? <SkeletonRows rows={4} cols={COLUMNS.length} /> : rows.map((box) => (
+                <TR key={box.id}>
+                  <TD className="font-semibold"><span className="block max-w-64 break-words">{box.label}</span></TD>
+                  <TD className="font-mono text-ink-secondary">{box.code || "-"}</TD>
+                  <TD className="text-ink-secondary">{box.location || "-"}</TD>
+                  <TD>{box.is_active === false ? <StatusChip tone="warning" size="sm">Inactive</StatusChip> : <StatusChip tone="success" size="sm">Active</StatusChip>}</TD>
+                  <TD>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <Button size="sm" onClick={() => setViewing(box)}>Contents</Button>
+                      <Button size="sm" variant="quiet" onClick={() => setEditing(box)}>Edit</Button>
+                    </div>
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
         ) : null}
       </div>
+
+      <DetailDrawer open={Boolean(viewing)} title={viewing?.label ?? "Container"} onClose={() => setViewing(null)}>
+        {viewing ? <ContainerDetail key={viewing.id} container={viewing} canEditInventory={canEditInventory} /> : null}
+      </DetailDrawer>
+      {editing ? (
+        <ContainerFormDialog
+          key={editing === "new" ? "new" : editing.id}
+          makerspaceId={makerspace.id}
+          container={editing === "new" ? null : editing}
+          onClose={() => setEditing(null)}
+        />
+      ) : null}
     </Panel>
   );
 }
 
-function ContainerRow({ container, makerspaceId, canEditInventory }: { container: Container; makerspaceId: number; canEditInventory: boolean }) {
+function ContainerFormDialog({ makerspaceId, container, onClose }: { makerspaceId: number; container: Container | null; onClose: () => void }) {
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState(false);
-  const [panel, setPanel] = useState<"contents" | "history" | null>(null);
-  const [label, setLabel] = useState(container.label);
-  const [location, setLocation] = useState(container.location ?? "");
-  const [isActive, setIsActive] = useState(container.is_active ?? true);
-
-  const contents = useStaffGet<Contents>(["container-contents", container.id], `/admin/containers/${container.id}/contents`, panel === "contents");
-  const history = useStaffGet<History>(["container-history", container.id], `/admin/containers/${container.id}/history`, panel === "history");
+  const { showToast } = useToast();
+  const [label, setLabel] = useState(container?.label ?? "");
+  const [location, setLocation] = useState(container?.location ?? "");
+  const [description, setDescription] = useState(container?.description ?? "");
+  const [isActive, setIsActive] = useState(container?.is_active ?? true);
+  const isNew = !container;
 
   const save = useMutation({
-    mutationFn: () =>
-      staffRequest(`/admin/containers/${container.id}/move`, {
-        method: "POST",
-        body: JSON.stringify({ label: label.trim(), location: location.trim(), is_active: isActive }),
-      }),
-    onSuccess: () => {
-      setEditing(false);
-      invalidateContainerViews(queryClient, makerspaceId, container.id);
+    mutationFn: () => {
+      const body = JSON.stringify({ label: label.trim(), location: location.trim(), description: description.trim(), is_active: isActive });
+      return container
+        ? staffRequest<Container>(`/admin/containers/${container.id}/move`, { method: "POST", body })
+        : staffRequest<Container>(`/admin/makerspace/${makerspaceId}/containers`, { method: "POST", body });
     },
+    onSuccess: (saved) => {
+      invalidateContainerViews(queryClient, makerspaceId, container?.id ?? saved?.id);
+      showToast(isNew ? "Container created" : "Container saved", { tone: "success" });
+      onClose();
+    },
+    onError: (error) => showToast(errorText(error, isNew ? "Could not create the container" : "Could not save the container"), { tone: "error" }),
   });
-  const saveError = save.error instanceof Error ? save.error.message : undefined;
-  const togglePanel = (next: "contents" | "history") => setPanel((current) => (current === next ? null : next));
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-surface p-3 text-sm">
-      <div className="flex flex-wrap items-center gap-2">
-        <strong className="min-w-0 break-words text-ink">{container.label}</strong>
-        {container.location ? <span className="text-xs text-muted">{container.location}</span> : null}
-        {container.is_active === false ? <span className="rounded-md bg-warn/15 px-2 py-0.5 text-xs text-warn-ink">Inactive</span> : null}
-        <div className="desk-actions ml-0 flex w-full flex-wrap gap-2 sm:ml-auto sm:w-auto">
-          <button className="desk-button-ghost" type="button" onClick={() => setEditing((value) => !value)}>{editing ? "Cancel" : "Edit"}</button>
-          <button className="desk-button-ghost" type="button" onClick={() => togglePanel("contents")}>{panel === "contents" ? "Hide contents" : "Contents"}</button>
-          <button className="desk-button-ghost" type="button" onClick={() => togglePanel("history")}>{panel === "history" ? "Hide history" : "History"}</button>
+    <Dialog
+      open
+      onClose={() => { if (!save.isPending) onClose(); }}
+      title={container ? `Edit ${container.label}` : "New container"}
+      description={isNew ? "A QR code is created for it automatically." : undefined}
+      footer={(
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <Button disabled={save.isPending} onClick={onClose}>Cancel</Button>
+          <Button variant="primary" type="submit" form="container-form" disabled={!label.trim()} loading={save.isPending} loadingLabel="Saving…">
+            {isNew ? "Create container" : "Save"}
+          </Button>
         </div>
-      </div>
-
-      {editing ? (
-        <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto] md:items-end">
-          <label className="eyebrow grid min-w-0 gap-1"><span>Label</span><input className="desk-input min-w-0" value={label} onChange={(event) => setLabel(event.target.value)} /></label>
-          <label className="eyebrow grid min-w-0 gap-1"><span>Location</span><input className="desk-input min-w-0" value={location} onChange={(event) => setLocation(event.target.value)} /></label>
-          <label className="eyebrow flex items-center gap-2"><input type="checkbox" checked={isActive} onChange={(event) => setIsActive(event.target.checked)} /> Active</label>
-          <button className="desk-button-primary" disabled={!label.trim() || save.isPending} onClick={() => save.mutate()}>{save.isPending ? "Saving..." : "Save"}</button>
-        </div>
-      ) : null}
-      {saveError ? <p className="mt-2 text-danger">{saveError}</p> : null}
-
-      {panel === "contents" ? (
-        <div className="mt-3 grid gap-2 rounded-md border border-line bg-bg p-2">
-          {contents.isLoading ? <p className="text-xs text-muted">Loading...</p> : null}
-          <h4 className="title-section">Products</h4>
-          {contents.error instanceof Error ? <p className="text-xs text-danger">{contents.error.message}</p> : null}
-          {!contents.isLoading && !contents.error && contents.data?.products.length ? contents.data.products.map((product) => (
-            <p key={product.id} className="text-xs text-muted">{product.name} - {product.available_quantity} available</p>
-          )) : !contents.isLoading && !contents.error ? <p className="text-xs text-muted">None</p> : null}
-          <h4 className="title-section mt-1">Asset units</h4>
-          {!contents.isLoading && !contents.error && contents.data?.assets.length ? contents.data.assets.map((asset) => (
-            <AssetQrRow key={asset.id} asset={asset} canEditInventory={canEditInventory} />
-          )) : !contents.isLoading && !contents.error ? <p className="text-xs text-muted">None</p> : null}
-          {contents.data?.children.length ? (
-            <p className="mt-1 text-xs text-muted">Sub-containers: {contents.data.children.map((child) => child.label).join(", ")}</p>
-          ) : null}
-        </div>
-      ) : null}
-
-      {panel === "history" ? (
-        <div className="mt-3 rounded-md border border-line bg-bg p-2">
-          {history.isLoading ? <p className="text-xs text-muted">Loading...</p> : null}
-          {history.error instanceof Error ? <p className="text-xs text-danger">{history.error.message}</p> : null}
-          {!history.isLoading && !history.error && history.data?.scans.length ? history.data.scans.map((scan) => (
-            <p key={scan.id} className="font-mono text-xs text-muted">{new Date(scan.created_at).toLocaleString()} - {scan.context || "scan"} - {scan.source === "box_scan" ? "reviewed handover" : "QR scan"}</p>
-          )) : !history.isLoading && !history.error ? <p className="text-xs text-muted">No scan history.</p> : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-// Reprint a single unit's QR without rebuilding a whole batch: POST asset/<id>/qr is a
-// get_or_create, so it returns the existing active QR (or makes one) and we render it.
-function AssetQrRow({ asset, canEditInventory }: { asset: { id: number; asset_tag: string; product: string; status: string }; canEditInventory: boolean }) {
-  const [qrId, setQrId] = useState<number | null>(null);
-  const [showWarranty, setShowWarranty] = useState(false);
-  const show = useMutation({
-    mutationFn: () => staffRequest<{ id: number }>(`/admin/assets/${asset.id}/qr`, { method: "POST", body: JSON.stringify({}) }),
-    onSuccess: (qr) => setQrId(qr.id),
-  });
-  return (
-    <div className="min-w-0 rounded-md border border-line bg-surface p-2">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-        <span className="min-w-0 break-words">{asset.asset_tag} ({asset.status})</span>
-        <button type="button" className="desk-button-ghost" disabled={show.isPending} onClick={() => show.mutate()}>{qrId ? "QR shown" : "Show QR"}</button>
-        <button type="button" className="desk-button-ghost" onClick={() => setShowWarranty((value) => !value)}>
-          {showWarranty ? "Hide warranty" : "Warranty"}
-        </button>
-        {qrId ? <QrImage qrId={qrId} label={asset.asset_tag} /> : null}
-        {show.error instanceof Error ? <span className="text-danger">{show.error.message}</span> : null}
-      </div>
-      {showWarranty ? <div className="mt-2"><WarrantySection hostKind="asset" hostId={asset.id} disabled={!canEditInventory} /></div> : null}
-    </div>
+      )}
+    >
+      <form id="container-form" className="grid gap-4" onSubmit={(event) => { event.preventDefault(); if (label.trim()) save.mutate(); }}>
+        <Field label="Label"><Input value={label} onChange={(event) => setLabel(event.target.value)} /></Field>
+        <Field label="Location" optional><Input value={location} placeholder="Shelf B3" onChange={(event) => setLocation(event.target.value)} /></Field>
+        <Field label="Description" optional><Textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></Field>
+        <CheckboxField label="Active" description="Untick to retire a container while keeping its history." checked={isActive} onCheckedChange={(checked) => setIsActive(checked === true)} />
+        {save.isError ? <ErrorText message={save.error.message} /> : null}
+      </form>
+    </Dialog>
   );
 }

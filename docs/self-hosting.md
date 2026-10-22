@@ -88,10 +88,10 @@ bash setup.sh --build
 For a guided first run that generates secrets, the atomic pointer and `.env`, use the curl installer or
 `setup.sh` at the repo root (see [setup-for-makerspaces.md](setup-for-makerspaces.md)).
 
-Windows has two explicit support tiers. Install, normal Compose operation, upgrades and module changes
-work natively with Docker Desktop plus Git Bash. In-place restore, backup import and compound recovery
-must run under WSL2: their security boundary depends on Linux AF_UNIX sockets and root-owned-file trust
-semantics and is deliberately not emulated on Windows.
+Windows is supported through WSL2 only: run every host script (installer, `setup.sh`, update, restore,
+backup import, compound recovery) from a WSL2 shell with Docker Desktop's WSL integration. Native Git
+Bash and PowerShell are not supported — the production host scripts need Linux `flock`, AF_UNIX sockets, root-owned-file trust semantics and Docker bind paths that Git Bash's MSYS path conversion rewrites; `setup.ps1` and
+`scripts/update.ps1` only print that refusal.
 
 > The frontend container's nginx proxies `/api/`, `/static/`, and the docs routes to the backend.
 > The **single published port (80)** serves the public app, the React staff console at `/admin`,
@@ -118,11 +118,16 @@ The command is idempotent. It creates missing records and upgrades the named use
 Backend:
 
 ```text
-GET /api/v1/health/
-GET /api/v1/health/readiness/
+GET /api/v1/health/            # public liveness: the process answers HTTP
+GET /api/v1/health/readiness/  # deployment probe: host marker, migrations, encryption readiness
 ```
 
 The Compose files include health checks for Postgres, backend readiness, and frontend HTTP serving.
+Readiness is meant for callers inside the deployment: the bundled Caddy and nginx proxies answer `403`
+for it, and the Compose healthcheck and `scripts/update.sh` call it on `localhost:8000` inside the
+backend container. A direct, unproxied caller gets the failure reason and archive-custody counts; a
+caller that arrives through any proxy (an `X-Forwarded-For` header) gets only `status`, the same
+`200`/`503`, and is rate limited by `THROTTLE_READINESS` (default `60/min`).
 
 ## Scheduled Jobs
 
@@ -257,11 +262,11 @@ images and producer proof but keeps the installer's newer host files, so compoun
 mismatched privileged-script hashes. Rerun the installer once the release is fixed, or copy the files back
 from the newest `backups/host-config-*/` and rerun `bash scripts/init-host-orchestration.sh`.
 
-On hosts with `flock`, the updater also holds the shared host operation-lock inode. Native Windows Git
-Bash normally lacks `flock`, so update falls back to the existing directory lock, recording its owner PID
-and start timestamp. A dead owner is detected and cleared on the next run. A live or unreadable owner is
-never silently discarded: after verifying no update is active, pass `--override-lock`. This fallback is
-for install/run/update only; run `scripts/restore.sh` and other compound recovery supervisors under WSL2.
+On hosts with `flock`, the updater also holds the shared host operation-lock inode. Where `flock` is
+missing, update falls back to the existing directory lock, recording its owner PID and start timestamp.
+A dead owner is detected and cleared on the next run. A live or unreadable owner is never silently
+discarded: after verifying no update is active, pass `--override-lock`. This fallback covers update only;
+`scripts/restore.sh` and the other compound recovery supervisors require `flock`.
 
 For a manual deployment, set `MAKERSPACE_IMAGE_TAG` to a release such as
 `0.5.1-main.42.a1b2c3d4e5f6`, then run:
@@ -455,7 +460,7 @@ If an instance flips from managed → self-host after deploy, run
 |---|---|---|
 | `POSTGRES_PASSWORD` | yes | Maintenance/owner database password; never used by application processes |
 | `POSTGRES_APP_PASSWORD` | yes | Separate non-owner runtime database password used by backend/worker/beat/cron |
-| `SECRET_KEY` | yes | Django cryptographic secret |
+| `SECRET_KEY` | yes | Django cryptographic secret. With `DEBUG=False`, a placeholder or a value under 32 characters fails system check `accounts.E001`, so `migrate` refuses to run |
 | `ALLOWED_HOSTS` | yes | Comma-separated hostnames the backend will serve |
 | `DATABASE_URL` | no | Never put this in static `.env`; the atomic ops pointer is its only Compose source |
 | `CORS_ALLOWED_ORIGINS` | no | Browser origins allowed to call the API |

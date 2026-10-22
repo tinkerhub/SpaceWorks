@@ -211,7 +211,7 @@ def retire_pool(pool, actor, *, reason):
 
 @transaction.atomic
 def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent_complete, reason="", grams=0, quantity=None, metering_unit=None, pool=None, service_request=None, note=""):
-    machine = Machine.objects.select_for_update().select_related("makerspace").get(pk=machine.pk)
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=machine.pk)
     if outcome not in {"success", "failed"}:
         raise ValidationError({"outcome": "Outcome must be success or failed."})
     if not isinstance(duration_minutes, int) or duration_minutes < 0:

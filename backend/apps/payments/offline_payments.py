@@ -12,8 +12,16 @@ def create_offline_payment(
     *, makerspace, subject_type, subject_id, member, amount, currency, created_by,
     subject_label="",
 ):
-    """Create one pending counter-settlement charge for a domain subject."""
+    """Create one pending counter-settlement charge for a domain subject.
+
+    Counter settlement replaces ONLINE payment, not the `payments` module: with the
+    module off no new charge is raised at all (an existing one stays settleable).
+    """
     if amount <= 0:
+        return None
+    from apps.payments.availability import new_charges_allowed_locked
+
+    if not new_charges_allowed_locked(makerspace):
         return None
 
     subject = {

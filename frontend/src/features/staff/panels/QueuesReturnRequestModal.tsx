@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { ErrorText, Modal } from "../../../components/ui";
+import { ErrorText, Dropdown, Field, Input, Modal, SectionHeading, Textarea } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 import { evidenceErrorText } from "../evidenceUi";
 import { EvidenceUpload } from "./EvidenceUpload";
@@ -73,16 +73,30 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={row ? `Return request #${row.id}` : "Return request"} footer={<FormFooter formId="return-request-form" pending={pending} submitLabel="Submit return" onCancel={onClose} />}>
-      <form id="return-request-form" className="grid gap-3" onSubmit={(event) => submitForm(event, submitReturn)}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {issueUrl ? <div className="grid min-w-0 gap-1 text-sm"><span className="font-medium text-ink">Issue photo</span><img src={issueUrl} alt="Issue photo for comparison" className="max-h-56 w-full rounded-md border border-line object-contain" /></div> : null}
-          {issueError ? <p className="text-sm text-warning" role="status">{issueError}</p> : null}
-          <div className="grid min-w-0 gap-1 text-sm"><span className="font-medium text-ink">Return photo</span><EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" disabled={pending} onUploaded={setEvidenceId} /></div>
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="lg"
+      title={row ? `Return request #${row.id}` : "Return request"}
+      description="Photograph what came back, note its condition, then record each item."
+      footer={<FormFooter formId="return-request-form" pending={pending} submitLabel="Submit return" onCancel={onClose} />}
+    >
+      <form id="return-request-form" className="grid gap-5" onSubmit={(event) => submitForm(event, submitReturn)}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {issueUrl ? (
+            <figure className="grid min-w-0 gap-1.5">
+              <figcaption className="text-label text-ink">Issue photo</figcaption>
+              <img src={issueUrl} alt="Issue photo for comparison" className="max-h-56 w-full rounded-lg border border-line object-contain" />
+            </figure>
+          ) : null}
+          {issueError ? <p className="text-caption text-warning-fg" role="status">{issueError}</p> : null}
+          <EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={setEvidenceId} />
         </div>
-        {row?.assigned_box_label ? <p className="text-xs text-muted">Box: <span className="font-medium text-ink">{row.assigned_box_label}</span></p> : null}
+        {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Box: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
         <BoxCodeField value={boxCode} onChange={setBoxCode} makerspaceId={makerspaceId} pending={pending} />
-        <label className="grid gap-1 text-sm"><span className="font-medium text-ink">Remark</span><textarea className="desk-input min-h-20 w-full resize-y" value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} /></label>
+        <Field label="Remark" helperText="Required. Note the condition of what came back.">
+          <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} />
+        </Field>
         <ReturnItems row={row} resolutions={resolutions} assetOutcomes={assetOutcomes} pending={pending} onQuantityChange={updateResolution} onAssetOutcomeChange={updateAssetOutcome} />
         <ErrorText message={validationError || error} />
       </form>
@@ -97,6 +111,7 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
     if (finalResolutions.some((resolution) => resolution.returned < 0 || resolution.damaged < 0 || resolution.missing < 0)) return setValidationError("Resolution quantities cannot be negative.");
     const overReturn = overReturnError(row, finalResolutions);
     if (overReturn) return setValidationError(overReturn);
+    setValidationError("");
     onSubmit({ evidenceId, boxCode: boxCode.trim(), remark: remark.trim(), resolutions: finalResolutions });
   }
 
@@ -112,20 +127,31 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
 
 function ReturnItems({ row, resolutions, assetOutcomes, pending, onQuantityChange, onAssetOutcomeChange }: { row: FormModalProps<ReturnRequestValues>["row"]; resolutions: ReturnRequestValues["resolutions"]; assetOutcomes: AssetOutcomeState; pending: boolean; onQuantityChange: (itemId: number, key: "returned" | "damaged" | "missing", value: string) => void; onAssetOutcomeChange: (itemId: number, assetId: number, outcome: PendingOutcome) => void }) {
   return (
-    <div className="grid gap-2">
-      <p className="text-sm font-medium text-ink">Return outcomes</p>
+    <section className="grid gap-3">
+      <SectionHeading as="h3" title="Return outcomes" />
       {row?.items.map((item) => item.requires_asset_qr ? <SerializedReturnItem key={item.id} item={item} outcomes={assetOutcomes[item.id] ?? {}} pending={pending} onChange={onAssetOutcomeChange} /> : <QuantityReturnItem key={item.id} item={item} resolution={resolutions.find((entry) => entry.item_id === item.id)} pending={pending} onChange={onQuantityChange} />)}
-    </div>
+    </section>
   );
 }
 
 function SerializedReturnItem({ item, outcomes, pending, onChange }: { item: NonNullable<FormModalProps<ReturnRequestValues>["row"]>["items"][number]; outcomes: Record<number, PendingOutcome>; pending: boolean; onChange: (itemId: number, assetId: number, outcome: PendingOutcome) => void }) {
   return (
-    <div className="rounded-md border border-line p-2">
-      <p className="text-sm font-medium text-ink">{item.product_name}</p>
-      <ShelfLine location={item.storage_location} />
-      <div className="mt-2 grid gap-2">
-        {(item.issued_assets ?? []).map((asset) => <label key={asset.asset_id} className="eyebrow grid gap-1 sm:grid-cols-[1fr_auto] sm:items-center"><span className="font-medium text-ink">{asset.asset_tag}{asset.serial_number ? ` - ${asset.serial_number}` : ""}</span><select className="desk-input" value={outcomes[asset.asset_id] ?? "returned"} disabled={pending} onChange={(event) => onChange(item.id, asset.asset_id, event.target.value as PendingOutcome)}><option value="returned">Returned</option><option value="damaged">Damaged</option><option value="missing">Missing</option><option value="pending">Not returned now</option></select></label>)}
+    <div className="grid gap-3 rounded-lg border border-line px-4 py-3">
+      <div className="min-w-0">
+        <p className="text-label text-ink [overflow-wrap:anywhere]">{item.product_name}</p>
+        <ShelfLine location={item.storage_location} />
+      </div>
+      <div className="grid gap-3">
+        {(item.issued_assets ?? []).map((asset) => (
+          <Field key={asset.asset_id} label={<span className="font-mono">{asset.asset_tag}{asset.serial_number ? ` - ${asset.serial_number}` : ""}</span>}>
+            <Dropdown value={outcomes[asset.asset_id] ?? "returned"} disabled={pending} onChange={(event) => onChange(item.id, asset.asset_id, event.target.value as PendingOutcome)}>
+              <option value="returned">Returned</option>
+              <option value="damaged">Damaged</option>
+              <option value="missing">Missing</option>
+              <option value="pending">Not returned now</option>
+            </Dropdown>
+          </Field>
+        ))}
       </div>
     </div>
   );
@@ -133,15 +159,23 @@ function SerializedReturnItem({ item, outcomes, pending, onChange }: { item: Non
 
 function QuantityReturnItem({ item, resolution, pending, onChange }: { item: NonNullable<FormModalProps<ReturnRequestValues>["row"]>["items"][number]; resolution?: ReturnRequestValues["resolutions"][number]; pending: boolean; onChange: (itemId: number, key: "returned" | "damaged" | "missing", value: string) => void }) {
   return (
-    <div className="rounded-md border border-line p-2">
-      <p className="text-sm font-medium text-ink">{item.product_name}</p>
-      <ShelfLine location={item.storage_location} />
-      <div className="mt-2 grid gap-2 sm:grid-cols-3">
-        {(["returned", "damaged", "missing"] as const).map((key) => <label key={key} className="eyebrow grid gap-1"><span className="capitalize">{key}</span><input className="desk-input min-w-0" type="number" min="0" max={remainingCount(item)} value={resolution?.[key] ?? 0} disabled={pending} onChange={(event) => onChange(item.id, key, event.target.value)} /></label>)}
+    <div className="grid gap-3 rounded-lg border border-line px-4 py-3">
+      <div className="min-w-0">
+        <p className="text-label text-ink [overflow-wrap:anywhere]">{item.product_name} <span className="font-normal text-ink-muted">{remainingCount(item)} out</span></p>
+        <ShelfLine location={item.storage_location} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {(["returned", "damaged", "missing"] as const).map((key) => (
+          <Field key={key} label={OUTCOME_LABELS[key]}>
+            <Input type="number" min="0" max={remainingCount(item)} value={resolution?.[key] ?? 0} disabled={pending} onChange={(event) => onChange(item.id, key, event.target.value)} />
+          </Field>
+        ))}
       </div>
     </div>
   );
 }
+
+const OUTCOME_LABELS = { returned: "Returned", damaged: "Damaged", missing: "Missing" } as const;
 
 function overReturnError(row: FormModalProps<ReturnRequestValues>["row"], resolutions: ReturnRequestValues["resolutions"]) {
   for (const item of row?.items ?? []) {

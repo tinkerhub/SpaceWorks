@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { ScanLine } from "lucide-react";
 
+import { Button, Callout, Card, useToast } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
 import { StructuredApiError } from "../../lib/api";
 import {
@@ -7,8 +9,7 @@ import {
   useResolveEventCheckIn,
   type EventCheckInResolution,
 } from "./eventsApi";
-
-const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+import { StatusWord } from "./panels/shared";
 
 /** Staff-side QR check-in: scan, see who it is, then confirm.
  *
@@ -32,6 +33,7 @@ export default function EventCheckInScanner({
   const [confirmed, setConfirmed] = useState<string | null>(null);
   const resolve = useResolveEventCheckIn(eventId);
   const attend = useMarkEventAttended(makerspaceId, eventId, "qr");
+  const { showToast } = useToast();
 
   const handleScan = async (value: string) => {
     setScanning(false);
@@ -60,6 +62,7 @@ export default function EventCheckInScanner({
     try {
       await attend.mutateAsync(resolved.registration_id);
       setConfirmed(`${resolved.name} checked in.`);
+      showToast(`${resolved.name} checked in`, { tone: "success" });
       setResolved(null);
     } catch (cause) {
       if (cause instanceof StructuredApiError && cause.status === 409) {
@@ -70,12 +73,15 @@ export default function EventCheckInScanner({
         // so say what is actually known and force a re-scan rather than leaving a stale
         // resolution with Confirm still enabled.
         setResolved(null);
+        showToast("Couldn't check in — scan again", { tone: "error" });
         setError(
           `${resolved.name} could not be checked in -- the registration changed. Scan again to see its current state.`,
         );
         return;
       }
-      setError(cause instanceof Error ? cause.message : "Could not confirm attendance.");
+      const message = cause instanceof Error ? cause.message : "Could not confirm attendance.";
+      showToast(message, { tone: "error" });
+      setError(message);
     }
   };
 
@@ -97,68 +103,61 @@ export default function EventCheckInScanner({
             : `Attendance cannot be confirmed while this event is ${resolved.event_status}.`;
 
   return (
-    <section
-      className="mt-3 rounded-lg border border-line bg-panel p-3"
-      aria-labelledby="event-checkin-title"
-    >
+    <Card as="section" padding="sm" className="grid gap-3" aria-labelledby="event-checkin-title">
       <div className="flex items-start justify-between gap-3">
-        <h4 id="event-checkin-title" className="font-semibold text-ink">
+        <h4 id="event-checkin-title" className="text-title text-ink">
           Check in by QR
         </h4>
-        <button type="button" className={`desk-button ${FOCUS}`} onClick={onClose}>
+        <Button size="sm" onClick={onClose}>
           Done
-        </button>
+        </Button>
       </div>
 
       {resolved ? (
-        <div className="mt-3">
-          <p className="text-ink">
-            <span className="font-medium">{resolved.name}</span> · {resolved.status}
-          </p>
+        <div className="grid gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-label text-ink">{resolved.name}</span>
+            <StatusWord status={resolved.status} />
+          </div>
           {resolved.payment_status ? (
             // Information only. A payment problem must never stop the door: staff take
             // cash and reconcile later, and a card outage is not a reason to refuse
             // someone entry to an event they registered for.
-            <p className="mt-1 text-sm text-muted">Payment: {resolved.payment_status}</p>
+            <p className="text-body-ui text-ink-muted">Payment: {resolved.payment_status}</p>
           ) : null}
           {resolved.host_waiver_state === "missing" ? (
             // Reported, not enforced. Someone standing at the door with nothing on file is
             // exactly who the host wants to hand a waiver to; refusing them entry is not
             // this screen's job, the same way payment state is shown without blocking.
-            <p className="mt-1 text-sm text-muted">
-              No host waiver on file — take one at the desk.
-            </p>
+            <Callout tone="warning">No host waiver on file — take one at the desk.</Callout>
           ) : null}
-          {blockedReason ? (
-            <p className="mt-2 text-sm text-danger">{blockedReason}</p>
-          ) : null}
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              className={`desk-button-primary ${FOCUS}`}
-              disabled={!confirmable || attend.isPending}
+          {blockedReason ? <Callout tone="danger">{blockedReason}</Callout> : null}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="primary"
+              disabled={!confirmable}
+              loading={attend.isPending}
+              loadingLabel="Checking in…"
               onClick={handleConfirm}
             >
               Confirm attendance
-            </button>
-            <button
-              type="button"
-              className={`desk-button ${FOCUS}`}
+            </Button>
+            <Button
               onClick={() => {
                 setResolved(null);
                 setScanning(true);
               }}
             >
               Scan another
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        <div className="mt-3">
-          {confirmed ? <p className="text-sm text-ink">{confirmed}</p> : null}
-          <button
-            type="button"
-            className={`desk-button mt-2 ${FOCUS}`}
+        <div className="grid gap-2">
+          {confirmed ? <Callout tone="success" role="status">{confirmed}</Callout> : null}
+          <Button
+            className="w-fit"
+            startIcon={<ScanLine />}
             disabled={resolve.isPending}
             onClick={() => {
               setError(null);
@@ -166,17 +165,17 @@ export default function EventCheckInScanner({
             }}
           >
             {resolve.isPending ? "Reading…" : "Scan a code"}
-          </button>
+          </Button>
         </div>
       )}
 
-      {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
+      {error ? <Callout tone="danger" role="alert">{error}</Callout> : null}
 
       {/* Unmounted rather than hidden, so the camera stops and keyboard users cannot tab
           into a scanner they cannot see. */}
       {scanning ? (
         <QrScanner onScan={handleScan} onClose={() => setScanning(false)} />
       ) : null}
-    </section>
+    </Card>
   );
 }

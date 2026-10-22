@@ -1,12 +1,12 @@
 import { useId } from "react";
 
+import { Button } from "../../../../components/ui";
+
 type Props = {
   value: string;
   onChange: (value: string) => void;
   legend?: string;
 };
-
-const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 function channelHex(value: number) {
   return Math.max(0, Math.min(255, value)).toString(16).padStart(2, "0");
@@ -32,35 +32,33 @@ export function PoolColourSwatchControl({ value, onChange, legend = "Display swa
   };
 
   return (
-    <fieldset className="grid gap-3 rounded-xl border border-line p-3">
-      <legend className="eyebrow px-1">{legend}</legend>
+    <fieldset className="grid min-w-0 gap-3 rounded-lg border border-line p-4">
+      <legend className="px-1 text-label text-ink">{legend}</legend>
       <div className="flex flex-wrap items-end gap-3">
-        <label className="eyebrow grid gap-1" htmlFor={`${id}-picker`}>
+        <label className="grid gap-1.5 text-label text-ink" htmlFor={`${id}-picker`}>
           Colour picker
           <input
-            className={`min-h-11 w-20 cursor-pointer rounded-md border border-line bg-bg p-1 ${focusRing}`}
+            className="min-h-11 w-20 cursor-pointer rounded-md border border-line-strong bg-canvas p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             id={`${id}-picker`}
             type="color"
             value={pickerHex}
             onChange={(event) => onChange(event.target.value.toLowerCase())}
           />
         </label>
-        <output className="min-h-11 content-center font-mono text-sm text-ink" htmlFor={`${id}-picker`}>
-          Display hex: {activeHex || "Not set"}
+        <output className="flex min-h-11 items-center gap-2 text-body-ui text-ink-secondary" htmlFor={`${id}-picker`}>
+          Display hex: <span className="font-mono text-ink">{activeHex || "Not set"}</span>
         </output>
         {activeHex ? (
-          <button className="desk-button-ghost" type="button" onClick={() => onChange("")}>
-            Clear display colour
-          </button>
+          <Button size="sm" variant="quiet" onClick={() => onChange("")}>Clear display colour</Button>
         ) : null}
       </div>
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         {(["red", "green", "blue"] as const).map((channel) => (
-          <label className="eyebrow grid gap-1" htmlFor={`${id}-${channel}`} key={channel}>
-            {channel.slice(0, 1).toUpperCase()} ({rgb[channel]})
+          <label className="grid gap-1 text-caption font-semibold text-ink-secondary" htmlFor={`${id}-${channel}`} key={channel}>
+            {channel.slice(0, 1).toUpperCase()}{channel.slice(1)} ({rgb[channel]})
             <input
               aria-label={`${channel} channel`}
-              className={`min-h-11 w-full cursor-pointer accent-accent ${focusRing}`}
+              className="min-h-11 w-full cursor-pointer accent-accent-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               id={`${id}-${channel}`}
               max="255"
               min="0"

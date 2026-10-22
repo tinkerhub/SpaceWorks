@@ -149,6 +149,7 @@ RELATIONAL_USER_FIELDS = frozenset(
         ("operations.QrPrintBatch", "created_by"),
         ("operations.StocktakeLedgerEntry", "created_by"),
         ("operations.StocktakeSession", "started_by"),
+        ("operations.StocktakeSession", "completed_by"),
         ("operations.StocktakeSession", "approved_by"),
         ("operations.StockTransfer", "created_by"),
         ("organizations.Organization", "created_by"),

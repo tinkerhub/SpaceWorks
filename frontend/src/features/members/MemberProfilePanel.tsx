@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Plus } from "lucide-react";
+
+import { Button, CheckboxField, ErrorText, Field, Input, SectionHeading, Spinner, Textarea, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { AccountCard } from "../account/AccountCard";
 import { ImageUploader } from "../staff/ImageUploader";
+import { ProjectEditor, type ProjectDraft } from "./MemberProjectEditor";
 
 export type MemberProject = {
   id: number;
@@ -36,29 +41,9 @@ export type MemberProfile = {
   activity: MemberProfileActivity;
 };
 
-type ProjectDraft = {
-  id?: number;
-  title: string;
-  description: string;
-  links: { label: string; url: string }[];
-};
-
 const tagsToText = (values: string[]) => values.join(", ");
 const textToTags = (value: string) =>
   value.split(",").map((item) => item.trim()).filter(Boolean);
-
-const PROFILE_TONES = [
-  "border-accent bg-accent/15",
-  "border-secondary bg-secondary/15",
-  "border-success bg-success/15",
-  "border-warn bg-warn/15",
-] as const;
-
-function profileToneForIdentity(identity: string | number | undefined) {
-  if (identity === undefined || identity === "") return "border-secondary bg-secondary/15";
-  const total = [...String(identity)].reduce((sum, character) => sum + character.codePointAt(0)!, 0);
-  return PROFILE_TONES[total % PROFILE_TONES.length];
-}
 
 /**
  * The member's own profile: what they choose to show the rest of their makerspace.
@@ -69,6 +54,7 @@ function profileToneForIdentity(identity: string | number | undefined) {
  */
 export function MemberProfilePanel({ makerspaceId }: { makerspaceId: number }) {
   const client = useQueryClient();
+  const { showToast } = useToast();
   const profile = useQuery({
     queryKey: ["member", "profile-page", makerspaceId],
     queryFn: () => staffRequest<MemberProfile>(`/member/makerspaces/${makerspaceId}/profile`),
@@ -128,13 +114,15 @@ export function MemberProfilePanel({ makerspaceId }: { makerspaceId: number }) {
         }),
       }),
     onSuccess: () => {
+      showToast("Profile saved", { tone: "success" });
       setDirty(false);
       return client.invalidateQueries({ queryKey: ["member", "profile-page", makerspaceId] });
     },
+    onError: () => showToast("Profile not saved", { tone: "error" }),
   });
 
   if (profile.isLoading) {
-    return <section className="desk-panel p-5 text-sm text-muted">Loading your profile…</section>;
+    return <AccountCard title="Your maker profile" description={<span className="inline-flex items-center gap-2"><Spinner decorative className="size-4" />Loading your profile…</span>} />;
   }
   if (!draft) return null;
 
@@ -146,266 +134,97 @@ export function MemberProfilePanel({ makerspaceId }: { makerspaceId: number }) {
     setDirty(true);
     setProjects(next);
   };
+  const refreshImages = () => client.invalidateQueries({ queryKey: ["member", "profile-page", makerspaceId] });
 
   return (
-    <section className="desk-panel p-5">
-      <h2 className="title-panel">Your maker profile</h2>
-      <p className="mt-1 text-sm text-muted">
-        Nothing here is shown to other members until you publish it.
-      </p>
+    <AccountCard
+      title="Your maker profile"
+      description="Nothing here is shown to other members until you publish it."
+    >
+      {/* A div, not a form: the image uploaders inside carry their own buttons and dialogs. */}
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <CheckboxField
+            checked={draft.is_visible}
+            onCheckedChange={(checked) => patch({ is_visible: checked === true })}
+            label="Show my profile in this makerspace's member directory"
+          />
+          <CheckboxField
+            checked={draft.show_attended_events}
+            onCheckedChange={(checked) => patch({ show_attended_events: checked === true })}
+            label="Also show the events I have attended on my profile"
+          />
+        </div>
 
-      <label className="mt-4 flex items-center gap-2 text-sm text-ink">
-        <input
-          type="checkbox"
-          className="h-4 w-4"
-          checked={draft.is_visible}
-          onChange={(event) => patch({ is_visible: event.target.checked })}
-        />
-        Show my profile in this makerspace&apos;s member directory
-      </label>
-      <label className="mt-2 flex items-center gap-2 text-sm text-ink">
-        <input
-          type="checkbox"
-          className="h-4 w-4"
-          checked={draft.show_attended_events}
-          onChange={(event) => patch({ show_attended_events: event.target.checked })}
-        />
-        Also show the events I have attended on my profile
-      </label>
-
-      <div className="mt-4">
         <ImageUploader
           endpoint={`/member/makerspaces/${makerspaceId}/profile/image`}
           currentUrl={draft.avatar_url}
           label="Avatar"
-          onChanged={() =>
-            client.invalidateQueries({ queryKey: ["member", "profile-page", makerspaceId] })
-          }
+          onChanged={refreshImages}
         />
-      </div>
 
-      <Field id="profile-headline" label="Headline">
-        <input
-          id="profile-headline"
-          className="desk-input mt-1 w-full"
-          value={draft.headline}
-          onChange={(event) => patch({ headline: event.target.value })}
-        />
-      </Field>
-      <Field id="profile-institution" label="Institution">
-        <input
-          id="profile-institution"
-          className="desk-input mt-1 w-full"
-          value={draft.institution}
-          onChange={(event) => patch({ institution: event.target.value })}
-        />
-      </Field>
-      <Field id="profile-bio" label="Bio">
-        <textarea
-          id="profile-bio"
-          className="desk-input mt-1 w-full"
-          rows={4}
-          value={draft.bio}
-          onChange={(event) => patch({ bio: event.target.value })}
-        />
-      </Field>
-      <Field id="profile-interests" label="Interests" hint="Comma separated">
-        <input
-          id="profile-interests"
-          className="desk-input mt-1 w-full"
-          value={interests}
-          onChange={(event) => { setDirty(true); setInterests(event.target.value); }}
-        />
-      </Field>
-      <Field id="profile-languages" label="Languages" hint="Comma separated">
-        <input
-          id="profile-languages"
-          className="desk-input mt-1 w-full"
-          value={languages}
-          onChange={(event) => { setDirty(true); setLanguages(event.target.value); }}
-        />
-      </Field>
-      <Field id="profile-github" label="GitHub username">
-        <input
-          id="profile-github"
-          className="desk-input mt-1 w-full"
-          value={draft.github_username}
-          onChange={(event) => patch({ github_username: event.target.value })}
-        />
-      </Field>
-      {draft.github_contributions !== null ? (
-        <p className="mt-1 text-sm text-muted">
-          <span className="font-mono">{draft.github_contributions}</span> contributions in the last year.
-        </p>
-      ) : null}
-
-      <h3 className="title-section mt-6">Projects</h3>
-      <div className="mt-2 space-y-3">
-        {projects.map((project, index) => (
-          <ProjectEditor
-            key={project.id ?? `new-${index}`}
-            makerspaceId={makerspaceId}
-            project={project}
-            imageUrl={
-              draft.projects.find((row) => row.id === project.id)?.image_url ?? null
-            }
-            onChange={(next) =>
-              editProjects(projects.map((row, position) => (position === index ? next : row)))
-            }
-            onRemove={() =>
-              editProjects(projects.filter((_, position) => position !== index))
-            }
-            onImageChanged={() =>
-              client.invalidateQueries({ queryKey: ["member", "profile-page", makerspaceId] })
-            }
-          />
-        ))}
-      </div>
-      <button
-        className="desk-button-ghost mt-3"
-        type="button"
-        onClick={() =>
-          editProjects([...projects, { title: "", description: "", links: [] }])
-        }
-      >
-        Add a project
-      </button>
-
-      {save.error ? (
-        <p className="mt-3 text-sm text-danger" role="alert">
-          {save.error instanceof Error ? save.error.message : "Could not save."}
-        </p>
-      ) : null}
-      <button
-        className="desk-button-secondary mt-4"
-        type="button"
-        disabled={save.isPending}
-        onClick={() => save.mutate()}
-      >
-        {save.isPending ? "Saving…" : "Save profile"}
-      </button>
-    </section>
-  );
-}
-
-function Field({
-  id,
-  label,
-  hint,
-  children,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mt-3">
-      <label className="eyebrow block" htmlFor={id}>
-        {label}
-        {hint ? <span className="ml-2 normal-case tracking-normal text-muted">{hint}</span> : null}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function ProjectEditor({
-  makerspaceId,
-  project,
-  imageUrl,
-  onChange,
-  onRemove,
-  onImageChanged,
-}: {
-  makerspaceId: number;
-  project: ProjectDraft;
-  imageUrl: string | null;
-  onChange: (next: ProjectDraft) => void;
-  onRemove: () => void;
-  onImageChanged: () => void;
-}) {
-  return (
-    <div className={`rounded-lg border ${profileToneForIdentity(project.id)} p-3`}>
-      <input
-        className="desk-input w-full"
-        placeholder="Project title"
-        aria-label="Project title"
-        value={project.title}
-        onChange={(event) => onChange({ ...project, title: event.target.value })}
-      />
-      <textarea
-        className="desk-input mt-2 w-full"
-        rows={2}
-        placeholder="What is it?"
-        aria-label="Project description"
-        value={project.description}
-        onChange={(event) => onChange({ ...project, description: event.target.value })}
-      />
-      {/* An image can only be attached to a project that exists server-side — a new one
-          has no id to attach it to, so it appears after the first save. */}
-      {project.id ? (
-        <div className="mt-3">
-          <ImageUploader
-            endpoint={`/member/makerspaces/${makerspaceId}/profile/image`}
-            currentUrl={imageUrl}
-            label="Project image"
-            extraBody={{ project_id: project.id }}
-            clearQuery={`?project_id=${project.id}`}
-            onChanged={onImageChanged}
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id="profile-headline" label="Headline">
+            <Input value={draft.headline} onChange={(event) => patch({ headline: event.target.value })} />
+          </Field>
+          <Field id="profile-institution" label="Institution">
+            <Input value={draft.institution} onChange={(event) => patch({ institution: event.target.value })} />
+          </Field>
         </div>
-      ) : (
-        <p className="mt-2 text-xs text-muted">Save the project to add an image.</p>
-      )}
-      <div className="mt-2 space-y-2">
-        {project.links.map((link, index) => (
-          <div key={index} className={`flex flex-col gap-2 border-l-2 ${profileToneForIdentity(`${link.label}|${link.url}`)} p-2 sm:flex-row`}>
-            <input
-              className="desk-input w-full sm:w-40"
-              placeholder="Label"
-              aria-label="Link label"
-              value={link.label}
-              onChange={(event) =>
-                onChange({
-                  ...project,
-                  links: project.links.map((row, position) =>
-                    position === index ? { ...row, label: event.target.value } : row,
-                  ),
-                })
-              }
-            />
-            <input
-              className="desk-input w-full"
-              placeholder="https://…"
-              aria-label="Link URL"
-              value={link.url}
-              onChange={(event) =>
-                onChange({
-                  ...project,
-                  links: project.links.map((row, position) =>
-                    position === index ? { ...row, url: event.target.value } : row,
-                  ),
-                })
-              }
-            />
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 flex gap-2">
-        <button
-          className="desk-button-ghost"
-          type="button"
-          onClick={() =>
-            onChange({ ...project, links: [...project.links, { label: "", url: "" }] })
-          }
+        <Field id="profile-bio" label="Bio">
+          <Textarea rows={4} value={draft.bio} onChange={(event) => patch({ bio: event.target.value })} />
+        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id="profile-interests" label="Interests" helperText="Comma separated">
+            <Input value={interests} onChange={(event) => { setDirty(true); setInterests(event.target.value); }} />
+          </Field>
+          <Field id="profile-languages" label="Languages" helperText="Comma separated">
+            <Input value={languages} onChange={(event) => { setDirty(true); setLanguages(event.target.value); }} />
+          </Field>
+        </div>
+        <Field
+          id="profile-github"
+          label="GitHub username"
+          helperText={draft.github_contributions !== null ? <><span className="font-mono">{draft.github_contributions}</span> contributions in the last year.</> : undefined}
         >
-          Add link
-        </button>
-        <button className="desk-button-danger" type="button" onClick={onRemove}>
-          Remove project
-        </button>
+          <Input value={draft.github_username} onChange={(event) => patch({ github_username: event.target.value })} />
+        </Field>
+
+        <div className="flex flex-col gap-3 border-t border-line pt-5">
+          <SectionHeading as="h3" title="Projects" description="Things you have made. Removing one takes effect when you save." />
+          {projects.map((project, index) => (
+            <ProjectEditor
+              key={project.id ?? `new-${index}`}
+              makerspaceId={makerspaceId}
+              project={project}
+              imageUrl={
+                draft.projects.find((row) => row.id === project.id)?.image_url ?? null
+              }
+              onChange={(next) =>
+                editProjects(projects.map((row, position) => (position === index ? next : row)))
+              }
+              onRemove={() =>
+                editProjects(projects.filter((_, position) => position !== index))
+              }
+              onImageChanged={refreshImages}
+            />
+          ))}
+          <Button
+            className="self-start"
+            startIcon={<Plus />}
+            onClick={() =>
+              editProjects([...projects, { title: "", description: "", links: [] }])
+            }
+          >
+            Add a project
+          </Button>
+        </div>
+
+        <ErrorText message={save.error ? (save.error instanceof Error ? save.error.message : "Could not save.") : null} />
+        <Button variant="primary" className="self-start" loading={save.isPending} loadingLabel="Saving…" onClick={() => save.mutate()}>
+          Save profile
+        </Button>
       </div>
-    </div>
+    </AccountCard>
   );
 }

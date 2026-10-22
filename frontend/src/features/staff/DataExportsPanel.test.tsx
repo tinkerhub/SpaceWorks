@@ -8,7 +8,9 @@ const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
 vi.mock("../../lib/api", () => ({ staffRequest }));
 
-beforeEach(() => staffRequest.mockReset());
+beforeEach(() => {
+  staffRequest.mockReset();
+});
 
 function renderPanel() {
   staffRequest.mockResolvedValue([]);

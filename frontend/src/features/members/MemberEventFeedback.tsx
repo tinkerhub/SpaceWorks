@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Callout, ErrorText, Field, Input, Spinner, StatusChip, useToast } from "../../components/ui";
 import { memberRequest } from "../../lib/api";
 import { CustomFormFields } from "../forms/CustomFormFields";
 import { validateCustomAnswers, type CustomAnswers, type CustomFormQuestion } from "../forms/customFormTypes";
@@ -19,6 +20,7 @@ export function MemberEventFeedback({ makerspaceId, makerspaceSlug, registration
   certificate: { id: number; status: string; revision: number } | null;
 }) {
   const client = useQueryClient();
+  const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState<CustomAnswers>({});
   const [email, setEmail] = useState("");
@@ -33,12 +35,14 @@ export function MemberEventFeedback({ makerspaceId, makerspaceSlug, registration
       method: "POST", body: JSON.stringify({ answers, ...(form.data?.requires_auth ? { email } : {}) }),
     }),
     onSuccess: async () => {
+      showToast("Feedback sent", { tone: "success" });
       setAnswers({});
       setEmail("");
       setErrors({});
       await client.invalidateQueries({ queryKey: ["member"] });
       await form.refetch();
     },
+    onError: () => showToast("Feedback not sent", { tone: "error" }),
   });
   const download = useMutation({
     mutationFn: (certificateId: number) => memberRequest<{ url: string }>(`/member/makerspaces/${makerspaceId}/event-certificates/${certificateId}/download/`),
@@ -46,24 +50,31 @@ export function MemberEventFeedback({ makerspaceId, makerspaceSlug, registration
       await client.invalidateQueries({ queryKey: ["member", makerspaceSlug, "activity"] });
       window.location.assign(result.url);
     },
+    onError: () => showToast("Certificate not ready", { tone: "error" }),
   });
 
-  return <div className="mt-2 grid gap-2">
-    <div className="flex flex-wrap gap-2">
-      {feedbackPath ? <button className="desk-button-ghost" type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "Close feedback" : "Leave feedback"}</button> : null}
-      {certificate?.status === "active" ? <button className="desk-button-ghost" type="button" disabled={download.isPending} onClick={() => download.mutate(certificate.id)}>Download certificate</button> : null}
-      {certificate?.status === "pending" ? <button className="desk-button-ghost" type="button" disabled={download.isPending} onClick={() => download.mutate(certificate.id)}>Prepare certificate</button> : null}
-      {certificate?.status === "failed" ? <button className="desk-button-ghost" type="button" disabled={download.isPending} onClick={() => download.mutate(certificate.id)}>Retry certificate</button> : null}
-      {certificate?.status === "revoked" ? <span className="text-xs text-danger">Certificate revoked.</span> : null}
+  const certificateAction = certificate ? CERTIFICATE_ACTIONS[certificate.status] : undefined;
+  const failure = form.error || submit.error || download.error;
+  return <div className="flex flex-col gap-3">
+    <div className="flex flex-wrap items-center gap-2">
+      {feedbackPath ? <Button size="sm" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "Close feedback" : "Leave feedback"}</Button> : null}
+      {certificate && certificateAction ? <Button size="sm" loading={download.isPending} onClick={() => download.mutate(certificate.id)}>{certificateAction}</Button> : null}
+      {certificate?.status === "revoked" ? <StatusChip size="sm" tone="danger">Certificate revoked</StatusChip> : null}
     </div>
-    {open && form.isLoading ? <p className="text-sm text-muted">Loading feedback form…</p> : null}
-    {open && form.data ? <form className="mt-2 grid gap-4 rounded-lg border border-line p-3" onSubmit={(event) => { event.preventDefault(); const next = validateCustomAnswers(form.data!.survey.questions, answers); setErrors(next); if (!Object.keys(next).length) submit.mutate(); }}>
-      <h3 className="title-section">{form.data.survey.title}</h3>
+    {open && form.isLoading ? <p className="inline-flex items-center gap-2 text-body-ui text-ink-muted"><Spinner decorative className="size-4" />Loading feedback form…</p> : null}
+    {open && form.data ? <form className="flex flex-col gap-4 rounded-lg border border-line bg-canvas p-4" onSubmit={(event) => { event.preventDefault(); const next = validateCustomAnswers(form.data!.survey.questions, answers); setErrors(next); if (!Object.keys(next).length) submit.mutate(); }}>
+      <h3 className="text-label text-ink">{form.data.survey.title}</h3>
       <CustomFormFields schema={form.data.survey.questions} answers={answers} onChange={setAnswers} errors={errors} yesNoAsCheckbox />
-      {form.data.requires_auth ? <label className="grid gap-1"><span className="eyebrow">Registration email</span><input className="desk-input" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label> : null}
-      <button className="desk-button-primary" type="submit" disabled={submit.isPending}>{submit.isPending ? "Submitting…" : "Submit feedback"}</button>
-      {submit.isSuccess ? <p className="text-sm text-success-ink">Feedback recorded.</p> : null}
+      {form.data.requires_auth ? <Field label="Registration email"><Input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></Field> : null}
+      <Button variant="primary" type="submit" className="self-start" loading={submit.isPending} loadingLabel="Submitting…">Submit feedback</Button>
+      {submit.isSuccess ? <Callout tone="success" role="status">Feedback recorded.</Callout> : null}
     </form> : null}
-    {form.error || submit.error || download.error ? <p className="text-sm text-danger" role="alert">{(form.error || submit.error || download.error)?.message}</p> : null}
+    <ErrorText message={failure?.message} />
   </div>;
 }
+
+const CERTIFICATE_ACTIONS: Record<string, string> = {
+  active: "Download certificate",
+  pending: "Prepare certificate",
+  failed: "Retry certificate",
+};

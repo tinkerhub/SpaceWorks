@@ -1,8 +1,12 @@
 import { API_V1_URL } from "./apiConfig";
-import { removeStorage } from "./safeStorage";
+import { readStorage, removeStorage, writeStorage } from "./safeStorage";
 
 const PUBLIC_CLIENT_ID = (import.meta.env.VITE_PUBLIC_CLIENT_ID ?? "").trim();
 const ACCESS_TOKEN_KEY = "makerspace.access";
+// Set when a sign-out could not be confirmed by the server, so its refresh cookie may still
+// be alive. While set, nothing may silently refresh that session back; a fresh sign-in
+// (setAccessToken) clears it. Stored so a reload in this or another tab honours it too.
+const SIGNED_OUT_KEY = "makerspace.signed-out";
 const REFRESH_CSRF_HEADER = "X-Refresh-CSRF";
 let runtimePublishableKey = (import.meta.env.VITE_PUBLIC_API_KEY ?? "").trim();
 let accessToken = "";
@@ -69,6 +73,7 @@ export function canRefreshAfterUnauthorized(path: string) {
 
 export function setAccessToken(token: string) {
   accessToken = token;
+  removeStorage(SIGNED_OUT_KEY);
   cleanupLegacyAccessToken();
 }
 
@@ -78,6 +83,7 @@ export function clearAccessToken() {
 }
 
 export async function refreshAccessToken(): Promise<boolean> {
+  if (readStorage(SIGNED_OUT_KEY)) return false;
   if (!accessRefreshPromise) {
     accessRefreshPromise = (async () => {
       const response = await fetch(`${API_V1_URL}/auth/refresh`, {
@@ -93,7 +99,8 @@ export async function refreshAccessToken(): Promise<boolean> {
       }
 
       const body = (await response.json().catch(() => ({}))) as { access?: string };
-      if (!body.access) {
+      // A logout that failed while this refresh was in flight must win.
+      if (!body.access || readStorage(SIGNED_OUT_KEY)) {
         return false;
       }
 
@@ -107,16 +114,29 @@ export async function refreshAccessToken(): Promise<boolean> {
   return accessRefreshPromise;
 }
 
+export class LogoutIncompleteError extends Error {
+  constructor() {
+    super("You are signed out on this device, but the server did not confirm it. This browser will not sign back in on its own.");
+    this.name = "LogoutIncompleteError";
+  }
+}
+
+/**
+ * Ends the session. The local token is always dropped. If the server does not confirm the
+ * logout (network failure or a non-2xx), its refresh cookie may survive, so refreshing is
+ * latched off until the next sign-in and LogoutIncompleteError is thrown for the caller.
+ */
 export async function logout(): Promise<void> {
-  try {
-    await fetch(`${API_V1_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        [REFRESH_CSRF_HEADER]: "1",
-      },
-    });
-  } finally {
-    clearAccessToken();
+  const response = await fetch(`${API_V1_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      [REFRESH_CSRF_HEADER]: "1",
+    },
+  }).catch(() => null);
+  clearAccessToken();
+  if (!response?.ok) {
+    writeStorage(SIGNED_OUT_KEY, "1");
+    throw new LogoutIncompleteError();
   }
 }

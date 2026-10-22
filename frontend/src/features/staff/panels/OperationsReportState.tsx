@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { Skeleton, SkeletonRows } from "../../../components/ui";
+import { Card, CardHeader, EmptyState, ErrorText, Skeleton, SkeletonRows, StatTile, Table, TBody } from "../../../components/ui";
 
 export type ReportCell = string | number | boolean | null;
 export type TypedReportRow = Record<string, ReportCell | undefined>;
@@ -36,56 +36,83 @@ export function chartRows(data: ReportRows | undefined, labelKey: string, valueK
   }));
 }
 
+/** One report section: a flat card with an h2 title and an optional one-line description. */
+export function ReportCard({ title, description, children }: {
+  title: string;
+  description?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card as="section">
+      <CardHeader title={title} description={description} />
+      {children}
+    </Card>
+  );
+}
+
+/** A per-makerspace block inside an all-makerspaces report. */
+export function ScopeGroup({ name, children }: { name: string; children: React.ReactNode }) {
+  return (
+    <section className="border-t border-line pt-4 first:border-t-0 first:pt-0">
+      <h3 className="text-title text-ink">{name}</h3>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
 export function DataState(props: { loading: boolean; error: unknown; empty: boolean; children: React.ReactNode }) {
   if (props.loading) return <ReportSkeleton />;
-  if (props.error) return <p className="mt-3 text-sm text-danger">{props.error instanceof Error ? props.error.message : "Unable to load report."}</p>;
-  if (props.empty) return <p className="mt-3 text-sm text-muted">No records.</p>;
+  if (props.error) return <ErrorText message={props.error instanceof Error ? props.error.message : "We couldn't load this report. Try again in a moment."} />;
+  if (props.empty) return <EmptyState title="No records yet" description="Nothing happened in this period. Try a wider date range." />;
   return <>{props.children}</>;
+}
+
+/** A report the catalog lists but this makerspace cannot run (its module is off, or data is missing). */
+export function EmptyReport({ reason }: { reason?: string | null }) {
+  return <EmptyState title="Report unavailable" description={reason || "This report needs a module that is switched off for this makerspace."} />;
 }
 
 function ReportSkeleton() {
   return (
-    <div className="mt-4 grid gap-3" aria-hidden="true">
+    <div className="grid gap-3" aria-hidden="true">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <div key={index} className="rounded-md border border-line bg-surface p-3">
-            <Skeleton className="h-7 w-20" /><Skeleton className="mt-2 h-3 w-24" />
+          <div key={index} className="rounded-lg border border-line p-4">
+            <Skeleton className="h-3 w-24" /><Skeleton className="mt-3 h-7 w-16" />
           </div>
         ))}
       </div>
-      <div className="overflow-x-auto rounded-md border border-line">
-        <table className="w-full divide-y divide-line text-left text-sm"><tbody className="divide-y divide-line bg-bg"><SkeletonRows rows={4} cols={4} /></tbody></table>
-      </div>
+      <Table><TBody><SkeletonRows rows={4} cols={4} /></TBody></Table>
     </div>
   );
 }
 
 export function StatCards({ stats }: { stats: [string, number | undefined][] }) {
-  const tones = [
-    "border-accent bg-accent text-on-accent dark:bg-accent/15 dark:text-accent-ink",
-    "border-success bg-success text-on-success dark:bg-success/15 dark:text-success-ink",
-    "border-warn bg-warn text-on-warn dark:bg-warn/15 dark:text-warn-ink",
-    "border-secondary bg-secondary text-on-secondary dark:bg-secondary/15 dark:text-secondary-ink",
-  ];
   return (
-    <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map(([label, value], index) => (
-        <div key={label} className={`rounded-md border p-3 ${tones[index % tones.length]}`}>
-          <p className="font-mono text-2xl font-bold">{formatNumber(value ?? 0)}</p><p className="eyebrow opacity-70">{label}</p>
-        </div>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map(([label, value]) => (
+        <StatTile key={label} label={label} value={formatNumber(value ?? 0)} />
       ))}
     </div>
   );
 }
 
 export function formatReportCell(value: ReportCell | undefined) {
-  if (value === null || value === undefined || value === "") return "-";
+  if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "number") return formatNumber(value);
   if (typeof value === "boolean") return value ? "Yes" : "No";
-  if (/^\d{4}-\d{2}-\d{2}T/.test(value)) return new Date(value).toLocaleString();
+  if (/^\d{4}-\d{2}-\d{2}T/.test(value)) {
+    return new Date(value).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+  }
   return value;
 }
 
 export function formatNumber(value: number) {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
+}
+
+/** `damaged_quantity` → "Damaged quantity". */
+export function columnLabel(key: string) {
+  const words = key.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }

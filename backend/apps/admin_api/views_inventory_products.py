@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -23,6 +23,7 @@ from apps.admin_api.serializers_inventory import (
     InventoryQuantityAdjustmentSerializer,
 )
 from apps.audit import services as audit
+from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.inventory import availability
 from apps.inventory.models import InventoryProduct
 from apps.makerspaces.guards import require_module
@@ -64,6 +65,19 @@ class InventoryListCreateView(generics.ListCreateAPIView):
 
 
 @extend_schema(tags=["Admin inventory"], summary="Retrieve or update inventory product")
+@extend_schema_view(
+    patch=extend_schema(
+        responses={
+            200: InventoryProductAdminSerializer,
+            400: OpenApiResponse(description="Invalid field, or a quantity bucket was sent."),
+            409: OpenApiResponse(
+                ErrorSerializer,
+                description="tracking_mode_locked: the tracking mode cannot change while the "
+                "product holds stock, has unit assets or is on an open request.",
+            ),
+        }
+    )
+)
 class InventoryDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = InventoryProductAdminSerializer
     permission_classes = [IsActiveStaff]

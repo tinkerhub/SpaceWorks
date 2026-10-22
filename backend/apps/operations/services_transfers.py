@@ -3,18 +3,37 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from apps.audit import services as audit
+from apps.hardware_requests.asset_link_models import HardwareRequestItemAsset
+from apps.hardware_requests.models import HardwareRequest, PublicToolLoan
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
+from apps.makerspaces.guards import require_module_locked_for_all
 from apps.makerspaces.models import Makerspace
 from apps.operations.models import InventoryAdjustment, StockTransfer, StockTransferLine
 from apps.operations.services_shared import _container
 from apps.operations.services_transfer_splits import move_quantity_stock
+
+# A transfer may shelve, damage-flag or restore a unit that is in the building; it can
+# never mint a reservation, an issue or a loss -- those belong to the request and return
+# workflows, which also own the loan records the asset row must stay consistent with.
+TRANSFER_TARGET_STATUSES = frozenset(
+    {
+        InventoryAsset.Status.AVAILABLE,
+        InventoryAsset.Status.MAINTENANCE,
+        InventoryAsset.Status.DAMAGED,
+    }
+)
 
 
 def apply_stock_transfer(actor, makerspace, data):
     with transaction.atomic():
         destination_makerspace_id = data.get("destination_makerspace_id") or makerspace.id
         is_cross = destination_makerspace_id != makerspace.id
+        # Both ends must have the module installed, re-checked under their row locks
+        # (taken in id order) so a concurrent uninstall at either end cannot slip in.
+        require_module_locked_for_all(
+            {makerspace.id, destination_makerspace_id}, "stock_transfers"
+        )
         source = _container(data.get("source_container_id"), makerspace.id)
         # For a cross-makerspace move the destination container lives in the
         # destination makerspace; intra-makerspace keeps it in the same one.
@@ -71,6 +90,7 @@ def _apply_intra_makerspace_line(actor, transfer, makerspace, source, destinatio
         if from_status and asset.status != from_status:
             raise ValidationError({"from_status": "Asset is not currently in this status."})
         to_status = line_data.get("to_status") or ""
+        _assert_asset_transferable(asset, to_status)
         if to_status and to_status != asset.status:
             try:
                 availability.move_asset_status(asset, to_status)
@@ -193,3 +213,27 @@ def _apply_cross_makerspace_line(
         reason=transfer.reason,
         created_by=actor,
     )
+
+
+def _assert_asset_transferable(asset, to_status):
+    """Checked under the asset row lock the caller already holds."""
+    if to_status and to_status not in TRANSFER_TARGET_STATUSES:
+        raise ValidationError(
+            {"to_status": "Transfers can only set an asset to available, maintenance or damaged."}
+        )
+    if asset.status in {InventoryAsset.Status.ISSUED, InventoryAsset.Status.RESERVED}:
+        raise ValidationError({"asset_id": "An issued or reserved asset cannot be transferred."})
+    on_loan = PublicToolLoan.objects.filter(
+        makerspace_id=asset.makerspace_id,
+        status=PublicToolLoan.Status.CHECKED_OUT,
+        asset_ids__contains=[asset.id],
+    ).exists() or HardwareRequestItemAsset.objects.filter(
+        asset=asset,
+        outcome=HardwareRequestItemAsset.Outcome.ISSUED,
+        request_item__request__status__in=(
+            HardwareRequest.Status.ISSUED,
+            HardwareRequest.Status.PARTIALLY_RETURNED,
+        ),
+    ).exists()
+    if on_loan:
+        raise ValidationError({"asset_id": "An asset on an open loan cannot be transferred."})

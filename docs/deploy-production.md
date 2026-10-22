@@ -164,8 +164,10 @@ Then create the first superadmin and makerspace:
 
 ```powershell
 cd backend
-$env:DATABASE_URL="<supabase direct-or-session URL, port 5432>"; python manage.py setup_instance
+$env:DATABASE_URL="<supabase direct-or-session URL, port 5432>"; python manage.py setup_instance --username admin --password "<a strong password>"
 ```
+
+`setup_instance` has no default password and refuses to create the superadmin without one.
 
 On a Linux shell, use `DATABASE_URL="<direct-or-session URL>" python manage.py migrate`
 and the same prefix for `setup_instance`.
@@ -220,6 +222,10 @@ and the daily cron result. The readiness endpoint is:
 ```text
 GET /api/v1/health/readiness/
 ```
+
+Through Render's edge this returns only `status` (the same `200`/`503`) and is rate limited by
+`THROTTLE_READINESS`; failure reasons and archive-custody counts are shown only to a direct caller
+inside the deployment. `GET /api/v1/health/` is the cheap liveness check for an external monitor.
 
 Automatic immutable-row pruning is intentionally not built in this batch. Supabase
 Pro's 8 GB database is ample for one makerspace, and traceability records should

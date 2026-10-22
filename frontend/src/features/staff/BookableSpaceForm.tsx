@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 
+import { Button, Dropdown, ErrorText, Field, Input, SwitchRow, Textarea } from "../../components/ui";
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 import type { CustomFormSchema } from "../forms/customFormTypes";
 import type { BookableSpace, BookableSpacePayload } from "./bookingsApi";
@@ -68,55 +69,75 @@ export function BookableSpaceForm({ initialValues = EMPTY_SPACE_FORM, onSubmit, 
     : values.requester_notifications_enabled ? "on" : "off";
 
   return (
-    <form className="grid gap-4" onSubmit={submit}>
-      <fieldset className="grid gap-3 sm:grid-cols-2" disabled={disabled || pending}>
-        <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Name
-          <input className="desk-input" required maxLength={200} value={values.name} onChange={(event) => set("name", event.target.value)} />
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink">Space type
-          <select className="desk-input" required value={values.kind} onChange={(event) => set("kind", event.target.value as FormValues["kind"])}>
+    <form className="grid gap-5" onSubmit={submit}>
+      <fieldset className="grid gap-4 sm:grid-cols-2" disabled={disabled || pending}>
+        <Field label="Name" className="sm:col-span-2">
+          <Input required maxLength={200} value={values.name} onChange={(event) => set("name", event.target.value)} />
+        </Field>
+        <Field label="Space type">
+          <Dropdown required value={values.kind} disabled={disabled || pending} onChange={(event) => set("kind", event.target.value as FormValues["kind"])}>
             <option value="dev_room">Development room</option>
             <option value="bench">Bench</option>
             <option value="meeting">Meeting room</option>
             <option value="other">Other</option>
-          </select>
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink">Capacity
-          <input className="desk-input" type="number" min={0} value={values.capacity} onChange={(event) => set("capacity", Number(event.target.value))} />
-          <span className="text-xs font-normal text-muted">Use 0 when no capacity is published.</span>
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Location
-          <input className="desk-input" maxLength={255} value={values.location} onChange={(event) => set("location", event.target.value)} />
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Description
-          <textarea className="desk-input min-h-24" value={values.description} onChange={(event) => set("description", event.target.value)} />
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink">Approval mode
-          <select className="desk-input" value={values.approval_mode} onChange={(event) => set("approval_mode", event.target.value as FormValues["approval_mode"])}>
+          </Dropdown>
+        </Field>
+        <Field label="Capacity" helperText="Use 0 when no capacity is published.">
+          <Input type="number" min={0} value={values.capacity} onChange={(event) => set("capacity", Number(event.target.value))} />
+        </Field>
+        <Field label="Location" optional className="sm:col-span-2">
+          <Input maxLength={255} value={values.location} onChange={(event) => set("location", event.target.value)} />
+        </Field>
+        <Field label="Description" optional className="sm:col-span-2">
+          <Textarea rows={3} value={values.description} onChange={(event) => set("description", event.target.value)} />
+        </Field>
+        <Field label="Approval mode">
+          <Dropdown value={values.approval_mode} disabled={disabled || pending} onChange={(event) => set("approval_mode", event.target.value as FormValues["approval_mode"])}>
             <option value="instant">Instant confirmation</option>
             <option value="approve">Staff approval required</option>
-          </select>
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink">Booking price
-          <input className="desk-input" type="number" min="0" step="0.01" value={values.payment_amount} onChange={(event) => set("payment_amount", event.target.value)} />
-          <span className="text-xs font-normal text-muted">Use 0 for no charge.</span>
-        </label>
-        <label className="grid gap-1 text-sm font-semibold text-ink">Requester email
-          <select className="desk-input" value={notificationsValue} onChange={(event) => set("requester_notifications_enabled", event.target.value === "inherit" ? null : event.target.value === "on")}>
+          </Dropdown>
+        </Field>
+        <Field label="Booking price" helperText="Use 0 for no charge.">
+          <Input type="number" min="0" step="0.01" value={values.payment_amount} onChange={(event) => set("payment_amount", event.target.value)} />
+        </Field>
+        <Field label="Requester email">
+          <Dropdown value={notificationsValue} disabled={disabled || pending} onChange={(event) => set("requester_notifications_enabled", event.target.value === "inherit" ? null : event.target.value === "on")}>
             <option value="inherit">Inherit makerspace setting</option>
             <option value="on">On</option>
             <option value="off">Off</option>
-          </select>
-        </label>
-        <div className="grid gap-2 sm:col-span-2">
-          <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={values.is_public} onChange={(event) => set("is_public", event.target.checked)} />Show this space on the public Bookings page</label>
-          <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={values.show_public_availability} onChange={(event) => changeAvailability(event.target.checked)} />Publish confirmed booking intervals</label>
-          <label className="flex items-center gap-2 text-sm text-ink"><input type="checkbox" checked={values.show_public_booker_names} disabled={!values.show_public_availability} onChange={(event) => set("show_public_booker_names", event.target.checked)} />Show booker names with published intervals</label>
+          </Dropdown>
+        </Field>
+        <div className="grid gap-4 rounded-lg border border-line p-4 sm:col-span-2">
+          <SwitchRow
+            label="Show on the public Bookings page"
+            description="People can find this space and send a booking request."
+            checked={values.is_public}
+            disabled={disabled || pending}
+            onCheckedChange={(checked) => set("is_public", checked)}
+          />
+          <SwitchRow
+            label="Publish confirmed booking intervals"
+            description="Visitors see when the space is already taken."
+            checked={values.show_public_availability}
+            disabled={disabled || pending}
+            onCheckedChange={changeAvailability}
+          />
+          <SwitchRow
+            label="Show booker names with published intervals"
+            description="Needs published intervals."
+            checked={values.show_public_booker_names}
+            disabled={disabled || pending || !values.show_public_availability}
+            onCheckedChange={(checked) => set("show_public_booker_names", checked)}
+          />
         </div>
       </fieldset>
       <CustomFormBuilder value={values.custom_form as CustomFormSchema} onChange={(schema) => set("custom_form", schema)} disabled={disabled || pending} />
-      {error ? <p className="text-sm text-danger" role="alert">{error}</p> : null}
-      {!disabled ? <button className="desk-button-primary w-fit" type="submit" disabled={pending}>{pending ? "Saving..." : submitLabel}</button> : null}
+      <ErrorText message={error} />
+      {!disabled ? (
+        <Button variant="primary" type="submit" className="w-fit" loading={pending} loadingLabel="Saving…">
+          {submitLabel}
+        </Button>
+      ) : null}
     </form>
   );
 }

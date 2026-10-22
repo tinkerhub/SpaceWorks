@@ -1,27 +1,44 @@
 import { Link } from "react-router-dom";
 
-// Shared public footer: copyright + a link out to the in-app About page.
+import { SpaceWorksLogo } from "./SpaceWorksLogo";
+
+const linkClasses =
+  "rounded-sm text-body-ui text-ink-secondary underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+
+// Shared public footer: the Space Works lockup, the About and License links, copyright.
 export function SiteFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-auto border-t border-line bg-panel">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-muted">
-        <p>
-          &copy; {year} Space Works &mdash; Open Source Makerspace Manager
-        </p>
-        <nav className="flex items-center gap-4">
-          <Link className="hover:text-ink" to="/about">
-            About
+    <footer className="mt-auto border-t border-line bg-canvas">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-5 px-4 py-8 sm:px-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <Link to="/" aria-label="Open makerspace listing" className="inline-flex items-center self-start rounded-md text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+            <SpaceWorksLogo size={24} withWordmark />
           </Link>
-          <a
-            className="hover:text-ink"
-            href="https://github.com/SpaceWorks-HQ/SpaceWorks/blob/main/LICENSE"
-            target="_blank"
-            rel="noreferrer"
-          >
-            License
-          </a>
-        </nav>
+          <nav aria-label="Footer">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              <li>
+                <Link className={linkClasses} to="/about">
+                  About
+                </Link>
+              </li>
+              <li>
+                <a
+                  className={linkClasses}
+                  href="https://github.com/SpaceWorks-HQ/SpaceWorks/blob/main/LICENSE"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  License
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <p className="border-t border-line pt-5 text-caption text-ink-muted">
+          &copy; {year} Space Works &mdash; open source makerspace manager
+        </p>
       </div>
     </footer>
   );

@@ -6,8 +6,10 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from apps.makerspaces.models import Makerspace
+from apps.makerspaces.platform import module_enabled
 from apps.audit import services as audit
 from apps.payments.models import (
     MakerspacePaymentSettings,
@@ -55,7 +57,11 @@ def create_onboarding(makerspace, actor):
         # Serialize onboarding generations with callback assignment. A callback
         # that already exchanged its code must re-check the latest state while
         # holding this same makerspace lock before it can assign an account.
-        Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        # Re-checked under the same lock module_install takes, so an uninstall that
+        # commits after the view's check cannot be followed by a fresh onboarding state.
+        if not module_enabled(locked, "payments"):
+            raise ValidationError({"module": "payments is disabled for this makerspace."})
         StripeConnectOAuthState.objects.create(
             makerspace=makerspace,
             initiated_by=actor,

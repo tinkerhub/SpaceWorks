@@ -1,5 +1,6 @@
-import { BarChart, DataState, ReportTable, StackedBarChart } from "./OperationsReportsParts";
-import { Panel, type Makerspace, useStaffGet } from "./shared";
+import { BarChart, DataState, ReportCard, ReportTable, ScopeGroup, StackedBarChart } from "./OperationsReportsParts";
+import { moduleEnabled } from "../../../lib/modules";
+import { type Makerspace, useStaffGet } from "./shared";
 
 type PrinterMetric = {
   makerspace_id?: number; machine_id: number; machine_name: string; model: string;
@@ -12,7 +13,7 @@ export function OperationsReportsPrinterService({ makerspace, aggregate, canMana
   makerspace: Makerspace; aggregate: boolean; canManageMachines: boolean; reportsEnabled: boolean;
   startDate: string; endDate: string; makerspaceName: (id: number) => string;
 }) {
-  const enabled = canManageMachines && reportsEnabled && (aggregate || (makerspace.enabled_modules ?? []).includes("printing"));
+  const enabled = canManageMachines && reportsEnabled && (aggregate || moduleEnabled(makerspace.enabled_modules, "printing"));
   const base = aggregate ? "/admin/machine-service-report" : `/admin/makerspace/${makerspace.id}/machine-service-report`;
   const params = new URLSearchParams({ machine_type: "3d_printer" });
   if (startDate) params.set("start", startDate);
@@ -22,25 +23,22 @@ export function OperationsReportsPrinterService({ makerspace, aggregate, canMana
     `${base}?${params.toString()}`,
     enabled,
   );
-  if (!canManageMachines) return null;
-  if (!enabled) return <Panel title="Printer service"><p className="text-sm text-muted">Module disabled</p></Panel>;
+  if (!enabled) return null;
   const rows = report.data?.printer_metrics ?? [];
   return (
-    <Panel title="Printer service">
+    <ReportCard title="Printer service">
       <DataState loading={report.isLoading} error={report.error} empty={!rows.length}>
-        {aggregate ? <div className="space-y-5">{groups(rows).map(([id, metrics]) => (
-          <section key={id} className="rounded-md border border-line p-4">
-            <h4 className="eyebrow">{makerspaceName(id)}</h4><PrinterMetrics rows={metrics} />
-          </section>
+        {aggregate ? <div className="grid gap-6">{groups(rows).map(([id, metrics]) => (
+          <ScopeGroup key={id} name={makerspaceName(id)}><PrinterMetrics rows={metrics} /></ScopeGroup>
         ))}</div> : <PrinterMetrics rows={rows} />}
       </DataState>
-    </Panel>
+    </ReportCard>
   );
 }
 
 function PrinterMetrics({ rows }: { rows: PrinterMetric[] }) {
   return <>
-    <div className="mt-4 grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2">
       <StackedBarChart rows={rows.map((row) => ({ label: row.machine_name, segments: [
         { label: "Completed", value: row.completed_hours },
         { label: "Failed partial", value: row.failed_partial_hours },

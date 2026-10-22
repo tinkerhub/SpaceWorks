@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Space Works - guided first-run setup (Linux, macOS, or Windows Git Bash/WSL).
+# Space Works - guided first-run setup (Linux or macOS; on Windows, run it inside WSL2).
 # Run it from the project folder:  bash setup.sh
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -230,7 +230,9 @@ if [ "$FIRST_RUN" = 1 ]; then
     --username "$ADMINUSER" --email "$ADMINEMAIL" --password "$ADMINPASS" \
     --makerspace-name "$MSNAME" --profile "$MSPROFILE"
 
+  MODULES_FAILED=0
   if ! choose_modules; then
+    MODULES_FAILED=1
     warn "Module selection was not applied. Re-run scripts/update.sh --modules-only after fixing the message above."
   fi
 
@@ -259,7 +261,7 @@ if [ "$FIRST_RUN" = 1 ]; then
   PORT="$(grep -E '^HTTP_PORT=' .env | cut -d= -f2)"; PORT="${PORT:-80}"
   HOST="$(grep -E '^ALLOWED_HOSTS=' .env | cut -d= -f2 | cut -d, -f1)"; HOST="${HOST:-localhost}"
   SUFFIX=""; [ "$PORT" != "80" ] && SUFFIX=":$PORT"
-  say "All done! 🎉"
+  if [[ "$MODULES_FAILED" == 1 ]]; then say "Setup finished, but the module selection failed (see above)."; else say "All done! 🎉"; fi
   echo   "  Public catalog : http://${HOST}${SUFFIX}/"
   echo   "  Staff console  : http://${HOST}${SUFFIX}/admin   (React, username: ${ADMINUSER})"
   echo   "  Control plane  : /control/ on the backend only; not published on the public port"
@@ -272,3 +274,10 @@ else
 fi
 
 finish_deploy_runner_setup
+# Everything else is configured by now, but a module selection that did not apply must
+# not look like a successful install to the curl installer or a script calling setup.sh.
+# Exit 3 (not die's 1) tells install.sh the app itself is installed.
+if [[ "${MODULES_FAILED:-0}" == 1 ]]; then
+  printf '\033[1;31mERROR: %s\033[0m\n' "Module selection was not applied; re-run scripts/update.sh --modules-only." >&2
+  exit 3
+fi

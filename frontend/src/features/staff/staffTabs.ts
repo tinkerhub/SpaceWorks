@@ -1,4 +1,5 @@
 import { featureEnabled } from "../../lib/features";
+import { moduleEnabled } from "../../lib/modules";
 import type { Makerspace } from "./panels/shared";
 import { readStorage, removeStorage, writeStorage } from "../../lib/safeStorage";
 
@@ -6,10 +7,8 @@ import { readStorage, removeStorage, writeStorage } from "../../lib/safeStorage"
 // `getStaffAccess` decides permissions and nothing else -- a tab named in both places is
 // how one ends up gated in the sidebar but not on the route.
 //
-// A tab is listed only when a module can genuinely remove it. Five are deliberately
+// A tab is listed only when a module can genuinely remove it. Three are deliberately
 // absent, each for a reason that looks like an oversight:
-//   * `organized` / `organization-analytics` -- organization grants are cross-venue, so
-//                     the currently selected makerspace's switches say nothing about them.
 //   * `members`    -- the panel mixes the never-gated staff roster and role assignment
 //                     with the membership-gated community queue. Gating the tab would let
 //                     a space lock itself out of its own administration (plan A7), so the
@@ -40,6 +39,7 @@ const TAB_MODULES: Record<string, string[]> = {
   qr: ["qr_print_batches"],
   scanner: ["scanner"],
   reports: ["reports"],
+  payments: ["payments"],
   warranty: ["staff_admin"],
 };
 
@@ -49,7 +49,6 @@ const TAB_MODULES: Record<string, string[]> = {
 // request. Tabs that do have their own key need no entry: the server already omits a
 // tombstoned app's key from `enabled_modules`.
 const TAB_APPS: Record<string, string> = {
-  organized: "events",
   warranty: "warranty",
   migration: "tenant_migration",
 };
@@ -67,8 +66,6 @@ const TAB_PATHS: Record<string, string> = {
   exports: "data-export",
   backups: "backup-restore",
   migration: "tenant-migration",
-  organized: "organized-events",
-  "organization-analytics": "organization-analytics",
 };
 
 const PATH_TABS = Object.fromEntries(
@@ -86,22 +83,20 @@ type TabCapabilities = Pick<
   "enabled_modules" | "enabled_features" | "unavailable_apps"
 >;
 
+// Fails CLOSED: until the makerspace's module list is known, every module-gated tab is
+// withheld. Rendering them "unrestricted" while loading showed tabs for switched-off
+// modules that then failed on every request.
 export function filterTabsByEnabledModules(tabs: readonly string[], makerspace?: TabCapabilities) {
   const unavailable = new Set(makerspace?.unavailable_apps ?? []);
-  // Checked before the module gate and outside the early return below: an app the
-  // deployment does not ship is unreachable no matter what the tenant enabled, and a
-  // makerspace row that has not loaded its modules yet must not show it either.
+  // An app the deployment does not ship is unreachable no matter what the tenant enabled.
   const shipped = tabs.filter((tabName) => !unavailable.has(TAB_APPS[tabName] ?? ""));
-
   const modules = makerspace?.enabled_modules;
-  if (!modules) return shipped;
-  const enabled = new Set(modules);
   return shipped.filter((tabName) => {
     if (tabName === "direct") {
-      return featureEnabled(makerspace.enabled_features ?? [], "inventory.self_checkout");
+      return featureEnabled(makerspace?.enabled_features ?? [], "inventory.self_checkout");
     }
     const required = TAB_MODULES[tabName];
-    return !required || required.some((moduleName) => enabled.has(moduleName));
+    return !required || required.some((moduleName) => moduleEnabled(modules, moduleName));
   });
 }
 
@@ -133,7 +128,6 @@ export function staffBasePath(guestOnly: boolean) {
 // on the inventory tab, not 404. Relaxing it globally would change how every existing
 // bookmark resolves, so the exception is opt-in and currently holds exactly one tab.
 const TABS_WITH_SUBPATHS = new Set(["machines"]);
-const GLOBAL_TABS = new Set(["organizations"]);
 
 export function staffTabPath(
   tab: string,
@@ -144,7 +138,7 @@ export function staffTabPath(
 ) {
   const pagePath = tabToPath(tab);
   const suffix = subPath && TABS_WITH_SUBPATHS.has(tab) ? `/${subPath}` : "";
-  if (makerspaceSlug && !singleTenantLocked && !GLOBAL_TABS.has(tab)) {
+  if (makerspaceSlug && !singleTenantLocked) {
     return `/m/${makerspaceSlug}/admin/${pagePath}${suffix}`;
   }
   return `${staffBasePath(guestOnly)}/${pagePath}${suffix}`;

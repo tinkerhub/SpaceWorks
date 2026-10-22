@@ -1,7 +1,10 @@
-import { useId, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { Upload } from "lucide-react";
 
+import { Button, ConfirmDialog, ErrorText, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { errorText } from "./shared";
 
 export type ToBuyReceipt = {
   id: number;
@@ -23,28 +26,46 @@ type UploadResponse = {
 const acceptedReceiptTypes = "application/pdf,image/jpeg,image/png,image/webp";
 
 export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: number; receipts: ToBuyReceipt[]; onChanged: () => void }) {
-  const inputId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<ToBuyReceipt | null>(null);
+  const { showToast } = useToast();
 
   const upload = useMutation({
     mutationFn: async (files: File[]) => {
       for (const file of files) {
         await uploadReceipt(itemId, file);
       }
+      return files.length;
     },
-    onSuccess: () => {
+    onSuccess: (count) => {
       setError("");
       if (inputRef.current) inputRef.current.value = "";
       onChanged();
+      showToast(count === 1 ? "Receipt added." : `${count} receipts added.`, { tone: "success" });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Upload failed."),
+    onError: (err) => {
+      // Files uploaded before the failure are already attached, so refresh either way.
+      if (inputRef.current) inputRef.current.value = "";
+      onChanged();
+      const message = errorText(err, "Upload failed.");
+      setError(message);
+      showToast(message, { tone: "error" });
+    },
   });
 
   const remove = useMutation({
     mutationFn: (receiptId: number) => staffRequest<void>(`/procurement/to-buy/receipts/${receiptId}`, { method: "DELETE" }),
-    onSuccess: onChanged,
-    onError: (err) => setError(err instanceof Error ? err.message : "Could not delete receipt."),
+    onSuccess: () => {
+      setDeleteTarget(null);
+      onChanged();
+      showToast("Receipt deleted.", { tone: "success" });
+    },
+    onError: (err) => {
+      const message = errorText(err, "Could not delete receipt.");
+      setError(message);
+      showToast(message, { tone: "error" });
+    },
   });
 
   async function openReceipt(receiptId: number) {
@@ -53,37 +74,60 @@ export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: n
       const { url } = await staffRequest<{ url: string }>(`/procurement/to-buy/receipts/${receiptId}/url`);
       window.open(url, "_blank", "noopener");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open receipt.");
+      const message = errorText(err, "Could not open receipt.");
+      setError(message);
+      showToast(message, { tone: "error" });
     }
   }
 
   return (
-    <div className="min-w-[14rem] space-y-2">
-      <div className="grid gap-1">
-        {receipts.length ? receipts.map((receipt) => (
-          <div key={receipt.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border border-line bg-surface px-2 py-1 text-xs">
-            <span className="min-w-0 flex-1 font-mono text-muted">{formatDateTime(receipt.created_at)}</span>
-            <button type="button" className="desk-button-ghost text-xs" onClick={() => openReceipt(receipt.id)}>View</button>
-            <button type="button" className="desk-button-danger text-xs" disabled={remove.isPending} onClick={() => remove.mutate(receipt.id)}>Delete</button>
-          </div>
-        )) : <p className="text-xs text-muted">No receipts.</p>}
+    <div className="grid gap-3">
+      {receipts.length ? (
+        <ul className="grid gap-2">
+          {receipts.map((receipt) => (
+            <li key={receipt.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2">
+              <span className="min-w-0 flex-1 text-body-ui text-ink-secondary">
+                {formatDateTime(receipt.created_at)}
+                {receipt.uploaded_by_username ? <span className="text-ink-muted"> · {receipt.uploaded_by_username}</span> : null}
+              </span>
+              <Button size="sm" variant="quiet" onClick={() => openReceipt(receipt.id)}>View</Button>
+              <Button size="sm" variant="danger-quiet" disabled={remove.isPending} onClick={() => setDeleteTarget(receipt)}>Delete…</Button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="text-body-ui text-ink-muted">No receipts yet.</p>}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* The visible button opens this picker; the input itself stays out of the tab order. */}
+        <input
+          ref={inputRef}
+          tabIndex={-1}
+          aria-hidden="true"
+          type="file"
+          multiple
+          accept={acceptedReceiptTypes}
+          disabled={upload.isPending}
+          onChange={(event) => {
+            const files = Array.from(event.target.files ?? []);
+            if (files.length) upload.mutate(files);
+          }}
+          className="sr-only"
+        />
+        <Button size="sm" startIcon={<Upload />} loading={upload.isPending} loadingLabel="Uploading…" onClick={() => inputRef.current?.click()}>
+          Add receipt
+        </Button>
+        <span className="text-caption text-ink-muted">PDF, JPEG, PNG or WebP</span>
       </div>
-      <label htmlFor={inputId} className="sr-only">Add receipt</label>
-      <input
-        id={inputId}
-        ref={inputRef}
-        type="file"
-        multiple
-        accept={acceptedReceiptTypes}
-        disabled={upload.isPending}
-        onChange={(event) => {
-          const files = Array.from(event.target.files ?? []);
-          if (files.length) upload.mutate(files);
-        }}
-        className="block w-full max-w-full min-w-0 text-xs text-muted file:mr-2 file:rounded-lg file:border file:border-line file:bg-accent file:px-2 file:py-1 file:font-mono file:text-xs file:font-semibold file:text-on-accent"
+      <ErrorText message={error} />
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete this receipt?"
+        message={deleteTarget ? `The receipt added ${formatDateTime(deleteTarget.created_at)} will be removed.` : ""}
+        confirmLabel="Delete receipt"
+        tone="danger"
+        pending={remove.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); }}
       />
-      {upload.isPending ? <p className="text-xs text-muted">Uploading...</p> : null}
-      {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

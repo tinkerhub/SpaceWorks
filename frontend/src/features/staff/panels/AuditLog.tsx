@@ -1,10 +1,12 @@
 import { useState } from "react";
 
-import { Field, Skeleton } from "../../../components/ui";
+import { EmptyState, ErrorBlock, Field, Input, SearchInput, SkeletonRows, Table, TBody, TD, TH, THead, TR } from "../../../components/ui";
+import { absoluteTime, formatLogTime, LogPager } from "./StaffLogParts";
 import { Panel, useStaffGet } from "./shared";
 
 type AuditLogEntry = {
   id: number;
+  actor?: number | null;
   action: string;
   target_type: string;
   target_id: string | number | null;
@@ -40,61 +42,73 @@ export function AuditLog() {
     setTargetId(value);
     setPage(1);
   };
+  const rows = logs.data?.results ?? [];
+  const filtered = Boolean(targetType || targetId);
 
   return (
-    <Panel title="Audit logs">
-      <div className="mb-3 grid gap-2 sm:grid-cols-2">
-        <Field label="Target type"><input className="desk-input" placeholder="e.g. inventory.inventoryproduct" value={targetType} onChange={(e) => updateTargetType(e.target.value)} /></Field>
-        <Field label="Target ID"><input className="desk-input" value={targetId} onChange={(e) => updateTargetId(e.target.value)} /></Field>
-      </div>
-      <div className="grid gap-2 text-sm">
-        {logs.error ? <p className="text-sm text-danger">{logs.error.message}</p> : null}
-        {logs.isLoading ? <AuditLogSkeleton /> : null}
-        {logs.data?.results?.map((log) => (
-          <div key={log.id} className="rounded-md border border-line bg-surface p-2">
-            <span className="font-semibold">{log.action}</span>
-            <span className="ml-2 text-muted">{log.target_type}:{log.target_id}</span>
-            <span className="ml-2 font-mono text-muted">{formatLocalDateTime(log.created_at)}</span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <button className="desk-button-ghost" disabled={!logs.data?.previous} onClick={() => setPage((current) => Math.max(1, current - 1))}>
-          Previous
-        </button>
-        <span className="text-muted">
-          Page {page}{" \u2014 "}{logs.data?.count ?? 0} total
-        </span>
-        <button className="desk-button-ghost" disabled={!logs.data?.next} onClick={() => setPage((current) => current + 1)}>
-          Next
-        </button>
+    <Panel title="Audit log" description="Every state change in this makerspace, newest first. Entries can't be edited or removed.">
+      <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Field label="Target type">
+            <SearchInput
+              placeholder="e.g. inventory.inventoryproduct"
+              value={targetType}
+              onChange={(event) => updateTargetType(event.target.value)}
+              onClear={() => updateTargetType("")}
+              clearLabel="Clear target type"
+            />
+          </Field>
+          <Field label="Target ID" optional>
+            <Input className="font-mono" value={targetId} onChange={(event) => updateTargetId(event.target.value)} />
+          </Field>
+        </div>
+        <ErrorBlock error={logs.error} />
+        {!logs.isLoading && logs.data && rows.length === 0 ? (
+          <EmptyState
+            title={filtered ? "No entries match" : "No audit entries yet"}
+            description={filtered ? "Try a broader target type or clear the target ID." : "Actions staff take will be recorded here."}
+          />
+        ) : (
+          <Table label="Audit log entries">
+            <THead>
+              <tr>
+                <TH>When</TH>
+                <TH>Action</TH>
+                <TH>Target</TH>
+                <TH>Actor</TH>
+              </tr>
+            </THead>
+            <TBody>
+              {logs.isLoading ? <SkeletonRows rows={6} cols={4} /> : null}
+              {rows.map((log) => (
+                <TR key={log.id}>
+                  <TD className="whitespace-nowrap text-ink-secondary">
+                    <time dateTime={log.created_at} title={absoluteTime(log.created_at)}>{formatLogTime(log.created_at)}</time>
+                  </TD>
+                  <TD className="font-semibold">{log.action}</TD>
+                  <TD className="text-ink-secondary">
+                    <span>{log.target_type}</span>
+                    {log.target_id !== null && log.target_id !== "" ? (
+                      <span className="ml-1.5 font-mono text-caption text-ink-muted">#{log.target_id}</span>
+                    ) : null}
+                  </TD>
+                  <TD className="whitespace-nowrap text-ink-secondary">
+                    {log.actor ? <span className="font-mono text-caption">User #{log.actor}</span> : "System"}
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
+        <LogPager
+          page={page}
+          count={logs.data?.count ?? 0}
+          hasPrevious={Boolean(logs.data?.previous)}
+          hasNext={Boolean(logs.data?.next)}
+          onPage={setPage}
+          disabled={logs.isFetching}
+        />
       </div>
     </Panel>
   );
-}
-
-function AuditLogSkeleton() {
-  return (
-    <div className="grid gap-2" aria-hidden="true">
-      {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="rounded-md border border-line bg-surface p-2">
-          <div className="flex flex-wrap gap-3">
-            <Skeleton className="h-4 w-40" />
-            <Skeleton className="h-4 w-56" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function formatLocalDateTime(value: string) {
-  return new Date(value).toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }

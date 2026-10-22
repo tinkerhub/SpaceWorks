@@ -1169,6 +1169,7 @@ export type ChangePassword = {
 
 export type ChangePasswordResponse = {
   "detail": string;
+  "access"?: string | null;
 };
 
 export type Channel7a7Enum = "telegram" | "slack" | "mattermost" | "discord";
@@ -2341,33 +2342,6 @@ export type InventoryProductAdminCreate = {
   "tracking_mode"?: TrackingModeB86Enum;
   "total_quantity"?: number;
   "available_quantity"?: number;
-  "reserved_quantity": number;
-  "issued_quantity": number;
-  "damaged_quantity": number;
-  "lost_quantity": number;
-  "needs_fix_quantity": number;
-  "is_public"?: boolean;
-  "public_self_checkout_enabled"?: boolean;
-  "show_public_count"?: boolean;
-  "public_availability_mode"?: PublicAvailabilityModeFc2Enum;
-  "storage_location"?: string;
-  "is_archived"?: boolean;
-  "created_at": string;
-  "updated_at": string;
-};
-
-export type InventoryProductAdminUpdate = {
-  "id": number;
-  "makerspace": number;
-  "box"?: number | null;
-  "category"?: number | null;
-  "name": string;
-  "description"?: string;
-  "image_key": string;
-  "image_url": string | null;
-  "tracking_mode"?: TrackingModeB86Enum;
-  "total_quantity": number;
-  "available_quantity": number;
   "reserved_quantity": number;
   "issued_quantity": number;
   "damaged_quantity": number;
@@ -5249,8 +5223,9 @@ export type RateLimitTierEnum = "public" | "standard" | "trusted";
 
 export type Readiness = {
   "status": string;
-  "database": string;
-  "archive_custody": ArchiveCustodyReadiness;
+  "database"?: string;
+  "archive_custody"?: ArchiveCustodyReadiness;
+  "detail"?: string;
 };
 
 export type ReceiptEnvelope = {
@@ -5881,12 +5856,15 @@ export type Stocktake = {
   "container"?: number | null;
   "status"?: StocktakeStatusEnum;
   "started_by"?: number | null;
+  "completed_by"?: number | null;
   "approved_by"?: number | null;
   "started_at": string;
   "completed_at"?: string | null;
   "approved_at"?: string | null;
   "notes"?: string;
   "lines": Array<StocktakeLine>;
+  "can_approve": boolean;
+  "can_apply": boolean;
 };
 
 export type StocktakeCreate = {

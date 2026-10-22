@@ -1,5 +1,6 @@
-import { BarChart, DataState, ReportTable, StatCards } from "./OperationsReportsParts";
-import { Panel, type Makerspace, useStaffGet } from "./shared";
+import { BarChart, DataState, ReportCard, ReportTable, ScopeGroup, StatCards } from "./OperationsReportsParts";
+import { moduleEnabled } from "../../../lib/modules";
+import { type Makerspace, useStaffGet } from "./shared";
 
 type Scoped = { makerspace_id?: number };
 type Status = Scoped & { submitted: number; accepted: number; in_progress: number; completed: number; collected: number; rejected: number; failed: number };
@@ -17,27 +18,25 @@ export function OperationsReportsMachineService({ makerspace, aggregate, canMana
   endDate: string;
   makerspaceName: (id: number) => string;
 }) {
-  const enabled = canManageMachines && reportsEnabled && (aggregate || (makerspace.enabled_modules ?? []).includes("machine_service"));
+  const enabled = canManageMachines && reportsEnabled && (aggregate || moduleEnabled(makerspace.enabled_modules, "machine_service"));
   const base = aggregate ? "/admin/machine-service-report" : `/admin/makerspace/${makerspace.id}/machine-service-report`;
   const query = new URLSearchParams();
   if (startDate) query.set("start", startDate);
   if (endDate) query.set("end", endDate);
   const report = useStaffGet<Report>(["machine-service-report", aggregate ? "all" : makerspace.id, startDate, endDate], `${base}${query.size ? `?${query}` : ""}`, enabled);
-  if (!canManageMachines) return null;
-  if (!enabled) return <Panel title="Machine service"><p className="text-sm text-muted">Module disabled</p></Panel>;
+  if (!enabled) return null;
   const hasRows = Boolean(report.data?.status_totals.length || report.data?.machines.length || report.data?.consumption.length);
   const groups = aggregate ? groupsFor(report.data) : [];
   return (
-    <Panel title="Machine service">
+    <ReportCard title="Machine service">
       <DataState loading={report.isLoading} error={report.error} empty={!hasRows}>
-        {aggregate ? <div className="mt-4 space-y-6">{groups.map((group) => (
-          <section key={group.id} className="rounded-md border border-line p-4">
-            <h4 className="eyebrow">{makerspaceName(group.id)}</h4>
+        {aggregate ? <div className="grid gap-6">{groups.map((group) => (
+          <ScopeGroup key={group.id} name={makerspaceName(group.id)}>
             <MachineServiceReport report={group.report} />
-          </section>
+          </ScopeGroup>
         ))}</div> : <MachineServiceReport report={report.data!} />}
       </DataState>
-    </Panel>
+    </ReportCard>
   );
 }
 
@@ -48,12 +47,12 @@ function MachineServiceReport({ report }: { report: Report }) {
   const failures = report.failure_summary;
   return <>
     {status ? <StatCards stats={[["Submitted", status.submitted], ["Completed", status.completed + status.collected], ["Failed", status.failed], ["In progress", status.in_progress]]} /> : null}
-    <div className="mt-4 grid gap-4 lg:grid-cols-2">
-      <div><h5 className="title-section">Recorded service hours</h5><div className="mt-2"><BarChart rows={machines.slice(0, 10).map((row) => ({ label: row.machine_name, value: row.total_recorded_service_hours }))} valueLabel="hours" /></div></div>
-      <div><h5 className="title-section">Failures</h5><div className="mt-2"><BarChart rows={failures.slice(0, 10).map((row) => ({ label: row.machine_name, value: row.failed_count }))} valueLabel="requests" /></div></div>
+    <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div><h3 className="text-label text-ink">Recorded service hours</h3><div className="mt-2"><BarChart rows={machines.slice(0, 10).map((row) => ({ label: row.machine_name, value: row.total_recorded_service_hours }))} valueLabel="hours" /></div></div>
+      <div><h3 className="text-label text-ink">Failures</h3><div className="mt-2"><BarChart rows={failures.slice(0, 10).map((row) => ({ label: row.machine_name, value: row.failed_count }))} valueLabel="requests" /></div></div>
     </div>
     <ReportTable data={table(machines)} />
-    {consumption.length ? <><h5 className="title-section mt-5">Consumables</h5><ReportTable data={table(consumption)} /></> : null}
+    {consumption.length ? <><h3 className="mt-6 text-label text-ink">Consumables</h3><ReportTable data={table(consumption)} /></> : null}
   </>;
 }
 

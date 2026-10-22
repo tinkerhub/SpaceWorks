@@ -218,10 +218,13 @@ Run `bash scripts/update.sh` for an immediate update when the installed version 
 release; add `--force` to reinstall it. Update controls and results are managed on the host.
 
 ```bash
-curl -fsS https://inventory.example.org/api/v1/health/readiness/
+curl -fsS https://inventory.example.org/api/v1/health/
+scripts/spaceworks-compose.sh bundled exec -T backend python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/api/v1/health/readiness/', timeout=3).read().decode())"
 ```
 
-Use `http://YOUR_ELASTIC_IP/api/v1/health/readiness/` before HTTPS. Also verify staff login and an
+Use `http://YOUR_ELASTIC_IP/api/v1/health/` before HTTPS. The public proxies answer `403` for
+`/api/v1/health/readiness/`: readiness is a deployment probe, so run it inside the backend container as
+above (that is what the Compose healthcheck and `update.sh` do). Also verify staff login and an
 evidence upload in the browser; readiness alone does not check browser storage URLs or CORS.
 For an immediate image-only update on TLS, run
 `SPACEWORKS_COMPOSE_LAYER=tls bash scripts/update.sh --force --no-module-changes`.

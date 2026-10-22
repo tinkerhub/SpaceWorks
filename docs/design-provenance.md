@@ -1,35 +1,35 @@
-# Blueprint design provenance
+# Design provenance
 
-SpaceWorks adapts the visual design from
+## Current design (2026-10 redesign)
+
+The frontend uses a token-based design system built on Radix primitives and
+lucide icons, with the SpaceWorks colour palette unchanged.
+
+- **Type:** Bricolage Grotesque (display and headings), Figtree (UI and body) and
+  JetBrains Mono (codes, IDs, QR values), self-hosted through `@fontsource`
+  packages imported in `main.tsx`. All three are under the SIL Open Font License.
+- **Tokens:** semantic roles (canvas, subtle, muted, emphasis, line, ink, primary,
+  status soft/strong pairs) map onto the existing `--color-*` variables in
+  `frontend/src/index.css`, in light and dark. Radius, elevation, motion and
+  breakpoints (sm 640, md 960, lg 1200) live in the same theme layer.
+- **Components:** `frontend/src/components/ui` (buttons, fields, dropdowns, choice
+  controls, tabs, menus, dialogs, toasts, tables, display pieces), exported from
+  `components/ui/index.ts`. Shared classes live in `frontend/src/styles/`
+  (`type.css`, `components.css`, `controls.css`, `chrome.css`).
+- **Shells:** the staff console uses a collapsible sidebar (`features/staff/shell`);
+  public pages share `components/chrome/SiteHeader` and `SiteFooter`; sign-in pages
+  use `components/chrome/AuthLayout`.
+
+`frontend/src/index.css` keeps the root theme tokens because the backend contrast
+guard (`backend/tests/test_frontend_theme_contrast.py`) reads that exact file. The
+dark theme, 44px primary control targets, visible focus rings and reduced-motion
+preferences are retained.
+
+## Earlier design
+
+Before this redesign SpaceWorks used a "blueprint" look adapted from
 [tinkerhub/kanakku-pusthakam](https://github.com/tinkerhub/kanakku-pusthakam),
-revision `a8781b3d248135e51dde3c1b6b2807be85976b46`.
-Kanakku Pusthakam is a community-maintained fork of SpaceWorks, distributed under
-AGPL-3.0-or-later. See the repository LICENSE and NOTICE for the project terms.
-
-## Adapted presentation
-
-- Cream canvas and 24px blueprint grid, ink outlines, hard offset shadows and
-  pastel header bands from the reference frontend's `index.css` and Tailwind theme.
-- Directory and catalog cards from `App.tsx` and `ProductCard.tsx`, including
-  technical labels, subtle directory tilts and pill quantity controls.
-- Shared forms, buttons, navigation, badges, tables, panels, dialogs and request
-  progress styling, applied to the current React components.
-- Instrument Sans variable body font, self-hosted alongside the existing Clash
-  Display headings and JetBrains Mono technical labels. Instrument Sans is under
-  the SIL Open Font License; its notice accompanies the font in `frontend/public/fonts`.
-
-## Integration decisions
-
-The port keeps SpaceWorks branding, current routes, catalog search and quick-view
-behavior, staff dock navigation, module gates, permissions and request workflows.
-Card colours and tilts derive from stable product IDs or makerspace slugs, so
-searching or reordering does not change a card's appearance. Colours use the
-existing semantic tokens; fixed `on-*` text remains readable on pastel fills in
-both themes. The existing dark theme, 44px primary control targets, keyboard
-focus indicators and reduced-motion preferences are retained.
-
-`frontend/src/index.css` retains root theme tokens and font definitions because
-the backend contrast guard reads that exact file. Shared components now live in
-`frontend/src/styles/components.css`; solid chrome and motion overrides live in
-`frontend/src/styles/chrome.css`. These files stay within the repository's module
-size limit.
+revision `a8781b3d248135e51dde3c1b6b2807be85976b46`, a community-maintained fork of
+SpaceWorks under AGPL-3.0-or-later (see the repository LICENSE and NOTICE). Its
+grid background, hard offset shadows, card tilts and Clash Display / Instrument Sans
+fonts have been removed.

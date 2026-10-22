@@ -35,6 +35,18 @@ class DashboardSerializer(serializers.Serializer):
     pending_payments = serializers.IntegerField(required=False, default=0)
 
 
+# Counters that only exist while their module is installed. Omitted (not zeroed) when
+# the module is off, so the console renders no tile for a surface the space switched off.
+COUNTER_MODULES = {
+    "pending_prints": "printing",
+    "active_prints": "printing",
+    "prints_awaiting_collection": "printing",
+    "stocktakes_awaiting_approval": "stocktake",
+    "maintenance_overdue": "maintenance",
+    "pending_payments": "payments",
+}
+
+
 def build_dashboard(
     makerspace,
     *,
@@ -230,4 +242,7 @@ def build_dashboard(
     elif not restricted:
         counts.pop("pending_payments", None)
 
+    for key, module in COUNTER_MODULES.items():
+        if key in counts and not module_enabled(makerspace, module):
+            counts.pop(key)
     return counts

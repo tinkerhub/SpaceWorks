@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Card } from "../../components/ui/Card";
+import { Card, useToast } from "../../components/ui";
+import { cn } from "../../lib/cn";
 import type { RequestCartItem } from "../../types/inventory";
 import { BorrowRequestCard } from "./BorrowRequestCard";
 import { getAccessToken, memberRequest, refreshAccessToken } from "../../lib/api";
@@ -45,6 +46,7 @@ export function PublicRequestPanel({
   requestAccess,
 }: PublicRequestPanelProps) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<ActiveTab>("borrow");
   const [requestedFor, setRequestedFor] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -146,30 +148,18 @@ export function PublicRequestPanel({
       // Only after the server accepted it: reusing the key for the NEXT request would
       // return this one back instead of creating anything.
       idempotencyKey.current = newIdempotencyKey();
+      showToast("Request submitted", { tone: "success" });
     },
+    onError: () => showToast("Your request was not submitted", { tone: "error" }),
   });
 
-  // Each tab carries its own palette tone - a touch of colour so the action row
-  // doesn't read as flat. Active = filled pastel (+ dark deep-tint); idle = neutral
-  // with a faint tone hover hint.
-  const tabTone: Record<ActiveTab, { active: string; idle: string }> = {
-    borrow: {
-      active:
-        "border-secondary bg-secondary text-on-secondary dark:bg-secondary/15 dark:text-secondary-ink",
-      idle: "hover:border-secondary hover:bg-secondary/15 hover:text-secondary-ink",
-    },
-    scan: {
-      active:
-        "border-secondary bg-secondary text-on-secondary dark:bg-secondary/15 dark:text-secondary-ink",
-      idle: "hover:border-secondary hover:bg-secondary/15 hover:text-secondary-ink",
-    },
-  };
-
+  // Two views of one panel, drawn as a segmented control. Plain buttons with
+  // aria-pressed (not tabs): each one swaps the panel below in place.
   function tabClass(tab: ActiveTab) {
-    const tone = tabTone[tab];
-    return activeTab === tab
-      ? `status-box min-h-11 w-full py-2 shadow-soft ${tone.active}`
-      : `status-box min-h-11 w-full py-2 ${tone.idle}`;
+    return cn(
+      "inline-flex min-h-9 min-w-0 items-center justify-center rounded-full px-3 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+      activeTab === tab ? "bg-canvas text-ink shadow-segment" : "text-ink-muted hover:text-ink",
+    );
   }
 
   const contactReady =
@@ -194,14 +184,12 @@ export function PublicRequestPanel({
     !submitMutation.isPending;
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-0 lg:max-h-[100dvh] lg:flex lg:flex-col lg:overflow-hidden">
+    <aside className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-6rem)] lg:flex-col lg:overflow-hidden">
       {disabled ? (
         <Card>
-          <p className="eyebrow text-secondary-ink">
-            Requests
-          </p>
-          <h2 className="title-panel mt-2">Unavailable</h2>
-          <p className="mt-2 text-sm text-muted">
+          <p className="text-body-ui text-ink-muted">Requests</p>
+          <h2 className="mt-1 text-h4 text-ink">Unavailable</h2>
+          <p className="mt-2 text-body-ui text-ink-secondary">
             This makerspace is publishing inventory without public requests.
           </p>
         </Card>
@@ -216,7 +204,8 @@ export function PublicRequestPanel({
 
           <div
             aria-label="Request actions"
-            className="grid shrink-0 grid-cols-2 gap-2"
+            className="grid shrink-0 grid-cols-2 gap-1 rounded-full bg-fill p-1"
+            role="group"
           >
             <button
               aria-pressed={activeTab === "borrow"}
@@ -279,11 +268,7 @@ export function PublicRequestPanel({
             ) : null}
 
             {activeTab === "scan" ? (
-              <div
-                aria-labelledby="public-request-scan-tab"
-                id="public-request-scan-panel"
-                role="tabpanel"
-              >
+              <div id="public-request-scan-panel">
                 <PublicToolScanPanel
                   makerspaceSlug={makerspaceSlug}
                   requiresCheckin={requestAccess === "checked_in"}

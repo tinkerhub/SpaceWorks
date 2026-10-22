@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 
 import type { ArchivedPaymentSummary } from "../../generated/api";
 import { StructuredApiError, staffRequest } from "../../lib/api";
+import { PlatformSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
+import { Chip, EmptyState, ErrorText, Loader, PageHeader, Spinner, buttonClasses, useToast } from "../../components/ui";
+import { AccountCard } from "../account/AccountCard";
 import { MemberAuthPanel } from "./MemberAuthPanel";
 import { MemberPaymentRows, type MemberPayment } from "./MemberPayments";
-
-const MAKERSPACE_TONES = ["border-accent", "border-secondary", "border-success", "border-warn"] as const;
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unable to load archived payments.";
@@ -14,6 +16,7 @@ function errorMessage(error: unknown) {
 
 function ArchivedMakerspacePayments({ summary }: { summary: ArchivedPaymentSummary }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const payments = useQuery({
     queryKey: ["member", "archived-payments", summary.makerspace.id, "payments"],
     queryFn: () => staffRequest<MemberPayment[]>(
@@ -32,42 +35,30 @@ function ArchivedMakerspacePayments({ summary }: { summary: ArchivedPaymentSumma
       });
       window.location.assign(checkout_url);
     },
+    onError: () => showToast("Could not create a payment link", { tone: "error" }),
   });
 
   return (
-    <section className={`desk-panel ${MAKERSPACE_TONES[summary.makerspace.id % MAKERSPACE_TONES.length]} p-5`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="title-panel">{summary.makerspace.name}</h2>
-          <p className="mt-1 text-sm text-muted">
-            This makerspace is closed. Outstanding charges can still be settled and receipts remain readable here.
-          </p>
-        </div>
-        <span className="chip font-mono">
-          {summary.pending_count} pending · {summary.total_count} total
-        </span>
+    <AccountCard
+      title={summary.makerspace.name}
+      description="This makerspace is closed. Outstanding charges can still be settled and receipts remain readable here."
+      action={<Chip tone={summary.pending_count ? "warning" : "neutral"}><span className="font-mono">{summary.pending_count}</span> pending · <span className="font-mono">{summary.total_count}</span> total</Chip>}
+    >
+      <div className="flex flex-col gap-3">
+        {payments.isLoading ? (
+          <p className="inline-flex items-center gap-2 text-body-ui text-ink-muted"><Spinner decorative className="size-4" />Loading payment history…</p>
+        ) : null}
+        <ErrorText message={payments.isError ? errorMessage(payments.error) : null} />
+        {payments.data ? (
+          <MemberPaymentRows
+            payments={payments.data}
+            checkoutPaymentId={checkout.isPending ? checkout.variables : undefined}
+            onCheckout={(paymentId) => checkout.mutate(paymentId)}
+          />
+        ) : null}
+        <ErrorText message={checkout.isError ? errorMessage(checkout.error) : null} />
       </div>
-      {payments.isLoading ? (
-        <p className="mt-4 text-sm text-muted">Loading payment history…</p>
-      ) : null}
-      {payments.isError ? (
-        <p className="mt-4 text-sm text-danger" role="alert">
-          {errorMessage(payments.error)}
-        </p>
-      ) : null}
-      {payments.data ? (
-        <MemberPaymentRows
-          payments={payments.data}
-          checkoutPaymentId={checkout.isPending ? checkout.variables : undefined}
-          onCheckout={(paymentId) => checkout.mutate(paymentId)}
-        />
-      ) : null}
-      {checkout.isError ? (
-        <p className="mt-3 text-sm text-danger" role="alert">
-          {errorMessage(checkout.error)}
-        </p>
-      ) : null}
-    </section>
+    </AccountCard>
   );
 }
 
@@ -87,19 +78,19 @@ export function ArchivedPayments() {
   const removed = discovery.error instanceof StructuredApiError
     && discovery.error.status === 404;
 
+  const backHome = <Link className={buttonClasses({ variant: "secondary" })} to="/">Back to Space Works</Link>;
+
   if (removed) {
     return (
-      <main className="desk-shell grid min-h-[60vh] place-items-center px-5">
-        <div className="desk-panel w-full max-w-md p-6 text-center">
-          <p className="eyebrow text-secondary-ink">
-            Space Works
-          </p>
-          <h1 className="title-page mt-2">Page not found</h1>
-          <Link className="desk-button-ghost mt-5 inline-flex" to="/">
-            Back to Space Works
-          </Link>
-        </div>
-      </main>
+      <PublicShell header={<PlatformSiteHeader page="Page not found" />}>
+        <PublicContainer width="sm" className="flex flex-1 flex-col justify-center">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <h1 className="text-h1 text-ink">Page not found</h1>
+            <p className="text-body-ui text-ink-secondary">There is nothing at this address on this deployment.</p>
+            <div className="mt-2">{backHome}</div>
+          </div>
+        </PublicContainer>
+      </PublicShell>
     );
   }
 
@@ -116,44 +107,25 @@ export function ArchivedPayments() {
   }
 
   return (
-    <main className="desk-shell mx-auto max-w-3xl space-y-5 px-5 py-8">
-      <header>
-        <p className="eyebrow text-secondary-ink">
-          Archived makerspaces
-        </p>
-        <h1 className="title-page mt-2">Payments and receipts</h1>
-        <p className="mt-3 text-sm leading-6 text-muted">
-          Closed makerspaces no longer appear in the normal member area. This page remains available so outstanding charges can be settled and past receipts can be read.
-        </p>
-      </header>
-
-      {discovery.isLoading ? (
-        <section className="desk-panel p-5 text-sm text-muted">
-          Loading archived makerspace charges…
-        </section>
-      ) : null}
-      {discovery.isError ? (
-        <section className="desk-panel p-5">
-          <p className="text-sm text-danger" role="alert">
-            {errorMessage(discovery.error)}
-          </p>
-        </section>
-      ) : null}
-      {discovery.data?.length === 0 ? (
-        <section className="desk-panel p-5">
-          <h2 className="title-panel">No archived payments</h2>
-          <p className="mt-1 text-sm text-muted">
-            No charges outstanding from closed makerspaces.
-          </p>
-        </section>
-      ) : null}
-      {discovery.data?.map((summary) => (
-        <ArchivedMakerspacePayments key={summary.makerspace.id} summary={summary} />
-      ))}
-
-      <Link className="desk-button-ghost inline-flex" to="/">
-        Back to Space Works
-      </Link>
-    </main>
+    <PublicShell header={<PlatformSiteHeader page="Archived payments" />}>
+      <PublicContainer width="md" className="flex flex-col gap-6">
+        <PageHeader
+          kicker="Archived makerspaces"
+          title="Payments and receipts"
+          description="Closed makerspaces no longer appear in the normal member area. This page remains available so outstanding charges can be settled and past receipts can be read."
+        />
+        {discovery.isLoading ? (
+          <div className="flex justify-center py-10"><Loader label="Loading archived makerspace charges" /></div>
+        ) : null}
+        {discovery.isError ? <ErrorText message={errorMessage(discovery.error)} /> : null}
+        {discovery.data?.length === 0 ? (
+          <EmptyState title="No archived payments" description="No charges outstanding from closed makerspaces." action={backHome} />
+        ) : null}
+        {discovery.data?.map((summary) => (
+          <ArchivedMakerspacePayments key={summary.makerspace.id} summary={summary} />
+        ))}
+        {discovery.data?.length === 0 ? null : <div>{backHome}</div>}
+      </PublicContainer>
+    </PublicShell>
   );
 }

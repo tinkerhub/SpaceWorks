@@ -4,12 +4,14 @@ from rest_framework.exceptions import ValidationError
 
 from apps.audit import services as audit
 from apps.inventory.models import InventoryAsset, InventoryProduct
+from apps.makerspaces.guards import require_module_locked
 from apps.notifications.emit import emit_notification
 from apps.operations.models import (
     StocktakeLine,
     StocktakeSession,
 )
 from apps.operations.services_shared import _container
+from apps.operations.stocktake_authority import require_stocktake_reviewer
 from apps.operations.services_stocktake_helpers import (
     _apply_ledger_entries,
     _asset_bucket,
@@ -25,15 +27,28 @@ from apps.operations.services_stocktake_helpers import (
 )
 
 
+def _locked_session(stocktake):
+    """Lock the makerspace (module gate) and then the session, always in that order.
+
+    The makerspace row is the one `module_install` locks, so a stocktake mutation and a
+    concurrent `stocktake` uninstall serialize instead of racing; taking it before the
+    session row keeps one lock order across every workflow step.
+    """
+    require_module_locked(stocktake.makerspace_id, "stocktake")
+    return StocktakeSession.objects.select_for_update().get(pk=stocktake.pk)
+
+
 def create_stocktake(actor, makerspace, data):
     container = _container(data.get("container_id"), makerspace.id)
-    stocktake = StocktakeSession.objects.create(
-        makerspace=makerspace,
-        container=container,
-        started_by=actor,
-        notes=data.get("notes", ""),
-    )
-    audit.record(actor, "stocktake.created", makerspace=makerspace, target=stocktake)
+    with transaction.atomic():
+        require_module_locked(makerspace.id, "stocktake")
+        stocktake = StocktakeSession.objects.create(
+            makerspace=makerspace,
+            container=container,
+            started_by=actor,
+            notes=data.get("notes", ""),
+        )
+        audit.record(actor, "stocktake.created", makerspace=makerspace, target=stocktake)
     return stocktake
 
 
@@ -64,7 +79,7 @@ def resolve_scan_target(actor, stocktake, payload):
 
 def add_stocktake_line(actor, stocktake, data):
     with transaction.atomic():
-        locked = StocktakeSession.objects.select_for_update().get(pk=stocktake.pk)
+        locked = _locked_session(stocktake)
         if locked.status not in {StocktakeSession.Status.DRAFT, StocktakeSession.Status.COUNTING}:
             raise ValidationError("Cannot add count lines after stocktake is completed.")
         product = None
@@ -104,12 +119,13 @@ def add_stocktake_line(actor, stocktake, data):
 
 def complete_stocktake(actor, stocktake):
     with transaction.atomic():
-        locked = StocktakeSession.objects.select_for_update().get(pk=stocktake.pk)
+        locked = _locked_session(stocktake)
         if locked.status != StocktakeSession.Status.COUNTING:
             raise ValidationError("Only counting stocktakes can be completed.")
         locked.status = StocktakeSession.Status.COMPLETED
         locked.completed_at = timezone.now()
-        locked.save(update_fields=["status", "completed_at"])
+        locked.completed_by = actor
+        locked.save(update_fields=["status", "completed_at", "completed_by"])
         audit.record(actor, "stocktake.completed", makerspace=locked.makerspace, target=locked)
         emit_notification(
             locked.makerspace,
@@ -123,7 +139,8 @@ def complete_stocktake(actor, stocktake):
 
 def approve_stocktake(actor, stocktake):
     with transaction.atomic():
-        locked = StocktakeSession.objects.select_for_update().get(pk=stocktake.pk)
+        locked = _locked_session(stocktake)
+        require_stocktake_reviewer(actor, locked)
         if locked.status != StocktakeSession.Status.COMPLETED:
             raise ValidationError("Only completed stocktakes can be approved.")
         locked.status = StocktakeSession.Status.APPROVED
@@ -136,7 +153,8 @@ def approve_stocktake(actor, stocktake):
 
 def apply_stocktake_adjustments(actor, stocktake):
     with transaction.atomic():
-        locked = StocktakeSession.objects.select_for_update().get(pk=stocktake.pk)
+        locked = _locked_session(stocktake)
+        require_stocktake_reviewer(actor, locked)
         if locked.status != StocktakeSession.Status.APPROVED:
             raise ValidationError("Only approved stocktakes can be applied.")
         for line in locked.lines.select_related("product", "asset", "container"):

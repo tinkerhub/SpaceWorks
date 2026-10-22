@@ -1,5 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import {
+  Callout,
+  Card,
+  CardHeader,
+  Checkbox,
+  ErrorBlock,
+  Skeleton,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+  useToast,
+} from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { NotificationChannelPreferences } from "./NotificationChannelPreferences";
 import type {
@@ -10,8 +25,10 @@ import type {
   RuleMute,
 } from "./notificationRuleTypes";
 
+/** Channel switches per feature, then the advanced per-recipient email mutes. */
 export function NotificationMuteMatrix({ makerspaceId }: { makerspaceId: number }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const path = `/admin/makerspace/${makerspaceId}/notification-rules`;
   const queryKey = ["notification-rules", makerspaceId] as const;
 
@@ -34,10 +51,12 @@ export function NotificationMuteMatrix({ makerspaceId }: { makerspaceId: number 
       );
       return { previous };
     },
-    onError: (_error, _change, context) => {
+    onSuccess: (_data, change) => showToast(change.muted ? "Email muted" : "Email unmuted", { tone: "success" }),
+    onError: (error, _change, context) => {
       if (context?.previous !== undefined) {
         queryClient.setQueryData(queryKey, context.previous);
       }
+      showToast(error.message || "Couldn't save the mute", { tone: "error" });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -45,122 +64,102 @@ export function NotificationMuteMatrix({ makerspaceId }: { makerspaceId: number 
   });
 
   if (rules.isLoading) {
-    return <p className="mt-3 text-sm text-muted">Loading notification rules...</p>;
+    return (
+      <Card aria-busy="true" aria-label="Loading notification rules">
+        <Skeleton className="mb-4 h-6 w-48" />
+        <Skeleton className="h-40 w-full" />
+      </Card>
+    );
   }
 
   if (rules.error) {
-    return <p className="mt-3 text-sm text-danger">{rules.error.message}</p>;
+    return (
+      <Callout tone="danger" role="alert" title="Couldn't load notification rules">
+        {rules.error.message}
+      </Callout>
+    );
   }
 
   if (!rules.data) return null;
+  const data = rules.data;
 
   return (
-    <div className="mt-4 grid min-w-0 gap-6">
-      <NotificationChannelPreferences makerspaceId={makerspaceId} rules={rules.data} />
-      <section
-        className="min-w-0 border-t border-line pt-5"
-        aria-labelledby="advanced-email-mutes-heading"
-      >
-        <h4 id="advanced-email-mutes-heading" className="text-sm font-semibold text-ink">
-          Advanced email recipient/event mutes
-        </h4>
-        <p className="mt-2 text-sm text-muted">
-          Checked = muted for that individual email recipient and event. These mutes apply only
-          while the matching feature&apos;s Email channel above is enabled. Return reminders cannot
-          be individually muted.
-        </p>
-        <div className="mt-4 grid min-w-0 gap-4">
-          {rules.data.catalog.map((entry) => {
-            const emailEnabled = isEmailEnabled(entry, rules.data);
+    <div className="grid min-w-0 gap-4">
+      <NotificationChannelPreferences makerspaceId={makerspaceId} rules={data} />
+      <Card as="section" aria-labelledby="advanced-email-mutes-heading">
+        <CardHeader
+          title={<span id="advanced-email-mutes-heading">Advanced email mutes</span>}
+          description="Tick a box to mute that email for one recipient group and event. Mutes apply only while the feature's Email channel is on. Return reminders can't be muted."
+        />
+        <div className="grid min-w-0 gap-5">
+          {data.catalog.map((entry) => {
+            const emailEnabled = isEmailEnabled(entry, data);
             const disabledMessageId = `email-disabled-${entry.stream}-${entry.audience}`;
             return (
-              <section
-                key={`${entry.stream}:${entry.audience}`}
-                className="min-w-0 rounded-md border border-line bg-surface p-3"
-              >
-                <h5 className="text-sm font-semibold text-ink">
+              <section key={`${entry.stream}:${entry.audience}`} className="grid min-w-0 gap-2">
+                <h3 className="text-label text-ink">
                   {streamLabel(entry.stream)} &middot; {audienceLabel(entry.audience)}
-                </h5>
+                </h3>
                 {!emailEnabled ? (
-                  <p id={disabledMessageId} className="mt-2 text-xs text-warn-ink">
-                    Advanced mutes are read-only while this feature&apos;s Email channel is disabled.
+                  <p id={disabledMessageId} className="text-caption text-warning-fg">
+                    Read-only while this feature&apos;s Email channel is off.
                   </p>
                 ) : null}
-                <div className="mt-3 max-w-full overflow-x-auto rounded-md border border-line bg-bg">
-                  <table className="w-max min-w-full border-collapse text-sm">
-                    <caption className="sr-only">
-                      Checked boxes mute emails for {streamLabel(entry.stream)}{" "}
-                      {audienceLabel(entry.audience)}.
-                    </caption>
-                    <thead className="bg-surface text-xs uppercase text-muted">
-                      <tr className="border-b border-line">
-                        <th className="px-3 py-2 text-left font-semibold" scope="col">
-                          Target
-                        </th>
-                        {entry.events.map((eventName) => (
-                          <th
-                            key={eventName}
-                            className="min-w-32 max-w-40 whitespace-normal px-3 py-2 text-center font-semibold leading-snug"
-                            scope="col"
-                          >
-                            {humanize(eventName)}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entry.targets.map((target) => (
-                        <tr key={target} className="border-b border-line last:border-b-0">
-                          <th
-                            className="whitespace-nowrap px-3 py-2 text-left font-semibold text-ink"
-                            scope="row"
-                          >
-                            {targetLabel(target)}
-                          </th>
-                          {entry.events.map((eventName) => {
-                            const checked = isMuted(rules.data.mutes, {
-                              target,
-                              stream: entry.stream,
-                              event: eventName,
-                              audience: entry.audience,
-                            });
-                            return (
-                              <td key={eventName} className="px-3 py-2 text-center">
-                                <input
-                                  aria-describedby={!emailEnabled ? disabledMessageId : undefined}
-                                  aria-label={`${checked ? "Unmute" : "Mute"} ${targetLabel(target)} ${humanize(eventName)}`}
-                                  className="h-4 w-4"
-                                  type="checkbox"
-                                  checked={checked}
-                                  disabled={updateMute.isPending || !emailEnabled}
-                                  onChange={(event) =>
-                                    updateMute.mutate({
-                                      target,
-                                      stream: entry.stream,
-                                      event: eventName,
-                                      audience: entry.audience,
-                                      muted: event.target.checked,
-                                    })
-                                  }
-                                />
-                              </td>
-                            );
-                          })}
-                        </tr>
+                <Table label={`${streamLabel(entry.stream)} ${audienceLabel(entry.audience)} mutes`}>
+                  <caption className="sr-only">
+                    Ticked boxes mute emails for {streamLabel(entry.stream)} {audienceLabel(entry.audience)}.
+                  </caption>
+                  <THead>
+                    <tr>
+                      <TH>Recipients</TH>
+                      {entry.events.map((eventName) => (
+                        <TH key={eventName} className="min-w-28 max-w-40 whitespace-normal text-center leading-snug">
+                          {humanize(eventName)}
+                        </TH>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </tr>
+                  </THead>
+                  <TBody>
+                    {entry.targets.map((target) => (
+                      <TR key={target}>
+                        <TH scope="row" className="text-label text-ink">{targetLabel(target)}</TH>
+                        {entry.events.map((eventName) => {
+                          const checked = isMuted(data.mutes, {
+                            target,
+                            stream: entry.stream,
+                            event: eventName,
+                            audience: entry.audience,
+                          });
+                          return (
+                            <TD key={eventName} className="text-center">
+                              <Checkbox
+                                aria-describedby={!emailEnabled ? disabledMessageId : undefined}
+                                aria-label={`${checked ? "Unmute" : "Mute"} ${targetLabel(target)} ${humanize(eventName)}`}
+                                checked={checked}
+                                disabled={updateMute.isPending || !emailEnabled}
+                                onCheckedChange={(next) =>
+                                  updateMute.mutate({
+                                    target,
+                                    stream: entry.stream,
+                                    event: eventName,
+                                    audience: entry.audience,
+                                    muted: next === true,
+                                  })
+                                }
+                              />
+                            </TD>
+                          );
+                        })}
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
               </section>
             );
           })}
         </div>
-        {updateMute.error ? (
-          <p className="mt-3 text-sm text-danger" role="alert" aria-live="assertive">
-            {updateMute.error.message}
-          </p>
-        ) : null}
-      </section>
+        <ErrorBlock error={updateMute.error} className="mt-3" />
+      </Card>
     </div>
   );
 }

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import type React from "react";
+import { ScanLine } from "lucide-react";
 
-import { Modal } from "../../components/ui/Modal";
+import { Button, ErrorText, Field, Input, Modal, Textarea } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
 import { EvidenceUpload } from "./panels/EvidenceUpload";
 import type { DirectLoan, DirectLoanReturnItem } from "./DirectLoanList";
+import { DirectLoanReturnOutcomes, type AssetOutcome, type AssetState, type QtyState } from "./DirectLoanReturnOutcomes";
 
-type AssetOutcome = "returned" | "damaged" | "missing";
 type QuantityResolution = { item_id: number; returned: number; damaged: number; missing: number };
 type AssetResolution = QuantityResolution & { assets: { asset_id: number; outcome: AssetOutcome }[] };
 export type DirectLoanResolution = QuantityResolution | AssetResolution;
@@ -25,11 +26,6 @@ type DirectLoanReturnModalProps = {
   onCancel: () => void;
   onSubmit: (resolutions: DirectLoanResolution[]) => void;
 };
-
-// Quantity buckets per item (non-individual): default everything to "returned".
-type QtyState = Record<number, { returned: number; damaged: number; missing: number }>;
-// Per-asset outcome for individual-tracked items.
-type AssetState = Record<number, Record<number, AssetOutcome>>;
 
 export function DirectLoanReturnModal({
   loan,
@@ -51,6 +47,8 @@ export function DirectLoanReturnModal({
   const returnItems: DirectLoanReturnItem[] = loan?.return_items ?? [];
 
   useEffect(() => {
+    // A scanner left open when the dialog closed must not pop up over the next return.
+    setShowScanner(false);
     if (!loan) return;
     const items = loan.return_items ?? [];
     // Default a clean return: quantity items pre-fill returned = remaining; individual
@@ -66,10 +64,7 @@ export function DirectLoanReturnModal({
       Object.fromEntries(
         items
           .filter((item) => item.tracking_mode === "individual")
-          .map((item) => [
-            item.item_id,
-            Object.fromEntries(item.assets.map((asset) => [asset.asset_id, "returned" as AssetOutcome])),
-          ]),
+          .map((item) => [item.item_id, Object.fromEntries(item.assets.map((asset) => [asset.asset_id, "returned" as AssetOutcome]))]),
       ),
     );
   }, [loan]);
@@ -79,10 +74,7 @@ export function DirectLoanReturnModal({
     returnItems.map((item) => {
       if (item.tracking_mode === "individual") {
         const outcomes = assetState[item.item_id] ?? {};
-        const assets = item.assets.map((asset) => ({
-          asset_id: asset.asset_id,
-          outcome: outcomes[asset.asset_id] ?? ("returned" as AssetOutcome),
-        }));
+        const assets = item.assets.map((asset) => ({ asset_id: asset.asset_id, outcome: outcomes[asset.asset_id] ?? ("returned" as AssetOutcome) }));
         return {
           item_id: item.item_id,
           returned: assets.filter((a) => a.outcome === "returned").length,
@@ -96,16 +88,17 @@ export function DirectLoanReturnModal({
     });
 
   // Every outstanding unit must be resolved (direct loans have no partial state).
+  const resolutions = buildResolutions();
   const fullyResolved = returnItems.every((item) => {
-    const r = buildResolutions().find((res) => res.item_id === item.item_id);
+    const r = resolutions.find((res) => res.item_id === item.item_id);
     return r ? r.returned + r.damaged + r.missing === item.remaining_quantity : false;
   });
-  const canSubmit =
-    evidenceId !== null &&
-    notes.trim().length > 0 &&
-    (!scanRequired || qrPayload.trim().length > 0) &&
-    fullyResolved &&
-    !pending;
+  const canSubmit = evidenceId !== null && notes.trim().length > 0 && (!scanRequired || qrPayload.trim().length > 0) && fullyResolved && !pending;
+  const missing = [
+    evidenceId === null ? "a return photo" : null,
+    !notes.trim() ? "return notes" : null,
+    scanRequired && !qrPayload.trim() ? "the return QR scan" : null,
+  ].filter(Boolean);
 
   const updateQty = (itemId: number, key: "returned" | "damaged" | "missing", value: string) => {
     setQtyState((current) => ({
@@ -124,115 +117,46 @@ export function DirectLoanReturnModal({
         if (!pending) onCancel();
       }}
       title={loan ? `Return ${loan.target_label}` : "Return direct handout"}
+      description="A return needs a photo of what came back and a note on its condition."
+      size="lg"
       footer={
-        <div className="desk-actions flex flex-wrap justify-end gap-2">
-          <button className="desk-button" type="button" disabled={pending} onClick={onCancel}>
-            Cancel
-          </button>
-          <button className="desk-button" type="submit" form="direct-loan-return-form" disabled={!canSubmit}>
-            {pending ? "Returning..." : "Submit return"}
-          </button>
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-end">
+          {missing.length ? <p className="text-caption text-ink-muted sm:mr-auto">Still needed: {missing.join(", ")}.</p> : null}
+          <Button disabled={pending} onClick={onCancel}>Cancel</Button>
+          <Button variant="primary" type="submit" form="direct-loan-return-form" disabled={!canSubmit} loading={pending} loadingLabel="Returning…">
+            Submit return
+          </Button>
         </div>
       }
     >
       <form
         id="direct-loan-return-form"
-        className="grid gap-3"
+        className="grid gap-5"
         onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          if (canSubmit) onSubmit(buildResolutions());
+          if (canSubmit) onSubmit(resolutions);
         }}
       >
-        <div className="grid gap-1 text-sm">
-          <span className="font-medium text-ink">Return photo</span>
-          <EvidenceUpload
-            makerspaceId={makerspaceId}
-            evidenceType="return"
-            disabled={pending}
-            onUploaded={onEvidenceUploaded}
-          />
+        <EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={onEvidenceUploaded} />
+        <DirectLoanReturnOutcomes
+          items={returnItems}
+          qtyState={qtyState}
+          assetState={assetState}
+          disabled={pending}
+          fullyResolved={fullyResolved}
+          onQtyChange={updateQty}
+          onAssetChange={updateAsset}
+        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <Field label="Return QR scan" optional={!scanRequired} className="min-w-0 flex-1">
+            <Input className="font-mono text-sm" value={qrPayload} disabled={pending} onChange={(event) => onQrPayloadChange(event.target.value)} />
+          </Field>
+          <Button startIcon={<ScanLine />} disabled={pending} onClick={() => setShowScanner(true)}>Scan QR</Button>
         </div>
-        {returnItems.length ? (
-          <div className="grid gap-2">
-            <p className="text-sm font-medium text-ink">Return outcomes</p>
-            {returnItems.map((item) =>
-              item.tracking_mode === "individual" ? (
-                <div key={item.item_id} className="rounded-md border border-line p-2">
-                  <p className="text-sm font-medium text-ink">{item.product_name}</p>
-                  <div className="mt-2 grid gap-2">
-                    {item.assets.map((asset) => (
-                      <label
-                        key={asset.asset_id}
-                        className="grid gap-1 text-xs text-muted sm:grid-cols-[1fr_auto] sm:items-center"
-                      >
-                        <span className="font-medium text-ink">{asset.asset_tag}</span>
-                        <select
-                          className="desk-input"
-                          value={(assetState[item.item_id] ?? {})[asset.asset_id] ?? "returned"}
-                          disabled={pending}
-                          onChange={(event) => updateAsset(item.item_id, asset.asset_id, event.target.value as AssetOutcome)}
-                        >
-                          <option value="returned">Returned</option>
-                          <option value="damaged">Damaged</option>
-                          <option value="missing">Missing</option>
-                        </select>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div key={item.item_id} className="rounded-md border border-line p-2">
-                  <p className="text-sm font-medium text-ink">
-                    {item.product_name} <span className="text-xs text-muted">({item.remaining_quantity} out)</span>
-                  </p>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                    {(["returned", "damaged", "missing"] as const).map((key) => (
-                      <label key={key} className="grid gap-1 text-xs text-muted">
-                        <span className="capitalize">{key}</span>
-                        <input
-                          className="desk-input min-w-0"
-                          type="number"
-                          min="0"
-                          max={item.remaining_quantity}
-                          value={(qtyState[item.item_id] ?? { returned: 0, damaged: 0, missing: 0 })[key]}
-                          disabled={pending}
-                          onChange={(event) => updateQty(item.item_id, key, event.target.value)}
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ),
-            )}
-            {!fullyResolved ? (
-              <p className="text-xs text-warn-ink">Resolve every outstanding unit before submitting.</p>
-            ) : null}
-          </div>
-        ) : null}
-        <label className="grid gap-1 text-sm">
-          <span className="font-medium text-ink">Return QR scan{scanRequired ? "" : " (optional)"}</span>
-          <div className="flex flex-col gap-2 md:flex-row">
-            <input
-              className="desk-input w-full font-mono text-sm"
-              value={qrPayload}
-              disabled={pending}
-              onChange={(event) => onQrPayloadChange(event.target.value)}
-            />
-            <button className="desk-button" type="button" disabled={pending} onClick={() => setShowScanner(true)}>
-              Scan QR
-            </button>
-          </div>
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="font-medium text-ink">Return notes</span>
-          <textarea
-            className="desk-input min-h-24 w-full resize-y"
-            value={notes}
-            disabled={pending}
-            onChange={(event) => onNotesChange(event.target.value)}
-          />
-        </label>
-        {error ? <p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p> : null}
+        <Field label="Return notes" helperText="What came back, and in what condition.">
+          <Textarea value={notes} disabled={pending} onChange={(event) => onNotesChange(event.target.value)} />
+        </Field>
+        <ErrorText message={error} />
         {showScanner ? (
           <QrScanner
             onScan={(payload) => {

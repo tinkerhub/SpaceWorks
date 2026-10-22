@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 
+import { Avatar, Chip, EmptyState, Spinner, type AvatarTone } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { cn } from "../../lib/cn";
+import { AccountCard } from "../account/AccountCard";
 import type { MemberProfile } from "./MemberProfilePanel";
 
 type DirectoryEntry = {
@@ -13,17 +17,11 @@ type DirectoryEntry = {
 
 type Directory = { members: DirectoryEntry[]; hidden_count: number };
 
-const IDENTITY_TONES = [
-  { border: "border-accent", surface: "bg-accent/15", ink: "text-accent-ink" },
-  { border: "border-secondary", surface: "bg-secondary/15", ink: "text-secondary-ink" },
-  { border: "border-success", surface: "bg-success/15", ink: "text-success-ink" },
-  { border: "border-warn", surface: "bg-warn/15", ink: "text-warn-ink" },
-] as const;
+const IDENTITY_TONES: AvatarTone[] = ["accent", "secondary", "success", "warning"];
 
-function identityTone(identity: string | number) {
-  const text = String(identity);
-  const total = [...text].reduce((sum, character) => sum + character.codePointAt(0)!, 0);
-  return IDENTITY_TONES[total % IDENTITY_TONES.length];
+// Distributed by a stable id, never by render order, so a member keeps their colour.
+function identityTone(identity: number): AvatarTone {
+  return IDENTITY_TONES[identity % IDENTITY_TONES.length];
 }
 
 /**
@@ -51,7 +49,9 @@ export function MemberDirectory({ makerspaceId }: { makerspaceId: number }) {
   });
 
   if (directory.isLoading) {
-    return <section className="desk-panel p-5 text-sm text-muted">Loading members…</section>;
+    return (
+      <AccountCard title="Members" description={<span className="inline-flex items-center gap-2"><Spinner decorative className="size-4" />Loading members…</span>} />
+    );
   }
   if (directory.isError) return null;
 
@@ -59,89 +59,79 @@ export function MemberDirectory({ makerspaceId }: { makerspaceId: number }) {
   const hidden = directory.data?.hidden_count ?? 0;
 
   return (
-    <section className="desk-panel p-5">
-      <h2 className="title-panel">Members</h2>
+    <AccountCard
+      title="Members"
+      description={hidden > 0 ? `${hidden} more ${hidden === 1 ? "member has" : "members have"} not published a profile.` : "People in this makerspace who published a profile."}
+    >
       {entries.length === 0 ? (
-        <p className="mt-1 text-sm text-muted">Nobody has published a profile yet.</p>
+        <EmptyState title="Nobody has published a profile yet." description="Publish yours from your maker profile to be the first." />
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className="divide-y divide-line rounded-lg border border-line">
           {entries.map((entry) => {
-            const tone = identityTone(entry.membership_id);
-            return <li className={`border-l-2 ${openId === entry.membership_id ? "border-secondary bg-secondary/15" : tone.border} pl-2`} key={entry.membership_id}>
+            const open = openId === entry.membership_id;
+            return <li key={entry.membership_id}>
               <button
-                className="desk-button-ghost w-full justify-start text-left"
+                className="flex w-full min-w-0 items-center gap-3 px-4 py-3 text-left transition-colors duration-180 ease-standard hover:bg-subtle focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
                 type="button"
-                onClick={() =>
-                  setOpenId(openId === entry.membership_id ? null : entry.membership_id)
-                }
-                aria-expanded={openId === entry.membership_id}
+                onClick={() => setOpenId(open ? null : entry.membership_id)}
+                aria-expanded={open}
               >
-                <span className={`h-10 w-10 shrink-0 overflow-hidden rounded-full border ${tone.border} ${tone.surface}`}>
-                  {entry.avatar_url ? (
-                    <img src={entry.avatar_url} alt="" className="h-full w-full object-cover" />
-                  ) : null}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-medium text-ink">{entry.display_name}</span>
+                {/* Decorative: the name beside it already labels the row. */}
+                <span aria-hidden="true" className="inline-flex"><Avatar src={entry.avatar_url} tone={identityTone(entry.membership_id)} name={entry.display_name} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold text-ink">{entry.display_name}</span>
                   {entry.headline ? (
-                    <span className="block truncate text-sm text-muted">{entry.headline}</span>
+                    <span className="block truncate text-body-ui text-ink-muted">{entry.headline}</span>
                   ) : null}
                 </span>
+                <ChevronDown aria-hidden="true" className={cn("size-5 shrink-0 text-ink-muted transition-transform duration-180 ease-standard", open && "rotate-180")} />
               </button>
               {/* Unmounted rather than hidden when collapsed, so keyboard users cannot
                   tab into links they cannot see. */}
-              {openId === entry.membership_id && detail.data ? (
+              {open && detail.data ? (
                 <ProfileDetail profile={detail.data} />
               ) : null}
             </li>;
           })}
         </ul>
       )}
-      {hidden > 0 ? (
-        <p className="mt-3 text-sm text-muted">
-          {`${hidden} more ${hidden === 1 ? "member has" : "members have"} not published a profile.`}
-        </p>
-      ) : null}
-    </section>
+    </AccountCard>
   );
 }
 
 function ProfileDetail({ profile }: { profile: MemberProfile }) {
   return (
-    <div className="mt-2 rounded-lg border border-secondary bg-secondary/10 p-3">
+    <div className="flex flex-col gap-3 border-t border-line bg-subtle px-4 py-4">
       {profile.institution ? (
-        <p className="text-sm text-muted">{profile.institution}</p>
+        <p className="text-body-ui text-ink-muted">{profile.institution}</p>
       ) : null}
-      {profile.bio ? <p className="mt-2 text-sm text-ink">{profile.bio}</p> : null}
+      {profile.bio ? <p className="text-body-ui text-ink">{profile.bio}</p> : null}
       <TagRow label="Interests" values={profile.interests} />
       <TagRow label="Languages" values={profile.languages} />
       {profile.education.length ? (
-        <ul className="mt-3 space-y-2 text-sm text-muted">
-          {profile.education.map((row, index) => {
-            const tone = identityTone([row.qualification, row.institution, row.year].join("|"));
-            return <li className={`border-l-2 ${tone.border} pl-3`} key={index}>
-              {[row.qualification, row.institution, row.year].filter(Boolean).join(" · ")}
-            </li>;
-          })}
+        <ul className="flex flex-col gap-1 text-body-ui text-ink-secondary">
+          {profile.education.map((row, index) => (
+            <li key={index}>{[row.qualification, row.institution, row.year].filter(Boolean).join(" · ")}</li>
+          ))}
         </ul>
       ) : null}
       {profile.github_contributions !== null ? (
-        <p className="mt-3 text-sm text-muted">
+        <p className="text-body-ui text-ink-muted">
           <span className="font-mono">{profile.github_contributions}</span> GitHub contributions in the last year.
         </p>
       ) : null}
       {typeof profile.activity?.events_attended === "number" ? (
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-body-ui text-ink-muted">
           <span className="font-mono">{profile.activity.events_attended}</span> events attended here.
         </p>
       ) : null}
       {profile.activity?.recent_attended_events?.length ? (
-        <div className="mt-3">
+        <div>
           {/* "Recent" is load-bearing, not decoration: the backend caps this list, so a
               heading reading "Events attended" would claim to be the full history. The
               count above is the truthful total. */}
-          <h3 className="title-section">Recently attended</h3>
-          <ul className="mt-1 space-y-1 text-sm text-muted">
+          <h3 className="text-label text-ink">Recently attended</h3>
+          <ul className="mt-1 flex flex-col gap-1 text-body-ui text-ink-muted">
             {profile.activity.recent_attended_events.map((event) => (
               <li key={event.id}>
                 {event.title} ·{" "}
@@ -156,10 +146,9 @@ function ProfileDetail({ profile }: { profile: MemberProfile }) {
         </div>
       ) : null}
       {profile.projects.length ? (
-        <div className="mt-3 space-y-3">
-          {profile.projects.map((project) => {
-            const tone = identityTone(project.id);
-            return <article key={project.id} className={`rounded-lg border ${tone.border} ${tone.surface} p-3`}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {profile.projects.map((project) => (
+            <article key={project.id} className="min-w-0 rounded-lg border border-line bg-canvas p-3">
               {project.image_url ? (
                 <img
                   src={project.image_url}
@@ -167,31 +156,30 @@ function ProfileDetail({ profile }: { profile: MemberProfile }) {
                   className="mb-2 max-h-40 w-full rounded-md object-cover"
                 />
               ) : null}
-              <h3 className="title-section">{project.title}</h3>
+              <h3 className="text-label text-ink">{project.title}</h3>
               {project.description ? (
-                <p className="mt-1 text-sm text-muted">{project.description}</p>
+                <p className="mt-1 text-body-ui text-ink-muted">{project.description}</p>
               ) : null}
               {project.links.length ? (
-                <ul className="mt-2 flex flex-wrap gap-3 text-sm">
-                  {project.links.map((link, index) => {
-                    const linkTone = identityTone(`${link.label}|${link.url}`);
-                    return <li key={index}>
+                <ul className="mt-2 flex flex-wrap gap-3 text-body-ui">
+                  {project.links.map((link, index) => (
+                    <li key={index}>
                       {/* External and member-authored: noopener/noreferrer keeps the
                           destination from reaching back through window.opener. */}
                       <a
-                        className={`${linkTone.ink} underline`}
+                        className="text-accent-ink underline underline-offset-4 hover:text-ink"
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         {link.label}
                       </a>
-                    </li>;
-                  })}
+                    </li>
+                  ))}
                 </ul>
               ) : null}
-            </article>;
-          })}
+            </article>
+          ))}
         </div>
       ) : null}
     </div>
@@ -201,8 +189,9 @@ function ProfileDetail({ profile }: { profile: MemberProfile }) {
 function TagRow({ label, values }: { label: string; values: string[] }) {
   if (!values.length) return null;
   return (
-    <p className="mt-2 text-sm text-muted">
-      <span className="eyebrow text-ink">{label}:</span> {values.join(", ")}
-    </p>
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="mr-1 text-label text-ink">{label}</span>
+      {values.map((value) => <Chip key={value} size="sm">{value}</Chip>)}
+    </div>
   );
 }

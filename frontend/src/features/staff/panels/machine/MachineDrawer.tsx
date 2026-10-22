@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { DetailDrawer, EmptyState, Skeleton, StatusBadge } from "../../../../components/ui";
+import { Chip, DetailDrawer, EmptyState, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui";
 import { getMachine, machineKeys } from "../../machinesApi";
 import { ConsumablesTab } from "./ConsumablesTab";
 import { DocumentsTab } from "./DocumentsTab";
 import { ErrorsTab } from "./ErrorsTab";
+import { MachineStatusChip } from "./machineUi";
 import { MaintenanceTab } from "./MaintenanceTab";
 import { OperatorsTab } from "./OperatorsTab";
 import { OverviewTab } from "./OverviewTab";
 import { UsageTab } from "./UsageTab";
 import { WarrantyTab } from "./WarrantyTab";
 
-const BASE_TABS = ["Overview", "Operators", "Consumables", "Usage", "Documents", "Errors"] as const;
-type MachineTab = (typeof BASE_TABS)[number] | "Maintenance" | "Warranty";
+type MachineTab = "overview" | "usage" | "maintenance" | "consumables" | "documents" | "errors" | "operators" | "warranty";
+
+const TAB_LABELS: Record<MachineTab, string> = {
+  overview: "Overview",
+  usage: "Usage",
+  maintenance: "Maintenance",
+  consumables: "Consumables",
+  documents: "Documents",
+  errors: "Errors",
+  operators: "Operators",
+  warranty: "Warranty",
+};
 
 export function MachineDrawer({
   machineId, makerspaceId, canManageMachines, maintenanceEnabled, onClose,
@@ -24,62 +35,46 @@ export function MachineDrawer({
   maintenanceEnabled: boolean;
   onClose: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<MachineTab>("Overview");
+  const [activeTab, setActiveTab] = useState<MachineTab>("overview");
   const machine = useQuery({
     queryKey: machineKeys.detail(machineId),
     queryFn: () => getMachine(machineId),
   });
   const details = machine.data;
+  // Maintenance needs the module AND operate access; Warranty needs edit access.
   const maintenanceAllowed = maintenanceEnabled && details?.can_operate === true;
-  const tabs: readonly MachineTab[] = [
-    ...BASE_TABS.slice(0, 4),
-    ...(maintenanceAllowed ? ["Maintenance" as const] : []),
-    ...BASE_TABS.slice(4),
-    ...(details?.can_edit ? ["Warranty" as const] : []),
-  ];
+  const tabs = (Object.keys(TAB_LABELS) as MachineTab[]).filter((tab) =>
+    (tab !== "maintenance" || maintenanceAllowed) && (tab !== "warranty" || details?.can_edit === true),
+  );
+  // A tab that stops being allowed (a refetch revoked access) falls back to Overview.
+  const shownTab = tabs.includes(activeTab) ? activeTab : "overview";
 
   return (
     <DetailDrawer open title={details?.name ?? "Machine details"} onClose={onClose}>
       {machine.isLoading ? (
-        <div className="grid gap-3">
-          <Skeleton className="h-20 w-full" />
+        <div className="grid gap-3" role="status" aria-label="Loading machine">
+          <Skeleton className="h-6 w-1/2" />
+          <Skeleton className="h-11 w-full" />
           <Skeleton className="h-48 w-full" />
         </div>
       ) : null}
       {machine.error instanceof Error ? (
-        <EmptyState title="Unable to load machine" description={machine.error.message} />
+        <EmptyState tone="error" title="Unable to load machine" description={machine.error.message} />
       ) : null}
       {details ? (
         <div className="grid gap-4">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={details.status} />
-            {!details.is_active ? (
-              <span className="rounded-md bg-warn/15 px-2 py-1 text-xs font-medium text-warn-ink">Retired</span>
-            ) : null}
-            <span className="text-sm text-muted">
+            <MachineStatusChip status={details.status} size="md" />
+            {!details.is_active ? <Chip tone="warning">Retired</Chip> : null}
+            <span className="text-body-ui text-ink-muted">
               {details.machine_type.name} · {details.usage_hours} total hours
             </span>
           </div>
-          {/* WRAPS rather than scrolls. `min-w-max` inside `overflow-x-auto` is right for a
-              genuinely wide child like a table, but for six short labels it produced a row
-              clipped mid-word at the panel edge with the remaining tabs reachable only by a
-              horizontal scroll nobody notices. Wrapping shows every tab at every width. */}
-          <div className="flex flex-wrap gap-1 border-b border-line pb-2" role="tablist" aria-label="Machine details">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab}
-                className={activeTab === tab ? "desk-button-primary" : "desk-button-ghost"}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div role="tabpanel">
-            {activeTab === "Overview" ? (
+          <Tabs value={shownTab} onValueChange={(value) => setActiveTab(value as MachineTab)}>
+            <TabsList aria-label="Machine details">
+              {tabs.map((tab) => <TabsTrigger key={tab} value={tab}>{TAB_LABELS[tab]}</TabsTrigger>)}
+            </TabsList>
+            <TabsContent value="overview">
               <OverviewTab
                 machine={details}
                 makerspaceId={makerspaceId}
@@ -89,37 +84,40 @@ export function MachineDrawer({
                 canRetire={details.can_retire}
                 canUnretire={details.can_unretire}
               />
+            </TabsContent>
+            <TabsContent value="usage">
+              <UsageTab machineId={machineId} makerspaceId={makerspaceId} canOperate={details.can_operate} retired={!details.is_active} />
+            </TabsContent>
+            {maintenanceAllowed ? (
+              <TabsContent value="maintenance">
+                <MaintenanceTab
+                  makerspaceId={makerspaceId}
+                  machineId={machineId}
+                  canEdit={details.can_edit}
+                  canOperate={details.can_operate}
+                  enabled={shownTab === "maintenance" && maintenanceAllowed}
+                  retired={!details.is_active}
+                />
+              </TabsContent>
             ) : null}
-            {activeTab === "Operators" ? (
-              <OperatorsTab machineId={machineId} canDelegate={details.can_delegate} />
-            ) : null}
-            {activeTab === "Consumables" ? (
-              <ConsumablesTab machineId={machineId} canEdit={details.can_edit}
-                canOperate={details.can_operate} />
-            ) : null}
-            {activeTab === "Usage" ? (
-              <UsageTab machineId={machineId} makerspaceId={makerspaceId} canOperate={details.can_operate} />
-            ) : null}
-            {activeTab === "Maintenance" && maintenanceAllowed ? (
-              <MaintenanceTab
-                makerspaceId={makerspaceId}
-                machineId={machineId}
-                canEdit={details.can_edit}
-                canOperate={details.can_operate}
-                enabled={activeTab === "Maintenance" && maintenanceAllowed}
-                retired={!details.is_active}
-              />
-            ) : null}
-            {activeTab === "Documents" ? (
+            <TabsContent value="consumables">
+              <ConsumablesTab machineId={machineId} canEdit={details.can_edit} canOperate={details.can_operate} retired={!details.is_active} />
+            </TabsContent>
+            <TabsContent value="documents">
               <DocumentsTab machineId={machineId} canEdit={details.can_edit} />
+            </TabsContent>
+            <TabsContent value="errors">
+              <ErrorsTab machineId={machineId} canOperate={details.can_operate} retired={!details.is_active} />
+            </TabsContent>
+            <TabsContent value="operators">
+              <OperatorsTab machineId={machineId} canDelegate={details.can_delegate} retired={!details.is_active} />
+            </TabsContent>
+            {details.can_edit ? (
+              <TabsContent value="warranty">
+                <WarrantyTab machineId={machineId} />
+              </TabsContent>
             ) : null}
-            {activeTab === "Errors" ? (
-              <ErrorsTab machineId={machineId} canOperate={details.can_operate} />
-            ) : null}
-            {activeTab === "Warranty" && details.can_edit ? (
-              <WarrantyTab machineId={machineId} />
-            ) : null}
-          </div>
+          </Tabs>
         </div>
       ) : null}
     </DetailDrawer>

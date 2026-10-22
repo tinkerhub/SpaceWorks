@@ -88,7 +88,7 @@ describe("ApiClientsPanel scope picker", () => {
   it("requires an explicit scope and sends it on create", async () => {
     staffRequest.mockResolvedValue({ ...legacyClient, id: 10, client_secret: "shown-once", scopes: ["public:read"] });
     const invalidate = renderPanel();
-    const createCard = screen.getByText("API clients").closest("article")!;
+    const createCard = screen.getByRole("heading", { name: "Create API client" }).closest("article")!;
     const create = within(createCard);
 
     fireEvent.change(create.getByLabelText("Client label"), { target: { value: "Public app" } });
@@ -109,7 +109,7 @@ describe("ApiClientsPanel scope picker", () => {
   it("warns about legacy access and sends an explicit replacement PATCH", async () => {
     staffRequest.mockResolvedValue({ ...legacyClient, scopes: ["public:write"] });
     const invalidate = renderPanel();
-    const row = screen.getByText("Legacy client").closest("div.rounded-md") as HTMLElement;
+    const row = screen.getByText("Legacy client").closest("article") as HTMLElement;
     const editor = within(row);
 
     expect(editor.getByText(/legacy v1 access preserves/i)).toBeTruthy();
@@ -133,7 +133,7 @@ describe("ApiClientsPanel scope picker", () => {
     configureQueries(null, [browserClient]);
     staffRequest.mockResolvedValue({ ...browserClient, scopes: ["public:read", "public:write"] });
     renderPanel();
-    const row = screen.getByText("Browser client").closest("div.rounded-md") as HTMLElement;
+    const row = screen.getByText("Browser client").closest("article") as HTMLElement;
     const editor = within(row);
 
     expect(editor.getByRole("checkbox", { name: /admin write/i })).toBeDisabled();
@@ -160,7 +160,7 @@ describe("ApiClientsPanel scope picker", () => {
   it("renders create failures without invalidating the client list", async () => {
     staffRequest.mockRejectedValue(new Error("Create failed"));
     const invalidate = renderPanel();
-    const create = within(screen.getByText("API clients").closest("article")!);
+    const create = within(screen.getByRole("heading", { name: "Create API client" }).closest("article")!);
     fireEvent.change(create.getByLabelText("Client label"), { target: { value: "Bad app" } });
     fireEvent.change(create.getByPlaceholderText(/allowed browser origins/i), { target: { value: "https://bad.example" } });
     fireEvent.click(create.getByRole("checkbox", { name: /public read/i }));
@@ -168,5 +168,21 @@ describe("ApiClientsPanel scope picker", () => {
 
     await waitFor(() => expect(create.getByText("Create failed")).toBeTruthy());
     expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ["api-clients", 7] });
+  });
+
+  it("confirms before deleting a client and does nothing on cancel", async () => {
+    staffRequest.mockResolvedValue(undefined);
+    renderPanel();
+    const row = within(screen.getByText("Legacy client").closest("article") as HTMLElement);
+
+    fireEvent.click(row.getByRole("button", { name: "Delete…" }));
+    const dialog = await screen.findByRole("alertdialog");
+    expect(dialog).toHaveTextContent("Delete Legacy client?");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(staffRequest).not.toHaveBeenCalled();
+
+    fireEvent.click(row.getByRole("button", { name: "Delete…" }));
+    fireEvent.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Delete client" }));
+    await waitFor(() => expect(staffRequest).toHaveBeenCalledWith("/admin/api-clients/9", expect.objectContaining({ method: "DELETE" })));
   });
 });

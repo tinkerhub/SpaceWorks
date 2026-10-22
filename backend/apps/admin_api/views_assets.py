@@ -17,7 +17,7 @@ from apps.admin_api.views_inventory import InventoryPagination
 from apps.audit import services as audit
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
-from apps.makerspaces.guards import require_module
+from apps.makerspaces.guards import require_module, require_module_locked
 
 
 class InventoryAssetListView(generics.ListAPIView):
@@ -43,6 +43,7 @@ class InventoryAssetListView(generics.ListAPIView):
             pk=self.kwargs["product_pk"],
         )
         require_module(product.makerspace_id, "staff_admin")
+        require_module(product.makerspace_id, "asset_units")
         return (
             InventoryAsset.objects.select_related("product", "box", "makerspace")
             .filter(product=product)
@@ -69,6 +70,7 @@ class InventoryAssetDetailView(APIView):
             pk=pk,
         )
         require_module(asset.makerspace_id, "staff_admin")
+        require_module(asset.makerspace_id, "asset_units")
         require_action(request.user, rbac.Action.EDIT_INVENTORY, asset.makerspace_id)
         if asset.product.tracking_mode != TrackingMode.INDIVIDUAL:
             raise ValidationError("Asset edits are only for individual-tracked products.")
@@ -82,6 +84,7 @@ class InventoryAssetDetailView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
+            require_module_locked(asset.makerspace_id, "asset_units")
             locked_asset = (
                 InventoryAsset.objects.select_for_update()
                 .select_related("product", "makerspace")
@@ -130,6 +133,7 @@ class InventoryAssetStatusActionView(APIView):
             pk=pk,
         )
         require_module(asset.makerspace_id, "staff_admin")
+        require_module(asset.makerspace_id, "asset_units")
         require_action(request.user, rbac.Action.EDIT_INVENTORY, asset.makerspace_id)
         if asset.product.tracking_mode != TrackingMode.INDIVIDUAL:
             raise ValidationError("Asset fix actions are only for individual-tracked products.")
@@ -152,6 +156,7 @@ class InventoryAssetStatusActionView(APIView):
 
         try:
             with transaction.atomic():
+                require_module_locked(asset.makerspace_id, "asset_units")
                 locked_asset = InventoryAsset.objects.select_for_update().select_related("product", "makerspace").get(pk=asset.pk)
                 availability.move_asset_status(locked_asset, target_status)
                 audit.record(

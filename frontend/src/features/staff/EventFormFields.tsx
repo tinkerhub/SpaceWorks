@@ -1,4 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
+
+import { CheckboxField, Dropdown, Field, Input, Textarea } from "../../components/ui";
 import type { EventPayload, StaffEvent } from "./eventsApi";
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 
@@ -53,20 +55,45 @@ export function EventFields({ values, setValues, disabled = false, approvalLocke
   // Functional updates keep edits before the drawer's load effect re-renders from dropping required fields via a stale empty copy.
   const set = <K extends keyof EventFormValues>(key: K, value: EventFormValues[K]) => setValues((current) => ({ ...current, [key]: value }));
   const cutoffMode = values.registration_cutoff_at !== null ? "absolute" : values.registration_cutoff_lead_minutes !== null ? "lead" : "none";
-  return <div className="grid gap-3 sm:grid-cols-2">
-    <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Title<input className="desk-input" value={values.title} onChange={(e) => set("title", e.target.value)} required disabled={disabled} maxLength={200} /></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Starts<input className="desk-input" type="datetime-local" value={values.starts_at} onChange={(e) => set("starts_at", e.target.value)} required disabled={disabled} /></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Ends<input className="desk-input" type="datetime-local" value={values.ends_at} onChange={(e) => set("ends_at", e.target.value)} required disabled={disabled} /></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Event time zone<input className="desk-input font-mono" value={values.timezone_name} onChange={(e) => set("timezone_name", e.target.value)} required disabled={disabled} maxLength={64} /><span className="text-xs font-normal text-muted">Use an IANA name such as Asia/Kolkata. Review migrated events because their original zone was not recorded.</span></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Location<input className="desk-input" value={values.location} onChange={(e) => set("location", e.target.value)} disabled={disabled} maxLength={255} /></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Capacity<input className="desk-input" type="number" min="0" value={values.capacity} onChange={(e) => set("capacity", Number(e.target.value))} disabled={disabled} /><span className="text-xs font-normal text-muted">Use 0 for Unlimited.</span></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Registration price<input className="desk-input" type="number" min="0" step="0.01" value={values.payment_amount} onChange={(e) => set("payment_amount", e.target.value)} disabled={disabled} /><span className="text-xs font-normal text-muted">Charged only when a place is confirmed.</span></label>
-    <label className="grid gap-1 text-sm font-semibold text-ink">Registration cutoff<select className="desk-input" value={cutoffMode} disabled={disabled} onChange={(e) => { const mode = e.target.value; setValues((current) => ({ ...current, registration_cutoff_at: mode === "absolute" ? (current.starts_at || "") : null, registration_cutoff_lead_minutes: mode === "lead" ? 0 : null })); }}><option value="none">No cutoff</option><option value="absolute">At a date and time</option><option value="lead">Before the event starts</option></select></label>
-    {cutoffMode === "absolute" ? <label className="grid gap-1 text-sm font-semibold text-ink">Cutoff time<input className="desk-input" type="datetime-local" value={values.registration_cutoff_at ?? ""} onChange={(e) => set("registration_cutoff_at", e.target.value)} disabled={disabled} required /></label> : null}
-    {cutoffMode === "lead" ? <label className="grid gap-1 text-sm font-semibold text-ink">Minutes before start<input className="desk-input" type="number" min="0" value={values.registration_cutoff_lead_minutes ?? 0} onChange={(e) => set("registration_cutoff_lead_minutes", Number(e.target.value))} disabled={disabled} /></label> : null}
-    <label className="grid gap-1 text-sm font-semibold text-ink sm:col-span-2">Description<textarea className="desk-input min-h-24" value={values.description} onChange={(e) => set("description", e.target.value)} disabled={disabled} /></label>
-    <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2"><input type="checkbox" checked={values.registration_requires_approval} onChange={(e) => set("registration_requires_approval", e.target.checked)} disabled={disabled || approvalLocked} />Require staff approval for registrations</label>
-    <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2"><input type="checkbox" checked={values.is_public} onChange={(e) => set("is_public", e.target.checked)} disabled={disabled} />Show this event on the public Events page</label>
+  const setCutoffMode = (mode: string) => setValues((current) => ({
+    ...current,
+    registration_cutoff_at: mode === "absolute" ? (current.starts_at || "") : null,
+    registration_cutoff_lead_minutes: mode === "lead" ? 0 : null,
+  }));
+  return <div className="grid gap-4 sm:grid-cols-2">
+    <Field label="Title" className="sm:col-span-2"><Input value={values.title} onChange={(e) => set("title", e.target.value)} required disabled={disabled} maxLength={200} /></Field>
+    <Field label="Starts"><Input type="datetime-local" value={values.starts_at} onChange={(e) => set("starts_at", e.target.value)} required disabled={disabled} /></Field>
+    <Field label="Ends"><Input type="datetime-local" value={values.ends_at} onChange={(e) => set("ends_at", e.target.value)} required disabled={disabled} /></Field>
+    <Field label="Event time zone" className="sm:col-span-2" helperText="Use an IANA name such as Asia/Kolkata. Review migrated events because their original zone was not recorded.">
+      <Input className="font-mono" value={values.timezone_name} onChange={(e) => set("timezone_name", e.target.value)} required disabled={disabled} maxLength={64} />
+    </Field>
+    <Field label="Location" optional><Input value={values.location} onChange={(e) => set("location", e.target.value)} disabled={disabled} maxLength={255} /></Field>
+    <Field label="Capacity" helperText="Use 0 for unlimited."><Input type="number" min="0" value={values.capacity} onChange={(e) => set("capacity", Number(e.target.value))} disabled={disabled} /></Field>
+    <Field label="Registration price" helperText="Charged only when a place is confirmed."><Input type="number" min="0" step="0.01" value={values.payment_amount} onChange={(e) => set("payment_amount", e.target.value)} disabled={disabled} /></Field>
+    <Field label="Registration cutoff">
+      <Dropdown value={cutoffMode} disabled={disabled} onChange={(e) => setCutoffMode(e.target.value)}>
+        <option value="none">No cutoff</option>
+        <option value="absolute">At a date and time</option>
+        <option value="lead">Before the event starts</option>
+      </Dropdown>
+    </Field>
+    {cutoffMode === "absolute" ? <Field label="Cutoff time"><Input type="datetime-local" value={values.registration_cutoff_at ?? ""} onChange={(e) => set("registration_cutoff_at", e.target.value)} disabled={disabled} required /></Field> : null}
+    {cutoffMode === "lead" ? <Field label="Minutes before start"><Input type="number" min="0" value={values.registration_cutoff_lead_minutes ?? 0} onChange={(e) => set("registration_cutoff_lead_minutes", Number(e.target.value))} disabled={disabled} /></Field> : null}
+    <Field label="Description" optional className="sm:col-span-2"><Textarea value={values.description} onChange={(e) => set("description", e.target.value)} disabled={disabled} /></Field>
+    <CheckboxField
+      className="sm:col-span-2"
+      label="Require staff approval for registrations"
+      checked={values.registration_requires_approval}
+      onCheckedChange={(checked) => set("registration_requires_approval", checked === true)}
+      disabled={disabled || approvalLocked}
+    />
+    <CheckboxField
+      className="sm:col-span-2"
+      label="Show this event on the public Events page"
+      checked={values.is_public}
+      onCheckedChange={(checked) => set("is_public", checked === true)}
+      disabled={disabled}
+    />
     <div className="sm:col-span-2"><CustomFormBuilder value={values.custom_form} onChange={(value) => set("custom_form", value)} disabled={disabled} /></div>
   </div>;
 }

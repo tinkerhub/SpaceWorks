@@ -4,8 +4,8 @@ from rest_framework import serializers
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(write_only=True)
-    new_password = serializers.CharField(write_only=True)
+    current_password = serializers.CharField(write_only=True, trim_whitespace=False)
+    new_password = serializers.CharField(write_only=True, trim_whitespace=False)
 
 
 class ForgotPasswordRequestSerializer(serializers.Serializer):
@@ -61,6 +61,7 @@ class PasswordUpdatedSerializer(serializers.Serializer):
 
 class ChangePasswordResponseSerializer(serializers.Serializer):
     detail = serializers.CharField()
+    access = serializers.CharField(required=False, allow_null=True)
 
 
 class PasswordResetAcknowledgementSerializer(serializers.Serializer):

@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { SiteFooter } from "../../components/SiteFooter";
-import { Card, Skeleton } from "../../components/ui";
+import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
+import { Button, Callout, Card, ErrorText, Field, Input, PageHeader, Skeleton, buttonClasses, useToast } from "../../components/ui";
 import { getAccessToken, refreshAccessToken, StructuredApiError, tenantPublicRequest } from "../../lib/api";
-import { useTenant, useTenantPath } from "../../lib/tenant";
+import { useModules } from "../../lib/modules";
 import { CustomFormFields } from "../forms/CustomFormFields";
 import { customAnswerErrors, validateCustomAnswers, type CustomAnswers, type CustomFormQuestion } from "../forms/customFormTypes";
+import { useMakerspacePublic } from "./useMakerspacePublic";
 
 type FeedbackForm = {
   event: { title: string; starts_at: string; ends_at: string };
@@ -22,10 +24,11 @@ function feedbackPath(slug: string, token: string) {
 }
 
 export function PublicEventFeedbackPage() {
-  const { slug, publicToken = "" } = useParams();
-  const tenant = useTenant();
-  const makerspaceSlug = tenant.mode === "single" ? tenant.slug : slug ?? "";
-  const tenantPath = useTenantPath(makerspaceSlug);
+  const { publicToken = "" } = useParams();
+  const space = useMakerspacePublic();
+  const { makerspaceSlug, tenantPath } = space;
+  const { moduleEnabled } = useModules();
+  const { showToast } = useToast();
   const client = useQueryClient();
   const path = feedbackPath(makerspaceSlug, publicToken);
   const [answers, setAnswers] = useState<CustomAnswers>({});
@@ -45,25 +48,82 @@ export function PublicEventFeedbackPage() {
     }),
     onSuccess: async () => {
       setAnswers({}); setEmail(""); setErrors({});
+      showToast("Feedback sent", { tone: "success" });
       await client.invalidateQueries({ queryKey: ["public-event-feedback", makerspaceSlug, publicToken] });
     },
+    onError: () => showToast("Feedback wasn't sent", { tone: "error" }),
   });
   const apiErrors = submit.error instanceof StructuredApiError ? submit.error.body.answers : undefined;
 
-  if (form.isLoading) return <main className="desk-shell grid min-h-screen place-items-center px-5"><Skeleton className="h-64 w-full max-w-2xl" /></main>;
-  if (form.error || !form.data) return <main className="desk-shell grid min-h-screen place-items-center px-5"><Card><h1 className="title-page">Feedback unavailable</h1><p className="mt-2 text-sm text-muted">This survey is closed, the event has not ended, or the link is invalid.</p><Link className="desk-button mt-4" to={tenantPath("events")}>Back to events</Link></Card></main>;
-  if (submit.data) return <main className="desk-shell grid min-h-screen place-items-center px-5"><Card><h1 className="title-page">Thank you</h1><p className="mt-2 text-sm text-muted">{submit.data.thank_you_text || "Your response was recorded."}</p>{submit.data.certificate ? <p className="mt-3 text-sm text-ink">Your certificate is being prepared. Download it from Member activity.</p> : null}<Link className="desk-button mt-4" to={tenantPath("member")}>Open member area</Link></Card></main>;
+  const shell = (children: ReactNode) => (
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Event feedback" />}>
+      <PublicContainer width="sm">{children}</PublicContainer>
+    </PublicShell>
+  );
+
+  if (form.isLoading) {
+    return shell(
+      <div className="space-y-4" aria-busy="true" aria-label="Loading feedback form">
+        <Skeleton className="h-9 w-2/3" />
+        <Skeleton className="h-64 w-full rounded-lg" />
+      </div>,
+    );
+  }
+  if (form.error || !form.data) {
+    return shell(
+      <PageHeader
+        title="Feedback unavailable"
+        description="This survey is closed, the event has not ended, or the link is invalid."
+        actions={<Link className={buttonClasses({ variant: "secondary" })} to={tenantPath("events")}>Back to events</Link>}
+      />,
+    );
+  }
+  if (submit.data) {
+    return shell(
+      <Card padding="lg" className="text-center">
+        <h1 className="text-h2 text-ink">Thank you</h1>
+        <p className="mt-2 text-body-ui text-ink-secondary">{submit.data.thank_you_text || "Your response was recorded."}</p>
+        {submit.data.certificate ? <p className="mt-3 text-body-ui text-ink">Your certificate is being prepared. Download it from Member activity.</p> : null}
+        <Link className={buttonClasses({ variant: "primary", className: "mt-6" })} to={tenantPath("member")}>Open member area</Link>
+      </Card>,
+    );
+  }
 
   const data = form.data;
-  return <main className="desk-shell flex min-h-screen flex-col"><section className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
-    <p className="eyebrow">{data.event.title}</p><h1 className="title-page mt-2">{data.survey.title}</h1>
-    <p className="mt-2 text-sm text-muted">{data.mode === "anonymous" ? "No account or response identifier is stored with this response." : "Certificates are available only to members recorded as attended."}</p>
-    {data.requires_auth && !restored ? <Card className="mt-5"><p className="text-sm text-muted">Sign in through the member area before submitting certificate feedback.</p><Link className="desk-button-primary mt-3" to={tenantPath("member")}>Member sign in</Link></Card> : null}
-    <form className="desk-panel mt-5 grid gap-5 p-5" onSubmit={(event) => { event.preventDefault(); const next = validateCustomAnswers(data.survey.questions, answers); setErrors(next); if (!Object.keys(next).length) submit.mutate(); }}>
-      <CustomFormFields schema={data.survey.questions} answers={answers} onChange={setAnswers} errors={{ ...errors, ...customAnswerErrors(apiErrors) }} yesNoAsCheckbox />
-      {data.requires_auth ? <label className="grid gap-1"><span className="eyebrow">Registration email</span><input className="desk-input" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label> : null}
-      <button className="desk-button-primary" type="submit" disabled={submit.isPending || (data.requires_auth && !restored)}>{submit.isPending ? "Submitting..." : "Submit feedback"}</button>
-      {submit.error ? <p className="text-sm text-danger" role="alert">{submit.error.message}</p> : null}
-    </form>
-  </section><SiteFooter /></main>;
+  return shell(
+    <>
+      <PageHeader
+        kicker={data.event.title}
+        title={data.survey.title}
+        description={data.mode === "anonymous" ? "No account or response identifier is stored with this response." : "Certificates are available only to members recorded as attended."}
+      />
+      {data.requires_auth && !restored ? (
+        <Callout
+          className="mt-6"
+          tone="info"
+          title="Sign in first"
+          action={<Link className={buttonClasses({ variant: "primary", size: "sm" })} to={tenantPath("member")}>Member sign in</Link>}
+        >
+          Sign in through the member area before submitting certificate feedback.
+        </Callout>
+      ) : null}
+      <Card as="section" className="mt-6">
+        <form
+          className="grid gap-5"
+          onSubmit={(event) => { event.preventDefault(); const next = validateCustomAnswers(data.survey.questions, answers); setErrors(next); if (!Object.keys(next).length) submit.mutate(); }}
+        >
+          <CustomFormFields schema={data.survey.questions} answers={answers} onChange={setAnswers} errors={{ ...errors, ...customAnswerErrors(apiErrors) }} yesNoAsCheckbox />
+          {data.requires_auth ? (
+            <Field label="Registration email" helperText="The email you registered for this event with.">
+              <Input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
+            </Field>
+          ) : null}
+          {submit.error ? <ErrorText message={submit.error.message} /> : null}
+          <Button variant="primary" type="submit" className="justify-self-start" disabled={data.requires_auth && !restored} loading={submit.isPending} loadingLabel="Submitting…">
+            Submit feedback
+          </Button>
+        </form>
+      </Card>
+    </>,
+  );
 }

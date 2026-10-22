@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
 import type { ApiPath } from "../../generated/api";
-import { Badge, Metric } from "../../components/ui";
+import { Button, Card, CardHeader, ErrorText, SkeletonRows, StatTile, StatusChip, Table, TBody, TD, TH, THead, TR, type StatusTone } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
-import type { Makerspace } from "./StaffPanels";
+import { moduleEnabled } from "../../lib/modules";
+import type { Makerspace } from "./panels/shared";
 import { staffTabPath } from "./staffTabs";
 
 type HealthStatus = "ok" | "warn" | "error" | "unknown";
@@ -46,7 +47,7 @@ type IntegrationHealth = {
 
 const integrationHealthPath: ApiPath = "/api/v1/admin/makerspace/{makerspace_id}/integration-health";
 
-export function IntegrationHealthPanel({ makerspace }: { makerspace: Makerspace }) {
+export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false }: { makerspace: Makerspace; singleTenantLocked?: boolean }) {
   const health = useQuery({
     queryKey: ["integration-health", makerspace.id],
     queryFn: () =>
@@ -59,150 +60,123 @@ export function IntegrationHealthPanel({ makerspace }: { makerspace: Makerspace 
     refetchOnWindowFocus: true,
   });
   const data = health.data;
+  // The Telegram test alert lives in the Telegram card on this same Settings page.
+  const telegramOn = moduleEnabled(makerspace.enabled_modules, "telegram");
 
   return (
-    <div className="min-w-0 rounded-md border border-line bg-bg p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold text-ink">Integration health</h3>
-            <Badge tone={statusTone(data?.status ?? "unknown")}>{statusLabel(data?.status)}</Badge>
-          </div>
-          {health.isLoading ? <p className="mt-2 text-sm text-muted">Loading integration health...</p> : null}
-          {health.error ? <p className="mt-2 text-sm text-danger">{health.error.message}</p> : null}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link className="desk-button" to={staffTabPath("email-logs", false, makerspace.slug)}>Email log</Link>
-          <Link className="desk-button" to={staffTabPath("api", false, makerspace.slug)}>Telegram test</Link>
-        </div>
-      </div>
+    <Card as="section" aria-labelledby="integration-health-title">
+      <CardHeader
+        title={(
+          <span id="integration-health-title" className="flex flex-wrap items-center gap-2">
+            Integration health
+            <StatusChip tone={statusTone(data?.status ?? "unknown")} size="sm">{statusLabel(data?.status)}</StatusChip>
+          </span>
+        )}
+        description="Email, chat and background worker status. Refreshes every minute."
+        action={(
+          <>
+            <Button asChild variant="secondary" size="sm">
+              <Link to={staffTabPath("email-logs", false, makerspace.slug, singleTenantLocked)}>Email log</Link>
+            </Button>
+            {telegramOn ? (
+              <Button asChild variant="secondary" size="sm">
+                <a href="#telegram-settings-title">Telegram test</a>
+              </Button>
+            ) : null}
+          </>
+        )}
+      />
+      <ErrorText message={health.error?.message} />
 
       {data ? (
-        <div className="mt-4 grid gap-3 xl:grid-cols-2">
-          <HealthBlock title="Email" status={data.email.status} detail={data.email.detail}>
-            <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-5">
-              <Metric label="Total" value={data.email.total} />
-              <Metric label="Pending" value={data.email.pending} />
-              <Metric label="Sent" value={data.email.sent} />
-              <Metric label="Failed" value={data.email.failed} danger={(data.email.failed ?? 0) > 0} />
-              <Metric label="Stalled" value={data.email.stalled} danger={(data.email.stalled ?? 0) > 0} />
-            </div>
-            <div className="mt-3 rounded-md border border-line bg-surface p-3 text-sm">
-              {data.email.last_failure ? (
-                <>
-                  <p className="font-semibold text-ink">{data.email.last_failure.subject || "Last failure"}</p>
-                  <p className="mt-1 text-xs text-muted">
-                    {data.email.last_failure.stream || "email"} - {relativeTime(data.email.last_failure.created_at)}
-                  </p>
-                  <p className="mt-2 break-words text-muted">{data.email.last_failure.error || "No error detail."}</p>
-                </>
-              ) : (
-                <p className="text-muted">No failed deliveries.</p>
-              )}
-            </div>
-          </HealthBlock>
-
-          <HealthBlock title="Deliveries by stream" status={data.deliveries_by_stream.status} detail={data.deliveries_by_stream.detail}>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <StreamDelivery label="Hardware" value={data.deliveries_by_stream.hardware} />
-              <StreamDelivery label="Printing" value={data.deliveries_by_stream.printing} />
-            </div>
-          </HealthBlock>
-
-          <HealthBlock title="SMTP" status={data.smtp.status} detail={data.smtp.detail}>
-            <ConfiguredBadge configured={data.smtp.configured} />
-          </HealthBlock>
-
-          <HealthBlock title="Telegram" status={data.telegram.status} detail={data.telegram.detail}>
-            <ConfiguredBadge configured={data.telegram.configured} />
-          </HealthBlock>
-
-          <HealthBlock title="Worker" status={data.worker.status} detail={data.worker.detail} wide>
-            <div className="grid gap-2 text-sm sm:grid-cols-4">
-              <BooleanMetric label="Broker" value={data.worker.broker_configured} trueLabel="Configured" falseLabel="Eager only" />
-              <BooleanMetric label="Eager" value={data.worker.eager} trueLabel="On" falseLabel="Off" />
-              <BooleanMetric label="Stale" value={data.worker.stale} trueLabel="Yes" falseLabel="No" danger={data.worker.stale} />
-              <div className="rounded-md border border-line bg-surface p-3">
-                <p className="text-xs font-semibold uppercase text-muted">Last seen</p>
-                <p className="mt-1 font-semibold text-ink">{data.worker.last_seen ? relativeTime(data.worker.last_seen) : "Never"}</p>
-              </div>
-            </div>
-          </HealthBlock>
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <StatTile label="Emails" value={data.email.total ?? 0} />
+          <StatTile label="Pending" value={data.email.pending ?? 0} />
+          <StatTile label="Sent" value={data.email.sent ?? 0} />
+          <StatTile label="Failed" value={data.email.failed ?? 0} tone={(data.email.failed ?? 0) > 0 ? "danger" : "default"} />
+          <StatTile label="Stalled" value={data.email.stalled ?? 0} tone={(data.email.stalled ?? 0) > 0 ? "danger" : "default"} />
         </div>
       ) : null}
-    </div>
+
+      <Table label="Integration health">
+        <THead>
+          <tr>
+            <TH>Integration</TH>
+            <TH>Status</TH>
+            <TH>Details</TH>
+          </tr>
+        </THead>
+        <TBody>
+          {health.isLoading ? <SkeletonRows rows={5} cols={3} /> : null}
+          {data ? (
+            <>
+              <HealthRow title="Email" section={data.email}>
+                {data.email.last_failure ? (
+                  <>
+                    <span className="block font-semibold text-ink">{data.email.last_failure.subject || "Last failure"}</span>
+                    <span className="block text-caption text-ink-muted">
+                      {data.email.last_failure.stream || "email"} · {relativeTime(data.email.last_failure.created_at)}
+                    </span>
+                    <span className="block break-words">{data.email.last_failure.error || "No error detail."}</span>
+                  </>
+                ) : (
+                  "No failed deliveries."
+                )}
+              </HealthRow>
+              <HealthRow title="Deliveries by stream" section={data.deliveries_by_stream}>
+                Hardware: {streamTime(data.deliveries_by_stream.hardware)} · Printing: {streamTime(data.deliveries_by_stream.printing)}
+              </HealthRow>
+              <HealthRow title="SMTP" section={data.smtp}>
+                <ConfiguredChip configured={data.smtp.configured} />
+              </HealthRow>
+              <HealthRow title="Telegram" section={data.telegram}>
+                <ConfiguredChip configured={data.telegram.configured} />
+              </HealthRow>
+              <HealthRow title="Worker" section={data.worker}>
+                <span className={data.worker.stale ? "text-danger-fg" : undefined}>
+                  Broker: {data.worker.broker_configured ? "Configured" : "Eager only"} · Eager: {data.worker.eager ? "On" : "Off"} ·
+                  Stale: {data.worker.stale ? "Yes" : "No"} · Last seen: {data.worker.last_seen ? relativeTime(data.worker.last_seen) : "Never"}
+                </span>
+              </HealthRow>
+            </>
+          ) : null}
+        </TBody>
+      </Table>
+    </Card>
   );
 }
 
-function HealthBlock({
-  title,
-  status,
-  detail,
-  wide,
-  children,
-}: {
-  title: string;
-  status?: HealthStatus;
-  detail?: string;
-  wide?: boolean;
-  children: React.ReactNode;
-}) {
+function HealthRow({ title, section, children }: { title: string; section: SectionHealth; children: React.ReactNode }) {
   return (
-    <section className={`min-w-0 rounded-md border border-line bg-bg p-3 ${wide ? "xl:col-span-2" : ""}`}>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h4 className="font-semibold text-ink">{title}</h4>
-        <Badge tone={statusTone(status)}>{statusLabel(status)}</Badge>
-      </div>
-      {detail ? <p className="mb-3 break-words text-sm text-danger">{detail}</p> : null}
-      {children}
-    </section>
+    <TR>
+      <TD className="whitespace-nowrap font-semibold">{title}</TD>
+      <TD><StatusChip tone={statusTone(section.status)} size="sm">{statusLabel(section.status)}</StatusChip></TD>
+      <TD className="min-w-64 text-ink-secondary">
+        {section.detail ? <span className="mb-1 block break-words text-danger-fg">{section.detail}</span> : null}
+        {children}
+      </TD>
+    </TR>
   );
 }
 
-function BooleanMetric({
-  label,
-  value,
-  trueLabel,
-  falseLabel,
-  danger = false,
-}: {
-  label: string;
-  value?: boolean;
-  trueLabel: string;
-  falseLabel: string;
-  danger?: boolean;
-}) {
-  return (
-    <div className="rounded-md border border-line bg-surface p-3">
-      <p className="text-xs font-semibold uppercase text-muted">{label}</p>
-      <p className={`mt-1 font-semibold ${danger ? "text-danger" : "text-ink"}`}>{value ? trueLabel : falseLabel}</p>
-    </div>
-  );
+function ConfiguredChip({ configured }: { configured?: boolean }) {
+  return <StatusChip tone={configured ? "success" : "neutral"} size="sm">{configured ? "Configured" : "Not configured"}</StatusChip>;
 }
 
-function StreamDelivery({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div className="rounded-md border border-line bg-surface p-3 text-sm">
-      <p className="font-semibold text-ink">{label}</p>
-      <p className="mt-1 text-muted">{value ? relativeTime(value) : "Never sent"}</p>
-    </div>
-  );
+function streamTime(value?: string | null) {
+  return value ? relativeTime(value) : "never sent";
 }
 
-function ConfiguredBadge({ configured }: { configured?: boolean }) {
-  return <Badge tone={configured ? "success" : "neutral"}>{configured ? "Configured" : "Not configured"}</Badge>;
-}
-
-function statusTone(status?: HealthStatus) {
+function statusTone(status?: HealthStatus): StatusTone {
   if (status === "ok") return "success";
   if (status === "error") return "danger";
-  if (status === "warn" || status === "unknown") return "warn";
+  if (status === "warn" || status === "unknown") return "warning";
   return "neutral";
 }
 
 function statusLabel(status?: HealthStatus) {
   if (!status) return "Unknown";
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  return status === "ok" ? "OK" : status === "warn" ? "Warning" : status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function relativeTime(value: string) {
@@ -216,5 +190,6 @@ function relativeTime(value: string) {
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
   if (absMs < hour) return rtf.format(Math.round(diffMs / minute), "minute");
   if (absMs < day) return rtf.format(Math.round(diffMs / hour), "hour");
-  return rtf.format(Math.round(diffMs / day), "day");
+  if (absMs < 7 * day) return rtf.format(Math.round(diffMs / day), "day");
+  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }

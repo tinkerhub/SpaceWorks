@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 from drf_spectacular.utils import extend_schema_serializer
@@ -27,7 +29,7 @@ from apps.hardware_requests.workflow import (
     RequestValidationError,
     ReturnValidationError,
 )
-from apps.inventory.availability import InsufficientStock
+from apps.inventory.availability import InsufficientStock, TrackingModeChangeRefused
 from apps.machines.service_errors import (
     ServiceConsumptionInvalid,
     ServiceInsufficientStock,
@@ -182,6 +184,11 @@ _EXCEPTION_MAP = {
         "insufficient_stock",
         "Insufficient stock.",
     ),
+    TrackingModeChangeRefused: (
+        status.HTTP_409_CONFLICT,
+        "tracking_mode_locked",
+        "The product's tracking mode cannot change while it holds stock.",
+    ),
     ServiceInvalidTransition: (
         status.HTTP_409_CONFLICT,
         "service_invalid_transition",
@@ -241,6 +248,12 @@ _EXCEPTION_MAP = {
 
 
 def workflow_exception_handler(exc, context):
+    if isinstance(exc, DjangoValidationError):
+        # A model full_clean() in a view/service: answer with DRF's typed 400 shape
+        # (field -> messages) instead of letting it escape as a 500.
+        exc = DRFValidationError(
+            exc.message_dict if hasattr(exc, "error_dict") else exc.messages
+        )
     response = exception_handler(exc, context)
     if response is not None:
         return response

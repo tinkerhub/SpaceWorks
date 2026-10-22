@@ -1,5 +1,6 @@
-import { BarChart, DataState } from "./OperationsReportsParts";
-import { Panel, useStaffGet } from "./shared";
+import { Table, TBody, TD, TH, THead, TR } from "../../../components/ui";
+import { BarChart, DataState, ReportCard, ScopeGroup } from "./OperationsReportsParts";
+import { useStaffGet } from "./shared";
 
 type PaymentReportRow = {
   makerspace_id?: number;
@@ -28,30 +29,28 @@ export function OperationsReportsPayments({ analyticsBase, scopeKey, startDate, 
   const rows = report.data?.typed_rows ?? [];
 
   return (
-    <Panel title="Payment reconciliation">
-      <p className="mb-3 text-xs text-muted">Private totals are grouped by makerspace, currency, subject, and status. Pending payments remain visible across date ranges.</p>
+    <ReportCard title="Payment reconciliation" description="Private totals grouped by makerspace, currency, subject and status. Pending payments stay visible whatever the dates.">
       <DataState loading={report.isLoading} error={report.error} empty={!rows.length}>
         {scopeKey === "all" ? (
-          <div className="space-y-5">
+          <div className="grid gap-6">
             {paymentGroups(rows).map(([makerspaceId, group]) => (
-              <section key={makerspaceId} className="rounded-md border border-line p-4">
-                <h3 className="eyebrow">{makerspaceName(makerspaceId)}</h3>
+              <ScopeGroup key={makerspaceId} name={makerspaceName(makerspaceId)}>
                 <PaymentChart rows={group} />
                 <PaymentTable rows={group} />
-              </section>
+              </ScopeGroup>
             ))}
           </div>
         ) : <><PaymentChart rows={rows} /><PaymentTable rows={rows} /></>}
       </DataState>
-    </Panel>
+    </ReportCard>
   );
 }
 
 function PaymentChart({ rows }: { rows: PaymentReportRow[] }) {
-  return <div className="mt-3 space-y-4">{currencyGroups(rows).map(([currency, group]) => (
-    <section key={currency} className="rounded-md border border-line p-3">
-      <h4 className="eyebrow">{currency.toUpperCase()}</h4>
-      <div className="mt-2 grid gap-4 lg:grid-cols-2">
+  return <div className="grid gap-5">{currencyGroups(rows).map(([currency, group]) => (
+    <section key={currency}>
+      <h3 className="text-label text-ink">{currency.toUpperCase()}</h3>
+      <div className="mt-2 grid gap-5 lg:grid-cols-2">
         <BarChart rows={group.map((row) => ({ label: label(row.status), value: row.payment_count }))} valueLabel="payments" />
         <BarChart rows={group.map((row) => ({ label: label(row.status), value: Number(row.amount_total) }))} valueLabel={`${currency.toUpperCase()} total`} />
       </div>
@@ -61,25 +60,22 @@ function PaymentChart({ rows }: { rows: PaymentReportRow[] }) {
 
 function PaymentTable({ rows }: { rows: PaymentReportRow[] }) {
   return (
-    <div className="mt-4 overflow-x-auto rounded-md border border-line">
-      <table className="w-full text-left text-sm">
-        <thead className="eyebrow bg-surface"><tr>
-          <th scope="col" className="px-3 py-2">Currency</th><th scope="col" className="px-3 py-2">Subject</th>
-          <th scope="col" className="px-3 py-2">Status</th><th scope="col" className="px-3 py-2">Payments</th>
-          <th scope="col" className="px-3 py-2">Total</th><th scope="col" className="px-3 py-2">Outstanding</th>
-        </tr></thead>
-        <tbody>{rows.map((row, index) => (
-          <tr className="border-t border-line" key={`${row.currency}-${row.subject_type}-${row.status}-${index}`}>
-            <td className="px-3 py-2 uppercase">{row.currency}</td>
-            <td className="px-3 py-2">{label(row.subject_type)}</td>
-            <td className="px-3 py-2">{label(row.status)}</td>
-            <td className="px-3 py-2 font-mono">{row.payment_count}</td>
-            <td className="px-3 py-2 font-mono">{money(row.amount_total, row.currency)}</td>
-            <td className="px-3 py-2 font-mono font-semibold">{money(row.outstanding_amount, row.currency)}</td>
-          </tr>
-        ))}</tbody>
-      </table>
-    </div>
+    <Table containerClassName="mt-4">
+      <THead><tr>
+        <TH>Currency</TH><TH>Subject</TH><TH>Status</TH>
+        <TH className="text-right">Payments</TH><TH className="text-right">Total</TH><TH className="text-right">Outstanding</TH>
+      </tr></THead>
+      <TBody>{rows.map((row, index) => (
+        <TR key={`${row.currency}-${row.subject_type}-${row.status}-${index}`}>
+          <TD>{row.currency.toUpperCase()}</TD>
+          <TD>{label(row.subject_type)}</TD>
+          <TD>{label(row.status)}</TD>
+          <TD className="text-right tabular-nums">{row.payment_count}</TD>
+          <TD className="text-right tabular-nums">{money(row.amount_total, row.currency)}</TD>
+          <TD className="text-right font-semibold tabular-nums">{money(row.outstanding_amount, row.currency)}</TD>
+        </TR>
+      ))}</TBody>
+    </Table>
   );
 }
 

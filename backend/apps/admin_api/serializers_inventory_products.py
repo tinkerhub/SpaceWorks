@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.inventory import public_image_storage
+from apps.inventory import availability, public_image_storage
 from apps.inventory.models import (
     Category,
     InventoryProduct,
@@ -148,10 +148,21 @@ class InventoryProductAdminUpdateSerializer(InventoryProductAdminSerializer):
         return attrs
 
     def update(self, instance, validated_data):
+        # Re-read under the row lock and save only the edited columns: a plain
+        # ModelSerializer.update() saves every column from the unlocked instance and
+        # would write back stale quantity buckets over a concurrent issue/return.
+        tracking_mode = validated_data.pop("tracking_mode", None)
         with transaction.atomic():
-            if validated_data.get("is_archived") is False and instance.is_archived:
-                limits.check_quota(instance.makerspace, "products", adding=1)
-            return super().update(instance, validated_data)
+            locked = InventoryProduct.objects.select_for_update().get(pk=instance.pk)
+            if validated_data.get("is_archived") is False and locked.is_archived:
+                limits.check_quota(locked.makerspace, "products", adding=1)
+            if tracking_mode is not None:
+                locked = availability.change_tracking_mode(locked, tracking_mode)
+            for field, value in validated_data.items():
+                setattr(locked, field, value)
+            if validated_data:
+                locked.save(update_fields=[*validated_data, "updated_at"])
+            return locked
 
 
 class CategoryAdminSerializer(serializers.ModelSerializer):

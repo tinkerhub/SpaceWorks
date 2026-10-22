@@ -1,9 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Badge, ConfirmDialog } from "../../../components/ui";
+import {
+  Button,
+  Card,
+  Chip,
+  ConfirmDialog,
+  ErrorBlock,
+  Field,
+  Input,
+  Skeleton,
+  SwitchRow,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  useToast,
+} from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { DefaultReference, PreviewPane, type TemplatePreview } from "./EmailTemplatePreview";
 import { EmailTemplateTypeSelector, type MachineTypeOption } from "./EmailTemplateTypeSelector";
+import { errorText } from "./shared";
 
 export type TemplateSummary = {
   stream: string;
@@ -36,7 +54,6 @@ type TemplateDetail = TemplateSummary & {
 type Draft = { subject: string; text_body: string; html_body: string; is_active: boolean };
 
 type FocusedField = "subject" | "text_body" | "html_body";
-type Preview = Pick<Draft, "subject" | "text_body" | "html_body">;
 
 const emptyDraft: Draft = { subject: "", text_body: "", html_body: "", is_active: true };
 
@@ -50,9 +67,10 @@ export function EmailTemplateEditor({
   onSelectMachineType: (machineType: MachineTypeOption | null) => void;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [debouncedDraft, setDebouncedDraft] = useState<Draft>(emptyDraft);
-  const [showDefaults, setShowDefaults] = useState(false);
+  const [tab, setTab] = useState("edit");
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [lastFocused, setLastFocused] = useState<FocusedField>("text_body");
   const subjectRef = useRef<HTMLInputElement>(null);
@@ -67,6 +85,7 @@ export function EmailTemplateEditor({
     selected.machineType?.id ?? "space",
   ];
   const path = templatePath(makerspaceId, selected);
+  const typeOverride = Boolean(selected.machineType);
 
   const detail = useQuery({
     queryKey: detailKey,
@@ -78,7 +97,6 @@ export function EmailTemplateEditor({
       const next = detailToDraft(detail.data);
       setDraft(next);
       setDebouncedDraft(next);
-      setShowDefaults(false);
     }
   }, [detail.data]);
 
@@ -98,7 +116,7 @@ export function EmailTemplateEditor({
       debouncedDraft,
     ],
     queryFn: () =>
-      staffRequest<Preview>(`/admin/makerspace/${makerspaceId}/email-templates/preview`, {
+      staffRequest<TemplatePreview>(`/admin/makerspace/${makerspaceId}/email-templates/preview`, {
         method: "POST",
         body: JSON.stringify({
           stream: selected.stream,
@@ -117,25 +135,29 @@ export function EmailTemplateEditor({
     queryClient.invalidateQueries({ queryKey: ["email-templates", makerspaceId] });
     queryClient.invalidateQueries({ queryKey: detailKey });
   };
+  const applyUpdated = (updated: TemplateDetail) => {
+    const next = detailToDraft(updated);
+    setDraft(next);
+    setDebouncedDraft(next);
+    invalidate();
+  };
   const save = useMutation({
     mutationFn: () =>
       staffRequest<TemplateDetail>(path, { method: "PATCH", body: JSON.stringify(draft) }),
     onSuccess: (updated) => {
-      const next = detailToDraft(updated);
-      setDraft(next);
-      setDebouncedDraft(next);
-      setResetDialogOpen(false);
-      invalidate();
+      applyUpdated(updated);
+      showToast("Template saved", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the template"), { tone: "error" }),
   });
   const reset = useMutation({
     mutationFn: () => staffRequest<TemplateDetail>(`${path}/reset`, { method: "POST" }),
     onSuccess: (updated) => {
-      const next = detailToDraft(updated);
-      setDraft(next);
-      setDebouncedDraft(next);
-      invalidate();
+      applyUpdated(updated);
+      setResetDialogOpen(false);
+      showToast(typeOverride ? "Now using the space default" : "Template reset to the built-in default", { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't reset the template"), { tone: "error" }),
   });
 
   const insertField = (name: string) => {
@@ -153,131 +175,108 @@ export function EmailTemplateEditor({
     });
   };
 
-  if (detail.isLoading) return <p className="text-sm text-muted">Loading template...</p>;
-  if (detail.error) return <p className="text-sm text-danger">{detail.error.message}</p>;
-  if (!detail.data) return <p className="text-sm text-muted">Select a template to edit.</p>;
+  if (detail.isLoading) {
+    return (
+      <Card aria-busy="true" aria-label="Loading template">
+        <Skeleton className="mb-3 h-6 w-1/2" />
+        <Skeleton className="mb-6 h-4 w-3/4" />
+        <Skeleton className="h-48 w-full" />
+      </Card>
+    );
+  }
+  if (detail.error) return <Card><ErrorBlock error={detail.error} /></Card>;
+  if (!detail.data) return <Card><p className="text-body-ui text-ink-muted">Select a template to edit.</p></Card>;
+  const data = detail.data;
 
   return (
-    <div className="grid gap-4">
+    <Card as="section" aria-labelledby="email-template-title" className="grid gap-5">
+      <div className="grid gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 id="email-template-title" className="text-h4 text-ink">{data.label}</h2>
+          <Chip tone={draft.is_active ? "success" : "neutral"} size="sm">{draft.is_active ? "Custom" : "Default"}</Chip>
+          {data.is_overridden ? <Chip tone="warning" size="sm">Edited</Chip> : null}
+        </div>
+        {data.description ? <p className="max-w-3xl text-body-ui text-ink-muted">{data.description}</p> : null}
+      </div>
       <EmailTemplateTypeSelector
         canEditSpaceDefault={selected.canEditSpaceDefault}
         types={selected.overridableTypes}
         selectedTypeId={selected.machineType?.id ?? null}
         onSelect={onSelectMachineType}
       />
-      <form className="grid gap-4 rounded-md border border-line bg-bg p-4" onSubmit={(event) => {
-        event.preventDefault();
-        save.mutate();
-      }}>
-        <TemplateHeader detail={detail.data} active={draft.is_active} typeOverride={Boolean(selected.machineType)} onActive={(is_active) => setDraft({ ...draft, is_active })} />
-        <label className="eyebrow grid gap-2">
-          <span>Subject</span>
-          <input ref={subjectRef} className="desk-input" value={draft.subject} onFocus={() => setLastFocused("subject")} onChange={(event) => setDraft({ ...draft, subject: event.target.value })} />
-        </label>
-        <MergeFields detail={detail.data} onInsert={insertField} />
-        <label className="eyebrow grid gap-2">
-          <span>Plain text body</span>
-          <textarea ref={textRef} className="desk-input min-h-48 font-mono text-xs" value={draft.text_body} onFocus={() => setLastFocused("text_body")} onChange={(event) => setDraft({ ...draft, text_body: event.target.value })} />
-        </label>
-        <label className="eyebrow grid gap-2">
-          <span>HTML body</span>
-          <textarea ref={htmlRef} className="desk-input min-h-56 font-mono text-xs" value={draft.html_body} onFocus={() => setLastFocused("html_body")} onChange={(event) => setDraft({ ...draft, html_body: event.target.value })} />
-        </label>
-        <div className="desk-actions flex flex-wrap items-center gap-2">
-          <button className="desk-button-primary" type="submit" disabled={save.isPending}>{save.isPending ? "Saving..." : "Save"}</button>
-          <button className="desk-button-danger" type="button" disabled={reset.isPending} onClick={() => setResetDialogOpen(true)}>
-            {reset.isPending ? "Resetting..." : selected.machineType ? "Fall back to space default" : "Reset to built-in default"}
-          </button>
-          <button className="desk-button-ghost" type="button" onClick={() => setShowDefaults((open) => !open)}>{showDefaults ? "Hide default" : "View default"}</button>
-        </div>
-        {save.error ? <p className="text-sm text-danger">{save.error.message}</p> : null}
-        {reset.error ? <p className="text-sm text-danger">{reset.error.message}</p> : null}
-      </form>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList aria-label="Template views">
+          <TabsTrigger value="edit">Edit</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="default">{typeOverride ? "Space default" : "Built-in default"}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="edit">
+          <form className="grid gap-5" onSubmit={(event) => {
+            event.preventDefault();
+            save.mutate();
+          }}>
+            <SwitchRow
+              label="Use custom template"
+              description={`When off, the ${typeOverride ? "space" : "built-in"} default is sent and your text is kept. The email always sends.`}
+              checked={draft.is_active}
+              onCheckedChange={(is_active) => setDraft({ ...draft, is_active })}
+            />
+            <Field label="Subject">
+              <Input ref={subjectRef} value={draft.subject} onFocus={() => setLastFocused("subject")} onChange={(event) => setDraft({ ...draft, subject: event.target.value })} />
+            </Field>
+            <MergeFields fields={data.fields} onInsert={insertField} />
+            <Field label="Plain text body">
+              <Textarea ref={textRef} className="min-h-48 font-mono text-sm" value={draft.text_body} onFocus={() => setLastFocused("text_body")} onChange={(event) => setDraft({ ...draft, text_body: event.target.value })} />
+            </Field>
+            <Field label="HTML body">
+              <Textarea ref={htmlRef} className="min-h-56 font-mono text-sm" value={draft.html_body} onFocus={() => setLastFocused("html_body")} onChange={(event) => setDraft({ ...draft, html_body: event.target.value })} />
+            </Field>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Button variant="primary" type="submit" loading={save.isPending} loadingLabel="Saving…">Save template</Button>
+              <Button variant="danger" disabled={reset.isPending} onClick={() => setResetDialogOpen(true)}>
+                {typeOverride ? "Fall back to space default…" : "Reset to built-in default…"}
+              </Button>
+            </div>
+            <ErrorBlock error={save.error} />
+            <ErrorBlock error={reset.error} />
+          </form>
+        </TabsContent>
+        <TabsContent value="preview">
+          <PreviewPane preview={preview.data} loading={preview.isFetching} error={preview.error} />
+        </TabsContent>
+        <TabsContent value="default">
+          <DefaultReference subject={data.default_subject} text={data.default_text} typeOverride={typeOverride} />
+        </TabsContent>
+      </Tabs>
       <ConfirmDialog
-        open={resetDialogOpen} title="Reset email template?"
-        message={selected.machineType ? "Reset this override to the space default?" : "Reset this email template to the built-in default?"}
-        confirmLabel="Reset template" tone="danger" pending={reset.isPending}
+        open={resetDialogOpen}
+        title="Reset email template?"
+        message={typeOverride ? "This machine type will send the space default again. Your custom text is discarded." : "This template will go back to the built-in default. Your custom text is discarded."}
+        confirmLabel="Reset template"
+        tone="danger"
+        pending={reset.isPending}
         onConfirm={() => reset.mutate()}
         onCancel={() => setResetDialogOpen(false)}
       />
-      {showDefaults ? <DefaultReference detail={detail.data} typeOverride={Boolean(selected.machineType)} /> : null}
-      <PreviewPane preview={preview.data} loading={preview.isFetching} error={preview.error} />
-    </div>
+    </Card>
   );
 }
 
-function TemplateHeader({ detail, active, typeOverride, onActive }: { detail: TemplateDetail; active: boolean; typeOverride: boolean; onActive: (active: boolean) => void }) {
+function MergeFields({ fields, onInsert }: { fields: TemplateDetail["fields"]; onInsert: (name: string) => void }) {
+  if (!fields.length) return null;
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div className="grid gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="title-section">{detail.label}</h3>
-          <Badge tone={active ? "success" : "neutral"}>{active ? "Custom" : "Default"}</Badge>
-          {detail.is_overridden ? <Badge tone="warn">Edited</Badge> : null}
-        </div>
-        {detail.description ? <p className="max-w-3xl text-sm text-muted">{detail.description}</p> : null}
+    <div role="group" aria-labelledby="merge-fields-label" className="grid gap-2">
+      <div>
+        <p id="merge-fields-label" className="text-label text-ink">Merge fields</p>
+        <p className="text-caption text-ink-muted">Inserted where the cursor was last in the subject or a body.</p>
       </div>
-      <label className="flex max-w-xs items-start gap-3 text-sm text-ink">
-        <input className="mt-1 h-4 w-4" type="checkbox" checked={active} onChange={(event) => onActive(event.target.checked)} />
-        <span>
-          <span className="font-semibold">Use custom template</span>
-          <span className="block text-xs text-muted">When off, the {typeOverride ? "space" : "built-in"} default is sent (your text is kept). The email always sends.</span>
-        </span>
-      </label>
-    </div>
-  );
-}
-
-function MergeFields({ detail, onInsert }: { detail: TemplateDetail; onInsert: (name: string) => void }) {
-  return (
-    <div className="grid gap-2">
-      <h3 className="title-section">Merge fields</h3>
       <div className="flex flex-wrap gap-2">
-        {detail.fields.map((field) => (
-          <button key={field.name} className="desk-button-ghost font-mono text-xs" title={field.description} type="button" onClick={() => onInsert(field.name)}>
+        {fields.map((field) => (
+          <Button key={field.name} size="sm" variant="secondary" className="font-mono text-xs" title={field.description} onClick={() => onInsert(field.name)}>
             {field.name}
-          </button>
+          </Button>
         ))}
       </div>
-    </div>
-  );
-}
-
-function DefaultReference({ detail, typeOverride }: { detail: TemplateDetail; typeOverride: boolean }) {
-  return (
-    <div className="grid gap-3 rounded-md border border-line bg-bg p-4">
-      <h3 className="title-section">{typeOverride ? "Space default reference" : "Built-in default reference"}</h3>
-      <ReferenceBlock title="Subject" value={detail.default_subject} />
-      <ReferenceBlock title="Plain text" value={detail.default_text} tall />
-    </div>
-  );
-}
-
-function ReferenceBlock({ title, value, tall = false }: { title: string; value: string; tall?: boolean }) {
-  return (
-    <div className="grid gap-2">
-      <h4 className="title-section">{title}</h4>
-      <pre className={`${tall ? "max-h-64 whitespace-pre-wrap" : ""} overflow-auto rounded-md border border-line bg-surface p-3 text-xs text-muted`}>{value || "-"}</pre>
-    </div>
-  );
-}
-
-function PreviewPane({ preview, loading, error }: { preview?: Preview; loading: boolean; error: Error | null }) {
-  return (
-    <div className="grid gap-3 rounded-md border border-line bg-bg p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="title-section">Preview</h3>
-        {loading ? <span className="text-xs text-muted">Rendering...</span> : null}
-      </div>
-      {error ? <p className="text-sm text-danger">{error.message}</p> : null}
-      <ReferenceBlock title="Subject" value={preview?.subject ?? ""} />
-      <ReferenceBlock title="Plain text" value={preview?.text_body ?? ""} tall />
-      {preview?.html_body ? (
-        <div className="grid gap-2">
-          <h4 className="title-section">HTML</h4>
-          <iframe className="h-96 w-full rounded-md border border-line bg-white" sandbox="" srcDoc={preview.html_body} title="Rendered email HTML preview" />
-        </div>
-      ) : null}
     </div>
   );
 }

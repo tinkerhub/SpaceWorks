@@ -101,6 +101,12 @@ choose_modules() {
       MODULE_FORCE_OFF="membership"
       ;;
   esac
+  # Stripe keys entered earlier are only useful with the `payments` module, which neither
+  # setup profile (recommended, checkin) installs, so offer it ticked; it can be unticked.
+  if [[ -n "${STRIPE_SECRET_KEY:-}" ]]; then
+    MODULE_FORCE_ON="${MODULE_FORCE_ON:+$MODULE_FORCE_ON,}payments"
+    echo "Stripe keys were entered, so 'payments' starts ticked below. Untick it to keep online payments off."
+  fi
   change_modules
 }
 

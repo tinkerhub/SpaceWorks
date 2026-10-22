@@ -16,6 +16,7 @@ from apps.admin_api.serializers_inventory import (
 )
 from apps.audit import services as audit
 from apps.inventory import public_image_storage
+from apps.inventory.public_image_attach import PublicImageRejected, finalize_product_image
 from apps.evidence.responses import storage_unavailable_response
 from apps.evidence.storage import StorageUnavailable
 from apps.inventory.models import InventoryProduct
@@ -88,40 +89,14 @@ class InventoryProductImageView(APIView):
         serializer = PublicImageAttachRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         object_key = serializer.validated_data["object_key"]
-        expected_prefix = f"items/{product.makerspace_id}/"
-        if not object_key.startswith(expected_prefix):
-            raise ValidationError({"object_key": "Image object key is outside this makerspace."})
-        if not public_image_storage.is_safe_object_key(object_key):
-            raise ValidationError({"object_key": "Invalid image object key."})
-        if object_key and public_image_storage.public_image_key_in_use(
-            product.makerspace_id,
-            object_key,
-            product_id=product.pk,
-        ):
-            raise ValidationError({"object_key": "This image is already in use."})
         try:
-            result = public_image_storage.finalize_upload(object_key)
+            size = finalize_product_image(
+                product.makerspace_id, object_key, product_id=product.pk
+            )
+        except PublicImageRejected as exc:
+            raise ValidationError({"object_key": str(exc)}) from exc
         except StorageUnavailable:
             return storage_unavailable_response()
-        if result.status != "ok":
-            if result.status in {"empty", "too_large"}:
-                public_image_storage.delete_object(object_key)
-                public_image_storage.delete_object(
-                    public_image_storage.staging_key(object_key)
-                )
-            raise ValidationError(
-                {"object_key": public_image_storage.finalize_error_message(result)}
-            )
-        try:
-            is_valid_image = public_image_storage.sniff_is_valid_image(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if not is_valid_image:
-            public_image_storage.delete_object(object_key)
-            public_image_storage.delete_object(public_image_storage.staging_key(object_key))
-            raise ValidationError(
-                {"object_key": "Uploaded file is not a valid image."}
-            )
         product = InventoryProduct.objects.select_for_update().select_related(
             "makerspace"
         ).get(pk=product.pk)
@@ -133,7 +108,7 @@ class InventoryProductImageView(APIView):
             raise ValidationError({"object_key": "This image is already in use."})
         old_key = product.image_key
         if object_key != old_key:
-            add_storage(product.makerspace, result.size)
+            add_storage(product.makerspace, size)
         if old_key and old_key != object_key:
             public_image_storage.release_public_image_on_commit(
                 product.makerspace, old_key

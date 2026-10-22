@@ -1,162 +1,97 @@
-import type {
-  PublicStatsCurrentLoan,
-  PublicStatsHardware,
-  PublicStatsPrinting,
-} from "./api";
-import {
-  BarChart,
-  CompactList,
-  Section,
-  StatTile,
-  formatDate,
-  formatNumber,
-} from "./StatsParts";
+import { Chip, StatTile, TBody, TD, TH, THead, TR, Table } from "../../components/ui";
 import { ImageThumbnail } from "../../components/ui/ImageThumbnail";
+import type { PublicStatsCurrentLoan, PublicStatsHardware, PublicStatsPrinting } from "./api";
+import { BarChart, CompactList, Panel, Section, formatDate, formatNumber } from "./StatsParts";
 
 export function PrintingSection({ printing }: { printing: PublicStatsPrinting }) {
-  const queueTotal =
-    printing.jobs.queue.pending +
-    printing.jobs.queue.accepted +
-    printing.jobs.queue.printing;
+  const queue = printing.jobs.queue;
+  const queueTotal = queue.pending + queue.accepted + queue.printing;
 
   return (
-    <Section title="Printing">
+    <Section title="Printing" description="3D printing activity across this makerspace's printers.">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Print hours all time"
-          value={formatNumber(printing.hours_all_time)}
-          tone="blue"
-        />
-        <StatTile
-          label="Print hours this month"
-          value={formatNumber(printing.hours_this_month)}
-          tone="yellow"
-        />
-        <StatTile
-          label="Filament used"
-          value={`${formatNumber(printing.grams_all_time)} g`}
-          tone="mint"
-        />
-        <StatTile label="Completed jobs" value={printing.jobs.completed} tone="pink" />
+        <StatTile label="Print hours all time" value={formatNumber(printing.hours_all_time)} />
+        <StatTile label="Print hours this month" value={formatNumber(printing.hours_this_month)} />
+        <StatTile label="Filament used" value={`${formatNumber(printing.grams_all_time)} g`} />
+        <StatTile label="Completed jobs" value={printing.jobs.completed} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">Busiest printer</h3>
+        <Panel title="Busiest printer">
           {printing.busiest_printer ? (
-            <div className="mt-3 flex items-center gap-3 text-sm">
-              <ImageThumbnail
-                src={printing.busiest_printer.image_url}
-                alt={printing.busiest_printer.name}
-                className="h-16 w-16"
-              />
+            <div className="mt-3 flex items-center gap-3">
+              <ImageThumbnail src={printing.busiest_printer.image_url} alt={printing.busiest_printer.name} className="h-16 w-16" />
               <div className="min-w-0">
-                <p className="break-words text-xl font-bold text-ink">
-                  {printing.busiest_printer.name}
-                </p>
+                <p className="break-words text-h4 text-ink">{printing.busiest_printer.name}</p>
                 {printing.busiest_printer.model ? (
-                  <p className="eyebrow break-words">
-                    {printing.busiest_printer.model}
-                  </p>
+                  <p className="break-words text-caption text-ink-muted">{printing.busiest_printer.model}</p>
                 ) : null}
-                <p className="font-mono text-muted">
-                  {formatNumber(printing.busiest_printer.hours)} hours /{" "}
-                  {printing.busiest_printer.completed} completed
+                <p className="text-caption tabular-nums text-ink-secondary">
+                  {formatNumber(printing.busiest_printer.hours)} hours · {printing.busiest_printer.completed} completed
                 </p>
               </div>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-muted">No printer activity yet.</p>
+            <p className="mt-3 text-body-ui text-ink-muted">No printer activity yet.</p>
           )}
-        </div>
+        </Panel>
 
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">Queue</h3>
+        <Panel title="Queue">
           <div className="mt-3 flex flex-wrap gap-2">
-            <span className="status-box status-box-active">
-              {printing.jobs.queue.pending} pending
-            </span>
-            <span className="status-box">
-              {printing.jobs.queue.accepted} accepted
-            </span>
-            <span className="status-box">
-              {printing.jobs.queue.printing} printing
-            </span>
-            <span className="status-box">{queueTotal} active</span>
+            <Chip tone="info">{queue.pending} pending</Chip>
+            <Chip>{queue.accepted} accepted</Chip>
+            <Chip>{queue.printing} printing</Chip>
+            <Chip tone="outline">{queueTotal} active</Chip>
           </div>
-        </div>
+        </Panel>
 
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">By brand</h3>
+        <Panel title="By brand">
           <CompactList
             empty="No filament records."
-            rows={printing.by_brand.map((row) => ({
-              label: row.brand,
-              value: `${formatNumber(row.grams)} g`,
-            }))}
+            rows={printing.by_brand.map((row) => ({ label: row.brand, value: `${formatNumber(row.grams)} g` }))}
           />
+        </Panel>
+      </div>
+
+      <Panel title="Filament trend">
+        <div className="mt-4">
+          <BarChart rows={printing.filament_trend.map((row) => ({ label: row.period, value: row.grams }))} valueLabel="g" />
         </div>
-      </div>
+      </Panel>
 
-      <div className="rounded-md border border-line bg-panel p-3">
-        <h3 className="title-section mb-3">Filament trend</h3>
-        <BarChart
-          rows={printing.filament_trend.map((row) => ({
-            label: row.period,
-            value: row.grams,
-          }))}
-          valueLabel="g"
-        />
-      </div>
-
-      <div className="rounded-md border border-line bg-panel p-3">
-        <h3 className="title-section">Per printer</h3>
+      <div className="space-y-3">
+        <h3 className="text-title text-ink">Per printer</h3>
         {printing.per_printer.length ? (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-line text-left text-muted">
-                  <th scope="col" className="eyebrow py-2 pr-3">Printer</th>
-                  <th scope="col" className="eyebrow px-3 py-2 text-right">
-                    Completed jobs
-                  </th>
-                  <th scope="col" className="eyebrow px-3 py-2 text-right">Hours</th>
-                  <th scope="col" className="eyebrow py-2 pl-3 text-right">
-                    Filament (g)
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {printing.per_printer.map((row, index) => (
-                  <tr
-                    className="border-b border-line last:border-b-0"
-                    key={`${row.name}-${index}`}
-                  >
-                    <td className="py-2 pr-3 text-ink">
-                      <div className="flex items-center gap-3">
-                        <ImageThumbnail src={row.image_url} alt={row.name} />
-                        <span className="min-w-0 break-words">
-                          {row.name}
-                          {row.model ? (
-                            <span className="eyebrow block">{row.model}</span>
-                          ) : null}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 text-right font-mono text-ink">{row.jobs}</td>
-                    <td className="px-3 py-2 text-right font-mono text-ink">
-                      {formatNumber(row.hours)}
-                    </td>
-                    <td className="py-2 pl-3 text-right font-mono text-ink">
-                      {formatNumber(row.grams)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table label="Per printer">
+            <THead>
+              <tr>
+                <TH>Printer</TH>
+                <TH className="text-right">Completed jobs</TH>
+                <TH className="text-right">Hours</TH>
+                <TH className="text-right">Filament (g)</TH>
+              </tr>
+            </THead>
+            <TBody>
+              {printing.per_printer.map((row, index) => (
+                <TR key={`${row.name}-${index}`}>
+                  <TD>
+                    <div className="flex items-center gap-3">
+                      <ImageThumbnail src={row.image_url} alt={row.name} />
+                      <span className="min-w-0 break-words">
+                        {row.name}
+                        {row.model ? <span className="block text-caption text-ink-muted">{row.model}</span> : null}
+                      </span>
+                    </div>
+                  </TD>
+                  <TD className="text-right tabular-nums">{row.jobs}</TD>
+                  <TD className="text-right tabular-nums">{formatNumber(row.hours)}</TD>
+                  <TD className="text-right tabular-nums">{formatNumber(row.grams)}</TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
         ) : (
-          <p className="mt-3 text-sm text-muted">No printer activity yet.</p>
+          <p className="rounded-lg border-[1.5px] border-dashed border-line-strong px-4 py-6 text-center text-body-ui text-ink-muted">No printer activity yet.</p>
         )}
       </div>
     </Section>
@@ -165,90 +100,62 @@ export function PrintingSection({ printing }: { printing: PublicStatsPrinting })
 
 export function HardwareSection({ hardware }: { hardware: PublicStatsHardware }) {
   return (
-    <Section title="Hardware">
+    <Section title="Hardware" description="The public tool library and how it's being used.">
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatTile label="Public library" value={hardware.library.library_size} tone="blue" />
-        <StatTile
-          label="Available now"
-          value={hardware.library.available_count}
-          tone="mint"
-        />
-        <StatTile
-          label="Currently out"
-          value={hardware.library.currently_out_count}
-          tone="yellow"
-        />
+        <StatTile label="Public library" value={hardware.library.library_size} />
+        <StatTile label="Available now" value={hardware.library.available_count} />
+        <StatTile label="Currently out" value={hardware.library.currently_out_count} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">Most popular</h3>
+        <Panel title="Most popular">
           <CompactList
             empty="No lending history yet."
             rows={hardware.most_popular.map((row) => ({
               label: row.name,
-              value: `${row.times_lent} loans / ${row.total_quantity_lent} total`,
+              value: `${row.times_lent} loans · ${row.total_quantity_lent} total`,
             }))}
           />
-        </div>
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">Tools out</h3>
+        </Panel>
+        <Panel title="Tools out">
           <CompactList
             empty="No tools are out."
-            rows={hardware.tools_out.map((row) => ({
-              label: row.name,
-              value: `${row.quantity_out} out`,
-            }))}
+            rows={hardware.tools_out.map((row) => ({ label: row.name, value: `${row.quantity_out} out` }))}
           />
-        </div>
-        <div className="rounded-md border border-line bg-panel p-3">
-          <h3 className="title-section">Recently added</h3>
+        </Panel>
+        <Panel title="Recently added">
           <CompactList
             empty="No new public gear this month."
-            rows={hardware.recently_added.map((row) => ({
-              label: row.name,
-              value: formatDate(row.created_at),
-            }))}
+            rows={hardware.recently_added.map((row) => ({ label: row.name, value: formatDate(row.created_at) }))}
           />
-        </div>
+        </Panel>
       </div>
     </Section>
   );
 }
 
-export function CurrentLoansSection({
-  loans,
-}: {
-  loans: PublicStatsCurrentLoan[];
-}) {
+export function CurrentLoansSection({ loans }: { loans: PublicStatsCurrentLoan[] }) {
   return (
     <Section title="Currently out">
       {loans.length ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {loans.map((loan, index) => (
-            <article
-              className="rounded-md border border-line bg-panel p-3"
-              key={`${loan.item_name}-${loan.holder_name}-${index}`}
-            >
-              <h3 className="title-section truncate">
-                {loan.item_name}
-              </h3>
-              <p className="mt-2 text-sm text-muted [overflow-wrap:anywhere]">
+            <article className="min-w-0 rounded-lg border border-line bg-canvas p-4" key={`${loan.item_name}-${loan.holder_name}-${index}`}>
+              <h3 className="truncate text-title text-ink">{loan.item_name}</h3>
+              <p className="mt-1 text-body-ui text-ink-muted [overflow-wrap:anywhere]">
                 With <span className="font-semibold text-ink">{loan.holder_name}</span>
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="status-box">
-                  Due {loan.due ? formatDate(loan.due) : "not set"}
-                </span>
-                {loan.since ? (
-                  <span className="status-box">Since {formatDate(loan.since)}</span>
-                ) : null}
+                <Chip size="sm" tone={loan.due ? "warning" : "neutral"}>Due {loan.due ? formatDate(loan.due) : "not set"}</Chip>
+                {loan.since ? <Chip size="sm">Since {formatDate(loan.since)}</Chip> : null}
               </div>
             </article>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted">No public tools are currently out.</p>
+        <p className="rounded-lg border-[1.5px] border-dashed border-line-strong px-4 py-6 text-center text-body-ui text-ink-muted">
+          No public tools are currently out.
+        </p>
       )}
     </Section>
   );

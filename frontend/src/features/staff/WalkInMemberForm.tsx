@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { UserPlus } from "lucide-react";
+
+import { Button, ErrorText, Field, Input, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { errorText } from "./panels/shared";
 
 type WalkInMember = { user_id: number; display_name: string; username: string };
 
@@ -26,6 +30,7 @@ export function WalkInMemberForm({
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const { showToast } = useToast();
 
   const create = useMutation({
     mutationFn: () =>
@@ -47,78 +52,54 @@ export function WalkInMemberForm({
       setEmail("");
       setPhone("");
       setOpen(false);
+      showToast(`${member.display_name} added`, { tone: "success" });
     },
+    onError: (error) => showToast(errorText(error, "Couldn't add the walk-in"), { tone: "error" }),
   });
 
   if (!open) {
     return (
-      <button
-        className="desk-button-ghost mt-2 px-0"
-        type="button"
-        onClick={() => setOpen(true)}
-      >
+      <Button variant="quiet" size="sm" className="mt-2 px-0" startIcon={<UserPlus />} onClick={() => setOpen(true)}>
         Not a member yet? Add a walk-in
-      </button>
+      </Button>
     );
   }
 
   return (
-    <div className="mt-3 rounded-lg border border-line bg-surface p-3">
-      <p className="text-sm font-medium text-ink">Add a walk-in</p>
-      <p className="mt-1 text-xs text-muted">
-        Creates a person record for the handover trail. It is not an account and cannot sign in.
-      </p>
-      <label className="mt-3 block text-sm font-medium text-ink" htmlFor="walk-in-name">
-        Name
-      </label>
-      <input
-        id="walk-in-name"
-        className="desk-input mt-1 w-full"
-        value={displayName}
-        onChange={(event) => setDisplayName(event.target.value)}
-      />
-      <div className="mt-2 grid gap-2 md:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-ink" htmlFor="walk-in-email">
-            Email <span className="font-normal text-muted">(optional)</span>
-          </label>
-          <input
-            id="walk-in-email"
-            className="desk-input mt-1 w-full"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-ink" htmlFor="walk-in-phone">
-            Phone <span className="font-normal text-muted">(optional)</span>
-          </label>
-          <input
-            id="walk-in-phone"
-            className="desk-input mt-1 w-full"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-          />
-        </div>
+    <div className="mt-3 grid gap-4 rounded-lg border border-line bg-subtle p-4">
+      <div>
+        <p className="text-label text-ink">Add a walk-in</p>
+        <p className="mt-0.5 text-caption text-ink-muted">
+          Creates a person record for the handover trail. It is not an account and cannot sign in.
+        </p>
+      </div>
+      <Field label="Name" id="walk-in-name">
+        <Input value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
+      </Field>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="Email" optional id="walk-in-email">
+          <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </Field>
+        <Field label="Phone" optional id="walk-in-phone">
+          <Input type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} />
+        </Field>
       </div>
       {create.error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
-          {create.error instanceof Error ? create.error.message : "Unable to add the walk-in."}
-        </p>
+        <ErrorText message={create.error instanceof Error ? create.error.message : "Unable to add the walk-in."} />
       ) : null}
-      <div className="mt-3 flex gap-2">
-        <button
-          className="desk-button-primary"
-          type="button"
-          disabled={!displayName.trim() || create.isPending}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="secondary"
+          disabled={!displayName.trim()}
+          loading={create.isPending}
+          loadingLabel="Adding…"
           onClick={() => create.mutate()}
         >
-          {create.isPending ? "Adding…" : "Add walk-in"}
-        </button>
-        <button className="desk-button" type="button" onClick={() => setOpen(false)}>
+          Add walk-in
+        </Button>
+        <Button variant="quiet" onClick={() => setOpen(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

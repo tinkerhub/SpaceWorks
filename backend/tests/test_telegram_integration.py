@@ -6,6 +6,7 @@ import pytest
 from django.conf import settings as django_settings
 from django.core.cache import cache
 from django.test import override_settings
+from rest_framework.test import APIClient
 from rest_framework.throttling import ScopedRateThrottle
 
 from apps.accounts.models import User
@@ -141,6 +142,19 @@ def test_telegram_webhook_rejects_missing_or_wrong_secret():
         {"callback_query": {"from": {"id": 42}, "data": "accept:1"}},
         format="json",
         HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN="wrong-secret",
+    )
+
+    assert response.status_code == 403
+
+
+@override_settings(TELEGRAM_WEBHOOK_SECRET=WEBHOOK_SECRET)
+def test_telegram_webhook_refuses_a_non_ascii_secret_instead_of_crashing():
+    cache.clear()
+    response = APIClient().post(
+        WEBHOOK_URL,
+        {"update_id": 1},
+        format="json",
+        HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN="test-webhook-secrét",
     )
 
     assert response.status_code == 403

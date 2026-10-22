@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { Download } from "lucide-react";
 
+import { Button, useToast } from "../../../components/ui";
 import { downloadStaffFile } from "../../../lib/api";
-import { BarChart, DataState, ReportTable, StatCards } from "./OperationsReportsParts";
+import { moduleEnabled } from "../../../lib/modules";
+import { BarChart, DataState, EmptyReport, ReportCard, ReportTable, StatCards } from "./OperationsReportsParts";
+import { OperationsReportsExports, type ExportFormat } from "./OperationsReportsExports";
+import { OperationsReportsFilters } from "./OperationsReportsFilters";
 import { OperationsReportsFablab } from "./OperationsReportsFablab";
 import { OperationsReportsHardware } from "./OperationsReportsHardware";
 import { OperationsReportsMachineService } from "./OperationsReportsMachineService";
@@ -10,7 +15,7 @@ import { OperationsReportsMembers } from "./OperationsReportsMembers";
 import { OperationsReportsPayments } from "./OperationsReportsPayments";
 import { OperationsReportsPrinterService } from "./OperationsReportsPrinterService";
 import { OperationsReportsCoverage } from "./OperationsReportsCoverage";
-import { Panel, type Makerspace, useStaffGet } from "./shared";
+import { errorText, Panel, type Makerspace, useStaffGet } from "./shared";
 import {
   loadSavedReportViews,
   newSavedViewId,
@@ -35,6 +40,7 @@ export function OperationsReports({
   canViewAudit,
   canManageMachines,
   canManageMakerspace,
+  singleTenantLocked = false,
 }: {
   makerspace: Makerspace;
   makerspaces: Makerspace[];
@@ -43,7 +49,10 @@ export function OperationsReports({
   canViewAudit: boolean;
   canManageMachines: boolean;
   canManageMakerspace: boolean;
+  /** Origin-locked (single-tenant) site: the cross-makerspace aggregate routes are refused there. */
+  singleTenantLocked?: boolean;
 }) {
+  const { showToast } = useToast();
   const [allMakerspaces, setAllMakerspaces] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -54,19 +63,25 @@ export function OperationsReports({
   useEffect(() => {
     window.localStorage.setItem(savedViewsStorageKey, JSON.stringify(savedViews));
   }, [savedViews]);
-  const aggregate = isSuperadmin && allMakerspaces;
+  const canAggregate = isSuperadmin && !singleTenantLocked;
+  const aggregate = canAggregate && allMakerspaces;
   const scopeKey = aggregate ? "all" : makerspace.id;
   const analyticsBase = aggregate ? "/admin/analytics" : `/admin/makerspace/${makerspace.id}/analytics`;
   const reportsBase = aggregate ? "/admin/reports" : `/admin/makerspace/${makerspace.id}/reports`;
   const dateQuery = [startDate ? `start=${encodeURIComponent(startDate)}` : "", endDate ? `end=${encodeURIComponent(endDate)}` : ""].filter(Boolean).join("&");
   const dateSuffix = dateQuery ? `&${dateQuery}` : "";
-  const reportsEnabled = aggregate || (makerspace.enabled_modules ?? []).includes("reports");
+  // Panels for switched-off modules render nothing. The all-makerspaces aggregate spans
+  // spaces with different switches, so the server's per-space rows decide there instead.
+  const moduleOn = (key: string) => aggregate || moduleEnabled(makerspace.enabled_modules, key);
+  const reportsEnabled = moduleOn("reports");
   const catalog = useStaffGet<ReportCatalog>(
     ["report-catalog", scopeKey],
     aggregate ? "/admin/reports/catalog" : `/admin/makerspace/${makerspace.id}/reports/catalog`,
     reportsEnabled,
   );
-  const catalogEntries = catalog.data?.results ?? [];
+  const catalogEntries = (catalog.data?.results ?? []).filter(
+    (report) => (report.required_modules ?? []).every(moduleOn),
+  );
   useEffect(() => {
     if (!catalog.data || catalogEntries.some((item) => item.key === selectedReport && item.available !== false)) return;
     const firstAvailable = catalogEntries.find((item) => item.available !== false);
@@ -94,13 +109,14 @@ export function OperationsReports({
     };
     setSavedViews((existing) => [view, ...existing.filter((item) => item.name !== name)].slice(0, 12));
     setPresetName("");
+    showToast("View saved", { tone: "success" });
   };
 
   const applySavedView = (view: SavedReportView) => {
     setStartDate(view.startDate);
     setEndDate(view.endDate);
     setSelectedReport(view.selectedReport);
-    setAllMakerspaces(view.scope === "all" && isSuperadmin);
+    setAllMakerspaces(view.scope === "all" && canAggregate);
   };
 
   const removeSavedView = (id: string) => {
@@ -108,164 +124,112 @@ export function OperationsReports({
   };
 
   const exportReport = useMutation({
-    mutationFn: ({ report, format }: { report: string; format: "csv" | "xlsx" }) =>
+    mutationFn: ({ report, format }: { report: string; format: ExportFormat }) =>
       downloadStaffFile(
         `${reportsBase}/${report}/export?format=${format}${dateSuffix}&grain=${encodeURIComponent(grain)}`,
         `${aggregate ? "all-makerspaces-" : ""}${report}.${format}`,
       ),
+    onSuccess: (_data, { format }) => showToast(`Report downloaded as ${format.toUpperCase()}`, { tone: "success" }),
+    onError: (error) => showToast(errorText(error, "We couldn't export that report"), { tone: "error" }),
   });
 
+  const selectedExport = availableExports.find((report) => report.key === selectedReport);
+  const runExport = (report: ReportKey, format: ExportFormat) => {
+    setSelectedReport(report);
+    exportReport.mutate({ report, format });
+  };
+
   return (
-    <div className="space-y-4">
-      <Panel title="Reports">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="title-section">
-              {printingOnly ? "3D printing reporting" : "Operations reporting"} for {scopeLabel}
-            </h3>
-            <p className="text-xs text-muted">
-              {printingOnly
-                ? "Print jobs, printer hours, and filament usage."
-                : "Inventory movement, borrower activity, exceptions, and print usage."}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-end gap-2">
-            <label className="eyebrow grid gap-1">
-              <span>Start</span>
-              <input className="desk-input" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
-            </label>
-            <label className="eyebrow grid gap-1">
-              <span>End</span>
-              <input className="desk-input" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-            </label>
-            <label className="eyebrow grid gap-1">
-              <span>Report</span>
-              <select className="desk-input" value={selectedReport} onChange={(event) => setSelectedReport(event.target.value as ReportKey)}>
-                {!catalogEntries.length ? <option value={selectedReport}>{catalog.isLoading ? "Loading reports..." : "No reports available"}</option> : null}
-                {catalogEntries.map((report) => (
-                  <option key={report.key} value={report.key} disabled={report.available === false}>
-                    {report.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="eyebrow grid gap-1">
-              <span>Grain</span>
-              <select className="desk-input" value={grain} onChange={(event) => setGrain(event.target.value)}>
-                <option value="day">Day</option><option value="month">Month</option>
-              </select>
-            </label>
-            {isSuperadmin ? (
-              <label className="flex items-center gap-2 pb-2 text-sm text-ink">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-current"
-                  checked={allMakerspaces}
-                  onChange={(event) => setAllMakerspaces(event.target.checked)}
+    <Panel
+      title="Reports"
+      description={printingOnly
+        ? `3D printing for ${scopeLabel}: print jobs, printer hours and filament usage.`
+        : `Operations for ${scopeLabel}: inventory movement, borrower activity, exceptions and print usage.`}
+      actions={!printingOnly && selectedExport ? (
+        <Button variant="primary" startIcon={<Download />} loading={exportReport.isPending} loadingLabel="Exporting…" onClick={() => runExport(selectedExport.key, "csv")}>
+          Export CSV
+        </Button>
+      ) : undefined}
+    >
+      <div className="grid gap-6">
+        <OperationsReportsFilters
+          startDate={startDate}
+          endDate={endDate}
+          onStartDate={setStartDate}
+          onEndDate={setEndDate}
+          selectedReport={selectedReport}
+          onSelectReport={setSelectedReport}
+          catalogEntries={catalogEntries}
+          catalogLoading={catalog.isLoading}
+          catalogError={catalog.error}
+          grain={grain}
+          onGrain={setGrain}
+          showAllMakerspaces={canAggregate}
+          allMakerspaces={allMakerspaces}
+          onAllMakerspaces={setAllMakerspaces}
+          presetName={presetName}
+          onPresetName={setPresetName}
+          presetPlaceholder={`${reportTitle(selectedReport)} - ${scopeLabel}`}
+          onSaveView={saveCurrentView}
+          savedViews={savedViews}
+          isActiveView={(view) => view.startDate === startDate && view.endDate === endDate && view.selectedReport === selectedReport && view.scope === currentScope}
+          describeView={(view) => `${reportTitle(view.selectedReport, catalogEntries)} / ${view.scopeLabel}`}
+          onApplyView={applySavedView}
+          onRemoveView={removeSavedView}
+        />
+
+        {!printingOnly ? (
+          <ReportCard title="Inventory summary" description="Stock and loans across the selected scope.">
+            {reportsEnabled ? (
+              <DataState loading={summary.isLoading} error={summary.error} empty={!summary.data}>
+                <StatCards
+                  stats={[
+                    ["Products", summary.data?.products],
+                    ["Assets", summary.data?.assets],
+                    ["Active loans", summary.data?.active_loans],
+                    ["Available", summary.data?.available_quantity],
+                    ["Issued", summary.data?.issued_quantity],
+                    ["Damaged", summary.data?.damaged_quantity],
+                    ["Missing", summary.data?.missing_quantity],
+                  ]}
                 />
-                All makerspaces
-              </label>
-            ) : null}
-          </div>
-        </div>
-        {catalog.error ? <p className="mt-3 text-sm text-danger">{catalog.error instanceof Error ? catalog.error.message : "Could not load report catalog."}</p> : null}
-        <div className="mt-4 space-y-3 border-t border-line pt-3">
-          <div className="flex flex-wrap items-end gap-2">
-            <label className="eyebrow grid min-w-48 gap-1">
-              <span>View name</span>
-              <input
-                className="desk-input"
-                value={presetName}
-                onChange={(event) => setPresetName(event.target.value)}
-                placeholder={`${reportTitle(selectedReport)} - ${scopeLabel}`}
-              />
-            </label>
-            <button className="desk-button-primary" type="button" onClick={saveCurrentView}>
-              Save view
-            </button>
-          </div>
-          {savedViews.length ? (
-            <div className="flex flex-wrap gap-2">
-              {savedViews.map((view) => (
-                <div key={view.id} className="flex min-w-0 max-w-full flex-wrap items-center gap-1 rounded-md border border-line bg-bg px-2 py-1">
-                  <button className="desk-button-ghost min-w-0 max-w-full justify-start break-words text-left" type="button" onClick={() => applySavedView(view)}>
-                    {view.name}
-                  </button>
-                  <span className="min-w-0 break-words text-xs text-muted">
-                    {reportTitle(view.selectedReport, catalogEntries)} / {view.scopeLabel}
-                  </span>
-                  <button className="desk-button-danger" type="button" onClick={() => removeSavedView(view.id)} aria-label={`Remove ${view.name}`}>
-                    x
-                  </button>
+                <div className="mt-5">
+                  <BarChart rows={[
+                    { label: "Available", value: summary.data?.available_quantity ?? 0 },
+                    { label: "Issued", value: summary.data?.issued_quantity ?? 0 },
+                    { label: "Damaged", value: summary.data?.damaged_quantity ?? 0 },
+                    { label: "Missing", value: summary.data?.missing_quantity ?? 0 },
+                  ]} valueLabel="units" />
                 </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        {!printingOnly && reportsEnabled ? (
-          <DataState loading={summary.isLoading} error={summary.error} empty={!summary.data}>
-            <StatCards
-              stats={[
-                ["Products", summary.data?.products],
-                ["Assets", summary.data?.assets],
-                ["Active loans", summary.data?.active_loans],
-                ["Available", summary.data?.available_quantity],
-                ["Issued", summary.data?.issued_quantity],
-                ["Damaged", summary.data?.damaged_quantity],
-                ["Missing", summary.data?.missing_quantity],
-              ]}
-            />
-            <div className="mt-4">
-              <BarChart rows={[
-                { label: "Available", value: summary.data?.available_quantity ?? 0 },
-                { label: "Issued", value: summary.data?.issued_quantity ?? 0 },
-                { label: "Damaged", value: summary.data?.damaged_quantity ?? 0 },
-                { label: "Missing", value: summary.data?.missing_quantity ?? 0 },
-              ]} valueLabel="units" />
-            </div>
-            <ReportTable data={{ rows: [
-              ["metric", "value"],
-              ["products", summary.data?.products ?? 0],
-              ["assets", summary.data?.assets ?? 0],
-              ["active_loans", summary.data?.active_loans ?? 0],
-              ["available_quantity", summary.data?.available_quantity ?? 0],
-              ["issued_quantity", summary.data?.issued_quantity ?? 0],
-              ["damaged_quantity", summary.data?.damaged_quantity ?? 0],
-              ["missing_quantity", summary.data?.missing_quantity ?? 0],
-            ] }} />
-          </DataState>
-        ) : !printingOnly ? <p className="mt-3 text-sm text-muted">Module disabled</p> : null}
-      </Panel>
+                <ReportTable data={{ rows: [
+                  ["metric", "value"],
+                  ["products", summary.data?.products ?? 0],
+                  ["assets", summary.data?.assets ?? 0],
+                  ["active_loans", summary.data?.active_loans ?? 0],
+                  ["available_quantity", summary.data?.available_quantity ?? 0],
+                  ["issued_quantity", summary.data?.issued_quantity ?? 0],
+                  ["damaged_quantity", summary.data?.damaged_quantity ?? 0],
+                  ["missing_quantity", summary.data?.missing_quantity ?? 0],
+                ] }} />
+              </DataState>
+            ) : <EmptyReport reason="The reports module is switched off for this makerspace." />}
+          </ReportCard>
+        ) : null}
 
       {!printingOnly ? (
       <>
-      <Panel title="Exports">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {availableExports.map((definition) => (
-            <div key={definition.key} className={`rounded-md border p-3 ${selectedReport === definition.key ? "border-accent bg-accent/10" : "border-line bg-bg"}`}>
-              <h3 className="title-section">{definition.title}</h3>
-              <div className="mt-3 flex gap-2">
-                <button className="desk-button-ghost" type="button" disabled={exportReport.isPending} onClick={() => { setSelectedReport(definition.key); exportReport.mutate({ report: definition.key, format: "csv" }); }}>
-                  CSV
-                </button>
-                <button className="desk-button-ghost" type="button" disabled={exportReport.isPending} onClick={() => { setSelectedReport(definition.key); exportReport.mutate({ report: definition.key, format: "xlsx" }); }}>
-                  XLSX
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        {exportReport.error ? (
-          <p className="mt-3 rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-            {exportReport.error instanceof Error ? exportReport.error.message : "Could not export report."}
-          </p>
-        ) : null}
-      </Panel>
+      <OperationsReportsExports
+        exports={availableExports}
+        selectedReport={selectedReport}
+        pending={exportReport.isPending}
+        error={exportReport.error}
+        onExport={runExport}
+      />
 
       <OperationsReportsHardware analyticsBase={analyticsBase} scopeKey={scopeKey} startDate={startDate} endDate={endDate} enabled={hardwareEnabled} aggregate={aggregate} makerspaceName={makerspaceName} />
       <OperationsReportsCoverage catalog={catalogEntries} analyticsBase={analyticsBase} scopeKey={scopeKey} startDate={startDate} endDate={endDate} grain={grain} aggregate={aggregate} makerspaceName={makerspaceName} />
-      <OperationsReportsMembers makerspaceId={makerspace.id} aggregate={aggregate} startDate={startDate} endDate={endDate} enabled={hardwareEnabled} />
-      {canManageMakerspace ? <OperationsReportsPayments analyticsBase={analyticsBase} scopeKey={scopeKey} startDate={startDate} endDate={endDate} enabled={reportsEnabled} makerspaceName={makerspaceName} /> : null}
+      <OperationsReportsMembers makerspaceId={makerspace.id} aggregate={aggregate} startDate={startDate} endDate={endDate} enabled={hardwareEnabled && moduleOn("membership")} />
+      {canManageMakerspace && moduleOn("payments") ? <OperationsReportsPayments analyticsBase={analyticsBase} scopeKey={scopeKey} startDate={startDate} endDate={endDate} enabled={reportsEnabled} makerspaceName={makerspaceName} /> : null}
       </>
       ) : null}
 
@@ -273,6 +237,7 @@ export function OperationsReports({
 
       <OperationsReportsPrinterService makerspace={makerspace} aggregate={aggregate} canManageMachines={canManageMachines} reportsEnabled={reportsEnabled} startDate={startDate} endDate={endDate} makerspaceName={makerspaceName} />
       <OperationsReportsMachineService makerspace={makerspace} aggregate={aggregate} canManageMachines={canManageMachines} reportsEnabled={reportsEnabled} startDate={startDate} endDate={endDate} makerspaceName={makerspaceName} />
-    </div>
+      </div>
+    </Panel>
   );
 }

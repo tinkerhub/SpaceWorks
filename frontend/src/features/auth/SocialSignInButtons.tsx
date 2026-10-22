@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { Button, ErrorText } from "../../components/ui";
 import { publicV1Request } from "../../lib/api";
 import {
   beginOidcBrowser,
@@ -89,15 +90,20 @@ export function SocialSignInButtons({
   if (!showGoogle && !showApple && oidcProviders.length === 0) return null;
 
   return (
-    <section className="mt-5 border-t border-line pt-5" aria-label="Social sign in">
-      <p className="eyebrow mb-3 text-center">Or continue with</p>
+    <section className="mt-2 flex flex-col gap-4" aria-label="Social sign in">
+      <div aria-hidden="true" className="flex items-center gap-3 text-caption text-ink-muted">
+        <span className="h-px flex-1 bg-line" />
+        or continue with
+        <span className="h-px flex-1 bg-line" />
+      </div>
       <div className="flex flex-col items-center gap-3">
         {showGoogle ? <div ref={googleHost} className="min-h-11 w-full max-w-full overflow-x-auto text-center" /> : null}
         {showApple ? (
-          <button
-            className="desk-button-secondary w-full max-w-[360px]"
-            type="button"
-            disabled={applePending}
+          <Button
+            variant="secondary"
+            fullWidth
+            loading={applePending}
+            loadingLabel="Connecting to Apple…"
             onClick={async () => {
               setApplePending(true);
               setError("");
@@ -110,17 +116,19 @@ export function SocialSignInButtons({
               }
             }}
           >
-            {applePending ? "Connecting to Apple…" : "Continue with Apple"}
-          </button>
+            Continue with Apple
+          </Button>
         ) : null}
         {oidcProviders.map(([key, provider]) => {
           const slug = key.slice("oidc:".length);
           return (
-            <button
+            <Button
               key={key}
-              className="desk-button-secondary w-full max-w-[360px]"
-              type="button"
-              disabled={Boolean(oidcPending)}
+              variant="secondary"
+              fullWidth
+              disabled={Boolean(oidcPending) && oidcPending !== key}
+              loading={oidcPending === key}
+              loadingLabel={`Connecting to ${provider.display_name}…`}
               onClick={async () => {
                 setOidcPending(key);
                 setError("");
@@ -132,14 +140,12 @@ export function SocialSignInButtons({
                 }
               }}
             >
-              {oidcPending === key
-                ? `Connecting to ${provider.display_name}…`
-                : `Continue with ${provider.display_name}`}
-            </button>
+              {`Continue with ${provider.display_name}`}
+            </Button>
           );
         })}
       </div>
-      {error ? <p className="mt-3 text-sm text-danger" role="alert">{error}</p> : null}
+      <ErrorText message={error} />
     </section>
   );
 }

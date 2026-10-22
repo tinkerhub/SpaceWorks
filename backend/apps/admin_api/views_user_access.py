@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -58,7 +58,10 @@ class ResetUserPasswordView(APIView):
         tags=["Admin users"],
         summary="Reset a staff user's password (temp + force change)",
         request=ResetPasswordRequestSerializer,
-        responses={200: ResetPasswordResponseSerializer},
+        responses={
+            200: ResetPasswordResponseSerializer,
+            400: OpenApiResponse(description="Invalid password or self-targeted reset."),
+        },
     )
     def post(self, request, pk, *args, **kwargs):
         result = reset_user_password(

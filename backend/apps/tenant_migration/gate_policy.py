@@ -215,6 +215,7 @@ LIFECYCLE_EXEMPTIONS = {
 # service-owned transaction gate. These are participation declarations, not bypasses;
 # the AST guard rejects stale targets.
 OBJECT_MUTATION_PARTICIPANTS = {
+    "apps.admin_api.bulk_import_apply._attach_image": "Runs inside the tenant-resolved admin bulk-import route.",
     "apps.data_export.services._fail_job": "Called only by the task-resolved run_export_job lifecycle.",
     "apps.data_export.services._finalize_job": "Called only by the task-resolved run_export_job lifecycle.",
     "apps.data_export.services.run_export_job": (
@@ -235,6 +236,10 @@ OBJECT_MUTATION_PARTICIPANTS = {
     "apps.hardware_requests.direct_loan_returns.validate_evidence_upload": "Runs inside the guarded direct-loan return transaction.",
     "apps.hardware_requests.handover_workflow.issue_request": "Runs inside the request route's tenant transaction.",
     "apps.hardware_requests.return_workflow.return_items": "Runs inside the request route's tenant transaction.",
+    "apps.inventory.public_image_attach._delete_upload": "Called only by finalize_product_image below.",
+    "apps.inventory.public_image_attach.finalize_product_image": (
+        "Reached only through the tenant-resolved inventory image route and admin bulk import."
+    ),
     "apps.machines.public_printer_service.submit_request": "Runs inside the public-slug printer request route.",
     "apps.machines.services.attach_document": "Runs inside the model-resolved machine document route.",
     "apps.machines.services.remove_document": "Runs inside the model-resolved machine document route.",

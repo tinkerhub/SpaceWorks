@@ -1,10 +1,9 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 
-import { StaffDock } from "./StaffDock";
-import { StaffHeader } from "./StaffHeader";
 import { StaffTabContent } from "./StaffTabContent";
-import { EmptyState } from "../../components/ui/EmptyState";
-import { SkipLink } from "../../components/SkipLink";
+import { StaffShell } from "./shell/StaffShell";
+import { Button, Chip, EmptyState } from "../../components/ui";
+import { documentTitle, useDocumentTitle } from "../../lib/useDocumentTitle";
 import { getStaffAccess, STAFF_TAB_KEYS, TAB_LABELS } from "./staffAccess";
 import {
   filterTabsByEnabledModules,
@@ -54,6 +53,8 @@ export function StaffWorkspace({
     canChooseToBuyKind,
     canEditInventory,
     canIssueDirectLoan,
+    canReturnRequest,
+    canReviewRequests,
     canCollectServiceRequests,
     canManageMakerspace,
     canManageEvents,
@@ -110,77 +111,92 @@ export function StaffWorkspace({
   // access-denied page. Genuinely denied tabs still render the denial.
   const normalizedDeniedTabs = new Set(["requests", "notifications"]);
   const normalizeDenied = routeTabDenied && !!routeTab && normalizedDeniedTabs.has(routeTab);
+  const workspaceName = activeMakerspace?.name ?? "Inventory Control";
+  useDocumentTitle(documentTitle(routeTabDenied ? "Access denied" : TAB_LABELS[activeTab], activeMakerspace?.name));
   if ((!routeTabDenied || normalizeDenied) && location.pathname !== activeTabPath) {
     return <Navigate replace to={activeTabPath} />;
   }
 
+  const publicInventoryPath = activeMakerspace
+    ? singleTenantLocked ? "/" : "/m/" + activeMakerspace.slug
+    : null;
+
   return (
-    <main className="desk-shell grid grid-cols-1">
-      <SkipLink />
-      <section className="min-w-0">
-        <StaffHeader
-          activeMakerspace={activeMakerspace}
-          isSuperadmin={isSuperadmin}
-          makerspaces={makerspaces}
-          onSignOut={signOut}
-          onSwitchMakerspace={() => setSelected(null)}
-          roleName={activeRoleName}
-          selected={selected}
-          setSelected={setSelected}
-          singleTenantLocked={singleTenantLocked}
-          user={user}
+    <StaffShell
+      nav={{
+        activeMakerspaceSlug: activeMakerspace?.slug,
+        activeTab: routeTabDenied ? "" : activeTab,
+        allowedTabs: moduleAllowedTabs,
+        guestOnly,
+        singleTenantLocked,
+      }}
+      account={{
+        username: user.username,
+        roleName: activeRoleName,
+        activeMakerspaceName: activeMakerspace?.name,
+        makerspaces,
+        selected,
+        canSwitchMakerspace: !singleTenantLocked && makerspaces.length > 1,
+        canPickMakerspace: isSuperadmin && !singleTenantLocked,
+        onPickMakerspace: () => setSelected(null),
+        onSelectMakerspace: setSelected,
+        onSignOut: signOut,
+      }}
+      activeMakerspaceId={activeMakerspace?.id}
+      publicPath={publicInventoryPath}
+      workspaceName={workspaceName}
+      user={user}
+      onPasswordChanged={onAuthRefresh}
+      onSelectTab={setTab}
+    >
+      {/* Context strip, not a heading: each panel's PageHeader is the page's one h1. */}
+      <div className="mb-6 flex min-w-0 flex-wrap items-center gap-2 border-b border-line pb-4">
+        <p className="min-w-0 break-words text-body-ui font-semibold text-ink">{workspaceName}</p>
+        {activeRoleName ? <Chip size="sm">{activeRoleName}</Chip> : null}
+        {activeMakerspace ? (
+          <Chip size="sm" tone="outline" className="font-mono">{activeMakerspace.public_code ?? activeMakerspace.slug}</Chip>
+        ) : null}
+      </div>
+      {routeTabDenied ? (
+        <EmptyState
+          title="Access denied"
+          description="You don't have permission to view this page, or it isn't enabled for this makerspace."
+          action={
+            <Button asChild variant="primary">
+              <Link to={activeTabPath}>Go to {TAB_LABELS[activeTab] ?? "your workspace"}</Link>
+            </Button>
+          }
         />
-
-        <div className="min-w-0 p-5 pb-28" id="main-content" tabIndex={-1}>
-          {routeTabDenied ? (
-            <EmptyState
-              title="Access denied"
-              description="You don't have permission to view this page, or it isn't enabled for this makerspace."
-              action={
-                <Link className="desk-button-primary" to={activeTabPath}>
-                  Go to {TAB_LABELS[activeTab] ?? "your workspace"}
-                </Link>
-              }
-            />
-          ) : (
-            <StaffTabContent
-              activeMakerspace={activeMakerspace}
-              activeTab={activeTab}
-              guestOnly={guestOnly || handoutOnly}
-              makerspaces={visibleMakerspaces}
-              isSuperadmin={isSuperadmin}
-              currentUser={user}
-              onAuthRefresh={onAuthRefresh}
-              printingOnly={printingOnly}
-              canChooseToBuyKind={canChooseToBuyKind}
-              canEditInventory={canEditInventory}
-              canIssueDirectLoan={canIssueDirectLoan}
-              canCollectServiceRequests={canCollectServiceRequests}
-              canUseToBuy={canUseToBuy}
-              canManageQr={canManageQr}
-              canManageMakerspace={canManageMakerspace}
-              canManageEvents={canManageEvents}
-              canManageBookings={canManageBookings}
-              canManageMachines={canManageMachines}
-              isMachineOnly={isMachineOnly}
-              canConfigureMachineTypes={canConfigureMachineTypes}
-              canSeeHardware={canSeeHardware}
-              canSeePrinting={canSeePrinting}
-              canViewAudit={canViewAudit}
-              singleTenantLocked={singleTenantLocked}
-            />
-          )}
-        </div>
-      </section>
-
-      <StaffDock
-        activeMakerspace={activeMakerspace}
-        activeTab={routeTabDenied ? "" : activeTab}
-        allowedTabs={moduleAllowedTabs}
-        guestOnly={guestOnly}
-        setTab={setTab}
-        singleTenantLocked={singleTenantLocked}
-      />
-    </main>
+      ) : (
+        <StaffTabContent
+          activeMakerspace={activeMakerspace}
+          activeTab={activeTab}
+          guestOnly={guestOnly || handoutOnly}
+          makerspaces={visibleMakerspaces}
+          isSuperadmin={isSuperadmin}
+          currentUser={user}
+          onAuthRefresh={onAuthRefresh}
+          printingOnly={printingOnly}
+          canChooseToBuyKind={canChooseToBuyKind}
+          canEditInventory={canEditInventory}
+          canIssueDirectLoan={canIssueDirectLoan}
+          canReturnRequest={canReturnRequest}
+          canReviewRequests={canReviewRequests}
+          canCollectServiceRequests={canCollectServiceRequests}
+          canUseToBuy={canUseToBuy}
+          canManageQr={canManageQr}
+          canManageMakerspace={canManageMakerspace}
+          canManageEvents={canManageEvents}
+          canManageBookings={canManageBookings}
+          canManageMachines={canManageMachines}
+          isMachineOnly={isMachineOnly}
+          canConfigureMachineTypes={canConfigureMachineTypes}
+          canSeeHardware={canSeeHardware}
+          canSeePrinting={canSeePrinting}
+          canViewAudit={canViewAudit}
+          singleTenantLocked={singleTenantLocked}
+        />
+      )}
+    </StaffShell>
   );
 }

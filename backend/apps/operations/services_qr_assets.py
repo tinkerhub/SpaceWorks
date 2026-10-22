@@ -1,12 +1,14 @@
 from django.db import transaction
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
+from apps.accounts import rbac
 from apps.audit import services as audit
 from apps.boxes.models import Box, QrCode
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 from apps.makerspaces import limits
+from apps.makerspaces.guards import require_module_locked
 from apps.operations.models import QrPrintBatch, QrPrintBatchItem
 
 
@@ -76,10 +78,16 @@ def _assets_missing_active_qr(product, limit):
 def generate_assets_with_qr(actor, product, data):
     created = []
     with transaction.atomic():
+        # Makerspace row before the product row: the module_install lock order. Here so
+        # /control/'s generate action is gated exactly like the API route.
+        require_module_locked(product.makerspace_id, "asset_units")
         product = InventoryProduct.objects.select_for_update().get(pk=product.pk)
         if product.tracking_mode != TrackingMode.INDIVIDUAL:
-            product.tracking_mode = TrackingMode.INDIVIDUAL
-            product.save(update_fields=["tracking_mode", "updated_at"])
+            # Converting is an inventory edit, not a QR action: MANAGE_QR alone may only
+            # add units to a product that is already individual-tracked.
+            if not rbac.can(actor, rbac.Action.EDIT_INVENTORY, product.makerspace_id):
+                raise PermissionDenied("Converting a product to unit tracking requires inventory edit access.")
+            product = availability.change_tracking_mode(product, TrackingMode.INDIVIDUAL)
 
         batch = None
         if data.get("print_batch_id"):

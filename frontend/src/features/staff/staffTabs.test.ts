@@ -29,56 +29,43 @@ describe("data export authority", () => {
   });
 });
 
-describe("organized events", () => {
-  const coreModules = [
-    "public_inventory", "request_workflow", "staff_admin", "scanner",
-    "qr_management", "evidence_uploads",
-  ];
+describe("console scope", () => {
+  // Organizations, organized events and organization analytics are not part of the staff
+  // console. The backend keeps the data; nothing in the console routes to it.
+  const ORG_TABS = ["organizations", "organized", "organization-analytics"];
 
-  it("maps organized-event routes with and without a makerspace slug", () => {
-    expect(staffTabPath("organized", false)).toBe("/admin/organized-events");
-    expect(staffTabPath("organized", false, "forge")).toBe("/m/forge/admin/organized-events");
-    expect(tabFromStaffPath("/admin/organized-events", false)).toBe("organized");
-    expect(tabFromStaffPath("/m/forge/admin/organized-events", false)).toBe("organized");
+  it("never offers an organization tab, to any actor", () => {
+    for (const access of [
+      getStaffAccess([], true, false),
+      getStaffAccess(["view_inventory", "manage_events"], false, false),
+      getStaffAccess(["manage_makerspace"], false, true),
+      getStaffAccess([], false, false),
+    ]) {
+      for (const tab of ORG_TABS) expect(access.allowedTabs).not.toContain(tab);
+    }
+    for (const tab of ORG_TABS) {
+      expect(TAB_LABELS[tab]).toBeUndefined();
+      expect(TAB_GROUPS.flatMap((group) => group.tabs)).not.toContain(tab);
+    }
+    expect(TAB_GROUPS.find((group) => group.label === "Organizations")).toBeUndefined();
   });
 
-  it("places the tab immediately after Events in the Events group", () => {
-    expect(TAB_GROUPS.find((group) => group.label === "Events")?.tabs)
-      .toEqual(["events", "organized"]);
-  });
-
-  it("hides the tab from superadmins and handout-only actors", () => {
-    expect(getStaffAccess([], true, false).allowedTabs).not.toContain("organized");
-    // Single-tenant deployments are excluded too: the organizer list is a targetless global
-    // route and origin_scope._global_endpoint_allowed admits only `admin-makerspaces` on a
-    // hard-scoped staff origin, so the tab would 403 on every load there.
-    expect(getStaffAccess(["view_inventory"], false, true).allowedTabs).not.toContain("organized");
-    expect(getStaffAccess(["issue_request", "return_request"], false, false).allowedTabs)
-      .not.toContain("organized");
-  });
-
-  it("shows the tab without selected-makerspace manage_events", () => {
-    expect(getStaffAccess(["view_inventory"], false, false).allowedTabs).toContain("organized");
-  });
-
-  it("ignores the selected makerspace's events module switch", () => {
-    const tabs = getStaffAccess(["view_inventory"], false, false).allowedTabs;
-    const filtered = filterTabsByEnabledModules(tabs, { enabled_modules: coreModules });
-    expect(filtered).toContain("organized");
-    expect(filtered).not.toContain("events");
-  });
-
-  it("hides the tab when the events app is unavailable deployment-wide", () => {
-    const tabs = getStaffAccess(["view_inventory"], false, false).allowedTabs;
-    expect(filterTabsByEnabledModules(tabs, { unavailable_apps: ["events"] }))
-      .not.toContain("organized");
+  it("gives an actor with no makerspace actions an empty console rather than governance", () => {
+    expect(getStaffAccess([], false, false).allowedTabs).toEqual([]);
   });
 });
+
 describe("tenant migration authority", () => {
   it("omits the tab for every non-superadmin and gives it a stable route", () => {
     expect(getStaffAccess(["manage_makerspace"], false, false).allowedTabs).not.toContain("migration");
     expect(getStaffAccess([], true, false).allowedTabs).toContain("migration");
     expect(staffTabPath("migration", false)).toBe("/admin/tenant-migration");
+  });
+
+  it("omits the tab for a superadmin on an origin-locked (single-tenant) site", () => {
+    // The migration routes live under /admin/platform/, which that site refuses with a 403.
+    expect(getStaffAccess([], true, true).allowedTabs).not.toContain("migration");
+    expect(getStaffAccess([], true, false).allowedTabs).toContain("migration");
   });
 
   it("omits the tab when the tenant_migration app is tombstoned", () => {
@@ -154,8 +141,9 @@ describe("tombstoned apps", () => {
   });
 
   it("hides it even before the makerspace's modules have loaded", () => {
+    // Fail closed: without a module list both module-gated tabs are withheld too.
     const partial = { id: 1, name: "Forge", unavailable_apps: ["warranty"] };
-    expect(filterTabsByEnabledModules(["warranty", "reports"], partial)).toEqual(["reports"]);
+    expect(filterTabsByEnabledModules(["warranty", "reports", "users"], partial)).toEqual(["users"]);
   });
 });
 
@@ -240,6 +228,7 @@ describe("every tab is gated on the module that backs it", () => {
     ["events", "events"],
     ["bookings", "bookings"],
     ["reports", "reports"],
+    ["payments", "payments"],
   ])("hides %s when %s is uninstalled", (tab, module) => {
     expect(tabsFor([...CORE, module])).toContain(tab);
     expect(tabsFor(CORE)).not.toContain(tab);
@@ -271,9 +260,12 @@ describe("every tab is gated on the module that backs it", () => {
     expect(tabs).toContain("email-logs");
   });
 
-  it("treats an unloaded makerspace as unrestricted rather than blanking the console", () => {
-    expect(filterTabsByEnabledModules(getStaffAccess([], true, false).allowedTabs, undefined))
-      .toContain("tobuy");
+  it("fails closed for an unloaded makerspace: core tabs only, no module-gated tab", () => {
+    const tabs = filterTabsByEnabledModules(getStaffAccess([], true, false).allowedTabs, undefined);
+    expect(tabs).toContain("inventory");
+    for (const tab of ["tobuy", "machines", "events", "reports", "payments", "qr", "direct"]) {
+      expect(tabs).not.toContain(tab);
+    }
   });
 });
 

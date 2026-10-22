@@ -1,6 +1,7 @@
 import type React from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { PageHeader, StatusChip, statusToneMap, type StatusTone } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 
 export type Makerspace = {
@@ -100,15 +101,39 @@ export function JsonRows({ data }: { data: unknown[] }) {
   return <pre className="mt-3 max-h-80 overflow-auto rounded-md border border-line bg-bg p-3 text-xs text-muted">{JSON.stringify(data, null, 2)}</pre>;
 }
 
-export function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+/** Message for a failed query/mutation toast: the server's words, else a plain fallback. */
+export function errorText(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+const toneFromBadge = { success: "success", warn: "warning", danger: "danger", neutral: "neutral" } as const;
+
+/** Status tone for a workflow/asset status word (accepted, issued, damaged, ...). */
+export function statusTone(status: string): StatusTone {
+  return toneFromBadge[statusToneMap[status.toLowerCase()] ?? "neutral"];
+}
+
+/** Status as a word + icon chip; `label` overrides the humanised status. */
+export function StatusWord({ status, label, tone }: { status: string; label?: string; tone?: StatusTone }) {
+  const words = status.replace(/_/g, " ");
+  return <StatusChip tone={tone ?? statusTone(status)} size="sm">{label ?? words.charAt(0).toUpperCase() + words.slice(1)}</StatusChip>;
+}
+
+/**
+ * A console page: PageHeader (title, one-line description, the ONE primary action
+ * plus any secondary actions) over flat content. `title` stays a plain string so
+ * every existing caller keeps working.
+ */
+export function Panel({ title, description, actions, children }: {
+  title: string;
+  description?: React.ReactNode;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="desk-panel overflow-hidden">
-      <div className="border-b border-line bg-surface px-4 py-3">
-        <h2 className="title-panel">{title}</h2>
-      </div>
-      <div className="desk-panel-body min-w-0 p-4">
-        {children}
-      </div>
+    <section className="grid min-w-0 gap-6">
+      <PageHeader title={title} description={description} actions={actions} />
+      <div className="min-w-0">{children}</div>
     </section>
   );
 }

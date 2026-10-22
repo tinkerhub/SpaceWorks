@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+import { Button, Callout, CheckboxField, ErrorText, Skeleton, useToast } from "../../../components/ui";
 import { getRoleMachineScope, setRoleMachineScope, type MachineScopeOption } from "./rolesApi";
+import { errorText } from "./shared";
 
 /**
  * Which machines a role's "Machines" capability actually reaches.
@@ -22,6 +24,7 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
   const [types, setTypes] = useState<Set<number>>(new Set());
   const [machines, setMachines] = useState<Set<number>>(new Set());
   const [saved, setSaved] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!scope.data) return;
@@ -36,19 +39,28 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
     }),
     onSuccess: () => {
       setSaved(true);
+      showToast("Machine scope saved", { tone: "success" });
       void scope.refetch();
     },
+    onError: (error) => showToast(errorText(error, "Couldn't save the machine scope"), { tone: "error" }),
   });
 
-  if (scope.isLoading) return <p className="text-sm text-muted">Loading machine scope...</p>;
-  if (scope.error) return <p className="text-sm text-danger">{scope.error.message}</p>;
+  if (scope.isLoading) {
+    return (
+      <div className="grid gap-2" aria-busy="true">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-12 w-full" />
+      </div>
+    );
+  }
+  if (scope.error) return <ErrorText message={scope.error.message} />;
   if (!scope.data) return null;
 
   if (!scope.data.scoping_applies) {
     return (
-      <section className="grid gap-2 rounded-md border border-line p-3">
-        <h3 className="title-section">Machine scope</h3>
-        <p className="text-xs text-muted">
+      <section className="grid gap-1 rounded-lg border border-line bg-subtle p-4">
+        <h3 className="text-title text-ink">Machine scope</h3>
+        <p className="text-body-ui text-ink-muted">
           This role either administers the whole makerspace or grants no machine capability,
           so it is not limited to particular machines.
         </p>
@@ -65,18 +77,16 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
   const nothingSelected = types.size === 0 && machines.size === 0;
 
   return (
-    <section className="grid gap-3 rounded-md border border-line p-3">
+    <section className="grid gap-4 rounded-lg border border-line p-4">
       <div className="grid gap-1">
-        <h3 className="title-section">Machine scope</h3>
-        <p className="text-xs text-muted">
+        <h3 className="text-title text-ink">Machine scope</h3>
+        <p className="text-body-ui text-ink-muted">
           This role can only manage the machine types and machines ticked here. Ticking a
           type also covers machines of that type added later.
         </p>
       </div>
       {nothingSelected ? (
-        <p className="rounded-md border border-line bg-surface p-2 text-xs text-danger">
-          Nothing selected — this role currently cannot manage any machine.
-        </p>
+        <Callout tone="warning" title="Nothing selected">This role currently can't manage any machine.</Callout>
       ) : null}
       <OptionList
         title="Machine types"
@@ -92,12 +102,12 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
         onToggle={(id) => toggle(machines, setMachines, id)}
         describe={(option) => (option.is_active === false ? "Retired" : "")}
       />
-      <div className="flex items-center justify-end gap-2">
-        {saved && !save.isPending ? <span className="text-xs text-muted">Saved</span> : null}
-        {save.error ? <span className="text-xs text-danger">{save.error.message}</span> : null}
-        <button className="desk-button-primary" type="button" disabled={save.isPending} onClick={() => save.mutate()}>
-          {save.isPending ? "Saving..." : "Save machine scope"}
-        </button>
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        {saved && !save.isPending ? <span className="text-caption text-ink-muted" role="status">Saved</span> : null}
+        {save.error ? <span className="text-caption text-danger-fg">{save.error.message}</span> : null}
+        <Button variant="secondary" loading={save.isPending} loadingLabel="Saving…" onClick={() => save.mutate()}>
+          Save machine scope
+        </Button>
       </div>
     </section>
   );
@@ -110,34 +120,24 @@ function OptionList({ title, options, selected, onToggle, describe }: {
   onToggle: (id: number) => void;
   describe: (option: MachineScopeOption) => string;
 }) {
-  if (!options.length) {
-    return (
-      <div className="grid gap-1">
-        <h4 className="title-section">{title}</h4>
-        <span className="text-xs text-muted">None available.</span>
-      </div>
-    );
-  }
   return (
-    <div className="grid gap-1">
-      <h4 className="title-section">{title}</h4>
-      <div className="grid gap-1 sm:grid-cols-2">
-        {options.map((option) => {
-          const note = describe(option);
-          return (
-            <label key={option.id} className="flex items-center gap-2 text-sm">
-              <input
-                className="h-4 w-4 accent-accent"
-                type="checkbox"
-                checked={selected.has(option.id)}
-                onChange={() => onToggle(option.id)}
-              />
-              <span className="text-ink">{option.label}</span>
-              {note ? <span className="text-xs text-muted">{note}</span> : null}
-            </label>
-          );
-        })}
-      </div>
-    </div>
+    <fieldset className="grid gap-2">
+      <legend className="mb-1 text-label text-ink">{title}</legend>
+      {!options.length ? (
+        <span className="text-caption text-ink-muted">None available.</span>
+      ) : (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {options.map((option) => (
+            <CheckboxField
+              key={option.id}
+              checked={selected.has(option.id)}
+              onCheckedChange={() => onToggle(option.id)}
+              label={option.label}
+              description={describe(option) || undefined}
+            />
+          ))}
+        </div>
+      )}
+    </fieldset>
   );
 }

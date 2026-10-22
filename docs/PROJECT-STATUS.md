@@ -29,22 +29,25 @@ a `pip-audit` CI job. The global CSP `script-src` omits `'unsafe-eval'`; a tiny
 origin to `img-src` **only for `/control/` responses** (django-unfold ships eval-requiring Alpine.js; the
 JSON API + public docs stay on the strict policy).
 
-**Django admin coverage** is complete (every domain model registered; immutable/workflow-owned models
-read-only; a `list_filter` per makerspace-scoped admin). The Unfold sidebar (`config/unfold.py`) is curated
+**Django admin coverage** is complete (every domain model registered except deliberately unregistered
+retired/unused pages: auth Groups, axes access/failure logs, printing-cutover state/repair;
+immutable/workflow-owned models read-only; a `list_filter` per makerspace-scoped admin).
+The Unfold sidebar (`config/unfold.py`) is curated
 into grouped sections and a test asserts every sidebar link resolves. `tests/test_admin_hidden_scope.py`
 walks every registered admin and forces an explicit scoped/global decision (via `NESTED_MAKERSPACE_LOOKUPS`
 / `GLOBAL_ADMIN_MODELS`) so a new admin can't silently leak across the superadmin hide/archive scoping.
 
-**Non-technical install:** the root `install.sh` curl flow on supported Linux families or Windows Git Bash
+**Non-technical install:** the root `install.sh` curl flow on supported Linux families (on Windows, inside WSL2)
 (preflight → tagged source archive → published-image pull → `setup.sh` secrets/instance/live module ticks →
 version marker), with `SPACEWORKS_DIR` override and an existing-install update/module menu.
-`setup.sh --build` is the explicit source-build path via `docker/compose.build.yml`. Native Windows covers
-install/run/update, using the crash-recoverable PID/timestamp update lock when `flock` is unavailable;
-restore and compound host recovery stay WSL2-only because they require AF_UNIX sockets and
-root-owned-file trust semantics. See
+`setup.sh --build` is the explicit source-build path via `docker/compose.build.yml`. Windows is
+WSL2-only for every host script (native Git Bash/PowerShell lack `flock`, AF_UNIX sockets, root-owned-file
+trust and unconverted Docker bind paths; `setup.ps1`/`scripts/update.ps1` only refuse). The updater keeps
+its crash-recoverable PID/timestamp lock for hosts without `flock`. See
 `docs/setup-for-makerspaces.md`. TLS is env-gated (`ENABLE_HTTPS`, default off). First-run
-`setup_instance` seeds `superadmin`/`super123` + `must_change_password` (surfaced by login + `/auth/me`,
-cleared by `/auth/change-password`).
+`setup_instance` requires an explicit superadmin password (`--password` or `SETUP_SUPERADMIN_PASSWORD`);
+there is no default credential. `must_change_password` (surfaced by login + `/auth/me`, cleared by
+`/auth/change-password`) now marks only temporary passwords from a staff reset or superadmin recovery.
 
 Releases now run through `release.yml`'s `workflow_run` only after CI (including `pip-audit`) succeeds
 for a main push; manual dispatch requires `main` and successful push CI for the exact SHA.

@@ -19,6 +19,11 @@ from apps.admin_api.serializers_users import (
 from apps.audit import services as audit
 from apps.audit.models import AuditLog
 from apps.makerspaces.models import Makerspace, MakerspaceMembership, MakerspaceRole
+from apps.makerspaces.origin_scope import (
+    AMBIGUOUS_STAFF_ORIGIN_SCOPE,
+    NO_STAFF_ORIGIN_SCOPE,
+    staff_origin_scope,
+)
 from apps.makerspaces.servability import is_servable
 
 # Roles a Space Manager (MANAGE_MAKERSPACE holder, non-superadmin) may assign, list, and
@@ -48,6 +53,14 @@ class StaffListCreateView(generics.ListCreateAPIView):
         queryset = MakerspaceMembership.objects.select_related("user", "makerspace").filter(
             role=target_role
         )
+        # On a tenant's own frontend domain this deployment-wide listing collapses to that
+        # one makerspace, whatever else the actor (a superadmin, say) could see elsewhere.
+        # The origin permission admits this route without a target ONLY because of this.
+        origin = staff_origin_scope(self.request)
+        if origin is AMBIGUOUS_STAFF_ORIGIN_SCOPE:
+            return queryset.none()
+        if origin is not NO_STAFF_ORIGIN_SCOPE:
+            queryset = queryset.filter(makerspace_id=origin)
         if scope is rbac.ALL:
             queryset = rbac.hide_from_superadmin(
                 self.request.user,

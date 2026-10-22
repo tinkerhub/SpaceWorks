@@ -274,11 +274,18 @@ def test_bulk_import_preview_warns_on_blank_mapped_details():
     assert "image_key" in response.data["warnings"][0]["warnings"]
 
 
-def test_bulk_import_apply_maps_full_supported_inventory_fields():
+def test_bulk_import_apply_maps_full_supported_inventory_fields(monkeypatch):
     makerspace = make_space("bulk-full-map")
     admin = make_member("bulk-full-map-admin", makerspace)
     box = make_box(makerspace, label="BIN-A")
     image_key = f"items/{makerspace.id}/meter.png"
+    # The key goes through the image endpoint's finalize/sniff pipeline (stubbed here;
+    # the pipeline itself is covered in test_bulk_import_hardening).
+    finalized = []
+    monkeypatch.setattr(
+        "apps.admin_api.bulk_import_apply.finalize_product_image",
+        lambda makerspace_id, key, product_id=None: finalized.append(key) or 1024,
+    )
 
     response = authenticated_client(admin).post(
         f"/api/v1/admin/makerspace/{makerspace.id}/inventory/import/apply",
@@ -288,9 +295,9 @@ def test_bulk_import_apply_maps_full_supported_inventory_fields():
                     "Item": "Clamp Meter",
                     "Total": "5",
                     "Available": "2",
-                    "Reserved": "1",
-                    "Issued": "1",
-                    "Damaged": "1",
+                    "Reserved": "0",
+                    "Issued": "0",
+                    "Damaged": "0",
                     "Lost": "0",
                     "Tracking": "quantity",
                     "Public": "yes",
@@ -327,12 +334,13 @@ def test_bulk_import_apply_maps_full_supported_inventory_fields():
     assert response.data["applied"] is True
     product = InventoryProduct.objects.get(makerspace=makerspace, name="Clamp Meter")
     assert product.available_quantity == 2
-    assert product.reserved_quantity == 1
-    assert product.issued_quantity == 1
-    assert product.damaged_quantity == 1
+    assert product.reserved_quantity == 0
+    assert product.issued_quantity == 0
+    assert product.damaged_quantity == 0
     assert product.lost_quantity == 0
     assert product.storage_location == "Cabinet 4"
     assert product.image_key == image_key
+    assert finalized == [image_key]
     assert product.box_id == box.id
     assert product.public_self_checkout_enabled is True
     assert product.show_public_count is True

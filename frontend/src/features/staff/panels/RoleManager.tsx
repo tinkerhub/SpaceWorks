@@ -1,10 +1,27 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
-import { ConfirmDialog, EmptyState } from "../../../components/ui";
-import { deleteRole, type Capability, type StaffRole } from "./rolesApi";
+import {
+  Button,
+  Card,
+  CardHeader,
+  Chip,
+  ConfirmDialog,
+  EmptyState,
+  ErrorText,
+  SkeletonRows,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+  useToast,
+} from "../../../components/ui";
+import { capabilitiesPath, deleteRole, listCapabilities, type Capability, type StaffRole } from "./rolesApi";
 import { RoleEditor } from "./RoleEditor";
-import { useStaffGet } from "./shared";
+import { errorText, useStaffGet } from "./shared";
 
 export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }: {
   msId: number;
@@ -13,11 +30,24 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
   onRolesChanged: () => void;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const roles = useStaffGet<StaffRole[]>(["staff", "roles", msId], `/admin/makerspaces/${msId}/roles`);
-  const capabilities = useStaffGet<Capability[]>(["staff", "capabilities", msId], `/admin/makerspaces/${msId}/roles/capabilities`);
+  // The plain catalog labels the table and seeds a NEW role.
+  const capabilities = useStaffGet<Capability[]>(["staff", "capabilities", msId], capabilitiesPath(msId));
   const [editing, setEditing] = useState<StaffRole | null | undefined>();
   const [deleteError, setDeleteError] = useState("");
   const [pendingDelete, setPendingDelete] = useState<StaffRole | null>(null);
+  // Editing an existing role reads the role-scoped catalog, which still lists the grants it
+  // holds for a switched-off module; the plain catalog would hide (and so drop) them.
+  const editingId = editing ? editing.id : null;
+  const roleCatalog = useQuery({
+    queryKey: ["staff", "capabilities", msId, editingId],
+    queryFn: () => listCapabilities(msId, editingId),
+    enabled: editingId !== null,
+  });
+  const editorCapabilities = editing
+    ? roleCatalog.data ?? (roleCatalog.isError ? capabilities.data : undefined)
+    : capabilities.data;
   const labels = new Map((capabilities.data ?? []).map((item) => [item.value, item.label]));
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["staff", "roles", msId] });
@@ -25,42 +55,97 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
   };
   const remove = useMutation({
     mutationFn: (role: StaffRole) => deleteRole(msId, role.id),
-    onSuccess: refresh,
-    onError: (error) => setDeleteError(error instanceof Error ? error.message : "Unable to delete role"),
+    onSuccess: (_data, role) => {
+      showToast(`${role.name} deleted`, { tone: "success" });
+      refresh();
+    },
+    onError: (error) => {
+      const message = errorText(error, "Couldn't delete the role");
+      setDeleteError(message);
+      showToast(message, { tone: "error" });
+    },
   });
+  const openEditor = (role: StaffRole | null) => {
+    setDeleteError("");
+    setEditing(role);
+  };
 
   return (
-    <details className="rounded-md border border-line bg-bg">
-      <summary className="cursor-pointer px-3 py-2 font-semibold text-ink">Roles</summary>
-      <div className="grid gap-3 border-t border-line p-3">
-        <div className="flex justify-end">
-          <button className="desk-button-primary" type="button" onClick={() => { setDeleteError(""); setEditing(null); }}>
-            New role
-          </button>
-        </div>
-        {roles.error ? <p className="text-sm text-danger">{roles.error.message}</p> : null}
-        {deleteError ? <p className="text-sm text-danger">{deleteError}</p> : null}
-        {roles.isLoading ? <p className="text-sm text-muted">Loading roles...</p> : null}
-        {!roles.isLoading && !roles.data?.length ? <EmptyState title="No roles" description="Create a role to assign staff." /> : null}
-        <div className="grid gap-2">
-          {roles.data?.map((role) => (
-            <div key={role.id} className="flex flex-wrap items-center gap-2 rounded-md border border-line p-3 text-sm">
-              <span className="font-semibold text-ink">{role.name}</span>
-              <span className="rounded bg-surface px-2 py-0.5 text-xs text-muted">{role.is_default ? "Default" : "Custom"}</span>
-              {role.is_protected ? <span className="rounded bg-surface px-2 py-0.5 text-xs text-muted">Protected</span> : null}
-              <span className="text-muted">{role.member_count} members</span>
-              <span className="min-w-48 flex-1 text-xs text-muted">{role.granted_actions.map((action) => labels.get(action) ?? action).join(", ") || "No capabilities"}</span>
-              <button className="desk-button-ghost" type="button" onClick={() => { setDeleteError(""); setEditing(role); }}>Edit</button>
-              <button className="desk-button-danger" type="button" disabled={role.is_protected || role.member_count > 0 || remove.isPending} onClick={() => setPendingDelete(role)}>Delete</button>
-            </div>
-          ))}
-        </div>
+    <Card as="section" aria-labelledby={`roles-${msId}-title`}>
+      <CardHeader
+        title={<span id={`roles-${msId}-title`}>Roles</span>}
+        description="Each role is a set of capabilities. Assign one to every staff member."
+        action={<Button size="sm" startIcon={<Plus />} onClick={() => openEditor(null)}>New role</Button>}
+      />
+      <div className="grid gap-3">
+        <ErrorText message={roles.error?.message ?? deleteError} />
+        {!roles.isLoading && !roles.error && !roles.data?.length ? (
+          <EmptyState
+            title="No roles yet"
+            description="Create a role, then assign it to staff."
+            action={<Button size="sm" onClick={() => openEditor(null)}>New role</Button>}
+          />
+        ) : (
+          <Table label="Roles" className="min-w-[720px]">
+            <THead>
+              <tr>
+                <TH>Role</TH>
+                <TH>Members</TH>
+                <TH>Capabilities</TH>
+                <TH><span className="sr-only">Actions</span></TH>
+              </tr>
+            </THead>
+            <TBody>
+              {roles.isLoading ? <SkeletonRows rows={3} cols={4} /> : null}
+              {roles.data?.map((role) => (
+                <TR key={role.id}>
+                  <TD>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-semibold text-ink">{role.name}</span>
+                      <Chip size="sm" tone={role.is_default ? "neutral" : "info"}>{role.is_default ? "Default" : "Custom"}</Chip>
+                      {role.is_protected ? <Chip size="sm" tone="outline">Protected</Chip> : null}
+                    </div>
+                  </TD>
+                  <TD className="whitespace-nowrap text-ink-secondary">{memberCount(role.member_count)}</TD>
+                  <TD className="max-w-md text-caption text-ink-muted">
+                    {role.granted_actions.map((action) => labels.get(action) ?? action).join(", ") || "No capabilities"}
+                  </TD>
+                  <TD>
+                    <div className="flex justify-end gap-2">
+                      <Button size="sm" onClick={() => openEditor(role)}>Edit</Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        disabled={role.is_protected || role.member_count > 0 || remove.isPending}
+                        title={role.is_protected ? "Protected defaults can't be deleted" : role.member_count > 0 ? "Reassign its members first" : undefined}
+                        onClick={() => setPendingDelete(role)}
+                      >
+                        Delete…
+                      </Button>
+                    </div>
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </div>
-      {editing !== undefined ? <RoleEditor msId={msId} role={editing} capabilities={capabilities.data ?? []} actorActions={actorActions} isSuperadmin={isSuperadmin} onClose={() => setEditing(undefined)} onSaved={() => { setEditing(undefined); refresh(); }} /> : null}
+      {editing !== undefined ? (
+        <RoleEditor
+          msId={msId}
+          role={editing}
+          capabilities={editorCapabilities ?? []}
+          loading={editorCapabilities === undefined}
+          actorActions={actorActions}
+          isSuperadmin={isSuperadmin}
+          onClose={() => setEditing(undefined)}
+          onSaved={() => { setEditing(undefined); refresh(); }}
+        />
+      ) : null}
       <ConfirmDialog
         open={pendingDelete !== null}
         title="Delete role?"
-        message={pendingDelete ? `Delete ${pendingDelete.name}?` : "Delete this role?"}
+        message={pendingDelete ? `${pendingDelete.name} will be removed from this makerspace. This can't be undone.` : "Delete this role?"}
         confirmLabel="Delete role"
         tone="danger"
         pending={remove.isPending}
@@ -69,6 +154,10 @@ export function RoleManager({ msId, actorActions, isSuperadmin, onRolesChanged }
         }}
         onCancel={() => setPendingDelete(null)}
       />
-    </details>
+    </Card>
   );
+}
+
+function memberCount(count: number) {
+  return count === 1 ? "1 member" : `${count} members`;
 }

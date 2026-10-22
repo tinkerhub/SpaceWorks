@@ -1,12 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
-import { ApiClientScopePicker } from "./ApiClientScopePicker";
 import {
-  scopeOptionsForClient,
-  type ApiClient,
-  type ApiClientScopeOption,
-  type ApiKeyRequest,
-} from "./apiClientsApi";
+  Card,
+  CardHeader,
+  ConfirmDialog,
+  EmptyState,
+  ErrorBlock,
+  SectionHeading,
+  Skeleton,
+  SkeletonRows,
+  StatusChip,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "../../components/ui";
+import { ApiClientRow, formatDate } from "./ApiClientRow";
+import type { ApiClient, ApiClientScopeOption, ApiKeyRequest } from "./apiClientsApi";
 
 type Props = {
   canManageMakerspace: boolean;
@@ -14,6 +26,7 @@ type Props = {
   clientsLoading: boolean;
   clientsError: Error | null;
   requests: ApiKeyRequest[] | undefined;
+  requestsLoading?: boolean;
   deletePending: boolean;
   deleteError: Error | null;
   rotatePending: boolean;
@@ -23,144 +36,103 @@ type Props = {
   scopesError: Error | null;
   scopeUpdatePending: boolean;
   scopeUpdateError: Error | null;
-  onDelete: (clientId: number) => void;
-  onRotate: (clientId: number) => void;
+  /** Resolve when the request settles, so the confirmation can close. */
+  onDelete: (clientId: number) => Promise<unknown> | void;
+  onRotate: (clientId: number) => Promise<unknown> | void;
   onScopesUpdate: (clientId: number, scopes: string[]) => void;
 };
 
-export function ApiClientListCard({
-  canManageMakerspace,
-  clients,
-  clientsLoading,
-  clientsError,
-  requests,
-  deletePending,
-  deleteError,
-  rotatePending,
-  rotateError,
-  scopeOptions,
-  scopesLoading,
-  scopesError,
-  scopeUpdatePending,
-  scopeUpdateError,
-  onDelete,
-  onRotate,
-  onScopesUpdate,
-}: Props) {
-  if (canManageMakerspace) {
+type PendingAction = { kind: "rotate" | "delete"; client: ApiClient };
+
+export function ApiClientListCard(props: Props) {
+  const { canManageMakerspace, clients, clientsLoading, clientsError, requests, requestsLoading = false } = props;
+  const [confirm, setConfirm] = useState<PendingAction | null>(null);
+
+  if (!canManageMakerspace) {
     return (
-      <article className="rounded-md border border-line bg-surface p-3">
-        <h3 className="font-semibold text-ink">Existing clients</h3>
-        {clientsLoading ? <p className="mt-3 text-sm text-muted">Loading clients...</p> : null}
-        <div className="mt-3 space-y-2">
-          {clients?.map((client) => (
-            <ApiClientRow
-              key={client.id}
-              client={client}
-              scopeOptions={scopeOptions}
-              scopesLoading={scopesLoading}
-              updatePending={scopeUpdatePending}
-              deletePending={deletePending}
-              rotatePending={rotatePending}
-              onDelete={onDelete}
-              onRotate={onRotate}
-              onScopesUpdate={onScopesUpdate}
-            />
-          ))}
-        </div>
-        {!clientsLoading && clients?.length === 0 ? (
-          <p className="mt-3 text-sm text-muted">No API clients yet.</p>
-        ) : null}
-        {clientsError ? <p className="mt-3 text-sm text-danger">{clientsError.message}</p> : null}
-        {scopesError ? <p className="mt-3 text-sm text-danger">{scopesError.message}</p> : null}
-        {scopeUpdateError ? <p className="mt-3 text-sm text-danger">{scopeUpdateError.message}</p> : null}
-        {deleteError ? <p className="mt-3 text-sm text-danger">{deleteError.message}</p> : null}
-        {rotateError ? <p className="mt-3 text-sm text-danger">{rotateError.message}</p> : null}
-      </article>
+      <Card as="section">
+        <CardHeader title="Your requests" description="Requests you've sent for API access and what was decided." />
+        {!requestsLoading && requests?.length === 0 ? (
+          <EmptyState title="No API access requests yet" description="Fill in the request form to ask a superadmin for a key." />
+        ) : (
+          <Table label="API access requests">
+            <THead><TR><TH>Request</TH><TH>Sent</TH><TH>Status</TH></TR></THead>
+            <TBody>
+              {requestsLoading ? <SkeletonRows rows={2} cols={3} /> : null}
+              {requests?.map((request) => (
+                <TR key={request.id}>
+                  <TD>
+                    <span className="font-semibold">{request.label}</span>
+                    {request.resolution_note ? <span className="block text-caption text-ink-muted">{request.resolution_note}</span> : null}
+                  </TD>
+                  <TD className="whitespace-nowrap text-ink-secondary">{formatDate(request.created_at)}</TD>
+                  <TD><StatusChip tone={requestTone(request.status)} size="sm">{sentence(request.status)}</StatusChip></TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
+      </Card>
     );
   }
 
+  const pending = confirm?.kind === "delete" ? props.deletePending : props.rotatePending;
+  const runConfirmed = () => {
+    if (!confirm) return;
+    const action = confirm.kind === "delete" ? props.onDelete : props.onRotate;
+    void Promise.resolve(action(confirm.client.id)).finally(() => setConfirm(null));
+  };
+
   return (
-    <>
-      <article className="rounded-md border border-line bg-surface p-3">
-        <h3 className="font-semibold text-ink">Your requests</h3>
-        <div className="mt-3 space-y-2">
-          {requests?.map((request) => (
-            <div key={request.id} className="rounded-md border border-line bg-bg p-3">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold text-ink">{request.label}</p>
-                  <p className="mt-1 text-xs text-muted">{formatDate(request.created_at)}</p>
-                </div>
-                <span className="rounded-md border border-line bg-surface px-2 py-1 text-xs font-semibold text-muted">
-                  {request.status}
-                </span>
-              </div>
-              {request.resolution_note ? (
-                <p className="mt-2 text-sm text-muted">{request.resolution_note}</p>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </article>
-      {requests?.length === 0 ? (
-        <p className="rounded-md border border-line bg-surface p-3 text-sm text-muted">
-          No API access requests yet.
-        </p>
+    <section className="grid gap-4" aria-labelledby="api-clients-title">
+      <SectionHeading title={<span id="api-clients-title">Clients</span>} description="Every client that can call this makerspace's API." />
+      {clientsLoading ? <Skeleton className="h-40 w-full" /> : null}
+      {!clientsLoading && clients?.length === 0 ? (
+        <EmptyState title="No API clients yet" description="Create a client above to give another system scoped access." />
       ) : null}
-    </>
+      {clients?.map((client) => (
+        <ApiClientRow
+          key={client.id}
+          client={client}
+          scopeOptions={props.scopeOptions}
+          scopesLoading={props.scopesLoading}
+          updatePending={props.scopeUpdatePending}
+          deletePending={props.deletePending}
+          rotatePending={props.rotatePending}
+          onDelete={() => setConfirm({ kind: "delete", client })}
+          onRotate={() => setConfirm({ kind: "rotate", client })}
+          onScopesUpdate={props.onScopesUpdate}
+        />
+      ))}
+      <ErrorBlock error={clientsError} />
+      <ErrorBlock error={props.scopesError} />
+      <ErrorBlock error={props.scopeUpdateError} />
+      <ErrorBlock error={props.deleteError} />
+      <ErrorBlock error={props.rotateError} />
+      <ConfirmDialog
+        open={confirm !== null}
+        tone="danger"
+        title={confirm?.kind === "delete" ? `Delete ${confirm.client.label}?` : `Rotate the secret for ${confirm?.client.label ?? "this client"}?`}
+        message={confirm?.kind === "delete"
+          ? "The client stops working at once and can't be restored."
+          : "The current secret stops working at once. The new one is shown a single time."}
+        confirmLabel={confirm?.kind === "delete" ? "Delete client" : "Rotate secret"}
+        pending={pending}
+        onConfirm={runConfirmed}
+        onCancel={() => setConfirm(null)}
+      />
+    </section>
   );
 }
 
-function ApiClientRow({ client, scopeOptions, scopesLoading, updatePending, deletePending, rotatePending, onDelete, onRotate, onScopesUpdate }: {
-  client: ApiClient;
-  scopeOptions: ApiClientScopeOption[];
-  scopesLoading: boolean;
-  updatePending: boolean;
-  deletePending: boolean;
-  rotatePending: boolean;
-  onDelete: (clientId: number) => void;
-  onRotate: (clientId: number) => void;
-  onScopesUpdate: (clientId: number, scopes: string[]) => void;
-}) {
-  const [selected, setSelected] = useState<string[]>(client.scopes);
-  useEffect(() => setSelected(client.scopes), [client.scopes]);
-  const clientScopeOptions = useMemo(
-    () => scopeOptionsForClient(scopeOptions, client.client_type),
-    [client.client_type, scopeOptions],
-  );
-  const grantable = useMemo(
-    () => selected.filter((scope) => clientScopeOptions.some(
-      (option) => option.value === scope && option.grantable,
-    )),
-    [clientScopeOptions, selected],
-  );
-  const hasLegacy = client.scopes.includes("legacy:v1");
-  const changed = grantable.join("\0") !== client.scopes.join("\0");
-
-  return (
-    <div className="rounded-md border border-line bg-bg p-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div><p className="font-semibold text-ink">{client.label}</p><p className="mt-1 break-all font-mono text-xs text-muted">{client.client_id}</p></div>
-        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${client.is_active ? "bg-success/15 text-success-ink" : "bg-warn/15 text-warn-ink"}`}>{client.is_active ? "Active" : "Inactive"}</span>
-      </div>
-      <p className="mt-2 break-all text-xs text-muted">{client.allowed_origins.length ? `Origins: ${client.allowed_origins.join(", ")}` : "No browser origins configured."}</p>
-      <p className="mt-2 text-xs text-muted">Scopes: {client.scopes.join(", ")}</p>
-      {hasLegacy ? <p className="mt-2 rounded-md border border-warn/40 bg-warn/10 p-2 text-xs text-warn-ink">Legacy v1 access preserves the frozen cutover capability. Select explicit replacement scopes and save; viewing this client never changes it.</p> : null}
-      {scopesLoading ? <p className="mt-2 text-xs text-muted">Loading scope choices...</p> : null}
-      {!scopesLoading && clientScopeOptions.length ? <div className="mt-2"><ApiClientScopePicker options={clientScopeOptions} selected={selected} onChange={setSelected} disabled={updatePending} /></div> : null}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-muted">{formatDate(client.created_at)} · {client.last_seen_at ? `last used ${formatDate(client.last_seen_at)}` : "never used"}</p>
-        <div className="desk-actions flex flex-wrap gap-2">
-          <button className="desk-button-primary" type="button" disabled={updatePending || !grantable.length || !changed} onClick={() => onScopesUpdate(client.id, grantable)}>Save scopes</button>
-          <button className="desk-button" type="button" disabled={rotatePending} onClick={() => onRotate(client.id)}>Rotate secret</button>
-          <button className="desk-button" type="button" disabled={deletePending} onClick={() => onDelete(client.id)}>Delete</button>
-        </div>
-      </div>
-    </div>
-  );
+function requestTone(status: ApiKeyRequest["status"]) {
+  if (status === "approved") return "success" as const;
+  if (status === "rejected") return "danger" as const;
+  if (status === "pending") return "warning" as const;
+  return "neutral" as const;
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleString();
+function sentence(value: string) {
+  const words = value.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }

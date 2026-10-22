@@ -43,16 +43,17 @@ beforeEach(() => {
 });
 
 describe("ConsumablePoolList", () => {
-  it("shows danger, warning and success stock bands with proportions and labelled colours", () => {
+  it("shows danger, warning and success stock states with proportions and labelled colours", () => {
     renderList([
       pool(1, "Empty PLA", "0", "10"),
       pool(2, "Low PETG", "10", "10"),
       pool(3, "Healthy ABS", "75", "10"),
     ]);
 
-    expect(screen.getByText("Empty").parentElement).toHaveClass("bg-danger");
-    expect(screen.getByText("Low stock").parentElement).toHaveClass("bg-warn");
-    expect(screen.getByText("In stock").parentElement).toHaveClass("bg-success");
+    // Status chips: the word on its matching soft tone, never colour alone.
+    expect(screen.getByText("Empty").parentElement).toHaveClass("bg-danger-bg");
+    expect(screen.getByText("Low stock").parentElement).toHaveClass("bg-warning-bg");
+    expect(screen.getByText("In stock").parentElement).toHaveClass("bg-success-bg");
     expect(screen.getByRole("progressbar", { name: "Maker Healthy ABS Signal red remaining" })).toHaveAttribute("aria-valuenow", "75");
     expect(screen.getAllByText("Colour: Signal red")).toHaveLength(3);
     expect(screen.getByText("75", { selector: "strong" }).parentElement).toHaveTextContent("75 / 100 grams");
@@ -62,9 +63,11 @@ describe("ConsumablePoolList", () => {
     renderList([pool(4, "Private PLA", "50", "10", false)]);
 
     expect(screen.getByText("Hidden from requesters")).toBeVisible();
-    // The accessible name leads with the visible text ("Hidden") so voice control can act on what
-    // the user reads -- WCAG 2.5.3 Label in Name. Asserting on it here is what keeps that true.
-    fireEvent.click(screen.getByRole("button", { name: "Hidden: Maker Private PLA Signal red — activate to show to requesters" }));
+    // The accessible name leads with the visible text ("Visible to requesters") so voice control can
+    // act on what the user reads -- WCAG 2.5.3 Label in Name. Asserting on it here keeps that true.
+    const visibility = screen.getByRole("switch", { name: "Visible to requesters: Maker Private PLA Signal red" });
+    expect(visibility).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(visibility);
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/machine-service/consumable-pools/4",
       expect.objectContaining({ method: "PATCH", body: JSON.stringify({ is_public: true }) }),

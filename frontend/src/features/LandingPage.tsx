@@ -1,13 +1,12 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 import { MakerspaceBrand } from "../components/MakerspaceBrand";
 import { MakerspaceMapLink } from "../components/MakerspaceMapLink";
-import { SpaceWorksHomeLink, SpaceWorksLogo } from "../components/SpaceWorksLogo";
-import { SiteFooter } from "../components/SiteFooter";
-import { ThemeToggle } from "../components/ThemeToggle";
-import { Card } from "../components/ui/Card";
-import { Spinner } from "../components/ui/Spinner";
+import { PlatformSiteHeader } from "../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../components/chrome/PublicShell";
+import { Chip, EmptyState, Field, PageHeader, SearchInput, Skeleton, StatusChip } from "../components/ui";
 import { catalogPresentation } from "../lib/catalogPresentation";
 import type { Makerspace } from "../types/inventory";
 import { usePublicMakerspaces } from "./inventory/usePublicInventory";
@@ -52,131 +51,83 @@ export function LandingPage() {
   if (onlyMakerspace) return <Navigate replace to={`/m/${onlyMakerspace.slug}`} />;
 
   return (
-    <main className="desk-shell flex min-h-screen flex-col">
-      <header className="border-b border-line bg-panel">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-          <SpaceWorksHomeLink className="flex min-w-0 items-center gap-3 text-ink">
-            <SpaceWorksLogo className="shrink-0" size={36} />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">Space Works</p>
-              <p className="text-xs text-muted">Shared equipment portal</p>
-            </div>
-          </SpaceWorksHomeLink>
-          <div className="flex flex-wrap items-center gap-2">
-            <ThemeToggle />
-            <Link className="desk-button-secondary" to="/admin">Staff login</Link>
-          </div>
-        </div>
-      </header>
+    <PublicShell header={<PlatformSiteHeader page="Makerspaces" />}>
+      <PublicContainer>
+        <PageHeader
+          kicker="Inventory directory"
+          title="Makerspaces"
+          description="Browse public catalogs across connected workshops, labs and community spaces."
+          actions={<Chip tone="secondary">{makerspacesQuery.isLoading ? "–" : totalMakerspaces} public spaces</Chip>}
+        />
 
-      <section className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-5 py-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="desk-panel h-fit p-5">
-          <p className="eyebrow text-secondary-ink">Inventory Directory</p>
-          <h1 className="title-page mt-3">Makerspaces</h1>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            Browse public catalogs across connected workshops, labs, and community spaces.
+        <form className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center" role="search" onSubmit={(event) => event.preventDefault()}>
+          <Field className="min-w-0 flex-1 sm:max-w-[520px]" label="Search makerspaces" hideLabel id="makerspace-search">
+            <SearchInput
+              placeholder="Search by name, code, slug or location"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onClear={() => setSearchInput("")}
+            />
+          </Field>
+          <p className="shrink-0 text-body-ui text-ink-muted" aria-live="polite">
+            {searchQuery ? `${filteredMakerspaces.length} of ${totalMakerspaces}` : totalMakerspaces} shown
           </p>
-          <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-md border border-line bg-surface p-3">
-              <p className="font-mono text-2xl font-bold text-ink">
-                {makerspacesQuery.isLoading ? "-" : totalMakerspaces}
-              </p>
-              <p className="eyebrow">Public spaces</p>
-            </div>
-            <div className="rounded-md border border-line bg-surface p-3">
-              <p className="text-2xl font-bold text-success-ink">Live</p>
-              <p className="eyebrow">Status access</p>
-            </div>
-          </div>
-        </aside>
+        </form>
 
-        <div className="min-w-0 space-y-4">
-          <div className="desk-panel space-y-4 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="title-panel">Available public catalogs</h2>
-                <p className="text-sm text-muted">Select a makerspace to view shared equipment.</p>
-              </div>
-              <span className="eyebrow rounded-full border border-line bg-surface px-3 py-1">
-                Standard public portal
-              </span>
+        <div className="mt-6">
+          {makerspacesQuery.isLoading ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Loading makerspaces">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="overflow-hidden rounded-lg border border-line bg-canvas">
+                  <Skeleton className="aspect-[16/9] w-full rounded-none" />
+                  <div className="space-y-2 p-5"><Skeleton className="h-6 w-2/3" /><Skeleton className="h-4 w-1/2" /></div>
+                </div>
+              ))}
             </div>
-            <form className="flex flex-col gap-3 sm:flex-row sm:items-center" role="search" onSubmit={(event) => event.preventDefault()}>
-              <label className="sr-only" htmlFor="makerspace-search">Search makerspaces</label>
-              <input
-                id="makerspace-search"
-                className="desk-input min-w-0 flex-1"
-                placeholder="Search by name, code, slug, or location"
-                type="search"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-              />
-              {searchInput ? <button className="desk-button shrink-0" type="button" onClick={() => setSearchInput("")}>Clear</button> : null}
-              <span className="shrink-0 rounded-lg border border-line bg-surface px-3 py-2 font-mono text-xs text-muted" aria-live="polite">
-                {searchQuery ? `${filteredMakerspaces.length}/${totalMakerspaces}` : totalMakerspaces} shown
-              </span>
-            </form>
-          </div>
-
-          {makerspacesQuery.isLoading ? <div className="grid min-h-32 place-items-center desk-panel"><Spinner /></div> : null}
+          ) : null}
           {makerspacesQuery.isError ? (
-            <Card>
-              <h2 className="title-panel">Makerspaces are unavailable</h2>
-              <p className="mt-2 text-sm leading-6 text-muted">The public makerspace directory could not be loaded.</p>
-            </Card>
+            <EmptyState tone="error" title="Makerspaces are unavailable" description="The public makerspace directory could not be loaded." />
           ) : null}
           {makerspacesQuery.data && !makerspacesQuery.data.length ? (
-            <Card>
-              <h2 className="title-panel">No public makerspaces yet</h2>
-              <p className="mt-2 text-sm leading-6 text-muted">Public inventory appears here after a makerspace is enabled.</p>
-            </Card>
+            <EmptyState title="No public makerspaces yet" description="Public inventory appears here after a makerspace is enabled." />
           ) : null}
           {makerspacesQuery.data && makerspacesQuery.data.length > 0 && !filteredMakerspaces.length ? (
-            <Card>
-              <h2 className="title-panel">No matching makerspaces</h2>
-              <p className="mt-2 text-sm leading-6 text-muted">Try another name, makerspace code, URL slug, or location.</p>
-            </Card>
+            <EmptyState title="No matching makerspaces" description="Try another name, makerspace code, URL slug or location." />
           ) : null}
 
           {filteredMakerspaces.length ? (
-            <div className="grid gap-8 px-1 py-2 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredMakerspaces.map((makerspace) => {
-                const presentation = catalogPresentation(makerspace.slug);
-                return (
-                  <div key={makerspace.slug} className={presentation.tilt}>
-                    <article className={`blueprint-card group relative flex h-full flex-col rounded-lg border-2 border-ink bg-panel transition-transform duration-150 ${presentation.shadow}`}>
-                      <div className={`blueprint-band rounded-t-md border-b border-ink px-4 py-2 ${presentation.band}`}>
-                        Zone blueprint
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredMakerspaces.map((makerspace) => (
+                <li key={makerspace.slug} className="min-w-0">
+                  <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-canvas transition-colors duration-180 ease-standard hover:bg-subtle focus-within:border-line-strong">
+                    <div className={`relative aspect-[16/9] overflow-hidden border-b border-line ${catalogPresentation(makerspace.slug).tint}`}>
+                      {makerspace.cover_image_url ? (
+                        <img src={makerspace.cover_image_url} alt={`${makerspace.name} cover`} loading="lazy" className="h-full w-full object-cover transition-transform duration-240 ease-standard group-hover:scale-[1.02] motion-reduce:group-hover:scale-100" />
+                      ) : null}
+                      <StatusChip tone="success" size="sm" className="absolute left-3 top-3">Public</StatusChip>
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col p-5">
+                      <MakerspaceBrand name={makerspace.name} logoUrl={makerspace.logo_url} size="md" />
+                      <MakerspaceMapLink makerspace={makerspace} className="relative z-10 mt-2" />
+                      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-5">
+                        <Chip size="sm" className="min-w-0 font-mono">{makerspace.public_code}</Chip>
+                        <Link
+                          className="inline-flex min-h-11 items-center gap-1.5 rounded-sm text-label text-accent-ink underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus after:absolute after:inset-0 after:content-['']"
+                          to={`/m/${makerspace.slug}`}
+                          aria-label={`Open ${makerspace.name} catalog`}
+                        >
+                          Open catalog
+                          <ArrowRight aria-hidden="true" className="size-4" />
+                        </Link>
                       </div>
-                      <div className="blueprint-media relative h-40 overflow-hidden border-b border-ink bg-surface">
-                        {makerspace.cover_image_url ? (
-                          <img src={makerspace.cover_image_url} alt={`${makerspace.name} cover`} loading="lazy" className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0" />
-                        ) : <div className="blueprint-bg h-full w-full" />}
-                        <span className="absolute left-3 top-3 chip chip-available"><span className="h-2 w-2 rounded-full bg-bg" /> Public</span>
-                      </div>
-                      <div className="flex min-w-0 flex-1 flex-col p-5">
-                        <MakerspaceBrand name={makerspace.name} logoUrl={makerspace.logo_url} size="md" />
-                        <MakerspaceMapLink makerspace={makerspace} className="relative z-10 mt-2" locationClassName="break-words font-mono text-xs text-muted" />
-                        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-5">
-                          <span className="chip min-w-0 truncate">{makerspace.public_code}</span>
-                          <Link
-                            className="inline-flex min-h-11 items-center gap-2 font-mono text-xs font-semibold uppercase tracking-tight text-secondary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus after:absolute after:inset-0 after:content-['']"
-                            to={`/m/${makerspace.slug}`}
-                            aria-label={`Open ${makerspace.name} catalog`}
-                          >
-                            Open catalog &rarr;
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  </div>
-                );
-              })}
-            </div>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
-      </section>
-      <SiteFooter />
-    </main>
+      </PublicContainer>
+    </PublicShell>
   );
 }

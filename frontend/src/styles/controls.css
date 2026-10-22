@@ -1,0 +1,30 @@
+/* Form controls. Label above, 1px strong line, 12px radius, 16px text (no iOS zoom),
+   canvas fill, focus ring on --color-focus. `focus:outline-none` is banned here: it
+   would also swallow :focus-visible. */
+@layer components {
+  .desk-input {
+    @apply min-h-11 min-w-0 max-w-full rounded-md border border-line-strong bg-panel px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-muted hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-bg disabled:text-muted;
+    transition: border-color 180ms var(--sw-ease), background-color 180ms var(--sw-ease);
+  }
+  .desk-input[aria-invalid="true"] { @apply border-danger; }
+  .desk-input:read-only:not(select):not([type="file"]) { @apply border-line bg-bg; }
+  .desk-input[type="search"] { @apply rounded-full px-4; }
+  .desk-input[type="search"]::-webkit-search-cancel-button { cursor: pointer; }
+  textarea.desk-input { @apply min-h-24; resize: vertical; }
+
+  /* Native selects keep their semantics but lose the browser chrome. */
+  select.desk-input:not([multiple]) {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%233f484e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.875rem center;
+    background-repeat: no-repeat;
+    background-size: 18px 18px;
+  }
+  :root.dark select.desk-input:not([multiple]) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239aa0ad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+  select.desk-input option { background-color: rgb(var(--color-panel)); color: rgb(var(--color-ink)); }
+
+  input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--color-accent-ink)); }
+}

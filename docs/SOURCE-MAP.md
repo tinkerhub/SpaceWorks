@@ -27,13 +27,17 @@
   Auth & RBAC module: thin `rbac.py` import surface/coordinator over `rbac_actions.py`,
   `rbac_memberships.py`, `rbac_organizations.py`, and `rbac_superadmin.py` (`can(...)`, action-based
   `actions_for_membership`/`makerspaces_for_action`/`scope_by_action`, makerspace scoping, superadmin
-  hide/archive exclusion).
+  hide/archive exclusion). `checks.py` holds system check `accounts.E001` (placeholder/short
+  `SECRET_KEY` with `DEBUG=False`).
 - `backend/apps/makerspaces/` — `Makerspace` model (tenant root; unique `slug`; `frontend_domain`, module
   flags, `resource_limit_overrides`, `archived_at`, `superadmin_access_enabled`), bootstrap views, dynamic
   CORS, module guards, `module_registry.py` (canonical module definitions — all module lists derive from
   it), `platform.py` (origin helpers), `limits.py` (fair-use quotas), `lifecycle.py` (archive/purge barrel
   over `lifecycle_archive.py`, `lifecycle_purge.py` and `lifecycle_storage.py`),
-  `origin_scope.py` (browser origin→tenant guard), `provisioning.py`/`hosting.py`, `secrets.py`. The
+  `origin_scope.py` (browser origin→tenant guard; the route registry is `origin_scope_routes.py` +
+  `origin_scope_model_lookups.py` — `origin_scope_routes.py` also holds the body-scoped QR sets,
+  `BODY_TARGET_ROUTES` (body `makerspace_id`) and `QR_PAYLOAD_ROUTES` (the payload's `QrCode` row)), `guards.py` (`require_module*`; `require_module_locked_for_all` for a
+  mutation spanning makerspaces), `provisioning.py`/`hosting.py`, `secrets.py`. The
   `Makerspace` row itself lives in `models_makerspace.py` with two behaviour-only mixins carrying **no field
   definitions** (so neither needs a migration): `models_makerspace_secrets.py` (encrypted integration
   credentials) and `models_makerspace_lifecycle.py` (`save()`/`clean()` — the one chokepoint that reconciles
@@ -83,16 +87,26 @@
   `throttles.py` (the mid-keyed and lookup budgets).
   **Reinstated** after the M7 retirement; see **Check-in gated requests** in `docs/INVARIANTS.md`.
 - `backend/apps/boxes/` — `QrCode`/`Box` payloads, immutable `BoxScan`/`QrScanEvent`, `qr_render.py`
-  (namespaced standalone SVG shared by QR-print + batch ZIP), QR rebind. Camera scanner at
+  (namespaced standalone SVG shared by QR-print + batch ZIP), QR rebind. `api_views_qr.py` holds the
+  create/resolve/scan routes, whose tenant-origin target comes from the body (see `origin_scope_routes.py`). Camera scanner at
   `frontend/src/components/ui/QrScanner.tsx` (native `BarcodeDetector` + `zxing-wasm` fallback).
 - `backend/apps/admin_api/` — staff REST surface: makerspaces, inventory CRUD + per-makerspace category CRUD
-  (`EDIT_INVENTORY`), bulk import, staff/membership + role management, user restrict/restore, API-client
+  (`EDIT_INVENTORY`), bulk import (`bulk_import_rows.py` owns per-row validation, including the create-row
+  refusals preview and apply share), staff/membership + role management, user restrict/restore, API-client
   issuance (`api_client_views.py`) and access requests (`api_key_request_views.py`), audit reads, warranty,
   email-log, notification-recipient, FabLab report views.
-- `backend/apps/operations/` — open operations/reporting: health, stock transfers (intra + true
+- `backend/apps/operations/` — open operations/reporting: health (public liveness, internal-only readiness detail in
+  `views_health.py`), stock transfers (intra + true
   cross-makerspace), stocktake, adjustments, ledger, `report_registry.py` + `report_scope.py` + `reports_*`
   builders, CSV/XLSX exports, container APIs, QR print batches (`qr_zip.py`), dashboard, accountability.
-  `views.py`/`services.py` are thin re-export barrels over `views_*`/`services_*`.
+  `views.py`/`services.py` are thin re-export barrels over `views_*`/`services_*`; `serializers.py`
+  re-exports the stocktake serializers from `serializers_stocktake.py`. `stocktake_authority.py` is the one
+  approve/apply rule (superadmin, or a `manage_makerspace` holder who is not the stocktake's `completed_by`;
+  legacy rows with no completer stay superadmin-only), enforced inside the locked services so `/control/`
+  obeys it too and surfaced to the console as the serializer's `can_approve`/`can_apply`.
+  `services_stocktake_workflow._locked_session` is the one stocktake lock helper (makerspace row and its
+  `stocktake` module gate first, then the session); `services_qr_assets.generate_assets_with_qr` re-checks
+  `asset_units` the same way, so both gates also bind `/control/`.
 - `backend/apps/integrations/` — Telegram/email/Slack/Mattermost/native-push delivery, encrypted FCM/APNs
   credentials + device registrations, `dispatch_email` choke point + `EmailLog` outbox + Celery task,
   webhook (auth via `X-Telegram-Bot-Api-Secret-Token` vs `TELEGRAM_WEBHOOK_SECRET`, fail-closed),
@@ -180,7 +194,11 @@
   available/reserved/issued/damaged/lost counts change: `reserve_for_request`, `issue_items`/`return_items`,
   `issue_available`/`return_to_available`, `consume_available`; row-locked, never-below-zero,
   `InsufficientStock`), `public_availability.py`, allowlist-only public serializers/views,
-  `public_image_storage.py`, `seed_demo`.
+  `public_image_storage.py`, `seed_demo`. `availability_tracking.change_tracking_mode` is the **only** way
+  `tracking_mode` changes (empty product only; `TrackingModeChangeRefused` -> 409 `tracking_mode_locked`),
+  used by product PATCH, bulk-import update and asset generation; `AVAILABILITY_OWNED_FIELDS` are read-only
+  on the `/control/` change form. `public_image_attach.finalize_product_image` is the one inventory image
+  attach pipeline (ownership, key-in-use, finalize, Pillow sniff) for the image endpoint and bulk import.
 - `backend/apps/hardware_requests/` — Hardware Request Workflow: `HardwareRequest`/`HardwareRequestItem`,
   `HardwareRequestItemAsset` through-model, immutable `ReturnEvent`/`RequesterAccountability`,
   `PublicToolLoan`, `PublicProblemReport`. `workflow.py` is the **single source of truth** for state
@@ -194,7 +212,8 @@
   Stripe Connect resolution, checkout/webhook settlement, reconciliation, native PaymentSheet intents.
   `offline_payments.py` is the ONLY way to raise a charge with no online provider configured (counter
   settlement): `services.create_payment` resolves a payment source and raises `PaymentsUnavailable` when
-  there is none, so it cannot serve that case. Everything still lands on one `Payment` row — the legacy
+  there is none, so it cannot serve that case. Both re-check the `payments` module under the makerspace
+  lock first (`availability.new_charges_allowed_locked`). Everything still lands on one `Payment` row — the legacy
   `MachineServiceRequest.payment_*` columns stay read-only historic.
 - `backend/apps/printing/` — **TOMBSTONED** (Project B): only an `AppConfig` and an empty `models.py`, kept
   in `INSTALLED_APPS` so its historical migrations remain installed. 3D printing is now a `MachineType`
@@ -227,16 +246,25 @@
   `StaffApp.tsx`; module gating and routing are the separate `staffTabs.ts`); capabilities from
   action-based `staffAccess.ts`; payment reconciliation and platform credential panels.
   `frontend/src/features/auth/` + `members/MemberAuthPanel.tsx` — provider-config-driven social/member auth.
+  `frontend/src/features/account/ChangePasswordForm.tsx` — the one self-service change-password form, shared
+  by the staff `ChangePasswordGate`, the staff `AccountDialog` (opened from the username in `StaffHeader`)
+  and the member area's `MemberAccountSection`; it stores the re-issued access token the endpoint returns.
+  Role-assignment ceiling for role selects: `staff/panels/rolesApi.ts` `assignableRolesFor`.
   `frontend/src/features/printing|bookings|forms|...` — feature slices. `frontend/src/lib/`,
   `components/ui/`, `types/`, `generated/api.ts`. `lib/api.ts` is a thin **re-export barrel** (explicit
   named re-exports, never `export *`) over `apiConfig` / `apiTypes` / `apiErrors` / `apiSession` /
   `apiRequests`; ~164 files import from `lib/api`, so add a symbol to a submodule AND the barrel. The
   in-memory access token, runtime publishable key, tenant key cache and auth-expired listeners live in
   `apiSession.ts` alone — duplicating that state across submodules would silently break auth.
-- `frontend/src/styles/components.css` owns the shared Blueprint controls and panels;
-  `styles/chrome.css` owns solid navigation chrome and reduced-motion overrides. Root
-  theme tokens and self-hosted font definitions remain in `frontend/src/index.css` for
-  the backend contrast guard. Design provenance is recorded in `docs/design-provenance.md`.
+- `frontend/src/index.css` holds the theme tokens (`--color-*` palette + `--sw-*` roles, documented in its
+  header) because the backend contrast guard reads that exact file; `styles/type.css` the type scale,
+  `styles/components.css` the shared `desk-*` / `chip` / `status-box` / `blueprint-*` classes,
+  `styles/controls.css` form controls, `styles/chrome.css` overlays, keyframes and reduced motion. Fonts
+  come from `@fontsource` packages imported in `main.tsx`. `components/ui/` holds the Radix + lucide
+  primitives (all exported from `components/ui/index.ts`); `lib/cn.ts` is the class-merge helper; the
+  toast provider is mounted in `main.tsx`. Dialogs (`Modal`/`Dialog`, `ConfirmDialog`, `DetailDrawer`,
+  scanners) stay on the `dialogFocus` stack rather than Radix Dialog, so there is one stacking system.
+  Design provenance is recorded in `docs/design-provenance.md`.
 - `frontend/src/features/events/` — the standalone anonymous PIN-station route. Its
   `EventCheckInStationPage.tsx` exchanges the event-scoped PIN, then reuses the offline roster/sync API,
   IndexedDB state and operator UI owned by `features/staff/eventCheckInOfflineApi.ts`,

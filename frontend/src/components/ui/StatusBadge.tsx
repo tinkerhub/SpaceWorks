@@ -25,9 +25,11 @@ type StatusBadgeProps = {
   label?: string;
 };
 
+/** Status word on its tone. The word is always shown, so colour is never the only signal. */
 export function StatusBadge({ status, label }: StatusBadgeProps) {
   const normalized = status.toLowerCase();
-  const display = label ?? normalized.replace(/_/g, " ");
+  const words = normalized.replace(/_/g, " ");
+  const display = label ?? words.charAt(0).toUpperCase() + words.slice(1);
 
   return <Badge tone={statusToneMap[normalized] ?? "neutral"}>{display}</Badge>;
 }

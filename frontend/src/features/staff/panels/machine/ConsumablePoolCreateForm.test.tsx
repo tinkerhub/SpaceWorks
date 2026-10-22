@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PrinterPool } from "../../../../generated/api";
@@ -73,6 +73,11 @@ describe("ConsumablePoolCreateForm", () => {
   it("selects a named tile and submits its most recent pool hex separately", async () => {
     const { container } = renderForm(printerType);
 
+    // The material presets drive a listbox of exactly those materials.
+    fireEvent.click(screen.getByRole("combobox", { name: "Material" }));
+    const materials = within(screen.getByRole("listbox"));
+    expect(materials.getByRole("option", { name: "PLA" })).toBeInTheDocument();
+    fireEvent.click(materials.getByRole("option", { name: "PETG" }));
     expect(screen.getByRole("combobox", { name: "Material" })).toHaveTextContent("PETG");
     expect(screen.getByRole("button", { name: "Signal red" })).toBeVisible();
     const brand = screen.getByRole("combobox", { name: "Brand" });
@@ -81,7 +86,6 @@ describe("ConsumablePoolCreateForm", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Blue" }));
     expect(screen.getByRole("button", { name: "Blue" })).toHaveAttribute("aria-pressed", "true");
-    fireEvent.change(screen.getByRole("combobox", { name: "Material" }), { target: { value: "PETG" } });
     fireEvent.change(brand, { target: { value: "Prusament" } });
     fireEvent.change(screen.getByRole("spinbutton", { name: "Initial quantity" }), { target: { value: "250" } });
     fireEvent.click(screen.getByRole("button", { name: "Add filament" }));

@@ -22,13 +22,16 @@ function Harness({ approvalLocked = false }: { approvalLocked?: boolean }) {
 describe("EventFields registration policy", () => {
   it("keeps the two cutoff modes mutually exclusive", () => {
     render(<Harness />);
-    const mode = screen.getByLabelText("Registration cutoff");
+    const pick = (name: string) => {
+      fireEvent.click(screen.getByRole("combobox", { name: "Registration cutoff" }));
+      fireEvent.click(screen.getByRole("option", { name }));
+    };
 
-    fireEvent.change(mode, { target: { value: "lead" } });
+    pick("Before the event starts");
     expect(screen.getByLabelText("Minutes before start")).toBeTruthy();
     expect(screen.queryByLabelText("Cutoff time")).toBeNull();
 
-    fireEvent.change(mode, { target: { value: "absolute" } });
+    pick("At a date and time");
     expect(screen.getByLabelText("Cutoff time")).toBeTruthy();
     expect(screen.queryByLabelText("Minutes before start")).toBeNull();
   });

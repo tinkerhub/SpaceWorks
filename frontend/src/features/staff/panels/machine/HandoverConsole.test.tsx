@@ -50,8 +50,8 @@ describe("HandoverConsole", () => {
       </QueryClientProvider>,
     );
 
-    const payableRow = (await screen.findByText("Laser cutting")).closest("li")!;
-    const freeRow = screen.getByText("Free repair").closest("li")!;
+    const payableRow = (await screen.findByText("Laser cutting")).closest("tr")!;
+    const freeRow = screen.getByText("Free repair").closest("tr")!;
     expect(within(payableRow).getByText(/payment owed USD 15.00/i)).toBeVisible();
     expect(within(payableRow).getByRole("button", { name: /record payment/i })).toBeVisible();
     expect(within(freeRow).queryByRole("button", { name: /record payment/i })).not.toBeInTheDocument();

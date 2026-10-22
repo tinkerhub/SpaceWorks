@@ -1,4 +1,4 @@
-import { Card } from "../../components/ui/Card";
+import { Button, Callout, Card, Chip, ErrorText, Field, Input, Textarea } from "../../components/ui";
 import type { RequestCartItem } from "../../types/inventory";
 
 type BorrowRequestCardProps = {
@@ -55,89 +55,71 @@ export function BorrowRequestCard({
   return (
     <Card>
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="eyebrow text-secondary-ink">
-            Borrow Request
-          </p>
-          <h2 className="title-panel mt-2">
-            Selected equipment
-          </h2>
+        <div className="min-w-0">
+          <p className="text-body-ui text-ink-muted">Borrow request</p>
+          <h2 className="mt-1 text-h4 text-ink">Selected equipment</h2>
         </div>
-        <span className="rounded-lg border border-secondary bg-secondary/15 px-3 py-1 font-mono text-sm font-semibold text-secondary-ink">
-          {totalItems}
-        </span>
+        <Chip tone="secondary" className="tabular-nums">{totalItems}</Chip>
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-muted">
+        <p className="mt-4 rounded-md border-[1.5px] border-dashed border-line-strong px-3 py-3 text-body-ui text-ink-muted">
           {accountLess
             ? "Add public items from the inventory list, then leave your name and email to submit the request."
             : "Add public items from the inventory list, then submit the request with your signed-in member account."}
         </p>
       ) : (
         <div className="mt-4 space-y-2">
-          <div className="max-h-40 space-y-2 overflow-y-auto">
+          <ul className="max-h-40 divide-y divide-line overflow-y-auto rounded-md border border-line">
             {items.map((item) => (
-              <div
-                className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2"
-                key={item.productId}
-              >
-                <span className="min-w-0 flex-1 text-sm font-medium text-ink [overflow-wrap:anywhere]">{item.name}</span>
-                <span className="shrink-0 font-mono text-sm text-muted">x{item.quantity}</span>
-              </div>
+              <li className="flex items-center justify-between gap-3 px-3 py-2" key={item.productId}>
+                <span className="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]">{item.name}</span>
+                <span className="shrink-0 font-mono text-sm tabular-nums text-ink-muted">×{item.quantity}</span>
+              </li>
             ))}
-          </div>
-          <button className="desk-button w-full" type="button" onClick={onClear}>
+          </ul>
+          <Button variant="quiet" size="sm" onClick={onClear}>
             Clear selection
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-5 space-y-4">
         {accountLess ? (
-          <div className="space-y-3">
-            <label className="block">
-              <span className="eyebrow mb-1 block">Your name</span>
-              <input
+          <>
+            <Field label="Your name">
+              <Input
                 autoComplete="name"
-                className="desk-input w-full"
                 maxLength={200}
                 placeholder="Ada Lovelace"
                 type="text"
                 value={contactName}
                 onChange={(event) => onContactNameChange?.(event.target.value)}
               />
-            </label>
-            <label className="block">
-              <span className="eyebrow mb-1 block">Email</span>
-              <input
+            </Field>
+            <Field label="Email" helperText="Staff use this to reach you about the request.">
+              <Input
                 autoComplete="email"
-                className="desk-input w-full"
                 maxLength={254}
                 placeholder="you@example.com"
                 type="email"
                 value={contactEmail}
                 onChange={(event) => onContactEmailChange?.(event.target.value)}
               />
-            </label>
-            <label className="block">
-              <span className="eyebrow mb-1 block">Phone (optional)</span>
-              <input
+            </Field>
+            <Field label="Phone" optional>
+              <Input
                 autoComplete="tel"
-                className="desk-input w-full"
                 maxLength={32}
                 placeholder="+44 20 1234 5678"
                 type="tel"
                 value={contactPhone}
                 onChange={(event) => onContactPhoneChange?.(event.target.value)}
               />
-            </label>
-          </div>
+            </Field>
+          </>
         ) : null}
-        <label
-          aria-hidden="true"
-          className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
-        >
+        <label aria-hidden="true" className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden">
           Website
           <input
             autoComplete="off"
@@ -147,57 +129,32 @@ export function BorrowRequestCard({
             onChange={(event) => onWebsiteChange?.(event.target.value)}
           />
         </label>
-        <label className="block">
-          <span className="eyebrow mb-1 block">
-            Request purpose
-          </span>
-          <textarea
-            className="desk-input min-h-24 w-full resize-y"
+        <Field label="Request purpose">
+          <Textarea
             placeholder="What do you need these items for?"
             value={requestedFor}
             onChange={(event) => onRequestedForChange(event.target.value)}
           />
-        </label>
-        <button
-          className="desk-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!canSubmit}
-          type="button"
-          onClick={onSubmit}
-        >
-          {submitPending ? "Submitting..." : "Submit request"}
-        </button>
-        {submitError ? <Notice tone="danger" text={submitError} /> : null}
+        </Field>
+        <Button variant="primary" fullWidth disabled={!canSubmit} loading={submitPending} loadingLabel="Submitting…" onClick={onSubmit}>
+          Submit request
+        </Button>
+        <ErrorText message={submitError} />
         {submitted ? (
-          <div className="rounded-xl border border-success bg-success px-3 py-2 text-on-success dark:bg-success/15 dark:text-success-ink">
-            <h3 className="title-section text-on-success dark:text-success-ink">Request submitted</h3>
+          <Callout tone="success" role="status" title="Request submitted">
             {accountLess ? (
               <>
-                <p className="mt-1 text-xs">
-                  Save this reference — an account-less request has no sign-in to come back
-                  to, and staff will ask for it.
-                </p>
+                <p>Save this reference: an account-less request has no sign-in to come back to, and staff will ask for it.</p>
                 {publicToken ? (
-                  <p className="mt-2 break-all rounded-lg bg-surface px-2 py-1 font-mono text-xs text-ink">
-                    {publicToken}
-                  </p>
+                  <p className="mt-2 break-all rounded-md bg-canvas px-2 py-1 font-mono text-xs text-ink">{publicToken}</p>
                 ) : null}
               </>
             ) : (
-              <p className="mt-1 text-xs">
-                Check this page with your email to follow the request.
-              </p>
+              <p>Check this page with your email to follow the request.</p>
             )}
-          </div>
+          </Callout>
         ) : null}
       </div>
     </Card>
   );
-}
-
-function Notice({ text, tone }: { text: string; tone: "danger" | "success" }) {
-  const colors =
-    tone === "success"
-      ? "border-success bg-success text-on-success"
-      : "border-danger/40 bg-danger/10 text-danger";
-  return <p className={`rounded-lg border px-3 py-2 text-sm ${colors}`}>{text}</p>;
 }

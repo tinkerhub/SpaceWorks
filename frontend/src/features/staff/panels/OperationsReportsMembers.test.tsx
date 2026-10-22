@@ -53,6 +53,6 @@ describe("OperationsReportsMembers", () => {
 
     query.mockReturnValue({ isLoading: false, error: null, data: { rows: [["makerspace_name"]], typed_rows: [] } });
     view.rerender(<OperationsReportsMembers makerspaceId={1} aggregate={false} startDate="" endDate="" enabled />);
-    expect(screen.getByText("No records.")).toBeTruthy();
+    expect(screen.getByText("No records yet")).toBeTruthy();
   });
 });

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
+import { Paperclip } from "lucide-react";
 
-import { ConfirmDialog } from "../../../../components/ui";
+import { Button, ConfirmDialog, Field, Input } from "../../../../components/ui";
 import {
   uploadToContract,
   useDeleteMaintenanceDocument,
@@ -9,6 +10,7 @@ import {
   usePresignMaintenanceDocument,
   type MaintenanceDocument,
 } from "./maintenanceApi";
+import { formatBytes, useNotify, When } from "./machineUi";
 
 export function MaintenanceDocuments({
   machineId, logId, documents, canDelete, retired,
@@ -19,6 +21,7 @@ export function MaintenanceDocuments({
   canDelete: boolean;
   retired: boolean;
 }) {
+  const notify = useNotify();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [pendingKey, setPendingKey] = useState("");
@@ -34,6 +37,12 @@ export function MaintenanceDocuments({
     setPendingKey("");
     setFile(null);
     if (input.current) input.current.value = "";
+    notify.success("Attachment uploaded");
+  };
+  const fail = (caught: unknown, fallback: string) => {
+    const error = caught instanceof Error ? caught : new Error(fallback);
+    setUploadError(error);
+    notify.failure("Couldn't upload the attachment.", error);
   };
   const upload = async () => {
     if (!file) return;
@@ -44,7 +53,7 @@ export function MaintenanceDocuments({
       setPendingKey(contract.object_key);
       await finish(contract.object_key);
     } catch (caught) {
-      setUploadError(caught instanceof Error ? caught : new Error("Unable to upload document."));
+      fail(caught, "Unable to upload document.");
     }
   };
   const retryFinalize = async () => {
@@ -52,66 +61,55 @@ export function MaintenanceDocuments({
     try {
       await finish(pendingKey);
     } catch (caught) {
-      setUploadError(caught instanceof Error ? caught : new Error("Unable to finalize document."));
+      fail(caught, "Unable to finalize document.");
     }
   };
   const error = uploadError ?? presign.error ?? finalize.error ?? view.error ?? remove.error;
+  const uploading = presign.isPending || finalize.isPending;
 
   return (
-    <div className="mt-3 grid gap-2 border-t border-line pt-3">
-      <h4 className="title-section">Attachments</h4>
-      {documents.map((document) => (
-        <div key={document.id} className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="min-w-0 flex-1 text-muted">
-            Attachment #{document.id} · {formatBytes(document.size_bytes)}
-          </span>
-          <button className="desk-button-ghost" type="button" onClick={() => view.mutate(document.id)}>
-            Download
-          </button>
-          {canDelete && !retired ? (
-            <button
-              className="desk-button-danger"
-              type="button"
-              onClick={() => setDeleteDocumentId(document.id)}
-            >
-              Delete
-            </button>
-          ) : null}
-        </div>
-      ))}
-      {!documents.length ? <span className="text-xs text-muted">No attachments.</span> : null}
+    <div className="grid gap-3 border-t border-line pt-3">
+      <h4 className="text-label text-ink">Attachments</h4>
+      {documents.length ? (
+        <ul className="grid gap-1.5">
+          {documents.map((document) => (
+            <li key={document.id} className="flex flex-wrap items-center gap-2">
+              <Paperclip aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
+              <span className="min-w-0 flex-1 text-caption text-ink-secondary">
+                Attachment #{document.id} · {formatBytes(document.size_bytes)} · <When value={document.created_at} />
+              </span>
+              <Button size="sm" variant="quiet" onClick={() => view.mutate(document.id, { onError: (caught) => notify.failure("Couldn't open the attachment.", caught) })}>
+                Download
+              </Button>
+              {canDelete && !retired ? (
+                <Button size="sm" variant="danger-quiet" onClick={() => setDeleteDocumentId(document.id)}>Delete…</Button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : <p className="text-caption text-ink-muted">No attachments.</p>}
       {!retired ? (
         <div className="flex flex-wrap items-end gap-2">
-          <label className="eyebrow grid min-w-0 max-w-full flex-[1_1_14rem] gap-1">
-            Add supporting document
-            <input
+          <Field label="Add supporting document" className="min-w-0 flex-[1_1_14rem]">
+            <Input
               ref={input}
-              className="desk-input"
               type="file"
+              className="py-2"
               accept=".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"
               onChange={(event) => {
                 setFile(event.target.files?.[0] ?? null);
                 setUploadError(null);
               }}
             />
-          </label>
-          <button
-            className="desk-button-primary"
-            type="button"
-            disabled={!file || presign.isPending || finalize.isPending}
-            onClick={() => void upload()}
-          >
-            {presign.isPending || finalize.isPending ? "Uploading..." : "Upload"}
-          </button>
+          </Field>
+          <Button disabled={!file} loading={uploading} loadingLabel="Uploading…" onClick={() => void upload()}>Upload</Button>
           {pendingKey && finalize.isError ? (
-            <button className="desk-button-primary" type="button" onClick={() => void retryFinalize()}>
-              Retry finalize
-            </button>
+            <Button onClick={() => void retryFinalize()}>Retry finalize</Button>
           ) : null}
         </div>
       ) : null}
       {error instanceof Error ? (
-        <p className="text-sm text-danger" role="alert">{error.message}</p>
+        <p className="text-caption text-danger-fg" role="alert">{error.message}</p>
       ) : null}
       <ConfirmDialog
         open={deleteDocumentId !== null}
@@ -122,17 +120,14 @@ export function MaintenanceDocuments({
         pending={remove.isPending}
         onConfirm={() => {
           if (deleteDocumentId !== null) {
-            remove.mutate(deleteDocumentId, { onSuccess: () => setDeleteDocumentId(null) });
+            remove.mutate(deleteDocumentId, {
+              onSuccess: () => { notify.success("Attachment deleted"); setDeleteDocumentId(null); },
+              onError: (caught) => notify.failure("Couldn't delete the attachment.", caught),
+            });
           }
         }}
         onCancel={() => setDeleteDocumentId(null)}
       />
     </div>
   );
-}
-
-function formatBytes(value: number) {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }

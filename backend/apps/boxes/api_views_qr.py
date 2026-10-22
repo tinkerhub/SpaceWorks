@@ -38,6 +38,16 @@ from apps.openapi import (
 )
 
 
+# On a tenant's own domain the target makerspace comes from the body `makerspace_id`
+# (create routes) or the payload's QR row (scan/resolve); a foreign, missing or unknown
+# target is the same plain 403, so the refusal never reveals another tenant's QR.
+QR_ORIGIN_ERRORS = {
+    400: OpenApiResponse(description="Invalid request body."),
+    403: OpenApiResponse(description="Permission denied, or the target is outside this site's makerspace."),
+    404: OpenApiResponse(description="Not found in the caller's makerspace scope."),
+}
+
+
 class QrPermissionMixin:
     permission_classes = [IsActiveStaff]
 
@@ -55,7 +65,7 @@ class CreateBoxQrView(QrPermissionMixin, APIView):
         tags=["QR assets"],
         summary="Create a QR-coded box",
         request=CreateBoxQrSerializer,
-        responses={201: BoxSerializer},
+        responses={201: BoxSerializer, **QR_ORIGIN_ERRORS},
         examples=[QR_BOX_EXAMPLE],
     )
     def post(self, request, *args, **kwargs):
@@ -90,7 +100,7 @@ class CreateToolQrView(QrPermissionMixin, APIView):
         tags=["QR assets"],
         summary="Create or reuse a QR code for a product or asset",
         request=CreateToolQrSerializer,
-        responses={201: QrCodeSerializer},
+        responses={201: QrCodeSerializer, **QR_ORIGIN_ERRORS},
     )
     def post(self, request, *args, **kwargs):
         serializer = CreateToolQrSerializer(data=request.data)
@@ -129,7 +139,7 @@ class QrScanView(QrPermissionMixin, APIView):
         summary="Record a QR scan",
         description="Context is limited to issue or return and scan events are immutable.",
         request=QrScanSerializer,
-        responses={201: QrScanResultSerializer},
+        responses={201: QrScanResultSerializer, **QR_ORIGIN_ERRORS},
         examples=[QR_SCAN_EXAMPLE],
     )
     def post(self, request, *args, **kwargs):
@@ -185,7 +195,7 @@ class QrResolveView(QrPermissionMixin, APIView):
             "Resolving a QR also records an immutable scanner-lookup scan event."
         ),
         request=QrResolveSerializer,
-        responses={200: QrResolveResultSerializer},
+        responses={200: QrResolveResultSerializer, **QR_ORIGIN_ERRORS},
         examples=[QR_RESOLVE_REQUEST_EXAMPLE, QR_RESOLVE_RESPONSE_EXAMPLE],
     )
     def post(self, request, *args, **kwargs):

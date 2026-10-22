@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Card } from "../../components/ui/Card";
+import { QrCode } from "lucide-react";
+
+import { Button, Callout, Card, CheckboxField, ErrorText, Field, Textarea, useToast } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
 import type { PublicToolLoan } from "../../types/inventory";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
@@ -20,21 +22,23 @@ type PublicToolScanPanelProps = {
 };
 
 function LoanResult({ loan }: { loan: PublicToolLoan }) {
+  const status = loan.status.replace(/_/g, " ");
   return (
-    <div className="min-w-0 rounded-xl border border-success bg-success px-3 py-2 text-on-success [overflow-wrap:anywhere] dark:bg-success/15 dark:text-success-ink">
-      <h3 className="title-section capitalize text-on-success dark:text-success-ink">
-        {loan.status.replace(/_/g, " ")}: {loan.items.map((item) => item.product_name).join(", ") || "Tool loan"}
-      </h3>
+    <Callout
+      tone="success"
+      role="status"
+      title={`${status.charAt(0).toUpperCase()}${status.slice(1)}: ${loan.items.map((item) => item.product_name).join(", ") || "Tool loan"}`}
+    >
       <p className="mt-1 break-all font-mono text-xs">{loan.public_token}</p>
-      <div className="mt-2 space-y-1">
+      <ul className="mt-2 space-y-1">
         {loan.items.map((item) => (
-          <div className="flex justify-between gap-3 text-xs" key={item.product_name}>
+          <li className="flex justify-between gap-3 text-caption" key={item.product_name}>
             <span className="min-w-0 flex-1">{item.product_name}</span>
-            <span className="shrink-0 font-mono">x{item.quantity}</span>
-          </div>
+            <span className="shrink-0 font-mono tabular-nums">×{item.quantity}</span>
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </Callout>
   );
 }
 
@@ -43,6 +47,7 @@ export function PublicToolScanPanel({
   requiresCheckin = false,
 }: PublicToolScanPanelProps) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(
     null,
   );
@@ -76,7 +81,9 @@ export function PublicToolScanPanel({
       setPendingPayloads([]);
       setIssueEvidenceId(null);
       setUploadKey((key) => key + 1);
+      showToast("Tool checked out", { tone: "success" });
     },
+    onError: () => showToast("Checkout failed", { tone: "error" }),
   });
   const returnTool = useMutation({
     mutationFn: () =>
@@ -95,7 +102,9 @@ export function PublicToolScanPanel({
       setReportProblem(false);
       setProblemNote("");
       setUploadKey((key) => key + 1);
+      showToast("Tool returned", { tone: "success" });
     },
+    onError: () => showToast("Return failed", { tone: "error" }),
   });
   const checkoutDisabled =
     !identityReady ||
@@ -112,11 +121,9 @@ export function PublicToolScanPanel({
 
   return (
     <Card className="@container">
-      <p className="eyebrow text-secondary-ink">
-        QR Tool Checkout
-      </p>
-      <h2 className="title-panel mt-2">Scan public tool</h2>
-      <p className="mt-2 text-sm leading-6 text-muted">
+      <p className="text-body-ui text-ink-muted">QR tool checkout</p>
+      <h2 className="mt-1 text-h4 text-ink">Scan public tool</h2>
+      <p className="mt-2 text-body-ui text-ink-secondary">
         Upload the required photo, then scan the tool QR with your camera.
       </p>
       {requiresCheckin ? (
@@ -134,32 +141,29 @@ export function PublicToolScanPanel({
           />
         </div>
       ) : null}
-      <button
-        className="desk-button mt-4 w-full"
+      <Button
+        className="mt-4"
+        fullWidth
+        startIcon={<QrCode />}
         disabled={!identityReady || checkout.isPending || returnTool.isPending}
-        type="button"
         onClick={() => {
           setScannerTarget("both");
           setScannerOpen(true);
         }}
       >
         Scan QR with camera
-      </button>
+      </Button>
       {returnPayload ? (
-        <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-success bg-success px-3 py-1 text-sm font-semibold text-on-success dark:bg-success/15 dark:text-success-ink">
+        <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-success-bg py-0.5 pl-3 pr-1 text-sm font-semibold text-success-fg">
           Scanned OK
-          <button
-            type="button"
-            className="min-h-11 px-2 text-xs font-normal underline"
-            onClick={() => setReturnPayload("")}
-          >
-            clear
-          </button>
+          <Button variant="quiet" size="sm" className="text-success-fg hover:text-success-fg" onClick={() => setReturnPayload("")}>
+            Clear
+          </Button>
         </p>
       ) : null}
       <div className="mt-4 grid gap-4 @min-[36rem]:grid-cols-2">
-        <section className="min-w-0 rounded-lg border border-line p-3">
-          <h3 className="title-section">Check out</h3>
+        <section className="min-w-0 rounded-lg border border-line p-4">
+          <h3 className="text-title text-ink">Check out</h3>
           <PendingToolCheckoutControls
             payloads={pendingPayloads}
             isPending={checkout.isPending}
@@ -189,65 +193,37 @@ export function PublicToolScanPanel({
             </div>
           </PendingToolCheckoutControls>
         </section>
-        <section className="min-w-0 rounded-lg border border-line p-3">
-          <h3 className="title-section">Return</h3>
-          <div className="mt-3">
-            <PublicEvidenceUpload
-              key={`return-${uploadKey}`}
-              slug={makerspaceSlug}
-              evidenceType="return"
-              checkinIdentity={
-                requiresCheckin ? confirmedCheckin ?? undefined : undefined
-              }
-              disabled={!identityReady || returnTool.isPending}
-              onUploaded={setReturnEvidenceId}
-            />
-          </div>
-          <label className="mt-3 block">
-            <span className="eyebrow mb-1 block">
-              Return condition notes
-            </span>
-            <textarea
-              className="desk-input min-h-20 w-full"
-              value={returnRemark}
-              onChange={(event) => setReturnRemark(event.target.value)}
-            />
-          </label>
-          <label className="mt-3 flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
-              checked={reportProblem}
-              onChange={(event) => setReportProblem(event.target.checked)}
-            />
-            <span>Report a problem with this tool</span>
-          </label>
+        <section className="min-w-0 space-y-3 rounded-lg border border-line p-4">
+          <h3 className="text-title text-ink">Return</h3>
+          <PublicEvidenceUpload
+            key={`return-${uploadKey}`}
+            slug={makerspaceSlug}
+            evidenceType="return"
+            checkinIdentity={
+              requiresCheckin ? confirmedCheckin ?? undefined : undefined
+            }
+            disabled={!identityReady || returnTool.isPending}
+            onUploaded={setReturnEvidenceId}
+          />
+          <Field label="Return condition notes">
+            <Textarea rows={3} className="min-h-20" value={returnRemark} onChange={(event) => setReturnRemark(event.target.value)} />
+          </Field>
+          <CheckboxField
+            label="Report a problem with this tool"
+            checked={reportProblem}
+            onCheckedChange={(checked) => setReportProblem(checked === true)}
+          />
           {reportProblem ? (
-            <label className="mt-2 block">
-              <span className="eyebrow mb-1 block">
-                What's wrong? (staff will review)
-              </span>
-              <textarea
-                className="desk-input min-h-16 w-full"
-                value={problemNote}
-                onChange={(event) => setProblemNote(event.target.value)}
-              />
-            </label>
+            <Field label="What's wrong?" helperText="Staff will review it.">
+              <Textarea rows={2} className="min-h-16" value={problemNote} onChange={(event) => setProblemNote(event.target.value)} />
+            </Field>
           ) : null}
-          <button
-            className="desk-button mt-3 w-full disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={returnDisabled || returnTool.isPending}
-            type="button"
-            onClick={() => returnTool.mutate()}
-          >
-            {returnTool.isPending ? "Returning..." : "Return"}
-          </button>
+          <Button fullWidth disabled={returnDisabled} loading={returnTool.isPending} loadingLabel="Returning…" onClick={() => returnTool.mutate()}>
+            Return
+          </Button>
         </section>
       </div>
-      {error ? (
-        <p className="mt-3 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </p>
-      ) : null}
+      {error ? <div className="mt-3"><ErrorText message={error} /></div> : null}
       {result ? (
         <div className="mt-3">
           <LoanResult loan={result} />

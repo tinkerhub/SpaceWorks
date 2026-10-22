@@ -3,7 +3,15 @@ import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/figtree";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/500.css";
+import "@fontsource/jetbrains-mono/700.css";
+
 import App from "./App";
+import { AppErrorBoundary } from "./components/AppErrorBoundary";
+import { ToastProvider } from "./components/ui/Toast";
 import "./index.css";
 import { cleanupLegacyAccessToken } from "./lib/api";
 import { queryClient } from "./lib/queryClient";
@@ -27,7 +35,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <QueryClientProvider client={queryClient}>
       <TenantProvider>
         <BrowserRouter>
-          <App />
+          <ToastProvider>
+            <AppErrorBoundary>
+              <App />
+            </AppErrorBoundary>
+          </ToastProvider>
         </BrowserRouter>
       </TenantProvider>
     </QueryClientProvider>

@@ -1,38 +1,45 @@
 @import "tailwindcss";
+@import "./styles/type.css";
 @import "./styles/components.css";
+@import "./styles/controls.css";
 @import "./styles/chrome.css";
 @config "../tailwind.config.ts";
 
-/* Self-hosted type: display headings, Instrument Sans body, technical mono labels. */
-@font-face {
-  font-family: "Clash Display";
-  src: url("/fonts/ClashDisplay-Semibold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Clash Display";
-  src: url("/fonts/ClashDisplay-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Variable.woff2") format("woff2");
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Instrument Sans";
-  src: url("/fonts/InstrumentSans-Variable.woff2") format("woff2");
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
+/*
+ * Theme tokens. Fonts are self-hosted through @fontsource (imported in main.tsx):
+ * Bricolage Grotesque Variable for display/headings, Figtree Variable for UI/body,
+ * JetBrains Mono for codes, IDs and QR values only.
+ *
+ * Two layers live in the blocks below:
+ *
+ * 1. Palette (`--color-*`, space-separated RGB triplets). The SpaceWorks colours.
+ *    Thousands of call sites use them through Tailwind (`bg-accent`, `text-muted`,
+ *    `bg-success text-on-success`...), and backend/tests/test_frontend_theme_contrast.py
+ *    parses them, so they stay triplets and stay inside the first `:root` and
+ *    `:root.dark` blocks.
+ *
+ * 2. Roles (`--sw-*`, full colour values) mapped onto that palette. New code should
+ *    reach for these Tailwind names:
+ *      canvas         cards, dialogs, inputs            (= panel)
+ *      subtle         page / app background, sidebar    (= bg)
+ *      fill           neutral chips, stat fills         (= surface)
+ *      emphasis       selected nav, hover fills, progress tracks
+ *      line           card borders, dividers (ink 12% / white 10%)
+ *      line-strong    inputs, secondary buttons, dashed empty states
+ *      ink, ink-secondary, ink-muted, ink-disabled       text, strongest to weakest
+ *      primary / on-primary                              the one primary action (sky accent)
+ *      success-bg/fg, warning-bg/fg, danger-bg/fg, info-bg/fg   status = soft bg + strong fg
+ *      danger-border                                     danger-zone outline
+ *      overlay                                           dialog scrim
+ *      inverse / on-inverse                              always-dark toast and tooltip surface
+ *    Shadows: shadow-raised, shadow-float, shadow-segment (built from --shadow-color).
+ *    Easing: ease-standard. Type scale: text-display-xl/l/m, text-h1..h4, text-title,
+ *    text-body-l, text-body, text-body-ui, text-label, text-caption, text-overline,
+ *    text-mono (styles/type.css).
+ *    `line` now means the soft divider; the old full-ink border went with the brutal
+ *    shadows (`shadow-brutal*` / `shadow-hardsoft-*` are aliases of the flat/raised
+ *    values so old class strings still resolve).
+ */
 
 @layer base {
   :root {
@@ -70,6 +77,32 @@
     --color-danger: 164 36 59;
     --color-danger-ink: 90 22 32;
     --shadow-color: 27 28 25;
+
+    /* Roles (see the header comment). */
+    --sw-canvas: rgb(var(--color-panel));
+    --sw-subtle: rgb(var(--color-bg));
+    --sw-fill: rgb(var(--color-surface));
+    --sw-emphasis: rgb(231 230 223);
+    --sw-line: rgb(var(--color-ink) / 0.12);
+    --sw-line-strong: rgb(var(--color-outline) / 0.55);
+    --sw-ink-secondary: rgb(var(--color-ink) / 0.82);
+    --sw-ink-disabled: rgb(var(--color-muted) / 0.62);
+    --sw-success-bg: color-mix(in srgb, rgb(var(--color-success)) 25%, rgb(var(--color-panel)));
+    --sw-success-fg: rgb(var(--color-success-ink));
+    --sw-warning-bg: color-mix(in srgb, rgb(var(--color-warn)) 30%, rgb(var(--color-panel)));
+    --sw-warning-fg: rgb(var(--color-warn-ink));
+    --sw-danger-bg: color-mix(in srgb, rgb(var(--color-danger)) 12%, rgb(var(--color-panel)));
+    --sw-danger-fg: rgb(var(--color-danger));
+    --sw-danger-border: color-mix(in srgb, rgb(var(--color-danger)) 45%, rgb(var(--color-panel)));
+    --sw-info-bg: color-mix(in srgb, rgb(var(--color-accent)) 25%, rgb(var(--color-panel)));
+    --sw-info-fg: rgb(var(--color-accent-ink));
+    --sw-overlay: rgb(14 14 18 / 0.48);
+    --sw-inverse: rgb(27 28 25);
+    --sw-on-inverse: rgb(250 249 244);
+    --sw-shadow-raised: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 12px 32px rgb(var(--shadow-color) / 0.06);
+    --sw-shadow-float: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 24px 48px rgb(var(--shadow-color) / 0.08);
+    --sw-shadow-segment: 0 1px 3px rgb(var(--shadow-color) / 0.12);
+    --sw-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   :root.dark {
@@ -104,28 +137,35 @@
     --color-danger: 244 114 127;
     --color-danger-ink: 90 22 32;
     --shadow-color: 0 0 0;
+
+    --sw-emphasis: rgb(46 48 61);
+    --sw-line: rgb(255 255 255 / 0.1);
+    --sw-line-strong: rgb(var(--color-outline) / 0.6);
+    --sw-overlay: rgb(0 0 0 / 0.6);
+    --sw-inverse: rgb(46 48 61);
+    --sw-shadow-raised: 0 12px 32px rgb(var(--shadow-color) / 0.5);
+    --sw-shadow-float: 0 24px 48px rgb(var(--shadow-color) / 0.5);
+    --sw-shadow-segment: 0 1px 3px rgb(var(--shadow-color) / 0.5);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply bg-bg text-ink antialiased;
-    font-family:
-      "Instrument Sans", ui-sans-serif, system-ui, -apple-system,
-      BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background-image:
-      linear-gradient(to right, rgb(var(--color-ink) / 0.045) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(var(--color-ink) / 0.045) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-  :root.dark body {
-    background-image:
-      linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    font-family: "Figtree Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Clash Display", ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: -0.01em;
+    font-family: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
   }
+  h1, h2, h3, h4 { font-weight: 800; }
+  h5, h6 { font-weight: 700; }
+
+  code, kbd, samp, pre { font-family: "JetBrains Mono", ui-monospace, monospace; }
 
   #root {
     min-height: 100vh;
@@ -134,14 +174,20 @@
   }
 
   ::selection {
-    @apply bg-accent text-on-accent;
+    @apply bg-secondary text-on-secondary;
+  }
+
+  /* Visible focus ring on everything; components repeat it so a utility cannot drop it. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-focus));
+    outline-offset: 2px;
   }
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
     -webkit-text-fill-color: rgb(var(--color-ink));
-    -webkit-box-shadow: 0 0 0 1000px rgb(var(--color-bg)) inset;
+    -webkit-box-shadow: 0 0 0 1000px rgb(var(--color-panel)) inset;
     caret-color: rgb(var(--color-ink));
   }
 
@@ -151,7 +197,10 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-line;
+    background-color: var(--sw-line-strong);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
   }
 
   ::-webkit-scrollbar-track {

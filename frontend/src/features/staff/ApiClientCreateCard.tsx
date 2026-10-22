@@ -1,6 +1,6 @@
-import { Field } from "../../components/ui";
+import { Button, Card, CardHeader, ErrorBlock, Field, Input, Skeleton, Textarea } from "../../components/ui";
 import { ApiClientScopePicker } from "./ApiClientScopePicker";
-import type { ApiClientCreateResponse, ApiClientScopeOption } from "./apiClientsApi";
+import type { ApiClientScopeOption } from "./apiClientsApi";
 import { splitOrigins } from "./apiClientsApi";
 
 type Props = {
@@ -9,7 +9,6 @@ type Props = {
   reason: string;
   origins: string;
   submitted: boolean;
-  oneTimeSecret: ApiClientCreateResponse | null;
   isPending: boolean;
   error: Error | null;
   scopeOptions: ApiClientScopeOption[];
@@ -21,8 +20,9 @@ type Props = {
   onOriginsChange: (value: string) => void;
   onScopesChange: (value: string[]) => void;
   onSubmit: () => void;
-  onDismissSecret: () => void;
 };
+
+const originsPlaceholder = "Allowed browser origins, one per line. Example: https://lab.example.com";
 
 export function ApiClientCreateCard({
   canManageMakerspace,
@@ -30,7 +30,6 @@ export function ApiClientCreateCard({
   reason,
   origins,
   submitted,
-  oneTimeSecret,
   isPending,
   error,
   scopeOptions,
@@ -42,115 +41,79 @@ export function ApiClientCreateCard({
   onOriginsChange,
   onScopesChange,
   onSubmit,
-  onDismissSecret,
 }: Props) {
+  const originsField = (
+    <Field label="Allowed browser origins" helperText="One origin per line, including https://.">
+      <Textarea placeholder={originsPlaceholder} value={origins} onChange={(event) => onOriginsChange(event.target.value)} />
+    </Field>
+  );
+
   if (canManageMakerspace) {
+    const blocked = !label.trim() || !splitOrigins(origins).length || !scopes.length || scopesLoading || !!scopesError || isPending;
     return (
-      <article className="rounded-md border border-line bg-surface p-3">
-        <h3 className="font-semibold text-ink">API clients</h3>
-        <div className="mt-3 grid gap-2">
-          <Field label="Client label">
-            <input
-              className="desk-input w-full"
-              value={label}
-              onChange={(event) => onLabelChange(event.target.value)}
-            />
-          </Field>
-          <Field label="Allowed browser origins">
-            <textarea
-              className="desk-input min-h-24 w-full"
-              placeholder="Allowed browser origins, one per line. Example: https://lab.example.com"
-              value={origins}
-              onChange={(event) => onOriginsChange(event.target.value)}
-            />
-          </Field>
-          <div className="grid gap-2">
-            <span className="eyebrow">Scopes</span>
-            <p className="text-xs text-muted">Choose the exact public API access this client needs.</p>
-            {scopesLoading ? <p className="text-sm text-muted">Loading scope choices...</p> : null}
-            {!scopesLoading && scopeOptions.length ? (
-              <ApiClientScopePicker
-                options={scopeOptions}
-                selected={scopes}
-                onChange={onScopesChange}
-                disabled={isPending}
-              />
-            ) : null}
-            {scopesError ? <p className="text-sm text-danger">{scopesError.message}</p> : null}
-          </div>
-        </div>
-        <button
-          className="desk-button-primary mt-3 w-full"
-          disabled={!label.trim() || !splitOrigins(origins).length || !scopes.length || scopesLoading || !!scopesError || isPending}
-          onClick={onSubmit}
+      <Card as="article">
+        <CardHeader title="Create API client" description="The client secret is shown once, right after you create the client." />
+        <form
+          className="grid gap-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!blocked) onSubmit();
+          }}
         >
-          {isPending ? "Creating..." : "Create API client"}
-        </button>
-        {error ? <p className="mt-2 text-sm text-danger">{error.message}</p> : null}
-        {oneTimeSecret ? (
-          <div className="mt-3 rounded-md border border-accent/40 bg-accent/10 p-3">
-            <p className="text-sm font-semibold text-ink">Copy this secret now &mdash; it will not be shown again.</p>
-            <p className="mt-2 break-all rounded-md border border-line bg-bg p-2 font-mono text-xs text-ink">
-              {oneTimeSecret.client_secret}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                className="desk-button"
-                type="button"
-                onClick={() => void navigator.clipboard.writeText(oneTimeSecret.client_secret)}
-              >
-                Copy
-              </button>
-              <button className="desk-button-primary" type="button" onClick={onDismissSecret}>
-                Done
-              </button>
-            </div>
+          <Field label="Client label">
+            <Input value={label} onChange={(event) => onLabelChange(event.target.value)} />
+          </Field>
+          {originsField}
+          <div className="grid gap-2">
+            <p className="text-label text-ink">Scopes</p>
+            <p className="-mt-1 text-caption text-ink-muted">Choose the exact public API access this client needs.</p>
+            {scopesLoading ? <Skeleton className="h-24 w-full" /> : null}
+            {!scopesLoading && scopeOptions.length ? (
+              <ApiClientScopePicker options={scopeOptions} selected={scopes} onChange={onScopesChange} disabled={isPending} />
+            ) : null}
+            <ErrorBlock error={scopesError} />
           </div>
-        ) : null}
-      </article>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" variant="primary" disabled={blocked} loading={isPending} loadingLabel="Creating…">
+              Create API client
+            </Button>
+          </div>
+          <ErrorBlock error={error} />
+        </form>
+      </Card>
     );
   }
 
+  const blocked = !label.trim() || !reason.trim() || !splitOrigins(origins).length || isPending;
   return (
-    <article className="rounded-md border border-line bg-surface p-3">
-      <h3 className="font-semibold text-ink">Request API access</h3>
-      <div className="mt-3 grid gap-2">
+    <Card as="article">
+      <CardHeader title="Request API access" description="A superadmin reviews the request and shares the key with you securely." />
+      <form
+        className="grid gap-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!blocked) onSubmit();
+        }}
+      >
         <Field label="Request label">
-          <input
-            className="desk-input w-full"
-            value={label}
-            onChange={(event) => onLabelChange(event.target.value)}
-          />
+          <Input value={label} onChange={(event) => onLabelChange(event.target.value)} />
         </Field>
         <Field label="Reason for API access">
-          <textarea
-            className="desk-input min-h-24 w-full"
-            value={reason}
-            onChange={(event) => onReasonChange(event.target.value)}
-          />
+          <Textarea value={reason} onChange={(event) => onReasonChange(event.target.value)} />
         </Field>
-        <Field label="Allowed browser origins">
-          <textarea
-            className="desk-input min-h-24 w-full"
-            placeholder="Allowed browser origins, one per line. Example: https://lab.example.com"
-            value={origins}
-            onChange={(event) => onOriginsChange(event.target.value)}
-          />
-        </Field>
-      </div>
-      <button
-        className="desk-button-primary mt-3 w-full"
-        disabled={!label.trim() || !reason.trim() || !splitOrigins(origins).length || isPending}
-        onClick={onSubmit}
-      >
-        {isPending ? "Submitting..." : "Submit API access request"}
-      </button>
-      {submitted ? (
-        <p className="mt-2 text-sm text-muted">
-          Request submitted. A superadmin will review and share the key with you securely.
-        </p>
-      ) : null}
-      {error ? <p className="mt-2 text-sm text-danger">{error.message}</p> : null}
-    </article>
+        {originsField}
+        <div>
+          <Button type="submit" variant="primary" disabled={blocked} loading={isPending} loadingLabel="Submitting…">
+            Submit API access request
+          </Button>
+        </div>
+        {submitted ? (
+          <p className="text-body-ui text-ink-muted" role="status">
+            Request submitted. A superadmin will review and share the key with you securely.
+          </p>
+        ) : null}
+        <ErrorBlock error={error} />
+      </form>
+    </Card>
   );
 }

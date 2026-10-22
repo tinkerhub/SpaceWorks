@@ -16,6 +16,7 @@ from apps.integrations.models import (
     NotificationFeature,
 )
 from apps.integrations.notification_catalog import FEATURE_EVENTS, is_notification_enabled
+from apps.integrations.recipients_selection import feature_available
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +194,11 @@ def notify_lifecycle(makerspace, *, feature, event, build, sync=False):
             "unknown_lifecycle_notification",
             extra={"feature": feature, "event": event},
         )
+        return NotificationResult(False, {}, {})
+    if not feature_available(makerspace, feature):
+        # The feature's module is off for THIS makerspace (an event organizer's space
+        # without `events`, say): nothing is sent on any channel. Fails open on a lookup
+        # error, like every other gate in this fan-out.
         return NotificationResult(False, {}, {})
     if sync:
         return _run_guarded(makerspace, feature, event, build, True)

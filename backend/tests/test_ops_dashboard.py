@@ -319,7 +319,7 @@ def test_disabled_maintenance_dashboard_does_not_query(monkeypatch):
     import apps.maintenance.models as maintenance_models
 
     monkeypatch.setattr(maintenance_models, "MaintenanceSchedule", BrokenSchedule)
-    assert views_dashboard.build_dashboard(makerspace)["maintenance_overdue"] == 0
+    assert "maintenance_overdue" not in views_dashboard.build_dashboard(makerspace)
 
 
 def test_enabled_maintenance_query_failure_is_isolated(monkeypatch):

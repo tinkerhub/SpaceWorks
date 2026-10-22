@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { QrCode } from "lucide-react";
 
+import { Button, Callout, EmptyState, ErrorText, StatusChip } from "../../components/ui";
+import { AccountCard } from "../account/AccountCard";
 import { staffRequestBlob } from "../../lib/api";
 import { MemberEventFeedback } from "./MemberEventFeedback";
 import { MemberCalendarActions } from "./MemberCalendarActions";
+import { statusLabel, statusTone } from "./memberUi";
 
 type Loan = { label: string; checked_out_at: string; due_at: string | null; overdue: boolean };
 type MachineServiceRequest = { machine_type?: string; title: string; status: string; queue_position: number | null };
@@ -66,34 +70,37 @@ function CheckInQr({ makerspaceId, registrationId }: { makerspaceId: number; reg
     };
   }, [open, makerspaceId, registrationId]);
 
-  return <div className="mt-1">
-    <button
-      type="button"
-      className="desk-button-ghost"
+  return <div className="flex flex-col items-start gap-2">
+    <Button
+      size="sm"
+      startIcon={<QrCode />}
       aria-expanded={open}
       onClick={() => { setError(null); setOpen((value) => !value); }}
     >
       {open ? "Hide check-in QR" : "Show check-in QR"}
-    </button>
+    </Button>
     {/* Unmounted rather than hidden, so the blob is released and keyboard users cannot tab
         into an image that is not on screen. */}
-    {open && src ? <img src={src} alt="Your check-in QR code" className="mt-2 max-w-[220px]" /> : null}
-    {open && error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
+    {open && src ? <img src={src} alt="Your check-in QR code" className="max-w-[220px] rounded-md border border-line bg-white p-2" /> : null}
+    {open && error ? <ErrorText message={error} /> : null}
   </div>;
 }
 
-const SECTION_TONES: Record<string, string> = {
-  "My activity": "border-secondary",
-  "Active hardware loans": "border-success",
-  "3D print requests": "border-accent",
-  "Machine-service requests": "border-warn",
-  Bookings: "border-secondary",
-  "Event registrations": "border-accent",
-  "Recent presence": "border-success",
-};
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) { return <section className={`desk-panel ${SECTION_TONES[title] ?? "border-secondary"} p-5`}><h2 className="title-panel">{title}</h2>{children}</section>; }
-function Empty({ children = "Nothing to show yet." }: { children?: React.ReactNode }) { return <p className="mt-2 border-l-2 border-secondary pl-3 text-sm text-muted">{children}</p>; }
+function Section({ title, description, children }: { title: string; description?: ReactNode; children: ReactNode }) {
+  return <AccountCard title={title} description={description}>{children}</AccountCard>;
+}
+function Empty({ children = "Nothing to show yet." }: { children?: ReactNode }) {
+  return <EmptyState className="min-h-0 py-5" title={children} />;
+}
+function Rows({ children }: { children: ReactNode }) {
+  return <ul className="divide-y divide-line rounded-lg border border-line">{children}</ul>;
+}
+function Row({ children }: { children: ReactNode }) {
+  return <li className="flex flex-col gap-2 px-4 py-3">{children}</li>;
+}
+function When({ value }: { value: string }) {
+  return <span className="font-mono text-caption text-ink-muted">{new Date(value).toLocaleString()}</span>;
+}
 const REGISTRATION_LABELS: Record<string, string> = {
   pending_approval: "Awaiting approval",
   registered: "Confirmed",
@@ -103,16 +110,72 @@ const REGISTRATION_LABELS: Record<string, string> = {
   attended: "Attended",
 };
 
+function RequestRows({ rows }: { rows: MachineServiceRequest[] }) {
+  if (!rows.length) return <Empty />;
+  return <Rows>{rows.map((item) => <Row key={`${item.title}-${item.status}`}>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="font-semibold text-ink">{item.title}</span>
+      <StatusChip size="sm" tone={statusTone(item.status)}>{statusLabel(item.status)}</StatusChip>
+      {item.queue_position ? <span className="font-mono text-caption text-ink-muted">{`Queue ${item.queue_position}`}</span> : null}
+    </div>
+  </Row>)}</Rows>;
+}
+
+function BookingRows({ rows }: { rows: Booking[] }) {
+  if (!rows.length) return <Empty />;
+  return <Rows>{rows.map((item) => <Row key={`${item.space_name}-${item.starts_at}`}>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="font-semibold text-ink">{item.space_name}</span>
+      <StatusChip size="sm" tone={statusTone(item.status)}>{statusLabel(item.status)}</StatusChip>
+    </div>
+    <When value={item.starts_at} />
+  </Row>)}</Rows>;
+}
+
 export function MemberActivityPanel({ activity, makerspaceId, makerspaceSlug }: { activity: MemberActivity; makerspaceId: number; makerspaceSlug: string }) {
   const printerRequests = (activity.machine_service_requests ?? []).filter((request) => request.machine_type === "3d_printer");
   const otherServiceRequests = (activity.machine_service_requests ?? []).filter((request) => request.machine_type !== "3d_printer");
-  const requestRows = (rows: MachineServiceRequest[]) => rows.length ? <ul className="mt-3 space-y-2 text-sm text-muted">{rows.map((item) => <li key={`${item.title}-${item.status}`}><span className="font-medium text-ink">{item.title}</span> · {item.status}{item.queue_position ? <span className="font-mono">{` · Queue ${item.queue_position}`}</span> : ""}</li>)}</ul> : <Empty />;
-  return <div className="space-y-5">
-    <Section title="My activity"><p className="mt-1 text-sm text-muted">{activity.currently_checked_in ? "You are currently checked in." : "You are not currently checked in."}</p>{activity.accountability.waiver_acceptance_required ? <p className="mt-2 text-sm text-danger">Accept the current waiver before making facility requests.</p> : null}</Section>
-    <Section title="Active hardware loans">{activity.active_hardware_loans.length ? <ul className="mt-3 space-y-2 text-sm text-muted">{activity.active_hardware_loans.map((loan) => <li key={`${loan.label}-${loan.checked_out_at}`}><span className="font-medium text-ink">{loan.label}</span><span className="font-mono">{loan.due_at ? ` · Due ${new Date(loan.due_at).toLocaleString()}` : " · No due date"}</span>{loan.overdue ? " · Overdue" : ""}</li>)}</ul> : <Empty />}</Section>
-    {activity.machine_service_requests ? <><Section title="3D print requests">{requestRows(printerRequests)}</Section>{otherServiceRequests.length ? <Section title="Machine-service requests">{requestRows(otherServiceRequests)}</Section> : null}</> : null}
-    {activity.bookings ? <Section title="Bookings"><div className="mt-3 grid gap-4 sm:grid-cols-2"><div><h3 className="title-section">Upcoming</h3>{activity.bookings.upcoming.length ? <ul className="mt-2 space-y-2 text-sm text-muted">{activity.bookings.upcoming.map((item) => <li key={`${item.space_name}-${item.starts_at}`}>{item.space_name} · <span className="font-mono">{new Date(item.starts_at).toLocaleString()}</span> · {item.status}</li>)}</ul> : <Empty />}</div><div><h3 className="title-section">Past</h3>{activity.bookings.past.length ? <ul className="mt-2 space-y-2 text-sm text-muted">{activity.bookings.past.map((item) => <li key={`${item.space_name}-${item.starts_at}`}>{item.space_name} · <span className="font-mono">{new Date(item.starts_at).toLocaleString()}</span> · {item.status}</li>)}</ul> : <Empty />}</div></div></Section> : null}
-    {activity.event_registrations ? <Section title="Event registrations"><MemberCalendarActions makerspaceId={makerspaceId} makerspaceSlug={makerspaceSlug} />{activity.event_registrations.length ? <ul className="mt-3 space-y-2 text-sm text-muted">{activity.event_registrations.map((item) => <li key={item.registration_id}><span className="font-medium text-ink">{item.event_title}</span> · {REGISTRATION_LABELS[item.status] ?? item.status}{item.status === "pending_approval" ? " · No payment until confirmed" : ""}{item.waitlist_position ? ` · Waitlist ${item.waitlist_position}` : ""}{item.checkin_token ? <CheckInQr makerspaceId={makerspaceId} registrationId={item.registration_id} /> : null}<MemberEventFeedback makerspaceId={makerspaceId} makerspaceSlug={makerspaceSlug} registrationId={item.registration_id} feedbackPath={item.feedback_path} certificate={item.certificate} /></li>)}</ul> : <Empty />}</Section> : null}
-    <Section title="Recent presence">{activity.recent_presence_sessions.length ? <ul className="mt-3 space-y-2 font-mono text-sm text-muted">{activity.recent_presence_sessions.map((item) => <li key={item.started_at}>{new Date(item.started_at).toLocaleString()} to {new Date(item.expires_at).toLocaleString()}{item.active ? " · Active" : ""}</li>)}</ul> : <Empty />}</Section>
+  return <div className="flex flex-col gap-5">
+    <Section title="My activity" description={activity.currently_checked_in ? "You are currently checked in." : "You are not currently checked in."}>
+      {activity.accountability.waiver_acceptance_required ? <Callout tone="warning">Accept the current waiver before making facility requests.</Callout> : null}
+    </Section>
+    <Section title="Active hardware loans">{activity.active_hardware_loans.length ? <Rows>{activity.active_hardware_loans.map((loan) => <Row key={`${loan.label}-${loan.checked_out_at}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-semibold text-ink">{loan.label}</span>
+        {loan.overdue ? <StatusChip size="sm" tone="danger">Overdue</StatusChip> : null}
+      </div>
+      <span className="font-mono text-caption text-ink-muted">{loan.due_at ? `Due ${new Date(loan.due_at).toLocaleString()}` : "No due date"}</span>
+    </Row>)}</Rows> : <Empty />}</Section>
+    {activity.machine_service_requests ? <>
+      <Section title="3D print requests"><RequestRows rows={printerRequests} /></Section>
+      {otherServiceRequests.length ? <Section title="Machine-service requests"><RequestRows rows={otherServiceRequests} /></Section> : null}
+    </> : null}
+    {activity.bookings ? <Section title="Bookings">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="flex flex-col gap-2"><h3 className="text-label text-ink">Upcoming</h3><BookingRows rows={activity.bookings.upcoming} /></div>
+        <div className="flex flex-col gap-2"><h3 className="text-label text-ink">Past</h3><BookingRows rows={activity.bookings.past} /></div>
+      </div>
+    </Section> : null}
+    {activity.event_registrations ? <Section title="Event registrations">
+      <div className="flex flex-col gap-4">
+        <MemberCalendarActions makerspaceId={makerspaceId} makerspaceSlug={makerspaceSlug} />
+        {activity.event_registrations.length ? <Rows>{activity.event_registrations.map((item) => <Row key={item.registration_id}>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-ink">{item.event_title}</span>
+            <StatusChip size="sm" tone={statusTone(item.status)}>{REGISTRATION_LABELS[item.status] ?? statusLabel(item.status)}</StatusChip>
+            {item.waitlist_position ? <span className="font-mono text-caption text-ink-muted">{`Waitlist ${item.waitlist_position}`}</span> : null}
+          </div>
+          {item.status === "pending_approval" ? <p className="text-caption text-ink-muted">No payment until confirmed</p> : null}
+          {item.checkin_token ? <CheckInQr makerspaceId={makerspaceId} registrationId={item.registration_id} /> : null}
+          <MemberEventFeedback makerspaceId={makerspaceId} makerspaceSlug={makerspaceSlug} registrationId={item.registration_id} feedbackPath={item.feedback_path} certificate={item.certificate} />
+        </Row>)}</Rows> : <Empty />}
+      </div>
+    </Section> : null}
+    <Section title="Recent presence">{activity.recent_presence_sessions.length ? <Rows>{activity.recent_presence_sessions.map((item) => <Row key={item.started_at}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-caption text-ink-secondary">{new Date(item.started_at).toLocaleString()} to {new Date(item.expires_at).toLocaleString()}</span>
+        {item.active ? <StatusChip size="sm" tone="success">Active</StatusChip> : null}
+      </div>
+    </Row>)}</Rows> : <Empty />}</Section>
   </div>;
 }

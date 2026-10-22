@@ -24,8 +24,10 @@ Uninstalling a module does two things and nothing else:
 
 - **The API refuses its endpoints.** Every gated view calls `require_module(makerspace, "<key>")`, which
   returns `400 {"module": "<key> is disabled for this makerspace."}`.
-- **The frontend never renders the surface.** Bootstrap only publishes the workflows of installed
-  modules, so the nav entry, page and buttons are simply not there.
+- **The frontend hides the surface.** Bootstrap publishes the installed (and shipped) module keys as
+  `modules`, and the console and public pages gate their nav entries, pages and buttons on that list.
+  The `workflows` list in the same payload is descriptive only — most modules publish none, and no
+  screen is gated on it.
 
 **Your data is retained.** Uninstalling never deletes rows; reinstalling brings the surface back with its
 history intact. Deleting rows is a separate, deliberate second command — see [Deleting a module's
@@ -148,7 +150,9 @@ thirteen modules under it are optional.
   selectable at issue time.
 - **Without it** — products are tracked by **quantity only**. Availability maths, requests and handovers
   all still work; you simply cannot say *which* physical unit went out, and per-unit QR labels are
-  unavailable.
+  unavailable. Unit rows a space already holds are retained but unreachable: the asset list, edit,
+  fix-shelf and QR-history routes refuse, and generating units refuses in the console and in `/control/`
+  alike.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
 
 ### containers
@@ -157,8 +161,8 @@ thirteen modules under it are optional.
   between them.
 - **What it adds** — creating and listing containers, the parent/child hierarchy and container moves; a
   direct handout can resolve a scanned container into the loan.
-- **Without it** — you cannot create, list or re-parent containers in the console, and a direct handout
-  will not accept one. Storage location stops being modelled as a hierarchy. Scanning a box QR still
+- **Without it** — you cannot create, list, open, edit or re-parent containers in the console, and a
+  direct handout will not accept one. Storage location stops being modelled as a hierarchy. Scanning a box QR still
   resolves — that is [`scanner`](#scanner) — and containers that already exist keep their codes, so the
   box-scan-at-issue rule is unaffected.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
@@ -166,7 +170,9 @@ thirteen modules under it are optional.
 ### bulk_import
 
 - **What it is** — spreadsheet import of inventory rows.
-- **What it adds** — the `bulk_import` workflow: upload a sheet, map columns, preview, commit.
+- **What it adds** — the `bulk_import` workflow: upload a sheet, map columns, preview, commit. A new
+  individual-tracked product is imported with 0 quantities; its units (and their QR codes) are generated
+  afterwards, because an import creates no unit rows.
 - **Without it** — inventory is created one product at a time in the console (or through the API). The
   most common reason to install it is the first week of migrating from a spreadsheet.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
@@ -176,7 +182,8 @@ thirteen modules under it are optional.
 - **What it is** — moving stock between locations, including true movement **between makerspaces**.
 - **What it adds** — the `stock_transfer` workflow: raise a transfer, its lines, and the receiving side.
 - **Without it** — stock stays where it was booked in. A multi-space operator loses the only supported
-  way to move quantity across a tenant boundary without editing counts by hand.
+  way to move quantity across a tenant boundary without editing counts by hand. A cross-space transfer
+  needs the module at **both** ends: a destination without it refuses the transfer.
 - **Data** — purgeable: transfers and their lines.
 
 ### qr_print_batches
@@ -216,9 +223,11 @@ thirteen modules under it are optional.
 
 - **What it is** — scan-first stock counts and the variance they produce.
 - **What it adds** — the `stocktake` workflow: open a session, scan through the shelves, review variance,
-  commit the adjustment as a ledger entry.
+  commit the adjustment as a ledger entry. A completed count is approved and applied by a superadmin or a
+  Space Manager (`manage_makerspace`) other than the person who completed it.
 - **Without it** — counts are corrected by editing quantities directly, with no session, no variance
-  report and no audit of the count as an event.
+  report and no audit of the count as an event. Sessions that already exist cannot be counted, completed,
+  approved or applied — from the console or `/control/`.
 - **Data** — purgeable: stocktake sessions, lines and ledger entries.
 
 ---
@@ -264,7 +273,9 @@ Required by `printing`.
 - **What it adds** — the `printing_requests` workflow: print-specific intake, print files, and the
   printer-facing view of the queue.
 - **Without it** — 3D printers can still be registered as machines and their jobs run through the
-  ordinary service queue; what you lose is the print-specific handling around them.
+  ordinary service queue; what you lose is the print-specific handling around them, including the
+  public print-status page (an old status link answers like an unknown one), the printing email
+  templates and the print counters on the dashboard.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately; print jobs are
   service requests and go with `machine_service`.
 
@@ -282,6 +293,11 @@ Required by `printing`.
 ## Events
 
 ### events
+
+**Requires `membership`** (installing `events` pulls it in): registration resolves the registrant as an
+active member, and the host waiver it records lives on the membership row. Because `membership` decides
+who may submit a borrow request, installing `events` also switches borrowing to members only — see
+[membership](#membership).
 
 - **What it is** — event scheduling and registration: one-off events or recurring series, registration
   with optional approval and waitlists, QR check-in at the door, post-event feedback and attendance
@@ -304,6 +320,10 @@ Required by `printing`.
 
 ### bookings
 
+**Requires `membership`** (installing `bookings` pulls it in): public self-booking requires an active
+member with a presence session. As with `events`, that also switches borrowing to members only — see
+[membership](#membership).
+
 - **What it is** — bookable resources and the bookings against them, including public self-booking.
 - **What it adds** — bookable spaces, booking rules, the admin booking screens, the public booking page,
   and bookings in member activity.
@@ -317,6 +337,8 @@ Required by `printing`.
 
 ### membership
 
+Required by `events` and `bookings`.
+
 - **What it is** — the community layer: join requests, waivers, referrals, verification, maker profiles,
   the member directory and member activity.
 - **What it adds** — the join-request queue, member capabilities and memberships in the console, the
@@ -324,7 +346,9 @@ Required by `printing`.
 - **Without it** — people can still exist as members and still borrow: staff create walk-in member
   records, and identity can come from `member_accounts` or an external OIDC provider. What goes is the
   *enrolment and community* layer — no join requests to approve, no waivers, no referrals, no profiles,
-  no directory. `payments.membership` becomes inert.
+  no directory. `payments.membership` becomes inert. A community invitation sent before the module went
+  off can no longer be claimed. **Staff invitations keep working** — invite, claim and approve — because a
+  role granting actions is staff administration, not community membership.
 - **Deliberately does not require `member_accounts`.** Identity can come from external OIDC or a staff-created
   person record, so the two are independent switches.
 - **It decides who may submit a borrow request, and installing it closes account-less requests.** With this
@@ -447,7 +471,10 @@ stored credential**, so re-enabling needs no re-entry.
 - **What it is** — taking money online, through Stripe or Razorpay behind one provider seam.
 - **What it adds** — the payment surfaces, charges, receipts, reconciliation and (with `mobile`) the
   in-app payment sheet.
-- **Without it** — no online payment surfaces exist. Money is handled outside the system.
+- **Without it** — no payment surfaces exist and **no new charge is raised**, online or at the counter;
+  money is handled outside the system. What already exists stays settleable: provider webhooks still
+  settle a retained charge, staff can still mark one paid offline or waive it, and members keep their
+  receipts, payment history and archived-payment discovery.
 - **Installed ≠ charging.** The module being on means the *surfaces* exist. No charge can be created
   until a Space Manager turns on a `payments.<area>` feature **and** valid credentials resolve.
 - **Data** — **payments are never purged by a module purge.** A charge is the record of money that really
@@ -515,8 +542,11 @@ modules.
 | `everything` / `full` | 31 | All modules |
 
 **Installing without a profile** gives you **7 modules**: the six core ones plus `payments`.
-Member accounts and mobile apps are opt-in; installing `mobile` also installs its
-`member_accounts` dependency.
+Member accounts and mobile apps are opt-in. A module's requirements are installed with it: `mobile`
+brings `member_accounts`, `printing` brings `machine_service`, and `events` or `bookings` bring
+`membership`. The setup/update tick list names each pulled-in requirement, and the borrow-request
+consequence of turning `membership` on or off, before it applies anything; modules this deployment
+does not ship (`TOMBSTONED_APPS`) are not offered.
 
 ## Deleting a module's data
 

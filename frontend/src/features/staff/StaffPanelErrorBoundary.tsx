@@ -1,5 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
+import { Button, EmptyState } from "../../components/ui";
+
 type Props = {
   children: ReactNode;
   resetKey: string;
@@ -30,15 +32,14 @@ export class StaffPanelErrorBoundary extends Component<Props, State> {
     if (!this.state.error) return this.props.children;
 
     return (
-      <section className="desk-panel p-6" role="alert">
-        <h2 className="title-panel">This page could not be displayed</h2>
-        <p className="mt-2 text-sm text-muted">
-          The rest of Space Works is still available. Reload this page to try again.
-        </p>
-        <button className="desk-button-primary mt-4" type="button" onClick={() => window.location.reload()}>
-          Reload page
-        </button>
-      </section>
+      <div role="alert">
+        <EmptyState
+          tone="error"
+          title="This page couldn't be displayed"
+          description="The rest of Space Works is still available. Reload this page to try again."
+          action={<Button variant="primary" onClick={() => window.location.reload()}>Reload page</Button>}
+        />
+      </div>
     );
   }
 }

@@ -1,10 +1,62 @@
 import { Link } from "react-router-dom";
-import { Card } from "../../components/ui/Card";
+
+import { Callout, Card, EmptyState, Skeleton, buttonClasses } from "../../components/ui";
 import { StatusResult } from "./PublicPrintRequestParts";
 import type { PrintStatus } from "./publicApi";
 
 type StatusProps = { submitted: boolean; tokenStatus?: PrintStatus; tokenStatusPending: boolean; tokenStatusError: Error | null };
-export function PrintStatusPanel({ submitted, tokenStatus, tokenStatusPending, tokenStatusError }: StatusProps) { return <Card className="border-secondary bg-secondary/15 text-secondary-ink"><h2 className="title-panel">Status tracker</h2>{submitted ? <p className="mt-3 text-sm">Request submitted. This browser keeps its private token; do not share the link.</p> : null}<div className="mt-4"><StatusResult error={tokenStatusError} isPending={tokenStatusPending} status={tokenStatus} /></div></Card>; }
-export function PrintAccessLoadingPanel() { return <section className="mx-auto max-w-screen-sm px-5 py-6"><Card><p className="text-sm text-muted">Loading printer service...</p></Card></section>; }
-export function PrintAccessErrorPanel() { return <section className="mx-auto max-w-screen-sm px-5 py-6"><Card><p className="text-sm text-danger">Could not load printer service. Try again in a moment.</p></Card></section>; }
-export function PrintUnavailablePanel({ catalogPath, tokenStatus, tokenStatusPending, tokenStatusError }: { catalogPath: string; tokenStatus?: PrintStatus; tokenStatusPending: boolean; tokenStatusError: Error | null }) { return <section className="mx-auto max-w-screen-sm px-5 py-6"><Card className="border-secondary"><p className="eyebrow text-secondary-ink">3D printing</p><h2 className="title-panel mt-2">Printer service is not currently available.</h2>{tokenStatus || tokenStatusPending || tokenStatusError ? <div className="mt-4"><StatusResult error={tokenStatusError} isPending={tokenStatusPending} status={tokenStatus} /></div> : null}<Link className="desk-button mt-4" to={catalogPath}>Back to inventory</Link></Card></section>; }
+
+export function PrintStatusPanel({ submitted, tokenStatus, tokenStatusPending, tokenStatusError }: StatusProps) {
+  const empty = !tokenStatus && !tokenStatusPending && !tokenStatusError;
+  return (
+    <Card className="lg:sticky lg:top-20">
+      <h2 className="text-h4 text-ink">Status tracker</h2>
+      {submitted ? (
+        <Callout className="mt-4" tone="success" role="status" title="Request submitted">
+          This browser keeps its private token; do not share the link.
+        </Callout>
+      ) : null}
+      {empty ? (
+        <p className="mt-3 text-body-ui text-ink-muted">Submit a print request and its progress shows up here.</p>
+      ) : (
+        <div className="mt-4">
+          <StatusResult error={tokenStatusError} isPending={tokenStatusPending} status={tokenStatus} />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+export function PrintAccessLoadingPanel() {
+  return (
+    <Card aria-busy="true" aria-label="Loading printer service" className="space-y-3">
+      <Skeleton className="h-6 w-1/3" />
+      <Skeleton className="h-11 w-full" />
+      <Skeleton className="h-24 w-full" />
+    </Card>
+  );
+}
+
+export function PrintAccessErrorPanel() {
+  return <EmptyState tone="error" title="Printer service didn't load" description="Could not load printer service. Try again in a moment." />;
+}
+
+export function PrintUnavailablePanel({ catalogPath, tokenStatus, tokenStatusPending, tokenStatusError }: { catalogPath: string; tokenStatus?: PrintStatus; tokenStatusPending: boolean; tokenStatusError: Error | null }) {
+  return (
+    <div className="grid gap-4">
+      <EmptyState
+        title="Printer service is not currently available."
+        description="Check back later, or browse the inventory in the meantime."
+        action={<Link className={buttonClasses({ variant: "secondary" })} to={catalogPath}>Back to inventory</Link>}
+      />
+      {tokenStatus || tokenStatusPending || tokenStatusError ? (
+        <Card>
+          <h2 className="text-h4 text-ink">Your last request</h2>
+          <div className="mt-4">
+            <StatusResult error={tokenStatusError} isPending={tokenStatusPending} status={tokenStatus} />
+          </div>
+        </Card>
+      ) : null}
+    </div>
+  );
+}

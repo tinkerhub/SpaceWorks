@@ -51,7 +51,12 @@ class OrganizedEventListView(APIView):
         organized_ids = Event.objects.filter(
             organizer_event_q(request.user)
         ).values('pk')
-        queryset = Event.objects.filter(pk__in=organized_ids).select_related('makerspace')
+        # A venue that switched `events` off drops out of this cross-venue list, the same
+        # way its own event list refuses: the module gate is per venue, not per organizer.
+        queryset = Event.objects.filter(
+            pk__in=organized_ids,
+            makerspace__enabled_modules__contains=['events'],
+        ).select_related('makerspace')
         queryset = (
             _annotate_registration_counts(queryset)
             .prefetch_related('organizers__organization')

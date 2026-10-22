@@ -1,73 +1,63 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
-import { SpaceWorksHomeLink, SpaceWorksLogo } from "../components/SpaceWorksLogo";
-import { SiteFooter } from "../components/SiteFooter";
-import { ThemeToggle } from "../components/ThemeToggle";
+import { PlatformSiteHeader } from "../components/chrome/PublicHeaders";
+import { PublicContainer, PublicShell } from "../components/chrome/PublicShell";
+import { PageHeader } from "../components/ui";
+import { useTenant } from "../lib/tenant";
+
+const cardClasses =
+  "group flex items-start justify-between gap-4 rounded-xl p-6 transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 export function AboutPage() {
+  const tenant = useTenant();
   return (
-    <main className="desk-shell flex min-h-screen flex-col">
-      <header className="border-b border-line bg-panel">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-          <SpaceWorksHomeLink className="flex min-w-0 items-center gap-3 text-ink">
-            <SpaceWorksLogo className="shrink-0" size={36} />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">Space Works</p>
-              <p className="eyebrow">Shared equipment portal</p>
-            </div>
-          </SpaceWorksHomeLink>
-          <div className="flex flex-wrap items-center gap-2">
-            <ThemeToggle />
-            <Link className="desk-button" to="/admin">
-              Staff login
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="mx-auto w-full max-w-3xl flex-1 px-5 py-10">
-        <p className="eyebrow text-secondary-ink">About</p>
-        <h1 className="title-page mt-3">
-          Open Source Makerspace Manager
-        </h1>
-        <div className="mt-5 space-y-4 text-sm leading-6 text-muted">
+    <PublicShell header={<PlatformSiteHeader page="About" homeLabel={tenant.mode === "single" ? "Inventory" : "Makerspaces"} />}>
+      <PublicContainer width="md">
+        <PageHeader kicker="About" title="Open source makerspace manager" />
+        <div className="mt-6 max-w-[640px] space-y-4 text-body-l text-ink-secondary">
           <p>
-            Space Works is a platform for running community makerspaces &mdash;
-            public equipment catalogs, hardware lending with traceable handovers,
-            3D-print request queues, and multi-makerspace operations in one place.
+            Space Works is a platform for running community makerspaces: public equipment catalogs,
+            hardware lending with traceable handovers, 3D-print request queues, and multi-makerspace
+            operations in one place.
           </p>
           <p>
-            Each makerspace controls its own inventory, branding, staff, and
-            notifications. Visitors browse catalogs and request equipment; staff
-            handle approvals, issue and return with evidence, and reporting.
+            Each makerspace controls its own inventory, branding, staff and notifications. Visitors
+            browse catalogs and request equipment; staff handle approvals, issue and return with
+            evidence, and reporting.
           </p>
-          <p className="eyebrow normal-case leading-6">
+          <p className="text-body-ui text-ink-muted">
             Space Works is free and open source software, licensed under the{" "}
             <a
-              className="underline hover:text-ink"
+              className="font-semibold text-ink underline underline-offset-4 hover:text-accent-ink"
               href="https://github.com/SpaceWorks-HQ/SpaceWorks/blob/main/LICENSE"
               target="_blank"
               rel="noreferrer"
             >
               GNU Affero General Public License v3
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            . Free to use, study, share, and modify under the terms of the AGPL.
+            . Free to use, study, share and modify under the terms of the AGPL.
           </p>
         </div>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          <Link className="desk-panel p-4 transition hover:border-secondary" to="/">
-            <h2 className="title-section">Browse makerspaces &rarr;</h2>
-            <p className="eyebrow mt-1 normal-case">View public equipment catalogs.</p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <Link className={`${cardClasses} bg-accent/20 hover:bg-accent/30`} to="/">
+            <span>
+              <span className="block text-h4 text-ink">Browse makerspaces</span>
+              <span className="mt-1 block text-body-ui text-ink-secondary">View public equipment catalogs.</span>
+            </span>
+            <ArrowRight aria-hidden="true" className="mt-1 size-5 shrink-0 text-ink transition-transform duration-180 group-hover:translate-x-0.5" />
           </Link>
-          <Link className="desk-panel p-4 transition hover:border-secondary" to="/admin">
-            <h2 className="title-section">Staff login &rarr;</h2>
-            <p className="eyebrow mt-1 normal-case">Manage your makerspace.</p>
+          <Link className={`${cardClasses} bg-secondary/25 hover:bg-secondary/35`} to="/admin">
+            <span>
+              <span className="block text-h4 text-ink">Staff login</span>
+              <span className="mt-1 block text-body-ui text-ink-secondary">Manage your makerspace.</span>
+            </span>
+            <ArrowRight aria-hidden="true" className="mt-1 size-5 shrink-0 text-ink transition-transform duration-180 group-hover:translate-x-0.5" />
           </Link>
         </div>
-      </section>
-
-      <SiteFooter />
-    </main>
+      </PublicContainer>
+    </PublicShell>
   );
 }

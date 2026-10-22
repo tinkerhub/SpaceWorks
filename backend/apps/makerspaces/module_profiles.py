@@ -2,7 +2,7 @@
 
 Opt-in modules only work if choosing them is easy. A bare Frappe-style empty
 install would contradict this project's non-technical-install story, so
-`setup.sh`/`setup.ps1` and `setup_instance` offer named profiles instead of
+`setup.sh` and `setup_instance` offer named profiles instead of
 leaving the operator to discover the module system on their own.
 """
 

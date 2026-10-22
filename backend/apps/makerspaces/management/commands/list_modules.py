@@ -42,13 +42,19 @@ class Command(BaseCommand):
         for row in module_status(makerspace):
             if row["core"]:
                 mark, note = "*", " (core)"
+            elif not row["available"]:
+                # Its own mark, so the setup/update tick list (which reads only `+`/`-`
+                # rows) never offers a module install_module would refuse.
+                mark, note = "x", " (not shipped by this deployment)"
             elif row["installed"]:
                 mark, note = "+", ""
             else:
                 mark, note = "-", ""
             requires = f" [requires {', '.join(row['requires'])}]" if row["requires"] else ""
             self.stdout.write(f"  {mark} {row['key']:<18} {row['description']}{note}{requires}")
-        self.stdout.write("\n  * core (always on)   + installed   - available")
+        self.stdout.write(
+            "\n  * core (always on)   + installed   - available   x not shipped by this deployment"
+        )
         self.stdout.write(
             "\nProfiles: " + ", ".join(f"{name} ({description})" for name, description in PROFILES.items())
         )

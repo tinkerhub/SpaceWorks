@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { Skeleton } from "../../../components/ui";
 import { useStaffGet } from "./shared";
 
 type QrPrintPayload = {
@@ -15,12 +16,18 @@ export function QrImage({ qrId, label }: { qrId: number; label: string }) {
   }, [qr.data?.svg]);
 
   if (qr.isLoading) {
-    return <div className="grid aspect-square place-items-center rounded-md border border-line text-xs text-muted">Loading QR</div>;
+    return (
+      <div role="status" className="relative aspect-square w-full">
+        <Skeleton className="absolute inset-0 rounded-md" />
+        <span className="sr-only">Loading QR</span>
+      </div>
+    );
   }
 
   if (qr.isError || !src) {
-    return <div className="grid aspect-square place-items-center rounded-md border border-danger/40 text-xs text-danger">QR unavailable</div>;
+    return <div className="grid aspect-square place-items-center rounded-md border border-dashed border-danger-border bg-danger-bg p-2 text-center text-caption text-danger-fg">QR unavailable</div>;
   }
 
+  // The QR stays black on white in both themes so it scans from a screen.
   return <img className="aspect-square w-full rounded-md border border-line bg-white p-2" src={src} alt={`${label} QR`} />;
 }

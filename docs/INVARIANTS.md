@@ -38,6 +38,23 @@ logout CSRF + the origin→tenant guard) vs `makerspace_public_origins` (that �
 feeds general CORS + publishable-key validation) — so an API-client/public origin can make
 publishable-key calls but **can never mint a staff session**. `origin_scope.py` hard-scopes a browser
 staff request to its domain's makerspace; origin-less (server) requests fall back to `MakerspaceMembership`.
+**Every `api/v1/admin/` route is classified exactly once** — kwarg-scoped, query-scoped, body-scoped,
+global or blocked — by `tests/makerspaces/test_origin_scope_d3.py`, so a new admin route fails the build
+until someone decides; blocked routes (platform surfaces, organizations, deployment aggregate reports) are
+proven refused on a tenant origin. A row whose tenant field is NULL (a global API client, a deployment
+backup archive) resolves to no tenant and is refused. `ORIGIN_FILTERED_ROUTES` (the fixed-role staff
+manager lists) are admitted without a target **only** because their view narrows the queryset to the
+origin's makerspace whenever one is active (proven per list for a Space Manager in two tenants by
+`test_origin_scope_d4.py`). **Body-scoped QR routes** carry no tenant in the path: `BODY_TARGET_ROUTES`
+(`qr-boxes`, `qr-containers`, `qr-tools`) take their target from the serializer-required body
+`makerspace_id`, and a hintless request is refused rather than guessed; `QR_PAYLOAD_ROUTES` (`qr-resolve`,
+`qr-scan`) take it from the scanned payload's own `QrCode` row (payloads are globally unique), so tenant
+A's site can never resolve or scan tenant B's label. A foreign, missing or unknown payload is the **same
+plain 403** — no "not found" that would differ by tenant — and nothing (no scan event) is written. Both
+sets are recognized **only** in `request_route_targets` (origin/native checks), never in
+`_authoritative_route_targets`, so the tenant-migration gate's locking for these routes is unchanged.
+`admin-asset-warranty` is an ordinary `MODEL_LOOKUPS` entry on `InventoryAsset`. All of these were
+blocked until D4, which made every QR handover flow a 403 on a tenant-origin production site.
 
 **Superadmin access is a HARD block, not a soft hide.** `Makerspace.superadmin_access_enabled=False`
 excludes the space for a GLOBAL superadmin across `rbac.can`/`scope_by_action`/`makerspaces_for_action(s)`
@@ -361,7 +378,12 @@ unknown/forbidden actions, null-FK → frozen legacy). `can()`/`makerspaces_for_
 route through it. `/auth/me` + `/auth/login` carry typed effective `actions` per membership; the frontend
 `staffAccess.ts` derives every capability from action strings, not role names. Role CRUD +
 membership/role-assignment APIs enforce non-escalation (can't grant a role you don't hold; can't touch a
-MANAGE_MAKERSPACE target/role) with makerspace-first lock ordering.
+MANAGE_MAKERSPACE target/role) with makerspace-first lock ordering. **The protected Member role
+(`slug="member"`, `is_protected`) is fixed**: `role_services.update_role` refuses (409 `role_conflict`)
+a rename or any change to its `granted_actions`, while a no-op PATCH echoing the current values passes.
+Its slug is how invitations, referrals, open joins and tenant migration find the community role, and
+"grants no actions" is what makes an invitation a community one — editing either would silently turn
+every member into staff.
 
 **`apps/makerspaces/module_registry.py` is the single source of truth for module keys.** All 31
 `ModuleDefinition`s live there (`key`, `label`, `description`, `app_label`, `enforcement`, `group`,
@@ -431,6 +453,48 @@ disable side instead does not help: it loses the same race from the other end. G
 event create + publish, booking create, machine create + unretire, machine-service submit
 (`service_workflow._require_module(..., locked=True)`, whose error shape stays identical to the unlocked
 call). Calling it outside `atomic()` raises `TransactionManagementError` rather than silently not locking.
+D3 added: container create and PATCH, asset edit and fix-shelf (`asset_units`), Stripe Connect onboarding
+(re-checked under the lock `create_onboarding` already takes), every **new** `Payment` row
+(`payments.availability.new_charges_allowed_locked`, called by `services.create_payment` and
+`offline_payments.create_offline_payment`), and community membership activation/claim/request/revoke
+(`membership_activation.require_membership_module` on the locked makerspace row). A mutation spanning two
+makerspaces — a cross-space stock transfer — uses `guards.require_module_locked_for_all`, which locks both
+rows **in ascending pk order** and requires the module at both ends. D4 added container move, QR print
+batch create and item add (`qr_print_batches`), asset generation (`services_qr_assets.generate_assets_with_qr`,
+so `/control/`'s generate action is gated too) and single-unit QR create (`asset_units`), and stocktake
+create/count/complete/approve/apply (`services_stocktake_workflow._locked_session`, also shared with
+`/control/`). The lock order is **makerspace row first, then the object row** (session, product), the
+order `module_install` and `check_quota` already take. Batch download is a read and stays view-gated.
+`tests/modules/test_offstate_d4_locked_mutations.py` proves each by skipping the view check (the race
+window) and asserting a 400 with nothing written. Reads are gated at the view
+(`require_module`), including detail routes: containers, stock transfers (readable from either end that
+has the module), stocktakes, QR print batches, assets. Payment settings are gated at the view only, on
+purpose: credential validation reaches Stripe, and external I/O must never run under a row lock.
+
+**Off means absent, in catalogs and counters too (D3).** The dashboard OMITS (does not zero) the counters
+of an uninstalled module (`views_dashboard_counts.COUNTER_MODULES`); the role-capability catalog hides
+the Machines/Printing/Events/Bookings groups for an off module but keeps any action the role being
+edited (`?role_id=`) already holds, so its grant stays visible and removable (the seeded Space Manager
+holds every action, so "any role in the space" would have hidden nothing); the notification-rules matrix omits features
+and email streams of off modules and refuses a preference for one; `notify_lifecycle` sends nothing for a
+feature whose module is off at that makerspace (so an event organizer's space without `events` gets no
+fan-out), failing open on a lookup error like the rest of the fan-out; the organized-events list drops
+venues without `events`; `payment-reconciliation` declares `required_modules=("payments",)`; the public
+printer status page answers 404 with `printing` off; `printing` is in the email-template `STREAM_MODULES`;
+the two direct Telegram senders (`apiclients/notifications.py`, `makerspaces/subdomain_notifications.py`)
+check `channel_module_blocks` like every lifecycle alert.
+
+**The deliberate survivors — open with their module off, by decision.**
+`tests/modules/test_offstate_d3_survivors.py::SURVIVORS` is the authoritative list, each entry mapped to
+the test that proves it, and a meta-test fails if a listed test disappears:
+- **payments** — the provider webhook settling a retained charge; staff marking a retained charge paid
+  offline or waiving it (reconciliation console and the machine-service mark-offline/waive routes — only
+  *creating* a charge is gated); the member's receipts/payment history; archived-payment discovery.
+- **membership** — staff invitations end to end (invite, claim, queue listing, approve); only community
+  rows are gated.
+- **email** — platform account-recovery mail (`makerspace=None`), every `EMAIL_MODULE_EXEMPT` pair
+  (return reminder, custody alarms, account recovery), and the email-log list.
+- **the Modules admin** — lists uninstalled modules, or nothing could be reinstalled from the console.
 
 **Per-module purge is NEW semantics, and is the irreversible second step after uninstall.**
 `lifecycle.purge()` deletes an entire archived makerspace; `makerspaces/module_purge.py` deletes **one
@@ -577,7 +641,12 @@ them.
 RBAC state, so gating it wholesale would lock a makerspace out of its own staff administration.
 **Never gated:** membership list/create, role assignment, revoke, capabilities, staff roster,
 `memberships/me`. **Gated by `membership`:** public join request, request queue/approve/revoke,
-verify/unverify, member waiver + accept, member activity, referrals. Invitations run staff and community
+verify/unverify, member waiver + accept, member activity, referrals. The queue/approve/revoke gate applies
+to **community rows only** (a join request, or an invitation whose role grants no actions —
+`membership_activation.is_community_request`) and is re-checked under the makerspace lock inside the
+service, at claim and activation too: a community invitation sent before the module went off can no
+longer be claimed. With the module off the queue lists the staff invitations only — a claimed staff
+invitation must stay findable to be approved. Invitations run staff and community
 intent down **one** path in `membership_services.invite_membership`, discriminated by the assigned role's
 `granted_actions` — a role granting no actions is a community invitation (gated) however it is named; a
 role granting actions is a staff invitation and must keep working with the module off. Module gates are
@@ -609,7 +678,8 @@ paid event for an already-terminal payment is audited (`payment.paid_after_termi
 `platform.member_area_url` (VERIFIED custom domain → `/member`, else shared `/m/<slug>/member`). Legacy
 `MachineServiceRequest.payment_*` are **read-only historic** (a backfill migration maps them into Payment);
 refunds are out of scope. **Counter settlement** (online payments off, or a credentialless check-in walk-in
-who can never reach a checkout) does NOT reopen those columns: `complete()` raises a pending `Payment`
+who can never reach a checkout — but never with the `payments` MODULE off, which raises no new charge at
+all) does NOT reopen those columns: `complete()` raises a pending `Payment`
 through `payments.offline_payments.create_offline_payment` — which skips provider resolution, since
 `services.create_payment` raises `PaymentsUnavailable` with no configured source — and the desk settles it
 with `reconciliation.mark_offline` to `paid_offline`. A draft that instead wrote `payment_amount`/
@@ -1034,16 +1104,30 @@ from `index.css` and `tailwind.config.ts`.
 - **Colour is surface-coded**: `accent` = interaction, primary actions, active nav, staff chrome;
   `secondary` (pink) = every stranger-facing surface (public catalogue, member area, auth, kiosk);
   `success`/`warn` keep their status meaning; `danger` is the only non-pastel.
-- **The display face was never unused — it was suppressed.** `@layer base` maps every `h1`–`h6` to Clash
-  Display; `Panel` simply rendered its `h2` as `text-sm font-semibold text-muted`. The scale lives in
-  `@layer components` as `.title-page` / `.title-panel` / `.title-section` / `.eyebrow` (the JetBrains Mono
-  voice for labels, units and column headers) so the decision sits in one place, not in 200 class strings.
+- **The display face was never unused — it was suppressed.** `@layer base` maps every `h1`–`h6` to the
+  display face (Bricolage Grotesque Variable 800 since the D5 redesign; Figtree Variable is the UI/body face,
+  JetBrains Mono is for codes, IDs and QR values only — all self-hosted via `@fontsource`, imported in
+  `main.tsx`). The scale lives in `frontend/src/styles/type.css` as `text-display-*`, `text-h1..h4`,
+  `text-title`, `text-body*`, `text-label`, `text-caption`, `text-overline`, `text-mono`; the legacy
+  `.title-page` / `.title-panel` / `.title-section` / `.eyebrow` names share those rules (h1 / h3 / h4-ish /
+  overline) so the decision sits in one place, not in 450 class strings. `lib/cn.ts` registers the custom
+  `text-*` / `shadow-*` names with tailwind-merge — without it `cn("text-h1", "text-ink")` drops the size.
+- **Two token layers, and `line` changed meaning.** `--color-*` triplets are the palette (and what the
+  contrast guard parses); `--sw-*` roles map onto them (`canvas`, `subtle`, `fill`, `emphasis`, `line`,
+  `line-strong`, `ink-secondary`, `ink-muted`, `primary`, `{success,warning,danger,info}-{bg,fg}`). The
+  Tailwind name `line` is now the soft divider (ink 12% / white 10%), not full ink; `shadow-brutal*` and
+  `shadow-hardsoft-*` survive only as aliases of the flat/raised shadows. Breakpoints are sm 640 / md 960 /
+  lg 1200.
 - `tests/test_frontend_theme_contrast.py` also guards `success-ink`, `warn-ink`, `info-ink` — omitted while
   the palette was effectively one colour and those inks appeared only inside solid fills.
 - **Buttons are a CLOSED FAMILY in `@layer components`**, not per-component class strings: `desk-button`
-  (neutral), `-primary` (staff main action), `-secondary` (public/member main action), `-success`, `-warn`,
-  `-danger`, `-ghost` (quiet tertiary). Each carries `min-h-11` and the same `focus-visible` ring, so
-  adopting one fixes the touch target and the keyboard focus together — most of why the family exists.
+  (neutral outline), `-primary` (staff main action, sky fill), `-secondary` (public/member main action,
+  pink fill), `-success`, `-warn` (soft status fills), `-danger` (outline, never a solid fill), `-ghost`
+  (quiet tertiary, underline on hover); `desk-button-sm` / `-lg` are size modifiers. All are pills in
+  sentence case. Each carries `min-h-11` and the same `focus-visible` ring, so adopting one fixes the touch
+  target and the keyboard focus together — most of why the family exists. The React `Button` in
+  `components/ui` is the same family as a component (`primary | secondary | quiet | danger | danger-quiet |
+  inverse | success | warn`).
 - **Colour VARIES but is never RANDOM.** A repeating set distributes the four tones so a screen shows the
   whole system, but the tone is a **stable** property of the thing — assigned by meaning
   (`DashboardPanel.TILES`) or derived from identity (`MemberDirectory.identityTone`, a character-sum hash).
@@ -1052,9 +1136,11 @@ from `index.css` and `tailwind.config.ts`.
   generated-UI tell and the design detector fails on it; it was reached for twice, so the rule is written
   into `docs/superpowers/specs/2026-08-13-design-language-brief.md`. Carry the tone in the heading ink, the
   number, a badge, a `/15` tint, or a 1px full border.
-- **On a filled tile every text colour must come from the fixed `on-*` set** (or `text-bg` for `danger`).
-  `status-box-danger` is `bg-danger text-bg`, and a tile that added `text-danger` to the number and left
-  the label `text-muted` rendered dark red on red and grey on red.
+- **On a filled tile every text colour must come from the fixed `on-*` set** (or `text-bg` for `danger`)
+  — or use a soft status pair instead. `chip*` / `status-box*` / `Chip` / `StatusChip` now use the
+  `{success,warning,danger,info}-bg` + `-fg` pairs, which are designed per theme; never mix a pair's `-fg`
+  with a solid pastel fill or a solid fill's `on-*` with a soft `-bg`. A tile that added `text-danger` to
+  the number and left the label `text-muted` once rendered dark red on red and grey on red.
 
 **Accessibility floor (phase 22).** Four rules, each with a real counter-example in the tree:
 - **Text contrast is drift-guarded from the backend suite.** `tests/test_frontend_theme_contrast.py` parses
@@ -1073,7 +1159,7 @@ from `index.css` and `tailwind.config.ts`.
   conditional — the print page put `#main-content` inside `{enabled ? ... : null}`, so the link pointed at
   nothing while the module was loading or off). Without the tabindex the browser scrolls but leaves focus
   behind. The target is the **content region, not `<main>`** — these pages nest `<header>` inside `<main>`.
-  `MemberArea` deliberately has no skip link: its shell has no nav.
+  `MemberArea` uses the shared public header, so it has a skip link like the other public pages.
 - **Collapsed content is unmounted, never `hidden`-but-present** (`CollapsibleSection`), or keyboard users
   tab into controls they cannot see. Its count is one text node (`` `${n} items` ``) because the
   accessible-name algorithm trims each node and joins with no separator — `{n}<span> items</span>` is
@@ -1159,6 +1245,27 @@ loan shows the contact the borrower gave rather than the principal's internal `m
 the principal is refused at the write side by
 `accounts.principal_guards.refuse_anonymous_requester_access_mutation` — it would restrict every future
 account-less requester at once — and the read-side exclusion is the backstop for rows predating that guard.
+## Inventory and stocktake integrity (D2)
+
+- **Tracking mode** changes only through `availability_tracking.change_tracking_mode` (locked; empty product
+  only: no non-zero bucket, no assets, no open loan). A refusal is `TrackingModeChangeRefused` -> 409
+  `tracking_mode_locked`. Product PATCH, bulk-import update and asset generation all use it; the `/control/`
+  change form shows `tracking_mode` and the quantity buckets read-only.
+- **Individual-tracked reservations** are never recomputed from asset rows: `reserved_quantity` is owned by
+  the request workflow, so reconciliation must keep it.
+- **Stock transfers** may only move an asset to `available`, `maintenance` or `damaged`, and refuse issued or
+  loan-linked assets (checked under the lock).
+- **Stocktake approve/apply**: superadmin, or a `manage_makerspace` holder who is not the stocktake's
+  `completed_by`; legacy rows with no completer stay superadmin-only. The rule lives in
+  `operations/stocktake_authority.py`, is enforced inside the locked services (so `/control/` obeys it) and
+  is exposed as `can_approve`/`can_apply`.
+- **Bulk import** refuses reserved/issued/damaged/lost columns on create, bounds quantities, and attaches
+  `image_key` through `public_image_attach.finalize_product_image`. A **create** row with
+  `tracking_mode=individual` must carry `total_quantity`/`available_quantity` of 0 (per-row error otherwise,
+  in preview and apply): individual counts are derived from asset rows and an import creates none, so any
+  quantity would be phantom stock the next reconcile silently zeroes. Units are generated afterwards with
+  their QR codes.
+
 ## Handover roles and the retired Guest Admin
 
 **Guest Admin is no longer a built-in role** (migration `makerspaces/0052`); handover staff get a **custom
@@ -1285,6 +1392,9 @@ not module keys** (one app can own several keys — `printing`/`machines`/`machi
 - **URL includes are spliced in place, never appended** (`config.urls.separable`): resolution is
   order-sensitive. `include()` is evaluated only when the app is active, because a genuinely gutted app
   has no urlconf to import.
+- **Every Django service in every compose file and Render blueprint receives `TOMBSTONED_APPS`.** Until
+  D3 it lived only in `.env`, which compose never forwards, so a tombstone was silently inert in every
+  container. `tests/test_compose_tombstones.py` pins the compose side.
 - **The tombstone suite is a separate pytest run** (`tests/tombstone/`), because import-time surfaces
   cannot be re-derived in-process and the all-active suite asserts the opposite for the same objects:
   `TOMBSTONED_APPS=bookings,events,maintenance,notifications,payments,presence,procurement,tenant_migration,warranty
@@ -1837,9 +1947,12 @@ Load-bearing details that carried over unchanged:
   enumeration infeasible; authorization + event scoping + the uniform 404 stop a stolen token crossing
   tenants; the staff-keyed throttle only bounds abuse. Resolve is **read-only** and confirm reuses the
   existing pk-authorized `mark-attended`, so a scanned token never mutates anything.
-- **A route kwarg feeding `MODEL_LOOKUPS` MUST be named `pk`** — `origin_scope_routes` reads
-  `kwargs['pk']` and marks the request invalid when absent, so `<int:event_id>` is **denied on every
-  tenant custom domain despite being registered**.
+- **A `MODEL_LOOKUPS` entry looks its object up by `pk` unless it names its kwarg** — the optional
+  third element (`('inventory.InventoryProduct', 'makerspace_id', 'product_pk')`). A kwarg the route
+  does not have marks every request invalid, so the route is **denied on every tenant custom domain
+  despite being registered** (presence-current and verify-domain were, until D3 moved them to
+  `MAKERSPACE_KWARG_ROUTES`). `tests/makerspaces/test_origin_scope_d3.py` now checks every declared
+  kwarg against the real route.
 - **The collaboration API has TWO tenant scopes and needs four DISTINCT route names**, because
   `origin_scope_routes` is keyed by route name, not HTTP method: host invite/list → `events.Event`,
   host remove → `EventCollaborator.event__makerspace_id`, collaborator inbox → its `makerspace_id`
@@ -3030,3 +3143,23 @@ and `frontend/nginx.conf` each carry the deny; infrastructure callers (Caddy's `
 backend on its private `backend:8000` address, never through a public site. `deploy/Caddyfile` once proxied all
 of `/api/*` without it, exposing the internal routes on TLS-mode self-hosts only. A new proxy config needs the
 same deny; `backend/tests/test_proxy_internal_route_deny.py` guards every `deploy/Caddyfile*` and the nginx config.
+
+**Readiness is an internal probe; liveness is public.** `/api/v1/health/readiness/` keeps one strict
+`200`/`503` contract for every caller — the Compose healthchecks, `scripts/update.sh` (including its
+rollback wait), `setup.sh` and the H1 candidate backend all depend on the status code alone, always from
+`localhost:8000` inside the backend container. Only a direct, unproxied caller (no `X-Forwarded-For`,
+`X-Real-IP` or `Forwarded` header, loopback/private `REMOTE_ADDR`; see `operations.views_health`) receives
+the failure reason and archive-custody counts. Every other caller gets `status` only and the `readiness`
+throttle scope (`THROTTLE_READINESS`). The bundled Caddyfiles and the frontend nginx deny the route with
+403, guarded by the same test file. `/api/v1/health/` is the cheap public liveness route and touches no
+database. Never move a deployment probe onto a public URL.
+
+**A non-DEBUG process refuses a placeholder or short `SECRET_KEY`.** System check `accounts.E001`
+(`apps/accounts/checks.py`) is an Error, not Django's deploy-only W009, so `migrate` fails before a release
+with a known key starts and `update.sh` rolls back. Placeholders are the repository's example values and
+anything containing `change-me`/`changeme`/`replace-with`/`insecure`; the floor is 32 characters and 5
+distinct characters. The dev overlay therefore runs `migrate` with `DEBUG=True`, matching `backend`.
+
+**First-run setup ships no credential.** `setup_instance` refuses to create a superadmin without
+`--password` or `SETUP_SUPERADMIN_PASSWORD`, before any write. `must_change_password` remains the gate for
+temporary passwords from a staff reset or superadmin recovery.

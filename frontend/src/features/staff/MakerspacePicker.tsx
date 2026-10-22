@@ -1,6 +1,9 @@
+import { ChevronRight } from "lucide-react";
+
+import { SkipLink } from "../../components/SkipLink";
 import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { Badge } from "../../components/ui";
+import { Button, Callout, Chip, Loader, PageHeader } from "../../components/ui";
 import type { Makerspace } from "./StaffPanels";
 
 /**
@@ -23,53 +26,57 @@ export function MakerspacePicker({
   onSignOut: () => void;
 }) {
   return (
-    <main className="desk-shell min-h-screen px-5 py-10">
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="mb-6 flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="min-w-0 max-w-full">
-            <SpaceWorksBadge className="mb-3" />
-            <p className="eyebrow text-accent-ink">Super Admin</p>
-            <h1 className="title-page break-words">Choose a makerspace to operate</h1>
-            <p className="mt-1 break-words text-sm text-muted">Signed in as {username}. Pick a makerspace to manage its operations.</p>
-          </div>
-          <div className="flex min-w-0 max-w-full shrink-0 flex-wrap items-center gap-2">
-            <ThemeToggle />
-            <button className="desk-button-ghost" type="button" onClick={onSignOut}>
-              Sign out
-            </button>
-          </div>
+    <div className="flex min-h-dvh flex-col bg-subtle text-ink">
+      <SkipLink />
+      <header className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <SpaceWorksBadge />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button variant="secondary" size="sm" onClick={onSignOut}>
+            Sign out
+          </Button>
         </div>
-
-        {loading ? (
-          <p className="text-sm text-muted">Loading makerspaces…</p>
-        ) : !makerspaces.length ? (
-          <div className="desk-panel bg-warn p-6 text-on-warn dark:bg-warn/15 dark:text-warn-ink">
-            <p className="text-sm">No makerspaces exist yet. Create one from the Django control plane.</p>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {makerspaces.map((makerspace) => (
-              <button
-                key={makerspace.id}
-                type="button"
-                onClick={() => onSelect(makerspace.id)}
-                className="desk-button h-auto w-full min-w-0 flex-col items-start gap-1 p-4 text-left hover:border-accent"
-              >
-                <span className="eyebrow max-w-full break-all text-accent-ink">
-                  {makerspace.public_code ?? makerspace.slug}
-                </span>
-                <span className="title-panel max-w-full break-words text-left">{makerspace.name}</span>
-                {makerspace.superadmin_access_enabled === false ? (
-                  <span className="mt-1">
-                    <Badge tone="warn">Superadmin access: Off</Badge>
-                  </span>
-                ) : null}
-                <span className="eyebrow mt-2 max-w-full break-words text-left normal-case">Operate this makerspace →</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+      </header>
+      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 px-4 pb-12 pt-6 sm:px-6">
+        <PageHeader
+          kicker="Super Admin"
+          title="Choose a makerspace to operate"
+          description={`Signed in as ${username}. Pick a makerspace to manage its operations.`}
+        />
+        <div className="mt-8">
+          {loading ? (
+            <div className="flex justify-center py-10"><Loader label="Loading makerspaces" /></div>
+          ) : !makerspaces.length ? (
+            <Callout tone="warning">No makerspaces exist yet. Create one from the Django control plane.</Callout>
+          ) : (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {makerspaces.map((makerspace) => (
+                <li key={makerspace.id} className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => onSelect(makerspace.id)}
+                    className="group flex h-full w-full min-w-0 items-center gap-3 rounded-lg border border-line bg-canvas p-4 text-left transition-colors duration-180 ease-standard hover:bg-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="max-w-full break-all font-mono text-caption text-ink-muted">
+                        {makerspace.public_code ?? makerspace.slug}
+                      </span>
+                      <span className="max-w-full break-words text-title text-ink">{makerspace.name}</span>
+                      {makerspace.superadmin_access_enabled === false ? (
+                        <span className="mt-1">
+                          <Chip size="sm" tone="warning">Superadmin access: Off</Chip>
+                        </span>
+                      ) : null}
+                      <span className="sr-only">Operate this makerspace</span>
+                    </span>
+                    <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-ink-muted transition-transform duration-180 ease-standard group-hover:translate-x-0.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }

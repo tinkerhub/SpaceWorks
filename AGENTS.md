@@ -291,6 +291,9 @@ Stack (in use):
 - **Styling:** Tailwind CSS 4 (CSS-first; `src/index.css` uses `@import "tailwindcss"` + `@config
   "../tailwind.config.ts"`; PostCSS via `@tailwindcss/postcss`) with CSS-variable light/dark theme tokens.
   Light default; dark toggle persisted locally.
+- **UI layer:** Radix + lucide primitives in `frontend/src/components/ui` (export barrel `index.ts`), app
+  shells in `components/chrome` and `features/staff/shell`, shared classes in `src/styles/`. Build pages
+  from those primitives, keep the existing `--color-*` palette, and see `docs/design-provenance.md`.
 - **API documentation:** drf-spectacular / OpenAPI (snapshot `frontend/openapi-schema.json` + generated
   `frontend/src/generated/api.ts`; regenerate both when routes/models change — spectacular needs
   `--format openapi-json`).

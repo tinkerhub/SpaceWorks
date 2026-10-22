@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -19,7 +19,8 @@ from apps.admin_api.serializers_roles import (
 from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.machines import role_scope, role_scope_services
 from apps.makerspaces import role_services
-from apps.makerspaces.models import Makerspace
+from apps.makerspaces.models import Makerspace, MakerspaceRole
+from apps.makerspaces.platform import module_enabled
 
 
 ERRORS = {400: ErrorSerializer, 401: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer, 409: OpenApiResponse(ErrorSerializer)}
@@ -34,6 +35,17 @@ _CATALOG = (
     ("Reports / Audit", (("view_audit", "Analytics, accountability, audit log, timelines, history, and exports."),)),
     ("Makerspace admin", (("manage_makerspace", "Settings, integrations, role management, and staff delegation."),)),
 )
+
+
+# Catalog groups that belong to an optional module. With the module off the group is
+# hidden, except for any action the role being edited (`?role_id=`) already holds: the
+# editor must still show it, or a Space Manager could neither see nor remove that grant.
+_GROUP_MODULES = {
+    "Machines": "machines",
+    "Printing": "printing",
+    "Events": "events",
+    "Bookings": "bookings",
+}
 
 
 def _makerspace(actor, makerspace_id):
@@ -56,12 +68,18 @@ def _role(actor, makerspace_id, role_id):
     return makerspace, get_object_or_404(role_queryset(), pk=role_id, makerspace=makerspace)
 
 
-def _catalog(actor, makerspace):
+def _catalog(actor, makerspace, role=None):
     actor_actions = rbac.effective_actions(actor, makerspace.id)
     superadmin = actor.is_superuser or getattr(actor, "role", None) == "superadmin"
+    granted = role.granted_actions if role is not None else []
+    held = set(granted) if isinstance(granted, list) else set()
     rows = []
     for group, items in _CATALOG:
+        module = _GROUP_MODULES.get(group)
+        module_on = module is None or module_enabled(makerspace, module)
         for value, description in items:
+            if not module_on and value not in held:
+                continue
             grantable = value in actor_actions and (superadmin or value != rbac.Action.MANAGE_MAKERSPACE)
             reason = None if grantable else (
                 "Only a global superadmin may grant makerspace administration." if value == rbac.Action.MANAGE_MAKERSPACE else "You do not currently hold this capability."
@@ -113,9 +131,23 @@ class RoleDetailView(APIView):
 class CapabilityCatalogView(APIView):
     permission_classes = [IsActiveStaff]
 
-    @extend_schema(tags=["Admin roles"], responses={200: CapabilitySerializer(many=True), **ERRORS})
+    @extend_schema(
+        tags=["Admin roles"],
+        parameters=[OpenApiParameter(
+            "role_id", int, OpenApiParameter.QUERY, required=False,
+            description="Role being edited: its existing grants stay listed even when their module is off.",
+        )],
+        responses={200: CapabilitySerializer(many=True), **ERRORS},
+    )
     def get(self, request, makerspace_id):
-        return Response(CapabilitySerializer(_catalog(request.user, _makerspace(request.user, makerspace_id)), many=True).data)
+        makerspace = _makerspace(request.user, makerspace_id)
+        role = None
+        raw_role = request.query_params.get("role_id")
+        if raw_role not in (None, ""):
+            if not str(raw_role).isdigit():
+                raise ValidationError({"role_id": "A role id is required."})
+            role = get_object_or_404(MakerspaceRole, pk=int(raw_role), makerspace=makerspace)
+        return Response(CapabilitySerializer(_catalog(request.user, makerspace, role), many=True).data)
 
 
 def _machine_scope_payload(makerspace, role):

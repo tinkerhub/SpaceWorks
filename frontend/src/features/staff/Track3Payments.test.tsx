@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BookableSpaceForm, EMPTY_SPACE_FORM } from "./BookableSpaceForm";
@@ -59,7 +59,8 @@ describe("Track 3 staff payments", () => {
     );
 
     expect(screen.getByText(/Payment.*9\.00/)).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Waive" }));
+    fireEvent.click(screen.getByRole("button", { name: "Waive…" }));
+    fireEvent.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Waive payment" }));
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/makerspace/7/payments/41/waive",
       { method: "POST" },

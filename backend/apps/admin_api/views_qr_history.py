@@ -77,6 +77,7 @@ class AssetQrHistoryView(APIView):
             pk=pk,
         )
         require_module(asset.makerspace_id, "staff_admin")
+        require_module(asset.makerspace_id, "asset_units")
         return Response(
             {
                 "asset": asset.id,

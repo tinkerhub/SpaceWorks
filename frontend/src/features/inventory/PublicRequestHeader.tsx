@@ -1,4 +1,4 @@
-import { Card } from "../../components/ui/Card";
+import { Card } from "../../components/ui";
 
 type Props = {
   accountLess: boolean;
@@ -14,23 +14,21 @@ export function PublicRequestHeader({
   requestAccess,
 }: Props) {
   return (
-    <Card className="shrink-0 border-ink" padding="sm">
-      <p className="blueprint-band -mx-3 -mt-3 mb-3 rounded-t-md border-b border-ink bg-secondary px-3 py-2 text-on-secondary">
-        Request desk
-      </p>
-      <h2 className="title-panel text-secondary-ink">
+    <Card className="shrink-0">
+      <p className="text-body-ui text-ink-muted">Request desk</p>
+      <h2 className="mt-1 text-h4 text-ink">
         {activeTab === "borrow" && accountLess
           ? "Borrow something"
           : activeTab === "borrow" && checkedIn
             ? "Borrow with check-in"
             : "Member borrowing"}
       </h2>
-      <p className="mt-2 text-sm text-muted">
+      <p className="mt-2 text-body-ui text-ink-secondary">
         {/* Four states, because the requirements genuinely differ. Scoped to the
             borrow tab: scanning a tool is self-checkout, which DOES require an
             authenticated member with active presence, so "no account needed" would
             be false there until it 401s. The checked-in path instead confirms the
-            visitor against the upstream roster, with no account, membership or waiver.
+            visitor against the upstream check-in roster, with no account, membership or waiver.
             And an `anyone` policy necessarily has the membership module off, so the
             membership/waiver/presence sentence cannot be true on such a space even for
             a signed-in visitor. */}

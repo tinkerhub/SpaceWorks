@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { Button, EmptyState, Dropdown, Field, SectionHeading, Skeleton, StatusChip, Textarea, type StatusTone } from "../../../../components/ui";
 import { addMachineErrorLog, collectionResults, getMachineErrorLogs, machineKeys } from "../../machinesApi";
+import { humanize, useNotify, When } from "./machineUi";
 
-export function ErrorsTab({ machineId, canOperate }: { machineId: number; canOperate: boolean }) {
+// Mirrors backend `MachineErrorLog.Severity`; the server refuses anything else, which the old
+// free-text field let operators type and then failed on submit.
+const SEVERITIES: { value: string; tone: StatusTone }[] = [
+  { value: "info", tone: "info" },
+  { value: "warning", tone: "warning" },
+  { value: "error", tone: "danger" },
+  { value: "critical", tone: "danger" },
+];
+
+export function ErrorsTab({ machineId, canOperate, retired = false }: { machineId: number; canOperate: boolean; retired?: boolean }) {
   const queryClient = useQueryClient();
+  const notify = useNotify();
   const [severity, setSeverity] = useState("error");
   const [message, setMessage] = useState("");
   const logs = useQuery({
@@ -18,55 +30,59 @@ export function ErrorsTab({ machineId, canOperate }: { machineId: number; canOpe
       message: message.trim(),
     }),
     onSuccess: async () => {
+      notify.success("Error logged");
       setMessage("");
       await queryClient.invalidateQueries({ queryKey: machineKeys.errors(machineId) });
     },
+    onError: (error) => notify.failure("Couldn't log the error.", error),
   });
 
   return (
-    <section>
-      <h3 className="title-section mb-3">Error logs</h3>
-      {logs.isLoading ? <p className="text-sm text-muted">Loading error logs...</p> : null}
-      {logs.error instanceof Error ? <p className="text-sm text-danger">{logs.error.message}</p> : null}
-      {!logs.isLoading && !logs.error && !items.length ? (
-        <p className="text-sm text-muted">No errors logged.</p>
-      ) : null}
-      <div className="grid gap-2">
-        {items.map((entry) => (
-          <div key={entry.id} className="rounded-md border border-line bg-bg p-2 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <strong className="text-ink">{entry.severity}</strong>
-              <span className="font-mono text-xs text-muted">{formatDate(entry.created_at)}</span>
-            </div>
-            <p className="mt-1 whitespace-pre-wrap break-words text-muted">{entry.message}</p>
-            {entry.logged_by_username ? (
-              <p className="mt-1 text-xs text-muted">Logged by {entry.logged_by_username}</p>
-            ) : null}
-          </div>
-        ))}
-      </div>
-      {canOperate ? (
-        <form className="mt-3 grid gap-2" onSubmit={(event) => { event.preventDefault(); add.mutate(); }}>
-          <label className="eyebrow grid gap-1">Severity
-            <input className="desk-input" maxLength={16} value={severity}
-              onChange={(event) => setSeverity(event.target.value)} required />
-          </label>
-          <label className="eyebrow grid gap-1">Message
-            <textarea className="desk-input min-h-20" value={message}
-              onChange={(event) => setMessage(event.target.value)} required />
-          </label>
-          <button className="desk-button-primary justify-self-start" type="submit"
-            disabled={add.isPending || !severity.trim() || !message.trim()}>
-            {add.isPending ? "Logging..." : "Add error log"}
-          </button>
+    <section className="grid gap-4">
+      <SectionHeading as="h3" title="Error logs" description="Faults and warnings, newest first." />
+      {canOperate && !retired ? (
+        <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4" onSubmit={(event) => { event.preventDefault(); add.mutate(); }}>
+          <Field label="Severity" className="sm:max-w-56">
+            <Dropdown value={severity} onChange={(event) => setSeverity(event.target.value)} required>
+              {SEVERITIES.map((entry) => <option key={entry.value} value={entry.value}>{humanize(entry.value)}</option>)}
+            </Dropdown>
+          </Field>
+          <Field label="Message">
+            <Textarea rows={3} value={message} onChange={(event) => setMessage(event.target.value)} required />
+          </Field>
+          {add.error instanceof Error ? <p className="text-caption text-danger-fg">{add.error.message}</p> : null}
+          <Button className="justify-self-start" variant="primary" type="submit" loading={add.isPending} loadingLabel="Logging…" disabled={!severity.trim() || !message.trim()}>
+            Add error log
+          </Button>
         </form>
       ) : null}
-      {add.error instanceof Error ? <p className="mt-2 text-sm text-danger">{add.error.message}</p> : null}
+      {canOperate && retired ? <p className="text-caption text-ink-muted">Retired machines don't take new error logs.</p> : null}
+      {logs.isLoading ? (
+        <div className="grid gap-2" role="status" aria-label="Loading error logs">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      ) : null}
+      {logs.error instanceof Error ? <EmptyState tone="error" title="Couldn't load error logs" description={logs.error.message} /> : null}
+      {!logs.isLoading && !logs.error && !items.length ? (
+        <EmptyState title="No errors logged" description="Nothing has gone wrong with this machine yet." />
+      ) : null}
+      {items.length ? (
+        <ul className="grid gap-2">
+          {items.map((entry) => (
+            <li key={entry.id} className="grid gap-1.5 rounded-lg border border-line bg-canvas p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <StatusChip size="sm" tone={SEVERITIES.find((item) => item.value === entry.severity)?.tone ?? "neutral"}>
+                  {humanize(entry.severity)}
+                </StatusChip>
+                <span className="text-caption text-ink-muted"><When value={entry.created_at} /></span>
+              </div>
+              <p className="whitespace-pre-wrap break-words text-body-ui text-ink">{entry.message}</p>
+              {entry.logged_by_username ? <p className="text-caption text-ink-muted">Logged by {entry.logged_by_username}</p> : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
-}
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }

@@ -16,8 +16,9 @@ Docker Compose V2, curl and tar through apt, dnf/yum, pacman or zypper. It suppo
 It prints the dependency plan before making changes.
 
 **Windows:** install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/) with
-Linux containers, then open **Git Bash**. Native Git Bash is supported for install, normal Compose
-operation and upgrades. WSL2 is required only for restore/recovery operations described below.
+Linux containers and its WSL2 integration enabled, then open a **WSL2** terminal (for example Ubuntu
+from the Microsoft Store) and run every command below there. Native Git Bash and PowerShell are not
+supported.
 
 **macOS:** install and start Docker Desktop before running the installer.
 
@@ -25,7 +26,7 @@ Docker Desktop installation on Windows/macOS:
 
 1. Go to **https://www.docker.com/products/docker-desktop/**.
 2. Download the version for your computer and run the installer. On Windows, keep the WSL2 engine
-   enabled even when running ordinary commands from Git Bash.
+   and the WSL integration for your Linux distribution enabled.
 3. Click through the installer (the defaults are fine), then **start Docker Desktop** and wait
    until it says it's running (a whale icon appears in your taskbar/menu bar).
 
@@ -46,7 +47,7 @@ side of the pipe:
 curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/install.sh | SPACEWORKS_DIR="$HOME/SpaceWorks" bash
 ```
 
-Use the second form in Windows Git Bash. The installer downloads the newest **tagged GitHub release**
+On Windows, run either form from your WSL2 terminal. The installer downloads the newest **tagged GitHub release**
 archive—never a moving branch and never a Git clone—and runs that release's `setup.sh`. It checks the
 architecture, dependencies, Docker, ports, disk space and install directory before installing a package
 or creating the install root.
@@ -54,7 +55,7 @@ or creating the install root.
 ## Step 3 — Answer the setup questions
 
 The curl installer hands off automatically to `setup.sh`, which generates the passwords and security
-keys. WSL2 bash can be used instead of Git Bash on Windows.
+keys. On Windows this all happens inside your WSL2 terminal.
 
 The script will ask you a few simple questions (press Enter to accept the suggestion in brackets):
 
@@ -164,7 +165,7 @@ You have two good options before giving up:
 - **Stop it:** `scripts/spaceworks-compose.sh bundled down`
   (your data is safe — it's kept in a database volume).
 - **Update to a newer version:** guided installs offer self-hosted Actions runner updates on Linux/systemd. Run
-  `bash scripts/update.sh` on Linux, macOS or Windows Git Bash to update immediately when your installed
+  `bash scripts/update.sh` on Linux, macOS or (on Windows) WSL2 to update immediately when your installed
   version differs from the latest release; add `--force` to reinstall the same release. Configure the
   runner and enable the repository variable `SPACEWORKS_DEPLOY_RUNNER=true`; require approval for all
   outside collaborators and review workflow changes before approval, because fork PRs can target the host.
@@ -186,13 +187,10 @@ treated as a safe live deployment.
 
 ### Windows support boundary
 
-- **Tier 1—native Git Bash:** install, Compose run/stop/logs, manual update and module changes. When the
-  host has no `flock`, the updater uses its existing directory lock with owner PID and timestamp. A dead
-  owner is detected and recovered; after verifying a misleading live/corrupt owner, `--override-lock`
-  is the documented escape hatch.
-- **Tier 2—WSL2:** in-place restore, backup import and compound host recovery. Those supervisors rely on
-  Linux AF_UNIX sockets plus root-owned-file trust semantics. Run them from WSL2 with Docker Desktop's
-  WSL integration; they are deliberately not ported to native Windows.
+Windows is supported through **WSL2 only**, for everything: install, Compose run/stop/logs, update,
+module changes, restore, backup import and compound host recovery. Run them from WSL2 with Docker
+Desktop's WSL integration. Native Git Bash and PowerShell are not supported — the production host scripts need Linux `flock`, AF_UNIX sockets, root-owned-file trust semantics and Docker bind paths that Git Bash's MSYS path conversion rewrites.
+`setup.ps1` and `scripts/update.ps1` only print that refusal.
 
 ## Something went wrong?
 

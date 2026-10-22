@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UserPlus } from "lucide-react";
 
-import { ConfirmDialog } from "../../../components/ui";
+import { Button, ConfirmDialog, Dropdown, EmptyState, ErrorText, Field, Tabs, TabsContent, TabsList, TabsTrigger, useToast } from "../../../components/ui";
 import { staffRequest, type StaffAuthUser } from "../../../lib/api";
-import { Panel, useStaffGet, type Makerspace } from "./shared";
+import { Panel, errorText, useStaffGet, type Makerspace } from "./shared";
 import { RoleManager } from "./RoleManager";
 import { UsersTable } from "./UsersTable";
 import {
@@ -17,31 +18,8 @@ import {
   type RestrictForm,
   type StaffForm,
 } from "./UsersModals";
-import {
-  assignRole,
-  createMembership,
-  type StaffMembershipRow,
-  type StaffRole,
-} from "./rolesApi";
-
-const emptyStaffForm: StaffForm = {
-  username: "",
-  email: "",
-  first_name: "",
-  last_name: "",
-  password: "",
-  role_id: "",
-  makerspace_id: "",
-};
-const emptyRestrictForm: RestrictForm = { status: "restricted", reason: "" };
-const emptyMakerspaceForm: MakerspaceForm = {
-  name: "",
-  public_code: "",
-  slug: "",
-  location: "",
-  superadmin_access_enabled: true,
-};
-const emptyResetPasswordForm: ResetPasswordForm = { password: "" };
+import { emptyMakerspaceForm, emptyResetPasswordForm, emptyRestrictForm, emptyStaffForm, makerspacePayload, staffPayload } from "./usersForms";
+import { assignableRolesFor, assignRole, createMembership, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 
 export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }: {
   makerspaces: Makerspace[];
@@ -50,6 +28,7 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
   onAuthRefresh: () => void;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [msId, setMsId] = useState<number>(makerspaces[0]?.id ?? 0);
   const [roleFilter, setRoleFilter] = useState("all");
   const [addOpen, setAddOpen] = useState(false);
@@ -81,14 +60,10 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
     [currentUser, msId],
   );
   const canManageRoles = isSuperadmin || actorActions.includes("manage_makerspace");
-  const assignableRoles = useMemo(() => {
-    const all = rolesList.data ?? [];
-    if (isSuperadmin) return all;
-    const ceiling = new Set(actorActions.filter((action) => action !== "manage_makerspace"));
-    return all.filter(
-      (role) => !role.granted_actions.includes("manage_makerspace") && role.granted_actions.every((action) => ceiling.has(action)),
-    );
-  }, [rolesList.data, isSuperadmin, actorActions]);
+  const assignableRoles = useMemo(
+    () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin),
+    [rolesList.data, isSuperadmin, actorActions],
+  );
 
   const roleFilterOptions = useMemo(() => {
     const names = new Set<string>();
@@ -107,14 +82,19 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
     queryClient.invalidateQueries({ queryKey: ["staff", "roles", msId] });
     onAuthRefresh();
   };
+  const succeeded = (message: string) => showToast(message, { tone: "success" });
+  // `Error`, not `unknown`: an `unknown` onError parameter widens the mutation's error type.
+  const failed = (fallback: string) => (error: Error) => showToast(errorText(error, fallback), { tone: "error" });
 
   const createStaff = useMutation({
     mutationFn: () => createMembership(msId, staffPayload(staffForm)),
-    onSuccess: () => { setAddOpen(false); setStaffForm(emptyStaffForm); afterStaffChange(); },
+    onSuccess: () => { setAddOpen(false); setStaffForm(emptyStaffForm); afterStaffChange(); succeeded("Staff member added"); },
+    onError: failed("Couldn't add the staff member"),
   });
   const changeRole = useMutation({
     mutationFn: ({ membership, roleId }: { membership: StaffMembershipRow; roleId: number }) => assignRole(msId, membership.id, roleId),
-    onSuccess: afterStaffChange,
+    onSuccess: () => { afterStaffChange(); succeeded("Role changed"); },
+    onError: failed("Couldn't change the role"),
   });
   const restrict = useMutation({
     mutationFn: () =>
@@ -124,15 +104,18 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
             body: JSON.stringify({ status: restrictForm.status, reason: restrictForm.reason.trim() }),
           })
         : Promise.resolve(),
-    onSuccess: () => { setRestrictTarget(null); setRestrictForm(emptyRestrictForm); afterStaffChange(); },
+    onSuccess: () => { setRestrictTarget(null); setRestrictForm(emptyRestrictForm); afterStaffChange(); succeeded("Access restricted"); },
+    onError: failed("Couldn't restrict access"),
   });
   const restore = useMutation({
     mutationFn: (membership: StaffMembershipRow) => staffRequest(`/admin/users/${membership.user.id}/restore-access`, { method: "POST" }),
-    onSuccess: () => { setRestoreTarget(null); afterStaffChange(); },
+    onSuccess: () => { setRestoreTarget(null); afterStaffChange(); succeeded("Access restored"); },
+    onError: failed("Couldn't restore access"),
   });
   const revoke = useMutation({
     mutationFn: (membership: StaffMembershipRow) => staffRequest(`/admin/memberships/${membership.id}`, { method: "DELETE" }),
-    onSuccess: () => { setRevokeTarget(null); afterStaffChange(); },
+    onSuccess: () => { setRevokeTarget(null); afterStaffChange(); succeeded("Role revoked"); },
+    onError: failed("Couldn't revoke the role"),
   });
   const resetPassword = useMutation({
     mutationFn: () => {
@@ -143,7 +126,8 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
         body: JSON.stringify(password ? { password } : {}),
       });
     },
-    onSuccess: (result) => setResetPasswordResult(result),
+    onSuccess: (result) => { setResetPasswordResult(result); succeeded("Temporary password set"); },
+    onError: failed("Couldn't reset the password"),
   });
   const createMakerspace = useMutation({
     mutationFn: () => staffRequest("/admin/makerspaces", { method: "POST", body: JSON.stringify(makerspacePayload(makerspaceForm)) }),
@@ -151,70 +135,84 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
       setMakerspaceOpen(false);
       setMakerspaceForm(emptyMakerspaceForm);
       queryClient.invalidateQueries({ queryKey: ["staff", "makerspaces"] });
+      succeeded("Makerspace created");
     },
+    onError: failed("Couldn't create the makerspace"),
   });
 
   const openAdd = () => { setStaffForm({ ...emptyStaffForm, makerspace_id: String(msId) }); setAddOpen(true); };
   const openRestrict = (membership: StaffMembershipRow) => { setRestrictTarget(membership); setRestrictForm(emptyRestrictForm); };
-  const openResetPassword = (membership: StaffMembershipRow) => {
+  // Opening (a row) and closing (null) both start from a clean reset-password state.
+  const selectResetPasswordTarget = (membership: StaffMembershipRow | null) => {
     resetPassword.reset();
     setResetPasswordTarget(membership);
     setResetPasswordForm(emptyResetPasswordForm);
     setResetPasswordResult(null);
   };
-  const closeResetPassword = () => {
-    resetPassword.reset();
-    setResetPasswordTarget(null);
-    setResetPasswordForm(emptyResetPasswordForm);
-    setResetPasswordResult(null);
-  };
 
+  const description = "Staff accounts and the roles that decide what each person can do.";
   if (!makerspaces.length) {
-    return <Panel title="Users"><p className="text-sm text-muted">No makerspaces available for this account.</p></Panel>;
+    return <Panel title="Users" description={description}><EmptyState title="No makerspaces yet" description="This account isn't linked to a makerspace. Ask a platform admin to add you to one." /></Panel>;
   }
 
   const panelError = memberships.error?.message ?? rolesList.error?.message ?? restore.error?.message;
+  const people = (
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label="Role" className="w-full sm:w-60">
+          <Dropdown value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
+            <option value="all">All roles</option>
+            {roleFilterOptions.map((name) => <option key={name} value={name}>{name}</option>)}
+          </Dropdown>
+        </Field>
+      </div>
+      <ErrorText message={panelError} />
+      <UsersTable
+        rows={rows}
+        makerspaceNames={makerspaceNames}
+        loading={memberships.isLoading}
+        assignableRoles={assignableRoles}
+        roles={rolesList.data ?? []}
+        currentUsername={currentUser.username}
+        isSuperadmin={isSuperadmin}
+        onRestrict={openRestrict}
+        onRestore={setRestoreTarget}
+        onResetPassword={selectResetPasswordTarget}
+        onRevoke={setRevokeTarget}
+        onChangeRole={(membership, roleId) => changeRole.mutateAsync({ membership, roleId })}
+      />
+    </div>
+  );
 
   return (
-    <Panel title="Users">
-      <div className="grid gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          {makerspaces.length > 1 ? (
-            <label className="eyebrow">
-              Makerspace{" "}
-              <select className="desk-input" value={msId} onChange={(event) => { setMsId(Number(event.target.value)); setRoleFilter("all"); }}>
-                {makerspaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
-              </select>
-            </label>
-          ) : null}
-          <label className="eyebrow">
-            Role{" "}
-            <select className="desk-input" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
-              <option value="all">All roles</option>
-              {roleFilterOptions.map((name) => <option key={name} value={name}>{name}</option>)}
-            </select>
-          </label>
-          <div className="desk-actions ml-auto flex flex-wrap gap-2">
-            <button className="desk-button-primary" type="button" onClick={openAdd} disabled={!assignableRoles.length}>Add staff</button>
-            {isSuperadmin ? <button className="desk-button" type="button" onClick={() => setMakerspaceOpen(true)}>Create makerspace</button> : null}
-          </div>
-        </div>
-
-        {panelError ? <p className="text-sm text-danger">{panelError}</p> : null}
-        <UsersTable
-          rows={rows}
-          makerspaceNames={makerspaceNames}
-          loading={memberships.isLoading}
-          assignableRoles={assignableRoles}
-          onRestrict={openRestrict}
-          onRestore={setRestoreTarget}
-          onResetPassword={openResetPassword}
-          onRevoke={setRevokeTarget}
-          onChangeRole={(membership, roleId) => changeRole.mutateAsync({ membership, roleId })}
-        />
-        {canManageRoles ? (
-          <RoleManager msId={msId} actorActions={actorActions} isSuperadmin={isSuperadmin} onRolesChanged={afterStaffChange} />
+    <Panel
+      title="Users"
+      description={description}
+      actions={<>
+        {isSuperadmin ? <Button variant="secondary" onClick={() => setMakerspaceOpen(true)}>Create makerspace</Button> : null}
+        <Button variant="primary" startIcon={<UserPlus />} onClick={openAdd} disabled={!assignableRoles.length}>Add staff</Button>
+      </>}
+    >
+      <div className="grid gap-5">
+        {makerspaces.length > 1 ? (
+          <Field label="Makerspace" className="w-full sm:w-72">
+            <Dropdown value={String(msId)} onChange={(event) => { setMsId(Number(event.target.value)); setRoleFilter("all"); }}>
+              {makerspaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
+            </Dropdown>
+          </Field>
         ) : null}
+        {canManageRoles ? (
+          <Tabs defaultValue="people">
+            <TabsList aria-label="Users sections">
+              <TabsTrigger value="people">People</TabsTrigger>
+              <TabsTrigger value="roles">Roles</TabsTrigger>
+            </TabsList>
+            <TabsContent value="people">{people}</TabsContent>
+            <TabsContent value="roles">
+              <RoleManager msId={msId} actorActions={actorActions} isSuperadmin={isSuperadmin} onRolesChanged={afterStaffChange} />
+            </TabsContent>
+          </Tabs>
+        ) : people}
       </div>
 
       <AddStaffModal
@@ -255,52 +253,32 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
         error={resetPassword.error}
         result={resetPasswordResult}
         onChange={setResetPasswordForm}
-        onClose={closeResetPassword}
+        onClose={() => selectResetPasswordTarget(null)}
         onSubmit={() => resetPassword.mutate()}
       />
       <ConfirmDialog
         open={Boolean(restoreTarget)}
-        title="Restore access"
-        message={restoreTarget ? `Restore access for ${restoreTarget.user.username}?` : ""}
-        confirmLabel="Restore"
+        title="Restore access?"
+        message={restoreTarget ? `${restoreTarget.user.username} can sign in and use the console again.` : ""}
+        confirmLabel="Restore access"
         pending={restore.isPending}
         onCancel={() => setRestoreTarget(null)}
         onConfirm={() => { if (restoreTarget) restore.mutate(restoreTarget); }}
       />
       <ConfirmDialog
         open={Boolean(revokeTarget)}
-        title="Revoke role"
+        title="Revoke role?"
+        tone="danger"
         message={
           revokeTarget
             ? `Remove ${revokeTarget.user.username}'s "${revokeTarget.assigned_role?.name ?? revokeTarget.role.replace(/_/g, " ")}" role in ${makerspaceNames.get(revokeTarget.makerspace_id) ?? revokeTarget.makerspace_slug}? Their account is not deleted.`
             : ""
         }
-        confirmLabel="Revoke"
+        confirmLabel="Revoke role"
         pending={revoke.isPending}
         onCancel={() => setRevokeTarget(null)}
         onConfirm={() => { if (revokeTarget) revoke.mutate(revokeTarget); }}
       />
     </Panel>
   );
-}
-
-function staffPayload(form: StaffForm) {
-  return {
-    username: form.username.trim(),
-    email: form.email.trim(),
-    first_name: form.first_name.trim(),
-    last_name: form.last_name.trim(),
-    password: form.password,
-    role_id: Number(form.role_id),
-  };
-}
-
-function makerspacePayload(form: MakerspaceForm) {
-  return {
-    name: form.name.trim(),
-    public_code: form.public_code.trim(),
-    slug: form.slug.trim(),
-    location: form.location.trim(),
-    superadmin_access_enabled: form.superadmin_access_enabled,
-  };
 }

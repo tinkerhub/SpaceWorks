@@ -1,5 +1,6 @@
 import type React from "react";
 
+import { Field, StatusChip, Textarea } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
 import type { ReceiptEnvelope } from "./tenantMigrationApi";
 
@@ -24,20 +25,15 @@ export function migrationError(error: unknown, field?: string) {
 
 export function ErrorText({ error, field }: { error: unknown; field?: string }) {
   if (!error) return null;
-  return <p className="mt-2 text-sm text-danger" role="alert">{migrationError(error, field)}</p>;
+  return <p className="mt-2 text-caption text-danger-fg" role="alert">{migrationError(error, field)}</p>;
 }
 
+/** Status as a word + icon chip (sentence case). */
 export function StatusPill({ children, tone = "neutral" }: {
   children: React.ReactNode;
   tone?: "neutral" | "success" | "danger" | "warn";
 }) {
-  const classes = {
-    neutral: "border-line bg-bg text-ink",
-    success: "border-success/40 bg-success/10 text-success-ink",
-    danger: "border-danger/40 bg-danger/10 text-danger",
-    warn: "border-warn/40 bg-warn/10 text-warn-ink",
-  }[tone];
-  return <span className={`inline-flex rounded-full border px-2 py-1 font-mono text-xs font-semibold ${classes}`}>{children}</span>;
+  return <StatusChip tone={tone === "warn" ? "warning" : tone} size="sm">{children}</StatusChip>;
 }
 
 export function parseReceipt(value: string): ReceiptEnvelope | null {
@@ -56,16 +52,16 @@ export function parseReceipt(value: string): ReceiptEnvelope | null {
 export function ReceiptOutput({ label, receipt }: { label: string; receipt?: ReceiptEnvelope }) {
   if (!receipt) return null;
   return (
-    <div className="mt-3">
-      <label className="text-sm font-semibold text-ink" htmlFor={`${label.replace(/\W+/g, "-")}-receipt`}>{label}</label>
-      <textarea
-        id={`${label.replace(/\W+/g, "-")}-receipt`}
-        className="desk-input mt-1 min-h-32 w-full font-mono text-xs"
-        readOnly
-        value={JSON.stringify(receipt, null, 2)}
-      />
-    </div>
+    <Field label={label} className="mt-3" helperText="Copy this signed receipt to the other deployment.">
+      <Textarea readOnly className="min-h-32 font-mono text-xs" value={JSON.stringify(receipt, null, 2)} />
+    </Field>
   );
+}
+
+/** Lifecycle word for a chip: IMPORTING -> Importing. */
+export function lifecycleWord(value: string) {
+  const words = value.replace(/_/g, " ").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 export function openDownload(url: string) {

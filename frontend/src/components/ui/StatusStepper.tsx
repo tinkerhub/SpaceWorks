@@ -1,11 +1,8 @@
-const STAGES = ["Requested", "Approved", "Collected", "Returned"] as const;
+import { Check, X } from "lucide-react";
 
-const STEP_TONE_CLASSES = [
-  "border-accent bg-accent text-on-accent",
-  "border-warn bg-warn text-on-warn",
-  "border-secondary bg-secondary text-on-secondary",
-  "border-success bg-success text-on-success",
-] as const;
+import { StatusChip } from "./Chip";
+
+const STAGES = ["Requested", "Approved", "Collected", "Returned"] as const;
 
 function statusStageIndex(status: string): number {
   switch (status) {
@@ -30,36 +27,28 @@ export function statusStageLabel(status: string): string {
   return STAGES[statusStageIndex(status)] ?? STAGES[0];
 }
 
-function StepBox({
-  step,
-  label,
-  state,
-  rejected,
-}: {
-  step: number;
-  label: string;
-  state: "completed" | "current" | "upcoming" | "issue";
-  rejected: boolean;
-}) {
-  const className = (rejected && step === 0) || state === "issue"
-    ? "status-box status-box-danger"
-    : state === "completed" || state === "current"
-      ? `status-box ${STEP_TONE_CLASSES[step] ?? STEP_TONE_CLASSES[0]} ${state === "current" ? "status-box-current" : ""}`
-      : "status-box status-box-upcoming";
+type StepState = "completed" | "current" | "upcoming" | "issue";
 
+const markClasses: Record<StepState, string> = {
+  completed: "border-transparent bg-success-bg text-success-fg",
+  current: "border-accent-ink bg-primary text-on-primary",
+  upcoming: "border-dashed border-line-strong bg-canvas text-ink-muted",
+  issue: "border-transparent bg-danger-bg text-danger-fg",
+};
+
+function StepBox({ step, label, state }: { step: number; label: string; state: StepState }) {
   return (
-    <span
-      className={`${className} w-full flex-col leading-tight`}
-      aria-current={state === "current" ? "step" : undefined}
-    >
-      <span className="font-bold opacity-70">{step + 1}</span>
-      <span className="min-w-0 break-words">{label}</span>
+    <span className="flex w-full min-w-0 flex-col items-center gap-1.5" aria-current={state === "current" ? "step" : undefined}>
+      <span aria-hidden="true" className={`inline-flex size-8 items-center justify-center rounded-full border-[1.5px] text-sm font-bold ${markClasses[state]}`}>
+        {state === "completed" ? <Check className="size-4" strokeWidth={3} /> : state === "issue" ? <X className="size-4" strokeWidth={3} /> : step + 1}
+      </span>
+      <span className={`min-w-0 break-words text-xs font-semibold ${state === "upcoming" ? "text-ink-muted" : "text-ink"}`}>{label}</span>
     </span>
   );
 }
 
 function RejectedBadge() {
-  return <span className="status-box status-box-danger">Rejected</span>;
+  return <StatusChip tone="danger">Rejected</StatusChip>;
 }
 
 export function StatusStepper({ status }: { status: string }) {
@@ -76,7 +65,7 @@ export function StatusStepper({ status }: { status: string }) {
       aria-label={`Request status: ${statusStageLabel(status)}`}
       className="w-full"
     >
-      <ol className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] items-start gap-2">
+      <ol className="grid grid-cols-4 items-start gap-2">
         {STAGES.map((stage, index) => {
           const state =
             index < activeIndex
@@ -95,12 +84,7 @@ export function StatusStepper({ status }: { status: string }) {
               key={stage}
             >
               <span className="flex w-full min-w-0 flex-col items-center gap-1">
-                <StepBox
-                  step={index}
-                  label={stage}
-                  state={state}
-                  rejected={rejected}
-                />
+                <StepBox step={index} label={stage} state={rejected && index === 0 ? "issue" : state} />
                 {rejected && index === 0 ? <RejectedBadge /> : null}
               </span>
             </li>

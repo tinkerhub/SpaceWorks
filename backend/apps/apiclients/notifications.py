@@ -1,6 +1,8 @@
 import logging
 
+from apps.integrations.dispatch_channels import channel_module_blocks
 from apps.integrations.email import send_makerspace_email
+from apps.integrations.models import NotificationChannel
 from apps.integrations.telegram import send_message
 
 logger = logging.getLogger(__name__)
@@ -39,10 +41,13 @@ def notify_api_key_request_resolved(api_key_request):
         )
 
     try:
-        send_message(
-            makerspace,
-            f"API access request '{label}' was {status} for {requester or 'requester'}.",
-        )
+        # Same channel/module gate as every lifecycle alert: a space without the
+        # `telegram` module gets no Telegram message, even with a bot configured.
+        if not channel_module_blocks(makerspace, NotificationChannel.TELEGRAM):
+            send_message(
+                makerspace,
+                f"API access request '{label}' was {status} for {requester or 'requester'}.",
+            )
     except Exception:
         logger.warning(
             "api_key_request_telegram_notification_failed",

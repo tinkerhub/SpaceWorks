@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button, Callout, ErrorText, useToast } from "../../components/ui";
 import type { ApiPath } from "../../generated/api";
 import { StructuredApiError, tenantPublicRequest } from "../../lib/api";
 import { CustomFormFields } from "../forms/CustomFormFields";
@@ -38,6 +39,7 @@ export function EventRegistrationForm({ makerspaceSlug, publicToken, waitlist, a
   customForm: CustomFormSchema;
 }) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const [website, setWebsite] = useState("");
   const [answers, setAnswers] = useState<CustomAnswers>({});
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -49,18 +51,29 @@ export function EventRegistrationForm({ makerspaceSlug, publicToken, waitlist, a
         method: "POST", body: JSON.stringify(rawTransportBody),
       });
     },
-    onSuccess: async () => { await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["public-events", makerspaceSlug] }),
-      queryClient.invalidateQueries({ queryKey: ["member", makerspaceSlug, "activity"] }),
-    ]); },
+    onSuccess: async (result) => {
+      showToast(result.status === "pending_approval" ? "Application sent" : result.status === "waitlisted" ? "Added to the waitlist" : "You're registered", { tone: "success" });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["public-events", makerspaceSlug] }),
+        queryClient.invalidateQueries({ queryKey: ["member", makerspaceSlug, "activity"] }),
+      ]);
+    },
+    onError: () => showToast("Registration didn't go through", { tone: "error" }),
   });
   useEffect(() => { if (registration.data) successRef.current?.focus(); }, [registration.data]);
 
   if (registration.data) {
-    return <div ref={successRef} className="rounded-lg border border-line bg-surface p-4 outline-none" role="status" tabIndex={-1}>
-      <h3 className="title-section">{registration.data.status === "pending_approval" ? "Application awaiting approval" : registration.data.status === "waitlisted" ? "You’re on the waitlist" : "Registration received"}</h3>
-      <p className="mt-1 text-sm text-muted">{registration.data.status === "pending_approval" ? "You will only be charged if a place is confirmed." : registration.data.status === "waitlisted" ? "The makerspace has recorded your waitlist request." : "The makerspace has recorded your registration."}</p>
-    </div>;
+    const status = registration.data.status;
+    return (
+      <div ref={successRef} className="rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" role="status" tabIndex={-1}>
+        <Callout
+          tone={status === "registered" ? "success" : "info"}
+          title={status === "pending_approval" ? "Application awaiting approval" : status === "waitlisted" ? "You’re on the waitlist" : "Registration received"}
+        >
+          {status === "pending_approval" ? "You will only be charged if a place is confirmed." : status === "waitlisted" ? "The makerspace has recorded your waitlist request." : "The makerspace has recorded your registration."}
+        </Callout>
+      </div>
+    );
   }
 
   const submit = (event: FormEvent) => {
@@ -73,15 +86,15 @@ export function EventRegistrationForm({ makerspaceSlug, publicToken, waitlist, a
   const apiError = registration.error instanceof StructuredApiError ? registration.error : null;
   const serverErrors = customAnswerErrors(apiError?.body.custom_answers);
 
-  return <form className="grid gap-3 rounded-lg border border-line bg-bg p-4" onSubmit={submit} noValidate>
-    <h3 className="title-section">{approvalRequired ? "Apply" : waitlist ? "Join the waitlist" : "Register"}</h3>
+  return <form className="grid gap-4 rounded-lg border border-line bg-subtle p-4 sm:p-5" onSubmit={submit} noValidate>
+    <h3 className="text-title text-ink">{approvalRequired ? "Apply" : waitlist ? "Join the waitlist" : "Register"}</h3>
     <label className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Website
       <input name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
     </label>
     <CustomFormFields schema={customForm} answers={answers} onChange={setAnswers} errors={{ ...serverErrors, ...clientErrors }} />
-    {registration.error ? <p className="text-sm text-danger" role="alert">{failureMessage(apiError)}</p> : null}
-    <button className="desk-button-primary" type="submit" disabled={registration.isPending}>
-      {registration.isPending ? "Submitting..." : approvalRequired ? "Apply" : waitlist ? "Join waitlist" : "Register"}
-    </button>
+    {registration.error ? <ErrorText message={failureMessage(apiError)} /> : null}
+    <Button variant="primary" type="submit" className="justify-self-start" loading={registration.isPending} loadingLabel="Submitting…">
+      {approvalRequired ? "Apply" : waitlist ? "Join waitlist" : "Register"}
+    </Button>
   </form>;
 }

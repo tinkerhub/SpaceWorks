@@ -1,53 +1,105 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
-import { Badge, DataTable, Modal, type DataTableColumn } from "../../components/ui";
+import { Button, Callout, Chip, DataTable, ErrorText, Modal, StatusChip, useToast, type DataTableColumn } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
 import { BookableSpaceForm } from "./BookableSpaceForm";
 import { BookingDrawer } from "./BookingDrawer";
 import { useBookableSpaces, useCreateBookableSpace, type BookableSpace } from "./bookingsApi";
-import { Panel } from "./panels/shared";
+import { Panel, errorText } from "./panels/shared";
+
+const KIND_LABELS: Record<BookableSpace["kind"], string> = {
+  dev_room: "Development room",
+  bench: "Bench",
+  meeting: "Meeting room",
+  other: "Other",
+};
+
+const DESCRIPTION = "Spaces people can book, their public settings, forms and booking requests.";
 
 const columns = (onOpen: (id: number) => void): DataTableColumn<BookableSpace>[] => [
   {
     key: "name",
     header: "Space",
     sortable: true,
-    render: (space) => <button className="desk-button-ghost h-auto flex-col items-start px-0 text-left" type="button" onClick={() => onOpen(space.id)}>{space.name}<span className="mt-1 block text-xs font-normal text-muted">{space.location || "No location label"}</span></button>,
+    render: (space) => (
+      <button
+        type="button"
+        className="grid rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        onClick={() => onOpen(space.id)}
+      >
+        <span className="text-label text-ink underline-offset-4 hover:underline">{space.name}</span>
+        <span className="text-caption text-ink-muted">{space.location || "No location label"}</span>
+      </button>
+    ),
   },
-  { key: "kind", header: "Type", render: (space) => space.kind.replace("_", " ") },
+  { key: "kind", header: "Type", render: (space) => KIND_LABELS[space.kind] ?? space.kind.replace("_", " ") },
   { key: "approval_mode", header: "Approval", render: (space) => space.approval_mode === "approve" ? "Staff approval" : "Instant" },
-  { key: "is_public", header: "Public", render: (space) => <Badge tone={space.is_public ? "success" : "neutral"}>{space.is_public ? "Public" : "Private"}</Badge> },
-  { key: "is_active", header: "Status", render: (space) => <Badge tone={space.is_active ? "success" : "neutral"}>{space.is_active ? "Active" : "Inactive"}</Badge> },
+  { key: "is_public", header: "Public", render: (space) => <Chip tone={space.is_public ? "info" : "neutral"} size="sm">{space.is_public ? "Public" : "Private"}</Chip> },
+  { key: "is_active", header: "Status", render: (space) => <StatusChip tone={space.is_active ? "success" : "neutral"} size="sm">{space.is_active ? "Active" : "Inactive"}</StatusChip> },
 ];
 
 export function BookingsPanel({ makerspaceId }: { makerspaceId: number }) {
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const { showToast } = useToast();
   const spaces = useBookableSpaces(makerspaceId, page);
   const create = useCreateBookableSpace(makerspaceId);
   const apiError = spaces.error instanceof StructuredApiError ? spaces.error : null;
 
-  if (apiError?.status === 403) return <Panel title="Bookings"><p className="text-sm text-muted">Only Space Managers can manage bookings.</p></Panel>;
-  if (apiError?.status === 400) return <Panel title="Bookings"><p className="text-sm text-muted">The Bookings module is not enabled for this makerspace.</p></Panel>;
+  if (apiError?.status === 403) {
+    return <Panel title="Bookings" description={DESCRIPTION}><Callout tone="info">Only Space Managers can manage bookings.</Callout></Panel>;
+  }
+  if (apiError?.status === 400) {
+    return <Panel title="Bookings" description={DESCRIPTION}><Callout tone="info">The Bookings module is not enabled for this makerspace.</Callout></Panel>;
+  }
 
   return (
-    <Panel title="Bookings">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div><h3 className="title-section">Bookable spaces</h3><p className="mt-1 text-sm text-muted">Manage public settings, forms, and booking requests.</p></div>
-        <button className="desk-button-primary" type="button" onClick={() => setCreateOpen(true)}>Create space</button>
+    <Panel
+      title="Bookings"
+      description={DESCRIPTION}
+      actions={<Button variant="primary" startIcon={<Plus />} onClick={() => setCreateOpen(true)}>Create space</Button>}
+    >
+      <div className="grid gap-4">
+        {spaces.error ? <ErrorText message={spaces.error.message} /> : null}
+        <DataTable
+          columns={columns(setSelectedId)}
+          data={spaces.data?.results ?? []}
+          loading={spaces.isLoading}
+          skeletonCols={5}
+          emptyTitle="No bookable spaces"
+          emptyDescription="Create a space to start accepting bookings."
+          emptyAction={<Button onClick={() => setCreateOpen(true)}>Create space</Button>}
+        />
+        {spaces.data && (spaces.data.previous || spaces.data.next) ? (
+          <div className="flex flex-wrap items-center justify-end gap-2 text-body-ui text-ink-muted">
+            <span className="mr-auto tabular-nums">Page {page} · {spaces.data.count} total</span>
+            <Button size="sm" disabled={!spaces.data.previous} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</Button>
+            <Button size="sm" disabled={!spaces.data.next} onClick={() => setPage((value) => value + 1)}>Next</Button>
+          </div>
+        ) : null}
       </div>
-      {spaces.error ? <p className="mb-3 text-sm text-danger" role="alert">{spaces.error.message}</p> : null}
-      <DataTable columns={columns(setSelectedId)} data={spaces.data?.results ?? []} loading={spaces.isLoading} skeletonCols={5} emptyTitle="No bookable spaces" emptyDescription="Create a space to start accepting bookings." />
-      {spaces.data ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><span className="font-mono text-xs text-muted">Page {page} - {spaces.data.count} total</span><div className="flex flex-wrap gap-2"><button className="desk-button" type="button" disabled={!spaces.data.previous} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</button><button className="desk-button" type="button" disabled={!spaces.data.next} onClick={() => setPage((value) => value + 1)}>Next</button></div></div> : null}
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="Create bookable space" size="xl">
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Create bookable space"
+        size="xl"
+        footer={<div className="flex justify-end"><Button disabled={create.isPending} onClick={() => setCreateOpen(false)}>Cancel</Button></div>}
+      >
         <BookableSpaceForm
-          onSubmit={(payload) => create.mutate(payload, { onSuccess: (space) => { setCreateOpen(false); setSelectedId(space.id); } })}
+          onSubmit={(payload) => create.mutate(payload, {
+            onSuccess: (space) => {
+              setCreateOpen(false);
+              setSelectedId(space.id);
+              showToast("Space created", { tone: "success" });
+            },
+            onError: (error) => showToast(errorText(error, "Couldn't create the space"), { tone: "error" }),
+          })}
           pending={create.isPending}
           error={create.error?.message}
           submitLabel="Create space"
         />
-        <button className="desk-button mt-3" type="button" disabled={create.isPending} onClick={() => setCreateOpen(false)}>Cancel</button>
       </Modal>
       {selectedId !== null ? <BookingDrawer key={selectedId} makerspaceId={makerspaceId} spaceId={selectedId} onClose={() => setSelectedId(null)} /> : null}
     </Panel>

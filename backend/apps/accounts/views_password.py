@@ -12,14 +12,16 @@ from drf_spectacular.utils import (
     extend_schema,
 )
 from rest_framework import serializers, status
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from apps.accounts.auth_cookies import set_refresh_cookies
 from apps.accounts.models import User
-from apps.accounts.principal_guards import is_anonymous_requester
 from apps.accounts.password_reset_crypto import normalize_email
+from apps.accounts.principal_guards import is_anonymous_requester
 from apps.accounts.serializers_password_reset import (
     ChangePasswordResponseSerializer,
     ChangePasswordSerializer,
@@ -40,6 +42,7 @@ from apps.accounts.services_password_reset import (
     request_password_reset,
     validate_recovery_password,
 )
+from apps.accounts.services_session_reissue import reissue_browser_session
 from apps.accounts.services_tokens import blacklist_outstanding_tokens
 from apps.accounts.throttles import (
     PasswordResetConfirmEmailThrottle,
@@ -77,6 +80,8 @@ RECOVERY_UNAVAILABLE = {
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "change_password"
 
     @extend_schema(
         tags=["Auth"],
@@ -84,8 +89,12 @@ class ChangePasswordView(APIView):
         request=ChangePasswordSerializer,
         responses={
             200: ChangePasswordResponseSerializer,
-            400: OpenApiResponse(description="Password validation failed."),
+            400: OpenApiResponse(
+                description="Password validation failed, including current_password code password_not_set."
+            ),
             401: OpenApiResponse(description="Authentication credentials were not provided."),
+            403: OpenApiResponse(description="Session surface or access policy denied the request."),
+            429: OpenApiResponse(description="Request throttled."),
         },
     )
     def post(self, request, *args, **kwargs):
@@ -95,6 +104,17 @@ class ChangePasswordView(APIView):
         new_password = serializer.validated_data["new_password"]
         user = request.user
 
+        if (
+            not user.is_walk_in
+            and not is_anonymous_requester(user)
+            and not user.has_usable_password()
+        ):
+            raise serializers.ValidationError(
+                {"current_password": ErrorDetail(
+                    "This account has no password yet. Use “Forgot password” on the sign-in page to set one.",
+                    code="password_not_set",
+                )}
+            )
         if (
             user.is_walk_in
             or is_anonymous_requester(user)
@@ -129,7 +149,12 @@ class ChangePasswordView(APIView):
             locked.save(update_fields=["password", "must_change_password"])
         blacklist_outstanding_tokens(locked)
         audit.record(locked, "user.password_changed", target=locked)
-        return Response({"detail": "Password updated."})
+        refresh = reissue_browser_session(request, locked)
+        response = Response({"detail": "Password updated."})
+        if refresh is not None:
+            response.data["access"] = str(refresh.access_token)
+            set_refresh_cookies(response, str(refresh), request)
+        return response
 
 
 class ForgotPasswordView(APIView):

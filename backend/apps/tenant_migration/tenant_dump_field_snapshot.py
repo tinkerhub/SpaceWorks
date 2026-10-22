@@ -109,7 +109,7 @@ FIRST_PARTY_FIELD_NAMES = {
     'operations.ReportRollupCursor': frozenset('id last_error_code last_success_at makerspace rolled_through source_module updated_at'.split()),
     'operations.StockTransfer': frozenset('applied_at created_at created_by destination_container destination_makerspace id makerspace reason source_container source_makerspace status'.split()),
     'operations.StockTransferLine': frozenset('asset from_status id notes product quantity to_status transfer'.split()),
-    'operations.StocktakeSession': frozenset('approved_at approved_by completed_at container id makerspace notes started_at started_by status'.split()),
+    'operations.StocktakeSession': frozenset('approved_at approved_by completed_at completed_by container id makerspace notes started_at started_by status'.split()),
     'operations.StocktakeLine': frozenset('asset condition container counted_quantity expected_quantity id notes product stocktake variance_quantity'.split()),
     'operations.InventoryAdjustment': frozenset('asset created_at created_by delta_available delta_damaged delta_lost id makerspace product reason stocktake transfer'.split()),
     'operations.StocktakeLedgerEntry': frozenset('asset bucket created_at created_by delta id line makerspace new_asset_status old_asset_status product reason stocktake'.split()),

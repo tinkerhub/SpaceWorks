@@ -1,8 +1,9 @@
 import { useState } from "react";
 
+import { Button, EmptyState, ErrorText, SectionHeading, SkeletonRows, Table, TBody, TD, TH, THead, TR, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { evidenceErrorText } from "./evidenceUi";
-import { Panel } from "./StaffPanels";
+import { StatusWord } from "./panels/shared";
 
 export type DirectLoan = {
   id: number;
@@ -28,86 +29,92 @@ export type DirectLoanReturnItem = {
   assets: { asset_id: number; asset_tag: string }[];
 };
 
+const dateTime = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+
 export function DirectLoanList({
   loans,
+  loading = false,
+  error = null,
   onReturn,
 }: {
   loans: DirectLoan[];
+  loading?: boolean;
+  error?: Error | null;
   onReturn: (loan: DirectLoan) => void;
 }) {
+  const { showToast } = useToast();
   const [evidenceError, setEvidenceError] = useState<{ loanId: number; message: string } | null>(null);
   const openEvidence = async (loanId: number, evidenceId: number) => {
     setEvidenceError(null);
     try {
       const res = await staffRequest<{ url: string }>(`/admin/evidence/${evidenceId}`);
       window.open(res.url, "_blank", "noopener");
-    } catch (error) {
-      setEvidenceError({
-        loanId,
-        message: evidenceErrorText(error),
-      });
+    } catch (failure) {
+      const message = evidenceErrorText(failure);
+      setEvidenceError({ loanId, message });
+      showToast(message, { tone: "error" });
     }
   };
-  return (
-    <Panel title="Direct handout loans">
-      <div className="grid gap-2">
-        {loans.map((loan) => (
-          <article key={loan.id} className="rounded-md border border-line bg-surface p-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="font-semibold text-ink">{loan.target_label}</h3>
-                <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted">
-                  <span className={`status-box ${directLoanStatusClassName(loan.status)}`}>
-                    {directLoanStatusLabel(loan.status)}
-                  </span>
-                  {loan.container_label ? <span>given in: {loan.container_label}</span> : null}
-                  {loan.due_at ? <span>due {new Date(loan.due_at).toLocaleString()}</span> : null}
-                  {loan.issued_by ? <span>Issued by {loan.issued_by.username}</span> : null}
-                </p>
-              </div>
-              {loan.status === "checked_out" ? (
-                <button className="desk-button" onClick={() => onReturn(loan)}>
-                  Return
-                </button>
-              ) : null}
-            </div>
-            <p className="mt-2 text-xs text-muted">
-              {loan.items.map((item) => `${item.product_name} x${item.quantity}`).join(", ")}
-            </p>
-            {loan.issue_evidence_id || (loan.status !== "checked_out" && loan.return_evidence_id) ? (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {loan.issue_evidence_id ? (
-                  <button className="desk-button text-xs" type="button" onClick={() => void openEvidence(loan.id, loan.issue_evidence_id as number)}>
-                    View issue photo
-                  </button>
-                ) : null}
-                {loan.status !== "checked_out" && loan.return_evidence_id ? (
-                  <button className="desk-button text-xs" type="button" onClick={() => void openEvidence(loan.id, loan.return_evidence_id as number)}>
-                    View return photo
-                  </button>
-                ) : null}
-                {loan.status !== "checked_out" && loan.return_notes ? <p className="text-xs text-muted">{loan.return_notes}</p> : null}
-                {evidenceError?.loanId === loan.id ? (
-                  <p className="w-full text-sm text-danger" role="alert">{evidenceError.message}</p>
-                ) : null}
-              </div>
-            ) : null}
-          </article>
-        ))}
-      </div>
-    </Panel>
-  );
-}
 
-function directLoanStatusClassName(status: string) {
-  switch (status) {
-    case "checked_out":
-      return "status-box-active";
-    case "returned":
-      return "status-box-done";
-    default:
-      return "";
-  }
+  return (
+    <section className="grid gap-3">
+      <SectionHeading title="Handout loans" description="Tools lent from the desk. Return them here when they come back." />
+      <ErrorText message={error?.message} />
+      {!loading && !loans.length ? (
+        <EmptyState title="No handouts yet" description="Issue a handout above and it will show up here until it's returned." />
+      ) : (
+        <Table label="Handout loans" className="min-w-[720px]" aria-busy={loading}>
+          <THead>
+            <tr>
+              <TH>Handout</TH>
+              <TH>Status</TH>
+              <TH>Due</TH>
+              <TH>Issued by</TH>
+              <TH>Photos</TH>
+              <TH><span className="sr-only">Actions</span></TH>
+            </tr>
+          </THead>
+          <TBody>
+            {loading ? <SkeletonRows rows={4} cols={6} /> : loans.map((loan) => {
+              const returned = loan.status !== "checked_out";
+              return (
+                <TR key={loan.id}>
+                  <TD className="min-w-56">
+                    <p className="font-semibold text-ink">{loan.target_label}</p>
+                    <p className="mt-0.5 text-caption text-ink-muted">
+                      {loan.items.map((item) => `${item.product_name} ×${item.quantity}`).join(", ")}
+                      {loan.container_label ? `${loan.items.length ? " · " : ""}Given in ${loan.container_label}` : ""}
+                    </p>
+                    {returned && loan.return_notes ? <p className="mt-1 text-caption text-ink-secondary">Return notes: {loan.return_notes}</p> : null}
+                    {evidenceError?.loanId === loan.id ? <p className="mt-1 text-caption text-danger-fg" role="alert">{evidenceError.message}</p> : null}
+                  </TD>
+                  <TD>
+                    <StatusWord status={loan.status} label={directLoanStatusLabel(loan.status)} tone={loan.status === "checked_out" ? "info" : loan.status === "returned" ? "success" : undefined} />
+                  </TD>
+                  <TD className="whitespace-nowrap text-ink-secondary">{loan.due_at ? dateTime.format(new Date(loan.due_at)) : "No due date"}</TD>
+                  <TD className="text-ink-secondary">{loan.issued_by?.username ?? "—"}</TD>
+                  <TD>
+                    <div className="flex flex-wrap gap-x-3">
+                      {loan.issue_evidence_id ? (
+                        <Button variant="quiet" size="sm" onClick={() => void openEvidence(loan.id, loan.issue_evidence_id as number)}>View issue photo</Button>
+                      ) : null}
+                      {returned && loan.return_evidence_id ? (
+                        <Button variant="quiet" size="sm" onClick={() => void openEvidence(loan.id, loan.return_evidence_id as number)}>View return photo</Button>
+                      ) : null}
+                      {!loan.issue_evidence_id && !(returned && loan.return_evidence_id) ? <span className="text-ink-muted">—</span> : null}
+                    </div>
+                  </TD>
+                  <TD className="text-right">
+                    {loan.status === "checked_out" ? <Button size="sm" onClick={() => onReturn(loan)}>Return</Button> : null}
+                  </TD>
+                </TR>
+              );
+            })}
+          </TBody>
+        </Table>
+      )}
+    </section>
+  );
 }
 
 function directLoanStatusLabel(status: string) {
@@ -116,7 +123,9 @@ function directLoanStatusLabel(status: string) {
       return "Lent";
     case "returned":
       return "Returned";
-    default:
-      return status.replace(/_/g, " ");
+    default: {
+      const words = status.replace(/_/g, " ");
+      return words.charAt(0).toUpperCase() + words.slice(1);
+    }
   }
 }

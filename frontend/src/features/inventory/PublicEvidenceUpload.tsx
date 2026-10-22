@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { CameraCapture } from "../../components/ui";
+import { Camera } from "lucide-react";
+
+import { Button, CameraCapture } from "../../components/ui";
 import {
   requestPublicEvidenceUpload,
   uploadPublicEvidenceFile,
@@ -67,10 +69,8 @@ export function PublicEvidenceUpload({
   return (
     <div className="min-w-0 space-y-1">
       <div className="flex min-w-0 flex-wrap items-end gap-2">
-        <label className="block min-w-0 max-w-full flex-[1_1_12rem]">
-          <span className="eyebrow mb-1 block">
-            {label}
-          </span>
+        <label className="grid min-w-0 max-w-full flex-[1_1_12rem] gap-1.5">
+          <span className="text-label text-ink">{label}</span>
           <input
             aria-label={label}
             type="file"
@@ -80,13 +80,13 @@ export function PublicEvidenceUpload({
               const file = event.target.files?.[0];
               if (file) handleFile(file);
             }}
-            className="block min-h-11 w-full text-sm text-muted file:mr-3 file:min-h-11 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-2 file:text-sm file:font-semibold file:text-on-accent disabled:opacity-60"
+            className="block min-h-11 w-full rounded-md border border-line-strong bg-canvas p-1 text-sm text-ink-muted file:mr-3 file:min-h-9 file:rounded-full file:border-0 file:bg-fill file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-emphasis focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
         {cameraSupported ? (
-          <button className="desk-button min-h-11 shrink-0" type="button" aria-label={`Take ${label}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <Button className="shrink-0" aria-label={`Take ${label}`} startIcon={<Camera />} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
             Camera
-          </button>
+          </Button>
         ) : null}
       </div>
       <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label} />
@@ -96,10 +96,10 @@ export function PublicEvidenceUpload({
       <p
         role="status"
         aria-live="polite"
-        className={`break-words text-xs ${status === "error" ? "text-danger" : status === "done" ? "text-success-ink" : "text-muted"}`}
+        className={`break-words text-caption ${status === "error" ? "text-danger-fg" : status === "done" ? "text-success-fg" : "text-ink-muted"}`}
       >
         {status === "uploading"
-          ? `Uploading ${fileName}...`
+          ? `Uploading ${fileName}…`
           : status === "done"
             ? "Photo uploaded"
             : status === "error"

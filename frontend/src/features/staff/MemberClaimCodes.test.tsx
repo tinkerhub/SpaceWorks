@@ -52,9 +52,10 @@ describe("MemberClaimCodes", () => {
     renderPanel();
     await screen.findByText("No active claim codes.");
 
+    fireEvent.click(screen.getByRole("combobox", { name: "Walk-in member" }));
     expect(screen.getByRole("option", { name: "Counter Guest" })).toBeVisible();
     expect(screen.queryByRole("option", { name: "Account Holder" })).toBeNull();
-    fireEvent.change(screen.getByLabelText("Walk-in member"), { target: { value: "11" } });
+    fireEvent.click(screen.getByRole("option", { name: "Counter Guest" }));
     fireEvent.click(screen.getByRole("button", { name: "Issue claim code" }));
 
     expect(await screen.findByText(ISSUED.code)).toBeVisible();
