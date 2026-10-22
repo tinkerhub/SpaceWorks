@@ -695,6 +695,9 @@ CORS_ALLOW_HEADERS = (
     "x-refresh-csrf",
     "x-station-csrf",
     "x-publishable-key",
+    # The public borrow form sends one on every check-in / account-less submit. A split
+    # deployment (SPA on another origin) failed the preflight, so no visitor could submit.
+    "idempotency-key",
 )
 CORS_ALLOW_CREDENTIALS = True
 

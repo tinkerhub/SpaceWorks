@@ -103,4 +103,24 @@ describe("Users people list", () => {
     expect(await screen.findAllByText("keeper")).not.toHaveLength(0);
     await waitFor(() => expect(screen.queryByText("walkin_ravi")).not.toBeInTheDocument());
   });
+
+  it("offers staff roles only when adding staff, never the community Member role", async () => {
+    const memberRole = { ...roles[0], id: 9, name: "Member", slug: "member", granted_actions: [], legacy_role: null };
+    staffRequest.mockImplementation((url: string) => {
+      if (url.endsWith("/roles")) return Promise.resolve([...roles, memberRole]);
+      if (url.endsWith("/memberships")) return Promise.resolve([]);
+      return Promise.resolve({});
+    });
+    renderUsers(["staff_admin"]);
+
+    const add = await screen.findByRole("button", { name: /add staff/i });
+    await waitFor(() => expect(add).toBeEnabled());
+    fireEvent.click(add);
+    const dialog = await screen.findByRole("dialog");
+    await waitFor(() => {
+      const options = Array.from(dialog.querySelectorAll("option")).map((option) => option.textContent);
+      expect(options).toContain("Inventory Manager");
+      expect(options).not.toContain("Member");
+    });
+  });
 });
