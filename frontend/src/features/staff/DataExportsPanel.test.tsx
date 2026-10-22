@@ -25,8 +25,13 @@ describe("DataExportsPanel", () => {
   it("shows the intentional username disclosure before the request action", async () => {
     renderPanel();
 
-    expect(screen.getByText(/new intentional disclosure/i)).toBeVisible();
+    expect(screen.getByText(/deliberate disclosure/i)).toBeVisible();
     expect(screen.getByText(/not a migration backup/i)).toBeVisible();
+    // True for every access mode: a check-in site has borrowers and staff, not members, and
+    // the audit log does show a numeric actor id.
+    expect(screen.getByText("It does contain personal contact details.")).toBeVisible();
+    expect(screen.queryByText(/member/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/omits the actor/i)).not.toBeInTheDocument();
     expect(await screen.findByRole("button", { name: "Request redacted export" })).toBeEnabled();
   });
 

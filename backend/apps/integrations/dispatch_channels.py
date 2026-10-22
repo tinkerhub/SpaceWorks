@@ -16,7 +16,14 @@ logger = logging.getLogger(__name__)
 
 def sanitize_notification_error(exc) -> str:
     class_name = re.sub(r"[^A-Za-z0-9_]", "", exc.__class__.__name__)
-    return f"notification_delivery_failed:{class_name or 'UnknownError'}"[:2000]
+    error = f"notification_delivery_failed:{class_name or 'UnknownError'}"
+    # A provider error may carry a fixed reason code (TelegramDeliveryError.reason). It
+    # is one of a closed set of words, never provider text, so it is safe to keep and it
+    # is what lets the health panel say "bad token" instead of a class name.
+    reason = getattr(exc, "reason", None)
+    if isinstance(reason, str) and re.fullmatch(r"[a-z_]{1,40}", reason):
+        error = f"{error}:{reason}"
+    return error[:2000]
 
 
 def _redact_exception_for_logging(exc) -> None:

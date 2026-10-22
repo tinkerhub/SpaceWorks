@@ -31,7 +31,7 @@ function client() {
 function renderArea(mustChange: () => boolean) {
   bootstrapTenant.mockResolvedValue({
     makerspace: { id: 1, name: "Forge", slug: "forge", membership_policy: "request", geofence_enabled: false },
-    modules: [],
+    modules: ["member_accounts"],
   });
   memberRequest.mockImplementation((path: string, init?: RequestInit) => {
     if (path === "/auth/change-password") return Promise.resolve({ detail: "Password updated." });

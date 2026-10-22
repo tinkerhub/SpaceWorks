@@ -36,7 +36,12 @@ type IntegrationHealth = {
     printing?: string | null;
   };
   smtp: SectionHealth & { configured?: boolean };
-  telegram: SectionHealth & { configured?: boolean };
+  telegram: SectionHealth & {
+    configured?: boolean;
+    enabled?: boolean;
+    last_sent_at?: string | null;
+    last_failure?: { at: string; detail: string } | null;
+  };
   worker: SectionHealth & {
     broker_configured?: boolean;
     eager?: boolean;
@@ -62,6 +67,9 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
   const data = health.data;
   // The Telegram test alert lives in the Telegram card on this same Settings page.
   const telegramOn = moduleEnabled(makerspace.enabled_modules, "telegram");
+  const emailOn = moduleEnabled(makerspace.enabled_modules, "email");
+  const printingOn = moduleEnabled(makerspace.enabled_modules, "printing");
+  const description = healthDescription(emailOn, telegramOn);
 
   return (
     <Card as="section" aria-labelledby="integration-health-title">
@@ -72,12 +80,14 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
             <StatusChip tone={statusTone(data?.status ?? "unknown")} size="sm">{statusLabel(data?.status)}</StatusChip>
           </span>
         )}
-        description="Email, chat and background worker status. Refreshes every minute."
+        description={description}
         action={(
           <>
-            <Button asChild variant="secondary" size="sm">
-              <Link to={staffTabPath("email-logs", false, makerspace.slug, singleTenantLocked)}>Email log</Link>
-            </Button>
+            {emailOn ? (
+              <Button asChild variant="secondary" size="sm">
+                <Link to={staffTabPath("email-logs", false, makerspace.slug, singleTenantLocked)}>Email log</Link>
+              </Button>
+            ) : null}
             {telegramOn ? (
               <Button asChild variant="secondary" size="sm">
                 <a href="#telegram-settings-title">Telegram test</a>
@@ -88,7 +98,7 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
       />
       <ErrorText message={health.error?.message} />
 
-      {data ? (
+      {data && emailOn ? (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatTile label="Emails" value={data.email.total ?? 0} />
           <StatTile label="Pending" value={data.email.pending ?? 0} />
@@ -110,28 +120,19 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
           {health.isLoading ? <SkeletonRows rows={5} cols={3} /> : null}
           {data ? (
             <>
-              <HealthRow title="Email" section={data.email}>
-                {data.email.last_failure ? (
-                  <>
-                    <span className="block font-semibold text-ink">{data.email.last_failure.subject || "Last failure"}</span>
-                    <span className="block text-caption text-ink-muted">
-                      {data.email.last_failure.stream || "email"} · {relativeTime(data.email.last_failure.created_at)}
+              {emailOn ? <EmailRows data={data} printingOn={printingOn} /> : null}
+              {telegramOn ? (
+                <HealthRow title="Telegram" section={data.telegram}>
+                  <ConfiguredChip configured={data.telegram.configured} />
+                  {data.telegram.last_failure ? (
+                    <span className="mt-1 block break-words">
+                      Last alert failed {relativeTime(data.telegram.last_failure.at)}: {data.telegram.last_failure.detail}
                     </span>
-                    <span className="block break-words">{data.email.last_failure.error || "No error detail."}</span>
-                  </>
-                ) : (
-                  "No failed deliveries."
-                )}
-              </HealthRow>
-              <HealthRow title="Deliveries by stream" section={data.deliveries_by_stream}>
-                Hardware: {streamTime(data.deliveries_by_stream.hardware)} · Printing: {streamTime(data.deliveries_by_stream.printing)}
-              </HealthRow>
-              <HealthRow title="SMTP" section={data.smtp}>
-                <ConfiguredChip configured={data.smtp.configured} />
-              </HealthRow>
-              <HealthRow title="Telegram" section={data.telegram}>
-                <ConfiguredChip configured={data.telegram.configured} />
-              </HealthRow>
+                  ) : data.telegram.last_sent_at ? (
+                    <span className="mt-1 block">Last alert sent {relativeTime(data.telegram.last_sent_at)}.</span>
+                  ) : null}
+                </HealthRow>
+              ) : null}
               <HealthRow title="Worker" section={data.worker}>
                 <span className={data.worker.stale ? "text-danger-fg" : undefined}>
                   Broker: {data.worker.broker_configured ? "Configured" : "Eager only"} · Eager: {data.worker.eager ? "On" : "Off"} ·
@@ -143,6 +144,34 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
         </TBody>
       </Table>
     </Card>
+  );
+}
+
+function EmailRows({ data, printingOn }: { data: IntegrationHealth; printingOn: boolean }) {
+  return (
+    <>
+      <HealthRow title="Email" section={data.email}>
+        {data.email.last_failure ? (
+          <>
+            <span className="block font-semibold text-ink">{data.email.last_failure.subject || "Last failure"}</span>
+            <span className="block text-caption text-ink-muted">
+              {data.email.last_failure.stream || "email"} · {relativeTime(data.email.last_failure.created_at)}
+            </span>
+            <span className="block break-words">{data.email.last_failure.error || "No error detail."}</span>
+          </>
+        ) : (
+          "No failed deliveries."
+        )}
+      </HealthRow>
+      <HealthRow title="Deliveries by stream" section={data.deliveries_by_stream}>
+        Hardware: {streamTime(data.deliveries_by_stream.hardware)}
+        {printingOn ? <> · Printing: {streamTime(data.deliveries_by_stream.printing)}</> : null}
+      </HealthRow>
+      <HealthRow title="SMTP" section={data.smtp}>
+        {/* No server of its own is normal: mail then goes through the platform sender. */}
+        {data.smtp.configured ? <ConfiguredChip configured /> : <StatusChip tone="neutral" size="sm">Platform sender</StatusChip>}
+      </HealthRow>
+    </>
   );
 }
 
@@ -161,6 +190,13 @@ function HealthRow({ title, section, children }: { title: string; section: Secti
 
 function ConfiguredChip({ configured }: { configured?: boolean }) {
   return <StatusChip tone={configured ? "success" : "neutral"} size="sm">{configured ? "Configured" : "Not configured"}</StatusChip>;
+}
+
+function healthDescription(emailOn: boolean, telegramOn: boolean) {
+  if (emailOn && telegramOn) return "Email, Telegram and background worker status. Refreshes every minute.";
+  if (emailOn) return "Email and background worker status. Refreshes every minute.";
+  if (telegramOn) return "Telegram and background worker status. Refreshes every minute.";
+  return "Background worker status. Refreshes every minute.";
 }
 
 function streamTime(value?: string | null) {

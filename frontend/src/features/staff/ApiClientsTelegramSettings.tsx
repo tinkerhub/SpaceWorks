@@ -49,6 +49,8 @@ export function ApiClientsTelegramSettings({ makerspace }: { makerspace: Makersp
         telegram_bot_token: "",
       }));
       queryClient.invalidateQueries({ queryKey: ["api-settings", makerspace.id] });
+      queryClient.invalidateQueries({ queryKey: ["integration-health", makerspace.id] });
+      testTelegram.reset();
       showToast("Telegram settings saved", { tone: "success" });
     },
     onError: (error) => showToast(errorText(error, "Couldn't save the Telegram settings"), { tone: "error" }),
@@ -68,9 +70,15 @@ export function ApiClientsTelegramSettings({ makerspace }: { makerspace: Makersp
     },
     onError: (error) => showToast(errorText(error, "Couldn't clear the Telegram token"), { tone: "error" }),
   });
+  // The test alert uses what is SAVED, so testing an unsaved edit would test the old
+  // values and read as a false pass or fail.
+  const unsaved = Boolean(settings.data) && (
+    settingsForm.telegram_bot_token !== "" ||
+    settingsForm.telegram_group_chat_id.trim() !== (settings.data?.telegram_group_chat_id ?? "")
+  );
   const testTelegram = useMutation({
     mutationFn: () =>
-      staffRequest<{ delivered: boolean; detail?: string }>("/integrations/telegram/test-alert", {
+      staffRequest<{ delivered: boolean; reason?: string; detail?: string }>("/integrations/telegram/test-alert", {
         method: "POST",
         body: JSON.stringify({
           makerspace_id: makerspace.id,
@@ -78,7 +86,10 @@ export function ApiClientsTelegramSettings({ makerspace }: { makerspace: Makersp
         }),
       }),
     onSuccess: (result) =>
-      showToast(result.delivered ? "Test alert delivered" : "Test alert wasn't delivered", { tone: result.delivered ? "success" : "warning" }),
+      showToast(
+        result.delivered ? "Test alert delivered" : result.detail ?? "Test alert wasn't delivered",
+        { tone: result.delivered ? "success" : "warning" },
+      ),
     onError: (error) => showToast(errorText(error, "Couldn't send the test alert"), { tone: "error" }),
   });
 
@@ -91,7 +102,8 @@ export function ApiClientsTelegramSettings({ makerspace }: { makerspace: Makersp
           <Button
             variant="secondary"
             size="sm"
-            disabled={!settings.isSuccess}
+            disabled={!settings.isSuccess || unsaved}
+            title={unsaved ? "Save your changes first: the test uses the saved token and chat ID." : undefined}
             loading={testTelegram.isPending}
             loadingLabel="Sending…"
             onClick={() => testTelegram.mutate()}
@@ -151,9 +163,12 @@ export function ApiClientsTelegramSettings({ makerspace }: { makerspace: Makersp
         </Button>
       </div>
       <div className="mt-3 grid gap-2">
+        {unsaved ? (
+          <p className="text-caption text-ink-muted">Save your changes before sending a test alert.</p>
+        ) : null}
         <ErrorText message={saveSettings.error?.message} />
         <ErrorText message={clearTelegramToken.error?.message} />
-        {testTelegram.data ? (
+        {testTelegram.data && !testTelegram.isPending ? (
           testTelegram.data.delivered ? (
             <Callout tone="success" role="status">Telegram delivered: yes</Callout>
           ) : (

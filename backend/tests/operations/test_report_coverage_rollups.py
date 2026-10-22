@@ -44,7 +44,7 @@ def test_rollup_dimensions_reject_person_identifiers():
         rollup.full_clean()
 
 
-def test_catalog_exposes_disabled_source_without_reading_its_rows():
+def test_catalog_omits_disabled_source_without_reading_its_rows():
     space = make_space("report-catalog-modules")
     manager = make_member("report-catalog-manager", space)
     space.enabled_modules.remove("bulk_import")
@@ -56,7 +56,7 @@ def test_catalog_exposes_disabled_source_without_reading_its_rows():
 
     assert response.status_code == 200, response.data
     definitions = {row["key"]: row for row in response.data["results"]}
-    assert definitions["import-quality"]["available"] is False
+    assert "import-quality" not in definitions
     assert definitions["loan-throughput"]["available"] is True
 
     space.enabled_modules.append("bulk_import")

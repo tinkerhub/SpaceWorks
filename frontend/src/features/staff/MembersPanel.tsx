@@ -21,27 +21,24 @@ import type {
 } from "../../generated/api";
 import { StructuredApiError, staffRequest } from "../../lib/api";
 import { Panel } from "./panels/shared";
-import { assignableRolesFor, roleManagesMakerspace } from "./panels/rolesApi";
-import { MembersRoster, type MemberRole } from "./MembersRoster";
+import { assignableRolesFor, listMemberships } from "./panels/rolesApi";
+import { MembersRoster, type MemberRole, type MemberRowAccess } from "./MembersRoster";
 import { MembersInvitations, MembersPresence, MembersWaiver, type Presence } from "./MembersSections";
 
 export const membershipErrorText = (error: unknown) =>
   error instanceof StructuredApiError ? error.detail ?? error.message : "Unable to update membership.";
 
-// `membership` gates the COMMUNITY side only. The staff roster, role assignment and
-// revoke are core RBAC state and are never gated -- gating them would let a makerspace
-// lock itself out of its own administration (plan A7). So the module hides exactly the
-// surfaces the backend refuses: the request queue and verification/referral capabilities.
-// Waiver management and witnessed acceptance are core liability controls. Invitation stays,
-// because a STAFF invitation keeps working with
-// the module off (`invite_membership` discriminates on the role's granted actions).
-// Role selects offer only roles under the actor's ceiling (assignableRolesFor), and a
-// non-superadmin never gets Revoke on a manage_makerspace row -- the backend refuses both.
-export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, isSuperadmin }: {
+// The community console: it renders only with the `membership` module on (staffTabs gates
+// the tab). Staff accounts, roles and the staff invitations that survive the module being
+// off belong to Users, which no module removes, so this tab can go without locking a space
+// out of its own administration (plan A7). Role selects offer only roles under the actor's
+// ceiling (assignableRolesFor); the actor's own row and, for a non-superadmin, a
+// manage_makerspace row are read-only -- the backend refuses changing or revoking either.
+export function MembersPanel({ makerspaceId, actorActions, isSuperadmin, currentUsername }: {
   makerspaceId: number;
-  membershipEnabled: boolean;
   actorActions: readonly string[];
   isSuperadmin: boolean;
+  currentUsername: string;
 }) {
   const client = useQueryClient();
   const { showToast } = useToast();
@@ -53,10 +50,12 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
   const requests = useQuery({
     queryKey: [...key, "requests"],
     queryFn: () => staffRequest<PaginatedMembershipRequestList>(`/admin/membership-requests?makerspace_id=${makerspaceId}`),
-    enabled: membershipEnabled,
   });
   const presence = useQuery({ queryKey: [...key, "presence"], queryFn: () => staffRequest<Presence[]>(`/admin/makerspace/${makerspaceId}/presence-sessions/current`) });
   const roles = useQuery({ queryKey: [...key, "roles"], queryFn: () => staffRequest<MemberRole[]>(`/admin/makerspaces/${makerspaceId}/roles`) });
+  // The roster omits the legacy role enum, and a legacy membership has no assigned role:
+  // the staff list carries it, so such a row still shows (and is guarded by) its real role.
+  const staff = useQuery({ queryKey: ["staff", "memberships", makerspaceId], queryFn: () => listMemberships(makerspaceId) });
   const [roleId, setRoleId] = useState<number | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [waiver, setWaiver] = useState({ version: "", body: "" });
@@ -70,7 +69,7 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
   });
   const revoke = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/memberships/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), ...notify("Membership revoked") });
   const revokeRequest = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/revoke`, { method: "POST", body: JSON.stringify({}) }), ...notify("Request revoked") });
-  const approve = useMutation({ mutationFn: (id: number) => staffRequest(`/admin/membership-requests/${id}/approve`, { method: "POST", body: JSON.stringify({ role_id: roleId }) }), ...notify("Request approved") });
+  const approve = useMutation({ mutationFn: ({ id, approvedRoleId }: { id: number; approvedRoleId: number | null }) => staffRequest(`/admin/membership-requests/${id}/approve`, { method: "POST", body: JSON.stringify({ role_id: approvedRoleId }) }), ...notify("Request approved") });
   const changeRole = useMutation({ mutationFn: ({ id, nextRoleId }: { id: number; nextRoleId: number }) => staffRequest(`/admin/memberships/${id}/role`, { method: "PATCH", body: JSON.stringify({ role_id: nextRoleId }) }), ...notify("Role changed") });
   const capabilities = useMutation({
     mutationFn: ({ id, next }: { id: number; next: PatchedMembershipCapabilities }) =>
@@ -97,6 +96,15 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
   const error = revoke.error ?? revokeRequest.error ?? approve.error ?? changeRole.error ?? capabilities.error ?? verify.error ?? invite.error ?? publishWaiver.error ?? witnessWaiver.error;
   const assignableRoles = assignableRolesFor(roles.data ?? [], actorActions, isSuperadmin);
   const selectedRole = roleId ?? assignableRoles[0]?.id ?? null;
+  const legacyRoles = new Map((staff.data ?? []).map((row) => [row.id, row.role]));
+  const rowAccess = (row: AdminMembership): MemberRowAccess => {
+    const legacy = legacyRoles.get(row.id);
+    const role = (roles.data ?? []).find((item) => (row.assigned_role ? item.id === row.assigned_role.id : Boolean(legacy) && item.legacy_role === legacy)) ?? null;
+    const managesMakerspace = role ? role.granted_actions.includes("manage_makerspace") : legacy === "space_manager";
+    const roleName = row.assigned_role?.name ?? role?.name ?? (legacy ? humanizeRole(legacy) : "Member");
+    const locked = row.user.username === currentUsername ? "own" : !isSuperadmin && managesMakerspace ? "platform" : null;
+    return { role, roleName, locked };
+  };
 
   return (
     <Panel title="Members" description="Membership, referral and verification delegation, waiver compliance, and who is in the space right now.">
@@ -105,7 +113,7 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
         <Tabs defaultValue="roster">
           <TabsList aria-label="Member sections">
             <TabsTrigger value="roster">Members</TabsTrigger>
-            <TabsTrigger value="requests">{membershipEnabled ? "Requests" : "Invitations"}</TabsTrigger>
+            <TabsTrigger value="requests">Requests</TabsTrigger>
             <TabsTrigger value="presence">Present now</TabsTrigger>
             <TabsTrigger value="waiver">Waiver</TabsTrigger>
           </TabsList>
@@ -116,8 +124,7 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
               rows={roster.data?.results ?? []}
               loading={roster.isLoading}
               roles={assignableRoles}
-              membershipEnabled={membershipEnabled}
-              managedByPlatform={(row) => !isSuperadmin && roleManagesMakerspace(roles.data ?? [], row.assigned_role?.id)}
+              access={rowAccess}
               pending={{ role: changeRole.isPending, capabilities: capabilities.isPending, verification: verify.isPending, witness: witnessWaiver.isPending }}
               handlers={{
                 onChangeRole: (row, nextRoleId) => changeRole.mutate({ id: row.id, nextRoleId }),
@@ -130,7 +137,6 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
           </TabsContent>
           <TabsContent value="requests">
             <MembersInvitations
-              membershipEnabled={membershipEnabled}
               roles={assignableRoles}
               selectedRole={selectedRole}
               onRoleChange={setRoleId}
@@ -139,10 +145,10 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
               inviting={invite.isPending}
               onInvite={() => invite.mutate()}
               requests={requests.data?.results ?? []}
-              requestsLoading={membershipEnabled && requests.isLoading}
+              requestsLoading={requests.isLoading}
               approving={approve.isPending}
               revoking={revokeRequest.isPending}
-              onApprove={(id) => approve.mutate(id)}
+              onApprove={(id, approvedRoleId) => approve.mutate({ id, approvedRoleId })}
               onRevoke={(id) => revokeRequest.mutate(id)}
             />
           </TabsContent>
@@ -177,4 +183,8 @@ export function MembersPanel({ makerspaceId, membershipEnabled, actorActions, is
       />
     </Panel>
   );
+}
+
+function humanizeRole(value: string) {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

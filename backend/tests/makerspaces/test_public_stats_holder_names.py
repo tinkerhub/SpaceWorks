@@ -79,7 +79,7 @@ def test_public_stats_uses_generic_holder_name_when_disabled(current_loan):
 
     row = _loan_row(APIClient().get(url))
 
-    assert row["holder_name"] == "Member"
+    assert row["holder_name"] == "Borrower"
 
 
 def test_disabling_holder_names_preserves_current_loan_shape_and_dates(current_loan):
@@ -114,7 +114,7 @@ def test_disabled_holder_names_do_not_resolve_public_display_name(current_loan, 
 
     row = _loan_row(APIClient().get(url))
 
-    assert row["holder_name"] == "Member"
+    assert row["holder_name"] == "Borrower"
     assert calls == 0
 
 

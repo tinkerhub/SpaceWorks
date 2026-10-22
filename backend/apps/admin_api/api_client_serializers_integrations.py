@@ -1,5 +1,10 @@
 from rest_framework import serializers
 
+from apps.integrations.integration_settings_validation import (
+    require_secret_storage,
+    validate_telegram_bot_token,
+    validate_telegram_chat_id,
+)
 from apps.integrations.smtp_validation import validate_smtp_settings
 from apps.integrations.webhook_validation import validate_webhook_url
 from apps.makerspaces.models import Makerspace
@@ -64,6 +69,12 @@ class ApiIntegrationSettingsSerializer(serializers.ModelSerializer):
     def get_discord_webhook_url_set(self, obj) -> bool:
         return bool(obj.discord_webhook_url)
 
+    def validate_telegram_bot_token(self, value):
+        return validate_telegram_bot_token(value)
+
+    def validate_telegram_group_chat_id(self, value):
+        return validate_telegram_chat_id(value)
+
     def validate_slack_webhook_url(self, value):
         return validate_webhook_url(value)
 
@@ -80,6 +91,7 @@ class ApiIntegrationSettingsSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         validate_smtp_settings(attrs, self.instance)
+        require_secret_storage(attrs)
         return attrs
 
     def update(self, instance, validated_data):

@@ -249,12 +249,17 @@ describe("every tab is gated on the module that backs it", () => {
     }
   });
 
-  it("keeps members and the email log ungated", () => {
+  it("shows Members only with the membership module, and keeps Users without it", () => {
+    // Members is the community surface; staff accounts, roles and revoke live on Users,
+    // which no module removes, so a space can never lock itself out of its own staff.
+    expect(tabsFor(CORE)).not.toContain("members");
+    expect(tabsFor(CORE)).toContain("users");
+    expect(tabsFor([...CORE, "membership"])).toContain("members");
+  });
+
+  it("keeps the email log ungated", () => {
     const tabs = tabsFor(CORE);
 
-    // Gating `members` would take the staff roster and role assignment with it, letting a
-    // space lock itself out of its own administration.
-    expect(tabs).toContain("members");
     // A module-blocked message becomes a terminal SKIPPED row so the operator can see what
     // the toggle suppressed; gating the log would hide exactly that evidence.
     expect(tabs).toContain("email-logs");

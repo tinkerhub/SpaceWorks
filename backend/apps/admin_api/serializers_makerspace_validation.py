@@ -8,6 +8,11 @@ from rest_framework.exceptions import PermissionDenied
 
 from apps.accounts.models import User
 from apps.inventory import public_image_storage
+from apps.integrations.integration_settings_validation import (
+    require_secret_storage,
+    validate_telegram_bot_token,
+    validate_telegram_chat_id,
+)
 from apps.integrations.smtp_validation import validate_smtp_settings
 from apps.integrations.webhook_validation import validate_webhook_url
 from apps.makerspaces import domain_verification, limits
@@ -66,6 +71,12 @@ class MakerspaceValidationMixin:
             return obj.archive_custody_state.state
         except ObjectDoesNotExist:
             return None
+
+    def validate_telegram_bot_token(self, value):
+        return validate_telegram_bot_token(value)
+
+    def validate_telegram_group_chat_id(self, value):
+        return validate_telegram_chat_id(value)
 
     def validate_slack_webhook_url(self, value):
         return validate_webhook_url(value)
@@ -233,6 +244,7 @@ class MakerspaceValidationMixin:
                 }
             )
         validate_smtp_settings(attrs, self.instance)
+        require_secret_storage(attrs)
         return attrs
 
     def _validate_frontend_domain(self, attrs):

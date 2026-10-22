@@ -92,7 +92,14 @@ class DirectLoanSerializer(PublicToolLoanSerializer):
     return_scan_required = serializers.SerializerMethodField()
     source = serializers.CharField(read_only=True)
     issued_by = serializers.SerializerMethodField()
+    borrower_name = serializers.SerializerMethodField()
     return_items = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.CharField())
+    def get_borrower_name(self, obj) -> str:
+        # Who holds the tools: without it the desk cannot tell two open handouts apart
+        # when the person comes back. The snapshot taken at issue, never a live lookup.
+        return obj.request.requester_name or obj.request.requester_username
 
     @extend_schema_field(serializers.BooleanField())
     def get_return_scan_required(self, obj) -> bool:

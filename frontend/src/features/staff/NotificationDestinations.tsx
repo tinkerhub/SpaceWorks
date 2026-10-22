@@ -106,7 +106,7 @@ export function NotificationDestinations({
         {destinations.data?.length === 0 && !creating ? (
           <EmptyState
             title="No rooms yet"
-            description="Alerts still go to the webhook saved in Chat webhooks until you add a room."
+            description="Until you add a room, alerts go to the chat saved under Integrations."
           />
         ) : null}
 

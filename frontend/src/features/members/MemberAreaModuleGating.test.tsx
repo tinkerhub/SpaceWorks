@@ -17,7 +17,9 @@ vi.mock("../../lib/api", async () => {
 
 import { MemberArea } from "./MemberArea";
 
-const CORE = ["public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads"];
+// `member_accounts` is on throughout: without it the member area is a 404 (see
+// MemberAreaAccountsOff.test.tsx), and these pin what survives the OTHER modules.
+const CORE = ["public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads", "member_accounts"];
 
 const membership = {
   makerspace: { slug: "forge", name: "Forge" }, membership_status: "active", role: "member",

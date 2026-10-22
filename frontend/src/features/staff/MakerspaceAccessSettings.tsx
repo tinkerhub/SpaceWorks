@@ -68,8 +68,8 @@ export function MakerspaceStaffNotificationSettings({ makerspace, settings, load
   );
   return (
     <Card as="section">
-      <CardHeader title="Staff email notifications" description="Email this makerspace's managers when hardware and print request statuses change." />
-      <SettingsRow title="Staff emails" description="Managers get an email for each status change. Channels below cover chat and push.">
+      <CardHeader title="Staff email notifications" description="Email this makerspace's managers when a request's status changes." />
+      <SettingsRow title="Staff emails" description="Managers get an email for each status change. The channel table below covers chat alerts.">
         <SettingSwitch
           label="Send staff emails"
           checked={enabled}

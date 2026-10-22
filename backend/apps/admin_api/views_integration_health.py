@@ -43,6 +43,17 @@ class IntegrationConfiguredHealthSerializer(HealthStatusSerializer):
     configured = serializers.BooleanField(required=False)
 
 
+class IntegrationTelegramFailureSerializer(serializers.Serializer):
+    at = serializers.DateTimeField()
+    detail = serializers.CharField()
+
+
+class IntegrationTelegramHealthSerializer(IntegrationConfiguredHealthSerializer):
+    enabled = serializers.BooleanField(required=False)
+    last_sent_at = serializers.DateTimeField(required=False, allow_null=True)
+    last_failure = IntegrationTelegramFailureSerializer(required=False, allow_null=True)
+
+
 class IntegrationWorkerHealthSerializer(HealthStatusSerializer):
     broker_configured = serializers.BooleanField(required=False)
     eager = serializers.BooleanField(required=False)
@@ -55,7 +66,7 @@ class IntegrationHealthSerializer(serializers.Serializer):
     email = IntegrationEmailHealthSerializer()
     deliveries_by_stream = IntegrationDeliveriesByStreamSerializer()
     smtp = IntegrationConfiguredHealthSerializer()
-    telegram = IntegrationConfiguredHealthSerializer()
+    telegram = IntegrationTelegramHealthSerializer()
     worker = IntegrationWorkerHealthSerializer()
 
 

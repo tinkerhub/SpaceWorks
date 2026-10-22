@@ -43,7 +43,7 @@ const ELIGIBLE = {
   reason: "" as const,
 };
 
-function renderPanel() {
+function renderPanel(extra: { selfCheckout?: boolean; items?: typeof ITEMS } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -54,6 +54,7 @@ function renderPanel() {
         items={ITEMS}
         makerspaceSlug="makerspace"
         onClear={() => {}}
+        {...extra}
       />
     </QueryClientProvider>,
   );
@@ -167,6 +168,86 @@ describe("checked-in borrow requests", () => {
     expect(payload.checkin_mid).toBeUndefined();
     expect(idempotencyKey).toBeUndefined();
     expect(screen.queryByLabelText(/your name/i)).not.toBeInTheDocument();
+  });
+
+  it("never asks an anonymous visitor for a member account", async () => {
+    renderPanel({ items: [] });
+
+    expect(await screen.findByText(/confirm your check-in name, then submit/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText(/member account|membership|waiver|presence/i))
+      .not.toBeInTheDocument();
+  });
+
+  it("gives a roster requester the reference token after submitting", async () => {
+    lookupCheckin.mockResolvedValue([ELIGIBLE]);
+    renderPanel();
+    await waitFor(() => expect(screen.getByLabelText(/your name/i)).toBeInTheDocument());
+    await confirmIdentity();
+    fireEvent.change(screen.getByLabelText(/request purpose/i), {
+      target: { value: "Bench testing" },
+    });
+    const submit = screen.getByRole("button", { name: /submit request/i });
+    await waitFor(() => expect(submit).toBeEnabled());
+    fireEvent.click(submit);
+
+    // No account and no email: the token is the only way back to the request.
+    expect(await screen.findByText("tok-abc-123")).toBeInTheDocument();
+    expect(screen.queryByText(/your email/i)).not.toBeInTheDocument();
+  });
+
+  it("tells signed-in staff the request is filed under their own account", async () => {
+    // Staff hold active memberships, and `RequestSubmitView` files an active member's
+    // request under their own account -- no roster, and with `membership` off there is
+    // no waiver or presence to speak of.
+    getAccessToken.mockReturnValue("access-token");
+    memberRequest.mockResolvedValue({
+      memberships: [{ makerspace: { slug: "makerspace" }, membership_status: "active" }],
+      requests: [],
+    });
+    renderPanel();
+
+    expect(await screen.findByRole("heading", { name: "Borrow with your account" }))
+      .toBeInTheDocument();
+    expect(screen.getByText(/filed under your account and needs no check-in name/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText(/membership|waiver|presence|member account/i))
+      .not.toBeInTheDocument();
+  });
+
+  it("tells a signed-in outsider the roster still applies", async () => {
+    getAccessToken.mockReturnValue("access-token");
+    renderPanel();
+
+    expect(await screen.findByText(/your account is not part of this makerspace/i))
+      .toBeInTheDocument();
+  });
+
+  it("describes the check-in scan tab, signed in or not", async () => {
+    getAccessToken.mockReturnValue("access-token");
+    memberRequest.mockResolvedValue({
+      memberships: [{ makerspace: { slug: "makerspace" }, membership_status: "active" }],
+      requests: [],
+    });
+    renderPanel({ selfCheckout: true });
+    await screen.findByRole("heading", { name: "Borrow with your account" });
+
+    fireEvent.click(screen.getByRole("button", { name: /scan a tool/i }));
+
+    // Self-checkout on `checked_in` always resolves the roster, even for staff.
+    expect(screen.getByRole("heading", { name: "Scan a tool with check-in" }))
+      .toBeInTheDocument();
+    expect(screen.getByText(/recorded under that check-in name, even while you are signed in/i))
+      .toBeInTheDocument();
+    expect(screen.queryByText(/membership|waiver|presence/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
+  });
+
+  it("hides the scan tab when self-checkout is off", async () => {
+    renderPanel({ selfCheckout: false });
+    await screen.findByRole("heading", { name: "Borrow with check-in" });
+
+    expect(screen.queryByRole("button", { name: /scan a tool/i })).not.toBeInTheDocument();
   });
 
   it("explains a fixable refusal rather than just failing", async () => {

@@ -71,6 +71,9 @@ describe("BackupRestorePanel on an origin-locked site", () => {
     expect(screen.queryByRole("button", { name: "Create full deployment archive" })).not.toBeInTheDocument();
     const paths = staffRequest.mock.calls.map(([path]) => path as string);
     expect(paths.filter((path) => platformPaths.some((prefix) => path.startsWith(prefix)))).toEqual([]);
+    // The copy must not promise a deployment archive the locked site cannot make.
+    expect(screen.getByText("Encrypted archives of this makerspace.")).toBeVisible();
+    expect(screen.queryByText(/whole deployment/)).not.toBeInTheDocument();
   });
 
   it("shows the deployment section to a superadmin without the lock", async () => {

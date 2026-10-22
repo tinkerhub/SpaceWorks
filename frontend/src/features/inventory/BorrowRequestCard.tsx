@@ -1,5 +1,13 @@
 import { Button, Callout, Card, Chip, ErrorText, Field, Input, Textarea } from "../../components/ui";
 import type { RequestCartItem } from "../../types/inventory";
+import type { DeskIdentity } from "./PublicRequestHeader";
+
+const EMPTY_HINT: Record<DeskIdentity, string> = {
+  contact: "Add public items from the inventory list, then leave your name and email to submit the request.",
+  checkin: "Add public items from the inventory list, confirm your check-in name, then submit the request.",
+  account: "Add public items from the inventory list, then submit the request from your signed-in account.",
+  member: "Add public items from the inventory list, then submit the request with your signed-in member account.",
+};
 
 type BorrowRequestCardProps = {
   canSubmit: boolean;
@@ -12,9 +20,10 @@ type BorrowRequestCardProps = {
   onClear: () => void;
   onRequestedForChange: (value: string) => void;
   onSubmit: () => void;
-  // Account-less mode: the makerspace opted into requests without an account, so the
-  // borrower has no profile to read a name and email from and must supply them here.
-  accountLess?: boolean;
+  // Who the request is filed under. `contact` is the account-less mode: the borrower has
+  // no profile to read a name and email from and must supply them here. `checkin` has no
+  // account either, so its public token is the borrower's only handle on the request.
+  identity: DeskIdentity;
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
@@ -41,7 +50,7 @@ export function BorrowRequestCard({
   onClear,
   onRequestedForChange,
   onSubmit,
-  accountLess = false,
+  identity,
   contactName = "",
   contactEmail = "",
   contactPhone = "",
@@ -52,6 +61,8 @@ export function BorrowRequestCard({
   onWebsiteChange,
   publicToken,
 }: BorrowRequestCardProps) {
+  const accountLess = identity === "contact";
+  const tokenOnly = accountLess || identity === "checkin";
   return (
     <Card>
       <div className="flex items-start justify-between gap-4">
@@ -64,9 +75,7 @@ export function BorrowRequestCard({
 
       {items.length === 0 ? (
         <p className="mt-4 rounded-md border-[1.5px] border-dashed border-line-strong px-3 py-3 text-body-ui text-ink-muted">
-          {accountLess
-            ? "Add public items from the inventory list, then leave your name and email to submit the request."
-            : "Add public items from the inventory list, then submit the request with your signed-in member account."}
+          {EMPTY_HINT[identity]}
         </p>
       ) : (
         <div className="mt-4 space-y-2">
@@ -142,15 +151,15 @@ export function BorrowRequestCard({
         <ErrorText message={submitError} />
         {submitted ? (
           <Callout tone="success" role="status" title="Request submitted">
-            {accountLess ? (
+            {tokenOnly ? (
               <>
-                <p>Save this reference: an account-less request has no sign-in to come back to, and staff will ask for it.</p>
+                <p>Save this reference: a request made without an account has no sign-in to come back to, and staff will ask for it.</p>
                 {publicToken ? (
                   <p className="mt-2 break-all rounded-md bg-canvas px-2 py-1 font-mono text-xs text-ink">{publicToken}</p>
                 ) : null}
               </>
             ) : (
-              <p>Check this page with your email to follow the request.</p>
+              <p>It is filed under your account. Staff review it before anything is handed over.</p>
             )}
           </Callout>
         ) : null}

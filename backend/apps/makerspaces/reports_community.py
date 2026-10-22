@@ -15,6 +15,8 @@ FIELDS = (
 
 
 def build_community_engagement(makerspace_id, *, limit=None, date_range=None, grain="day"):
+    # Off means absent: a switched-off membership, member-accounts or mobile module has no
+    # row (the view refuses the report outright when all three are off).
     aggregate = makerspace_id is None
     records = []
     for space in report_spaces(makerspace_id):
@@ -26,15 +28,11 @@ def build_community_engagement(makerspace_id, *, limit=None, date_range=None, gr
             _add(records, space.id, aggregate, module_key="membership", enabled=True,
                  period=_period(date_range, grain), activations=activated, revocations=revoked,
                  active_accounts=memberships.filter(status="active", user__is_active=True).values("user_id").distinct().count())
-        else:
-            _add(records, space.id, aggregate, module_key="membership", enabled=False, period=_period(date_range, grain))
         accounts_enabled = module_enabled(space, "member_accounts")
         if accounts_enabled:
             active = MakerspaceMembership.objects.filter(makerspace=space, status="active", user__is_active=True, user__is_walk_in=False).values("user_id").distinct().count()
             _add(records, space.id, aggregate, module_key="member_accounts", enabled=True,
                  period=_period(date_range, grain), active_accounts=active)
-        else:
-            _add(records, space.id, aggregate, module_key="member_accounts", enabled=False, period=_period(date_range, grain))
         mobile_enabled = module_enabled(space, "mobile")
         if mobile_enabled:
             registrations = NativeAppRegistration.objects.filter(makerspace=space)
@@ -44,8 +42,6 @@ def build_community_engagement(makerspace_id, *, limit=None, date_range=None, gr
                  period=_period(date_range, grain), approved_apps=registrations.filter(status="approved").count(),
                  active_grants=grants.filter(status="active").count(), revoked_grants=grants.filter(status="revoked").count(),
                  reuse_detected=reuse)
-        else:
-            _add(records, space.id, aggregate, module_key="mobile", enabled=False, period=_period(date_range, grain))
     fields = (("makerspace_id",) + FIELDS) if aggregate else FIELDS
     return ReportResult(fields, limited(records, limit))
 

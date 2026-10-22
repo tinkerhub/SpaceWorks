@@ -106,6 +106,9 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
   function submitReturn() {
     if (evidenceId === null) return setValidationError("Upload a return photo before submitting.");
     if (!remark.trim()) return setValidationError("Return remark is required.");
+    // The server matches this against the loan's container; without it the API answers with a
+    // bare "This field may not be blank." that names no field the form shows.
+    if (!boxCode.trim()) return setValidationError("Scan or choose the loan's container before submitting.");
     const finalResolutions = buildFinalResolutions();
     if (finalResolutions.length === 0) return setValidationError("Resolve at least one item.");
     if (finalResolutions.some((resolution) => resolution.returned < 0 || resolution.damaged < 0 || resolution.missing < 0)) return setValidationError("Resolution quantities cannot be negative.");

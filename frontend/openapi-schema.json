@@ -16176,6 +16176,48 @@
                 }
             }
         },
+        "/api/v1/admin/makerspace/{makerspace_id}/email-test": {
+            "post": {
+                "operationId": "api_v1_admin_makerspace_email_test_create",
+                "summary": "Send a test email to yourself",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Email logs"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailTestResult"
+                                }
+                            }
+                        },
+                        "description": "Delivery attempt result. A failed send is an expected outcome of a diagnostic, so it is `delivered: false` with a readable `detail`."
+                    },
+                    "400": {
+                        "description": "Email module off, or your account has no email."
+                    },
+                    "404": {
+                        "description": "Makerspace not found."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/makerspace/{makerspace_id}/integration-health": {
             "get": {
                 "operationId": "api_v1_admin_makerspace_integration_health_retrieve",
@@ -22001,7 +22043,7 @@
                         "description": "Authentication is required."
                     },
                     "403": {
-                        "description": "Active manage-events permission is required."
+                        "description": "Active manage-makerspace permission is required."
                     },
                     "404": {
                         "description": "Makerspace was not found in the actor's scope."
@@ -22069,7 +22111,7 @@
                         "description": "Authentication is required."
                     },
                     "403": {
-                        "description": "Active manage-events permission is required."
+                        "description": "Active manage-makerspace permission is required."
                     },
                     "404": {
                         "description": "Makerspace was not found in the actor's scope."
@@ -22139,7 +22181,7 @@
                         "description": "Authentication is required."
                     },
                     "403": {
-                        "description": "Active manage-events permission is required."
+                        "description": "Active manage-makerspace permission is required."
                     },
                     "404": {
                         "description": "Makerspace was not found in the actor's scope."
@@ -34548,7 +34590,20 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Delivery attempt result."
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TelegramTestAlertResult"
+                                }
+                            }
+                        },
+                        "description": "Delivery attempt result. A Telegram failure is an expected outcome of a diagnostic, so it is `delivered: false` with a `reason` code and a readable `detail`, never a 5xx."
+                    },
+                    "403": {
+                        "description": "Not allowed to manage this makerspace."
+                    },
+                    "404": {
+                        "description": "Makerspace not found or Telegram module off."
                     }
                 }
             }
@@ -45008,6 +45063,10 @@
                         "nullable": true,
                         "readOnly": true
                     },
+                    "borrower_name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "return_items": {
                         "type": "array",
                         "items": {
@@ -45017,6 +45076,7 @@
                     }
                 },
                 "required": [
+                    "borrower_name",
                     "container_id",
                     "container_label",
                     "due_at",
@@ -45643,6 +45703,29 @@
                     "html_body",
                     "subject",
                     "text_body"
+                ]
+            },
+            "EmailTestResult": {
+                "type": "object",
+                "properties": {
+                    "delivered": {
+                        "type": "boolean"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "email_log_id": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "delivered",
+                    "email_log_id",
+                    "to"
                 ]
             },
             "EmailVerificationConfirm": {
@@ -48034,7 +48117,7 @@
                         "$ref": "#/components/schemas/IntegrationConfiguredHealth"
                     },
                     "telegram": {
-                        "$ref": "#/components/schemas/IntegrationConfiguredHealth"
+                        "$ref": "#/components/schemas/IntegrationTelegramHealth"
                     },
                     "worker": {
                         "$ref": "#/components/schemas/IntegrationWorkerHealth"
@@ -48081,6 +48164,52 @@
                     "stream",
                     "subject"
                 ]
+            },
+            "IntegrationTelegramFailure": {
+                "type": "object",
+                "properties": {
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "detail": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "at",
+                    "detail"
+                ]
+            },
+            "IntegrationTelegramHealth": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/Status83eEnum"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "configured": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "last_sent_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "last_failure": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/IntegrationTelegramFailure"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                }
             },
             "IntegrationWorkerHealth": {
                 "type": "object",
@@ -63155,6 +63284,37 @@
                 "required": [
                     "makerspace_id"
                 ]
+            },
+            "TelegramTestAlertResult": {
+                "type": "object",
+                "properties": {
+                    "delivered": {
+                        "type": "boolean"
+                    },
+                    "reason": {
+                        "$ref": "#/components/schemas/TelegramTestAlertResultReasonEnum"
+                    },
+                    "detail": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "delivered"
+                ]
+            },
+            "TelegramTestAlertResultReasonEnum": {
+                "enum": [
+                    "not_configured",
+                    "bad_token",
+                    "chat_not_found",
+                    "not_in_chat",
+                    "rate_limited",
+                    "unreachable",
+                    "token_unreadable",
+                    "rejected"
+                ],
+                "type": "string",
+                "description": "* `not_configured` - not_configured\n* `bad_token` - bad_token\n* `chat_not_found` - chat_not_found\n* `not_in_chat` - not_in_chat\n* `rate_limited` - rate_limited\n* `unreachable` - unreachable\n* `token_unreadable` - token_unreadable\n* `rejected` - rejected"
             },
             "TelegramWebhook": {
                 "type": "object",

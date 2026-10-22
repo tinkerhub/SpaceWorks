@@ -70,7 +70,7 @@ export function NotificationChannelPreferences({ makerspaceId, rules }: Props) {
     <Card as="section" aria-labelledby="notification-channel-heading">
       <CardHeader
         title={<span id="notification-channel-heading">Notification channels</span>}
-        description="Turn each channel on or off per feature. The staff email switch and per-member recipient toggles affect staff email only, not Telegram, Slack or Mattermost."
+        description="Turn each channel on or off per feature. The staff email switch and recipient ticks affect email only, never chat alerts."
       />
       <Table label="Notification channels by feature">
         <caption className="sr-only">Switches enable each notification channel for a feature.</caption>

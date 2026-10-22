@@ -250,6 +250,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspace/{makerspace_id}/email-templates/{stream}/{audience}/{key}/reset",
   "/api/v1/admin/makerspace/{makerspace_id}/email-templates/{stream}/{audience}/{key}/types/{machine_type_id}",
   "/api/v1/admin/makerspace/{makerspace_id}/email-templates/{stream}/{audience}/{key}/types/{machine_type_id}/reset",
+  "/api/v1/admin/makerspace/{makerspace_id}/email-test",
   "/api/v1/admin/makerspace/{makerspace_id}/integration-health",
   "/api/v1/admin/makerspace/{makerspace_id}/inventory",
   "/api/v1/admin/makerspace/{makerspace_id}/inventory/export",
@@ -1503,6 +1504,7 @@ export type DirectLoan = {
   "return_scan_required": boolean;
   "source": string;
   "issued_by": DirectLoanUserAttribution | null;
+  "borrower_name": string;
   "return_items": Array<DirectLoanReturnItem>;
 };
 
@@ -1660,6 +1662,13 @@ export type EmailTemplatePreviewResponse = {
   "subject": string;
   "text_body": string;
   "html_body": string;
+};
+
+export type EmailTestResult = {
+  "delivered": boolean;
+  "to": string;
+  "detail"?: string;
+  "email_log_id": number;
 };
 
 export type EmailVerificationConfirm = {
@@ -2245,7 +2254,7 @@ export type IntegrationHealth = {
   "email": IntegrationEmailHealth;
   "deliveries_by_stream": IntegrationDeliveriesByStream;
   "smtp": IntegrationConfiguredHealth;
-  "telegram": IntegrationConfiguredHealth;
+  "telegram": IntegrationTelegramHealth;
   "worker": IntegrationWorkerHealth;
 };
 
@@ -2256,6 +2265,20 @@ export type IntegrationLastFailure = {
   "subject": string;
   "error": string;
   "stream": string;
+};
+
+export type IntegrationTelegramFailure = {
+  "at": string;
+  "detail": string;
+};
+
+export type IntegrationTelegramHealth = {
+  "status"?: Status83eEnum;
+  "detail"?: string;
+  "configured"?: boolean;
+  "enabled"?: boolean;
+  "last_sent_at"?: string | null;
+  "last_failure"?: IntegrationTelegramFailure | null;
 };
 
 export type IntegrationWorkerHealth = {
@@ -5996,6 +6019,14 @@ export type TelegramTestAlert = {
   "makerspace_id": number;
   "message"?: string;
 };
+
+export type TelegramTestAlertResult = {
+  "delivered": boolean;
+  "reason"?: TelegramTestAlertResultReasonEnum;
+  "detail"?: string;
+};
+
+export type TelegramTestAlertResultReasonEnum = "not_configured" | "bad_token" | "chat_not_found" | "not_in_chat" | "rate_limited" | "unreachable" | "token_unreadable" | "rejected";
 
 export type TelegramWebhook = {
   "update_id"?: number;

@@ -108,7 +108,6 @@ def test_health_isolates_iteration_failure_and_disabled_module(monkeypatch):
     assert row["events_enabled"] is True
     assert row["events_available"] is False
     assert row["events_in_period"] is None
-    assert row["bookings_enabled"] is False
-    assert row["bookings_available"] is False
-    assert row["bookings_reserved_hours"] is None
+    # Off means absent: a switched-off section contributes no columns at all.
+    assert not [key for key in row if key.startswith("bookings_")]
     assert row["machines_available"] is True

@@ -484,6 +484,16 @@ printer status page answers 404 with `printing` off; `printing` is in the email-
 the two direct Telegram senders (`apiclients/notifications.py`, `makerspaces/subdomain_notifications.py`)
 check `channel_module_blocks` like every lifecycle alert.
 
+**Off means absent for check-in-mode spaces too (audit 2026-10-22).** The report catalog OMITS reports
+whose required modules are off (`operations/report_applicability.py`; preview/export answer 400), section
+reports such as FabLab health drop the columns of off sections, and module health and community engagement
+drop off-module rows. The staff Members tab requires `membership`; the Users tab owns staff roster, roles and
+revocation and is never module-gated (its Invitations sub-tab exists only with membership off and
+`member_accounts` on, the one configuration where the staff-invitation survivor can be claimed). The member
+area (`/m/<slug>/member`) is a 404 when `member_accounts` is off, apart from archived-payment discovery. The
+notification-rules matrix offers native push only while `mobile.push` is effective. Evidence-retention
+settings live in Settings and are gated on `MANAGE_MAKERSPACE`, not on an events action.
+
 **The deliberate survivors — open with their module off, by decision.**
 `tests/modules/test_offstate_d3_survivors.py::SURVIVORS` is the authoritative list, each entry mapped to
 the test that proves it, and a meta-test fails if a listed test disappears:
@@ -2878,6 +2888,21 @@ and must be mapped then.
 plaintext, globally-unique column exposed through `admin_api/serializers_users.py`. It has no
 makerspace scope and no timestamps, and putting the upstream member id in plaintext through a staff
 serializer is exactly what the PII review rejected. Leave it alone.
+
+**The roster's empty state is a JSON `null`.** The upstream answers `null`, not `[]`, while nobody is
+checked in; `client._parse` reads exactly that as an empty roster. Every other non-array body still fails
+closed with 503 (`tests/checkin/test_client_parsing.py`).
+
+**The public desk copy mirrors the backend branch.** On `checked_in`, an anonymous visitor and a signed-in
+account without an active membership HERE are matched against the roster; a signed-in caller with an active
+membership at this makerspace (staff included) files the borrow request under their own account; self-checkout
+and print requests always use the roster. Membership, waiver and presence wording appears only when the
+`membership` module is on. Pinned by `tests/checkin/test_public_desk_contract.py` and
+`frontend/src/features/inventory/PublicRequestHeader.test.ts`.
+
+**Direct handouts require presence only when membership is on.** `direct_loan_workflow.require_eligible_borrower`
+applies the membership + waiver + presence check with `membership` installed and an active-account check
+otherwise, matching the borrow-request split.
 
 ## Container / deployment invariants
 

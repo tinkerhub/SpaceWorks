@@ -139,6 +139,10 @@ def _parse(body):
         data = json.loads(body)
     except (ValueError, TypeError) as exc:
         raise CheckinUnavailable("Check-in roster was not valid JSON.") from exc
+    # The upstream answers a literal JSON `null` (not `[]`) while nobody is checked in.
+    # That is its empty roster, not an outage; any other non-array body still fails closed.
+    if data is None:
+        data = []
     if not isinstance(data, list):
         raise CheckinUnavailable("Check-in roster was not a JSON array.")
 

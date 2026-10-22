@@ -87,9 +87,9 @@ export function OperatorsTab({ machineId, canDelegate, retired = false }: { mach
       {canChange ? (
         <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_12rem_auto] sm:items-end"
           onSubmit={(event) => { event.preventDefault(); add.mutate(); }}>
-          <Field label="Member">
+          <Field label="Person">
             <Dropdown value={userId} disabled={candidates.isLoading} onChange={(event) => setUserId(event.target.value)} required>
-              <option value="" disabled>{candidates.isLoading ? "Loading members…" : eligibleCandidates.length ? "Select a member" : "No one else to add"}</option>
+              <option value="" disabled>{candidates.isLoading ? "Loading people…" : eligibleCandidates.length ? "Select a person" : "No one else to add"}</option>
               {eligibleCandidates.map((candidate) => (
                 <option key={candidate.user_id} value={String(candidate.user_id)}>
                   {candidate.display_name ? `${candidate.display_name} (${candidate.username})` : candidate.username}
@@ -110,12 +110,12 @@ export function OperatorsTab({ machineId, canDelegate, retired = false }: { mach
         ? <p key={index} className="text-caption text-danger-fg">{error.message}</p> : null)}
       {operators.error instanceof Error ? <EmptyState tone="error" title="Couldn't load operators" description={operators.error.message} /> : null}
       {!operators.isLoading && !operators.error && !items.length ? (
-        <EmptyState title="No operators assigned" description={canChange ? "Add a member above to let them run this machine." : "No one has been given access to this machine yet."} />
+        <EmptyState title="No operators assigned" description={canChange ? "Add someone above to let them run this machine." : "No one has been given access to this machine yet."} />
       ) : null}
       {operators.isLoading || items.length ? (
         <Table label="Operators">
           <THead>
-            <tr><TH>Member</TH><TH>Access</TH><TH>Assigned</TH>{canChange ? <TH><span className="sr-only">Actions</span></TH> : null}</tr>
+            <tr><TH>Operator</TH><TH>Access</TH><TH>Assigned</TH>{canChange ? <TH><span className="sr-only">Actions</span></TH> : null}</tr>
           </THead>
           <TBody>
             {operators.isLoading ? <SkeletonRows rows={2} cols={canChange ? 4 : 3} /> : null}

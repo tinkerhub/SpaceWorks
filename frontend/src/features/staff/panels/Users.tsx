@@ -4,9 +4,11 @@ import { UserPlus } from "lucide-react";
 
 import { Button, ConfirmDialog, Dropdown, EmptyState, ErrorText, Field, Tabs, TabsContent, TabsList, TabsTrigger, useToast } from "../../../components/ui";
 import { staffRequest, type StaffAuthUser } from "../../../lib/api";
+import { moduleEnabled } from "../../../lib/modules";
 import { Panel, errorText, useStaffGet, type Makerspace } from "./shared";
 import { RoleManager } from "./RoleManager";
-import { UsersTable } from "./UsersTable";
+import { UsersInvitations } from "./UsersInvitations";
+import { roleLabel, UsersTable } from "./UsersTable";
 import {
   AddStaffModal,
   CreateMakerspaceModal,
@@ -19,7 +21,7 @@ import {
   type StaffForm,
 } from "./UsersModals";
 import { emptyMakerspaceForm, emptyResetPasswordForm, emptyRestrictForm, emptyStaffForm, makerspacePayload, staffPayload } from "./usersForms";
-import { assignableRolesFor, assignRole, createMembership, type StaffMembershipRow, type StaffRole } from "./rolesApi";
+import { assignableRolesFor, assignRole, createMembership, isStaffMembership, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 
 export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }: {
   makerspaces: Makerspace[];
@@ -60,20 +62,24 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
     [currentUser, msId],
   );
   const canManageRoles = isSuperadmin || actorActions.includes("manage_makerspace");
+  // Staff invitations live here only while Members (membership) is off, and only when the
+  // invitee can sign in to claim one -- with member_accounts off nobody can.
+  const modules = makerspaces.find((space) => space.id === msId)?.enabled_modules;
+  const showInvitations = !moduleEnabled(modules, "membership") && moduleEnabled(modules, "member_accounts");
   const assignableRoles = useMemo(
     () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin),
     [rolesList.data, isSuperadmin, actorActions],
   );
 
-  const roleFilterOptions = useMemo(() => {
-    const names = new Set<string>();
-    (memberships.data ?? []).forEach((row) => names.add(row.assigned_role?.name ?? row.role));
-    return Array.from(names).sort();
-  }, [memberships.data]);
-  const rows = useMemo(() => {
-    const data = memberships.data ?? [];
-    return roleFilter === "all" ? data : data.filter((row) => (row.assigned_role?.name ?? row.role) === roleFilter);
-  }, [memberships.data, roleFilter]);
+  const staffRows = useMemo(
+    () => (memberships.data ?? []).filter((row) => isStaffMembership(row, rolesList.data ?? [])),
+    [memberships.data, rolesList.data],
+  );
+  const roleFilterOptions = useMemo(() => Array.from(new Set(staffRows.map(roleLabel))).sort(), [staffRows]);
+  const rows = useMemo(
+    () => (roleFilter === "all" ? staffRows : staffRows.filter((row) => roleLabel(row) === roleFilter)),
+    [staffRows, roleFilter],
+  );
 
   // A role edit / assignment / revoke can change the CURRENT actor's own effective actions,
   // so refetch /auth/me (onAuthRefresh) in addition to invalidating the makerspace-scoped lists.
@@ -170,7 +176,7 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
       <UsersTable
         rows={rows}
         makerspaceNames={makerspaceNames}
-        loading={memberships.isLoading}
+        loading={memberships.isLoading || rolesList.isLoading}
         assignableRoles={assignableRoles}
         roles={rolesList.data ?? []}
         currentUsername={currentUser.username}
@@ -206,8 +212,14 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
             <TabsList aria-label="Users sections">
               <TabsTrigger value="people">People</TabsTrigger>
               <TabsTrigger value="roles">Roles</TabsTrigger>
+              {showInvitations ? <TabsTrigger value="invitations">Invitations</TabsTrigger> : null}
             </TabsList>
             <TabsContent value="people">{people}</TabsContent>
+            {showInvitations ? (
+              <TabsContent value="invitations">
+                <UsersInvitations msId={msId} roles={assignableRoles} onApproved={afterStaffChange} />
+              </TabsContent>
+            ) : null}
             <TabsContent value="roles">
               <RoleManager msId={msId} actorActions={actorActions} isSuperadmin={isSuperadmin} onRolesChanged={afterStaffChange} />
             </TabsContent>

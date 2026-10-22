@@ -283,32 +283,32 @@ def test_public_display_name_prefers_safe_requester_name_and_masks_unsafe_names(
             requester_name="person@example.com",
             requester_username="person@example.com",
         ),
-    ) == "Member"
+    ) == "Borrower"
     assert public_display_name(
         request=SimpleNamespace(
             requester_name="member 9876543210",
             requester_username="member 9876543210",
         ),
-    ) == "Member"
+    ) == "Borrower"
     # Phone digits separated by common separators must still be masked.
     assert public_display_name(
         request=SimpleNamespace(
             requester_name="555-123-4567",
             requester_username="555-123-4567",
         ),
-    ) == "Member"
+    ) == "Borrower"
     assert public_display_name(
         request=SimpleNamespace(
             requester_name="(555) 123 4567",
             requester_username="(555) 123 4567",
         ),
-    ) == "Member"
+    ) == "Borrower"
     assert public_display_name(
         request=SimpleNamespace(
             requester_name="checkin_" + "a" * 64,
             requester_username="checkin_" + "a" * 64,
         ),
-    ) == "Member"
+    ) == "Borrower"
     long_name = "Very Long Member Name " * 5
     assert public_display_name(
         request=SimpleNamespace(
@@ -326,9 +326,9 @@ def test_current_loans_show_safe_requester_name_and_mask_unsafe_names():
     makerspace = make_space("stats-requester-names")
     cases = [
         ("Clean Tool", "Clean Maker", "holder-clean", "Clean Maker"),
-        ("Email Tool", "borrower@example.com", "leaky@example.com", "Member"),
-        ("Phone Tool", "555-123-4567", "555-123-4567", "Member"),
-        ("Hash Tool", "checkin_" + "a" * 64, "checkin_" + "b" * 64, "Member"),
+        ("Email Tool", "borrower@example.com", "leaky@example.com", "Borrower"),
+        ("Phone Tool", "555-123-4567", "555-123-4567", "Borrower"),
+        ("Hash Tool", "checkin_" + "a" * 64, "checkin_" + "b" * 64, "Borrower"),
     ]
     for product_name, requester_name, username, expected in cases:
         product = make_product(

@@ -178,9 +178,8 @@ def test_payment_reconciliation_report_requires_the_payments_module():
     client = _client(_superadmin("d3-report-admin"))
 
     catalog = client.get(f"/api/v1/admin/makerspace/{space.pk}/reports/catalog").data["results"]
-    entry = next(row for row in catalog if row["key"] == "payment-reconciliation")
     preview = client.get(f"/api/v1/admin/makerspace/{space.pk}/analytics/payment-reconciliation")
 
-    assert entry["required_modules"] == ["payments"]
-    assert entry["available"] is False
+    # Off means absent: omitted from the catalog, not listed as unavailable.
+    assert "payment-reconciliation" not in {row["key"] for row in catalog}
     assert preview.status_code == 400

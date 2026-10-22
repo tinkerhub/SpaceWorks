@@ -12,9 +12,10 @@ vi.mock("../../lib/api", async () => {
 import type { StaffAuthUser } from "../../lib/api";
 import { StaffShell } from "./shell/StaffShell";
 
-const spaceManager: StaffAuthUser = {
+const spaceManager: StaffAuthUser & { email: string } = {
   username: "space-manager",
-  email_verified: true,
+  email: "manager@lab.example",
+  email_verified: false,
   role: "staff",
   is_superuser: false,
   must_change_password: false,
@@ -72,7 +73,10 @@ describe("staff account dialog", () => {
     expect(screen.getByRole("button", { name: "space-manager, account menu" })).toHaveAttribute("aria-haspopup", "menu");
     const dialog = await openAccountDialog();
     expect(within(dialog).getByRole("heading", { name: "Change password" })).toBeInTheDocument();
-    expect(within(dialog).getByText("Verified")).toBeInTheDocument();
+    // No verification chip: staff have no verification flow to act on. The address shows,
+    // because that is where a forgotten-password code goes.
+    expect(within(dialog).getByText("manager@lab.example")).toBeInTheDocument();
+    expect(within(dialog).queryByText(/verified/i)).not.toBeInTheDocument();
 
     fireEvent.change(within(dialog).getByLabelText("Current password"), { target: { value: "old-password" } });
     fireEvent.change(within(dialog).getByLabelText("New password"), { target: { value: "new-password-123" } });

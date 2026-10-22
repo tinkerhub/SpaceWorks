@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
 import type { ArchivedPaymentSummary, MembershipOutcome, MembershipPolicyEnum } from "../../generated/api";
-import { bootstrapTenant, memberRequest, refreshAccessToken, StructuredApiError } from "../../lib/api";
+import { bootstrapTenant, memberRequest, publicV1Request, refreshAccessToken, StructuredApiError } from "../../lib/api";
+import { NotFoundPage } from "../../components/NotFoundPage";
 import { MakerspaceSiteHeader, PlatformSiteHeader } from "../../components/chrome/PublicHeaders";
 import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
 import { Button, Callout, ErrorText, Loader, Spinner, useToast } from "../../components/ui";
@@ -29,7 +30,26 @@ function message(error: unknown) {
   return error instanceof Error ? error.message : "Unable to complete that action.";
 }
 
+/**
+ * The member area exists only where member accounts do. A makerspace that resolved and has
+ * `member_accounts` off is a 404, like every other off-module page: its only accounts are
+ * staff accounts, managed in the console, so nothing here (sign-in, membership card,
+ * presence, invitations) would be true. Only a FAILED bootstrap falls through, because
+ * that is how a member holding nothing but an archived space reaches the archived-payments
+ * link (see `MemberAreaArchivedLink.test.tsx` and INVARIANTS "archival vs member money").
+ */
 export function MemberArea() {
+  const { slug = "" } = useParams();
+  const bootstrap = useQuery({ queryKey: ["member", slug, "bootstrap"], queryFn: () => bootstrapTenant({ slug: slug || undefined }), retry: false });
+  // `isFetched`, not `isLoading`: the content invalidates `["member"]` on mount, and a
+  // refetch of a FAILED bootstrap (central `/member`) goes back to pending -- gating on that
+  // would unmount the content, whose mount invalidates again, forever.
+  if (!bootstrap.isFetched) return <main className="grid min-h-dvh place-items-center bg-subtle"><Loader label="Loading member area" /></main>;
+  if (bootstrap.data && !moduleEnabled(bootstrap.data.modules, "member_accounts")) return <NotFoundPage />;
+  return <MemberAreaContent />;
+}
+
+function MemberAreaContent() {
   const { slug = "" } = useParams();
   const client = useQueryClient();
   const { showToast } = useToast();
@@ -46,6 +66,11 @@ export function MemberArea() {
   // they are deliberate survivors of their modules being switched off.
   const membershipOn = moduleEnabled(bootstrap.data?.modules, "membership");
   const eventsOn = moduleEnabled(bootstrap.data?.modules, "events");
+  // Present only when the deployment switched member accounts off. Then the only accounts
+  // are staff accounts: no member sign-in, no email-verification chip and no member tabs.
+  // What remains is the archived-payments link, whose page keeps its own sign-in.
+  const config = useQuery({ queryKey: ["public-config"], queryFn: () => publicV1Request<{ member_accounts?: { enabled: boolean } }>("/config"), retry: false, staleTime: Infinity });
+  const memberAccounts = config.data?.member_accounts?.enabled !== false;
   const memberships = useQuery({ queryKey: ["member", "memberships"], queryFn: () => memberRequest<Memberships>("/memberships/me"), retry: false });
   const unauthenticated = memberships.error instanceof StructuredApiError && memberships.error.status === 401;
   const membership = memberships.data?.memberships.find((row) => row.makerspace.slug === resolvedSlug);
@@ -119,13 +144,13 @@ export function MemberArea() {
           spaceName={spaceName}
           username={profile.data?.username}
           membership={membership}
-          emailVerified={profile.data?.email_verified}
-          action={memberships.isError ? signInButton : null}
+          emailVerified={memberAccounts ? profile.data?.email_verified : undefined}
+          action={memberships.isError && memberAccounts ? signInButton : null}
         />
         {archivedPayments.data?.length ? <ArchivedPaymentsNotice known /> : null}
         {archivedUnknown ? <ArchivedPaymentsNotice known={false} /> : null}
         {error && !bootstrap.isError ? <ErrorText message={message(error)} /> : null}
-        {memberships.data ? (
+        {memberships.data && memberAccounts ? (
           <MemberAreaTabs
             standing={standing}
             username={profile.data?.username}

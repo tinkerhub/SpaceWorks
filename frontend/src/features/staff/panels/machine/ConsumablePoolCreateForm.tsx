@@ -135,7 +135,7 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
       <SwitchRow
         className="rounded-lg border border-line p-3"
         label="Visible to requesters"
-        description="Members can pick this stock when they request a job."
+        description="Requesters can pick this stock when they ask for a job."
         checked={pool.isPublic}
         onCheckedChange={(checked) => setPool((current) => ({ ...current, isPublic: checked }))}
       />

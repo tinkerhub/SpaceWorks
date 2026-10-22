@@ -26,6 +26,12 @@ ACTION_MODULES = {
     "event": "events", "booking": "bookings", "maintenance": "maintenance",
     "membership": "membership", "notification": "notifications", "email": "email",
     "payment": "payments", "device": "mobile", "report": "reports",
+    # Prefixes the services actually write; without them machine-service, print and
+    # asset activity read as zero on this report.
+    "machine_service": "machine_service", "machines": "machines",
+    "print_request": "printing", "printing": "printing", "print": "printing",
+    "qr_print_batch": "qr_print_batches", "box": "qr_management", "boxes": "qr_management",
+    "asset": "asset_units", "asset_units": "asset_units",
 }
 
 
@@ -43,8 +49,12 @@ def build_module_operational_health(makerspace_id, *, limit=None, date_range=Non
         cursors = _rollup_cursors(space.id)
         for definition in MODULES:
             enabled = module_enabled(space, definition.key)
-            state = activity[definition.key] if enabled else {"count": 0, "failures": 0, "last": None}
-            cursor = cursors.get(definition.key) if enabled else None
+            if not enabled:
+                # Off means absent: a switched-off module has no row; the Modules admin
+                # is the one place that lists uninstalled modules.
+                continue
+            state = activity[definition.key]
+            cursor = cursors.get(definition.key)
             row = {
                 "module_key": definition.key,
                 "enabled": enabled,

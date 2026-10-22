@@ -959,7 +959,7 @@ def test_admin_can_manage_api_integration_settings_from_api_clients_area(monkeyp
         f"/api/v1/admin/makerspace/{makerspace.id}/api-settings",
         {
             "telegram_group_chat_id": "-100123",
-            "telegram_bot_token": "bot-token",
+            "telegram_bot_token": "123456:bot-token-abcdefghijklmnopqrstuv",
             "smtp_host": "smtp.example.com",
             "smtp_port": 2525,
             "smtp_username": "mailer",
@@ -978,8 +978,8 @@ def test_admin_can_manage_api_integration_settings_from_api_clients_area(monkeyp
     assert "smtp_password" not in response.data
     makerspace.refresh_from_db()
     assert makerspace.telegram_group_chat_id == "-100123"
-    assert makerspace.telegram_bot_token != "bot-token"
-    assert makerspace.get_telegram_bot_token() == "bot-token"
+    assert makerspace.telegram_bot_token != "123456:bot-token-abcdefghijklmnopqrstuv"
+    assert makerspace.get_telegram_bot_token() == "123456:bot-token-abcdefghijklmnopqrstuv"
     assert makerspace.smtp_host == "smtp.example.com"
     assert makerspace.smtp_port == 2525
     assert makerspace.smtp_username == "mailer"

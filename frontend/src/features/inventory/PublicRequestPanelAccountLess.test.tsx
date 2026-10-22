@@ -36,7 +36,10 @@ function fill(label: RegExp, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 
-function renderPanel(accountLess: boolean) {
+function renderPanel(
+  accountLess: boolean,
+  extra: { selfCheckout?: boolean; membershipOn?: boolean } = {},
+) {
   // The panel derives account-less mode from policy AND the absence of an access token.
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -48,6 +51,7 @@ function renderPanel(accountLess: boolean) {
         items={ITEMS}
         makerspaceSlug="makerspace"
         onClear={() => {}}
+        {...extra}
       />
     </QueryClientProvider>,
   );
@@ -156,14 +160,32 @@ describe("account-less borrow requests", () => {
     expect(screen.queryByLabelText(/your name/i)).toBeNull();
   });
 
-  it("does not promise 'no account needed' on the scan tab", async () => {
-    renderPanel(true);
+  it("offers no scan tab where self-checkout cannot work", async () => {
+    // Off the check-in roster, self-checkout demands membership, waiver and presence, and
+    // an `anyone` policy has the membership module off: nobody could use the tab, so it
+    // must not be there at all -- even with the self-checkout feature on.
+    renderPanel(true, { selfCheckout: true });
     await waitFor(() => expect(screen.getByText(/no account needed/i)).toBeTruthy());
+
+    expect(screen.queryByRole("button", { name: /scan a tool/i })).toBeNull();
+  });
+
+  it("keeps the member scan tab on a members space with self-checkout on", async () => {
+    renderPanel(false, { selfCheckout: true, membershipOn: true });
+    expect(screen.getByRole("heading", { name: "Member borrowing" })).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /scan a tool/i }));
 
-    // Self-checkout requires an authenticated member with active presence.
+    expect(screen.getByRole("heading", { name: "Member self-checkout" })).toBeTruthy();
     expect(screen.queryByText(/no account needed/i)).toBeNull();
+  });
+
+  it("describes an accounts-only space without membership, waiver or presence", async () => {
+    renderPanel(false);
+
+    expect(screen.getByRole("heading", { name: "Borrow with your account" })).toBeTruthy();
+    expect(screen.queryByText(/membership|waiver|presence/i)).toBeNull();
+    expect(screen.queryByText(/member account/i)).toBeNull();
   });
 
   it("asks a members-only space for no contact details and sends no key", async () => {

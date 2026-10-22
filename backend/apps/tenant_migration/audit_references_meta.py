@@ -190,7 +190,11 @@ AUDIT_META_REFERENCES.update(
     )
 )
 AUDIT_META_REFERENCES.update(
-    _reference(S, "integrations.EmailLog", ("email.retried", "email_log_id"))
+    _reference(
+        S, "integrations.EmailLog",
+        ("email.retried", "email_log_id"),
+        ("email.test_sent", "email_log_id"),
+    )
 )
 AUDIT_META_REFERENCES.update(
     _reference(

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Card, CardHeader, Chip, SwitchRow, useToast } from "../../components/ui";
+import { Card, CardHeader, SwitchRow, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
 import { FEATURE_DEFINITIONS } from "../../lib/features";
 import { moduleEnabled } from "../../lib/modules";
@@ -15,6 +15,23 @@ type Props = {
 // Parentless features (parent_module === null) group under GENERAL: always available,
 // never gated by a module.
 const GENERAL = "__general__";
+
+// Fieldset legends for the parent modules a sub-feature can hang under.
+const MODULE_LABELS: Record<string, string> = {
+  machines: "Machines",
+  bookings: "Bookings",
+  events: "Events",
+  membership: "Membership",
+  payments: "Payments",
+  mobile: "Mobile app",
+  notifications: "Notifications",
+};
+
+// A standalone feature that only does something alongside a module: presence sessions
+// are started by members, so the geofence switch is noise without `membership`.
+const FEATURE_NEEDS_MODULE: Record<string, string> = {
+  "presence.geofence": "membership",
+};
 
 const MODULE_FEATURES = Object.entries(
   FEATURE_DEFINITIONS.reduce<Record<string, typeof FEATURE_DEFINITIONS>>((groups, feature) => {
@@ -45,10 +62,11 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
   });
 
   const toggleFeature = (key: string, checked: boolean) => {
-    const next = checked
-      ? [...enabledFeatures, key]
-      : enabledFeatures.filter((feature) => feature !== key);
-    update.mutate(next);
+    // Only features the backend can still accept are sent back. A feature stored while
+    // its module was on (`mobile.push`, `payments.enabled`) is inert once the platform
+    // switches the module off, and echoing it would make every toggle fail validation.
+    const kept = enabledFeatures.filter((feature) => feature !== key && featureAllowed(feature, enabledModules));
+    update.mutate(checked ? [...kept, key] : kept);
   };
 
   return (
@@ -57,11 +75,6 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
         title="Features"
         description="Modules are set by the platform administrator. Turn on the sub-features this makerspace uses."
       />
-      {enabledModules.length ? (
-        <div className="mb-4 flex flex-wrap gap-1.5">
-          {enabledModules.map((module) => <Chip key={module} tone="neutral" size="sm">{module}</Chip>)}
-        </div>
-      ) : null}
       {update.error ? <p className="mb-3 text-caption text-danger-fg" role="alert">{update.error.message}</p> : null}
       <div className="grid gap-3">
         {MODULE_FEATURES.map(([module, allFeatures]) => {
@@ -70,12 +83,14 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
           // sub-feature also needs the payments module itself (capabilities.py requires it).
           if (!isGeneral && !moduleEnabled(enabledModules, module)) return null;
           const features = allFeatures.filter(
-            (feature) => !feature.key.startsWith("payments.") || moduleEnabled(enabledModules, "payments"),
+            (feature) =>
+              (!feature.key.startsWith("payments.") || moduleEnabled(enabledModules, "payments")) &&
+              (!FEATURE_NEEDS_MODULE[feature.key] || moduleEnabled(enabledModules, FEATURE_NEEDS_MODULE[feature.key])),
           );
           if (!features.length) return null;
           return (
             <fieldset key={module} className="grid gap-3 rounded-md border border-line p-4">
-              <legend className="px-1 text-label text-ink">{isGeneral ? "General" : module}</legend>
+              <legend className="px-1 text-label text-ink">{isGeneral ? "General" : (MODULE_LABELS[module] ?? module)}</legend>
               {features.map((feature) => (
                 <SwitchRow
                   key={feature.key}
@@ -91,4 +106,11 @@ export function MakerspaceFeatureSettings({ makerspace, settings, loading }: Pro
       </div>
     </Card>
   );
+}
+
+function featureAllowed(key: string, modules: readonly string[]) {
+  const definition = FEATURE_DEFINITIONS.find((feature) => feature.key === key);
+  if (!definition) return false;
+  if (definition.parent_module && !moduleEnabled(modules, definition.parent_module)) return false;
+  return !key.startsWith("payments.") || moduleEnabled(modules, "payments");
 }

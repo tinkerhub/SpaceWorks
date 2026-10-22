@@ -2,11 +2,11 @@ from apps.accounts import rbac
 from apps.operations.report_types import ReportDefinition
 
 
-def _legacy(key, fields, *, exportable=True, summary=False, chart_hint="bar"):
+def _legacy(key, fields, *, exportable=True, summary=False, chart_hint="bar", title=None):
     path = f"apps.operations.reports_inventory.build_{key.replace('-', '_')}"
     return ReportDefinition(
         key, path, fields, exportable=exportable, summary=summary,
-        title=key.replace("-", " ").title(), chart_hint=chart_hint,
+        title=title or key.replace("-", " ").capitalize(), chart_hint=chart_hint,
     )
 
 
@@ -15,9 +15,9 @@ EXISTING_REPORT_DEFINITIONS = (
     _legacy("taken-items", ("product", "issued_quantity")),
     _legacy("active-loans", ("id", "requester", "status", "issued_at"), chart_hint="line"),
     _legacy("returns", ("id", "requester", "status", "closed_at"), chart_hint="line"),
-    _legacy("damaged-missing", ("product", "damaged_quantity", "missing_quantity"), chart_hint="grouped_bar"),
-    _legacy("damaged-lost", ("product_name", "damaged_quantity", "lost_quantity"), chart_hint="grouped_bar"),
-    _legacy("qr-scans", ("context", "count"), chart_hint="donut"),
+    _legacy("damaged-missing", ("product", "damaged_quantity", "missing_quantity"), chart_hint="grouped_bar", title="Damaged / missing"),
+    _legacy("damaged-lost", ("product_name", "damaged_quantity", "lost_quantity"), chart_hint="grouped_bar", title="Damaged / lost"),
+    _legacy("qr-scans", ("context", "count"), chart_hint="donut", title="QR scans"),
     _legacy("most-lent", ("product_name", "times_lent", "total_quantity_lent")),
     _legacy("top-borrowers", ("holder", "requests", "items_borrowed"), chart_hint="grouped_bar"),
     _legacy("recently-added", ("product_name", "created_at", "total_quantity"), chart_hint="line"),

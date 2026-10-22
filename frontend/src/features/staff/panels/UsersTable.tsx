@@ -20,9 +20,10 @@ import {
 } from "../../../components/ui";
 import { roleManagesMakerspace, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 
-// Only the actions the backend would accept are offered: a non-superadmin cannot touch their
-// own row or a row whose role holds manage_makerspace, restrict/restore is superadmin-only,
-// and nobody resets their own password here (that is the account dialog's Change password).
+// Only the actions the backend would accept are offered: a non-superadmin cannot touch a row
+// whose role holds manage_makerspace, restrict/restore is superadmin-only, and nobody acts on
+// their own row here -- no self-revoke or self-demotion, and their password is the account
+// dialog's Change password. A locked row shows its role as plain text, never a control.
 export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, roles, currentUsername, isSuperadmin, onRestrict, onRestore, onResetPassword, onRevoke, onChangeRole }: {
   rows: StaffMembershipRow[];
   makerspaceNames: Map<number, string>;
@@ -73,7 +74,7 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
         <TBody>
           {loading ? <SkeletonRows rows={4} cols={5} /> : rows.map((membership) => {
             const own = membership.user.username === currentUsername;
-            const isProtected = !isSuperadmin && (own || roleManagesMakerspace(roles, membership.assigned_role?.id, membership.role));
+            const isProtected = own || (!isSuperadmin && roleManagesMakerspace(roles, membership.assigned_role?.id, membership.role));
             return (
               <TR key={membership.id}>
                 <TD>
@@ -93,8 +94,8 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
                     {isProtected ? <span className="text-caption text-ink-muted">{own ? "You" : "Managed by a platform admin"}</span> : <>
                       <Button size="sm" disabled={!assignableRoles.length} onClick={() => openChange(membership)}>Change role</Button>
                       {isSuperadmin ? <Button size="sm" variant="danger" onClick={() => onRestrict(membership)}>Restrict…</Button> : null}
-                      {own ? null : <Button size="sm" onClick={() => onResetPassword(membership)}>Reset password</Button>}
-                      {isSuperadmin ? <Button size="sm" disabled={membership.user.access_status === "active"} onClick={() => onRestore(membership)}>Restore</Button> : null}
+                      <Button size="sm" onClick={() => onResetPassword(membership)}>Reset password</Button>
+                      {isSuperadmin && membership.user.access_status !== "active" ? <Button size="sm" onClick={() => onRestore(membership)}>Restore</Button> : null}
                       <Button size="sm" variant="danger-quiet" onClick={() => onRevoke(membership)}>Revoke…</Button>
                     </>}
                   </div>
@@ -153,6 +154,6 @@ function AccessChip({ status }: { status: string }) {
   return <StatusChip size="sm" tone={accessTones[status] ?? "danger"}>{words.charAt(0).toUpperCase() + words.slice(1)}</StatusChip>;
 }
 
-function roleLabel(membership: StaffMembershipRow) {
+export function roleLabel(membership: StaffMembershipRow) {
   return membership.assigned_role?.name ?? membership.role.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

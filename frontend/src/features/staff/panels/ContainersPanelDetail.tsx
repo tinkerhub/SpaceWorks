@@ -8,7 +8,7 @@ import { WarrantySection } from "../WarrantySection";
 import { errorText, StatusWord, useStaffGet } from "./shared";
 import { QrImage } from "./QrImage";
 
-export type Container = { id: number; code?: string; label: string; location?: string; description?: string; is_active?: boolean };
+export type Container = { id: number; code?: string; label: string; location?: string; description?: string; is_active?: boolean; qr_code_id?: number | null };
 type ContentsAsset = { id: number; asset_tag: string; product: string; status: string };
 type Contents = {
   products: { id: number; name: string; available_quantity: number; tracking_mode: string }[];
@@ -27,6 +27,7 @@ export function ContainerDetail({ container, canEditInventory }: { container: Co
         {container.location ? <p>Location: {container.location}</p> : null}
         {container.description ? <p>{container.description}</p> : null}
       </div>
+      <ContainerQr container={container} />
       <SegmentedControl
         ariaLabel="Container detail"
         value={view}
@@ -35,6 +36,20 @@ export function ContainerDetail({ container, canEditInventory }: { container: Co
       />
       {view === "contents" ? <ContainerContents containerId={container.id} canEditInventory={canEditInventory} /> : <ContainerHistory containerId={container.id} />}
     </div>
+  );
+}
+
+// The label staff scan at issue and return. Without it on screen there was no way to print a
+// container's QR from the console, so the "scan the box" step could only ever be a list pick.
+function ContainerQr({ container }: { container: Container }) {
+  if (!container.qr_code_id) {
+    return <p className="text-caption text-ink-muted">This container has no QR label, so it can only be picked from the list at handover.</p>;
+  }
+  return (
+    <section className="grid gap-2" aria-label="Container QR">
+      <SectionHeading as="h3" title="QR label" description="Print it and stick it on the container; staff scan it at issue and return." />
+      <div className="w-40"><QrImage qrId={container.qr_code_id} label={container.label} /></div>
+    </section>
   );
 }
 

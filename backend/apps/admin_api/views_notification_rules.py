@@ -22,7 +22,20 @@ from apps.integrations.models import (
     NotificationPreference,
 )
 from apps.admin_api.views_email_templates_common import _stream_module_available
+from apps.makerspaces.platform import feature_enabled
 from apps.makerspaces.servability import servable_queryset
+
+
+def _channel_offered(makerspace, channel):
+    """Whether the matrix offers a column for this channel.
+
+    Chat channels follow their module key. Native push has no module key of its own: it
+    is the `mobile.push` feature (which also needs the `mobile` module), and with it off
+    `deliver_native_push` sends nothing -- so a column would store an inert preference.
+    """
+    if channel == NotificationChannel.NATIVE_PUSH:
+        return feature_enabled(makerspace, "mobile.push")
+    return not channel_module_blocks(makerspace, channel)
 
 
 @extend_schema(tags=["Makerspaces"], summary="List or update makerspace notification rules")
@@ -85,7 +98,7 @@ class NotificationRulesView(APIView):
         available = [
             channel
             for channel in NotificationChannel
-            if not channel_module_blocks(makerspace, channel.value)
+            if _channel_offered(makerspace, channel.value)
         ]
         channels = [
             {"key": channel.value, "label": channel.label} for channel in available
@@ -184,6 +197,11 @@ class NotificationRulesView(APIView):
             if not feature_available(makerspace, preference["feature"]):
                 return Response(
                     {"detail": f"Feature '{preference['feature']}' is not installed for this makerspace."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not _channel_offered(makerspace, preference["channel"]):
+                return Response(
+                    {"detail": f"Channel '{preference['channel']}' is not available for this makerspace."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             key = (preference["feature"], preference["channel"])

@@ -6,6 +6,7 @@ import { PublicContainer, PublicShell } from "../../components/chrome/PublicShel
 import { MakerspaceBrand } from "../../components/MakerspaceBrand";
 import { MakerspaceMapLink } from "../../components/MakerspaceMapLink";
 import { Button, Chip, Field, PageHeader, Pagination, SearchInput } from "../../components/ui";
+import { featureEnabled } from "../../lib/features";
 import { useModules } from "../../lib/modules";
 import type { Product, RequestCartItem } from "../../types/inventory";
 import { ProductCard } from "./ProductCard";
@@ -140,6 +141,8 @@ export function PublicInventoryPage() {
               onClear={() => setCart({})}
               disabled={!moduleEnabled("request_workflow")}
               requestAccess={bootstrap?.makerspace?.request_access}
+              membershipOn={moduleEnabled("membership")}
+              selfCheckout={featureEnabled(bootstrap?.features ?? [], "inventory.self_checkout")}
             />
           </div>
         </div>

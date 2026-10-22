@@ -92,9 +92,18 @@ def _should_retry_notification(log) -> bool:
     # terminal — retrying wastes attempts and could deliver a stale notification if the
     # destination is reconfigured mid-backoff. Cap/not-configured dispatch rows are never
     # enqueued, so they never reach here.
-    return log.status == NotificationDeliveryStatus.FAILED and log.error.startswith(
+    if log.status != NotificationDeliveryStatus.FAILED or not log.error.startswith(
         "notification_delivery_failed"
-    )
+    ):
+        return False
+    # A wrong bot token, an unknown chat or a bot outside the group fails identically on
+    # every retry; only transient reasons (unreachable, rate limited, unknown) are retried.
+    return log.error.rsplit(":", 1)[-1] not in _PERMANENT_DELIVERY_REASONS
+
+
+_PERMANENT_DELIVERY_REASONS = frozenset(
+    {"bad_token", "chat_not_found", "not_in_chat", "token_unreadable"}
+)
 
 
 def _claim_notification_log(log_id):

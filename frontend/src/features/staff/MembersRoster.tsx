@@ -2,7 +2,7 @@ import { Avatar, Button, CheckboxField, Dropdown, EmptyState, SkeletonRows, Stat
 import type { AdminMembership, PatchedMembershipCapabilities } from "../../generated/api";
 import { PaymentReconcileActions } from "./PaymentReconcileActions";
 
-export type MemberRole = { id: number; name: string; granted_actions: string[] };
+export type MemberRole = { id: number; name: string; granted_actions: string[]; legacy_role?: string | null };
 
 export type MemberRowHandlers = {
   onChangeRole: (member: AdminMembership, roleId: number) => void;
@@ -14,14 +14,21 @@ export type MemberRowHandlers = {
 
 type Pending = { role: boolean; capabilities: boolean; verification: boolean; witness: boolean };
 
+/**
+ * What the actor may do with one row, decided by the panel: the row's effective role (a
+ * legacy row with no assigned role resolves through its legacy enum), and whether the role
+ * is read-only -- the actor's own row, or a manage_makerspace row for a non-superadmin. The
+ * backend refuses changing or revoking either, so neither gets a control.
+ */
+export type MemberRowAccess = { role: MemberRole | null; roleName: string; locked: "own" | "platform" | null };
+
 /** The roster: one row per membership, with the actions the actor may take on it. */
-export function MembersRoster({ makerspaceId, rows, loading, roles, membershipEnabled, managedByPlatform, pending, handlers }: {
+export function MembersRoster({ makerspaceId, rows, loading, roles, access, pending, handlers }: {
   makerspaceId: number;
   rows: AdminMembership[];
   loading: boolean;
   roles: MemberRole[];
-  membershipEnabled: boolean;
-  managedByPlatform: (member: AdminMembership) => boolean;
+  access: (member: AdminMembership) => MemberRowAccess;
   pending: Pending;
   handlers: MemberRowHandlers;
 }) {
@@ -45,8 +52,7 @@ export function MembersRoster({ makerspaceId, rows, loading, roles, membershipEn
             makerspaceId={makerspaceId}
             member={member}
             roles={roles}
-            membershipEnabled={membershipEnabled}
-            managedByPlatform={managedByPlatform(member)}
+            access={access(member)}
             pending={pending}
             handlers={handlers}
           />
@@ -56,18 +62,17 @@ export function MembersRoster({ makerspaceId, rows, loading, roles, membershipEn
   );
 }
 
-function MemberRow({ makerspaceId, member, roles, membershipEnabled, managedByPlatform, pending, handlers }: {
+function MemberRow({ makerspaceId, member, roles, access, pending, handlers }: {
   makerspaceId: number;
   member: AdminMembership;
   roles: MemberRole[];
-  membershipEnabled: boolean;
-  managedByPlatform: boolean;
+  access: MemberRowAccess;
   pending: Pending;
   handlers: MemberRowHandlers;
 }) {
   const active = member.status === "active";
   const displayName = member.user.display_name || member.user.username;
-  const currentRole = member.assigned_role;
+  const currentRole = access.role;
   const currentAssignable = !currentRole || roles.some((role) => role.id === currentRole.id);
   const status = member.status ?? "active";
   return (
@@ -82,20 +87,21 @@ function MemberRow({ makerspaceId, member, roles, membershipEnabled, managedByPl
         </div>
       </TD>
       <TD className="align-top">
-        {!active ? <span className="text-ink-secondary">{currentRole?.name ?? "Member"}</span>
-          : managedByPlatform ? (
+        {!active ? <span className="text-ink-secondary">{access.roleName}</span>
+          : access.locked ? (
             <div className="grid gap-0.5">
-              <span className="text-ink">{currentRole?.name ?? "Member"}</span>
-              <span className="text-caption text-ink-muted">Managed by a platform admin</span>
+              <span className="text-ink">{access.roleName}</span>
+              {access.locked === "platform" ? <span className="text-caption text-ink-muted">Managed by a platform admin</span> : null}
             </div>
           ) : (
             <Dropdown
               aria-label={`Role for ${displayName}`}
               className="min-w-44"
-              defaultValue={String(currentRole?.id ?? "")}
+              value={currentRole ? String(currentRole.id) : ""}
               disabled={pending.role}
               onChange={(event) => handlers.onChangeRole(member, Number(event.target.value))}
             >
+              {currentRole ? null : <option value="" disabled>Choose a role</option>}
               {currentAssignable ? null : <option value={currentRole?.id} disabled>{currentRole?.name}</option>}
               {roles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
             </Dropdown>
@@ -107,9 +113,7 @@ function MemberRow({ makerspaceId, member, roles, membershipEnabled, managedByPl
           {member.waiver_required ? (
             <StatusChip size="sm" tone={member.waiver_current ? "success" : "warning"}>{member.waiver_current ? "Waiver current" : "Waiver needed"}</StatusChip>
           ) : null}
-          {membershipEnabled ? (
-            <StatusChip size="sm" tone={member.verified_at ? "success" : "neutral"}>{member.verified_at ? "Verified" : "Not verified"}</StatusChip>
-          ) : null}
+          <StatusChip size="sm" tone={member.verified_at ? "success" : "neutral"}>{member.verified_at ? "Verified" : "Not verified"}</StatusChip>
         </div>
       </TD>
       <TD className="align-top">
@@ -118,12 +122,11 @@ function MemberRow({ makerspaceId, member, roles, membershipEnabled, managedByPl
             {member.waiver_required && !member.waiver_current ? (
               <Button size="sm" disabled={pending.witness} onClick={() => handlers.onWitness(member)}>Record witnessed acceptance</Button>
             ) : null}
-            {membershipEnabled ? <>
-              <CheckboxField label="Can refer" checked={Boolean(member.can_refer)} disabled={pending.capabilities} onCheckedChange={(checked) => handlers.onCapability(member, { can_refer: checked === true })} />
-              <CheckboxField label="Can verify" checked={Boolean(member.can_verify)} disabled={pending.capabilities} onCheckedChange={(checked) => handlers.onCapability(member, { can_verify: checked === true })} />
-              <Button size="sm" disabled={pending.verification} onClick={() => handlers.onVerify(member)}>{member.verified_at ? "Unverify" : "Verify"}</Button>
-            </> : null}
-            {managedByPlatform ? null : <Button size="sm" variant="danger-quiet" onClick={() => handlers.onRevoke(member)}>Revoke…</Button>}
+            <CheckboxField label="Can refer" checked={Boolean(member.can_refer)} disabled={pending.capabilities} onCheckedChange={(checked) => handlers.onCapability(member, { can_refer: checked === true })} />
+            <CheckboxField label="Can verify" checked={Boolean(member.can_verify)} disabled={pending.capabilities} onCheckedChange={(checked) => handlers.onCapability(member, { can_verify: checked === true })} />
+            <Button size="sm" disabled={pending.verification} onClick={() => handlers.onVerify(member)}>{member.verified_at ? "Unverify" : "Verify"}</Button>
+            {access.locked === "own" ? <span className="text-caption text-ink-muted">You</span>
+              : access.locked ? null : <Button size="sm" variant="danger-quiet" onClick={() => handlers.onRevoke(member)}>Revoke…</Button>}
           </div>
         ) : null}
       </TD>
