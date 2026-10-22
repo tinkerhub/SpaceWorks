@@ -118,6 +118,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
         <section className="grid gap-4">
           <SectionHeading title="3D-printer queue" description="Accept jobs, reserve filament, start work, reconcile actual grams, then complete, fail, collect or reprint." />
           <ServiceQueue
+            makerspaceId={makerspaceId}
             requests={requests.data}
             loading={requests.isLoading}
             draft={draft}

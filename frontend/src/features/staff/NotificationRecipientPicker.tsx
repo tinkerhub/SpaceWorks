@@ -51,7 +51,7 @@ export function NotificationRecipientPicker({
         title={<span id="notification-recipients-heading">Who gets notified</span>}
         description={delegated
           ? "Pick recipients for maintenance alerts within your machine scope. Every rule must name at least one reachable machine or machine type."
-          : "Pick recipients per event. Leave an event empty to notify everyone whose role covers it, which is the default. A member who has turned notifications off is never emailed, even when selected."}
+          : "Pick recipients per event. Leave an event empty to notify everyone whose role covers it, which is the default. Someone who has turned notifications off is never emailed, even when selected."}
       />
 
       {data.isLoading ? (

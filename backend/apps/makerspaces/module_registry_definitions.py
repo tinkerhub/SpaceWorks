@@ -72,9 +72,8 @@ GROUPS = (
     ),
     GroupDefinition(
         GROUP_REPORTS, "Reports",
-        "Analytics, the report registry and CSV/XLSX exports. Standalone rather than "
-        "part of Inventory, because switching Inventory off would otherwise kill the "
-        "machine and event reports too.",
+        "Analytics, the report registry and CSV/XLSX exports. Standalone so it can be "
+        "switched off on its own; it only lists reports whose modules are on.",
     ),
     GroupDefinition(
         GROUP_PAYMENTS, "Payments",

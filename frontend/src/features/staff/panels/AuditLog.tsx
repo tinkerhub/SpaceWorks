@@ -20,11 +20,17 @@ type AuditLogResponse = {
   results: AuditLogEntry[];
 };
 
-export function AuditLog() {
+/**
+ * `makerspaceId` scopes the list to the active makerspace. Without it a superadmin (or a
+ * manager of two spaces) sees every makerspace's entries, and an origin-locked site refuses
+ * the request outright: `admin-audit-logs` is a query-scoped route that needs `?makerspace=`.
+ */
+export function AuditLog({ makerspaceId }: { makerspaceId?: number } = {}) {
   const [targetType, setTargetType] = useState("");
   const [targetId, setTargetId] = useState("");
   const [page, setPage] = useState(1);
   const params = new URLSearchParams();
+  if (makerspaceId !== undefined) params.set("makerspace", String(makerspaceId));
   if (targetType) params.set("target_type", targetType);
   if (targetId) params.set("target_id", targetId);
   params.set("page", String(page));
@@ -46,7 +52,12 @@ export function AuditLog() {
   const filtered = Boolean(targetType || targetId);
 
   return (
-    <Panel title="Audit log" description="Every state change in this makerspace, newest first. Entries can't be edited or removed.">
+    <Panel
+      title="Audit log"
+      description={makerspaceId !== undefined
+        ? "Every state change in this makerspace, newest first. Entries can't be edited or removed."
+        : "Every state change you can see, newest first. Entries can't be edited or removed."}
+    >
       <div className="grid gap-4">
         <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <Field label="Target type">

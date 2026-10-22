@@ -13,8 +13,10 @@ type LineDraft = { key: number; productId: string; quantity: string };
 
 const firstLine = (): LineDraft[] => [{ key: 1, productId: "", quantity: "1" }];
 
+// Name first: the code is a 32-character opaque token that people neither read nor type, so
+// leading with it pushed the container's name off the end of every option and table cell.
 export function labelForContainer(container: Container) {
-  return [container.code, container.label, container.location].filter(Boolean).join(" - ");
+  return [container.label, container.location].filter(Boolean).join(" · ") || container.code || `Container #${container.id}`;
 }
 
 /**

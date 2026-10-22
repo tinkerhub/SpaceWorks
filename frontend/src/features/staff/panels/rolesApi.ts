@@ -134,3 +134,18 @@ export function roleManagesMakerspace(
   const role = roleId == null ? undefined : roles.find((item) => item.id === roleId);
   return role ? role.granted_actions.includes("manage_makerspace") : legacyRole === "space_manager";
 }
+
+// Users lists staff: memberships whose role grants actions. A community member or a walk-in
+// borrower record (a role granting nothing) is not staff -- it belongs to the Members tab,
+// which exists only with the `membership` module on -- and offering it "Reset password" or
+// "Change role" here would be offering what the backend refuses or never meant. A legacy row
+// (no assigned role) is staff unless it is `custom`, the enum a grant-less row mirrors. A role
+// missing from the list (created since it loaded) is kept rather than hiding a staff member.
+export function isStaffMembership(
+  row: Pick<StaffMembershipRow, "role" | "assigned_role">,
+  roles: readonly Pick<StaffRole, "id" | "granted_actions">[],
+): boolean {
+  if (!row.assigned_role) return row.role !== "custom";
+  const role = roles.find((item) => item.id === row.assigned_role?.id);
+  return role ? role.granted_actions.length > 0 : true;
+}

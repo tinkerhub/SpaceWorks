@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { assignableRolesFor, type StaffMembershipRow, type StaffRole } from "./rolesApi";
+import { assignableRolesFor, isStaffMembership, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 import { UsersTable } from "./UsersTable";
 
 function role(id: number, name: string, granted_actions: string[], legacy_role: string | null = null): StaffRole {
@@ -76,12 +76,31 @@ describe("UsersTable action visibility", () => {
     expect(screen.queryByRole("button", { name: /^Restore/ })).not.toBeInTheDocument();
   });
 
-  it("keeps every action for a superadmin except resetting their own password", () => {
+  it("keeps every action for a superadmin on other rows, none on their own", () => {
     renderTable(true);
 
-    expect(actionNames("me")).toEqual(["Change role", "Restrict…", "Restore", "Revoke…"]);
+    expect(actionNames("me")).toEqual([]);
+    expect(within(rowFor("me")).getByText("You")).toBeInTheDocument();
     expect(actionNames("other-manager")).toEqual(["Change role", "Restrict…", "Reset password", "Restore", "Revoke…"]);
     expect(actionNames("stock-keeper")).toEqual(["Change role", "Restrict…", "Reset password", "Restore", "Revoke…"]);
+  });
+
+  it("offers Restore only on a row whose access is not active", () => {
+    rows[3] = { ...rows[3], user: { ...rows[3].user, access_status: "active" } };
+    try {
+      renderTable(true);
+      expect(actionNames("stock-keeper")).toEqual(["Change role", "Restrict…", "Reset password", "Revoke…"]);
+      expect(actionNames("other-manager")).toContain("Restore");
+    } finally {
+      rows[3] = row(4, "stock-keeper", inventoryRole);
+    }
+  });
+
+  it("shows a role as text, never a select, on every row", () => {
+    renderTable(false);
+
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(within(rowFor("legacy-manager")).getByText("Space Manager")).toBeInTheDocument();
   });
 });
 
@@ -90,5 +109,15 @@ describe("assignableRolesFor", () => {
     const wide = role(3, "Wide", ["issue_hardware", "manage_printing"]);
     expect(assignableRolesFor([...roles, wide], ["manage_makerspace", "issue_hardware"], false)).toEqual([inventoryRole]);
     expect(assignableRolesFor([...roles, wide], [], true)).toHaveLength(3);
+  });
+});
+
+describe("isStaffMembership", () => {
+  const memberRole = role(5, "Member", []);
+  it("keeps roles that grant actions and legacy staff rows, drops grant-less rows", () => {
+    expect(isStaffMembership(row(1, "a", inventoryRole), [...roles, memberRole])).toBe(true);
+    expect(isStaffMembership(row(2, "b", null, "machine_manager"), roles)).toBe(true);
+    expect(isStaffMembership(row(3, "walk-in", memberRole, "custom"), [...roles, memberRole])).toBe(false);
+    expect(isStaffMembership(row(4, "c", null, "custom"), roles)).toBe(false);
   });
 });

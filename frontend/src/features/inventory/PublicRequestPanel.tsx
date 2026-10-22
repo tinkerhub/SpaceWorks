@@ -2,17 +2,16 @@ import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Card, useToast } from "../../components/ui";
-import { cn } from "../../lib/cn";
 import type { RequestCartItem } from "../../types/inventory";
 import { BorrowRequestCard } from "./BorrowRequestCard";
 import { getAccessToken, memberRequest, refreshAccessToken } from "../../lib/api";
 import { submitPublicRequest, type CheckinMatch } from "./api";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
-import { PublicRequestHeader } from "./PublicRequestHeader";
+import { PublicRequestHeader, type DeskIdentity } from "./PublicRequestHeader";
 import { PublicToolScanPanel } from "./PublicToolScanPanel";
+import { RequestDeskTabs, type ActiveTab } from "./RequestDeskTabs";
 
-type ActiveTab = "borrow" | "scan";
 type MembershipProbe = {
   memberships: Array<{ makerspace: { slug?: string }; membership_status: string }>;
 };
@@ -24,6 +23,12 @@ type PublicRequestPanelProps = {
   // The makerspace's policy, not the caller's state. Present only when the space opted
   // into account-less borrow requests.
   requestAccess?: "anyone" | "checked_in";
+  // Whether the `membership` module is on: it decides between the `members` and
+  // `accounts` policies when `requestAccess` is absent, and whether self-checkout can
+  // work at all off the check-in roster (it needs membership, waiver and presence).
+  membershipOn?: boolean;
+  // The `inventory.self_checkout` feature. Off (or unusable) hides the scan tab.
+  selfCheckout?: boolean;
 };
 
 // The header is required for account-less submissions, and it is what makes a retry
@@ -44,10 +49,16 @@ export function PublicRequestPanel({
   onClear,
   disabled = false,
   requestAccess,
+  membershipOn = false,
+  selfCheckout = false,
 }: PublicRequestPanelProps) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<ActiveTab>("borrow");
+  const [selectedTab, setActiveTab] = useState<ActiveTab>("borrow");
+  // Self-checkout off the roster runs `require_active_member_presence`, which no caller
+  // can satisfy with `membership` off -- so the tab is offered only where it can work.
+  const scanAvailable = selfCheckout && (requestAccess === "checked_in" || membershipOn);
+  const activeTab: ActiveTab = scanAvailable ? selectedTab : "borrow";
   const [requestedFor, setRequestedFor] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [contactName, setContactName] = useState("");
@@ -96,6 +107,17 @@ export function PublicRequestPanel({
     sessionProbe.isFetched &&
     (!authenticated || membershipProbe.isFetched) &&
     !activeMembership;
+  // Mirrors `RequestSubmitView`: contact details on `anyone` without a session, the roster
+  // on `checked_in` unless the caller holds an active membership here, otherwise the
+  // caller's own account (membership, waiver and presence only with `membership` on).
+  // While a checked-in probe is pending the desk describes the roster, the common case.
+  const borrowIdentity: DeskIdentity = accountLess
+    ? "contact"
+    : requestAccess === "checked_in" && !activeMembership
+      ? "checkin"
+      : requestAccess || !membershipOn
+        ? "account"
+        : "member";
   const totalItems = useMemo(
     () => items.reduce((total, item) => total + item.quantity, 0),
     [items],
@@ -153,15 +175,6 @@ export function PublicRequestPanel({
     onError: () => showToast("Your request was not submitted", { tone: "error" }),
   });
 
-  // Two views of one panel, drawn as a segmented control. Plain buttons with
-  // aria-pressed (not tabs): each one swaps the panel below in place.
-  function tabClass(tab: ActiveTab) {
-    return cn(
-      "inline-flex min-h-9 min-w-0 items-center justify-center rounded-full px-3 text-sm font-semibold transition-[background-color,color,box-shadow] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
-      activeTab === tab ? "bg-canvas text-ink shadow-segment" : "text-ink-muted hover:text-ink",
-    );
-  }
-
   const contactReady =
     !accountLess ||
     (contactName.trim().length > 0 && contactEmail.trim().length > 0);
@@ -196,36 +209,15 @@ export function PublicRequestPanel({
       ) : (
         <>
           <PublicRequestHeader
-            accountLess={accountLess}
-            activeTab={activeTab}
-            checkedIn={checkedIn}
+            tab={activeTab}
+            identity={activeTab === "scan" ? (requestAccess === "checked_in" ? "checkin" : "member") : borrowIdentity}
             requestAccess={requestAccess}
+            // A signed-in caller is only known NOT to be a member here once the probe
+            // settles; until then the borrow desk must not tell staff they are outsiders.
+            authenticated={authenticated && (activeTab === "scan" || requestAccess !== "checked_in" || membershipProbe.isFetched)}
           />
 
-          <div
-            aria-label="Request actions"
-            className="grid shrink-0 grid-cols-2 gap-1 rounded-full bg-fill p-1"
-            role="group"
-          >
-            <button
-              aria-pressed={activeTab === "borrow"}
-              className={tabClass("borrow")}
-              id="public-request-borrow-tab"
-              type="button"
-              onClick={() => setActiveTab("borrow")}
-            >
-              Borrow request
-            </button>
-            <button
-              aria-pressed={activeTab === "scan"}
-              className={tabClass("scan")}
-              id="public-request-scan-tab"
-              type="button"
-              onClick={() => setActiveTab("scan")}
-            >
-              Scan a tool
-            </button>
-          </div>
+          {scanAvailable ? <RequestDeskTabs activeTab={activeTab} onChange={setActiveTab} /> : null}
 
           <div className="lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
             {activeTab === "borrow" ? (
@@ -253,7 +245,7 @@ export function PublicRequestPanel({
                   onClear={onClear}
                   onRequestedForChange={setRequestedFor}
                   onSubmit={() => submitMutation.mutate()}
-                  accountLess={accountLess}
+                  identity={borrowIdentity}
                   contactName={contactName}
                   contactEmail={contactEmail}
                   contactPhone={contactPhone}

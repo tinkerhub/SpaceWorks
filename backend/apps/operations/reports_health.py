@@ -41,7 +41,17 @@ def build_fablab_health(makerspace_id, *, limit=None, date_range=None):
     ordered = [records[row["id"]] for row in spaces]
     if limit is not None:
         ordered = ordered[:limit]
-    return ReportResult((("makerspace_id",) + FIELDS) if aggregate else FIELDS, ordered)
+    fields = _fields_for(records.values())
+    return ReportResult((("makerspace_id",) + fields) if aggregate else fields, ordered)
+
+
+def _fields_for(records):
+    """Off means absent: a section no space in scope has switched on contributes no columns."""
+    records = list(records)
+    if not records:
+        return FIELDS
+    off = tuple(f"{section}_" for section in SECTION_FIELDS if not any(record[f"{section}_enabled"] for record in records))
+    return tuple(field for field in FIELDS if not field.startswith(off)) if off else FIELDS
 
 
 def _empty_record(space, aggregate):

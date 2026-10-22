@@ -6,7 +6,11 @@ import type { DirectLoanMember } from "./DirectLoanTypes";
 import { errorText } from "./panels/shared";
 import { WalkInMemberForm } from "./WalkInMemberForm";
 
-/** Who the handout is for: an active member, a witnessed waiver, or a new walk-in. */
+/**
+ * Who the handout is for: someone already on the roster, or a walk-in named at the counter.
+ * Waivers are part of the membership module, so the witnessed-waiver control and the
+ * "member" wording only appear while that module is on.
+ */
 export function DirectLoanBorrower({
   makerspaceId,
   members,
@@ -14,6 +18,7 @@ export function DirectLoanBorrower({
   error,
   borrowerId,
   onBorrowerChange,
+  membershipOn,
 }: {
   makerspaceId: number;
   members: DirectLoanMember[];
@@ -21,6 +26,7 @@ export function DirectLoanBorrower({
   error: Error | null;
   borrowerId: string;
   onBorrowerChange: (userId: string) => void;
+  membershipOn: boolean;
 }) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -46,14 +52,14 @@ export function DirectLoanBorrower({
 
   return (
     <div className="grid gap-3">
-      <Field label="Borrowing member" helperText={loading ? "Loading members…" : undefined}>
+      <Field label={membershipOn ? "Borrowing member" : "Borrower"} helperText={loading ? "Loading people…" : undefined}>
         <Dropdown
           id="direct-loan-borrower"
           value={borrowerId}
           disabled={loading}
           onChange={(event) => choose(event.target.value)}
         >
-          <option value="">Select an active member</option>
+          <option value="">{membershipOn ? "Select an active member" : "Select a borrower"}</option>
           {members.map((member) => (
             <option key={member.user_id} value={member.user_id}>
               {member.display_name || member.username}
@@ -62,7 +68,7 @@ export function DirectLoanBorrower({
         </Dropdown>
       </Field>
       <ErrorText message={error?.message} />
-      {selectedMember ? (
+      {membershipOn && selectedMember ? (
         <div className="flex flex-wrap items-center gap-3">
           <Button size="sm" loading={witnessWaiver.isPending} onClick={() => witnessWaiver.mutate()}>
             Record witnessed waiver acceptance

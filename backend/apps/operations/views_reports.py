@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from apps.accounts import rbac
 from apps.admin_api.permissions import IsActiveStaff, require_action
 from apps.makerspaces.guards import require_module
-from apps.makerspaces.platform import module_enabled
+from apps.operations.report_applicability import applicable_fields, report_applicable, require_report_applicable
+from apps.operations.report_scope import eligible_makerspaces
 from apps.operations import accountability, reports
 from apps.operations.org_report_strategies import STRATEGIES
 from apps.operations.report_registry import REPORT_DEFINITIONS
@@ -24,7 +25,6 @@ from apps.operations.views_report_helpers import (
     _makerspace_for_catalog,
     _makerspace_for_inventory_view,
     _page_params,
-    _require_source_modules,
     _require_superadmin,
 )
 
@@ -74,7 +74,7 @@ class AnalyticsView(APIView):
         definition = reports.validate_report_key(report_key)
         require_action(request.user, definition.required_action, makerspace.id)
         require_module(makerspace, "reports")
-        _require_source_modules(makerspace, definition.required_modules)
+        require_report_applicable(definition, makerspace)
         return Response(reports.report_data(
             report_key, makerspace.id,
             limit=_limit_param(request), date_range=_date_range(request),
@@ -93,15 +93,17 @@ class ReportCatalogView(APIView):
     def get(self, request, makerspace_id, *args, **kwargs):
         makerspace = _makerspace_for_catalog(request.user, makerspace_id)
         require_module(makerspace, "reports")
-        entries = []
-        for definition in REPORT_DEFINITIONS:
-            if not rbac.can(request.user, definition.required_action, makerspace.id):
-                continue
-            missing = [key for key in definition.required_modules if not module_enabled(makerspace, key)]
-            entries.append(_catalog_entry(
-                definition, available=not missing,
-                reason=f"Required module disabled: {', '.join(missing)}" if missing else None,
-            ))
+        # Off means absent: a report whose modules are switched off is omitted, not listed
+        # as unavailable, and a section report lists only the columns it will return.
+        entries = [
+            _catalog_entry(
+                definition, available=True, reason=None,
+                fields=applicable_fields(definition, makerspace),
+            )
+            for definition in REPORT_DEFINITIONS
+            if rbac.can(request.user, definition.required_action, makerspace.id)
+            and report_applicable(definition, makerspace)
+        ]
         return Response({"results": entries})
 
 
@@ -115,9 +117,13 @@ class AggregateReportCatalogView(APIView):
     )
     def get(self, request, *args, **kwargs):
         _require_superadmin(request.user)
+        # A deployment-wide report is listed when it applies to at least one space it
+        # would aggregate; one that no eligible space has switched on is omitted.
+        spaces = list(eligible_makerspaces())
         return Response({"results": [
             _catalog_entry(definition, available=None, reason=None)
             for definition in REPORT_DEFINITIONS
+            if not spaces or any(report_applicable(definition, space) for space in spaces)
         ]})
 
 
@@ -182,7 +188,7 @@ class ReportExportView(APIView):
         definition = reports.validate_report_key(report_key, for_export=True)
         require_action(request.user, definition.required_action, makerspace.id)
         require_module(makerspace, "reports")
-        _require_source_modules(makerspace, definition.required_modules)
+        require_report_applicable(definition, makerspace)
         fmt = _export_format(request)
         rows = reports.report_rows(
             report_key, makerspace.id, date_range=_date_range(request),
@@ -250,10 +256,10 @@ def _grain_param(request, definition):
     return value
 
 
-def _catalog_entry(definition, *, available, reason):
+def _catalog_entry(definition, *, available, reason, fields=None):
     return {
         "key": definition.key, "title": definition.title or definition.key.replace("-", " ").title(),
-        "fields": list(definition.fields), "exportable": definition.exportable,
+        "fields": list(definition.fields) if fields is None else fields, "exportable": definition.exportable,
         "summary": definition.summary, "required_modules": list(definition.required_modules),
         "available": available, "unavailable_reason": reason,
         "grains": list(definition.grains or ("day",)), "chart_hint": definition.chart_hint,

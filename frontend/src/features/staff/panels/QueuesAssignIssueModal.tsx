@@ -78,7 +78,7 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
         <Field label="Remark">
           <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} />
         </Field>
-        {requiredScans > 0 ? <AssetScanList scanned={scanned} requiredScans={requiredScans} pending={pending} onScan={() => setShowScanner(true)} onRemove={(payload) => setScanned((items) => items.filter((item) => item.payload !== payload))} /> : null}
+        {requiredScans > 0 ? <AssetScanList scanned={scanned} requiredScans={requiredScans} pending={pending} onScan={() => setShowScanner(true)} onManual={(payload) => void handleScan(payload)} onRemove={(payload) => setScanned((items) => items.filter((item) => item.payload !== payload))} /> : null}
         <IssueItems row={row} pending={pending} rejects={rejects} setBroken={setBroken} setDisposition={setDisposition} />
         {showScanner ? <QrScanner onScan={handleScan} onClose={() => setShowScanner(false)} /> : null}
         <ErrorText message={validationError || error} />
@@ -87,7 +87,7 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
   );
 
   function submitAssign() {
-    if (!boxCode.trim()) return setValidationError("Box QR code is required.");
+    if (!boxCode.trim()) return setValidationError("Scan or choose a container before issuing.");
     if (evidenceId === null) return setValidationError("Upload an issue photo before issuing.");
     const overflow = (row?.items ?? []).find((item) => (rejects[item.id]?.broken ?? 0) > item.accepted_quantity);
     if (overflow) return setValidationError(`Can't reject more than ${overflow.accepted_quantity} of ${overflow.product_name}.`);
@@ -98,7 +98,16 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
   }
 }
 
-function AssetScanList({ scanned, requiredScans, pending, onScan, onRemove }: { scanned: ScannedAsset[]; requiredScans: number; pending: boolean; onScan: () => void; onRemove: (payload: string) => void }) {
+// A handheld (keyboard-wedge) scanner types the payload into a field: the fallback for a desk
+// without a camera, as the container field and the direct-handout form already offer. It
+// resolves exactly like a camera scan.
+function AssetScanList({ scanned, requiredScans, pending, onScan, onManual, onRemove }: { scanned: ScannedAsset[]; requiredScans: number; pending: boolean; onScan: () => void; onManual: (payload: string) => void; onRemove: (payload: string) => void }) {
+  const [manual, setManual] = useState("");
+  const addManual = () => {
+    if (!manual.trim()) return;
+    onManual(manual);
+    setManual("");
+  };
   return (
     <section className="grid gap-3">
       <SectionHeading
@@ -125,6 +134,12 @@ function AssetScanList({ scanned, requiredScans, pending, onScan, onRemove }: { 
           ))}
         </ul>
       ) : null}
+      <div className="flex flex-wrap items-end gap-2">
+        <Field label="Asset QR code" optional helperText="No camera? Scan into this field with a handheld scanner." className="min-w-0 flex-1">
+          <Input className="font-mono" value={manual} disabled={pending} onChange={(event) => setManual(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addManual(); } }} />
+        </Field>
+        <Button size="sm" disabled={pending || !manual.trim()} onClick={addManual}>Add code</Button>
+      </div>
     </section>
   );
 }

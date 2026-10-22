@@ -98,6 +98,7 @@
 - `backend/apps/operations/` — open operations/reporting: health (public liveness, internal-only readiness detail in
   `views_health.py`), stock transfers (intra + true
   cross-makerspace), stocktake, adjustments, ledger, `report_registry.py` + `report_scope.py` + `reports_*`
+  (`report_applicability.py` decides whether a report applies to a space's module set)
   builders, CSV/XLSX exports, container APIs, QR print batches (`qr_zip.py`), dashboard, accountability.
   `views.py`/`services.py` are thin re-export barrels over `views_*`/`services_*`; `serializers.py`
   re-exports the stocktake serializers from `serializers_stocktake.py`. `stocktake_authority.py` is the one
@@ -110,7 +111,10 @@
 - `backend/apps/integrations/` — Telegram/email/Slack/Mattermost/native-push delivery, encrypted FCM/APNs
   credentials + device registrations, `dispatch_email` choke point + `EmailLog` outbox + Celery task,
   webhook (auth via `X-Telegram-Bot-Api-Secret-Token` vs `TELEGRAM_WEBHOOK_SECRET`, fail-closed),
-  `PlatformEmailSettings`, `DailyEmailCounter`, staff-notification recipient matrix.
+  `PlatformEmailSettings`, `DailyEmailCounter`, staff-notification recipient matrix. `telegram_errors.py` maps
+  Bot API failures to readable reasons; `integration_settings_validation.py` validates tokens/chat ids and
+  refuses secret saves without `API_CLIENT_ENC_KEY` (503). The per-makerspace email test-send is
+  `admin_api/views_email_test.py`.
 - `backend/apps/updates/` — retired: only the `PlatformUpdateSettings` model and its migration
   remain, for one release (rollback and compound-backup table classification). No surfaces.
 - `backend/apps/backup/` — deployment backup + restore (Phase 5A/Lane E). `outer_manifest.py` owns the
@@ -241,7 +245,9 @@
   remaining FabLab + governance modules.
 - `backend/tests/` — pytest behavior tests (external behavior, not implementation).
 - `frontend/src/features/inventory/` — public catalog/detail/self-checkout + `ProductCard`/
-  `AvailabilityBadge`. `frontend/src/features/staff/` — staff console panels; grouped nav via
+  `AvailabilityBadge`. `frontend/src/features/staff/` — staff console panels (`panels/UsersInvitations.tsx` for staff invitations
+  when membership is off, `MakerspaceEmailTestSettings.tsx`, `panels/machine/useConsoleModule.ts` for module
+  state on machine screens; public desk tabs in `features/inventory/RequestDeskTabs.tsx`); grouped nav via
   `staffAccess.ts` `TAB_GROUPS`, which does sidebar grouping AND permission derivation (**not**
   `StaffApp.tsx`; module gating and routing are the separate `staffTabs.ts`); capabilities from
   action-based `staffAccess.ts`; payment reconciliation and platform credential panels.

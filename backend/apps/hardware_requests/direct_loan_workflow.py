@@ -24,7 +24,25 @@ from apps.hardware_requests.workflow_errors import (
     RequestValidationError,
 )
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
-from apps.presence.guard import require_active_member_presence
+from apps.makerspaces.platform import module_enabled
+from apps.presence.guard import require_active_account, require_active_member_presence
+
+
+def require_eligible_borrower(borrower, makerspace):
+    """Membership, waiver and an open presence session only when `membership` is on.
+
+    The same split the public borrow request makes (`public_views.RequestSubmitView`).
+    Waivers and presence sessions are both recorded through member self-service, so
+    with the community module off nobody can ever hold one: requiring them refused
+    every handout on a check-in-mode or accounts-off space (the walk-in a staffer
+    names at the counter could never qualify). The staffer handing the tool over is
+    the presence witness there, and the borrower must still be an active, unrestricted
+    account holding an active membership row (`_borrower_for_makerspace`).
+    """
+    if module_enabled(makerspace, "membership"):
+        require_active_member_presence(borrower, makerspace)
+    else:
+        require_active_account(borrower, makerspace)
 
 
 def issue_direct_loan(
@@ -38,7 +56,7 @@ def issue_direct_loan(
     items,
     container_id=None,
 ):
-    require_active_member_presence(borrower, makerspace)
+    require_eligible_borrower(borrower, makerspace)
     evidence = EvidencePhoto.objects.filter(
         pk=evidence_id,
         makerspace=makerspace,

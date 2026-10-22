@@ -73,7 +73,9 @@ export function BackupRestorePanel({ makerspaceId, isSuperadmin, singleTenantLoc
   return (
     <Panel
       title="Backup & restore"
-      description="Encrypted archives of this makerspace, and of the whole deployment for superadmins."
+      description={platform
+        ? "Encrypted archives of this makerspace, and of the whole deployment."
+        : "Encrypted archives of this makerspace."}
       actions={<Button variant="primary" loading={createTenant.isPending} loadingLabel="Requesting…" onClick={() => createTenant.mutate()}>Create makerspace archive</Button>}
     >
       <div className="grid gap-6">

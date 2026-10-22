@@ -33,9 +33,13 @@ function renderPanel(canConfigure = true) {
   );
 }
 
+let modules: string[] = [];
+
 beforeEach(() => {
+  modules = ["machines", "payments", "bookings"];
   staffRequest.mockReset();
   staffRequest.mockImplementation((path: string) => {
+    if (path === "/admin/makerspaces") return Promise.resolve([{ id: 7, name: "Lab", slug: "lab", enabled_modules: modules }]);
     if (path.endsWith("machine-type-pricing")) return Promise.resolve({ currency: "INR", results: [] });
     if (path.endsWith("machine-types")) return Promise.resolve([customType]);
     return Promise.resolve(customType);
@@ -45,7 +49,7 @@ beforeEach(() => {
 describe("MachineTypesPanel capability presets", () => {
   it("rejects blank and case-insensitive duplicate entries before creation", async () => {
     renderPanel();
-    fireEvent.click(screen.getByText("Machine types and pricing"));
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
     const createButton = await screen.findByRole("button", { name: "Create type" });
     const createForm = createButton.closest("form");
     expect(createForm).not.toBeNull();
@@ -65,7 +69,7 @@ describe("MachineTypesPanel capability presets", () => {
 
   it("omits a preset key when the custom type list is emptied", async () => {
     renderPanel();
-    fireEvent.click(screen.getByText("Machine types and pricing"));
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
     const saveButton = await screen.findByRole("button", { name: "Save type" });
     const editForm = saveButton.closest("form");
     expect(editForm).not.toBeNull();
@@ -81,5 +85,19 @@ describe("MachineTypesPanel capability presets", () => {
       expect(body.capability_config).not.toHaveProperty("accepted_materials");
       expect(body.capability_config.accepted_colours).toEqual(["Clear"]);
     });
+  });
+});
+
+describe("MachineTypesPanel without payments or bookings", () => {
+  it("drops pricing and the booking flag, which nothing on the space can act on", async () => {
+    modules = ["machines", "machine_service"];
+    renderPanel();
+
+    fireEvent.click(await screen.findByText("Machine types"));
+    expect(await screen.findByRole("button", { name: "Save type" })).toBeVisible();
+    expect(screen.queryByText("Machine types and pricing")).toBeNull();
+    expect(screen.queryByText("Enable payment")).toBeNull();
+    expect(screen.queryByText("Requires booking")).toBeNull();
+    expect(staffRequest.mock.calls.some(([path]) => String(path).endsWith("machine-type-pricing"))).toBe(false);
   });
 });

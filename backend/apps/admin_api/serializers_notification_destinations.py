@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.integrations.integration_settings_validation import validate_telegram_chat_id
 from apps.integrations.models_destinations import (
     NotificationDestination,
     WEBHOOK_CHANNELS,
@@ -75,6 +76,10 @@ class NotificationDestinationWriteSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     {"telegram_chat_id": "A Telegram destination needs a chat id."}
                 )
+            try:
+                attrs["telegram_chat_id"] = validate_telegram_chat_id(chat_id)
+            except serializers.ValidationError as exc:
+                raise serializers.ValidationError({"telegram_chat_id": exc.detail}) from exc
             if webhook:
                 raise serializers.ValidationError(
                     {"webhook_url": "Telegram destinations use a chat id, not a webhook."}

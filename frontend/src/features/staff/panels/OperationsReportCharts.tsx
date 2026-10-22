@@ -52,8 +52,8 @@ export function StackedBarChart({ rows, valueLabel }: { rows: StackedChartRow[];
   const labels = [...new Set(rows.flatMap((row) => row.segments.map((segment) => segment.label)))];
   return (
     <div role="img" aria-label={`Stacked bar chart of ${valueLabel ?? "values"}`} className="space-y-3">
-      {rows.map((row) => (
-        <div key={row.label} className="grid grid-cols-[8rem_1fr] items-center gap-2 text-body-ui">
+      {rows.map((row, index) => (
+        <div key={`${row.label}-${index}`} className="grid grid-cols-[8rem_1fr] items-center gap-2 text-body-ui">
           <span className="truncate text-ink" title={row.label}>{row.label}</span>
           <div className="flex h-3 overflow-hidden rounded-full bg-emphasis">{row.segments.map((segment) => <span key={segment.label} title={`${segment.label}: ${segment.value}`} style={{ width: `${segment.value / max * 100}%`, backgroundColor: REPORT_CHART_COLORS[labels.indexOf(segment.label) % REPORT_CHART_COLORS.length] }} />)}</div>
         </div>
@@ -75,9 +75,9 @@ export function PieChart({ rows, valueLabel }: { rows: ChartRow[]; valueLabel?: 
         const dash = row.value / total * circumference;
         const offset = -consumed;
         consumed += dash;
-        return <circle key={row.label} cx="80" cy="80" r="60" fill="none" stroke={REPORT_CHART_COLORS[index % REPORT_CHART_COLORS.length]} strokeWidth="26" strokeDasharray={`${dash} ${circumference - dash}`} strokeDashoffset={offset} />;
+        return <circle key={`${row.label}-${index}`} cx="80" cy="80" r="60" fill="none" stroke={REPORT_CHART_COLORS[index % REPORT_CHART_COLORS.length]} strokeWidth="26" strokeDasharray={`${dash} ${circumference - dash}`} strokeDashoffset={offset} />;
       })}</g></svg>
-      <ul className="min-w-0 flex-1 space-y-1.5 text-body-ui text-ink">{data.map((row, index) => <li key={row.label} className="flex items-center gap-2"><span aria-hidden="true" className="size-3 shrink-0 rounded-full" style={{ backgroundColor: REPORT_CHART_COLORS[index % REPORT_CHART_COLORS.length] }} />{row.label}<span className="ml-auto text-caption tabular-nums text-ink-muted">{formatNumber(row.value)} · {(row.value / total * 100).toFixed(0)}%</span></li>)}</ul>
+      <ul className="min-w-0 flex-1 space-y-1.5 text-body-ui text-ink">{data.map((row, index) => <li key={`${row.label}-${index}`} className="flex items-center gap-2"><span aria-hidden="true" className="size-3 shrink-0 rounded-full" style={{ backgroundColor: REPORT_CHART_COLORS[index % REPORT_CHART_COLORS.length] }} />{row.label}<span className="ml-auto text-caption tabular-nums text-ink-muted">{formatNumber(row.value)} · {(row.value / total * 100).toFixed(0)}%</span></li>)}</ul>
     </div>
   );
 }

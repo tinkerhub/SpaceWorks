@@ -25,6 +25,7 @@ import { MakerspacePublicStatsSettings } from "./MakerspacePublicStatsSettings";
 import { MakerspaceSubdomainSettings } from "./MakerspaceSubdomainSettings";
 import { MakerspaceWebhookSettings } from "./MakerspaceWebhookSettings";
 import { MakerspaceArchiveRequestPanel } from "./MakerspaceArchiveRequestPanel";
+import { EvidenceRetentionPanel } from "./EvidenceRetentionPanel";
 import { NotificationDestinations } from "./NotificationDestinations";
 import { NotificationMuteMatrix } from "./NotificationMuteMatrix";
 import { NotificationRecipientPicker } from "./NotificationRecipientPicker";
@@ -63,8 +64,13 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
           <MakerspaceLocationSettings {...shared} />
           {on("membership") ? <MakerspaceMembershipSettings {...shared} /> : null}
           <MakerspaceFeatureSettings {...shared} />
-          <MakerspaceGeofenceSettings {...shared} />
+          {/* Presence sessions are started by members, so the geofence only means
+              something while the membership module is on. */}
+          {on("membership") ? <MakerspaceGeofenceSettings {...shared} /> : null}
           <MakerspacePublicStatsSettings {...shared} />
+          {/* Retention governs hardware issue/return evidence, so it lives with the
+              makerspace's own settings rather than under any optional module. */}
+          {on("evidence_uploads") && canManageMakerspace ? <EvidenceRetentionPanel makerspaceId={makerspace.id} /> : null}
         </>
       ),
     },
@@ -98,7 +104,7 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
     label: "Notifications",
     content: (
       <>
-        <MakerspaceStaffNotificationSettings {...shared} />
+        {on("email") ? <MakerspaceStaffNotificationSettings {...shared} /> : null}
         {on("email") ? <MakerspaceEmailSettings makerspace={makerspace} /> : null}
         <section className="grid min-w-0 gap-4">
           <SectionHeading title="Notification channels" description="Which events reach which people, and where they are delivered." />

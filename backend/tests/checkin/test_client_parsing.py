@@ -67,6 +67,11 @@ def test_parses_a_well_formed_row():
     assert entry.check_out_time == datetime(2026, 9, 3, 15, 0, tzinfo=timezone.utc)
 
 
+def test_upstream_null_is_an_empty_roster_not_an_outage():
+    # The live roster answers `null` while nobody is checked in.
+    assert client._parse(b"null") == []
+
+
 def test_empty_roster_is_not_an_error():
     """Nobody checked in is a normal Tuesday morning, not a broken upstream."""
     assert parse([]) == []

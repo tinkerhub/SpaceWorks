@@ -43,8 +43,12 @@ export function PublicSelfCheckoutPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
 
   const features = tenant.mode === "single" ? tenant.bootstrap?.features ?? [] : bootstrap?.features ?? [];
-  const enabled = featureEnabled(features, "inventory.self_checkout");
   const requiresCheckin = bootstrap?.makerspace.request_access === "checked_in";
+  // Off the check-in roster the backend demands membership, waiver and presence, which
+  // nobody can hold with `membership` off, so the feature alone does not make it usable.
+  const enabled =
+    featureEnabled(features, "inventory.self_checkout") &&
+    (requiresCheckin || moduleEnabled("membership"));
   const identityReady = !requiresCheckin || confirmedCheckin !== null;
   const checkinPayload =
     requiresCheckin && confirmedCheckin

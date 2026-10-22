@@ -37,7 +37,7 @@ export function UsageTab({ machineId, makerspaceId, canOperate, retired = false 
 
   return (
     <section className="grid gap-4">
-      <SectionHeading as="h3" title="Usage" description="Hours logged by hand, by bookings and by finished jobs." />
+      <SectionHeading as="h3" title="Usage" description="Hours logged by hand, including prints logged outside the queue." />
       {canOperate && !retired ? (
         <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-end"
           onSubmit={(event) => { event.preventDefault(); add.mutate(); }}>

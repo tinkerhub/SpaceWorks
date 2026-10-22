@@ -60,7 +60,7 @@ export function WalkInMemberForm({
   if (!open) {
     return (
       <Button variant="quiet" size="sm" className="mt-2 px-0" startIcon={<UserPlus />} onClick={() => setOpen(true)}>
-        Not a member yet? Add a walk-in
+        Not in the list? Add a walk-in
       </Button>
     );
   }

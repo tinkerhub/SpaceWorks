@@ -79,8 +79,9 @@ export function OperationsReports({
     aggregate ? "/admin/reports/catalog" : `/admin/makerspace/${makerspace.id}/reports/catalog`,
     reportsEnabled,
   );
+  // Off means absent: an entry the server marks unavailable is dropped, never shown disabled.
   const catalogEntries = (catalog.data?.results ?? []).filter(
-    (report) => (report.required_modules ?? []).every(moduleOn),
+    (report) => report.available !== false && (report.required_modules ?? []).every(moduleOn),
   );
   useEffect(() => {
     if (!catalog.data || catalogEntries.some((item) => item.key === selectedReport && item.available !== false)) return;

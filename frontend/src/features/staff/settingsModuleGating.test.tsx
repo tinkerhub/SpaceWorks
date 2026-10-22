@@ -34,13 +34,14 @@ vi.mock("./MakerspaceFilamentSettings", () => ({ MakerspaceFilamentSettings: stu
 vi.mock("./MakerspaceEmailSettings", () => ({ MakerspaceEmailSettings: stub("email") }));
 vi.mock("./MakerspaceWebhookSettings", () => ({ MakerspaceWebhookSettings: stub("webhooks") }));
 vi.mock("./ApiClientsTelegramSettings", () => ({ ApiClientsTelegramSettings: stub("telegram") }));
+vi.mock("./EvidenceRetentionPanel", () => ({ EvidenceRetentionPanel: stub("evidence-retention") }));
 
 import { MakerspaceFeatureSettings } from "./MakerspaceFeatureSettings";
 import { MakerspaceSettingsPanel } from "./MakerspaceSettingsPanel";
 import type { Makerspace } from "./panels/shared";
 
 const CORE = ["public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads"];
-const GATED_CARDS = ["membership", "payments", "booking-emails", "booking-rules", "filament", "email", "webhooks", "telegram"];
+const GATED_CARDS = ["membership", "geofence", "payments", "booking-emails", "booking-rules", "filament", "email", "webhooks", "telegram"];
 
 function space(modules: string[]): Makerspace {
   return {
@@ -66,7 +67,7 @@ beforeEach(() => {
 
 // The settings page is tabbed and Radix unmounts inactive tab panels, so a gate is checked
 // by visiting every tab and collecting which card stubs (and inline cards) ever mounted.
-const INLINE_CARDS = ["Public print status recovery"];
+const INLINE_CARDS = ["Public print status recovery", "Staff email notifications"];
 async function mountedAcrossTabs() {
   await screen.findByText("card:general");
   const seen = new Set<string>();
@@ -88,7 +89,17 @@ describe("settings cards follow the module switches", () => {
     expect(tabs).toEqual(["General", "Notifications", "Integrations", "Domain & access"]);
     expect(seen.has("general")).toBe(true);
     for (const card of GATED_CARDS) expect(seen.has(card)).toBe(false);
-    expect(seen.has("Public print status recovery")).toBe(false);
+    for (const title of INLINE_CARDS) expect(seen.has(title)).toBe(false);
+  });
+
+  it("matches the production check-in module set: no membership, booking, payment or webhook cards", async () => {
+    renderSettings([...CORE, "printing", "machines", "machine_service", "maintenance", "notifications", "email", "telegram"]);
+    const { seen, tabs } = await mountedAcrossTabs();
+    expect(tabs).toEqual(["General", "Machines", "Notifications", "Integrations", "Domain & access"]);
+    for (const card of ["membership", "geofence", "payments", "booking-emails", "booking-rules", "webhooks"]) {
+      expect(seen.has(card)).toBe(false);
+    }
+    for (const card of ["email", "telegram", "filament", "Staff email notifications"]) expect(seen.has(card)).toBe(true);
   });
 
   it("mounts each card once its module is on", async () => {
@@ -96,7 +107,18 @@ describe("settings cards follow the module switches", () => {
     const { seen, tabs } = await mountedAcrossTabs();
     expect(tabs).toEqual(["General", "Bookings", "Machines", "Notifications", "Integrations", "Domain & access"]);
     for (const card of GATED_CARDS) expect(seen.has(card)).toBe(true);
-    expect(seen.has("Public print status recovery")).toBe(true);
+    for (const title of INLINE_CARDS) expect(seen.has(title)).toBe(true);
+  });
+
+  it("offers evidence retention in General with events off, to managers only", async () => {
+    renderSettings([...CORE, "email", "telegram"], true);
+    expect(await screen.findByText("card:evidence-retention")).toBeInTheDocument();
+  });
+
+  it("hides evidence retention from an actor who cannot manage the makerspace", async () => {
+    renderSettings(CORE, false);
+    await screen.findByText("card:general");
+    expect(screen.queryByText("card:evidence-retention")).not.toBeInTheDocument();
   });
 
   it("shows the Telegram settings to a Space Manager in Settings", async () => {
@@ -127,10 +149,41 @@ describe("feature settings fieldsets", () => {
     expect(groups).toEqual(["General"]);
   });
 
+  it("shows no raw module keys and labels each module group", () => {
+    wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "notifications"])} loading={false} />);
+    expect(screen.queryByText("public_inventory")).not.toBeInTheDocument();
+    expect(screen.queryByText("notifications")).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Notifications" })).toBeInTheDocument();
+  });
+
+  it("offers the presence geofence switch only with the membership module", () => {
+    const { unmount } = wrap(<MakerspaceFeatureSettings makerspace={space(CORE)} loading={false} />);
+    expect(screen.queryByRole("switch", { name: "Presence geofence" })).not.toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Self checkout" })).toBeInTheDocument();
+    unmount();
+    wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "membership"])} loading={false} />);
+    expect(screen.getByRole("switch", { name: "Presence geofence" })).toBeInTheDocument();
+  });
+
+  it("does not echo features stranded by a switched-off module when toggling another", async () => {
+    const makerspace = { ...space([...CORE, "notifications"]), enabled_features: ["mobile.push", "payments.enabled", "inventory.self_checkout"] };
+    staffRequest.mockResolvedValue(makerspace);
+    wrap(<MakerspaceFeatureSettings makerspace={makerspace} loading={false} />);
+
+    fireEvent.click(screen.getByRole("switch", { name: "Delegated maintenance recipients" }));
+
+    await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
+      "/admin/makerspaces/7",
+      expect.objectContaining({
+        body: JSON.stringify({ enabled_features: ["inventory.self_checkout", "notifications.delegated_recipients"] }),
+      }),
+    ));
+  });
+
   it("drops payments.* sub-features while the payments module is off", () => {
     wrap(<MakerspaceFeatureSettings makerspace={space([...CORE, "machines", "machine_service"])} loading={false} />);
     expect(screen.queryByText("Machine payments")).not.toBeInTheDocument();
-    expect(screen.queryByRole("group", { name: "machines" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Machines" })).not.toBeInTheDocument();
   });
 
   it("offers a parented feature once its module is on", async () => {

@@ -165,9 +165,9 @@ export function StaffTabContent({
         <MembersPanel
           key={makerspaceKey}
           makerspaceId={activeMakerspace.id}
-          membershipEnabled={moduleEnabled(activeMakerspace.enabled_modules, "membership")}
           actorActions={currentUser.makerspaces.find((item) => item.id === activeMakerspace.id)?.actions ?? []}
           isSuperadmin={isSuperadmin}
+          currentUsername={currentUser.username}
         />
       ) : null}
       {activeTab === "payments" && canManageMakerspace ? <PaymentsPanel key={makerspaceKey} makerspaceId={activeMakerspace.id} /> : null}
@@ -260,7 +260,10 @@ export function StaffTabContent({
         <ModulesPanel key={makerspaceKey} makerspaceId={activeMakerspace.id} makerspaceSlug={activeMakerspace.slug} />
       ) : null}
       {activeTab === "platform" ? (
-        <Panel title="Platform settings" description="Email delivery, sign-in providers and payouts shared by every makerspace on this deployment.">
+        <Panel
+          title="Platform settings"
+          description={`Email delivery${activeMakerspace.platform_hosting ? ", sign-in providers and payouts" : " and sign-in providers"} shared by every makerspace on this deployment.`}
+        >
           <div className="grid min-w-0 gap-6">
             <PlatformEmailPanel />
             <PlatformSocialAuthPanel />
@@ -280,7 +283,7 @@ export function StaffTabContent({
       {activeTab === "migration" && isSuperadmin && !singleTenantLocked ? (
         <TenantMigrationPanel key={makerspaceKey} makerspace={activeMakerspace} />
       ) : null}
-      {activeTab === "audit" && canViewAudit ? <AuditLog /> : null}
+      {activeTab === "audit" && canViewAudit ? <AuditLog key={makerspaceKey} makerspaceId={activeMakerspace.id} /> : null}
       </Suspense>
     </StaffPanelErrorBoundary>
   );

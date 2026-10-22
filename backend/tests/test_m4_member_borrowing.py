@@ -114,7 +114,11 @@ def test_self_checkout_requires_member_gate_before_evidence_or_loan_creation():
 
 
 def test_direct_loan_requires_scoped_borrower_presence_and_waiver(monkeypatch):
+    # Presence and waivers are membership-module facts; without the module the desk
+    # handout takes an active account instead (test_direct_loan_membership_off.py).
     space = Makerspace.objects.create(name="M4 direct", slug="m4-direct")
+    space.enabled_modules = [*space.enabled_modules, "member_accounts", "membership"]
+    space.save()
     staff = _member(space, "m4-staff", role="space_manager")
     borrower = _member(space, "m4-borrower")
     product = InventoryProduct.objects.create(

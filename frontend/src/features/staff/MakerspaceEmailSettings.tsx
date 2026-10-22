@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button, Card, CardHeader, CheckboxField, EmptyState, ErrorText, Field, Input, PasswordInput, SettingsRow, Skeleton, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { MakerspaceEmailTestSettings } from "./MakerspaceEmailTestSettings";
 import { errorText, type Makerspace, useStaffGet } from "./panels/shared";
 
 type ApiSettings = {
@@ -136,13 +137,14 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
   });
 
   const set = (patch: Partial<SmtpSettingsForm>) => setSmtpForm((current) => ({ ...current, ...patch }));
+  const unsaved = settings.data ? smtpChanged(smtpForm, settings.data) : false;
 
   return (
     <>
       <Card as="section" aria-labelledby="smtp-settings-title">
         <CardHeader
           title={<span id="smtp-settings-title">Email (SMTP)</span>}
-          description="The sender used for staff lifecycle notifications."
+          description="Your own mail server for this makerspace's notification emails. Leave the host empty to send through the platform's mail sender."
           action={(
             <>
               <Button
@@ -189,7 +191,7 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
             </Field>
           </div>
         </SettingsRow>
-        <SettingsRow title="Sender" description="The address staff emails come from.">
+        <SettingsRow title="Sender" description="The address notification emails come from.">
           <Field label="SMTP from email"><Input type="email" value={smtpForm.smtp_from_email} onChange={(event) => set({ smtp_from_email: event.target.value })} /></Field>
         </SettingsRow>
         <SettingsRow title="Encryption" description="Pick one. Most providers use STARTTLS on port 587.">
@@ -212,6 +214,7 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
             />
           </div>
         </SettingsRow>
+        <MakerspaceEmailTestSettings makerspaceId={makerspace.id} unsaved={unsaved} />
         <div className="grid gap-2">
           <ErrorText message={saveSmtpSettings.error?.message} />
           <ErrorText message={clearSmtpPassword.error?.message} />
@@ -221,7 +224,7 @@ export function MakerspaceEmailSettings({ makerspace }: { makerspace: Makerspace
       <Card as="section" aria-labelledby="notification-recipients-title">
         <CardHeader
           title={<span id="notification-recipients-title">Notification recipients</span>}
-          description="Unticked managers won't get hardware and printing lifecycle emails for this makerspace."
+          description="Unticked managers won't get request status emails for this makerspace."
           action={(
             <Button
               variant="primary"
@@ -274,6 +277,18 @@ function smtpPayload(form: SmtpSettingsForm) {
   };
   if (form.smtp_password) payload.smtp_password = form.smtp_password;
   return payload;
+}
+
+function smtpChanged(form: SmtpSettingsForm, saved: ApiSettings) {
+  return (
+    form.smtp_password !== "" ||
+    form.smtp_host !== (saved.smtp_host ?? "") ||
+    form.smtp_port !== String(saved.smtp_port ?? 587) ||
+    form.smtp_username !== (saved.smtp_username ?? "") ||
+    form.smtp_from_email !== (saved.smtp_from_email ?? "") ||
+    form.smtp_use_tls !== saved.smtp_use_tls ||
+    form.smtp_use_ssl !== saved.smtp_use_ssl
+  );
 }
 
 function roleLabel(role: NotificationRecipient["role"]) {

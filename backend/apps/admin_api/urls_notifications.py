@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.admin_api.views_email_logs import EmailLogListView, EmailLogRetryView
+from apps.admin_api.views_email_test import EmailTestView
 from apps.admin_api.views_email_templates import (
     EmailTemplateDetailView,
     EmailTemplateListView,
@@ -59,6 +60,11 @@ urlpatterns = [
         "makerspace/<int:makerspace_id>/email-logs",
         EmailLogListView.as_view(),
         name="admin-email-logs",
+    ),
+    path(
+        "makerspace/<int:makerspace_id>/email-test",
+        EmailTestView.as_view(),
+        name="admin-email-test",
     ),
     path(
         "makerspace/<int:makerspace_id>/email-logs/<int:pk>/retry",

@@ -7,6 +7,7 @@ import { ServiceStatusChip } from "./machineUi";
 import type { ServiceActionName, ServiceDraft } from "./serviceDrafts";
 import { paymentState } from "./servicePaymentState";
 import { poolLabel } from "./servicePools";
+import { useConsoleModule } from "./useConsoleModule";
 
 /** Button, confirm and toast copy for each service transition. */
 export const SERVICE_ACTION_COPY: Record<ServiceActionName, { confirm: string; done: string; failed: string; danger?: boolean }> = {
@@ -27,6 +28,12 @@ export function paymentTone(request: Pick<MachineServiceRequest, "payment" | "pa
   return "neutral";
 }
 
+// With `payments` off no charge is ever raised, so "Payment free" on every job is copy about a
+// module that is not there. A real charge row (or a legacy amount) still shows either way.
+export function showPaymentChip(request: Pick<MachineServiceRequest, "payment" | "payment_status" | "payment_amount">, paymentsOn: boolean) {
+  return paymentsOn || paymentState(request) !== "free";
+}
+
 type Options = {
   /** "Machine" or "Printer": the start form's machine picker label. */
   machineNoun: string;
@@ -38,6 +45,7 @@ type Options = {
 };
 
 type Props = Options & {
+  makerspaceId: number;
   requests: MachineServiceRequest[] | undefined;
   loading: boolean;
   draft: ServiceDraft;
@@ -49,7 +57,8 @@ type Props = Options & {
   onSubmit: (action: NonNullable<ServiceDraft["action"]>) => void;
 };
 
-export function ServiceQueue({ requests, loading, draft, setDraft, machines, pools, meta, pending, onSubmit, ...options }: Props) {
+export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft, machines, pools, meta, pending, onSubmit, ...options }: Props) {
+  const paymentsOn = useConsoleModule(makerspaceId, "payments");
   const choose = (request: MachineServiceRequest, name: ServiceActionName) =>
     setDraft((current) => ({ ...current, action: { id: request.id, name } }));
   const form = draft.action ? (
@@ -78,7 +87,7 @@ export function ServiceQueue({ requests, loading, draft, setDraft, machines, poo
   return (
     <div className="grid gap-2">
       {requests && !requests.length ? (
-        <EmptyState title="The queue is clear" description="New service requests from members show up here." />
+        <EmptyState title="The queue is clear" description="New service requests show up here." />
       ) : null}
       {requests?.map((request) => (
         <article className="grid gap-3 rounded-lg border border-line bg-canvas p-4" key={request.id}>
@@ -86,7 +95,7 @@ export function ServiceQueue({ requests, loading, draft, setDraft, machines, poo
             <strong className="min-w-0 text-title text-ink">{request.title}</strong>
             <span className="flex flex-wrap items-center gap-1.5">
               <ServiceStatusChip status={request.status} />
-              <Chip size="sm" tone={paymentTone(request)}>Payment {paymentState(request)}</Chip>
+              {showPaymentChip(request, paymentsOn) ? <Chip size="sm" tone={paymentTone(request)}>Payment {paymentState(request)}</Chip> : null}
             </span>
           </div>
           <p className="text-caption text-ink-muted">{meta(request)}</p>
@@ -173,7 +182,7 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
       </div>
       {name === "record-manual-payment" || name === "collect" || name === "reprint" ? (
         <p className="text-body-ui text-ink-secondary">
-          {name === "collect" ? "Confirm the member has their finished job." : name === "reprint" ? "This creates a new, already accepted copy of the job, ready to start." : "Confirm the payment was taken at the desk."}
+          {name === "collect" ? "Confirm the requester has their finished job." : name === "reprint" ? "This creates a new, already accepted copy of the job, ready to start." : "Confirm the payment was taken at the desk."}
         </p>
       ) : null}
       <div className="flex flex-wrap gap-2">

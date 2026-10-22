@@ -103,6 +103,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           description={`This type is metered in ${unitLabel}. ${poolUnit ? "Choose a machine before selecting its consumable pool." : "Minutes-based services do not use consumable pools."}`}
         />
         <ServiceQueue
+          makerspaceId={makerspaceId}
           requests={requests.data}
           loading={requests.isLoading}
           draft={draft}

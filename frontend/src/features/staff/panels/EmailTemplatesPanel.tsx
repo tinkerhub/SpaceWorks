@@ -61,7 +61,7 @@ export function EmailTemplatesPanel({ makerspace }: { makerspace: Makerspace }) 
   return (
     <Panel
       title="Email templates"
-      description="Change what members and staff receive. Untouched templates keep sending the built-in wording."
+      description="Change what requesters and staff receive. Untouched templates keep sending the built-in wording."
     >
       {list.isLoading ? (
         <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]" aria-busy="true" aria-label="Loading email templates">

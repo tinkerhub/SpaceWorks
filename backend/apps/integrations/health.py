@@ -92,14 +92,55 @@ def _deliveries_by_stream_section(makerspace):
 
 
 def _smtp_section(makerspace):
+    # No own server is not a fault: mail then goes out through the platform sender.
     return {"status": "ok", "configured": bool((makerspace.smtp_host or "").strip())}
 
 
 def _telegram_section(makerspace):
+    """Whether Telegram alerts can reach the group, and how the last one went.
+
+    A space with the module on but no bot token or chat ID is a warning, not "OK": every
+    alert it raises is recorded as failed. The last delivery's reason code comes from
+    `TelegramDeliveryError.reason` via `sanitize_notification_error`.
+    """
+    from apps.integrations.models import NotificationDeliveryLog, NotificationDeliveryStatus
+    from apps.integrations.telegram_errors import DETAILS, failure_detail
+    from apps.makerspaces.platform import module_enabled
+
+    enabled = bool(module_enabled(makerspace, "telegram"))
+    configured = bool((makerspace.telegram_bot_token or "").strip()) and bool(
+        (makerspace.telegram_group_chat_id or "").strip()
+    )
+    last = (
+        NotificationDeliveryLog.objects.filter(
+            makerspace=makerspace,
+            channel="telegram",
+            status__in=(NotificationDeliveryStatus.SENT, NotificationDeliveryStatus.FAILED),
+        )
+        .order_by("-created_at", "-id")
+        .values("status", "error", "created_at", "sent_at")
+        .first()
+    )
+    last_failure = None
+    if last and last["status"] == NotificationDeliveryStatus.FAILED:
+        error = last["error"] or ""
+        reason = error.rsplit(":", 1)[-1]
+        if error == "notification_channel_not_configured":
+            detail = "Telegram wasn't configured when the last alert was raised."
+        elif reason in DETAILS:
+            detail = failure_detail(reason)
+        else:
+            detail = "The last Telegram alert wasn't delivered."
+        last_failure = {"at": last["created_at"], "detail": detail}
+    status = "ok"
+    if enabled and (not configured or last_failure):
+        status = "warn"
     return {
-        "status": "ok",
-        "configured": bool((makerspace.telegram_bot_token or "").strip())
-        and bool((makerspace.telegram_group_chat_id or "").strip()),
+        "status": status,
+        "enabled": enabled,
+        "configured": configured,
+        "last_sent_at": last["sent_at"] if last and not last_failure else None,
+        "last_failure": last_failure,
     }
 
 

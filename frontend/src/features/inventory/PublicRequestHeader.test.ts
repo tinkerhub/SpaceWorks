@@ -1,0 +1,55 @@
+/**
+ * The request desk copy is a set of promises about what the backend will demand. Every
+ * identity x tab x policy x signed-in combination is checked here so a sentence about
+ * membership, waivers or presence can only appear where the `membership` module is on.
+ */
+import { describe, expect, it } from "vitest";
+
+import { deskCopy, type DeskIdentity, type DeskTab } from "./PublicRequestHeader";
+
+const IDENTITIES: DeskIdentity[] = ["contact", "checkin", "account", "member"];
+const TABS: DeskTab[] = ["borrow", "scan"];
+const POLICIES = [undefined, "anyone", "checked_in"] as const;
+
+function all() {
+  return IDENTITIES.flatMap((identity) =>
+    TABS.flatMap((tab) =>
+      POLICIES.flatMap((requestAccess) =>
+        [false, true].map((authenticated) => ({
+          args: { identity, tab, requestAccess, authenticated },
+          copy: deskCopy({ identity, tab, requestAccess, authenticated }),
+        })),
+      ),
+    ),
+  );
+}
+
+describe("request desk copy", () => {
+  it("mentions membership, waivers and presence only for the member identity", () => {
+    for (const { args, copy } of all()) {
+      const text = `${copy.title} ${copy.body}`;
+      if (args.identity === "member" || (args.tab === "scan" && args.identity !== "checkin")) continue;
+      expect(text, JSON.stringify(args)).not.toMatch(/member|waiver|presence/i);
+    }
+  });
+
+  it("files a signed-in member of a checked-in space under their own account", () => {
+    const copy = deskCopy({ identity: "account", tab: "borrow", requestAccess: "checked_in", authenticated: true });
+    expect(copy.title).toBe("Borrow with your account");
+    expect(copy.body).toMatch(/filed under your account and needs no check-in name/);
+  });
+
+  it("describes check-in self-checkout as roster-only, even for a signed-in caller", () => {
+    const copy = deskCopy({ identity: "checkin", tab: "scan", requestAccess: "checked_in", authenticated: true });
+    expect(copy.title).toBe("Scan a tool with check-in");
+    expect(copy.body).toMatch(/recorded under that check-in name, even while you are signed in/);
+    expect(deskCopy({ identity: "checkin", tab: "scan", requestAccess: "checked_in", authenticated: false }).body)
+      .not.toMatch(/signed in/);
+  });
+
+  it("keeps the member requirements where membership is on", () => {
+    expect(deskCopy({ identity: "member", tab: "borrow", authenticated: true }).body)
+      .toMatch(/active membership, waiver acceptance, and current presence/);
+    expect(deskCopy({ identity: "member", tab: "scan", authenticated: true }).title).toBe("Member self-checkout");
+  });
+});

@@ -16,7 +16,8 @@ from apps.evidence.models import (
     EvidenceUploadFinalization,
 )
 from apps.evidence.services_retention import sweep_evidence_retention
-from apps.makerspaces.models import Makerspace, MakerspaceMembership
+from apps.accounts import rbac
+from apps.makerspaces.models import Makerspace, MakerspaceMembership, MakerspaceRole
 
 
 pytestmark = pytest.mark.django_db
@@ -117,7 +118,7 @@ def test_manager_can_set_preview_and_clear_object_retention(settings):
     assert AuditLog.objects.filter(action="evidence.retention_policy_updated").count() == 1
 
 
-def test_non_event_manager_cannot_change_policy():
+def test_non_makerspace_manager_cannot_change_policy():
     makerspace = make_space("retention-rbac")
     user = get_user_model().objects.create_user(
         username="retention-inventory",
@@ -136,6 +137,51 @@ def test_non_event_manager_cannot_change_policy():
 
     assert response.status_code == 403
     assert not EvidenceRetentionPolicy.objects.exists()
+
+
+def _custom_role_member(makerspace, username, actions):
+    role = MakerspaceRole.objects.create(
+        makerspace=makerspace, name=username.title(), slug=username,
+        granted_actions=actions, is_default=False, legacy_role=None,
+    )
+    user = get_user_model().objects.create_user(
+        username=username, role=User.Role.REQUESTER, access_status=User.AccessStatus.ACTIVE,
+    )
+    MakerspaceMembership.objects.create(
+        makerspace=makerspace, user=user,
+        role=MakerspaceMembership.Role.CUSTOM, assigned_role=role,
+    )
+    return user
+
+
+def test_retention_is_a_makerspace_setting_not_an_events_one():
+    """Gated on MANAGE_MAKERSPACE: it must work with the events module off, and an
+    events-only role must not reach it."""
+    makerspace = make_space("retention-no-events")
+    makerspace.enabled_modules = [
+        "public_inventory", "request_workflow", "staff_admin", "scanner",
+        "evidence_uploads", "qr_management",
+    ]
+    makerspace.save()
+    settings_role = _custom_role_member(
+        makerspace, "retention-settings", [rbac.Action.MANAGE_MAKERSPACE]
+    )
+    events_role = _custom_role_member(
+        makerspace, "retention-events", [rbac.Action.MANAGE_EVENTS]
+    )
+
+    allowed = client_for(settings_role).patch(
+        policy_url(makerspace), {"object_retention_days": 90}, format="json"
+    )
+    refused = client_for(events_role).get(policy_url(makerspace))
+    refused_preview = client_for(events_role).post(
+        preview_url(makerspace), {"limit": 10}, format="json"
+    )
+
+    assert allowed.status_code == 200, allowed.data
+    assert allowed.data["override_days"] == 90
+    assert refused.status_code in (403, 404)
+    assert refused_preview.status_code in (403, 404)
 
 
 def test_disabled_sweep_has_no_side_effects(settings, monkeypatch):

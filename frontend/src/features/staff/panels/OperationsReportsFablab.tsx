@@ -26,7 +26,8 @@ export function OperationsReportsFablab({
   };
   const moduleEnabled = (module: string) => base.enabled && (aggregate || listHas(modules, module));
   // The health strip covers four optional modules; with none of them on it has nothing to say.
-  const anyFablabModule = ["events", "bookings", "machines", "maintenance"].some(moduleEnabled);
+  const sections = FABLAB_SECTIONS.filter(([key]) => moduleEnabled(key)).map(([, label]) => label);
+  const anyFablabModule = sections.length > 0;
   const health = useFablabReport<FabLabHealthRow>("fablab-health", { ...base, enabled: base.enabled && anyFablabModule });
   if (!canViewAudit) return null;
 
@@ -38,7 +39,7 @@ export function OperationsReportsFablab({
   if (healthRow?.bookings_available) healthStats.push(["Upcoming bookings", healthRow.bookings_upcoming ?? 0]);
   return (
     <section className="grid gap-6" aria-label="FabLab analytics">
-      {anyFablabModule ? <ReportCard title="FabLab health" description="Events, bookings, machines and maintenance at a glance.">
+      {anyFablabModule ? <ReportCard title="FabLab health" description={`${sentenceList(sections)} at a glance.`}>
         {!reportsEnabled ? <EmptyReport /> : (
           <DataState loading={health.isLoading} error={health.error} empty={!health.data?.typed_rows.length}>
             {aggregate ? (
@@ -64,6 +65,16 @@ export function OperationsReportsFablab({
       <OperationsReportsMaintenance {...base} enabled={moduleEnabled("machines") && moduleEnabled("maintenance")} />
     </section>
   );
+}
+
+// The health strip's optional sections, in display order. Copy names only the ones that are on.
+const FABLAB_SECTIONS: [string, string][] = [
+  ["events", "events"], ["bookings", "bookings"], ["machines", "machines"], ["maintenance", "maintenance"],
+];
+
+function sentenceList(items: string[]) {
+  const text = items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}` : items[0] ?? "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function HealthState({ label, enabled, available }: { label: string; enabled: boolean; available: boolean }) {

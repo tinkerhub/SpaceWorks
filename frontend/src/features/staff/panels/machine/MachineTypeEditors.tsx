@@ -40,9 +40,11 @@ function withPresetList(config: MachineTypeCapabilityConfig, key: PresetKey, val
 }
 
 /** Metering unit, booking and the material / colour presets: the shared body of both type forms. */
-export function CapabilityFields({ config, disabled = false, onChange }: {
+export function CapabilityFields({ config, disabled = false, showBooking = true, onChange }: {
   config: MachineTypeCapabilityConfig;
   disabled?: boolean;
+  /** "Requires booking" only means something while the bookings module is on. */
+  showBooking?: boolean;
   onChange: (config: MachineTypeCapabilityConfig) => void;
 }) {
   return (
@@ -52,14 +54,16 @@ export function CapabilityFields({ config, disabled = false, onChange }: {
           {meteringUnits.map((unit) => <option key={unit.value} value={unit.value}>{unit.label}</option>)}
         </Dropdown>
       </Field>
-      <CheckboxField
-        className="self-center sm:col-span-2"
-        label="Requires booking"
-        description="Members book a slot before using this type."
-        checked={config.requires_booking}
-        disabled={disabled}
-        onCheckedChange={(checked) => onChange({ ...config, requires_booking: checked === true })}
-      />
+      {showBooking ? (
+        <CheckboxField
+          className="self-center sm:col-span-2"
+          label="Requires booking"
+          description="Members book a slot before using this type."
+          checked={config.requires_booking}
+          disabled={disabled}
+          onCheckedChange={(checked) => onChange({ ...config, requires_booking: checked === true })}
+        />
+      ) : null}
       <div className="grid gap-3 sm:col-span-full md:grid-cols-2">
         <CapabilityPresetListEditor
           label="Materials"
@@ -127,8 +131,8 @@ export function PricingEditor({ makerspaceId, machineType, currency, canConfigur
   );
 }
 
-export function CustomTypeRow({ makerspaceId, machineType, canConfigure, currency }: {
-  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string;
+export function CustomTypeRow({ makerspaceId, machineType, canConfigure, currency, showPricing = true, showBooking = true }: {
+  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string; showPricing?: boolean; showBooking?: boolean;
 }) {
   const queryClient = useQueryClient();
   const notify = useNotify();
@@ -155,19 +159,19 @@ export function CustomTypeRow({ makerspaceId, machineType, canConfigure, currenc
         </div>
         <Field label="Name"><Input value={name} disabled={!canConfigure} onChange={(event) => setName(event.target.value)} required /></Field>
         <Field label="Icon"><Input value={icon} disabled={!canConfigure} onChange={(event) => setIcon(event.target.value)} placeholder="Optional icon" /></Field>
-        <CapabilityFields config={config} disabled={!canConfigure} onChange={setConfig} />
+        <CapabilityFields config={config} disabled={!canConfigure} showBooking={showBooking} onChange={setConfig} />
         {rename.error instanceof Error ? <p className="text-caption text-danger-fg sm:col-span-full">{rename.error.message}</p> : null}
         {canConfigure ? (
           <Button className="justify-self-start sm:col-span-full" type="submit" loading={rename.isPending} loadingLabel="Saving…" disabled={!name.trim()}>Save type</Button>
         ) : null}
       </form>
-      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure} />
+      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure && showPricing} />
     </li>
   );
 }
 
-export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, currency }: {
-  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string;
+export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, currency, showPricing = true }: {
+  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string; showPricing?: boolean;
 }) {
   const config = configFor(machineType);
   return (
@@ -181,7 +185,7 @@ export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, curren
         </span>
         <Chip size="sm">Built-in · settings fixed</Chip>
       </div>
-      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure} />
+      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure && showPricing} />
     </li>
   );
 }

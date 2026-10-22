@@ -19,6 +19,7 @@ import {
   type ScannedPayload,
 } from "./DirectLoanTypes";
 import { MemberClaimCodes } from "./MemberClaimCodes";
+import { moduleEnabled } from "../../lib/modules";
 import { EvidenceUpload } from "./panels/EvidenceUpload";
 import { errorText, Panel, type Makerspace, useStaffGet } from "./panels/shared";
 import { invalidateContainerViews, invalidateInventoryViews } from "./queryInvalidation";
@@ -147,17 +148,21 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
     if (returningLoan.return_scan_required && !returnQrPayload.trim()) return;
     returnLoan.mutate({ loanId: returningLoan.id, evidenceId: returnEvidenceId, notes: returnNotes.trim(), qrPayload: returnQrPayload, resolutions });
   };
+  // Waivers and the member wording belong to `membership`; claim codes redeem into a member
+  // sign-in, so they need `member_accounts`. Neither may show on a space without them.
+  const membershipOn = moduleEnabled(makerspace.enabled_modules, "membership");
+  const claimCodesOn = moduleEnabled(makerspace.enabled_modules, "member_accounts");
   const missing = [
-    !borrowerId ? "choose the borrowing member" : null,
+    !borrowerId ? (membershipOn ? "choose the borrowing member" : "choose the borrower") : null,
     !hasIssueContent ? "add at least one item, QR code or container" : null,
     issueEvidenceId === null ? "upload an issue photo" : null,
   ].filter(Boolean);
 
   return (
-    <Panel title="Direct handout" description="Lend tools to a member at the desk, with a photo of what went out.">
+    <Panel title="Direct handout" description={`Lend tools to ${membershipOn ? "a member" : "someone"} at the desk, with a photo of what went out.`}>
       <div className="grid gap-8">
         <Card as="section" padding="lg" className="grid gap-6">
-          <CardHeader className="mb-0" title="New handout" description="Every handout needs a member, what's going out and an issue photo." />
+          <CardHeader className="mb-0" title="New handout" description={`Every handout needs ${membershipOn ? "a member" : "a borrower"}, what's going out and an issue photo.`} />
           <DirectLoanBorrower
             makerspaceId={makerspace.id}
             members={memberOptions}
@@ -165,6 +170,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
             error={members.error}
             borrowerId={borrowerId}
             onBorrowerChange={setBorrowerId}
+            membershipOn={membershipOn}
           />
           <DirectLoanItems
             key={formKey}
@@ -199,7 +205,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
             </Button>
           </div>
         </Card>
-        <MemberClaimCodes makerspaceId={makerspace.id} members={memberOptions} />
+        {claimCodesOn ? <MemberClaimCodes makerspaceId={makerspace.id} members={memberOptions} /> : null}
         <div className="grid gap-3">
           <DirectLoanList loans={loans.results} loading={loans.isLoading} error={loans.error} onReturn={openReturnModal} />
           <Pagination page={loans.page} totalPages={loans.totalPages} onChange={loans.setPage} count={loans.count} pageSize={loans.pageSize} />

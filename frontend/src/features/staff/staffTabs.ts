@@ -7,12 +7,8 @@ import { readStorage, removeStorage, writeStorage } from "../../lib/safeStorage"
 // `getStaffAccess` decides permissions and nothing else -- a tab named in both places is
 // how one ends up gated in the sidebar but not on the route.
 //
-// A tab is listed only when a module can genuinely remove it. Three are deliberately
+// A tab is listed only when a module can genuinely remove it. Two are deliberately
 // absent, each for a reason that looks like an oversight:
-//   * `members`    -- the panel mixes the never-gated staff roster and role assignment
-//                     with the membership-gated community queue. Gating the tab would let
-//                     a space lock itself out of its own administration (plan A7), so the
-//                     module is applied to the sections inside it instead.
 //   * `email-logs` -- a message blocked by the `email` module is recorded as a terminal
 //                     SKIPPED row precisely so the operator can see what the toggle
 //                     suppressed. Gating the log would hide the evidence it exists to show.
@@ -40,6 +36,11 @@ const TAB_MODULES: Record<string, string[]> = {
   scanner: ["scanner"],
   reports: ["reports"],
   payments: ["payments"],
+  // The community surface (roster with referral/verification, waiver, presence, join queue).
+  // Gating it cannot lock a space out of its own administration (plan A7): the never-gated
+  // staff roster, role assignment and revoke all live on Users, which no module removes,
+  // and Users carries the staff invitations that survive this module being off.
+  members: ["membership"],
   warranty: ["staff_admin"],
 };
 

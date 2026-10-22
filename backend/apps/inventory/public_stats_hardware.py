@@ -33,7 +33,7 @@ def public_display_name(*, request=None, requester=None) -> str:
         label = _clean_label(value)
         if _safe_public_name(label):
             return label
-    return 'Member'
+    return 'Borrower'
 
 
 def hardware_stats(makerspace):
@@ -129,13 +129,13 @@ def current_loans(makerspace):
     rows = []
     for item in queryset:
         loan = _public_tool_loan(item.request)
-        holder_name = 'Member'
+        holder_name = 'Borrower'
         if makerspace.public_stats_show_holder_names:
             holder_name = public_display_name(
                 request=item.request,
                 requester=(loan.requester if loan else item.request.requester),
             )
-        # "Member" removes the directly searchable identifier, but exact due/since
+        # "Borrower" removes the directly searchable identifier, but exact due/since
         # timestamps can still let an observer who was present correlate a member
         # with an item. Coarsening dates or suppressing current loans is a broader
         # policy decision not taken here.

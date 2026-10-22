@@ -5,7 +5,8 @@ import { Button, Chip, EmptyState, PageHeader, SkeletonRows, Table, TBody, TD, T
 import { staffRequest } from "../../../../lib/api";
 import { useStaffGet } from "../shared";
 import { useNotify, When } from "./machineUi";
-import { paymentTone } from "./ServiceQueue";
+import { paymentTone, showPaymentChip } from "./ServiceQueue";
+import { useConsoleModule } from "./useConsoleModule";
 import { paymentState } from "./servicePaymentState";
 
 /**
@@ -28,6 +29,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
   const queryClient = useQueryClient();
   const notify = useNotify();
   const queryKey = ["machine-service-handover", makerspaceId];
+  const paymentsOn = useConsoleModule(makerspaceId, "payments");
   const waiting = useStaffGet<MachineServiceRequest[]>(
     queryKey,
     `/admin/makerspaces/${makerspaceId}/machine-service/requests?status=completed`,
@@ -67,10 +69,12 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
   if (!enabled) return null;
 
   const rows = waiting.data ?? [];
+  // The Payment column only when a charge can exist, or one already does.
+  const showPayment = paymentsOn || rows.some((row) => showPaymentChip(row, false));
 
   return (
     <section className="grid min-w-0 gap-6">
-      <PageHeader title="Awaiting collection" description="Finished jobs waiting at the desk. Settle anything owed, then hand the job over." />
+      <PageHeader title="Awaiting collection" description={showPayment ? "Finished jobs waiting at the desk. Settle anything owed, then hand the job over." : "Finished jobs waiting at the desk, ready to hand over."} />
 
       {waiting.isError ? (
         <EmptyState tone="error" title="Could not load finished jobs." description="Check your connection and reload the page." />
@@ -82,10 +86,10 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       {waiting.isLoading || rows.length > 0 ? (
         <Table label="Jobs awaiting collection">
           <THead>
-            <tr><TH>Job</TH><TH>Finished</TH><TH>Payment</TH><TH><span className="sr-only">Actions</span></TH></tr>
+            <tr><TH>Job</TH><TH>Finished</TH>{showPayment ? <TH>Payment</TH> : null}<TH><span className="sr-only">Actions</span></TH></tr>
           </THead>
           <TBody>
-            {waiting.isLoading ? <SkeletonRows rows={3} cols={4} /> : null}
+            {waiting.isLoading ? <SkeletonRows rows={3} cols={showPayment ? 4 : 3} /> : null}
             {rows.map((row) => {
               const manualPayment =
                 row.status === "completed" && row.payment?.status === "pending"
@@ -102,7 +106,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                     </p>
                   </TD>
                   <TD className="whitespace-nowrap text-ink-secondary">{row.completed_at ? <When value={row.completed_at} /> : "—"}</TD>
-                  <TD><Chip size="sm" tone={paymentTone(row)}>Payment {paymentState(row)}</Chip></TD>
+                  {showPayment ? <TD><Chip size="sm" tone={paymentTone(row)}>Payment {paymentState(row)}</Chip></TD> : null}
                   <TD>
                     {/* Both actions, never either/or. Settlement carries Payment's own
                         authority, so a handout-only desk role may mark a job collected but is

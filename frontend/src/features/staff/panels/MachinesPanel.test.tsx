@@ -101,7 +101,8 @@ describe("MachinesPanel index and per-type subpages", () => {
     renderPanel({ types: [printerType, laserType] }, { machineServiceEnabled: false });
     await screen.findByRole("link", { name: /3D printers/ });
 
-    await waitFor(() => expect(staffRequest.mock.calls.filter(([path]) => path)).toHaveLength(2));
+    // `/admin/makerspaces` is the module lookup, answered from the session cache in the app.
+    await waitFor(() => expect(staffRequest.mock.calls.filter(([path]) => path && path !== "/admin/makerspaces")).toHaveLength(2));
     const paths = staffRequest.mock.calls.map(([path]) => String(path));
     expect(paths.filter((path) => path.includes("machine-service"))).toEqual([]);
     expect(paths.filter((path) => path.includes("typed-manual-usage"))).toEqual([]);

@@ -27,10 +27,9 @@ export type Presence = { display_name: string; role_label: string; started_at: s
 const requestTones: Record<string, StatusTone> = { requested: "warning", approved: "success", active: "success", revoked: "neutral", rejected: "danger" };
 
 export function MembersInvitations({
-  membershipEnabled, roles, selectedRole, onRoleChange, inviteEmail, onInviteEmailChange, inviting, onInvite,
+  roles, selectedRole, onRoleChange, inviteEmail, onInviteEmailChange, inviting, onInvite,
   requests, requestsLoading, approving, revoking, onApprove, onRevoke,
 }: {
-  membershipEnabled: boolean;
   roles: MemberRole[];
   selectedRole: number | null;
   onRoleChange: (roleId: number) => void;
@@ -42,7 +41,7 @@ export function MembersInvitations({
   requestsLoading: boolean;
   approving: boolean;
   revoking: boolean;
-  onApprove: (id: number) => void;
+  onApprove: (id: number, roleId: number | null) => void;
   onRevoke: (id: number) => void;
 }) {
   return (
@@ -66,37 +65,39 @@ export function MembersInvitations({
           </Button>
         </form>
       </Card>
-      {membershipEnabled ? (
-        <section className="grid gap-3" aria-label="Membership requests">
-          <h2 className="text-h4 text-ink">Membership requests</h2>
-          {!requestsLoading && !requests.length ? (
-            <EmptyState title="No requests" description="New requests to join show up here for approval." />
-          ) : (
-            <Table label="Membership requests">
-              <THead>
-                <tr><TH>Person</TH><TH>Kind</TH><TH>State</TH><TH><span className="sr-only">Actions</span></TH></tr>
-              </THead>
-              <TBody>
-                {requestsLoading ? <SkeletonRows rows={2} cols={4} /> : requests.map((row) => (
-                  <TR key={row.id}>
-                    <TD className="font-semibold">{row.user?.username ?? row.invite_email}</TD>
-                    <TD className="text-ink-secondary">{humanize(row.kind)}</TD>
-                    <TD><StatusChip size="sm" tone={requestTones[row.state] ?? "neutral"}>{humanize(row.state)}</StatusChip></TD>
-                    <TD>
-                      {row.state === "requested" ? (
-                        <div className="flex justify-end gap-2">
-                          <Button size="sm" variant="primary" disabled={!selectedRole || approving} onClick={() => onApprove(row.id)}>Approve</Button>
-                          <Button size="sm" variant="danger-quiet" disabled={revoking} onClick={() => onRevoke(row.id)}>Revoke</Button>
-                        </div>
-                      ) : null}
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-          )}
-        </section>
-      ) : null}
+      <section className="grid gap-3" aria-label="Membership requests">
+        <h2 className="text-h4 text-ink">Membership requests</h2>
+        {!requestsLoading && !requests.length ? (
+          <EmptyState title="No requests" description="New requests to join show up here for approval." />
+        ) : (
+          <Table label="Membership requests">
+            <THead>
+              <tr><TH>Person</TH><TH>Kind</TH><TH>State</TH><TH><span className="sr-only">Actions</span></TH></tr>
+            </THead>
+            <TBody>
+              {requestsLoading ? <SkeletonRows rows={2} cols={4} /> : requests.map((row) => (
+                <TR key={row.id}>
+                  <TD className="font-semibold">{row.user?.username ?? row.invite_email}</TD>
+                  <TD className="text-ink-secondary">{humanize(row.kind)}</TD>
+                  <TD><StatusChip size="sm" tone={requestTones[row.state] ?? "neutral"}>{humanize(row.state)}</StatusChip></TD>
+                  <TD>
+                    {row.state === "requested" || row.state === "invited" ? (
+                      <div className="flex justify-end gap-2">
+                        {/* A join request takes the role picked above; an invitation keeps the
+                            role it was sent with, and is approvable once its invitee claimed it. */}
+                        {row.state === "requested" || row.user ? (
+                          <Button size="sm" variant="primary" disabled={approving || !approvalRole(row, selectedRole)} onClick={() => onApprove(row.id, approvalRole(row, selectedRole))}>Approve</Button>
+                        ) : null}
+                        <Button size="sm" variant="danger-quiet" disabled={revoking} onClick={() => onRevoke(row.id)}>Revoke</Button>
+                      </div>
+                    ) : null}
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
+      </section>
     </div>
   );
 }
@@ -137,6 +138,10 @@ export function MembersWaiver({ waiver, onChange, action }: {
       {action}
     </div>
   );
+}
+
+function approvalRole(row: MembershipRequest, selectedRole: number | null) {
+  return row.state === "invited" ? row.assigned_role?.id ?? null : selectedRole;
 }
 
 function humanize(value: string) {

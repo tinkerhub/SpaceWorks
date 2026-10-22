@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from apps.accounts import rbac
 from apps.accounts.models import User
 from apps.integrations.serializers import (
+    TelegramTestAlertResultSerializer,
     TelegramTestAlertSerializer,
     TelegramWebhookSerializer,
 )
@@ -72,7 +73,18 @@ class TelegramTestAlertView(APIView):
         tags=["Telegram"],
         summary="Send Telegram test alert",
         request=TelegramTestAlertSerializer,
-        responses={200: OpenApiResponse(description="Delivery attempt result.")},
+        responses={
+            200: OpenApiResponse(
+                response=TelegramTestAlertResultSerializer,
+                description=(
+                    "Delivery attempt result. A Telegram failure is an expected outcome of "
+                    "a diagnostic, so it is `delivered: false` with a `reason` code and a "
+                    "readable `detail`, never a 5xx."
+                ),
+            ),
+            403: OpenApiResponse(description="Not allowed to manage this makerspace."),
+            404: OpenApiResponse(description="Makerspace not found or Telegram module off."),
+        },
     )
     def post(self, request, *args, **kwargs):
         serializer = TelegramTestAlertSerializer(data=request.data)
@@ -98,21 +110,18 @@ class TelegramTestAlertView(APIView):
         # server error.
         try:
             delivered = send_message(makerspace, serializer.validated_data["message"])
-        except TelegramDeliveryError:
+        except TelegramDeliveryError as exc:
+            # `detail` names the fix (token, chat ID, bot not in the group, no route to
+            # Telegram) -- see telegram_errors; `reason` is the stable machine code.
             return Response(
-                {
-                    "delivered": False,
-                    "detail": (
-                        "Telegram rejected the message. Check the bot token is correct "
-                        "and the bot has been added to the group chat."
-                    ),
-                }
+                {"delivered": False, "reason": exc.reason, "detail": exc.detail}
             )
         if not delivered:
             return Response(
                 {
                     "delivered": False,
-                    "detail": "Telegram is not configured — save a bot token and group chat ID first.",
+                    "reason": "not_configured",
+                    "detail": "Telegram isn't configured yet. Save a bot token and group chat ID first.",
                 }
             )
         return Response({"delivered": True})

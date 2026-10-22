@@ -19,7 +19,6 @@ import {
 } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
 import { CollaborationInbox } from "./CollaborationInbox";
-import { EvidenceRetentionPanel } from "./EvidenceRetentionPanel";
 import { EventCreateDialog } from "./EventCreateDialog";
 import { EventDrawer } from "./EventDrawer";
 import { EventSeriesDrawer } from "./EventSeriesDrawer";
@@ -130,7 +129,6 @@ export function EventsPanel({ makerspaceId }: { makerspaceId: number }) {
           ) : null}
         </TabsContent>
       </Tabs>
-      <EvidenceRetentionPanel makerspaceId={makerspaceId} />
     </div>
     <EventCreateDialog
       makerspaceId={makerspaceId}

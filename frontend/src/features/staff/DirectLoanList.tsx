@@ -13,6 +13,8 @@ export type DirectLoan = {
   container_label?: string | null;
   due_at: string | null;
   issued_by: { username: string; role: string } | null;
+  // The person holding the tools (snapshot at issue); optional for older cached payloads.
+  borrower_name?: string;
   issue_evidence_id?: number | null;
   return_evidence_id?: number | null;
   return_notes?: string;
@@ -63,10 +65,11 @@ export function DirectLoanList({
       {!loading && !loans.length ? (
         <EmptyState title="No handouts yet" description="Issue a handout above and it will show up here until it's returned." />
       ) : (
-        <Table label="Handout loans" className="min-w-[720px]" aria-busy={loading}>
+        <Table label="Handout loans" className="min-w-[840px]" aria-busy={loading}>
           <THead>
             <tr>
               <TH>Handout</TH>
+              <TH>Borrower</TH>
               <TH>Status</TH>
               <TH>Due</TH>
               <TH>Issued by</TH>
@@ -75,7 +78,7 @@ export function DirectLoanList({
             </tr>
           </THead>
           <TBody>
-            {loading ? <SkeletonRows rows={4} cols={6} /> : loans.map((loan) => {
+            {loading ? <SkeletonRows rows={4} cols={7} /> : loans.map((loan) => {
               const returned = loan.status !== "checked_out";
               return (
                 <TR key={loan.id}>
@@ -88,6 +91,7 @@ export function DirectLoanList({
                     {returned && loan.return_notes ? <p className="mt-1 text-caption text-ink-secondary">Return notes: {loan.return_notes}</p> : null}
                     {evidenceError?.loanId === loan.id ? <p className="mt-1 text-caption text-danger-fg" role="alert">{evidenceError.message}</p> : null}
                   </TD>
+                  <TD className="min-w-32 text-ink [overflow-wrap:anywhere]">{loan.borrower_name || "—"}</TD>
                   <TD>
                     <StatusWord status={loan.status} label={directLoanStatusLabel(loan.status)} tone={loan.status === "checked_out" ? "info" : loan.status === "returned" ? "success" : undefined} />
                   </TD>

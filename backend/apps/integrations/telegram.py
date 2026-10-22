@@ -1,16 +1,23 @@
 import logging
 import json
+from urllib import error as urllib_error
 from urllib import request as urllib_request
 
 from django.conf import settings
 
+from apps.integrations import telegram_errors
 from apps.integrations.notification_enums import trim_for_channel
 
 logger = logging.getLogger(__name__)
 
 
 class TelegramDeliveryError(Exception):
-    pass
+    """A send Telegram did not accept. `reason`/`detail` say why, in operator terms."""
+
+    def __init__(self, message="Telegram delivery failed.", *, reason=telegram_errors.REJECTED, detail=""):
+        super().__init__(message)
+        self.reason = reason
+        self.detail = detail or telegram_errors.failure_detail(reason)
 
 
 def resolve_bot_token(makerspace):
@@ -39,7 +46,14 @@ def resolve_chat_id(makerspace, destination=None):
 
 
 def send_message(makerspace, text, destination=None):
-    token = resolve_bot_token(makerspace)
+    try:
+        token = resolve_bot_token(makerspace)
+    except Exception as exc:
+        # Decrypting the stored token raises when API_CLIENT_ENC_KEY is unset or rotated.
+        _log_failure(makerspace, destination, exc, telegram_errors.TOKEN_UNREADABLE)
+        raise TelegramDeliveryError(
+            "Telegram delivery failed.", reason=telegram_errors.TOKEN_UNREADABLE
+        ) from exc
     chat_id = resolve_chat_id(makerspace, destination)
     if not token or not chat_id:
         logger.info(
@@ -68,14 +82,34 @@ def send_message(makerspace, text, destination=None):
         with urllib_request.urlopen(req, timeout=5) as response:
             if response.status >= 400:
                 raise TelegramDeliveryError("Telegram delivery failed.")
-    except Exception as exc:
-        logger.warning(
+    except urllib_error.HTTPError as exc:
+        description = telegram_errors.read_description(exc)
+        reason = telegram_errors.classify_http_failure(exc.code, description)
+        _log_failure(makerspace, destination, exc, reason)
+        raise TelegramDeliveryError(
             "Telegram delivery failed.",
-            extra={
-                "makerspace_id": makerspace.pk,
-                "destination_id": getattr(destination, "pk", None),
-            },
-            exc_info=exc,
-        )
-        raise TelegramDeliveryError("Telegram delivery failed.") from exc
+            reason=reason,
+            detail=telegram_errors.failure_detail(reason, description),
+        ) from exc
+    except TelegramDeliveryError as exc:
+        _log_failure(makerspace, destination, exc, exc.reason)
+        raise
+    except Exception as exc:
+        # URLError, timeouts and socket errors: no answer from Telegram at all.
+        _log_failure(makerspace, destination, exc, telegram_errors.UNREACHABLE)
+        raise TelegramDeliveryError(
+            "Telegram delivery failed.", reason=telegram_errors.UNREACHABLE
+        ) from exc
     return True
+
+
+def _log_failure(makerspace, destination, exc, reason):
+    logger.warning(
+        "Telegram delivery failed.",
+        extra={
+            "makerspace_id": makerspace.pk,
+            "destination_id": getattr(destination, "pk", None),
+            "reason": reason,
+        },
+        exc_info=exc,
+    )
