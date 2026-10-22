@@ -33,10 +33,11 @@ describe("request desk copy", () => {
     }
   });
 
-  it("files a signed-in member of a checked-in space under their own account", () => {
-    const copy = deskCopy({ identity: "account", tab: "borrow", requestAccess: "checked_in", authenticated: true });
-    expect(copy.title).toBe("Borrow with your account");
-    expect(copy.body).toMatch(/filed under your account and needs no check-in name/);
+  it("keeps a signed-in borrower on the roster on a checked-in space", () => {
+    const copy = deskCopy({ identity: "checkin", tab: "borrow", requestAccess: "checked_in", authenticated: true });
+    expect(copy.title).toBe("Borrow with check-in");
+    expect(copy.body).toMatch(/always uses check-in, even while you are signed in/);
+    expect(copy.body).not.toMatch(/your account/i);
   });
 
   it("describes check-in self-checkout as roster-only, even for a signed-in caller", () => {

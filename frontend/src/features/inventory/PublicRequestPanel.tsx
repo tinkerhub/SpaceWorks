@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, useToast } from "../../components/ui";
 import type { RequestCartItem } from "../../types/inventory";
 import { BorrowRequestCard } from "./BorrowRequestCard";
-import { getAccessToken, memberRequest, refreshAccessToken } from "../../lib/api";
+import { getAccessToken, refreshAccessToken } from "../../lib/api";
 import { submitPublicRequest, type CheckinMatch } from "./api";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
@@ -12,9 +12,6 @@ import { PublicRequestHeader, type DeskIdentity } from "./PublicRequestHeader";
 import { PublicToolScanPanel } from "./PublicToolScanPanel";
 import { RequestDeskTabs, type ActiveTab } from "./RequestDeskTabs";
 
-type MembershipProbe = {
-  memberships: Array<{ makerspace: { slug?: string }; membership_status: string }>;
-};
 type PublicRequestPanelProps = {
   items: RequestCartItem[];
   makerspaceSlug: string;
@@ -76,22 +73,13 @@ export function PublicRequestPanel({
   const sessionProbe = useQuery({
     queryKey: ["public-request-session", makerspaceSlug],
     queryFn: async () => (getAccessToken() ? true : refreshAccessToken()),
-    // Runs for BOTH account-less policies. A signed-in member whose access token
-    // needs a cookie refresh would otherwise be classified as anonymous and filed
-    // against the shared anonymous principal.
-    enabled:
-      (requestAccess === "anyone" || requestAccess === "checked_in") && !disabled,
+    // Only `anyone` cares who is signed in. On `checked_in` the roster is the identity for
+    // everyone, signed in or not, so there is nothing to probe.
+    enabled: requestAccess === "anyone" && !disabled,
     staleTime: Infinity,
     retry: false,
   });
   const authenticated = sessionProbe.data === true || Boolean(getAccessToken());
-  const membershipProbe = useQuery({
-    queryKey: ["public-request-memberships", makerspaceSlug],
-    queryFn: () => memberRequest<MembershipProbe>("/memberships/me"),
-    enabled: requestAccess === "checked_in" && sessionProbe.isFetched && authenticated,
-    staleTime: Infinity,
-    retry: false,
-  });
   // Policy AND caller state. `tenantPublicRequest` still attaches Authorization when a
   // token is in memory, and the backend then takes the AUTHENTICATED branch and ignores
   // these contact fields -- so asking for them would promise something the stored request
@@ -99,22 +87,15 @@ export function PublicRequestPanel({
   // needed" and then discovering a session would be the worse way round.
   const accountLess =
     requestAccess === "anyone" && sessionProbe.isFetched && !authenticated;
-  const activeMembership = membershipProbe.data?.memberships.some(
-    (row) => row.makerspace.slug === makerspaceSlug && row.membership_status === "active",
-  ) ?? false;
-  const checkedIn =
-    requestAccess === "checked_in" &&
-    sessionProbe.isFetched &&
-    (!authenticated || membershipProbe.isFetched) &&
-    !activeMembership;
-  // Mirrors `RequestSubmitView`: contact details on `anyone` without a session, the roster
-  // on `checked_in` unless the caller holds an active membership here, otherwise the
-  // caller's own account (membership, waiver and presence only with `membership` on).
-  // While a checked-in probe is pending the desk describes the roster, the common case.
-  const borrowIdentity: DeskIdentity = accountLess
-    ? "contact"
-    : requestAccess === "checked_in" && !activeMembership
-      ? "checkin"
+  // Mirrors `RequestSubmitView`: the roster on `checked_in` for everyone (a signed-in
+  // account, staff included, is not a bypass), contact details on `anyone` without a
+  // session, otherwise the caller's own account (membership, waiver and presence only
+  // with `membership` on).
+  const checkedIn = requestAccess === "checked_in";
+  const borrowIdentity: DeskIdentity = checkedIn
+    ? "checkin"
+    : accountLess
+      ? "contact"
       : requestAccess || !membershipOn
         ? "account"
         : "member";
@@ -180,10 +161,7 @@ export function PublicRequestPanel({
     (contactName.trim().length > 0 && contactEmail.trim().length > 0);
   // On the checked-in policy the confirmed roster entry IS the identity, so submitting
   // without one would post a request the backend can only refuse.
-  const identityResolved = requestAccess !== "checked_in" || (
-    sessionProbe.isFetched && (!authenticated || membershipProbe.isFetched)
-  );
-  const identityReady = identityResolved && (!checkedIn || confirmedCheckin !== null);
+  const identityReady = !checkedIn || confirmedCheckin !== null;
   // While the probe is unresolved `accountLess` is still false, so `contactReady` is
   // vacuously true and the button would go live before the contact fields exist. On a
   // slow refresh a visitor could submit a member-shaped body and take a 400.
@@ -214,7 +192,7 @@ export function PublicRequestPanel({
             requestAccess={requestAccess}
             // A signed-in caller is only known NOT to be a member here once the probe
             // settles; until then the borrow desk must not tell staff they are outsiders.
-            authenticated={authenticated && (activeTab === "scan" || requestAccess !== "checked_in" || membershipProbe.isFetched)}
+            authenticated={authenticated}
           />
 
           {scanAvailable ? <RequestDeskTabs activeTab={activeTab} onChange={setActiveTab} /> : null}

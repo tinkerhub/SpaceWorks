@@ -2893,10 +2893,10 @@ serializer is exactly what the PII review rejected. Leave it alone.
 checked in; `client._parse` reads exactly that as an empty roster. Every other non-array body still fails
 closed with 503 (`tests/checkin/test_client_parsing.py`).
 
-**The public desk copy mirrors the backend branch.** On `checked_in`, an anonymous visitor and a signed-in
-account without an active membership HERE are matched against the roster; a signed-in caller with an active
-membership at this makerspace (staff included) files the borrow request under their own account; self-checkout
-and print requests always use the roster. Membership, waiver and presence wording appears only when the
+**On `checked_in` the roster is every public borrower's identity -- there is no account bypass.** An
+anonymous visitor and a signed-in account (staff included, whatever their membership) are all matched
+against the roster for borrow requests, self-checkout and print requests; a signed-in session never files a
+public borrow request under the account (owner decision 2026-10-22). The desk copy mirrors this. Membership, waiver and presence wording appears only when the
 `membership` module is on. Pinned by `tests/checkin/test_public_desk_contract.py` and
 `frontend/src/features/inventory/PublicRequestHeader.test.ts`.
 

@@ -1,8 +1,8 @@
 """The backend facts the public request desk copy promises (PublicRequestHeader.tsx).
 
-The desk tells a signed-in staff member on a `checked_in` space two different things:
-a borrow request is filed under their own account (pinned in `test_submit_flow`), but a
-tool checkout is "recorded under that check-in name, even while you are signed in". And it
+On a `checked_in` space every public borrower is matched against the roster, signed in or
+not: a borrow request (pinned in `test_submit_flow`) and a tool checkout are both recorded
+under the check-in name, even for a signed-in staff member. And the desk
 hides the scan tab entirely off the roster with `membership` off, because self-checkout
 there demands membership, waiver and presence that nobody can establish. These pin both
 halves so the copy cannot drift from the branch it describes.
@@ -53,7 +53,7 @@ def test_signed_in_staff_still_need_the_roster_to_self_checkout():
         format="json",
     )
 
-    # No membership bypass here, unlike borrow requests: the check-in identity is required.
+    # No membership bypass: the check-in identity is required, as for borrow requests.
     assert response.status_code == 400, response.content
     assert "checkin_mid" in response.json() or "name" in response.json()
 

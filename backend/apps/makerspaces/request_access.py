@@ -7,8 +7,8 @@ a column; the rest falls out of whether the ``membership`` module is installed:
 `membership` `public_request_mode` who may submit
 ===========  ====================  ============================================
 on           (any)                 ``members``    — an active MakerspaceMembership
-off          ``checked_in``        ``checked_in`` — active member, or verified
-                                   against the upstream check-in roster
+off          ``checked_in``        ``checked_in`` — anyone verified against the
+                                   upstream check-in roster (signed in or not)
 off          ``anyone``            ``anyone``     — no account at all
 off          ``disabled``          ``accounts``   — any active authenticated account
 ===========  ====================  ============================================

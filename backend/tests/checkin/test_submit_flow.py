@@ -198,7 +198,8 @@ def test_authenticated_nonmember_is_still_held_to_the_checkin_gate():
     assert authenticated_response.json() == anonymous_response.json()
 
 
-def test_authenticated_member_may_submit_without_the_roster():
+def test_signed_in_member_is_still_matched_against_the_roster():
+    """Check-in mode has no account bypass: staff borrowing from the public page check in too."""
     from apps.hardware_requests.models import HardwareRequest
 
     space = _space("cs-member-account")
@@ -208,28 +209,24 @@ def test_authenticated_member_may_submit_without_the_roster():
     authenticated = APIClient()
     authenticated.force_authenticate(user)
 
-    with patch(
-        "apps.checkin.client.fetch_roster",
-        side_effect=AssertionError("member submission must not fetch the roster"),
-    ):
-        response = _submit(
-            space,
-            product,
-            mid=None,
-            name="",
-            key="member-account",
-            client=authenticated,
-        )
+    with _roster(_entry()):
+        refused = _submit(space, product, mid=None, name="", key="no-identity", client=authenticated)
+    assert refused.status_code == 400, refused.content
+    assert not HardwareRequest.objects.filter(makerspace=space).exists()
 
+    with _roster(_entry()):
+        response = _submit(space, product, mid=443, name="Ada Example", key="roster", client=authenticated)
     assert response.status_code == 201, response.content
-    assert HardwareRequest.objects.get(makerspace=space).requester == user
+    assert HardwareRequest.objects.get(makerspace=space).requester != user
 
 
 @pytest.mark.parametrize(
     "access_status",
     [User.AccessStatus.RESTRICTED, User.AccessStatus.SUSPENDED],
 )
-def test_non_active_member_cannot_bypass_the_roster(access_status):
+def test_a_signed_in_account_cannot_replace_the_roster_identity(access_status):
+    from apps.hardware_requests.models import HardwareRequest
+
     space = _space(f"cs-blocked-member-{access_status}")
     product = _product(space)
     user = User.objects.create_user(
@@ -240,21 +237,11 @@ def test_non_active_member_cannot_bypass_the_roster(access_status):
     authenticated = APIClient()
     authenticated.force_authenticate(user)
 
-    with patch(
-        "apps.checkin.client.fetch_roster",
-        side_effect=AssertionError("an authenticated member must not fall back to the roster"),
-    ):
-        response = _submit(
-            space,
-            product,
-            mid=443,
-            name="Ada Example",
-            key=f"blocked-{access_status}",
-            client=authenticated,
-        )
+    with _roster(_entry()):
+        response = _submit(space, product, mid=None, name="", key=f"blocked-{access_status}", client=authenticated)
 
-    assert response.status_code == 403
-    assert response.json()["code"] == "membership_required"
+    assert response.status_code == 400, response.content
+    assert not HardwareRequest.objects.filter(makerspace=space).exists()
 
 
 def test_the_canonical_roster_name_is_stored_not_the_typed_spelling():
