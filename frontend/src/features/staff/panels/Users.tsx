@@ -67,7 +67,8 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
   const modules = makerspaces.find((space) => space.id === msId)?.enabled_modules;
   const showInvitations = !moduleEnabled(modules, "membership") && moduleEnabled(modules, "member_accounts");
   const assignableRoles = useMemo(
-    () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin),
+    // Staff roles only: a role granting no actions (Member) is a community membership.
+    () => assignableRolesFor(rolesList.data ?? [], actorActions, isSuperadmin).filter((role) => role.granted_actions.length > 0),
     [rolesList.data, isSuperadmin, actorActions],
   );
 
