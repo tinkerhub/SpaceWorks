@@ -23,10 +23,9 @@ const MEMBER_RULES = "An active membership, waiver acceptance, and current prese
 /**
  * The copy mirrors the backend branch exactly (`RequestSubmitView` for borrow requests,
  * the public tool views for scanning), because every sentence here is a promise:
- * membership, waivers and presence only exist with the `membership` module on, and a
- * signed-in caller on the `checked_in` policy is filed under their own account only when
- * they hold an active membership at THIS makerspace -- anyone else is matched against the
- * roster. Self-checkout on `checked_in` always uses the roster, signed in or not.
+ * membership, waivers and presence only exist with the `membership` module on, and on the
+ * `checked_in` policy every borrower -- signed in or not, staff included -- is matched
+ * against the roster, for borrow requests and self-checkout alike.
  */
 export function deskCopy({ tab, identity, requestAccess, authenticated }: Props): { title: string; body: string } {
   if (tab === "scan") {
@@ -48,18 +47,16 @@ export function deskCopy({ tab, identity, requestAccess, authenticated }: Props)
       return {
         title: "Borrow with check-in",
         body: authenticated
-          ? `Your account is not part of this makerspace, so confirm your name as it appears in TinkerHub against the upstream check-in roster. The request is filed under that check-in name. ${REVIEW}`
+          ? `Borrowing here always uses check-in, even while you are signed in. Confirm your name as it appears in TinkerHub against the upstream check-in roster; the request is filed under that check-in name. ${REVIEW}`
           : "No account needed. Confirm your name as it appears in TinkerHub against the upstream check-in roster; staff review the request before anything is handed over.",
       };
     case "account":
       return {
         title: "Borrow with your account",
         body:
-          requestAccess === "checked_in"
-            ? `You are signed in to this makerspace, so the request is filed under your account and needs no check-in name. ${REVIEW}`
-            : requestAccess === "anyone"
-              ? `You are signed in, so this request is filed against your account. ${REVIEW}`
-              : "Requests are filed under a signed-in account. Staff review them before anything is handed over.",
+          requestAccess === "anyone"
+            ? `You are signed in, so this request is filed against your account. ${REVIEW}`
+            : "Requests are filed under a signed-in account. Staff review them before anything is handed over.",
       };
     case "member":
       return { title: "Member borrowing", body: `Requests use your signed-in member account. ${MEMBER_RULES}` };

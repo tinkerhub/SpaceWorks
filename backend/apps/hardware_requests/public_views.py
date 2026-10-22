@@ -109,22 +109,10 @@ class RequestSubmitView(APIView):
         # `checked_in` and `anyone` are mutually exclusive stored modes, so at most
         # one of these is ever true. Both take their branch BEFORE any membership
         # guard, which is exactly why `request_access` makes the pair unrepresentable.
-        checked_in_policy = checkin_requests_allowed(makerspace)
-        authenticated_member = bool(
-            checked_in_policy
-            and not unauthenticated
-            and request.user.pk
-            and request.user.makerspace_memberships.filter(
-                makerspace=makerspace, status="active"
-            ).exists()
-        )
-        if authenticated_member:
-            # Membership bypasses only the public roster, never the account-state
-            # guard. Restricted, suspended, or inactive users remain blocked.
-            require_active_account(request.user, makerspace)
-        # A deployment-wide account is not tenant membership; only an active member
-        # may bypass the roster selected by this makerspace.
-        checkin_submission = checked_in_policy and not authenticated_member
+        # On the `checked_in` policy the roster IS the borrower identity for everyone:
+        # a signed-in account (staff included) is not a bypass, so a staff member who
+        # borrows from the public page is matched against the roster like any visitor.
+        checkin_submission = checkin_requests_allowed(makerspace)
         anonymous_submission = unauthenticated and not checkin_submission
         if checkin_submission:
             if _honeypot_filled(request.data):

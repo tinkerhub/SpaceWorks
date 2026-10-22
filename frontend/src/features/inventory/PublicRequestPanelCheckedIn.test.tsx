@@ -123,12 +123,11 @@ describe("checked-in borrow requests", () => {
     expect(idempotencyKey).toBeTruthy();
   });
 
-  it("still requires roster identity for an authenticated non-member", async () => {
+  it("still requires roster identity when signed in", async () => {
     getAccessToken.mockReturnValue("access-token");
     lookupCheckin.mockResolvedValue([ELIGIBLE]);
     renderPanel();
 
-    await waitFor(() => expect(memberRequest).toHaveBeenCalledWith("/memberships/me"));
     expect(await screen.findByLabelText(/your name/i)).toBeInTheDocument();
     await confirmIdentity();
     fireEvent.change(screen.getByLabelText(/what.*for|purpose|needed for/i), {
@@ -144,18 +143,16 @@ describe("checked-in borrow requests", () => {
     expect(idempotencyKey).toBeTruthy();
   });
 
-  it("lets only an active membership bypass roster identity", async () => {
+  it("gives an active member no bypass: the roster identity is still sent", async () => {
     getAccessToken.mockReturnValue("access-token");
     memberRequest.mockResolvedValue({
-      memberships: [{
-        makerspace: { slug: "makerspace" },
-        membership_status: "active",
-      }],
+      memberships: [{ makerspace: { slug: "makerspace" }, membership_status: "active" }],
       requests: [],
     });
+    lookupCheckin.mockResolvedValue([ELIGIBLE]);
     renderPanel();
 
-    await waitFor(() => expect(memberRequest).toHaveBeenCalledWith("/memberships/me"));
+    await confirmIdentity();
     fireEvent.change(screen.getByLabelText(/what.*for|purpose|needed for/i), {
       target: { value: "Bench testing" },
     });
@@ -165,9 +162,9 @@ describe("checked-in borrow requests", () => {
 
     await waitFor(() => expect(submitPublicRequest).toHaveBeenCalled());
     const [, payload, idempotencyKey] = submitPublicRequest.mock.calls[0];
-    expect(payload.checkin_mid).toBeUndefined();
-    expect(idempotencyKey).toBeUndefined();
-    expect(screen.queryByLabelText(/your name/i)).not.toBeInTheDocument();
+    expect(payload).toMatchObject({ name: "Ada Example", checkin_mid: 443 });
+    expect(idempotencyKey).toBeTruthy();
+    expect(memberRequest).not.toHaveBeenCalled();
   });
 
   it("never asks an anonymous visitor for a member account", async () => {
@@ -196,41 +193,24 @@ describe("checked-in borrow requests", () => {
     expect(screen.queryByText(/your email/i)).not.toBeInTheDocument();
   });
 
-  it("tells signed-in staff the request is filed under their own account", async () => {
-    // Staff hold active memberships, and `RequestSubmitView` files an active member's
-    // request under their own account -- no roster, and with `membership` off there is
-    // no waiver or presence to speak of.
-    getAccessToken.mockReturnValue("access-token");
-    memberRequest.mockResolvedValue({
-      memberships: [{ makerspace: { slug: "makerspace" }, membership_status: "active" }],
-      requests: [],
-    });
-    renderPanel();
-
-    expect(await screen.findByRole("heading", { name: "Borrow with your account" }))
-      .toBeInTheDocument();
-    expect(screen.getByText(/filed under your account and needs no check-in name/i))
-      .toBeInTheDocument();
-    expect(screen.queryByText(/membership|waiver|presence|member account/i))
-      .not.toBeInTheDocument();
-  });
-
-  it("tells a signed-in outsider the roster still applies", async () => {
+  it("keeps signed-in staff on the check-in roster", async () => {
+    // `RequestSubmitView` has no account bypass on `checked_in`: staff borrowing from the
+    // public page are matched against the roster like any visitor, and the panel never
+    // asks the API who they are.
     getAccessToken.mockReturnValue("access-token");
     renderPanel();
 
-    expect(await screen.findByText(/your account is not part of this makerspace/i))
-      .toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Borrow with check-in" })).toBeInTheDocument();
+    expect(screen.getByText(/always uses check-in, even while you are signed in/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name, as it appears in tinkerhub/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your account|membership|waiver|presence|member account/i)).not.toBeInTheDocument();
+    expect(memberRequest).not.toHaveBeenCalled();
   });
 
   it("describes the check-in scan tab, signed in or not", async () => {
     getAccessToken.mockReturnValue("access-token");
-    memberRequest.mockResolvedValue({
-      memberships: [{ makerspace: { slug: "makerspace" }, membership_status: "active" }],
-      requests: [],
-    });
     renderPanel({ selfCheckout: true });
-    await screen.findByRole("heading", { name: "Borrow with your account" });
+    await screen.findByRole("heading", { name: "Borrow with check-in" });
 
     fireEvent.click(screen.getByRole("button", { name: /scan a tool/i }));
 
