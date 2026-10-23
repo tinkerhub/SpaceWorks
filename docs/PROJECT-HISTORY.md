@@ -6,6 +6,10 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-24 — Collapsible navigation.** Staff console sidebar groups fold from their heading
+  (remembered per browser; the group holding the current page reopens), and every `/control/`
+  sidebar group is collapsible.
+
 - **2026-10-23 — Platform-wide item codes.** Ten standard component categories (`MCU`…`DRV`) with a
   classification guide in the Categories tab, and `<prefix>-<category>-<letter>` item codes
   (`TC-MCU-A`). Prefixes are unique across the platform (a clash keeps the first letter and moves the
