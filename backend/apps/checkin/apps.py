@@ -8,22 +8,30 @@ class CheckinConfig(AppConfig):
     name = "apps.checkin"
 
     def ready(self):
-        # Validated at startup rather than at first request. A makerspace can only
-        # select the `checked_in` request mode once an operator has configured the
-        # upstream roster, and a deployment that half-configured it must refuse to
-        # boot rather than serve 503s to every public requester.
-        url = getattr(settings, "CHECKIN_API_URL", "")
-        if not url:
-            # Blank is a valid, complete state: no tenant can be in `checked_in` mode
-            # without it, which `request_access` enforces separately.
-            return
-        timeout = getattr(settings, "CHECKIN_TIMEOUT", None)
-        if timeout is None or timeout <= 0:
-            raise ImproperlyConfigured(
-                "CHECKIN_TIMEOUT must be a positive number when CHECKIN_API_URL is set."
-            )
-        if not getattr(settings, "CHECKIN_REQUIRED_PURPOSE", "").strip():
-            raise ImproperlyConfigured(
-                "CHECKIN_REQUIRED_PURPOSE must be non-blank when CHECKIN_API_URL is set. "
-                "A blank required purpose would admit every checked-in person."
-            )
+        validate_settings()
+
+
+def validate_settings():
+    """Refuse to boot on a half-configured DEPLOYMENT default.
+
+    Only the environment is checked here, never the database: `ready()` must not
+    query, and a makerspace's own roster settings are validated when they are saved.
+    A makerspace in `checked_in` mode whose roster resolves to nothing fails closed at
+    request time with a 503 (`client.fetch_roster`), which is the right blast radius
+    for one tenant's configuration -- not a deployment that will not start.
+    """
+    # The timeout governs every roster fetch, including a makerspace's own URL on a
+    # deployment that never set CHECKIN_API_URL, so it is checked unconditionally.
+    timeout = getattr(settings, "CHECKIN_TIMEOUT", None)
+    if timeout is None or timeout <= 0:
+        raise ImproperlyConfigured("CHECKIN_TIMEOUT must be a positive number.")
+    if not (getattr(settings, "CHECKIN_API_URL", "") or "").strip():
+        # Blank is a valid, complete state: the deployment offers no default roster.
+        # A makerspace may still bring its own, and its own blank purpose then falls
+        # back to CHECKIN_REQUIRED_PURPOSE (default "Working on a project").
+        return
+    if not (getattr(settings, "CHECKIN_REQUIRED_PURPOSE", "") or "").strip():
+        raise ImproperlyConfigured(
+            "CHECKIN_REQUIRED_PURPOSE must be non-blank when CHECKIN_API_URL is set. "
+            "A blank required purpose would admit every checked-in person."
+        )

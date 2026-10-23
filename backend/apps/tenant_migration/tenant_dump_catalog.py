@@ -47,7 +47,9 @@ class TenantDumpCatalogError(AssertionError):
 # Re-blessed a third time when the reinstated check-in programme merged in: neither
 # 3822e7a1 (events/organizations/retention) nor 5949a207 (check-in) describes the union,
 # so this is recomputed from the merged graph via schema_digest().
-CATALOG_SCHEMA_SHA256 = "b326021c1ff93f06fa1e6c410fd5fefb6f2f43494935bd8a77e829e70a1e6004"
+# Re-blessed for the per-makerspace check-in roster columns on Makerspace
+# (checkin_api_url / checkin_required_purpose / checkin_provider_name, all RESET).
+CATALOG_SCHEMA_SHA256 = "b1051b5b42fe969ea13e1f03ceb677502024fb619a66bee731a500315d683c85"
 
 
 def catalog_models(apps_registry=apps):

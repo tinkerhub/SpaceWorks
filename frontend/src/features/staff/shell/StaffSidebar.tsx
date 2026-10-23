@@ -23,7 +23,7 @@ export function StaffSidebar({ nav, account, publicPath, collapsed = false, onTo
         <Link
           to="/"
           aria-label="Open makerspace listing"
-          className="inline-flex min-w-0 items-center rounded-md text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          className="inline-flex min-w-0 items-center rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           <SpaceWorksLogo size={collapsed ? 28 : 24} withWordmark={!collapsed} />
         </Link>
@@ -49,7 +49,7 @@ export function StaffSidebar({ nav, account, publicPath, collapsed = false, onTo
               to={publicPath}
               aria-label={collapsed ? "Public inventory" : undefined}
               className={cn(
-                "inline-flex min-h-9 items-center gap-1 rounded-md text-sm font-medium text-ink-secondary underline-offset-4 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
+                "inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1 rounded-md text-sm font-medium text-ink-secondary underline-offset-4 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
                 collapsed ? "justify-center hover:bg-emphasis" : "px-3 hover:underline",
               )}
             >

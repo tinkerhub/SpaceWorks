@@ -8,7 +8,7 @@ import { IconLink } from "../ui";
 import { SiteHeader, type SiteNavLink } from "./SiteHeader";
 
 const brandLinkClasses =
-  "inline-flex min-w-0 max-w-full items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+  "inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
 
 type MakerspaceSiteHeaderProps = {
   /** The makerspace's public root: `/m/<slug>` centrally, `/` on its own domain. */

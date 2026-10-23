@@ -24,11 +24,11 @@ must not fail merely because the roster is unreachable right now. Verifying firs
 would make a successful submission un-retryable the moment either changed.
 """
 
-from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
 from apps.accounts.audit_events import fingerprint
 from apps.checkin import verification
+from apps.checkin.config import checkin_config
 from apps.checkin.identity import resolve_principal
 from apps.checkin.throttles import CheckinMidThrottle
 from apps.hardware_requests.request_workflow import RequesterSnapshot
@@ -97,9 +97,9 @@ def snapshot(entry, identity):
     details -- and setting it True would additionally route this submission around
     the anonymous idempotency and outstanding-limit path in `submit_request`.
 
-    `checkin_purpose` stores the CONFIGURED canonical literal rather than the raw
-    upstream string, so the column cannot drift into per-person free text if the
-    gate is ever relaxed.
+    `checkin_purpose` stores the CONFIGURED canonical literal (this makerspace's
+    resolved purpose) rather than the raw upstream string, so the column cannot
+    drift into per-person free text if the gate is ever relaxed.
     """
     return RequesterSnapshot(
         username="",
@@ -108,6 +108,6 @@ def snapshot(entry, identity):
         phone="",
         contact_verified=False,
         checkin_identity=identity,
-        checkin_purpose=settings.CHECKIN_REQUIRED_PURPOSE,
+        checkin_purpose=checkin_config(identity.makerspace).purpose,
         checkin_project_name=entry.project_name.strip(),
     )

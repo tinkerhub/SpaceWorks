@@ -1,7 +1,8 @@
 """The TinkerHub active-check-in roster, fetched and parsed fail-closed.
 
-`GET <CHECKIN_API_URL>` returns a JSON array of everyone currently checked in at one
-upstream space. It is a PUBLIC endpoint: no API key, no per-user token, no query
+`GET <roster URL>` (the makerspace's own, else `CHECKIN_API_URL`; resolved by
+`config.checkin_config`, fetched by `transport`) returns a JSON array of everyone
+currently checked in at one upstream space. It is a PUBLIC endpoint: no API key, no per-user token, no query
 filters. That shapes every decision here.
 
 **Only a well-formed 2xx list is ever trusted.** Unlike the retired pre-M7 client
@@ -18,17 +19,28 @@ the same. Nobody being checked in is a normal Tuesday morning and must read as
 the building that they are not in the building.
 """
 
+import hashlib
 import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 
-from django.conf import settings
 from django.core.cache import cache
+
+from apps.checkin import transport
+from apps.checkin.config import checkin_config
+from apps.checkin.transport import REASON_NOT_CONFIGURED, CheckinUnavailable
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["CheckinEntry", "CheckinUnavailable", "fetch_roster"]
+
 CACHE_KEY = "checkin:active-roster"
+
+REASON_NOT_JSON = "not_json"
+REASON_NOT_ARRAY = "not_array"
+REASON_TOO_MANY_ROWS = "too_many_rows"
+REASON_UNPARSEABLE = "unparseable"
 
 # Field ceilings. Upstream is a third party we do not control, so every string that
 # reaches a database column or a response body is bounded here rather than trusted.
@@ -39,10 +51,6 @@ MAX_AVATAR = 500
 # `mid` crosses the generated browser client as a JSON number. Values above this
 # boundary can be rounded before confirmation, changing the identity the server verifies.
 MAX_MID = (1 << 53) - 1
-
-
-class CheckinUnavailable(Exception):
-    """We could not establish who is checked in. Always maps to 503, never 403."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,8 +65,8 @@ class CheckinEntry:
     space_id: int | None
 
 
-def fetch_roster(*, cached: bool):
-    """The active roster.
+def fetch_roster(makerspace=None, *, cached: bool):
+    """The active roster for `makerspace`'s resolved upstream (`config.checkin_config`).
 
     `cached=True` serves a short-lived shared copy and is for the LOOKUP surface,
     which is an unauthenticated UI affordance and would otherwise let a bot turn
@@ -67,88 +75,61 @@ def fetch_roster(*, cached: bool):
     `cached=False` is mandatory wherever the roster is the authorization fact --
     submit, checkout, return. A cached copy can outlive a checkout, and "checked in
     within the last 30 seconds" is not the rule we promised.
+
+    The cache is keyed by the RESOLVED URL, never shared across upstreams: with
+    per-makerspace rosters one key would serve one space's checked-in people to
+    another space's lookup.
     """
+    config = checkin_config(makerspace)
+    if not config.ready:
+        # No roster, or no purpose to require (a blank purpose would match only
+        # blank-purpose rows -- an accident, not a policy). Fail closed.
+        raise CheckinUnavailable(
+            "Check-in service is not configured.", reason=REASON_NOT_CONFIGURED
+        )
+    key = cache_key(config.url)
     if cached:
-        hit = cache.get(CACHE_KEY)
+        hit = cache.get(key)
         if isinstance(hit, list):
             return hit
-    entries = _parse(_get_body())
+    entries = _parse(transport.fetch_body(config))
     if cached:
-        cache.set(CACHE_KEY, entries, _setting("CHECKIN_CACHE_SECONDS", 30))
+        cache.set(key, entries, transport.setting("CHECKIN_CACHE_SECONDS", 30))
     return entries
 
 
-def _setting(name, default):
-    value = getattr(settings, name, default)
-    return default if value is None else value
+def cache_key(url):
+    # A digest, not the URL: a cache key reaches Redis `MONITOR`/`KEYS *`, and a
+    # roster URL may carry a query-string token.
+    return f"{CACHE_KEY}:{hashlib.sha256(url.encode()).hexdigest()}"
 
 
-def _get_body():
-    import requests
-
-    url = getattr(settings, "CHECKIN_API_URL", "")
-    if not url:
-        # Reaching here means a tenant is in `checked_in` mode on a deployment that
-        # never configured the roster. Fail closed rather than admit everyone.
-        raise CheckinUnavailable("Check-in service is not configured.")
-    max_bytes = _setting("CHECKIN_MAX_RESPONSE_BYTES", 1_048_576)
-    try:
-        response = requests.get(
-            url,
-            timeout=_setting("CHECKIN_TIMEOUT", 5.0),
-            stream=True,
-            allow_redirects=False,
-        )
-        if not 200 <= response.status_code < 300:
-            logger.warning(
-                "Check-in roster returned an unsuccessful status.",
-                extra={"status_code": response.status_code},
-            )
-            raise CheckinUnavailable("Check-in service is unavailable.")
-        declared = int(response.headers.get("Content-Length") or 0)
-        if not response.headers.get("Content-Encoding") and declared > max_bytes:
-            raise CheckinUnavailable("Check-in roster is too large.")
-        chunks = []
-        size = 0
-        # requests asks urllib3 to decode Content-Encoding while iterating. Enforce
-        # the ceiling on those decoded bytes, not the smaller compressed wire body.
-        for chunk in response.iter_content(chunk_size=min(65_536, max_bytes + 1)):
-            if not chunk:
-                continue
-            if len(chunk) > max_bytes - size:
-                raise CheckinUnavailable("Check-in roster is too large.")
-            chunks.append(chunk)
-            size += len(chunk)
-        body = b"".join(chunks)
-    except CheckinUnavailable:
-        raise
-    except Exception as exc:
-        # `requests` raises a wide family here (ConnectionError, Timeout, SSLError,
-        # ChunkedEncodingError, and response-decoding errors). They all
-        # mean the same thing to us, and none of them may become a denial.
-        logger.warning(
-            "Check-in roster fetch failed.",
-            extra={"error_class": type(exc).__name__},
-        )
-        raise CheckinUnavailable("Check-in service is unavailable.") from exc
-    return body
+def _get_body(config=None):
+    """The raw body for `config` (default: the deployment's). Kept for callers/tests."""
+    return transport.fetch_body(config or checkin_config())
 
 
 def _parse(body):
     try:
         data = json.loads(body)
     except (ValueError, TypeError) as exc:
-        raise CheckinUnavailable("Check-in roster was not valid JSON.") from exc
+        raise CheckinUnavailable(
+            "Check-in roster was not valid JSON.", reason=REASON_NOT_JSON
+        ) from exc
     # The upstream answers a literal JSON `null` (not `[]`) while nobody is checked in.
     # That is its empty roster, not an outage; any other non-array body still fails closed.
     if data is None:
         data = []
     if not isinstance(data, list):
-        raise CheckinUnavailable("Check-in roster was not a JSON array.")
+        raise CheckinUnavailable(
+            "Check-in roster was not a JSON array.", reason=REASON_NOT_ARRAY
+        )
 
-    max_rows = _setting("CHECKIN_MAX_ROWS", 2000)
+    max_rows = transport.setting("CHECKIN_MAX_ROWS", 2000)
     if len(data) > max_rows:
-        raise CheckinUnavailable("Check-in roster had too many rows.")
+        raise CheckinUnavailable(
+            "Check-in roster had too many rows.", reason=REASON_TOO_MANY_ROWS
+        )
 
     entries = []
     skipped = 0
@@ -164,7 +145,9 @@ def _parse(body):
     # rather than as a confident "you are not checked in".
     if data and not entries:
         logger.warning("Check-in roster had no parseable rows.", extra={"rows": len(data)})
-        raise CheckinUnavailable("Check-in roster could not be parsed.")
+        raise CheckinUnavailable(
+            "Check-in roster could not be parsed.", reason=REASON_UNPARSEABLE
+        )
     if skipped:
         logger.warning(
             "Check-in roster had unparseable rows.",

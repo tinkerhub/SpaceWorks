@@ -84,7 +84,7 @@ export function PublicRequestHeader(props: Props) {
     <Card className="shrink-0">
       <p className="text-body-ui text-ink-muted">Request desk</p>
       <h2 className="mt-1 text-h4 text-ink">{title}</h2>
-      <p className="mt-2 text-body-ui text-ink-secondary">{body}</p>
+      <p className="mt-2 max-w-[65ch] text-body-ui text-ink-secondary">{body}</p>
       {props.signInHref ? (
         <Link className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-3" })} to={props.signInHref}>Sign in</Link>
       ) : null}

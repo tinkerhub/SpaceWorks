@@ -309,6 +309,8 @@ export const openApiPaths = [
   "/api/v1/admin/makerspace/{makerspace_id}/warranties",
   "/api/v1/admin/makerspaces",
   "/api/v1/admin/makerspaces/{id}",
+  "/api/v1/admin/makerspaces/{makerspace_id}/checkin-settings",
+  "/api/v1/admin/makerspaces/{makerspace_id}/checkin-settings/test",
   "/api/v1/admin/makerspaces/{makerspace_id}/event-collaborations/",
   "/api/v1/admin/makerspaces/{makerspace_id}/event-series-collaborations/",
   "/api/v1/admin/makerspaces/{makerspace_id}/event-series/",
@@ -752,6 +754,8 @@ export type ApiKeyRequest = {
   "resolved_at": string | null;
 };
 
+export type ApiUrlSourceEnum = "makerspace" | "deployment";
+
 export type ApprovalModeEnum = "instant" | "approve";
 
 export type ArchiveCustodyReadiness = {
@@ -1177,6 +1181,18 @@ export type Channel7a7Enum = "telegram" | "slack" | "mattermost" | "discord";
 
 export type ChannelCbbEnum = "email" | "telegram" | "slack" | "mattermost" | "discord" | "native_push";
 
+export type CheckinDeploymentDefaults = {
+  "api_url": string;
+  "required_purpose": string;
+  "provider_name": string;
+};
+
+export type CheckinEffective = {
+  "api_url_source": ApiUrlSourceEnum | BlankEnum;
+  "required_purpose": string;
+  "provider_name": string;
+};
+
 export type CheckinLookupRequest = {
   "name": string;
 };
@@ -1192,6 +1208,34 @@ export type CheckinMatch = {
 };
 
 export type CheckinMatchReasonEnum = "purpose" | "project" | "expired" | "space";
+
+export type CheckinSettings = {
+  "public_request_mode": PublicRequestModeEnum;
+  "request_access": string;
+  "membership_installed": boolean;
+  "checkin_space_id": number | null;
+  "checkin_api_url": string;
+  "checkin_required_purpose": string;
+  "checkin_provider_name": string;
+  "deployment": CheckinDeploymentDefaults;
+  "effective": CheckinEffective;
+};
+
+export type CheckinSettingsError = {
+  "detail": string;
+};
+
+export type CheckinTestRequest = {
+  "checkin_api_url"?: string;
+};
+
+export type CheckinTestResult = {
+  "ok": boolean;
+  "rows": number;
+  "space_rows": number | null;
+  "code": string;
+  "reason": string;
+};
 
 export type CheckoutUrl = {
   "checkout_url": string;
@@ -4022,6 +4066,14 @@ export type PatchedCategoryAdmin = {
   "updated_at"?: string;
 };
 
+export type PatchedCheckinSettingsUpdate = {
+  "public_request_mode"?: PublicRequestModeEnum;
+  "checkin_space_id"?: number | null;
+  "checkin_api_url"?: string;
+  "checkin_required_purpose"?: string;
+  "checkin_provider_name"?: string;
+};
+
 export type PatchedEmailTemplateUpdate = {
   "subject"?: string;
   "text_body"?: string;
@@ -4933,6 +4985,8 @@ export type PublicRequestItemStatus = {
   "product_name": string;
   "requested_quantity": number;
 };
+
+export type PublicRequestModeEnum = "disabled" | "checked_in" | "anyone";
 
 export type PublicRequestStatus = {
   "status": string;

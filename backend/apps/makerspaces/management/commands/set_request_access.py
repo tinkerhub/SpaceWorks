@@ -9,6 +9,8 @@ keeps the installer from reporting a policy the database does not have.
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from apps.audit import services as audit
+from apps.checkin.transport import tenant_url_error
 from apps.makerspaces.management.commands.list_modules import resolve_makerspace
 from apps.makerspaces.request_access import (
     ACCOUNTS,
@@ -49,7 +51,8 @@ class Command(BaseCommand):
                 "members = active members only (requires the membership module); "
                 "accounts = any signed-in account; "
                 "checked_in = no account, verified against the upstream check-in "
-                "roster (requires --checkin-space-id to have been set); "
+                "roster (requires --checkin-space-id, and a roster URL here or in "
+                "CHECKIN_API_URL); "
                 "anyone = no account needed."
             ),
         )
@@ -63,18 +66,43 @@ class Command(BaseCommand):
                 "single invocation can do both."
             ),
         )
+        # This makerspace's own roster. Omitted leaves the stored value; an empty string
+        # clears it back to the deployment default (CHECKIN_API_URL and friends).
+        parser.add_argument(
+            "--checkin-api-url",
+            default=None,
+            help="This makerspace's own roster URL (public https only). '' clears it.",
+        )
+        parser.add_argument(
+            "--checkin-purpose",
+            default=None,
+            help="Required roster purpose for this makerspace. '' uses CHECKIN_REQUIRED_PURPOSE.",
+        )
+        parser.add_argument(
+            "--checkin-provider-name",
+            default=None,
+            help="Check-in system name shown to borrowers. '' uses the default wording.",
+        )
 
     def handle(self, *args, **options):
         makerspace = resolve_makerspace(options["makerspace"])
         mode = options["mode"]
-        space_id = options["checkin_space_id"]
+        updates = _roster_updates(options)
         try:
             with transaction.atomic():
-                if space_id is not None:
-                    # The binding and mode change commit together, so a refused mode
-                    # leaves the existing binding and live policy unchanged.
-                    makerspace.checkin_space_id = space_id
-                    makerspace.save(update_fields=["checkin_space_id"])
+                if updates:
+                    # The binding, roster and mode change commit together, so a refused
+                    # mode leaves the existing settings and live policy unchanged.
+                    for field, value in updates.items():
+                        setattr(makerspace, field, value)
+                    makerspace.save(update_fields=[*updates, "updated_at"])
+                    audit.record(
+                        None,
+                        "checkin.settings_updated",
+                        makerspace=makerspace,
+                        target=makerspace,
+                        meta={"fields": sorted(updates), "source": "set_request_access"},
+                    )
                 resulting = set_request_access(makerspace, STORED_MODE[mode])
         except RequestAccessConflict as exc:
             raise CommandError(str(exc)) from exc
@@ -102,6 +130,33 @@ class Command(BaseCommand):
                 )
             )
         return None
+
+
+def _roster_updates(options):
+    updates = {}
+    if options["checkin_space_id"] is not None:
+        updates["checkin_space_id"] = options["checkin_space_id"]
+    url = options["checkin_api_url"]
+    if url is not None:
+        url = url.strip()
+        # Same outbound guard as the console: a URL saved here is fetched by the server.
+        error = tenant_url_error(url) if url else ""
+        if error:
+            raise CommandError(f"--checkin-api-url: {error}")
+        if len(url) > 500:
+            raise CommandError("--checkin-api-url: at most 500 characters.")
+        updates["checkin_api_url"] = url
+    for option, field, limit in (
+        ("checkin_purpose", "checkin_required_purpose", 200),
+        ("checkin_provider_name", "checkin_provider_name", 100),
+    ):
+        value = options[option]
+        if value is not None:
+            value = value.strip()
+            if len(value) > limit:
+                raise CommandError(f"--{option.replace('_', '-')}: at most {limit} characters.")
+            updates[field] = value
+    return updates
 
 
 def current_policy(makerspace) -> str:

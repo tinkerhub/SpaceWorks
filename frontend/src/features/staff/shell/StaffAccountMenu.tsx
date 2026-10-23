@@ -59,7 +59,7 @@ export function StaffAccountMenu({
           <>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-ink">{username}</span>
-              {context ? <span className="block truncate text-caption text-ink-muted">{context}</span> : null}
+              {context ? <span className="line-clamp-2 block text-caption text-ink-muted [overflow-wrap:anywhere]">{context}</span> : null}
             </span>
             <ChevronsUpDown aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
           </>

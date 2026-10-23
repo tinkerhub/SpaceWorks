@@ -7,7 +7,14 @@ import { cn } from "../../lib/cn";
 
 /* Underline tabs. Radix gives role="tablist"/"tab"/"tabpanel", aria-selected and
    arrow-key / Home / End navigation with a single tab stop. */
-export const Tabs = TabsPrimitive.Root;
+/** `min-w-0` so a grid or flex parent can shrink the tabs below their row's natural width;
+ *  the list then scrolls sideways instead of widening the page on a phone. */
+export const Tabs = forwardRef<ElementRef<typeof TabsPrimitive.Root>, ComponentPropsWithoutRef<typeof TabsPrimitive.Root>>(function Tabs(
+  { className, ...props },
+  ref,
+) {
+  return <TabsPrimitive.Root ref={ref} className={cn("min-w-0", className)} {...props} />;
+});
 
 const tabListClasses = "flex gap-1 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 const tabClasses =
@@ -75,7 +82,7 @@ function ScrollHint({ side, visible, onClick }: { side: "left" | "right"; visibl
         type="button"
         tabIndex={-1}
         onClick={onClick}
-        className={cn("inline-flex size-8 items-center justify-center rounded-full border border-line bg-canvas text-ink-secondary shadow-segment hover:text-ink", visible && "pointer-events-auto")}
+        className={cn("inline-flex size-8 pointer-coarse:size-11 items-center justify-center rounded-full border border-line bg-canvas text-ink-secondary shadow-segment hover:text-ink", visible && "pointer-events-auto")}
       >
         {side === "left" ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
       </button>

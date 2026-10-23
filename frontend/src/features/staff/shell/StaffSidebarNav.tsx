@@ -62,7 +62,7 @@ function NavGroup({ group, props }: { group: StaffNavGroup; props: StaffNavProps
                   aria-current={active ? "page" : undefined}
                   aria-label={accessibleName}
                   className={cn(
-                    "relative flex min-h-10 items-center gap-2.5 rounded-md border border-transparent text-[15px] text-ink-secondary transition-colors duration-180 ease-standard hover:bg-emphasis hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus [&_svg]:size-[18px] [&_svg]:shrink-0",
+                    "relative flex min-h-10 pointer-coarse:min-h-11 items-center gap-2.5 rounded-md border border-transparent text-[15px] text-ink-secondary transition-colors duration-180 ease-standard hover:bg-emphasis hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus [&_svg]:size-[18px] [&_svg]:shrink-0",
                     collapsed ? "justify-center px-0" : "px-3",
                     active && "border-line bg-canvas font-semibold text-ink shadow-segment hover:bg-canvas",
                   )}

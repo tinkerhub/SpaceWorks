@@ -11,7 +11,7 @@ type IconControlOptions = { variant?: IconButtonVariant; size?: IconButtonSize; 
 export function iconButtonClasses({ variant = "secondary", size = "md", className }: IconControlOptions = {}) {
   return cn(
     "inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0",
-    size === "sm" ? "size-9" : "size-11",
+    size === "sm" ? "size-9 pointer-coarse:size-11" : "size-11",
     variant === "quiet" && "text-ink-secondary hover:bg-emphasis hover:text-ink",
     variant === "secondary" && "border border-line-strong bg-canvas text-ink hover:bg-subtle",
     variant === "danger" && "text-danger-fg hover:bg-danger-bg",

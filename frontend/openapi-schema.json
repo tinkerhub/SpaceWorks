@@ -21528,6 +21528,218 @@
                 }
             }
         },
+        "/api/v1/admin/makerspaces/{makerspace_id}/checkin-settings": {
+            "get": {
+                "operationId": "api_v1_admin_makerspaces_checkin_settings_retrieve",
+                "summary": "Retrieve this makerspace's check-in settings",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin makerspaces"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettings"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Not signed in as active staff, or outside this origin's makerspace."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace not found, or you lack the required action there."
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_v1_admin_makerspaces_checkin_settings_partial_update",
+                "description": "Blank roster fields fall back to the deployment settings. `public_request_mode` is applied through the same writer as `manage.py set_request_access`, so membership still wins.",
+                "summary": "Update this makerspace's check-in settings",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin makerspaces"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedCheckinSettingsUpdate"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedCheckinSettingsUpdate"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedCheckinSettingsUpdate"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettings"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid field, a roster URL refused by the outbound guard, or a mode this makerspace cannot serve (membership installed, no roster, no space ID)."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Not signed in as active staff, or outside this origin's makerspace."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace not found, or you lack the required action there."
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/makerspaces/{makerspace_id}/checkin-settings/test": {
+            "post": {
+                "operationId": "api_v1_admin_makerspaces_checkin_settings_test_create",
+                "description": "Fetches the roster once, uncached, from the candidate URL or the saved one. A failure is an expected diagnostic outcome: `ok: false` with a readable `reason`. The upstream body is never echoed.",
+                "summary": "Test reading the check-in roster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin makerspaces"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinTestRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinTestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CheckinTestRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinTestResult"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Malformed request body."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Not signed in as active staff, or outside this origin's makerspace."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckinSettingsError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace not found, or you lack the required action there."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/makerspaces/{makerspace_id}/event-collaborations/": {
             "get": {
                 "operationId": "api_v1_admin_makerspaces_event_collaborations_list",
@@ -42045,6 +42257,14 @@
                     "status"
                 ]
             },
+            "ApiUrlSourceEnum": {
+                "enum": [
+                    "makerspace",
+                    "deployment"
+                ],
+                "type": "string",
+                "description": "* `makerspace` - makerspace\n* `deployment` - deployment\n* `` - none"
+            },
             "ApprovalModeEnum": {
                 "enum": [
                     "instant",
@@ -43788,6 +44008,51 @@
                 "type": "string",
                 "description": "* `email` - Email\n* `telegram` - Telegram\n* `slack` - Slack\n* `mattermost` - Mattermost\n* `discord` - Discord\n* `native_push` - Native push"
             },
+            "CheckinDeploymentDefaults": {
+                "type": "object",
+                "properties": {
+                    "api_url": {
+                        "type": "string"
+                    },
+                    "required_purpose": {
+                        "type": "string"
+                    },
+                    "provider_name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "api_url",
+                    "provider_name",
+                    "required_purpose"
+                ]
+            },
+            "CheckinEffective": {
+                "type": "object",
+                "properties": {
+                    "api_url_source": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ApiUrlSourceEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
+                    },
+                    "required_purpose": {
+                        "type": "string"
+                    },
+                    "provider_name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "api_url_source",
+                    "provider_name",
+                    "required_purpose"
+                ]
+            },
             "CheckinLookupRequest": {
                 "type": "object",
                 "properties": {
@@ -43852,6 +44117,101 @@
                 ],
                 "type": "string",
                 "description": "* `` - eligible\n* `purpose` - purpose\n* `project` - project\n* `expired` - expired\n* `space` - space"
+            },
+            "CheckinSettings": {
+                "type": "object",
+                "properties": {
+                    "public_request_mode": {
+                        "$ref": "#/components/schemas/PublicRequestModeEnum"
+                    },
+                    "request_access": {
+                        "type": "string"
+                    },
+                    "membership_installed": {
+                        "type": "boolean"
+                    },
+                    "checkin_space_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "checkin_api_url": {
+                        "type": "string"
+                    },
+                    "checkin_required_purpose": {
+                        "type": "string"
+                    },
+                    "checkin_provider_name": {
+                        "type": "string"
+                    },
+                    "deployment": {
+                        "$ref": "#/components/schemas/CheckinDeploymentDefaults"
+                    },
+                    "effective": {
+                        "$ref": "#/components/schemas/CheckinEffective"
+                    }
+                },
+                "required": [
+                    "checkin_api_url",
+                    "checkin_provider_name",
+                    "checkin_required_purpose",
+                    "checkin_space_id",
+                    "deployment",
+                    "effective",
+                    "membership_installed",
+                    "public_request_mode",
+                    "request_access"
+                ]
+            },
+            "CheckinSettingsError": {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "detail"
+                ]
+            },
+            "CheckinTestRequest": {
+                "type": "object",
+                "properties": {
+                    "checkin_api_url": {
+                        "type": "string",
+                        "description": "Candidate URL to test. Blank tests the saved (or deployment) roster.",
+                        "maxLength": 500
+                    }
+                }
+            },
+            "CheckinTestResult": {
+                "type": "object",
+                "properties": {
+                    "ok": {
+                        "type": "boolean"
+                    },
+                    "rows": {
+                        "type": "integer",
+                        "description": "Valid roster rows read."
+                    },
+                    "space_rows": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Rows for this makerspace's space ID; null when none is bound."
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "ok",
+                    "reason",
+                    "rows",
+                    "space_rows"
+                ]
             },
             "CheckoutUrl": {
                 "type": "object",
@@ -55469,6 +55829,31 @@
                     }
                 }
             },
+            "PatchedCheckinSettingsUpdate": {
+                "type": "object",
+                "properties": {
+                    "public_request_mode": {
+                        "$ref": "#/components/schemas/PublicRequestModeEnum"
+                    },
+                    "checkin_space_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "nullable": true
+                    },
+                    "checkin_api_url": {
+                        "type": "string",
+                        "maxLength": 500
+                    },
+                    "checkin_required_purpose": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "checkin_provider_name": {
+                        "type": "string",
+                        "maxLength": 100
+                    }
+                }
+            },
             "PatchedEmailTemplateUpdate": {
                 "type": "object",
                 "properties": {
@@ -59076,6 +59461,15 @@
                     "product_name",
                     "requested_quantity"
                 ]
+            },
+            "PublicRequestModeEnum": {
+                "enum": [
+                    "disabled",
+                    "checked_in",
+                    "anyone"
+                ],
+                "type": "string",
+                "description": "* `disabled` - An account is required\n* `checked_in` - Anyone checked in upstream and working on a project\n* `anyone` - Anyone, no account needed"
             },
             "PublicRequestStatus": {
                 "type": "object",

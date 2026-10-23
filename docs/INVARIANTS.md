@@ -2811,7 +2811,8 @@ encoder always emits canonical output, so stored envelopes are unaffected.
 
 ## Check-in gated requests
 
-**The upstream roster is a PRESENCE FILTER, NOT AUTHENTICATION.** `CHECKIN_API_URL` is a public
+**The upstream roster is a PRESENCE FILTER, NOT AUTHENTICATION.** The roster (a makerspace's own
+`Makerspace.checkin_api_url`, else the deployment's `CHECKIN_API_URL`) is a public
 endpoint: no API key, no per-user token, no query filters. Anyone on the internet can read the
 whole roster and claim any eligible identity on it. Everything below follows from that one fact,
 and no change may quietly upgrade the roster into an authentication source.
@@ -2852,9 +2853,41 @@ still return the original request after the person has checked out or while upst
 The idempotency payload fingerprint MUST include the mid: two people sharing a display name would
 otherwise produce identical fingerprints and one could receive the other's public token.
 
-**Every makerspace in `checked_in` mode is bound to an upstream `spaceId`.** The roster endpoint is
-deployment-global and carries no tenant, so without `Makerspace.checkin_space_id` two makerspaces
-would admit exactly the same people. Entries whose `spaceId` does not match are discarded.
+**Every makerspace in `checked_in` mode is bound to an upstream `spaceId`.** A roster endpoint
+(the deployment's, or one several makerspaces share) carries no tenant, so without
+`Makerspace.checkin_space_id` two makerspaces on it would admit exactly the same people. Entries whose
+`spaceId` does not match are discarded.
+
+**`apps/checkin/config.py::checkin_config(makerspace)` is the ONLY resolver of the roster URL, required
+purpose and provider name.** Each field is the makerspace's own value when set, else the deployment
+setting — except the provider name, which a makerspace with its own URL does not inherit from
+`CHECKIN_PROVIDER_NAME` (host heuristic on its own URL instead). Every surface — lookup, submit,
+self-checkout, machine-job requests, the bootstrap `checkin` block, `checkin_submit.snapshot`'s
+`checkin_purpose`, `request_access.set_request_access` — asks it with the makerspace in hand. Never read
+`settings.CHECKIN_*` directly in a request path again: that is how one tenant would quietly be
+checked against another's roster. With no per-makerspace values it resolves to exactly the settings,
+which is what keeps a single-roster deployment byte-for-byte unchanged.
+
+**A makerspace's roster URL is attacker-influenced and goes through the outbound SSRF guard, twice.**
+A Space Manager types it and the server fetches it. It is validated on save (console serializer,
+`set_request_access --checkin-api-url`) AND at every fetch (`transport._guarded_body`) with
+`integrations.webhook_validation.resolve_webhook_target` — https only, no credentials, every DNS answer
+public (loopback, private, link-local incl. `169.254.169.254`, CGNAT `100.64.0.0/10`, reserved, multicast
+refused) — and the connection is pinned to the vetted address so a second DNS answer cannot rebind it.
+Redirects are never followed. Do not add a validator to the model field instead: `full_clean` callers
+(tenant import, admin forms) would start doing DNS. The deployment `CHECKIN_API_URL` is
+operator-controlled and keeps its original `requests` transport. Tenant migration RESETs all three
+roster columns (with `public_request_mode` and `checkin_space_id`), so an imported URL never reaches
+the fetch path without a target Space Manager re-entering it.
+
+**The lookup cache is keyed by the resolved URL (a SHA-256 of it).** One key for every roster would
+serve one makerspace's checked-in people to another makerspace's lookup.
+
+**No roster is a 503, not a boot failure.** `apps.checkin.apps.validate_settings` checks only the
+environment (positive `CHECKIN_TIMEOUT` always; non-blank `CHECKIN_REQUIRED_PURPOSE` when
+`CHECKIN_API_URL` is set) and never queries. A `checked_in` makerspace whose roster resolves to nothing,
+or whose purpose resolves blank, fails closed at request time with `checkin_unavailable` and the
+"not set up for this makerspace" detail.
 
 **Principals are per-person, never the shared anonymous sentinel.** `CheckinIdentity` maps one
 upstream mid to one walk-in `User`. This is not a preference — four mechanisms break without it:
@@ -2884,7 +2917,8 @@ recognises email/IP shapes, so a project name would sit in an append-only log fo
 per-person fingerprint would make every request that person ever submits permanently linkable. The
 detail lives on the purgeable request row.
 
-**`checkin_purpose` stores the configured canonical literal, never the raw upstream string.** The
+**`checkin_purpose` stores the configured canonical literal (the makerspace's resolved purpose), never
+the raw upstream string.** The
 gate admits exactly one purpose, so the column carries no per-person information and stays outside
 the PII fence. If the gate is ever relaxed to admit several purposes, it becomes per-person data
 and must be mapped then.

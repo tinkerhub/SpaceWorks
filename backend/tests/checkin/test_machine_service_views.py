@@ -188,7 +188,7 @@ def test_mid_throttle_is_charged_before_the_upstream_roster_call(monkeypatch):
         order.append(("throttle", request.checkin_mid, request.checkin_makerspace_id))
         return True
 
-    def fetch_roster(*, cached):
+    def fetch_roster(makerspace=None, *, cached):
         order.append(("upstream", cached))
         return [_entry()]
 

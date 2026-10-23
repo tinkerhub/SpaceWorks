@@ -22,16 +22,17 @@ REASON_SPACE = "space"
 
 
 def required_purpose() -> str:
-    """The upstream `purpose` string that admits a requester.
+    """The DEPLOYMENT's upstream `purpose` string that admits a requester.
 
     A setting rather than a constant because the gate is exactly one upstream
     rename away from refusing everyone, and an operator must be able to correct
-    that without waiting for a deploy.
+    that without waiting for a deploy. A makerspace may override it; callers with
+    a makerspace in hand pass `purpose=checkin_config(makerspace).purpose`.
     """
     return getattr(settings, "CHECKIN_REQUIRED_PURPOSE", "")
 
 
-def refusal_reason(entry, now, *, space_id=None):
+def refusal_reason(entry, now, *, space_id=None, purpose=None):
     """`ELIGIBLE`, or the first reason this entry is refused.
 
     Order matters for the message the requester sees: a wrong purpose is reported
@@ -41,7 +42,8 @@ def refusal_reason(entry, now, *, space_id=None):
     """
     if space_id is not None and entry.space_id != space_id:
         return REASON_SPACE
-    if normalize(entry.purpose) != normalize(required_purpose()):
+    wanted = required_purpose() if purpose is None else purpose
+    if normalize(entry.purpose) != normalize(wanted):
         return REASON_PURPOSE
     if not entry.project_name.strip():
         return REASON_PROJECT
@@ -53,5 +55,5 @@ def refusal_reason(entry, now, *, space_id=None):
     return ELIGIBLE
 
 
-def is_eligible(entry, now, *, space_id=None) -> bool:
-    return refusal_reason(entry, now, space_id=space_id) == ELIGIBLE
+def is_eligible(entry, now, *, space_id=None, purpose=None) -> bool:
+    return refusal_reason(entry, now, space_id=space_id, purpose=purpose) == ELIGIBLE

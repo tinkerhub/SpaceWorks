@@ -128,6 +128,15 @@ TARGET_FIELD_PROJECTION = {
         None,
         reason="A source roster binding has no authority on the target deployment.",
     ),
+    ("makerspaces.Makerspace", "checkin_api_url"): TargetField(
+        "", reason="A source roster URL is unvetted outbound authority on the target."
+    ),
+    ("makerspaces.Makerspace", "checkin_required_purpose"): TargetField(
+        "", reason="The admitting purpose is target policy, set with the target roster."
+    ),
+    ("makerspaces.Makerspace", "checkin_provider_name"): TargetField(
+        "", reason="Borrower copy names the target roster, not the source's."
+    ),
     ("makerspaces.Makerspace", "membership_policy"): TargetField(
         "request", allow_superadmin_override=True,
         reason="Open admission is a target grant, not a portable preference.",

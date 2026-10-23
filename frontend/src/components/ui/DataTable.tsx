@@ -10,6 +10,9 @@ export type DataTableColumn<T> = {
   key: Extract<keyof T, string> | string; header: ReactNode; render?: (row: T) => ReactNode; sortable?: boolean; className?: string;
 };
 
+// A 16px checkbox inside a 44px hit area (WCAG 2.5.5); the negative margin keeps the cell size.
+const checkHit = "-m-3.5 inline-flex cursor-pointer p-3.5";
+
 type SortState = { key: string; direction: "asc" | "desc" };
 
 type DataTableProps<T> = {
@@ -68,13 +71,15 @@ export function DataTable<T>({
   if (!loading && !data.length) return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
 
   return (
-    <div className="w-full min-w-0 overflow-x-auto rounded-lg border border-line bg-canvas">
+    <div className="sw-scroll-x relative w-full min-w-0 overflow-x-auto rounded-lg border border-line">
       <table className="w-full min-w-[640px] border-collapse text-left text-body-ui" aria-busy={loading}>
         <thead className="bg-subtle text-[13px] text-ink-muted">
           <tr className="border-b border-line">
             {selectionEnabled ? (
               <th className="w-10 px-4 py-3" scope="col">
-                <input ref={selectAllRef} type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label="Select all rows" checked={allSelected} onChange={(event) => changeAll(event.target.checked)} />
+                <label className={checkHit}>
+                  <input ref={selectAllRef} type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label="Select all rows" checked={allSelected} onChange={(event) => changeAll(event.target.checked)} />
+                </label>
               </th>
             ) : null}
             {columns.map((column) => (
@@ -85,7 +90,7 @@ export function DataTable<T>({
                 scope="col"
               >
                 {column.sortable ? (
-                  <button type="button" className="-mx-1 inline-flex min-h-9 items-center gap-1 rounded-md px-1 font-semibold hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => toggleSort(column)}>
+                  <button type="button" className="-mx-1 inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1 rounded-md px-1 font-semibold hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => toggleSort(column)}>
                     {column.header}
                     <SortIcon direction={sort?.key === column.key ? sort.direction : null} />
                   </button>
@@ -110,7 +115,9 @@ export function DataTable<T>({
                 <tr key={id} className="border-b border-emphasis transition-colors last:border-b-0 hover:bg-subtle/60">
                   {selectionEnabled ? (
                     <td className="px-4 py-3">
-                      <input type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label={`Select row ${String(id)}`} checked={selectedSet.has(id)} onChange={(event) => changeRow(id, event.target.checked)} />
+                      <label className={checkHit}>
+                        <input type="checkbox" className="size-4 cursor-pointer accent-accent" aria-label={`Select row ${String(id)}`} checked={selectedSet.has(id)} onChange={(event) => changeRow(id, event.target.checked)} />
+                      </label>
                     </td>
                   ) : null}
                   {columns.map((column) => (

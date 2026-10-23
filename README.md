@@ -36,30 +36,49 @@ Telegram group, QR namespace, and audit scope — fully isolated from the others
 
 ## Screenshots
 
-Captured from a local stack loaded with `manage.py seed_demo`.
+Captured from a local stack loaded with `manage.py seed_demo`, configured for check-in borrowing.
+Every page is checked on phones, tablets, laptops, desktop monitors, 4K and ultrawide, in light and dark.
 
-| Public catalogue | Staff sign-in |
+**Public side**
+
+| Catalogue | Borrow with check-in |
 | --- | --- |
-| ![Public inventory catalogue with search, category filters and a borrow request panel](docs/screenshots/public-inventory.png) | ![Two-column staff sign-in page](docs/screenshots/staff-sign-in.png) |
-| **Staff dashboard** | **Inventory** |
-| ![Staff console dashboard with the collapsible sidebar and stat tiles](docs/screenshots/staff-dashboard.png) | ![Inventory table with live counts, status chips and row actions](docs/screenshots/staff-inventory.png) |
-| **Requests and handover** | **Machines** |
-| ![Request queue grouped into pending review, ready for handover and active loans](docs/screenshots/staff-requests.png) | ![Machine types as cards with the setup section below](docs/screenshots/staff-machines.png) |
-| **Stocktake** | **Settings** |
-| ![Stocktake page with its start action and empty state](docs/screenshots/staff-stocktake.png) | ![Makerspace settings in tabs with switches and setting rows](docs/screenshots/staff-settings.png) |
-| **Dark mode** | **Dark mode, public** |
-| ![Inventory table in dark mode](docs/screenshots/staff-inventory-dark.png) | ![Public catalogue in dark mode](docs/screenshots/public-inventory-dark.png) |
+| ![Public catalogue with search, category chips and item cards](docs/screenshots/desktop-catalogue-light.png) | ![Request desk with a confirmed check-in name and selected equipment](docs/screenshots/desktop-checkin-desk-light.png) |
+
+**Staff console**
+
+| Dashboard | Inventory |
+| --- | --- |
+| ![Staff dashboard with the collapsible sidebar and stat tiles](docs/screenshots/desktop-dashboard-light.png) | ![Inventory table with live counts, status chips and row actions](docs/screenshots/desktop-inventory-light.png) |
+| **Requests** | **Machines** |
+| ![Request queue with a pending check-in request](docs/screenshots/desktop-requests-light.png) | ![Machine types as cards](docs/screenshots/desktop-machines-light.png) |
+| **Stocktake** | **Users and roles** |
+| ![Stocktake sessions with count, approve and apply](docs/screenshots/desktop-stocktake-light.png) | ![Staff users with roles](docs/screenshots/desktop-users-light.png) |
+| **Check-in settings (per makerspace)** | **Dark mode** |
+| ![Settings card for the check-in roster URL, purpose, provider and space ID with a test button](docs/screenshots/desktop-settings-checkin-light.png) | ![Inventory in dark mode](docs/screenshots/desktop-inventory-dark.png) |
+
+**Phones, tablets and wide screens**
 
 <p align="center">
-  <img src="docs/screenshots/mobile-public-inventory.png" alt="Public catalogue on a phone" width="260">
-  &nbsp;
-  <img src="docs/screenshots/mobile-staff-dashboard.png" alt="Staff dashboard on a phone" width="260">
+  <img src="docs/screenshots/phone-catalogue-light.png" alt="Catalogue on a phone" width="200">
+  <img src="docs/screenshots/phone-request-desk-light.png" alt="Check-in borrow desk on a phone" width="200">
+  <img src="docs/screenshots/phone-dashboard-dark.png" alt="Staff dashboard on a phone in dark mode" width="200">
+  <img src="docs/screenshots/phone-nav-sheet-light.png" alt="Staff navigation sheet on a phone" width="200">
 </p>
+
+| Tablet | Ultrawide |
+| --- | --- |
+| ![Catalogue on a tablet](docs/screenshots/tablet-catalogue-light.png) | ![Inventory on an ultrawide monitor](docs/screenshots/ultrawide-inventory-light.png) |
 
 ## Features
 
 - **Public catalog** — browse by makerspace and category, request to borrow, and (when enabled)
   **QR self-checkout/return** for present members with photo evidence.
+- **Borrow by checking in** — no accounts: borrowers confirm their name against a live check-in roster,
+  and each makerspace can point at its own check-in API (Settings → Domain & access → Check-in, with a
+  Test connection button). See [docs/checkin-mode.md](docs/checkin-mode.md).
+- **Works on every screen** — phones (portrait and landscape), tablets, laptops, desktop monitors, 4K and
+  ultrawide, in light and dark mode, with 44px touch targets on touch screens.
 - **Full hardware lifecycle** — request → accept → issue (box QR scan + photo) → return (photo +
   remark) → accountability, all audited. Direct staff handouts too.
 - **3D-printing manager** — public print requests, printer/spool management, filament tracking,

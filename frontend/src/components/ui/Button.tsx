@@ -22,13 +22,13 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "min-h-9 px-3.5 py-1.5 text-sm",
+  sm: "min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11",
   md: "min-h-11 px-[18px] py-2.5 text-[15px]",
   lg: "min-h-[52px] px-6 py-3.5 text-[17px]",
 };
 
 const quietSizes: Record<ButtonSize, string> = {
-  sm: "min-h-9 px-1.5 text-sm",
+  sm: "min-h-9 px-1.5 text-sm pointer-coarse:min-h-11",
   md: "min-h-11 px-2 text-[15px]",
   lg: "min-h-[52px] px-2.5 text-[17px]",
 };

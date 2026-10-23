@@ -13,7 +13,7 @@ type TableProps = HTMLAttributes<HTMLTableElement> & {
 export function Table({ className, containerClassName, children, label, ...props }: TableProps) {
   return (
     <div
-      className={cn("w-full min-w-0 overflow-x-auto rounded-lg border border-line bg-canvas", containerClassName)}
+      className={cn("sw-scroll-x relative w-full min-w-0 overflow-x-auto rounded-lg border border-line", containerClassName)}
       role={label ? "region" : undefined}
       aria-label={label}
       tabIndex={label ? 0 : undefined}

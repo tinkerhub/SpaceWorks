@@ -39,9 +39,9 @@ export function CardHeader({ title, description, action, titleAs: Title = "h2", 
     <div className={cn("mb-4 flex flex-wrap items-start justify-between gap-3", className)}>
       <div className="min-w-0">
         <Title className="font-sans text-title text-ink">{title}</Title>
-        {description ? <p className="mt-1 text-body-ui text-ink-muted">{description}</p> : null}
+        {description ? <p className="mt-1 max-w-[70ch] text-body-ui text-ink-muted">{description}</p> : null}
       </div>
-      {action ? <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div> : null}
+      {action ? <div className="flex max-w-full shrink-0 flex-wrap items-center gap-2">{action}</div> : null}
     </div>
   );
 }

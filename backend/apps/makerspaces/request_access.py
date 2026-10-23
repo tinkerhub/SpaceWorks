@@ -123,7 +123,7 @@ def effective_policy(makerspace) -> str:
         makerspace.public_request_mode == MODE_CHECKED_IN
         and not _usable_checkin_space_id(makerspace.checkin_space_id)
     ):
-        # The deployment-global roster cannot be tenant-scoped without a positive
+        # A roster may serve many spaces and cannot be tenant-scoped without a positive
         # binding, so an unusable value collapses like an unrecognised stored mode.
         return policy_for(makerspace.enabled_modules, MODE_DISABLED)
     return policy_for(makerspace.enabled_modules, makerspace.public_request_mode)
@@ -153,15 +153,16 @@ def set_request_access(makerspace, mode, *, actor=None):
 
     Raises :class:`RequestAccessConflict` when asked to open account-less submission on
     a makerspace that has `membership` installed, or to select ``checked_in`` without
-    a configured upstream URL and space binding. An explicit operator request is
+    a resolvable upstream URL (the makerspace's own or the deployment's) and space
+    binding. An explicit operator request is
     refused loudly rather than silently downgraded — the opposite of the module-install
     path, which forces, because there the operator was asking about modules rather than
     about this mode.
     """
-    from django.conf import settings
     from django.db import transaction
 
     from apps.audit import services as audit
+    from apps.checkin.config import checkin_config
     from apps.makerspaces.models import Makerspace
 
     wanted = canonical_mode(mode)
@@ -176,11 +177,12 @@ def set_request_access(makerspace, mode, *, actor=None):
                 "The membership module is installed, so borrow requests require an "
                 "account. Uninstall `membership` first, or leave public requests off."
             )
-        if wanted == MODE_CHECKED_IN and not settings.CHECKIN_API_URL.strip():
+        if wanted == MODE_CHECKED_IN and not checkin_config(locked).url:
             # A blank URL makes every lookup and submission return 503, so the
             # deliberate writer must not advertise an unusable checked-in policy.
             raise RequestAccessConflict(
-                "Configure CHECKIN_API_URL before selecting `checked_in`."
+                "Set this makerspace's check-in roster URL (or the deployment's "
+                "CHECKIN_API_URL) before selecting `checked_in`."
             )
         if wanted == MODE_CHECKED_IN and not _usable_checkin_space_id(
             locked.checkin_space_id

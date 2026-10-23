@@ -56,7 +56,7 @@ export function ProductCard({ product, quantity, onDecrement, onIncrement, onOpe
         <div className="min-w-0">
           <h2 className="text-title text-ink">
             <button
-              className="w-full min-w-0 max-w-full rounded-sm text-left [overflow-wrap:anywhere] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              className="w-full min-w-0 max-w-full rounded-sm text-left pointer-coarse:-my-3 pointer-coarse:py-3 [overflow-wrap:anywhere] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
               type="button"
               onClick={onOpenDetails}
             >

@@ -7,6 +7,8 @@ from rest_framework.test import APIClient
 
 from apps.admin_api import serializers_payments
 from apps.accounts.models import User
+from apps.makerspaces.module_install import apply_profile
+from apps.makerspaces.module_profiles import EVERYTHING
 from apps.payments import credential_validation
 from apps.payments.models import (
     MakerspacePaymentSettings,
@@ -23,6 +25,9 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 def test_raw_rotation_cannot_commit_between_session_check_and_persist(monkeypatch):
     makerspace = make_space("raw-rotation-lock")
+    # New spaces are core-only; payment settings are refused with `payments` off, so the
+    # rotation would never reach `update_payment_settings` and the race is never exercised.
+    apply_profile(makerspace, EVERYTHING)
     actor = make_member("raw-rotation-lock-manager", makerspace)
     payment_settings = MakerspacePaymentSettings.objects.create(makerspace=makerspace)
     payment_settings.set_stripe_secret_key("sk_old")

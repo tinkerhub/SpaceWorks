@@ -98,6 +98,13 @@ class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model)
     # deployment-global and carries no tenant, so without a binding two makerspaces on
     # one deployment would admit exactly the same people.
     checkin_space_id = models.IntegerField(null=True, blank=True)
+    # This makerspace's own check-in roster, purpose and provider name. Blank means
+    # "use the deployment setting" (CHECKIN_API_URL / _REQUIRED_PURPOSE / _PROVIDER_NAME);
+    # `apps.checkin.config.checkin_config` is the only resolver. The URL is typed by a
+    # Space Manager, so it is fetched only through the outbound SSRF guard.
+    checkin_api_url = models.URLField(max_length=500, blank=True, default="")
+    checkin_required_purpose = models.CharField(max_length=200, blank=True, default="")
+    checkin_provider_name = models.CharField(max_length=100, blank=True, default="")
     public_stats_enabled = models.BooleanField(default=False)
     public_stats_show_holder_names = models.BooleanField(default=False)
     public_print_status_lookup_policy = models.CharField(

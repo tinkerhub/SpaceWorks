@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.admin_api import views
+from apps.admin_api.views_checkin_settings import CheckinSettingsTestView, CheckinSettingsView
 from apps.admin_api.views_hosting import MakerspaceProvisionSubdomainView
 from apps.admin_api.views_subdomain_requests import SubdomainRequestListCreateView
 
@@ -37,6 +38,16 @@ urlpatterns = [
         "makerspace/<int:makerspace_id>/return-policy",
         views.ReturnPolicyView.as_view(),
         name="admin-return-policy",
+    ),
+    path(
+        "makerspaces/<int:makerspace_id>/checkin-settings",
+        CheckinSettingsView.as_view(),
+        name="admin-makerspace-checkin-settings",
+    ),
+    path(
+        "makerspaces/<int:makerspace_id>/checkin-settings/test",
+        CheckinSettingsTestView.as_view(),
+        name="admin-makerspace-checkin-settings-test",
     ),
     path(
         "makerspace/<int:makerspace_id>/logo",

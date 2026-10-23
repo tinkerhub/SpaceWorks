@@ -11,6 +11,7 @@ import {
 import { MakerspaceBrandingSettings } from "./MakerspaceBrandingSettings";
 import { MakerspaceBookingRulesSettings } from "./MakerspaceBookingRulesSettings";
 import { MakerspaceBookingSettings } from "./MakerspaceBookingSettings";
+import { MakerspaceCheckinSettings } from "./MakerspaceCheckinSettings";
 import { MakerspaceCustomDomainSettings } from "./MakerspaceCustomDomainSettings";
 import { MakerspaceEmailSettings } from "./MakerspaceEmailSettings";
 import { MakerspaceFilamentSettings } from "./MakerspaceFilamentSettings";
@@ -136,6 +137,7 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
     content: (
       <>
         <MakerspaceSuperadminAccessSettings {...shared} isSuperadmin={isSuperadmin} />
+        <MakerspaceCheckinSettings makerspace={makerspace} canManageMakerspace={canManageMakerspace} />
         {settings.data?.platform_hosting === true ? (
           <MakerspaceSubdomainSettings makerspace={makerspace} settings={settings.data} />
         ) : null}
