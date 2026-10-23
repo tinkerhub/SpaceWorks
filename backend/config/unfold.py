@@ -92,6 +92,7 @@ UNFOLD = {
             {
                 "title": _("Inventory"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item(
                         "Organizations",
@@ -117,6 +118,7 @@ UNFOLD = {
             {
                 "title": _("Requests & loans"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("Hardware requests", "assignment", "admin:hardware_requests_hardwarerequest_changelist"),
                     _item("Tool loans", "outbound", "admin:hardware_requests_publictoolloan_changelist"),
@@ -128,6 +130,7 @@ UNFOLD = {
             {
                 "title": _("Operations"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("Stock transfers", "swap_horiz", "admin:operations_stocktransfer_changelist"),
                     _item("Stocktakes", "fact_check", "admin:operations_stocktakesession_changelist"),
@@ -140,6 +143,7 @@ UNFOLD = {
             {
                 "title": _("Procurement"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("To-buy list", "shopping_cart", "admin:procurement_tobuyitem_changelist", app_label="procurement"),
                 ],
@@ -147,6 +151,7 @@ UNFOLD = {
             {
                 "title": _("Machines"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("Machines", "precision_manufacturing", "admin:machines_machine_changelist"),
                     _item("Machine types", "category", "admin:machines_machinetype_changelist"),
@@ -164,6 +169,7 @@ UNFOLD = {
             {
                 "title": _("Accounts & access"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("Users", "person", "admin:accounts_user_changelist"),
                     _item("Staff memberships", "badge", "admin:makerspaces_makerspacemembership_changelist"),
@@ -172,6 +178,7 @@ UNFOLD = {
             {
                 "title": _("Integrations"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("API clients", "vpn_key", "admin:apiclients_apiclient_changelist"),
                     _item("API key requests", "approval", "admin:apiclients_apikeyrequest_changelist"),
@@ -187,6 +194,7 @@ UNFOLD = {
             {
                 "title": _("Audit & evidence"),
                 "separator": True,
+                "collapsible": True,
                 "items": [
                     _item("Audit log", "history", "admin:audit_auditlog_changelist"),
                     _item("Evidence photos", "photo_library", "admin:evidence_evidencephoto_changelist"),

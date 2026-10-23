@@ -44,6 +44,10 @@ def test_unfold_sidebar_links_all_resolve():
     assert broken == []
 
 
+def test_every_sidebar_group_folds_like_the_staff_console():
+    assert all(group.get("collapsible") for group in UNFOLD["SIDEBAR"]["navigation"])
+
+
 def test_every_sidebar_entry_owned_by_a_separable_app_declares_it():
     """A sidebar item is the one surface a tombstone cannot merely permission-hide.
 

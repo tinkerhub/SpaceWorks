@@ -1,10 +1,12 @@
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 
 import { Tooltip } from "../../../components/ui";
 import { cn } from "../../../lib/cn";
 import { staffTabPath } from "../staffTabs";
 import { staffNavGroups, staffTabIcon, staffTabLabel, type StaffNavGroup } from "./staffNavItems";
+import { useNavGroupsCollapsed } from "./useNavGroupsCollapsed";
 
 export type StaffNavProps = {
   activeMakerspaceSlug?: string;
@@ -34,18 +36,31 @@ function UnreadBadge({ count, collapsed }: { count: number; collapsed: boolean }
   );
 }
 
-function NavGroup({ group, props }: { group: StaffNavGroup; props: StaffNavProps }) {
+type NavGroupProps = { group: StaffNavGroup; props: StaffNavProps; open: boolean; onToggle: () => void };
+
+function NavGroup({ group, props, open, onToggle }: NavGroupProps) {
   const headingId = useId();
+  const listId = useId();
   const { activeMakerspaceSlug, activeTab, collapsed, guestOnly, singleTenantLocked, unreadCount, onNavigate } = props;
+  // The icon rail has no headings, so every group stays open there.
   const heading = group.showHeading && !collapsed;
+  const expanded = !heading || open;
   return (
     <div role="group" aria-labelledby={heading ? headingId : undefined} aria-label={heading ? undefined : group.label}>
       {heading ? (
-        <p id={headingId} className="px-3 pb-1 text-overline text-ink-muted">
+        <button
+          id={headingId}
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          onClick={onToggle}
+          className="flex w-full min-h-8 pointer-coarse:min-h-11 items-center justify-between gap-2 rounded-md px-3 pb-1 text-left text-overline text-ink-muted transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        >
           {group.label}
-        </p>
+          <ChevronDown aria-hidden="true" className={cn("size-3.5 shrink-0 transition-transform duration-180 ease-standard motion-reduce:transition-none", !expanded && "-rotate-90")} />
+        </button>
       ) : null}
-      <ul className="flex flex-col gap-0.5">
+      <ul id={listId} hidden={!expanded} className="flex flex-col gap-0.5">
         {group.tabs.map((tab) => {
           const Icon = staffTabIcon(tab);
           const label = staffTabLabel(tab);
@@ -83,11 +98,22 @@ function NavGroup({ group, props }: { group: StaffNavGroup; props: StaffNavProps
 /** The staff console's section list: every tab this actor's role and modules allow, grouped. */
 export function StaffSidebarNav(props: StaffNavProps) {
   const groups = staffNavGroups(props.allowedTabs);
+  const { collapsed: closedGroups, setGroupOpen } = useNavGroupsCollapsed();
+  const activeGroup = groups.find((group) => group.tabs.includes(props.activeTab))?.label;
+  // Landing on a tab inside a folded group (a link, a refresh) opens that group.
+  useEffect(() => {
+    if (activeGroup) setGroupOpen(activeGroup, true);
+  }, [activeGroup, setGroupOpen]);
   return (
     <nav aria-label="Staff sections" className={cn("flex flex-col", props.collapsed ? "gap-2" : "gap-4")}>
       {groups.map((group, index) => (
         <div key={group.label} className={cn(props.collapsed && index > 0 && "border-t border-line pt-2")}>
-          <NavGroup group={group} props={props} />
+          <NavGroup
+            group={group}
+            props={props}
+            open={!closedGroups.has(group.label)}
+            onToggle={() => setGroupOpen(group.label, closedGroups.has(group.label))}
+          />
         </div>
       ))}
     </nav>
