@@ -32,6 +32,7 @@ HEADER = [
     "box_code",
     "is_archived",
     "created_at",
+    "item_code",
 ]
 
 

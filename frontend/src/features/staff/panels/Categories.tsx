@@ -7,10 +7,12 @@ import type { DataTableColumn } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 import { categoryResults, errorText, Panel, type Category, type CategoryListResponse, type Makerspace, useStaffGet } from "./shared";
 import { invalidatePublicInventory } from "../queryInvalidation";
+import { CategoryGuide, CodeChip } from "./CategoryGuide";
 
 type CategoryForm = {
   name: string;
   slug: string;
+  code: string;
   display_order: string;
   icon: string;
 };
@@ -18,6 +20,7 @@ type CategoryForm = {
 const emptyCategoryForm: CategoryForm = {
   name: "",
   slug: "",
+  code: "",
   display_order: "",
   icon: "",
 };
@@ -26,6 +29,7 @@ function categoryPayload(form: CategoryForm, includeSlug: boolean) {
   return {
     name: form.name.trim(),
     ...(includeSlug && form.slug.trim() ? { slug: form.slug.trim() } : {}),
+    code: form.code.trim().toUpperCase(),
     ...(form.display_order ? { display_order: Number(form.display_order) } : {}),
     icon: form.icon.trim(),
   };
@@ -95,6 +99,7 @@ export function Categories({ makerspace }: { makerspace: Makerspace }) {
     setEditForm({
       name: category.name,
       slug: category.slug,
+      code: category.code ?? "",
       display_order: String(category.display_order),
       icon: category.icon ?? "",
     });
@@ -102,6 +107,19 @@ export function Categories({ makerspace }: { makerspace: Makerspace }) {
   const setEdit = (key: keyof CategoryForm, value: string) => setEditForm((current) => ({ ...current, [key]: value }));
   const setNew = (key: keyof CategoryForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const columns: DataTableColumn<Category>[] = [
+    {
+      key: "code",
+      header: "Code",
+      sortable: true,
+      render: (category) =>
+        editingId === category.id ? (
+          <Input className="w-24 font-mono uppercase" maxLength={4} aria-label={`Code for ${category.name}`} value={editForm.code} onChange={(event) => setEdit("code", event.target.value.toUpperCase())} />
+        ) : category.code ? (
+          <CodeChip>{category.code}</CodeChip>
+        ) : (
+          <span className="text-ink-muted">None</span>
+        ),
+    },
     {
       key: "name",
       header: "Name",
@@ -162,17 +180,19 @@ export function Categories({ makerspace }: { makerspace: Makerspace }) {
     },
   ];
   return (
-    <Panel title="Categories" description="Group inventory on the public page. Lower order numbers show first.">
+    <Panel title="Categories" description="Group inventory on the public page. The code is the middle part of every item code. Lower order numbers show first.">
       <div className="grid gap-5">
+        <CategoryGuide prefix={makerspace.item_code_prefix} />
         <Card as="section" aria-labelledby="new-category-heading">
           <h2 id="new-category-heading" className="mb-4 text-title text-ink">New category</h2>
           <form
-            className="grid gap-4 md:grid-cols-[1fr_1fr_120px_1fr_auto] md:items-end"
+            className="grid gap-4 md:grid-cols-[100px_1fr_1fr_100px_1fr_auto] md:items-end"
             onSubmit={(event) => {
               event.preventDefault();
               if (form.name.trim() && !create.isPending) create.mutate();
             }}
           >
+            <Field label="Code" optional><Input className="font-mono uppercase" maxLength={4} placeholder="MCU" value={form.code} onChange={(event) => setNew("code", event.target.value.toUpperCase())} /></Field>
             <Field label="Name"><Input value={form.name} onChange={(event) => setNew("name", event.target.value)} /></Field>
             <Field label="Slug" optional><Input placeholder="From the name" value={form.slug} onChange={(event) => setNew("slug", event.target.value)} /></Field>
             <Field label="Order" optional><Input type="number" value={form.display_order} onChange={(event) => setNew("display_order", event.target.value)} /></Field>

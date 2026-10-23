@@ -27,7 +27,7 @@ class NeedsFixShelfListView(generics.ListAPIView):
         qs = rbac.scope_by_action(
             self.request.user,
             rbac.Action.VIEW_INVENTORY,
-            InventoryProduct.objects.select_related("makerspace", "box"),
+            InventoryProduct.objects.select_related("makerspace", "box", "category"),
         ).filter(needs_fix_quantity__gt=0)
         makerspace_id = self.request.query_params.get("makerspace")
         if makerspace_id:

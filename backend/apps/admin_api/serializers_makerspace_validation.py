@@ -17,6 +17,7 @@ from apps.integrations.smtp_validation import validate_smtp_settings
 from apps.integrations.webhook_validation import validate_webhook_url
 from apps.makerspaces import domain_verification, limits
 from apps.makerspaces.capabilities import prune_features, validate_capabilities
+from apps.makerspaces.item_code_prefix import validate_prefix
 from apps.makerspaces.platform import available_modules
 from apps.makerspaces.validators import (
     validate_google_maps_url,
@@ -123,6 +124,14 @@ class MakerspaceValidationMixin:
 
     def validate_public_code(self, value):
         return value.upper()
+
+    def validate_item_code_prefix(self, value):
+        if not (value or "").strip():
+            return ""  # blank re-derives the default from the name on save
+        try:
+            return validate_prefix(value, exclude_pk=getattr(self.instance, "pk", None))
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
 
     def validate_map_url(self, value):
         validate_google_maps_url(value)

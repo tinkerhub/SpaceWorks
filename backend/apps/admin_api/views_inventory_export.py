@@ -29,6 +29,7 @@ EXPORT_COLUMNS = [
     "box_code",
     "is_archived",
     "created_at",
+    "item_code",
 ]
 
 ERROR_RESPONSES = {
@@ -91,7 +92,7 @@ class InventoryExportView(APIView):
             queryset = queryset.filter(pk__in=ids)
         else:
             queryset = apply_inventory_list_filters(queryset, request.query_params)
-        products = queryset.select_related("category", "box").order_by("name")
+        products = queryset.select_related("category", "box", "makerspace").order_by("name")
         rows = _inventory_export_rows(products)
 
         if fmt == "xlsx":
@@ -147,4 +148,5 @@ def _product_row(product):
         product.box.code if product.box_id else "",
         product.is_archived,
         product.created_at.isoformat(),
+        product.item_code,
     ]

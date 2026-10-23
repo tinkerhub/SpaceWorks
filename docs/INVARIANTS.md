@@ -14,6 +14,17 @@ beyond any single module. Read the subsection covering what you are touching.
 
 ## Cross-cutting invariants (from shipped batches)
 
+**Item codes (`apps/inventory/item_codes.py`).** Only the parts are stored —
+`Makerspace.item_code_prefix` (unique platform-wide, `uniq_makerspace_item_code_prefix`; derived from
+the name when blank, a clash keeps the first letter and moves the second), `Category.code` (unique per
+makerspace when set) and `InventoryProduct.code_letter` — and the full code is assembled on read. Never
+store or cache the assembled code. Letters come from `Category.code_sequence` under a row lock in
+`issue_letter` and are **never reused**; `InventoryProduct.save()` is the one writer (a partial save that
+does not name `category` keeps its letter; a new row arriving with a letter — an import — keeps it).
+Tenant import re-derives a prefix that collides on the target. The standard category list lives in
+`apps/inventory/categories.py`, migration `inventory 0010` (frozen copy) and the frontend
+`categoryStandard.ts`; keep them in step.
+
 **Self-host vs managed SaaS (all managed features dormant by default).** `PLATFORM_DOMAIN_SUFFIX`
 blank/whitespace ⇒ `domain_verification.is_self_host()` is True ⇒ **every managed feature is inert**
 and single-domain behavior is byte-for-byte unchanged (self-hosters unaffected). Self-host trusts a

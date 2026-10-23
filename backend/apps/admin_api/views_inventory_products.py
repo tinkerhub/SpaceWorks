@@ -44,7 +44,11 @@ class InventoryListCreateView(generics.ListCreateAPIView):
         makerspace_id = self.kwargs["makerspace_id"]
         require_module(makerspace_id, "staff_admin")
         require_action(self.request.user, rbac.Action.VIEW_INVENTORY, makerspace_id)
-        qs = InventoryProduct.objects.filter(makerspace_id=makerspace_id).order_by("name")
+        qs = (
+            InventoryProduct.objects.filter(makerspace_id=makerspace_id)
+            .select_related("category", "makerspace")
+            .order_by("name")
+        )
         return apply_inventory_list_filters(qs, self.request.query_params)
 
     def perform_create(self, serializer):
@@ -94,7 +98,7 @@ class InventoryDetailView(generics.RetrieveUpdateAPIView):
             if self.request.method == "PATCH"
             else rbac.Action.VIEW_INVENTORY
         )
-        return rbac.scope_by_action(self.request.user, action, InventoryProduct.objects.select_related("makerspace", "box"))
+        return rbac.scope_by_action(self.request.user, action, InventoryProduct.objects.select_related("makerspace", "box", "category"))
 
     def perform_update(self, serializer):
         _assert_box_in_makerspace(

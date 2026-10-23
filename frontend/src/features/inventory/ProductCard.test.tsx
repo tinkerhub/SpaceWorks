@@ -32,6 +32,12 @@ describe("ProductCard", () => {
     expect(screen.getByText("#0042")).toBeInTheDocument();
   });
 
+  it("shows the platform item code when the item has one", () => {
+    renderCard({ item_code: "TC-MCU-A" });
+    expect(screen.getByText("TC-MCU-A")).toBeInTheDocument();
+    expect(screen.queryByText("#0042")).toBeNull();
+  });
+
   it("wires the stepper and details controls", () => {
     const { onIncrement, onDecrement, onOpenDetails } = renderCard({}, 1);
     fireEvent.click(screen.getByRole("button", { name: "Add Soldering iron" }));

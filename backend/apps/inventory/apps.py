@@ -2,7 +2,9 @@ from django.apps import AppConfig
 
 
 def _seed_categories(sender, instance, created, **kwargs):
-    if created:
+    # A tenant import brings the source's own categories (with their codes and letter
+    # counters); seeding here first would collide with them on code.
+    if created and instance.lifecycle_state == instance.LifecycleState.ACTIVE:
         from apps.inventory.categories import ensure_default_categories
 
         ensure_default_categories(instance)

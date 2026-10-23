@@ -2,6 +2,7 @@ import { ImageIcon } from "lucide-react";
 
 import { Button, Chip } from "../../../components/ui";
 import type { DataTableColumn } from "../../../components/ui";
+import { CodeChip } from "./CategoryGuide";
 import { InventoryAvailability } from "./InventoryItemModal";
 import type { AdminProduct } from "./inventoryForm";
 
@@ -29,9 +30,12 @@ export function inventoryColumns({ canEditInventory, showToBuy, unarchivePending
       </div>
     ) },
     { key: "name", header: "Name", sortable: true, render: (product) => (
-      <button type="button" className="rounded-sm text-left font-semibold text-ink pointer-coarse:-my-3 pointer-coarse:py-3 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => onOpen(product)}>
-        {product.name}
-      </button>
+      <span className="grid justify-items-start gap-0.5">
+        <button type="button" className="rounded-sm text-left font-semibold text-ink pointer-coarse:-my-3 pointer-coarse:py-3 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={() => onOpen(product)}>
+          {product.name}
+        </button>
+        {product.item_code ? <CodeChip>{product.item_code}</CodeChip> : null}
+      </span>
     ) },
     { key: "tracking_mode", header: "Tracking", sortable: true, render: (product) => (
       <span className="inline-flex flex-wrap items-center gap-1.5">

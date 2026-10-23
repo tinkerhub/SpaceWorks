@@ -13,6 +13,7 @@ inside the MRO.
 from django.core.exceptions import ValidationError
 
 from apps.makerspaces.capabilities import prune_features, validate_capabilities
+from apps.makerspaces.item_code_prefix import derive_prefix, taken_prefixes
 from apps.makerspaces.models_common import normalize_frontend_domain
 from apps.makerspaces.request_access import reconcile_mode
 from apps.makerspaces.validators import validate_presence_presets
@@ -23,6 +24,12 @@ class MakerspaceLifecycleMixin:
 
     def save(self, *args, **kwargs):
         self.public_code = (self.public_code or "").upper()
+        self.item_code_prefix = (self.item_code_prefix or "").strip().upper()
+        if not self.item_code_prefix:
+            self.item_code_prefix = derive_prefix(self.name, taken_prefixes(self.pk))
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = [*update_fields, "item_code_prefix"]
         self.frontend_domain = normalize_frontend_domain(self.frontend_domain)
         # Membership and account-less requests are mutually exclusive, and this is the
         # ONE chokepoint every writer passes through: module install/uninstall, profile

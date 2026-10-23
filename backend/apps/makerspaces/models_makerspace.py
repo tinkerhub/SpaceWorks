@@ -70,6 +70,14 @@ class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model)
             )
         ],
     )
+    # Starts every item code (TC in TC-MCU-A). Unique platform-wide; derived from the name
+    # when blank, see `apps.makerspaces.item_code_prefix`.
+    item_code_prefix = models.CharField(
+        max_length=6,
+        blank=True,
+        default="",
+        validators=[RegexValidator(r"^[A-Z0-9]{1,6}$", "Use 1–6 capital letters or digits, e.g. TC.")],
+    )
     location = models.CharField(max_length=200, blank=True)
     map_url = models.URLField(blank=True, default="", validators=[validate_google_maps_url])
     geofence_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, validators=[MinValueValidator(-90), MaxValueValidator(90)])
@@ -233,6 +241,11 @@ class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model)
             models.UniqueConstraint(
                 fields=["public_api_key"],
                 name="uniq_makerspace_public_api_key",
+            ),
+            models.UniqueConstraint(
+                fields=["item_code_prefix"],
+                condition=~Q(item_code_prefix=""),
+                name="uniq_makerspace_item_code_prefix",
             ),
             models.UniqueConstraint(
                 Lower("frontend_domain"),

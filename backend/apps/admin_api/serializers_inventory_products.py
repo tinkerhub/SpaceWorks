@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.inventory import availability, public_image_storage
+from apps.inventory.item_codes import CATEGORY_CODE_RE
 from apps.inventory.models import (
     Category,
     InventoryProduct,
@@ -36,6 +37,7 @@ class InventoryProductAdminSerializer(serializers.ModelSerializer):
         required=False,
     )
     image_url = serializers.SerializerMethodField()
+    item_code = serializers.CharField(read_only=True)
 
     class Meta:
         model = InventoryProduct
@@ -44,6 +46,7 @@ class InventoryProductAdminSerializer(serializers.ModelSerializer):
             "makerspace",
             "box",
             "category",
+            "item_code",
             "name",
             "description",
             "image_key",
@@ -167,6 +170,9 @@ class InventoryProductAdminUpdateSerializer(InventoryProductAdminSerializer):
 
 class CategoryAdminSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False, allow_blank=True)
+    code = serializers.CharField(
+        required=False, allow_blank=True, max_length=4, trim_whitespace=True
+    )
     product_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
@@ -176,6 +182,7 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
             "makerspace",
             "name",
             "slug",
+            "code",
             "display_order",
             "icon",
             "product_count",
@@ -220,4 +227,23 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
                 }
             )
         attrs["slug"] = slug
+        if "code" in attrs:
+            attrs["code"] = self._validated_code(attrs["code"], makerspace_id)
         return attrs
+
+    def _validated_code(self, code, makerspace_id):
+        code = code.strip().upper()
+        if not code:
+            return ""
+        if not CATEGORY_CODE_RE.match(code):
+            raise serializers.ValidationError({"code": "Use 2–4 capital letters, e.g. MCU."})
+        taken = (
+            Category.objects.filter(makerspace_id=makerspace_id, code=code)
+            .exclude(pk=getattr(self.instance, "pk", None))
+            .exists()
+        )
+        if taken:
+            raise serializers.ValidationError(
+                {"code": f"Another category in this makerspace already uses {code}."}
+            )
+        return code

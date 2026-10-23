@@ -15,6 +15,7 @@ pytestmark = pytest.mark.django_db
 
 PUBLIC_PRODUCT_FIELDS = {
     "id",
+    "item_code",
     "name",
     "description",
     "category_id",
@@ -288,6 +289,7 @@ def test_public_categories_endpoint_returns_non_empty_public_categories(
             "id": visible.id,
             "name": "Sensors",
             "slug": "sensors-extra",
+            "code": "",
             "display_order": 2,
             "icon": "sensors",
             "product_count": 1,

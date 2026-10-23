@@ -1,5 +1,7 @@
 from django.db.models import F, Q
 
+from apps.inventory.item_codes import item_code_q
+
 
 def apply_inventory_list_filters(queryset, query_params):
     archived = query_params.get("archived")
@@ -13,6 +15,7 @@ def apply_inventory_list_filters(queryset, query_params):
             | Q(tracking_mode__icontains=q)
             | Q(storage_location__icontains=q)
             | Q(category__name__icontains=q)
+            | item_code_q(q)
         )
     if query_params.get("low_stock") == "true":
         queryset = queryset.annotate(available_x5=F("available_quantity") * 5).filter(

@@ -1138,6 +1138,7 @@ export type CategoryAdmin = {
   "makerspace": number;
   "name": string;
   "slug"?: string;
+  "code"?: string;
   "display_order"?: number;
   "icon"?: string;
   "product_count": number;
@@ -2375,6 +2376,7 @@ export type InventoryProductAdmin = {
   "makerspace": number;
   "box"?: number | null;
   "category"?: number | null;
+  "item_code": string;
   "name": string;
   "description"?: string;
   "image_key": string;
@@ -2402,6 +2404,7 @@ export type InventoryProductAdminCreate = {
   "makerspace": number;
   "box"?: number | null;
   "category"?: number | null;
+  "item_code": string;
   "name": string;
   "description"?: string;
   "image_key": string;
@@ -2970,6 +2973,7 @@ export type Makerspace = {
   "id": number;
   "name": string;
   "public_code"?: string;
+  "item_code_prefix"?: string;
   "slug": string;
   "location"?: string;
   "map_url"?: string;
@@ -4059,6 +4063,7 @@ export type PatchedCategoryAdmin = {
   "makerspace"?: number;
   "name"?: string;
   "slug"?: string;
+  "code"?: string;
   "display_order"?: number;
   "icon"?: string;
   "product_count"?: number;
@@ -4135,6 +4140,7 @@ export type PatchedInventoryProductAdminUpdate = {
   "makerspace"?: number;
   "box"?: number | null;
   "category"?: number | null;
+  "item_code"?: string;
   "name"?: string;
   "description"?: string;
   "image_key"?: string;
@@ -4204,6 +4210,7 @@ export type PatchedMakerspace = {
   "id"?: number;
   "name"?: string;
   "public_code"?: string;
+  "item_code_prefix"?: string;
   "slug"?: string;
   "location"?: string;
   "map_url"?: string;
@@ -4745,6 +4752,7 @@ export type PublicCategory = {
   "id": number;
   "name": string;
   "slug": string;
+  "code": string;
   "display_order": number;
   "icon": string;
   "product_count": number;
@@ -4968,6 +4976,7 @@ export type PublicPrintStatusLookupPolicyEnum = "token_only" | "email_unverified
 
 export type PublicProduct = {
   "id": number;
+  "item_code": string;
   "name": string;
   "description": string;
   "category_id": number | null;

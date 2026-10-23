@@ -1,5 +1,17 @@
+from django.db.models import Q
+
 from apps.boxes.models import Box
 from apps.inventory.models import Category, InventoryProduct, PublicAvailabilityMode, TrackingMode
+
+
+def find_category(makerspace, value):
+    """A category named ``value``, or whose code is ``value`` ("MCU")."""
+    return (
+        Category.objects.filter(makerspace=makerspace)
+        .filter(Q(name__iexact=value) | Q(code=value.upper()))
+        .order_by("-code")
+        .first()
+    )
 
 
 REQUIRED_FIELDS = {"name", "total_quantity", "available_quantity"}
@@ -121,7 +133,7 @@ def _normalize_row(makerspace, row, mapping):
 
     category_name = str(data.pop("category", "") or "").strip()
     if category_name:
-        category = Category.objects.filter(makerspace=makerspace, name__iexact=category_name).first()
+        category = find_category(makerspace, category_name)
         data["category_name"] = category_name
         data["category_id"] = category.id if category else None
     return data, errors, warnings

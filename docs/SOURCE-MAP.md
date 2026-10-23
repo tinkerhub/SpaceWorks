@@ -200,7 +200,11 @@
   `verification.py` (pre-commit), audit-reference domains behind the `audit_references.py` barrel, and
   `target_cutover.py` (pre-activation + `IMPORTING → ACTIVE`);
   `receipts.py`/`receipt_crypto.py`/`cutover.py` (signed single-use handoff); `views_*.py` (superadmin REST).
-- `backend/apps/inventory/` — `InventoryProduct`/`InventoryAsset`, `availability.py` (**the only place**
+- `backend/apps/inventory/` — `item_codes.py` (**the only place** item codes are formed and letters
+  issued: `<prefix>-<category code>-<letter>`, letters from `Category.code_sequence` under a row lock,
+  never reused; the prefix rule is `apps/makerspaces/item_code_prefix.py`), `categories.py` (the ten
+  standard categories, mirrored in `frontend/src/features/staff/panels/categoryStandard.ts`),
+  `InventoryProduct`/`InventoryAsset`, `availability.py` (**the only place**
   available/reserved/issued/damaged/lost counts change: `reserve_for_request`, `issue_items`/`return_items`,
   `issue_available`/`return_to_available`, `consume_available`; row-locked, never-below-zero,
   `InsufficientStock`), `public_availability.py`, allowlist-only public serializers/views,

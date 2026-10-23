@@ -20,6 +20,9 @@ class MakerspaceSerializer(
     serializers.ModelSerializer,
 ):
     resource_limit_overrides = serializers.JSONField(required=False)
+    # Declared so `validate_item_code_prefix` owns the uniqueness message instead of
+    # DRF's generic one from the model constraint.
+    item_code_prefix = serializers.CharField(required=False, allow_blank=True, max_length=6)
     frontend_domain = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -72,6 +75,7 @@ class MakerspaceSerializer(
             "id",
             "name",
             "public_code",
+            "item_code_prefix",
             "slug",
             "location",
             "map_url",

@@ -14,8 +14,9 @@ type ProductCardProps = {
   onOpenDetails: () => void;
 };
 
-export function productCode(product: Pick<Product, "id">) {
-  return `#${String(product.id).padStart(4, "0")}`;
+/** The item code (TC-MCU-A), or the catalogue number for an item without a coded category. */
+export function productCode(product: Pick<Product, "id" | "item_code">) {
+  return product.item_code || `#${String(product.id).padStart(4, "0")}`;
 }
 
 /** Image placeholder: the item's first letters on a stable brand tint. Decorative. */

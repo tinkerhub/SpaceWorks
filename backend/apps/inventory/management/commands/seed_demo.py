@@ -46,10 +46,10 @@ DEMO_SPACES = [
 ]
 
 DEMO_PRODUCTS = [
-    ("Arduino Uno R4", "microcontrollers", 18, "Electronics Bay"),
-    ("Soldering Station", "accessories", 6, "Repair Bench"),
-    ("Cordless Drill Kit", "accessories", 4, "Tool Wall"),
-    ("Digital Caliper", "sensors", 10, "Measurement Drawer"),
+    ("Arduino Uno R4", "MCU", 18, "Electronics Bay"),
+    ("Soldering Station", "MOD", 6, "Repair Bench"),
+    ("Cordless Drill Kit", "MOD", 4, "Tool Wall"),
+    ("Digital Caliper", "SNS", 10, "Measurement Drawer"),
 ]
 
 
@@ -164,16 +164,16 @@ class Command(BaseCommand):
 
     def _products(self, makerspace, box):
         categories = {
-            category.slug: category
-            for category in Category.objects.filter(makerspace=makerspace)
+            category.code: category
+            for category in Category.objects.filter(makerspace=makerspace).exclude(code="")
         }
-        for name, category_slug, quantity, location in DEMO_PRODUCTS:
+        for name, category_code, quantity, location in DEMO_PRODUCTS:
             InventoryProduct.objects.update_or_create(
                 makerspace=makerspace,
                 name=name,
                 defaults={
                     "box": box,
-                    "category": categories.get(category_slug),
+                    "category": categories.get(category_code),
                     "description": f"Demo stock for {makerspace.name}.",
                     "tracking_mode": TrackingMode.QUANTITY,
                     "total_quantity": quantity,

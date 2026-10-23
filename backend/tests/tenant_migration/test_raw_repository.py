@@ -25,6 +25,8 @@ def _category_row(pk, makerspace_id, slug):
         "slug": slug,
         "display_order": 0,
         "icon": "",
+        "code": "",
+        "code_sequence": 0,
         "created_at": now,
         "updated_at": now,
     }
