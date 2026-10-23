@@ -49,7 +49,9 @@ class TenantDumpCatalogError(AssertionError):
 # so this is recomputed from the merged graph via schema_digest().
 # Re-blessed for the per-makerspace check-in roster columns on Makerspace
 # (checkin_api_url / checkin_required_purpose / checkin_provider_name, all RESET).
-CATALOG_SCHEMA_SHA256 = "b1051b5b42fe969ea13e1f03ceb677502024fb619a66bee731a500315d683c85"
+# Re-blessed for item codes: Makerspace.item_code_prefix, Category.code/code_sequence and
+# InventoryProduct.code_letter (tenant content; a colliding prefix is re-derived on import).
+CATALOG_SCHEMA_SHA256 = "820a93086d7e32a4c30f0b8fab91131155073a1e607f3e9fd406bedbdaa0295a"
 
 
 def catalog_models(apps_registry=apps):

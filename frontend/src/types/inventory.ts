@@ -8,6 +8,8 @@ export type Availability =
 
 export type Product = {
   id: number;
+  /** Platform-wide item code, e.g. TC-MCU-A. Empty until the item has a coded category. */
+  item_code?: string;
   name: string;
   description: string;
   category_id?: number | null;
@@ -22,6 +24,7 @@ export type PublicCategory = {
   id: number;
   name: string;
   slug: string;
+  code?: string;
   display_order: number;
   icon: string;
   product_count: number;

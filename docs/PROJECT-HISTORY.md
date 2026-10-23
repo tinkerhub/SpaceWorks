@@ -6,6 +6,12 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-23 — Platform-wide item codes.** Ten standard component categories (`MCU`…`DRV`) with a
+  classification guide in the Categories tab, and `<prefix>-<category>-<letter>` item codes
+  (`TC-MCU-A`). Prefixes are unique across the platform (a clash keeps the first letter and moves the
+  second); letters are issued per category and never reused; only the parts are stored. See
+  `docs/item-codes.md`.
+
 - **2026-10-15 — Control-plane cleanup.** Groups page/sidebar item and the User page's
   Groups/User-permissions pickers removed (SpaceWorks RBAC never reads them), axes
   AccessLog/AccessFailureLog and the retired printing-cutover admin pages unregistered,

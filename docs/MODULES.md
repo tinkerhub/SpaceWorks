@@ -102,8 +102,9 @@ thirteen modules under it are optional.
 **Core — cannot be uninstalled.**
 
 - **What it is** — the staff console's inventory and request administration API.
-- **What it adds** — the `staff_inventory` and `staff_requests` workflows: products, categories, assets,
-  the needs-fixing queue, exports and the request review screens.
+- **What it adds** — the `staff_inventory` and `staff_requests` workflows: products, categories (with
+  the platform-wide [item codes](item-codes.md) and classification guide), assets, the needs-fixing
+  queue, exports and the request review screens.
 - **Without it** — not an option; a space with no staff console cannot be run. Who sees what inside it is
   a **roles** question, not a module one — see the role/action matrix.
 - **Data** — core; not separately purgeable.

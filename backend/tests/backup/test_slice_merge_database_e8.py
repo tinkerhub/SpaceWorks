@@ -76,11 +76,12 @@ def _stage_context(operation, component, category):
         )
         cursor.execute(
             f'INSERT INTO "{schema}".inventory_category '
-            '(id, makerspace_id, name, slug, display_order, icon, created_at, updated_at, '
-            '__b1_component_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            '(id, makerspace_id, name, slug, display_order, icon, code, code_sequence, '
+            'created_at, updated_at, __b1_component_id) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
             [category.pk, category.makerspace_id, "occupied replacement", category.slug,
-             category.display_order, category.icon, category.created_at, category.updated_at,
-             component.component_id],
+             category.display_order, category.icon, category.code, category.code_sequence,
+             category.created_at, category.updated_at, component.component_id],
         )
     provision_merge_role()
     protect_target_tables(schema, {"inventory_category"})

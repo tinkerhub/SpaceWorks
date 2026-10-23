@@ -6,6 +6,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
 from apps.apiclients.throttling import ClientTierRateThrottle
+from apps.inventory.item_codes import item_code_q
 from apps.inventory.serializers import (
     PublicCategorySerializer,
     PublicMakerspaceSerializer,
@@ -54,7 +55,7 @@ class PublicMakerspaceListView(ListAPIView):
             name="q",
             type=str,
             location=OpenApiParameter.QUERY,
-            description="Search public products by name or description.",
+            description="Search public products by name, description or item code (TC-MCU-A or MCU-A).",
         ),
         OpenApiParameter(
             name="category",
@@ -96,7 +97,9 @@ class PublicInventoryListView(ListAPIView):
         query = self.request.query_params.get("q", "").strip()
         if query:
             queryset = queryset.filter(
-                Q(name__icontains=query) | Q(description__icontains=query)
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | item_code_q(query)
             )
 
         category_slug = self.request.query_params.get("category", "").strip()

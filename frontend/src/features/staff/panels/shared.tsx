@@ -10,6 +10,8 @@ export type Makerspace = {
   default_loan_days?: number;
   public_inventory_enabled?: boolean;
   public_code: string;
+  /** Starts every item code (TC in TC-MCU-A); unique across the platform. */
+  item_code_prefix?: string;
   slug: string;
   location?: string;
   geofence_latitude?: string | number | null;
@@ -55,6 +57,7 @@ export type Product = {
   id: number;
   name: string;
   category: number | null;
+  item_code?: string;
   total_quantity: number;
   available_quantity: number;
   issued_quantity: number;
@@ -74,6 +77,7 @@ export type Category = {
   makerspace: number;
   name: string;
   slug: string;
+  code: string;
   display_order: number;
   icon: string;
   product_count: number;

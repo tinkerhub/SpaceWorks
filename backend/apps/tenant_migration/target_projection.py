@@ -231,7 +231,9 @@ ROW_POLICIES = {
 SEEDED_RESOLUTIONS = {
     "inventory.Category": SeededResolution(
         lookup_fields=("slug",),
-        archive_update_fields=("name", "display_order", "icon", "created_at", "updated_at"),
+        archive_update_fields=(
+            "name", "display_order", "icon", "code", "code_sequence", "created_at", "updated_at",
+        ),
         reason="Resolve seeded placeholders by slug while retaining tenant-edited presentation data.",
     ),
     "machines.MachineType": SeededResolution(

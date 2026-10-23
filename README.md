@@ -77,6 +77,10 @@ Every page is checked on phones, tablets, laptops, desktop monitors, 4K and ultr
 - **Borrow by checking in** — no accounts: borrowers confirm their name against a live check-in roster,
   and each makerspace can point at its own check-in API (Settings → Domain & access → Check-in, with a
   Test connection button). See [docs/checkin-mode.md](docs/checkin-mode.md).
+- **One item-code scheme for every makerspace** — ten standard component categories (`MCU`, `SNS`,
+  `ACT`, `PWR`, `NET`, `MOD`, `CBL`, `CON`, `DSP`, `DRV`) with a built-in classification guide, and every
+  item labelled `<makerspace>-<category>-<letter>` (e.g. `TC-MCU-A`), with prefixes unique across the
+  platform. See [docs/item-codes.md](docs/item-codes.md).
 - **Works on every screen** — phones (portrait and landscape), tablets, laptops, desktop monitors, 4K and
   ultrawide, in light and dark mode, with 44px touch targets on touch screens.
 - **Full hardware lifecycle** — request → accept → issue (box QR scan + photo) → return (photo +
@@ -501,6 +505,7 @@ suggested when **no** makerspace on the deployment uses any of its modules.
 | **Frontend on Netlify**, API on your own server | **[docs/deploy-netlify.md](docs/deploy-netlify.md)** |
 | An **AWS EC2** walkthrough with automatic deploys | **[docs/deploy-ec2.md](docs/deploy-ec2.md)** |
 | **Borrow by checking in**, no member accounts | **[docs/checkin-mode.md](docs/checkin-mode.md)** |
+| **Item codes** and the component category guide | **[docs/item-codes.md](docs/item-codes.md)** |
 | **Telegram** and **email** setup | **[docs/notifications-setup.md](docs/notifications-setup.md)** |
 | **Staff roles**, stocktake approval, passwords | **[docs/staff-roles.md](docs/staff-roles.md)** |
 | **Advanced** config (chat rooms, HMAC, Supabase, cron) | **[.github/ADVANCED.md](.github/ADVANCED.md)** |

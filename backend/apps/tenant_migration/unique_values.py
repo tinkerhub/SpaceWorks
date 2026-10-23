@@ -219,6 +219,10 @@ DEPLOYMENT_GLOBAL_UNIQUE_RULES = {
         UniqueValueDisposition.TARGET_CREATION,
         "Target creation preserves or regenerates the public code.",
     ),
+    ("makerspaces.Makerspace", "uniq_makerspace_item_code_prefix"): _policy(
+        UniqueValueDisposition.TARGET_CREATION,
+        "Target creation keeps the item-code prefix or derives a free one.",
+    ),
     ("makerspaces.Makerspace", "field:slug"): _policy(
         UniqueValueDisposition.TARGET_CREATION,
         "Target creation selects an available slug.",

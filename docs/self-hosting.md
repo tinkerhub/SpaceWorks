@@ -342,6 +342,14 @@ release performs the same check. Hosts on 0.8.5-main.11 or older run their insta
 lacks this step, so apply the notes below by hand once, or rerun the curl installer and choose an
 update (which installs the new updater and applies the same unedited-only rule).
 
+**2026-10 (0.8.5): item codes.** No manual step. The migration gives every makerspace a
+platform-unique item-code prefix (initials of its name, e.g. "Tinkerspace Kochi" → `TK`), codes the
+old default categories (Microcontrollers → `MCU`, Sensors → `SNS`, Actuators → `ACT`, Cables → `CBL`,
+Accessories → `MOD`), adds the missing standard categories and gives every categorised item a letter.
+Nothing is renamed or deleted; the old "SBCs" and "Microprocessors" categories stay without a code for
+you to merge into `MCU`. Check or change the prefix under Settings → General → Item codes. Details:
+[docs/item-codes.md](item-codes.md).
+
 **2026-10 (0.8.5): block public readiness at the proxy.** Add this inside the `{$PUBLIC_DOMAIN}` site
 block of `/opt/spaceworks/deploy/Caddyfile`, next to the existing `/api/v1/internal/*` handle and
 before the `reverse_proxy` lines:

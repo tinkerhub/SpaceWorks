@@ -25,6 +25,7 @@ AVAILABILITY_SCHEMA = {
 
 class PublicProductSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
+    item_code = serializers.CharField(read_only=True)
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
     category_id = serializers.IntegerField(
@@ -58,6 +59,7 @@ class PublicCategorySerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
     slug = serializers.SlugField(read_only=True)
+    code = serializers.CharField(read_only=True)
     display_order = serializers.IntegerField(read_only=True)
     icon = serializers.CharField(read_only=True)
     product_count = serializers.IntegerField(read_only=True)

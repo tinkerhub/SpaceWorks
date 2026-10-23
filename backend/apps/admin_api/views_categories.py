@@ -38,12 +38,8 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         require_action(self.request.user, rbac.Action.EDIT_INVENTORY, makerspace_id)
         try:
             instance = serializer.save(makerspace_id=makerspace_id)
-        except IntegrityError:
-            raise ValidationError(
-                {
-                    "slug": "A category with this slug already exists in this makerspace."
-                }
-            )
+        except IntegrityError as exc:
+            raise _duplicate_error(exc)
         audit.record(
             self.request.user,
             "category.created",
@@ -83,12 +79,8 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
         try:
             instance = serializer.save()
-        except IntegrityError:
-            raise ValidationError(
-                {
-                    "slug": "A category with this slug already exists in this makerspace."
-                }
-            )
+        except IntegrityError as exc:
+            raise _duplicate_error(exc)
         audit.record(
             self.request.user,
             "category.updated",
@@ -111,3 +103,13 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
             meta={"detached_product_count": detached_product_count},
         )
         instance.delete()
+
+
+def _duplicate_error(exc):
+    if "uniq_category_code_per_makerspace" in str(exc):
+        return ValidationError(
+            {"code": "Another category in this makerspace already uses this code."}
+        )
+    return ValidationError(
+        {"slug": "A category with this slug already exists in this makerspace."}
+    )

@@ -18,6 +18,7 @@ import { MakerspaceFilamentSettings } from "./MakerspaceFilamentSettings";
 import { MakerspaceFeatureSettings } from "./MakerspaceFeatureSettings";
 import { MakerspaceGeofenceSettings } from "./MakerspaceGeofenceSettings";
 import { MakerspaceGeneralSettings } from "./MakerspaceGeneralSettings";
+import { MakerspaceItemCodeSettings } from "./MakerspaceItemCodeSettings";
 import { IntegrationHealthPanel } from "./IntegrationHealthPanel";
 import { MakerspaceLocationSettings } from "./MakerspaceLocationSettings";
 import { MakerspaceMembershipSettings } from "./MakerspaceMembershipSettings";
@@ -62,6 +63,7 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
         <>
           <MakerspaceBrandingSettings {...shared} />
           <MakerspaceGeneralSettings {...shared} />
+          <MakerspaceItemCodeSettings {...shared} />
           <MakerspaceLocationSettings {...shared} />
           {on("membership") ? <MakerspaceMembershipSettings {...shared} /> : null}
           <MakerspaceFeatureSettings {...shared} />

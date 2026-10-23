@@ -148,6 +148,8 @@ def test_category_resolution_retains_archived_tenant_edits():
         "name": "Lab Sensors",
         "display_order": 41,
         "icon": "radar",
+        "code": "SNS",
+        "code_sequence": 7,
         "created_at": "source-created",
         "updated_at": "source-updated",
     }
@@ -156,6 +158,8 @@ def test_category_resolution_retains_archived_tenant_edits():
         "name": "Lab Sensors",
         "display_order": 41,
         "icon": "radar",
+        "code": "SNS",
+        "code_sequence": 7,
         "created_at": "source-created",
         "updated_at": "source-updated",
     }

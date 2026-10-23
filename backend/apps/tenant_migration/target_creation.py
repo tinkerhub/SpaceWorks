@@ -37,6 +37,8 @@ def create_target_makerspace(
     rewrite_object_fields(Makerspace, values, object_key_map or {})
     if Makerspace.objects.filter(public_code=values["public_code"]).exists():
         values["public_code"] = _fresh_value(Makerspace._meta.get_field("public_code"))
+    if Makerspace.objects.filter(item_code_prefix=values.get("item_code_prefix") or "").exists():
+        values["item_code_prefix"] = ""  # save() derives a free prefix from the name
     return Makerspace.objects.create(**values)
 
 

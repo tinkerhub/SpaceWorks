@@ -2,7 +2,7 @@ from django.db import IntegrityError, transaction
 from django.utils.text import slugify
 
 from apps.admin_api.bulk_import_preview import preview_import
-from apps.admin_api.bulk_import_rows import QUANTITY_BUCKET_FIELDS
+from apps.admin_api.bulk_import_rows import QUANTITY_BUCKET_FIELDS, find_category
 from apps.audit import services as audit
 from apps.boxes.models import Box
 from apps.evidence.storage import StorageUnavailable
@@ -159,7 +159,7 @@ def _category_for_name(makerspace, name):
     base_slug = slugify(name) or "category"
     slug = base_slug
     for _attempt in range(2):
-        category = Category.objects.filter(makerspace=makerspace, name__iexact=name).first()
+        category = find_category(makerspace, name)
         if category:
             return category, False
         slug = base_slug
@@ -172,7 +172,7 @@ def _category_for_name(makerspace, name):
                 return Category.objects.create(makerspace=makerspace, name=name, slug=slug), True
         except IntegrityError:
             continue
-    category = Category.objects.filter(makerspace=makerspace, name__iexact=name).first()
+    category = find_category(makerspace, name)
     if category:
         return category, False
     with transaction.atomic():

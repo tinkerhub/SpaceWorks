@@ -60,7 +60,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Search public products by name or description."
+                        "description": "Search public products by name, description or item code (TC-MCU-A or MCU-A)."
                     },
                     {
                         "in": "query",
@@ -39028,7 +39028,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Search public products by name or description."
+                        "description": "Search public products by name, description or item code (TC-MCU-A or MCU-A)."
                     },
                     {
                         "in": "query",
@@ -43827,6 +43827,10 @@
                                 "maxLength": 0
                             }
                         ]
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 4
                     },
                     "display_order": {
                         "type": "integer",
@@ -48780,6 +48784,10 @@
                         "type": "integer",
                         "nullable": true
                     },
+                    "item_code": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "name": {
                         "type": "string",
                         "maxLength": 200
@@ -48869,6 +48877,7 @@
                     "id",
                     "image_key",
                     "image_url",
+                    "item_code",
                     "makerspace",
                     "name",
                     "needs_fix_quantity",
@@ -48893,6 +48902,10 @@
                     "category": {
                         "type": "integer",
                         "nullable": true
+                    },
+                    "item_code": {
+                        "type": "string",
+                        "readOnly": true
                     },
                     "name": {
                         "type": "string",
@@ -48981,6 +48994,7 @@
                     "image_key",
                     "image_url",
                     "issued_quantity",
+                    "item_code",
                     "lost_quantity",
                     "makerspace",
                     "name",
@@ -51318,6 +51332,10 @@
                         "type": "string",
                         "pattern": "^[A-Z0-9]{4}$",
                         "maxLength": 4
+                    },
+                    "item_code_prefix": {
+                        "type": "string",
+                        "maxLength": 6
                     },
                     "slug": {
                         "type": "string",
@@ -55803,6 +55821,10 @@
                             }
                         ]
                     },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 4
+                    },
                     "display_order": {
                         "type": "integer",
                         "maximum": 2147483647,
@@ -56080,6 +56102,10 @@
                         "type": "integer",
                         "nullable": true
                     },
+                    "item_code": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "name": {
                         "type": "string",
                         "maxLength": 200
@@ -56330,6 +56356,10 @@
                         "type": "string",
                         "pattern": "^[A-Z0-9]{4}$",
                         "maxLength": 4
+                    },
+                    "item_code_prefix": {
+                        "type": "string",
+                        "maxLength": 6
                     },
                     "slug": {
                         "type": "string",
@@ -58482,6 +58512,10 @@
                         "readOnly": true,
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
+                    "code": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "display_order": {
                         "type": "integer",
                         "readOnly": true
@@ -58496,6 +58530,7 @@
                     }
                 },
                 "required": [
+                    "code",
                     "display_order",
                     "icon",
                     "id",
@@ -59375,6 +59410,10 @@
                         "type": "integer",
                         "readOnly": true
                     },
+                    "item_code": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "name": {
                         "type": "string",
                         "readOnly": true
@@ -59442,6 +59481,7 @@
                     "description",
                     "id",
                     "image_url",
+                    "item_code",
                     "name"
                 ]
             },

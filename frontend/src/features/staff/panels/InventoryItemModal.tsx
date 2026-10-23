@@ -35,10 +35,12 @@ export function ItemModal({ title, open, onClose, form, setForm, categories, inc
                 <option value="individual">Individual</option>
               </Dropdown>
             </Field>
-            <Field label="Category">
+            <Field label="Category" helperText="Classify by primary function. The Categories tab has the full guide.">
               <Dropdown value={form.category} disabled={readOnly} onChange={(e) => set("category", e.target.value)}>
                 <option value="">Uncategorized</option>
-                {categories.map((category) => <option key={category.id} value={String(category.id)}>{category.name}</option>)}
+                {categories.map((category) => (
+                  <option key={category.id} value={String(category.id)}>{category.code ? `${category.code} · ${category.name}` : category.name}</option>
+                ))}
               </Dropdown>
             </Field>
           </div>
