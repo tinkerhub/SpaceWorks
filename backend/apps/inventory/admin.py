@@ -88,7 +88,9 @@ class InventoryProductAdmin(PublicImageAdminMixin, SuperuserOnlyModelAdmin, Mode
     def get_readonly_fields(self, request, obj=None):
         # After creation, tracking mode and buckets change only via the Availability module.
         owned = availability.AVAILABILITY_OWNED_FIELDS if obj is not None else ()
-        return (*super().get_readonly_fields(request, obj), *owned)
+        # Its assets and QR codes stay in the original space; moving it would split them.
+        tenancy = ("makerspace",) if obj is not None else ()
+        return (*super().get_readonly_fields(request, obj), *owned, *tenancy)
 
     def get_urls(self):
         return [

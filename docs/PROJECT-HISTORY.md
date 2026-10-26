@@ -6,6 +6,28 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-24 — Staff from /control/, priced manual usage, control-plane audit.** A superadmin can
+  make staff entirely in `/control/`: the membership inlines (User and Makerspace pages) pick a real
+  role, mirror the legacy `role`, reactivate on re-grant and are audited; removal is the "Revoke
+  selected memberships" action, and saving a user labelled Space Manager with no Space Manager
+  membership warns (the `User.role` label grants nothing). Manual machine usage logs an auto,
+  editable price on the usage entry (no payment, no payments module), with a per-type free
+  threshold in the type's own unit (printers start at 20 g free); machine staff price the types they
+  manage, and only a space manager switches online payment. An audit of `/control/` closed raw
+  edits that bypassed their services: access status, problem report resolution, API key request
+  status, stocktake lifecycle, asset/QR status and targets, stock adjustments, QR print batch status,
+  built-in type slugs, machine tenancy, OIDC slug/disable lockout, custom-domain re-verification,
+  API-client settings overwrite and procurement status stamps. A second review pass fixed what that
+  left open: membership rows can no longer be moved to another user or makerspace (or out of a
+  hidden one), hidden makerspaces' rows and roles are not listed, a grant checks archive and the
+  staff quota, the role list is narrowed per form (not process-wide), stocktakes/QR codes/assets/
+  problem reports cannot be hand-added or deleted where a service owns them, print-batch items are
+  read-only, custom types/boxes/products/To-Buy items keep their makerspace, a lone SMTP port is
+  checked against the stored host, custom domains are stored bare, an API key request's note stays
+  editable until it is resolved, and an auto price too large to store is a 400. Legacy memberships
+  with no assigned role no longer block saving a User or Makerspace page, the action-less Member
+  role is not offered as a staff grant, and pricing is priced by type-linked roles only.
+
 - **2026-10-24 — Collapsible navigation.** Staff console sidebar groups fold from their heading
   (remembered per browser; the group holding the current page reopens), and every `/control/`
   sidebar group is collapsible.

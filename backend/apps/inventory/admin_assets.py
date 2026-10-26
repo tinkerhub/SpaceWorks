@@ -17,6 +17,21 @@ class InventoryAssetAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_select_related = ("makerspace", "product", "box")
     readonly_fields = ("qr_preview",)
 
+    def get_readonly_fields(self, request, obj=None):
+        # Status and product changes must go through `move_asset_status` so product
+        # counts stay right; the API and console do that, a form save would not.
+        return (*super().get_readonly_fields(request, obj), "status", "product", "makerspace")
+
+    def has_add_permission(self, request):
+        # A hand-added asset gets no QR and no quantity reconcile; use the product's
+        # "Generate QR assets" action instead.
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # A delete skips the quantity reconcile and orphans the asset's QR; retire it
+        # through its status instead.
+        return False
+
     def qr_preview(self, obj):
         if not obj or not obj.pk:
             return "(save first)"

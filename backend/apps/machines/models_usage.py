@@ -46,6 +46,8 @@ class MachineUsageEntry(ScopedPiiModelMixin, models.Model):
     consumed_grams = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     metering_unit = models.CharField(max_length=12, choices=MeteringUnit.choices, default=MeteringUnit.WEIGHT)
     consumed_quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # What staff logged for the run at the counter; a record, not a charge. Null = unpriced.
+    price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     # Typed print usage keeps the historical manual-log contract rather than
     # flattening it into generic hours.  These are encrypted when scoped PII is
     # enabled and are deliberately absent from public projections.

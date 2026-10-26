@@ -88,16 +88,69 @@ describe("MachineTypesPanel capability presets", () => {
   });
 });
 
+describe("MachineTypesPanel for machine staff", () => {
+  it("lets them price the types they manage but not switch online payment", async () => {
+    staffRequest.mockImplementation((path: string) => {
+      if (path === "/admin/makerspaces") return Promise.resolve([{ id: 7, name: "Lab", slug: "lab", enabled_modules: modules }]);
+      if (path.endsWith("machine-type-pricing")) {
+        return Promise.resolve({ currency: "INR", results: [{ machine_type_id: 4, rate_per_unit: "3.00", flat_fee: "0.00", payment_enabled: false, free_below_quantity: "0.00" }] });
+      }
+      if (path.endsWith("machine-types")) return Promise.resolve([customType]);
+      return Promise.resolve(customType);
+    });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <MachineTypesPanel makerspaceId={7} canConfigureMachineTypes={false} canEditPricing />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
+    expect(await screen.findByRole("button", { name: "Save pricing" })).toBeVisible();
+    expect(screen.getByText("Free below (items)")).toBeInTheDocument();
+    expect(screen.queryByText("Enable payment")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Save type" })).toBeNull();
+    expect(screen.getByText(/You can set pricing for the machine types you manage/)).toBeVisible();
+  });
+
+  it("shows no pricing for a type outside their scope", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <MachineTypesPanel makerspaceId={7} canConfigureMachineTypes={false} canEditPricing />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
+    await waitFor(() => expect(staffRequest.mock.calls.some(([path]) => String(path).endsWith("machine-type-pricing"))).toBe(true));
+    expect(await screen.findByText("Laser cutter")).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Save pricing" })).toBeNull();
+  });
+});
+
+describe("MachineTypesPanel pricing save", () => {
+  it("cannot save before the stored pricing has loaded", async () => {
+    staffRequest.mockImplementation((path: string) => {
+      if (path === "/admin/makerspaces") return Promise.resolve([{ id: 7, name: "Lab", slug: "lab", enabled_modules: modules }]);
+      if (path.endsWith("machine-type-pricing")) return new Promise(() => undefined);
+      if (path.endsWith("machine-types")) return Promise.resolve([customType]);
+      return Promise.resolve(customType);
+    });
+    renderPanel();
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
+    // Saving now would overwrite the stored row with the zero placeholders.
+    expect(await screen.findByRole("button", { name: "Save pricing" })).toBeDisabled();
+  });
+});
+
 describe("MachineTypesPanel without payments or bookings", () => {
-  it("drops pricing and the booking flag, which nothing on the space can act on", async () => {
+  it("keeps prices for manual usage but drops online charging and the booking flag", async () => {
     modules = ["machines", "machine_service"];
     renderPanel();
 
-    fireEvent.click(await screen.findByText("Machine types"));
+    fireEvent.click(await screen.findByText("Machine types and pricing"));
     expect(await screen.findByRole("button", { name: "Save type" })).toBeVisible();
-    expect(screen.queryByText("Machine types and pricing")).toBeNull();
+    expect(await screen.findByRole("button", { name: "Save pricing" })).toBeVisible();
     expect(screen.queryByText("Enable payment")).toBeNull();
     expect(screen.queryByText("Requires booking")).toBeNull();
-    expect(staffRequest.mock.calls.some(([path]) => String(path).endsWith("machine-type-pricing"))).toBe(false);
   });
 });

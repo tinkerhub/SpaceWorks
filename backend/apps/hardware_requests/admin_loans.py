@@ -86,6 +86,10 @@ class PublicProblemReportAdmin(ScopedPiiAdminSearchMixin, SuperuserOnlyModelAdmi
         "requester",
         "note",
         "created_at",
+        # Resolving is triage (stock move, accountability, audit); typing a date here
+        # would drop the report from the queue with none of that done.
+        "resolved_at",
+        "resolved_by",
     )
     fields = (
         "makerspace",
@@ -99,6 +103,10 @@ class PublicProblemReportAdmin(ScopedPiiAdminSearchMixin, SuperuserOnlyModelAdmi
     )
 
     def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Deleting would drop the report from the queue untriaged, like a typed date.
         return False
 
 @admin.register(ReturnEvent)

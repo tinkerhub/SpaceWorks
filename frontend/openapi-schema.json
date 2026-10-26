@@ -17164,7 +17164,7 @@
                         "description": ""
                     },
                     "403": {
-                        "description": "Space-manager identity required."
+                        "description": "Space-manager identity or machine management required."
                     }
                 }
             }
@@ -17234,7 +17234,7 @@
                         "description": "Invalid price."
                     },
                     "403": {
-                        "description": "Space-manager identity required."
+                        "description": "Machine management for this type required; online payment needs space-manager identity."
                     },
                     "404": {
                         "description": "Machine type not found."
@@ -50718,10 +50718,17 @@
                     "payment_enabled": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "free_below_quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$",
+                        "readOnly": true
                     }
                 },
                 "required": [
                     "flat_fee",
+                    "free_below_quantity",
                     "machine_type_id",
                     "payment_enabled",
                     "rate_per_unit"
@@ -50762,6 +50769,11 @@
                     },
                     "payment_enabled": {
                         "type": "boolean"
+                    },
+                    "free_below_quantity": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,8}(?:\\.\\d{0,2})?$"
                     }
                 },
                 "required": [
@@ -64419,6 +64431,12 @@
                     "note": {
                         "type": "string",
                         "maxLength": 255
+                    },
+                    "price": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -64513,6 +64531,13 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "price": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,10}(?:\\.\\d{0,2})?$",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
@@ -64532,6 +64557,7 @@
                     "note",
                     "outcome",
                     "percent_complete",
+                    "price",
                     "reason",
                     "service_request_id"
                 ]

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -69,6 +71,9 @@ class MakerspaceMachineTypePricing(models.Model):
     rate_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     flat_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     payment_enabled = models.BooleanField(default=False)
+    # Manual usage below this many of the type's own unit (grams, minutes, ml, ...) is logged
+    # as free. Printers start at 20 g (`default_free_below`); other types start at 0.
+    free_below_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,6 +84,7 @@ class MakerspaceMachineTypePricing(models.Model):
             models.UniqueConstraint(fields=["makerspace", "machine_type"], name="uniq_makerspace_machine_type_pricing"),
             models.CheckConstraint(condition=Q(rate_per_unit__gte=0), name="machine_type_pricing_rate_nonnegative"),
             models.CheckConstraint(condition=Q(flat_fee__gte=0), name="machine_type_pricing_flat_nonnegative"),
+            models.CheckConstraint(condition=Q(free_below_quantity__gte=0), name="machine_type_pricing_free_below_nonnegative"),
         ]
 
     def clean(self):

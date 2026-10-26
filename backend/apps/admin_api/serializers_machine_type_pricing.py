@@ -8,7 +8,7 @@ class MachineTypePricingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MakerspaceMachineTypePricing
-        fields = ("machine_type_id", "rate_per_unit", "flat_fee", "payment_enabled")
+        fields = ("machine_type_id", "rate_per_unit", "flat_fee", "payment_enabled", "free_below_quantity")
         read_only_fields = fields
 
 
@@ -16,6 +16,8 @@ class MachineTypePricingSetSerializer(serializers.Serializer):
     rate_per_unit = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=0)
     flat_fee = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=0)
     payment_enabled = serializers.BooleanField()
+    # Optional so an older console that never sends it keeps the stored threshold.
+    free_below_quantity = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0, required=False)
 
 
 class MachineTypePricingListSerializer(serializers.Serializer):

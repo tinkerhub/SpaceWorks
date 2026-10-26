@@ -9,10 +9,14 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext
-from unfold.admin import ModelAdmin, TabularInline
+from unfold.admin import ModelAdmin
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from rest_framework.exceptions import APIException
 
+from apps.accounts.admin_membership_inline import (
+    MakerspaceMembershipInline,
+    StaffMembershipAdminMixin,
+)
 from apps.accounts.models import NativeAppRegistration, User
 from apps.accounts.principal_guards import (
     refuse_anonymous_requester_access_mutation,
@@ -41,16 +45,8 @@ class RestrictAccessForm(forms.Form):
     reason = forms.CharField(required=True, widget=forms.Textarea)
 
 
-class MakerspaceMembershipInline(TabularInline):
-    model = MakerspaceMembership
-    fk_name = "user"
-    fields = ("makerspace", "role")
-    autocomplete_fields = ("makerspace",)
-    extra = 0
-
-
 @admin.register(User)
-class UserAdmin(SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
+class UserAdmin(StaffMembershipAdminMixin, SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
     actions = ["restrict_access", "restore_access", "reset_password_selected"]
     form = UserChangeForm
     add_form = UserCreationForm
@@ -82,6 +78,9 @@ class UserAdmin(SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
     )
     inlines = (MakerspaceMembershipInline,)
     filter_horizontal = ()
+    # Restricting/restoring audits, guards walk-in records and re-checks the staff quota;
+    # the Restrict/Restore actions do that, a raw field edit would not.
+    readonly_fields = ("access_status", "restriction_reason")
 
     def user_change_password(self, request, id, form_url=""):
         """Make the inherited password form an explicit account transition."""

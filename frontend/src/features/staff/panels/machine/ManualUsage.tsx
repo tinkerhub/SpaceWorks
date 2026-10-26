@@ -1,10 +1,11 @@
 import { Button, Dropdown, Field, Input, StatusChip, Table, TBody, TD, TH, THead, TR } from "../../../../components/ui";
 import type { PrinterPool } from "../../../../generated/api";
 import type { Machine } from "../../machinesApi";
+import type { ManualPrice } from "./manualPrice";
 import type { ServiceDraft } from "./serviceDrafts";
 import { poolLabel } from "./servicePools";
 
-export type ManualUsageRow = { id: number; outcome: string; used: string; minutes: number; percent?: number | null };
+export type ManualUsageRow = { id: number; outcome: string; used: string; minutes: number; percent?: number | null; price?: string };
 
 type Props = {
   draft: ServiceDraft;
@@ -18,15 +19,17 @@ type Props = {
   pending: boolean;
   onSubmit: () => void;
   rows: ManualUsageRow[];
+  /** Price field and column; logged with the run, never charged. */
+  price?: ManualPrice | null;
 };
 
 export const blankManualUsage: ServiceDraft["manual"] = {
   machine_id: "", consumable_pool_id: "", duration_minutes: "", quantity: "",
-  outcome: "success", percent_complete: "100", reason: "", note: "",
+  outcome: "success", percent_complete: "100", reason: "", note: "", price: "",
 };
 
 /** Log a run that happened outside the queue, and list the ones already logged. */
-export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, unitLabel, hasPool, pending, onSubmit, rows }: Props) {
+export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, unitLabel, hasPool, pending, onSubmit, rows, price }: Props) {
   const manual = draft.manual;
   const noun = machineNoun.toLowerCase();
   const update = (patch: Partial<typeof manual>) => setDraft((current) => ({ ...current, manual: { ...current.manual, ...patch } }));
@@ -74,6 +77,11 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
             </Field>
           </>
         ) : null}
+        {price ? (
+          <Field label={`Price${price.currency ? ` (${price.currency})` : ""}`} helperText={price.hint ?? undefined}>
+            <Input aria-label="Manual usage price" type="number" min="0" step="0.01" inputMode="decimal" placeholder={price.placeholder} value={manual.price} onChange={(event) => update({ price: event.target.value })} />
+          </Field>
+        ) : null}
         <Field label="Note" className="sm:col-span-2">
           <Input aria-label="Manual usage note" value={manual.note} onChange={(event) => update({ note: event.target.value })} />
         </Field>
@@ -81,7 +89,7 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
       </form>
       {rows.length ? (
         <Table label="Manual usage log">
-          <THead><tr><TH>Outcome</TH><TH>Used</TH><TH>Duration</TH></tr></THead>
+          <THead><tr><TH>Outcome</TH><TH>Used</TH><TH>Duration</TH>{price ? <TH>Price</TH> : null}</tr></THead>
           <TBody>
             {rows.map((row) => (
               <TR key={row.id}>
@@ -92,6 +100,7 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
                 </TD>
                 <TD className="tabular-nums">{row.used}</TD>
                 <TD className="tabular-nums">{row.minutes} min</TD>
+                {price ? <TD className="tabular-nums">{row.price ?? "—"}</TD> : null}
               </TR>
             ))}
           </TBody>

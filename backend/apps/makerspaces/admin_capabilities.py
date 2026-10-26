@@ -88,6 +88,18 @@ class MakerspaceAdminForm(ImageMakerspaceAdminForm):
         # `anyone -> members` change from an `accounts -> members` one.
         self.request_access_before = effective_policy(self.instance)
 
+    def clean_frontend_domain(self):
+        # Store a bare host as the console does: a pasted URL would make the origin
+        # helpers build `https://https://...`.
+        from apps.admin_api.serializers_makerspace_domain import _HOSTNAME_RE
+        from apps.makerspaces.models import normalize_frontend_domain
+
+        raw = self.cleaned_data.get("frontend_domain")
+        domain = normalize_frontend_domain(raw)
+        if (domain is None and (raw or "").strip()) or (domain and not _HOSTNAME_RE.match(domain)):
+            raise forms.ValidationError("Enter a valid domain, e.g. alphamakerspace.com.")
+        return domain
+
     def clean_capabilities(self):
         values = self.cleaned_data["capabilities"]
         modules = [value.removeprefix("module:") for value in values if value.startswith("module:")]

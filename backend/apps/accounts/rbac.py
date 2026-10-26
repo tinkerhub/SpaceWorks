@@ -171,7 +171,8 @@ def is_space_manager_identity(actor, makerspace_id) -> bool:
     """Return whether actor has the space-manager identity in this makerspace.
 
     This deliberately does not infer identity from actions: Machine Managers and
-    custom roles granted manage_machines cannot configure types or pricing.
+    custom roles granted manage_machines cannot configure types or switch online payment
+    (they may set rates for the types their scope covers; see views_machine_type_pricing).
     """
     if _actor_refused(actor):
         return False

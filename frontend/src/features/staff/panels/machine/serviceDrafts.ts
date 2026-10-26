@@ -31,6 +31,8 @@ export type ServiceDraft = {
     percent_complete: string;
     reason: string;
     note: string;
+    /** Logged price; blank = let the server price it from the machine type's pricing. */
+    price: string;
   };
 };
 
@@ -56,6 +58,7 @@ export function blankServiceDraft(): ServiceDraft {
       percent_complete: "100",
       reason: "",
       note: "",
+      price: "",
     },
   };
 }

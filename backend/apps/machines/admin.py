@@ -32,6 +32,18 @@ class MachineTypeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     raw_id_fields = ("makerspace",)
     readonly_fields = ("is_builtin", "managing_action")
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if obj is None:
+            return fields
+        if obj.is_builtin:
+            # Code resolves built-ins by slug (`printer_capabilities.PRINTER_SLUG`), so a
+            # rename breaks printer detection as surely as a delete.
+            return (*fields, "slug", "makerspace")
+        # A space's machines keep pointing at its custom type; moving it (or making it
+        # global) would hand that type to another tenant.
+        return (*fields, "makerspace")
+
     # Built-in global types are load-bearing (printer auto-link resolves 3d_printer)
     # and are only restored by the seed migration — never let the admin delete them.
     def has_delete_permission(self, request, obj=None):
@@ -59,6 +71,12 @@ class MachineAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         "updated_at",
     )
     actions = ["retire_selected", "unretire_selected", "mark_maintenance", "mark_idle"]
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # The API fixes both at creation: operators, buckets and pools stay attached to
+        # the original space and type, so moving a machine here would split them.
+        return fields if obj is None else (*fields, "makerspace", "machine_type")
 
     # No hard delete of machines anywhere — retirement is the only lifecycle action.
     def has_delete_permission(self, request, obj=None):

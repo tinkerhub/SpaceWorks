@@ -7,6 +7,7 @@ import { machineKeys } from "../../machinesApi";
 import type { Machine, MachineType, MeteringUnit } from "../../machinesApi";
 import { useStaffGet } from "../shared";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
+import { manualPriceCell, useManualPrice } from "./manualPrice";
 import { useNotify } from "./machineUi";
 import { SERVICE_ACTION_COPY, ServiceQueue } from "./ServiceQueue";
 import { clearedActionDraft } from "./serviceDrafts";
@@ -58,6 +59,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
     // stay stale until an unrelated refetch.
     queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
   ]);
+  const manualPrice = useManualPrice(makerspaceId, machineType, draft.manual);
   const submitManual = useMutation({
     mutationFn: () => staffRequest(`/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage`, {
       method: "POST",
@@ -71,6 +73,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
         percent_complete: Number(draft.manual.percent_complete),
         reason: draft.manual.reason || undefined,
         note: draft.manual.note || undefined,
+        price: draft.manual.price === "" ? undefined : draft.manual.price,
       }),
     }),
     onSuccess: () => {
@@ -136,7 +139,9 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
             used: `${entry.consumed_quantity} ${unitLabel}`,
             minutes: entry.duration_minutes,
             percent: entry.percent_complete,
+            price: manualPriceCell(entry.price, manualPrice.currency),
           }))}
+          price={manualPrice}
         />
       </section>
       <ErrorBlock error={[requests.error, manualUsage.error, submitManual.error, runAction.error].find((item) => item instanceof Error)} />

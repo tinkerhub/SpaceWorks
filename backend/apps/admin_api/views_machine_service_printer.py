@@ -31,6 +31,7 @@ from apps.machines.service_consumable_pools import (
     log_typed_manual_usage,
     set_pool_visibility,
 )
+from apps.machines.service_pricing import manual_usage_price
 from apps.makerspaces.guards import require_module
 from apps.makerspaces.models import Makerspace
 
@@ -238,5 +239,10 @@ class MachineServiceTypedManualUsageView(APIView):
                 ),
                 pk=request_id,
             )
-        row = log_typed_manual_usage(machine, request.user, pool=pool, service_request=service_request, **data)
+        price = data.pop("price", None)
+        if price is None and service_request is None:
+            # A run linked to a queue job is priced by that job, so only free-standing runs
+            # get an automatic price.
+            price = manual_usage_price(machine, pool=pool, **data)
+        row = log_typed_manual_usage(machine, request.user, pool=pool, service_request=service_request, price=price, **data)
         return Response(TypedManualUsageResponseSerializer(row).data, status=status.HTTP_201_CREATED)
