@@ -19,6 +19,24 @@ so never **Space Manager** itself; a superadmin sees every staff role.
 Row actions: **Change role**, **Reset password**, **Revoke**, and (superadmin only) **Restrict** /
 **Restore**.
 
+## Making staff from /control/
+
+A superadmin can do the same thing in the Django control plane, which is how the first Space Manager
+of a makerspace is usually created; that Space Manager then adds everyone else from the console.
+
+1. **Users → Add user**: username and password, then **Save and continue editing**.
+2. Under **Makerspace memberships**, **Add another**, pick the makerspace and its role
+   (for example *Tinker Space · Space Manager*), then **Save**.
+
+The **Role** field on the user page is a legacy label and grants nothing: sign-in is decided only by
+memberships, so a user labelled Space Manager with no membership gets "Staff access is required."
+(`/control/` warns when you save one). A membership can also be added from the makerspace's own page
+or **Makerspace memberships → Add**. Role changes there are audited; to remove someone, select the
+membership and run **Revoke selected memberships** (memberships are not deleted). A saved membership
+cannot be moved to another user or makerspace; revoke it and add a new one. Granting checks the same
+archive and staff-quota rules as **Add staff**. Hidden makerspaces are not listed and refuse this
+path; use break-glass.
+
 ## The default roles
 
 Every makerspace starts with four protected roles. They can be renamed and narrowed but not deleted.
@@ -27,7 +45,7 @@ Every makerspace starts with four protected roles. They can be renamed and narro
 |---|---|---|
 | **Space Manager** | Everything grantable: requests, handouts, returns, evidence, inventory, QR, machines, printing, events, bookings, audit, `manage_makerspace` | Everything for the makerspace, including Users and Settings. Not Platform settings, Modules or Tenant migration (superadmin only) |
 | **Inventory Manager** | Full hardware lifecycle (`accept_request`, `reject_request`, `assign_box`, `issue_request`, `issue_direct_loan`, `return_request`, `upload_evidence`), `edit_inventory`, `view_inventory`, `manage_qr`, `view_audit` | Dashboard, Notifications, Requests, Direct handout, Ledger, Transfers, Stocktake, To Buy, Inventory, Categories, To-be-fixed, Containers, Bulk import, QR tools, Scanner, Reports, Accountability, Warranties, Audit log, Email templates. **No** Machines, Users, Settings, Members |
-| **Machine Manager** | `manage_machines`, which implies `manage_printing` and `collect_service_request` | Dashboard, Job handover, To Buy, Machines, Warranties, Email templates |
+| **Machine Manager** | `manage_machines`, which implies `manage_printing` and `collect_service_request` | Dashboard, Job handover, To Buy, Machines (including pricing and the free threshold for the machine types it manages; online payment stays with the Space Manager), Warranties, Email templates |
 | **Member** | None | None. A role with no actions is a community membership |
 
 On top of the role, **a section whose module is off is not shown at all** (for example no Machines

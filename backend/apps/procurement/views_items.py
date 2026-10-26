@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics
@@ -12,6 +11,7 @@ from apps.makerspaces.models import Makerspace
 from apps.procurement.serializers import ToBuyItemSerializer
 from apps.procurement import access
 from apps.procurement.models import ToBuyItem
+from apps.procurement.services import stamp_status_change
 from apps.procurement.views_common import (
     KIND_PARAM,
     MODULE_KEY,
@@ -141,20 +141,7 @@ class ToBuyDetailView(generics.RetrieveUpdateDestroyAPIView):
         access.validate_machine_type_provenance(serializer.instance, machine_type)
         previous_status = serializer.instance.status
         item = serializer.save()
-        updates = []
-        now = timezone.now()
-        if previous_status != item.status and item.status == ToBuyItem.Status.ORDERED and item.ordered_at is None:
-            item.ordered_at = now
-            item.purchaser = self.request.user
-            updates.extend(["ordered_at", "purchaser"])
-        if previous_status != item.status and item.status == ToBuyItem.Status.RECEIVED and item.received_at is None:
-            item.received_at = now
-            updates.append("received_at")
-            if item.purchaser_id is None:
-                item.purchaser = self.request.user
-                updates.append("purchaser")
-        if updates:
-            item.save(update_fields=[*updates, "updated_at"])
+        stamp_status_change(item, self.request.user, previous_status)
         audit.record(
             self.request.user,
             "procurement.item_updated",

@@ -84,21 +84,32 @@ export function CapabilityFields({ config, disabled = false, showBooking = true,
   );
 }
 
-export function PricingEditor({ makerspaceId, machineType, currency, canConfigure }: {
-  makerspaceId: number; machineType: MachineType; currency: string; canConfigure: boolean;
+// Short unit for the free threshold label: it is in the type's own metering unit.
+const FREE_BELOW_UNITS: Record<string, string> = { weight: "g", minutes: "min", volume: "ml", length: "mm", count: "items" };
+
+export function PricingEditor({ makerspaceId, machineType, currency, canEdit, canTogglePayment, paymentsOn }: {
+  makerspaceId: number; machineType: MachineType; currency: string;
+  /** Machine staff price the types they manage; space managers price every type. */
+  canEdit: boolean;
+  /** Online payment is a space-manager decision. */
+  canTogglePayment: boolean;
+  paymentsOn: boolean;
 }) {
   const queryClient = useQueryClient();
   const notify = useNotify();
-  const pricing = useQuery({ queryKey: machineKeys.pricing(makerspaceId), queryFn: () => getMachineTypePricing(makerspaceId), enabled: canConfigure });
+  const pricing = useQuery({ queryKey: machineKeys.pricing(makerspaceId), queryFn: () => getMachineTypePricing(makerspaceId), enabled: canEdit });
   const row = pricing.data?.results.find((item) => item.machine_type_id === machineType.id);
   const [rate, setRate] = useState("");
   const [flatFee, setFlatFee] = useState("");
   const [paymentEnabled, setPaymentEnabled] = useState<boolean | null>(null);
+  const [freeBelow, setFreeBelow] = useState("");
+  const unit = FREE_BELOW_UNITS[machineType.capability_config?.metering_unit || "weight"] ?? "units";
   const mutation = useMutation({
     mutationFn: () => setMachineTypePricing(makerspaceId, machineType.id, {
       rate_per_unit: rate || row?.rate_per_unit || "0.00",
       flat_fee: flatFee || row?.flat_fee || "0.00",
       payment_enabled: paymentEnabled ?? row?.payment_enabled ?? false,
+      free_below_quantity: freeBelow || row?.free_below_quantity || "0.00",
     }),
     onSuccess: async () => {
       notify.success(`Pricing saved for ${machineType.name}`);
@@ -109,20 +120,28 @@ export function PricingEditor({ makerspaceId, machineType, currency, canConfigur
   const shownRate = rate || row?.rate_per_unit || "0.00";
   const shownFlatFee = flatFee || row?.flat_fee || "0.00";
   const shownEnabled = paymentEnabled ?? row?.payment_enabled ?? false;
+  const shownFreeBelow = freeBelow || row?.free_below_quantity || "0.00";
 
-  if (!canConfigure) return null;
+  // Machine staff only get pricing rows for the types they manage; no row = not theirs, and
+  // until the rows load nothing says which types those are.
+  if (!canEdit || (!canTogglePayment && !row)) return null;
   return (
     <div className="grid gap-3 border-t border-line pt-4">
       <h4 className="text-label text-ink">Pricing</h4>
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
         <Field label={`Rate per unit (${currency})`}>
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownRate} onChange={(event) => setRate(event.target.value)} />
         </Field>
         <Field label={`Flat fee (${currency})`}>
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownFlatFee} onChange={(event) => setFlatFee(event.target.value)} />
         </Field>
-        <Button onClick={() => mutation.mutate()} loading={mutation.isPending} loadingLabel="Saving…">Save pricing</Button>
-        <CheckboxField className="sm:col-span-full" label="Enable payment" checked={shownEnabled} onCheckedChange={(checked) => setPaymentEnabled(checked === true)} />
+        <Field label={`Free below (${unit})`} helperText="Manual usage under this is logged as free.">
+          <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownFreeBelow} onChange={(event) => setFreeBelow(event.target.value)} />
+        </Field>
+        {/* Saving before the stored row loads would overwrite it with the zero placeholders. */}
+        <Button onClick={() => mutation.mutate()} loading={mutation.isPending} loadingLabel="Saving…" disabled={!pricing.isSuccess}>Save pricing</Button>
+        {/* Online charging needs the payments module; the price itself is also what manual usage logs. */}
+        {paymentsOn && canTogglePayment ? <CheckboxField className="sm:col-span-full" label="Enable payment" checked={shownEnabled} onCheckedChange={(checked) => setPaymentEnabled(checked === true)} /> : null}
       </div>
       {pricing.isLoading ? <p className="text-caption text-ink-muted" role="status">Loading pricing…</p> : null}
       {pricing.error instanceof Error ? <p className="text-caption text-danger-fg">{pricing.error.message}</p> : null}
@@ -131,8 +150,8 @@ export function PricingEditor({ makerspaceId, machineType, currency, canConfigur
   );
 }
 
-export function CustomTypeRow({ makerspaceId, machineType, canConfigure, currency, showPricing = true, showBooking = true }: {
-  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string; showPricing?: boolean; showBooking?: boolean;
+export function CustomTypeRow({ makerspaceId, machineType, canConfigure, canEditPricing = canConfigure, currency, paymentsOn = true, showBooking = true }: {
+  makerspaceId: number; machineType: MachineType; canConfigure: boolean; canEditPricing?: boolean; currency: string; paymentsOn?: boolean; showBooking?: boolean;
 }) {
   const queryClient = useQueryClient();
   const notify = useNotify();
@@ -165,13 +184,13 @@ export function CustomTypeRow({ makerspaceId, machineType, canConfigure, currenc
           <Button className="justify-self-start sm:col-span-full" type="submit" loading={rename.isPending} loadingLabel="Saving…" disabled={!name.trim()}>Save type</Button>
         ) : null}
       </form>
-      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure && showPricing} />
+      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canEdit={canEditPricing} canTogglePayment={canConfigure} paymentsOn={paymentsOn} />
     </li>
   );
 }
 
-export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, currency, showPricing = true }: {
-  makerspaceId: number; machineType: MachineType; canConfigure: boolean; currency: string; showPricing?: boolean;
+export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, canEditPricing = canConfigure, currency, paymentsOn = true }: {
+  makerspaceId: number; machineType: MachineType; canConfigure: boolean; canEditPricing?: boolean; currency: string; paymentsOn?: boolean;
 }) {
   const config = configFor(machineType);
   return (
@@ -185,7 +204,7 @@ export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, curren
         </span>
         <Chip size="sm">Built-in · settings fixed</Chip>
       </div>
-      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canConfigure={canConfigure && showPricing} />
+      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canEdit={canEditPricing} canTogglePayment={canConfigure} paymentsOn={paymentsOn} />
     </li>
   );
 }

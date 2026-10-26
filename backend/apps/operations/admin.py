@@ -147,6 +147,22 @@ class StocktakeSessionAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = ("id", "makerspace", "container", "status", "started_at", "approved_at")
     list_filter = ("status", "makerspace")
     inlines = (StocktakeLineInline,)
+    # Completing, approving (by a different person) and applying adjust stock; only the
+    # actions run that workflow, so the lifecycle fields are not hand-editable.
+    def get_readonly_fields(self, request, obj=None):
+        return (
+            *super().get_readonly_fields(request, obj), "makerspace", "container", "status",
+            "started_by", "completed_by", "completed_at", "approved_by", "approved_at",
+        )
+
+    def has_add_permission(self, request):
+        # `create_stocktake` checks the module and the container's tenancy and audits;
+        # a hand-made session would do none of that. Start one from the console.
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Ledger entries cascade from the session, so a delete would rewrite stock history.
+        return False
 
     def get_urls(self):
         return [
@@ -236,10 +252,28 @@ class InventoryAdjustmentAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = ("id", "makerspace", "product", "asset", "delta_available", "delta_damaged", "delta_lost", "created_at")
     list_filter = ("makerspace",)
 
+    # A ledger row records a quantity change made by `availability.adjust_quantities`; a
+    # hand-added row would change no stock, and editing one rewrites history.
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.method in ("GET", "HEAD") and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 class QrPrintBatchItemInline(TabularInline):
     model = QrPrintBatchItem
     extra = 0
+    # Items are added by `add_qr_to_batch`, which checks the code is this space's; a raw
+    # row could put another tenant's payload in the print ZIP.
+    readonly_fields = ("qr_code", "label_text", "target_type", "target_id", "sort_order")
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(QrPrintBatch)
@@ -248,6 +282,13 @@ class QrPrintBatchAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = ("id", "makerspace", "title", "status", "created_at", "printed_at")
     list_filter = ("status", "makerspace")
     inlines = (QrPrintBatchItemInline,)
+    # "Printed" is stamped by `mark_batch_printed` via the action, not typed.
+    readonly_fields = ("status", "printed_at")
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # Its items are this space's codes; moving the batch would print them for another.
+        return fields if obj is None else (*fields, "makerspace")
 
     @admin.action(description="Mark selected QR print batches as printed")
     def mark_printed_selected(self, request, queryset):

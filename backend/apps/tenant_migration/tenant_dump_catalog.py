@@ -51,7 +51,10 @@ class TenantDumpCatalogError(AssertionError):
 # (checkin_api_url / checkin_required_purpose / checkin_provider_name, all RESET).
 # Re-blessed for item codes: Makerspace.item_code_prefix, Category.code/code_sequence and
 # InventoryProduct.code_letter (tenant content; a colliding prefix is re-derived on import).
-CATALOG_SCHEMA_SHA256 = "820a93086d7e32a4c30f0b8fab91131155073a1e607f3e9fd406bedbdaa0295a"
+# Re-blessed for priced manual usage: MakerspaceMachineTypePricing.free_below_quantity and
+# MachineUsageEntry.price (both tenant content that travels as-is; the price is a logged
+# figure, not a Payment).
+CATALOG_SCHEMA_SHA256 = "80cd1906773133e2426900b1cd64d8fa8d0f369ba43c120501c3e1dacef5f8e9"
 
 
 def catalog_models(apps_registry=apps):

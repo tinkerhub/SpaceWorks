@@ -163,6 +163,26 @@ class SocialIdentityAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         return False
 
 
+class OidcProviderForm(forms.ModelForm):
+    class Meta:
+        model = OidcProvider
+        fields = "__all__"
+
+    def clean(self):
+        # Same lockout rule as the built-in providers: switching one off strands every
+        # account whose only way in is that provider.
+        cleaned = super().clean()
+        if self.instance.pk and self.instance.is_enabled and not cleaned.get("is_enabled"):
+            stranded = users_locked_out_by_disabling(self.instance.provider_key)
+            if stranded:
+                raise forms.ValidationError(
+                    f"Disabling {self.instance.display_name} would lock out {len(stranded)} "
+                    "account(s) whose only credential is this provider. Set a password for "
+                    "those accounts (or link another provider) first."
+                )
+        return cleaned
+
+
 @admin.register(OidcProvider)
 class OidcProviderAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     """Deployment-configured OpenID Connect providers.
@@ -175,7 +195,14 @@ class OidcProviderAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = ("display_name", "slug", "issuer", "is_enabled", "allow_auto_link")
     list_filter = ("is_enabled", "allow_auto_link")
     search_fields = ("slug", "display_name", "issuer")
+    form = OidcProviderForm
     readonly_fields = ("created_at", "updated_at")
+
+    def get_readonly_fields(self, request, obj=None):
+        # Identities are stored as `oidc:<slug>`, so renaming orphans them exactly as a
+        # delete would.
+        fields = super().get_readonly_fields(request, obj)
+        return fields if obj is None else (*fields, "slug")
 
     def has_delete_permission(self, request, obj=None):
         """Deleting the provider row would orphan every SocialIdentity that names it.

@@ -100,6 +100,12 @@ class BoxAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     autocomplete_fields = ("makerspace", "parent")
     readonly_fields = ("code", "qr_preview", "created_at", "updated_at")
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # Its products, assets and QR stay in the original space; moving the box would
+        # split them across tenants.
+        return fields if obj is None else (*fields, "makerspace")
+
     def qr_preview(self, obj):
         if not obj or not obj.pk:
             return "(save first to generate the QR)"
@@ -115,6 +121,19 @@ class QrCodeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_filter = ("makerspace", "target_type", "status")
     search_fields = ("payload",)
     readonly_fields = ("payload", "qr_preview", "created_at", "updated_at", "revoked_at")
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if obj is None:
+            return fields
+        # Revoking checks outstanding loans and rebinding validates the target; only the
+        # actions do that, so an existing code's status and target are not hand-editable.
+        return (*fields, "status", "target_type", "target_id", "makerspace")
+
+    def has_add_permission(self, request):
+        # Codes are minted by the services that own their target; a hand-made one could
+        # point at a missing target or another space's.
+        return False
 
     def qr_preview(self, obj):
         if not obj or not obj.pk:

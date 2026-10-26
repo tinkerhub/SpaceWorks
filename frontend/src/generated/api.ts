@@ -2817,6 +2817,7 @@ export type MachineTypePricing = {
   "rate_per_unit": string;
   "flat_fee": string;
   "payment_enabled": boolean;
+  "free_below_quantity": string;
 };
 
 export type MachineTypePricingList = {
@@ -2828,6 +2829,7 @@ export type MachineTypePricingSet = {
   "rate_per_unit": string;
   "flat_fee": string;
   "payment_enabled": boolean;
+  "free_below_quantity"?: string;
 };
 
 export type MachineUsageEntry = {
@@ -6261,6 +6263,7 @@ export type TypedManualUsage = {
   "quantity"?: string;
   "metering_unit"?: TypedManualUsageMeteringUnitEnum;
   "note"?: string;
+  "price"?: string | null;
 };
 
 export type TypedManualUsageMeteringUnitEnum = "minutes" | "weight" | "volume" | "length" | "count";
@@ -6281,6 +6284,7 @@ export type TypedManualUsageResponse = {
   "consumed_quantity": string;
   "hours": string;
   "note": string;
+  "price": string | null;
   "created_at": string;
 };
 

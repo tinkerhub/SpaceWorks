@@ -568,6 +568,20 @@ things this required, and the first two are what made it safe rather than reckle
   legacy fallback), all of whom are unscoped everywhere else. **Only machine-service was affected**:
   the booking/event/membership arm scopes `Payment` rows by makerspace and never dereferences the
   subject, which is why the bug hid — three of the four subject types were fine.
+- **Manual machine usage logs a price; it is never a payment (2026-10-24).**
+  `MachineUsageEntry.price` is what staff record for a typed manual run at the counter: blank =
+  `service_pricing.manual_usage_price` (minutes for time-metered types, consumed quantity otherwise);
+  an amount **under the type's `free_below_quantity`, in that type's own unit, is free** (weight-metered
+  types such as printers start at 20 g via `default_free_below`, every other type at 0, and each type's
+  threshold is editable on its pricing); a typed value overrides it; null
+  means the type has no price set. It needs no payments module, creates no `Payment` row and is not
+  a payment subject. A run linked to a service request gets no automatic price. Queue pricing
+  (`compute_amount`) has **no** free threshold. **Who prices:** a space manager prices every type;
+  any `MANAGE_MACHINES` holder (Machine Manager, or a role linked to the type) reads and sets rate,
+  flat fee and threshold **only for the types their role scope covers**. A role linked only to single
+  machines prices nothing: a price covers every machine of the type (`scope_covers_type`'s rule).
+  Only a space manager may change `payment_enabled` (online charging); changing the rate while it is
+  on is deliberately left to machine staff (owner decision 2026-10-26).
 - **`lifecycle.purge` (whole makerspace) still deletes every payment** and is untouched, because
   `Payment.makerspace` is `PROTECT` — the rows cannot outlive their makerspace. Preservation is a
   module-purge property only. (The archive gap noted here is **fixed** — see the archive section below.)

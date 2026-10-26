@@ -2,6 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 
 from apps.procurement.models import ToBuyItem, ToBuyReceipt
+from apps.procurement.services import stamp_status_change
 from apps.separability.tombstones import app_is_tombstoned
 from config.admin_access import SuperuserOnlyModelAdmin
 
@@ -40,6 +41,17 @@ class ToBuyItemAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # The API fixes both at creation; a moved or re-kinded item would carry the old
+        # space's machine type and audit trail.
+        return fields if obj is None else (*fields, "makerspace", "kind")
+
+    def save_model(self, request, obj, form, change):
+        previous = ToBuyItem.objects.filter(pk=obj.pk).values_list("status", flat=True).first() if change else None
+        super().save_model(request, obj, form, change)
+        stamp_status_change(obj, request.user, previous)
 
 
 class ToBuyReceiptAdmin(SuperuserOnlyModelAdmin, ModelAdmin):

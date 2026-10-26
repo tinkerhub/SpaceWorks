@@ -2,10 +2,14 @@ from django.contrib import admin, messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.core.exceptions import ValidationError
 from django.template.response import TemplateResponse
-from unfold.admin import ModelAdmin, TabularInline
+from unfold.admin import ModelAdmin
 
 from apps.makerspaces.admin_capabilities import MakerspaceAdminForm, MakerspaceCapabilityAdminMixin
 from apps.makerspaces.admin_images import MakerspaceImageAdminMixin
+from apps.makerspaces.admin_staff_membership import (
+    MakerspaceMembershipInline,
+    audit_staff_memberships,
+)
 from apps.makerspaces.admin_subdomains import SubdomainRequestAdmin
 from apps.makerspaces.admin_archive_requests import MakerspaceArchiveRequestAdmin
 from apps.makerspaces.admin_imports import (  # noqa: F401
@@ -13,7 +17,7 @@ from apps.makerspaces.admin_imports import (  # noqa: F401
     PendingImportedMembershipAdmin,
 )
 from apps.makerspaces.models import (
-    Makerspace, MakerspaceArchiveRequest, MakerspaceMembership,
+    Makerspace, MakerspaceArchiveRequest,
 )
 from config.admin_access import SuperuserOnlyModelAdmin
 
@@ -34,19 +38,6 @@ class ArchivedFilter(admin.SimpleListFilter):
         if self.value() == "no":
             return queryset.filter(archived_at__isnull=True)
         return queryset
-
-
-class MakerspaceMembershipInline(TabularInline):
-    model = MakerspaceMembership
-    fk_name = "makerspace"
-    fields = ("user", "role")
-    autocomplete_fields = ("user",)
-    extra = 0
-
-    def has_view_permission(self, request, obj=None):
-        if obj is not None and not obj.superadmin_access_enabled:
-            return False
-        return super().has_view_permission(request, obj)
 
 
 @admin.register(Makerspace)
@@ -110,6 +101,10 @@ class MakerspaceAdmin(MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
     readonly_fields = ("logo_preview", "cover_preview")
     inlines = (MakerspaceMembershipInline,)
 
+    def save_formset(self, request, form, formset, change):
+        super().save_formset(request, form, formset, change)
+        audit_staff_memberships(request, formset)
+
     def save_model(self, request, obj, form, change):
         """Initialise archive-custody state for makerspaces created via /control/.
 
@@ -118,6 +113,14 @@ class MakerspaceAdmin(MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
         custody state, which makes readiness UNDERCOUNT below-floor spaces and the API
         return null until some later recipient mutation happens to create it.
         """
+        # Compare the stored host: re-pasting `https://Alpha.com` for `alpha.com` is no change
+        # and must not send a verified domain back to pending.
+        if "frontend_domain" in form.changed_data and obj.frontend_domain != form.initial.get("frontend_domain"):
+            # Reset verification as the API does, or an old VERIFIED status would make an
+            # unproven new domain a trusted staff origin at once.
+            from apps.admin_api.serializers_makerspace_mutations import MakerspaceMutationMixin
+
+            MakerspaceMutationMixin._apply_frontend_domain_change(obj, obj.frontend_domain, True)
         super().save_model(request, obj, form, change)
         if not change:
             from apps.backup.custody import initialize_custody_state
@@ -130,7 +133,8 @@ class MakerspaceAdmin(MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
         return super().has_change_permission(request, obj)
 
     def get_inline_instances(self, request, obj=None):
-        if obj is not None and not obj.superadmin_access_enabled:
+        # A new makerspace has no roles until it is saved, so staff it from its page after.
+        if obj is None or not obj.superadmin_access_enabled:
             return []
         return super().get_inline_instances(request, obj)
 

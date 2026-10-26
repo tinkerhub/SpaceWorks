@@ -1,5 +1,9 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from rest_framework.exceptions import APIException
 from unfold.admin import ModelAdmin
+
+from apps.makerspaces.admin_staff_membership import StaffMembershipForm, audit_staff_membership
+from apps.makerspaces.membership_services import revoke_membership
 
 from apps.makerspaces.models import (
     MakerspaceMembership,
@@ -13,17 +17,47 @@ from config.admin_access import SuperuserOnlyModelAdmin
 
 @admin.register(MakerspaceMembership)
 class MakerspaceMembershipAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
-    list_display = ("user", "makerspace", "role", "created_at")
-    list_filter = ("makerspace", "role")
+    """Staff memberships: grant by picking a role, remove with the revoke action.
+
+    `role` is only the legacy mirror and `status` has side effects on revocation, so both
+    are derived here rather than typed -- see `admin_staff_membership`.
+    """
+
+    form = StaffMembershipForm
+    actions = ["revoke_memberships"]
+    list_display = ("user", "makerspace", "assigned_role", "status", "created_at")
+    list_filter = ("makerspace", "status")
     search_fields = ("user__username", "user__email")
     autocomplete_fields = ("user", "makerspace")
     readonly_fields = (
+        "role", "status", "revoked_at", "revoked_by", "revocation_reason",
         "can_refer", "can_verify", "verified_at", "verified_by", "verified_actor_snapshot",
         "activated_actor_snapshot", "revoked_actor_snapshot",
         "waiver_accepted_at", "waiver_version_accepted", "accepted_waiver",
         "witnessed_at", "witnessed_waiver_version", "witnessed_waiver",
         "witnessed_by", "witnessed_actor_snapshot", "created_at",
     )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change or form.changed_data:
+            audit_staff_membership(request.user, obj, created=not change)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.action(description="Revoke selected memberships")
+    def revoke_memberships(self, request, queryset):
+        revoked = 0
+        for membership in queryset:
+            try:
+                revoke_membership(request.user, membership, reason="Revoked from /control/")
+            except APIException as exc:
+                self.message_user(request, f"{membership}: {exc.detail}", level=messages.ERROR)
+            else:
+                revoked += 1
+        if revoked:
+            self.message_user(request, f"Revoked {revoked} membership(s).", level=messages.SUCCESS)
 
 
 @admin.register(MakerspaceWaiver)

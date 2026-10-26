@@ -63,6 +63,8 @@ class TypedManualUsageSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(required=False, max_digits=12, decimal_places=2, min_value=Decimal("0"))
     metering_unit = serializers.ChoiceField(choices=("minutes", "weight", "volume", "length", "count"), required=False)
     note = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    # Omitted or null: priced from the machine type's pricing. A number overrides it.
+    price = serializers.DecimalField(required=False, allow_null=True, max_digits=12, decimal_places=2, min_value=Decimal("0"))
 
 
 class TypedManualUsageResponseSerializer(serializers.ModelSerializer):
@@ -72,5 +74,5 @@ class TypedManualUsageResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MachineUsageEntry
-        fields = ("id", "machine_id", "consumable_pool_id", "service_request_id", "duration_minutes", "outcome", "percent_complete", "reason", "consumed_grams", "metering_unit", "consumed_quantity", "hours", "note", "created_at")
+        fields = ("id", "machine_id", "consumable_pool_id", "service_request_id", "duration_minutes", "outcome", "percent_complete", "reason", "consumed_grams", "metering_unit", "consumed_quantity", "hours", "note", "price", "created_at")
         read_only_fields = fields

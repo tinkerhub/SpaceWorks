@@ -184,3 +184,21 @@ def _topup_product(item, product_id):
         )
     except InventoryProduct.DoesNotExist as exc:
         raise Http404() from exc
+
+
+def stamp_status_change(item, actor, previous_status):
+    """Record who ordered/received an item when its status moves; shared by API and admin."""
+    updates = []
+    now = timezone.now()
+    if previous_status != item.status and item.status == ToBuyItem.Status.ORDERED and item.ordered_at is None:
+        item.ordered_at = now
+        item.purchaser = actor
+        updates.extend(["ordered_at", "purchaser"])
+    if previous_status != item.status and item.status == ToBuyItem.Status.RECEIVED and item.received_at is None:
+        item.received_at = now
+        updates.append("received_at")
+        if item.purchaser_id is None:
+            item.purchaser = actor
+            updates.append("purchaser")
+    if updates:
+        item.save(update_fields=[*updates, "updated_at"])

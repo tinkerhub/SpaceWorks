@@ -7,7 +7,7 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from unfold.admin import ModelAdmin
 
-from apps.apiclients.admin_forms import ApiClientAdminForm
+from apps.apiclients.admin_forms import ApiClientAdminForm, save_makerspace_settings
 from apps.apiclients.models import ApiClient, ApiClientImportApproval, ApiKeyRequest
 from apps.apiclients.notifications import notify_api_key_request_resolved
 from apps.apiclients.scope_registry import LEGACY_SCOPE
@@ -73,9 +73,17 @@ class ApiClientAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
             obj.created_by = request.user
             new_secret = secrets.token_urlsafe(32)
             obj.set_secret(new_secret)
+        moved_from = None
+        if change and "makerspace" in form.changed_data:
+            moved_from = ApiClient.objects.get(pk=obj.pk).makerspace
         super().save_model(request, obj, form, change)
-        self._save_makerspace_settings(obj, form)
+        # The settings fields were filled from the OLD makerspace; copying them onto the
+        # new one would overwrite its mail and chat config with another space's.
+        if moved_from is None:
+            save_makerspace_settings(obj.makerspace, form)
         sync_makerspace_origins(obj.makerspace)
+        if moved_from is not None:
+            sync_makerspace_origins(moved_from)
         if new_secret:
             messages.warning(
                 request,
@@ -92,37 +100,6 @@ class ApiClientAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         super().delete_queryset(request, queryset)
         for makerspace in makerspaces:
             sync_makerspace_origins(makerspace)
-
-    def _save_makerspace_settings(self, obj, form):
-        if not obj.makerspace_id:
-            return
-        makerspace = obj.makerspace
-        text_fields = [
-            "telegram_group_chat_id",
-            "smtp_host",
-            "smtp_username",
-            "smtp_from_email",
-        ]
-        for field in text_fields:
-            setattr(makerspace, field, form.cleaned_data.get(field) or "")
-        if form.cleaned_data.get("telegram_bot_token"):
-            makerspace.set_telegram_bot_token(form.cleaned_data["telegram_bot_token"])
-        if form.cleaned_data.get("smtp_password"):
-            makerspace.set_smtp_password(form.cleaned_data["smtp_password"])
-        makerspace.smtp_port = form.cleaned_data.get("smtp_port") or 587
-        makerspace.smtp_use_tls = bool(form.cleaned_data.get("smtp_use_tls"))
-        makerspace.smtp_use_ssl = bool(form.cleaned_data.get("smtp_use_ssl"))
-        makerspace.save(
-            update_fields=[
-                *text_fields,
-                "telegram_bot_token",
-                "smtp_password",
-                "smtp_port",
-                "smtp_use_tls",
-                "smtp_use_ssl",
-                "updated_at",
-            ]
-        )
 
     @admin.display(description="Makerspace code")
     def makerspace_public_code(self, obj):
@@ -144,8 +121,18 @@ class ApiKeyRequestAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         "updated_at",
         "resolved_by",
         "resolved_at",
+        # Approval issues the client and notifies; use the actions, not the field.
+        "status",
     )
     search_fields = ("label",)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # The note rides along in the requester's notification, so it is typed while the
+        # request is pending and frozen once an action has resolved it.
+        if obj is not None and obj.status != ApiKeyRequest.Status.PENDING:
+            return (*fields, "resolution_note")
+        return fields
 
     @admin.action(description="Approve selected API key requests and issue clients")
     def approve_and_issue(self, request, queryset):

@@ -17,7 +17,6 @@ import { useServiceDrafts } from "./machine/serviceDrafts";
 import { MachineTypesPanel } from "./MachineTypesPanel";
 import { NotificationRecipientPicker } from "../NotificationRecipientPicker";
 import { useStaffGet } from "./shared";
-import { useConsoleModule } from "./machine/useConsoleModule";
 
 type Props = {
   makerspaceId: number;
@@ -55,7 +54,6 @@ export function MachinesPanel({
   // would discard a half-typed service form on every navigation -- the drafts previously
   // survived section collapse for exactly that reason.
   const { draftFor, setDraft } = useServiceDrafts();
-  const paymentsOn = useConsoleModule(makerspaceId, "payments");
 
   const machines = useQuery({ queryKey: machineKeys.list(makerspaceId), queryFn: () => getMachines(makerspaceId) });
   const machineTypes = useQuery({ queryKey: machineKeys.types(makerspaceId), queryFn: () => getMachineTypes(makerspaceId) });
@@ -219,8 +217,8 @@ export function MachinesPanel({
           unreachable for an actor who only ever has one type. */}
       {!onTypePage ? (
         <div className="grid gap-4 border-t border-line pt-6">
-          <SectionHeading title="Setup" description={`Machine types${paymentsOn ? " and pricing" : ""}, who gets notified, and consumables shared across the space.`} />
-          <MachineTypesPanel makerspaceId={makerspaceId} canConfigureMachineTypes={canConfigureMachineTypes} />
+          <SectionHeading title="Setup" description="Machine types and pricing, who gets notified, and consumables shared across the space." />
+          <MachineTypesPanel makerspaceId={makerspaceId} canConfigureMachineTypes={canConfigureMachineTypes} canEditPricing={canConfigureMachineTypes || canManage} />
 
           {maintenanceEnabled && delegatedRecipientRulesEnabled ? (
             <NotificationRecipientPicker delegated makerspaceId={makerspaceId} />

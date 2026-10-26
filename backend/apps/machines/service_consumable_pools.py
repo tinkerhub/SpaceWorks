@@ -210,7 +210,7 @@ def retire_pool(pool, actor, *, reason):
 
 
 @transaction.atomic
-def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent_complete, reason="", grams=0, quantity=None, metering_unit=None, pool=None, service_request=None, note=""):
+def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent_complete, reason="", grams=0, quantity=None, metering_unit=None, pool=None, service_request=None, note="", price=None):
     machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=machine.pk)
     if outcome not in {"success", "failed"}:
         raise ValidationError({"outcome": "Outcome must be success or failed."})
@@ -241,7 +241,7 @@ def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent
         source=MachineUsageEntry.Source.TYPED_MANUAL, service_request=service_request, consumable_pool=pool,
         duration_minutes=duration_minutes, outcome=outcome, percent_complete=percent_complete,
         reason=str(reason).strip(), consumed_grams=grams, note=str(note).strip(), logged_by=actor,
-        metering_unit=usage_unit, consumed_quantity=quantity,
+        metering_unit=usage_unit, consumed_quantity=quantity, price=price,
     )
     if quantity:
         if pool is None:
@@ -250,7 +250,7 @@ def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent
     audit.record(
         actor, "machine.typed_usage_logged", makerspace=machine.makerspace, target=entry,
         meta={"machine_id": machine.pk, "usage_entry_id": entry.pk, "duration_minutes": duration_minutes,
-              "outcome": outcome, "grams": str(grams), "quantity": str(quantity), "metering_unit": usage_unit},
+              "outcome": outcome, "grams": str(grams), "quantity": str(quantity), "metering_unit": usage_unit, "price": None if price is None else str(price)},
     )
     return entry
 
