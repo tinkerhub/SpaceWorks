@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { AuthLayout } from "../../components/chrome/AuthLayout";
 import { Button, ErrorText, buttonClasses } from "../../components/ui";
 import { NewPasswordFields } from "./NewPasswordFields";
-import { CONFIRM_FAILURE_MESSAGE, confirmLegacyPasswordReset } from "./passwordRecovery";
+import { CONFIRM_FAILURE_MESSAGE, confirmLegacyPasswordReset, signInPath } from "./passwordRecovery";
 
 export function LegacyPasswordResetForm({ uid, token }: { uid: string; token: string }) {
+  const signInHref = signInPath(useLocation().search);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -32,7 +33,7 @@ export function LegacyPasswordResetForm({ uid, token }: { uid: string; token: st
   if (updated) {
     return (
       <AuthLayout kicker="Account access" title="Password updated" description="Your password has been updated. You can now sign in.">
-        <Link className={buttonClasses({ variant: "primary", fullWidth: true })} to="/admin">Go to sign in</Link>
+        <Link className={buttonClasses({ variant: "primary", fullWidth: true })} to={signInHref}>Go to sign in</Link>
       </AuthLayout>
     );
   }

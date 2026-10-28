@@ -154,7 +154,7 @@ FIRST_PARTY_FIELD_NAMES = {
     'machines.RoleMachineTypeScope': frozenset('created_at id machine_type role'.split()),
     'machines.RoleMachineScope': frozenset('created_at id machine role'.split()),
     'machines.MachineType': frozenset('capability_config icon id is_builtin makerspace managing_action name slug'.split()),
-    'machines.MakerspaceMachineTypePricing': frozenset('created_at created_by flat_fee free_below_quantity id machine_type makerspace payment_enabled rate_per_unit updated_at updated_by'.split()),
+    'machines.MakerspaceMachineTypePricing': frozenset('created_at created_by flat_fee free_below_quantity id machine_type makerspace metering_unit_override payment_enabled rate_per_unit requires_booking_override updated_at updated_by uses_consumables_override'.split()),
     'machines.Machine': frozenset('camera_feed_url created_at created_by firmware_version id image_key is_active is_public legacy_print_printer_id location machine_type makerspace name notes service_file_policy status type_payload updated_at'.split()),
     'machines.MachineOperator': frozenset('access_level assigned_at assigned_by id machine user'.split()),
     'machines.MachineUsageEntry': frozenset('consumable_pool consumed_grams consumed_quantity contact_email contact_phone created_at duration_minutes hours id legacy_manual_print_log_id logged_by machine metering_unit note outcome percent_complete price reason requester_name service_request source title'.split()),

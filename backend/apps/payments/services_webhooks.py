@@ -74,14 +74,14 @@ def apply_webhook_event(
             payment.stripe_checkout_session_expired_at = timezone.now()
             payment.stripe_checkout_session_id = None
             payment.stripe_checkout_url = ""
-            payment.save(
-                update_fields=[
-                    "stripe_checkout_session_expired_at",
-                    "stripe_checkout_session_id",
-                    "stripe_checkout_url",
-                    "updated_at",
-                ]
-            )
+            # The generic columns mirror the Stripe ones (see services.py); left set,
+            # create_checkout_url would keep handing out this dead link forever.
+            payment.external_order_id = None
+            payment.checkout_url = ""
+            payment.save(update_fields=[
+                "stripe_checkout_session_expired_at", "stripe_checkout_session_id",
+                "stripe_checkout_url", "external_order_id", "checkout_url", "updated_at",
+            ])
             audit.record(
                 None,
                 "payment.checkout_expired",

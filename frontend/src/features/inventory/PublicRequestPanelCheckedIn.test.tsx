@@ -193,6 +193,25 @@ describe("checked-in borrow requests", () => {
     expect(screen.queryByText(/your email/i)).not.toBeInTheDocument();
   });
 
+  it("clears the confirmed identity after a submit so the next person starts fresh", async () => {
+    lookupCheckin.mockResolvedValue([ELIGIBLE]);
+    renderPanel();
+    await waitFor(() => expect(screen.getByLabelText(/your name/i)).toBeInTheDocument());
+    await confirmIdentity();
+    expect(await screen.findByText("Ada Example")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/request purpose/i), {
+      target: { value: "Bench testing" },
+    });
+    const submit = screen.getByRole("button", { name: /submit request/i });
+    await waitFor(() => expect(submit).toBeEnabled());
+    fireEvent.click(submit);
+
+    expect(await screen.findByText("tok-abc-123")).toBeInTheDocument();
+    expect(screen.queryByText("Ada Example")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/your name/i)).toHaveValue("");
+    expect(screen.getByLabelText(/your name/i)).toBeEnabled();
+  });
+
   it("keeps signed-in staff on the check-in roster", async () => {
     // `RequestSubmitView` has no account bypass on `checked_in`: staff borrowing from the
     // public page are matched against the roster like any visitor, and the panel never

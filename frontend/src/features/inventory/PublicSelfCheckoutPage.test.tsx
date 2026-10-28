@@ -5,17 +5,23 @@
  * every submit is refused, so the page says it is unavailable instead.
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { useMakerspacePublic, useModules } = vi.hoisted(() => ({
+const { useMakerspacePublic, useModules, getAccessToken, refreshAccessToken } = vi.hoisted(() => ({
   useMakerspacePublic: vi.fn(),
   useModules: vi.fn(),
+  getAccessToken: vi.fn(),
+  refreshAccessToken: vi.fn(),
 }));
 
 vi.mock("./useMakerspacePublic", () => ({ useMakerspacePublic }));
 vi.mock("../../lib/modules", () => ({ useModules }));
+vi.mock("../../lib/api", async () => {
+  const actual = await vi.importActual<typeof import("../../lib/api")>("../../lib/api");
+  return { ...actual, getAccessToken, refreshAccessToken };
+});
 
 import { PublicSelfCheckoutPage } from "./PublicSelfCheckoutPage";
 
@@ -51,6 +57,9 @@ describe("public self-checkout availability", () => {
   beforeEach(() => {
     useMakerspacePublic.mockReset();
     useModules.mockReset();
+    getAccessToken.mockReturnValue("");
+    refreshAccessToken.mockReset();
+    refreshAccessToken.mockResolvedValue(true);
   });
 
   it("serves the roster form on a checked-in space with membership off", () => {
@@ -72,5 +81,22 @@ describe("public self-checkout availability", () => {
 
     expect(screen.queryByText(/not enabled/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/as it appears/i)).not.toBeInTheDocument();
+  });
+
+  it("restores a reloaded member's session before showing the form", async () => {
+    renderPage({ modules: [...CORE, "membership", "member_accounts"] });
+
+    await waitFor(() => expect(refreshAccessToken).toHaveBeenCalled());
+    expect(await screen.findByRole("button", { name: /scan another|scan qr/i })).toBeInTheDocument();
+    expect(screen.queryByText(/sign in to continue/i)).not.toBeInTheDocument();
+  });
+
+  it("asks a signed-out visitor to sign in before the form", async () => {
+    refreshAccessToken.mockResolvedValue(false);
+    renderPage({ modules: [...CORE, "membership", "member_accounts"] });
+
+    expect(await screen.findByText(/sign in to continue/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/m/forge/member");
+    expect(screen.queryByRole("button", { name: /scan another|scan qr/i })).not.toBeInTheDocument();
   });
 });

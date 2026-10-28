@@ -147,6 +147,7 @@ export function PublicInventoryPage() {
               selfCheckout={featureEnabled(bootstrap?.features ?? [], "inventory.self_checkout")}
               memberAccountsOn={moduleEnabled("member_accounts")}
               memberAreaHref={`${space.header.homePath.replace(/\/+$/, "")}/member`}
+              requestStatusHref={`${space.header.homePath.replace(/\/+$/, "")}/request`}
             />
           </div>
         </div>

@@ -33,6 +33,13 @@ def _makerspace(request, makerspace_id):
     )
 
 
+def _unknown_scope_response(exc):
+    return Response(
+        {"detail": "Unknown scope target.", "unknown": exc.missing},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+
 def _queryset(makerspace):
     return NotificationDestination.objects.filter(makerspace=makerspace).prefetch_related(
         "machine_scopes", "machine_type_scopes", "category_scopes"
@@ -72,32 +79,31 @@ class NotificationDestinationListView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        with transaction.atomic():
-            destination = NotificationDestination(
-                makerspace=makerspace,
-                channel=data["channel"],
-                label=data["label"],
-                telegram_chat_id=(data.get("telegram_chat_id") or "").strip(),
-                is_active=data.get("is_active", True),
-            )
-            raw = (data.get("webhook_url") or "").strip()
-            if raw:
-                destination.set_webhook_url(raw)
-            destination.save()
-            try:
-                apply_scope(destination, data.get("scope"), makerspace)
-            except ScopeTargetError as exc:
-                return Response(
-                    {"detail": "Unknown scope target.", "unknown": exc.missing},
-                    status=status.HTTP_400_BAD_REQUEST,
+        try:
+            # The error is caught OUTSIDE the atomic block so it rolls the save back: an
+            # unscoped room receives every alert, so it must never commit on a 400.
+            with transaction.atomic():
+                destination = NotificationDestination(
+                    makerspace=makerspace,
+                    channel=data["channel"],
+                    label=data["label"],
+                    telegram_chat_id=(data.get("telegram_chat_id") or "").strip(),
+                    is_active=data.get("is_active", True),
                 )
-            audit.record(
-                request.user,
-                "notification.destination_created",
-                makerspace=makerspace,
-                target=makerspace,
-                meta={"channel": destination.channel, "label": destination.label},
-            )
+                raw = (data.get("webhook_url") or "").strip()
+                if raw:
+                    destination.set_webhook_url(raw)
+                destination.save()
+                apply_scope(destination, data.get("scope"), makerspace)
+                audit.record(
+                    request.user,
+                    "notification.destination_created",
+                    makerspace=makerspace,
+                    target=makerspace,
+                    meta={"channel": destination.channel, "label": destination.label},
+                )
+        except ScopeTargetError as exc:
+            return _unknown_scope_response(exc)
         return Response(
             NotificationDestinationSerializer(destination).data,
             status=status.HTTP_201_CREATED,
@@ -128,34 +134,32 @@ class NotificationDestinationDetailView(APIView):
         payload.is_valid(raise_exception=True)
         data = payload.validated_data
 
-        with transaction.atomic():
-            destination.label = data["label"]
-            destination.telegram_chat_id = (data.get("telegram_chat_id") or "").strip()
-            destination.is_active = data.get("is_active", True)
-            raw = (data.get("webhook_url") or "").strip()
-            if raw:
-                # Blank means "keep the stored credential": the caller cannot read it back,
-                # so requiring it on every edit would force a re-entry to rename a room.
-                destination.set_webhook_url(raw)
-            destination.save()
-            try:
+        try:
+            # Caught outside the atomic block so a bad scope rolls back the field edits too.
+            with transaction.atomic():
+                destination.label = data["label"]
+                destination.telegram_chat_id = (data.get("telegram_chat_id") or "").strip()
+                destination.is_active = data.get("is_active", True)
+                raw = (data.get("webhook_url") or "").strip()
+                if raw:
+                    # Blank means "keep the stored credential": the caller cannot read it
+                    # back, so requiring it on every edit would force a re-entry to rename.
+                    destination.set_webhook_url(raw)
+                destination.save()
                 apply_scope(destination, data.get("scope"), makerspace)
-            except ScopeTargetError as exc:
-                return Response(
-                    {"detail": "Unknown scope target.", "unknown": exc.missing},
-                    status=status.HTTP_400_BAD_REQUEST,
+                audit.record(
+                    request.user,
+                    "notification.destination_updated",
+                    makerspace=makerspace,
+                    target=makerspace,
+                    meta={
+                        "destination_id": destination.pk,
+                        "channel": destination.channel,
+                        "credential_changed": bool(raw),
+                    },
                 )
-            audit.record(
-                request.user,
-                "notification.destination_updated",
-                makerspace=makerspace,
-                target=makerspace,
-                meta={
-                    "destination_id": destination.pk,
-                    "channel": destination.channel,
-                    "credential_changed": bool(raw),
-                },
-            )
+        except ScopeTargetError as exc:
+            return _unknown_scope_response(exc)
         destination = _queryset(makerspace).get(pk=destination.pk)
         return Response(NotificationDestinationSerializer(destination).data)
 

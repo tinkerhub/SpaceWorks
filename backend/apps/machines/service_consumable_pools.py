@@ -231,11 +231,13 @@ def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent
         service_request = MachineServiceRequest.objects.select_for_update().get(pk=service_request.pk)
         if service_request.makerspace_id != machine.makerspace_id:
             raise ValidationError({"service_request": "Service request must belong to this makerspace."})
-    usage_unit = metering_unit or (metering_unit_for_pool(pool.unit) if pool else None) or MeteringUnit.WEIGHT
+    usage_unit = metering_unit or (metering_unit_for_pool(pool.unit) if pool else None) or effective_metering_unit(machine.machine_type, machine.makerspace_id)
     if usage_unit not in MeteringUnit.values:
         raise ValidationError({"metering_unit": "Unsupported metering unit."})
     if pool is not None and metering_unit_for_pool(pool.unit) != usage_unit:
         raise ValidationError({"metering_unit": "Consumable pool unit is incompatible with this metering unit."})
+    if quantity and pool is None and (usage_unit == MeteringUnit.MINUTES or usage_unit != effective_metering_unit(machine.machine_type, machine.makerspace_id)):
+        raise ValidationError({"consumable_pool": "A consumable pool is required when quantity is recorded."})
     entry = MachineUsageEntry.objects.create(
         machine=machine, hours=(Decimal(duration_minutes) * Decimal(percent_complete) / Decimal("6000")).quantize(Decimal("0.01")),
         source=MachineUsageEntry.Source.TYPED_MANUAL, service_request=service_request, consumable_pool=pool,
@@ -243,9 +245,7 @@ def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent
         reason=str(reason).strip(), consumed_grams=grams, note=str(note).strip(), logged_by=actor,
         metering_unit=usage_unit, consumed_quantity=quantity, price=price,
     )
-    if quantity:
-        if pool is None:
-            raise ValidationError({"consumable_pool": "A consumable pool is required when quantity is recorded."})
+    if quantity and pool is not None:
         _apply(pool, actor, kind=MachineConsumableAdjustment.Kind.MANUAL, delta=-quantity, usage_entry=entry, service_request=service_request, reason=reason, metering_unit=usage_unit)
     audit.record(
         actor, "machine.typed_usage_logged", makerspace=machine.makerspace, target=entry,
@@ -255,6 +255,7 @@ def log_typed_manual_usage(machine, actor, *, duration_minutes, outcome, percent
     return entry
 
 from apps.machines.metering import MeteringUnit, metering_unit_for_pool
+from apps.machines.type_settings import effective_metering_unit, type_pool_unit
 from apps.machines.service_metering import _apply as _metered_apply
 from apps.machines.service_metering import reconcile_request as _metered_reconcile
 from apps.machines.service_metering import reserve_for_request as _metered_reserve
@@ -277,9 +278,9 @@ _legacy_create_pool = create_pool
 
 
 @transaction.atomic
-def create_pool(makerspace, actor, *, material, initial_grams=None, quantity=None, machine=None, machine_type=None, color="", color_hex="", brand="", lot_code="", low_threshold_grams=None, unit="grams", is_public=True):
+def create_pool(makerspace, actor, *, material, initial_grams=None, quantity=None, machine=None, machine_type=None, color="", color_hex="", brand="", lot_code="", low_threshold_grams=None, unit=None, is_public=True):
     from apps.machines.metering import ConsumablePoolUnit
-    if unit not in ConsumablePoolUnit.values:
+    if unit is not None and unit not in ConsumablePoolUnit.values:
         raise ValidationError({"unit": "Unsupported consumable pool unit."})
     if initial_grams is None:
         initial_grams = quantity
@@ -288,8 +289,7 @@ def create_pool(makerspace, actor, *, material, initial_grams=None, quantity=Non
     if initial_grams is None:
         raise ValidationError({"quantity": "A starting quantity is required."})
     scoped_type = machine.machine_type if machine is not None else machine_type
-    if is_printer_type(scoped_type) and unit != ConsumablePoolUnit.GRAMS:
-        raise ValidationError({"unit": "Printer consumable pools use grams."})
+    unit = type_pool_unit(scoped_type, makerspace.pk, unit) if scoped_type is not None else unit or ConsumablePoolUnit.GRAMS
     pool = _legacy_create_pool(makerspace, actor, material=material, initial_grams=initial_grams,
                                machine=machine, machine_type=machine_type, color=color, color_hex=color_hex, brand=brand,
                                lot_code=lot_code, low_threshold_grams=low_threshold_grams,

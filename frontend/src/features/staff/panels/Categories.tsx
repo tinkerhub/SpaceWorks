@@ -186,7 +186,7 @@ export function Categories({ makerspace }: { makerspace: Makerspace }) {
         <Card as="section" aria-labelledby="new-category-heading">
           <h2 id="new-category-heading" className="mb-4 text-title text-ink">New category</h2>
           <form
-            className="grid gap-4 md:grid-cols-[100px_1fr_1fr_100px_1fr_auto] md:items-end"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[100px_1fr_1fr_100px_1fr_auto] xl:items-end"
             onSubmit={(event) => {
               event.preventDefault();
               if (form.name.trim() && !create.isPending) create.mutate();
@@ -197,9 +197,11 @@ export function Categories({ makerspace }: { makerspace: Makerspace }) {
             <Field label="Slug" optional><Input placeholder="From the name" value={form.slug} onChange={(event) => setNew("slug", event.target.value)} /></Field>
             <Field label="Order" optional><Input type="number" value={form.display_order} onChange={(event) => setNew("display_order", event.target.value)} /></Field>
             <Field label="Icon" optional><Input value={form.icon} onChange={(event) => setNew("icon", event.target.value)} /></Field>
-            <Button variant="primary" type="submit" startIcon={<Plus />} loading={create.isPending} disabled={!form.name.trim()}>
-              Add category
-            </Button>
+            <div className="flex justify-end sm:col-span-2 lg:col-span-3 xl:col-span-1">
+              <Button variant="primary" type="submit" startIcon={<Plus />} loading={create.isPending} disabled={!form.name.trim()}>
+                Add category
+              </Button>
+            </div>
           </form>
           {create.error ? <div className="mt-3"><ErrorText message={create.error.message} /></div> : null}
         </Card>

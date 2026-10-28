@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Button, CheckboxField, Chip, Dropdown, Field, Input } from "../../../../components/ui";
+import { Button, CheckboxField, Dropdown, Field, Input, SwitchRow } from "../../../../components/ui";
 import {
   getMachineTypePricing,
   machineKeys,
@@ -13,6 +13,9 @@ import {
 } from "../../machinesApi";
 import { CapabilityPresetListEditor } from "./CapabilityPresetListEditor";
 import { useNotify } from "./machineUi";
+import { configFor, effectiveConfig } from "./typeConfig";
+
+export { configFor } from "./typeConfig";
 
 export const meteringUnits: Array<{ value: MeteringUnit; label: string }> = [
   { value: "weight", label: "Weight (grams)" },
@@ -21,14 +24,8 @@ export const meteringUnits: Array<{ value: MeteringUnit; label: string }> = [
   { value: "count", label: "Count" },
   { value: "minutes", label: "Minutes" },
 ];
-export const defaultConfig: MachineTypeCapabilityConfig = { metering_unit: "count", requires_booking: false };
-
-export function configFor(machineType: MachineType): MachineTypeCapabilityConfig {
-  const config = machineType.capability_config;
-  return config && meteringUnits.some((unit) => unit.value === config.metering_unit)
-    ? config
-    : defaultConfig;
-}
+/** Starting values of the New machine type form (a choice the manager edits, not a fallback). */
+export const defaultConfig: MachineTypeCapabilityConfig = { metering_unit: "count", requires_booking: false, uses_consumables: true };
 
 type PresetKey = "accepted_materials" | "accepted_colours";
 
@@ -39,18 +36,28 @@ function withPresetList(config: MachineTypeCapabilityConfig, key: PresetKey, val
   return next;
 }
 
-/** Metering unit, booking and the material / colour presets: the shared body of both type forms. */
-export function CapabilityFields({ config, disabled = false, showBooking = true, onChange }: {
+/** Leaving minutes for a stock unit starts with consumables on: that is the stock units' default. */
+function withUnit(config: MachineTypeCapabilityConfig, unit: MeteringUnit): MachineTypeCapabilityConfig {
+  const leavingMinutes = config.metering_unit === "minutes" && unit !== "minutes";
+  return { ...config, metering_unit: unit, uses_consumables: leavingMinutes ? true : config.uses_consumables };
+}
+
+/** Metering unit, booking, consumables and the material / colour presets: the shared body of the type forms. */
+export function CapabilityFields({ config, disabled = false, showBooking = true, showPresets = true, meteringLocked = false, onChange }: {
   config: MachineTypeCapabilityConfig;
   disabled?: boolean;
   /** "Requires booking" only means something while the bookings module is on. */
   showBooking?: boolean;
+  /** Built-in types keep their material and colour presets. */
+  showPresets?: boolean;
+  /** The 3D printer is always weight-metered and always draws from filament pools. */
+  meteringLocked?: boolean;
   onChange: (config: MachineTypeCapabilityConfig) => void;
 }) {
   return (
     <>
       <Field label="Metering unit">
-        <Dropdown value={config.metering_unit} disabled={disabled} onChange={(event) => onChange({ ...config, metering_unit: event.target.value as MeteringUnit })}>
+        <Dropdown value={config.metering_unit} disabled={disabled || meteringLocked} onChange={(event) => onChange(withUnit(config, event.target.value as MeteringUnit))}>
           {meteringUnits.map((unit) => <option key={unit.value} value={unit.value}>{unit.label}</option>)}
         </Dropdown>
       </Field>
@@ -64,22 +71,35 @@ export function CapabilityFields({ config, disabled = false, showBooking = true,
           onCheckedChange={(checked) => onChange({ ...config, requires_booking: checked === true })}
         />
       ) : null}
-      <div className="grid gap-3 sm:col-span-full md:grid-cols-2">
-        <CapabilityPresetListEditor
-          label="Materials"
-          singularLabel="Material"
-          values={config.accepted_materials ?? []}
-          disabled={disabled}
-          onChange={(values) => onChange(withPresetList(config, "accepted_materials", values))}
+      {/* Time is never drawn from a stock pool, so the switch only exists for stock units. */}
+      {config.metering_unit !== "minutes" ? (
+        <SwitchRow
+          className="rounded-lg border border-line p-3 sm:col-span-full"
+          label="Uses consumables"
+          description="Jobs draw from stock pools kept in this unit."
+          checked={config.uses_consumables !== false}
+          disabled={disabled || meteringLocked}
+          onCheckedChange={(checked) => onChange({ ...config, uses_consumables: checked })}
         />
-        <CapabilityPresetListEditor
-          label="Colours"
-          singularLabel="Colour"
-          values={config.accepted_colours ?? []}
-          disabled={disabled}
-          onChange={(values) => onChange(withPresetList(config, "accepted_colours", values))}
-        />
-      </div>
+      ) : null}
+      {showPresets ? (
+        <div className="grid gap-3 sm:col-span-full md:grid-cols-2">
+          <CapabilityPresetListEditor
+            label="Materials"
+            singularLabel="Material"
+            values={config.accepted_materials ?? []}
+            disabled={disabled}
+            onChange={(values) => onChange(withPresetList(config, "accepted_materials", values))}
+          />
+          <CapabilityPresetListEditor
+            label="Colours"
+            singularLabel="Colour"
+            values={config.accepted_colours ?? []}
+            disabled={disabled}
+            onChange={(values) => onChange(withPresetList(config, "accepted_colours", values))}
+          />
+        </div>
+      ) : null}
     </>
   );
 }
@@ -103,7 +123,9 @@ export function PricingEditor({ makerspaceId, machineType, currency, canEdit, ca
   const [flatFee, setFlatFee] = useState("");
   const [paymentEnabled, setPaymentEnabled] = useState<boolean | null>(null);
   const [freeBelow, setFreeBelow] = useState("");
-  const unit = FREE_BELOW_UNITS[machineType.capability_config?.metering_unit || "weight"] ?? "units";
+  const unit = FREE_BELOW_UNITS[effectiveConfig(machineType).metering_unit] ?? "units";
+  // Upper-case for display, and no "(...)" suffix at all until the currency is known.
+  const money = currency ? ` (${currency.toUpperCase()})` : "";
   const mutation = useMutation({
     mutationFn: () => setMachineTypePricing(makerspaceId, machineType.id, {
       rate_per_unit: rate || row?.rate_per_unit || "0.00",
@@ -128,20 +150,22 @@ export function PricingEditor({ makerspaceId, machineType, currency, canEdit, ca
   return (
     <div className="grid gap-3 border-t border-line pt-4">
       <h4 className="text-label text-ink">Pricing</h4>
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-        <Field label={`Rate per unit (${currency})`}>
+      <div className="grid items-start gap-3 sm:grid-cols-2 md:grid-cols-3">
+        <Field label={`Rate per unit${money}`}>
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownRate} onChange={(event) => setRate(event.target.value)} />
         </Field>
-        <Field label={`Flat fee (${currency})`}>
+        <Field label={`Flat fee${money}`}>
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownFlatFee} onChange={(event) => setFlatFee(event.target.value)} />
         </Field>
         <Field label={`Free below (${unit})`} helperText="Manual usage under this is logged as free.">
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={shownFreeBelow} onChange={(event) => setFreeBelow(event.target.value)} />
         </Field>
-        {/* Saving before the stored row loads would overwrite it with the zero placeholders. */}
-        <Button onClick={() => mutation.mutate()} loading={mutation.isPending} loadingLabel="Saving…" disabled={!pricing.isSuccess}>Save pricing</Button>
         {/* Online charging needs the payments module; the price itself is also what manual usage logs. */}
         {paymentsOn && canTogglePayment ? <CheckboxField className="sm:col-span-full" label="Enable payment" checked={shownEnabled} onCheckedChange={(checked) => setPaymentEnabled(checked === true)} /> : null}
+        <div className="flex justify-end sm:col-span-2 md:col-span-3">
+          {/* Saving before the stored row loads would overwrite it with the zero placeholders. */}
+          <Button onClick={() => mutation.mutate()} loading={mutation.isPending} loadingLabel="Saving…" disabled={!pricing.isSuccess}>Save pricing</Button>
+        </div>
       </div>
       {pricing.isLoading ? <p className="text-caption text-ink-muted" role="status">Loading pricing…</p> : null}
       {pricing.error instanceof Error ? <p className="text-caption text-danger-fg">{pricing.error.message}</p> : null}
@@ -184,26 +208,6 @@ export function CustomTypeRow({ makerspaceId, machineType, canConfigure, canEdit
           <Button className="justify-self-start sm:col-span-full" type="submit" loading={rename.isPending} loadingLabel="Saving…" disabled={!name.trim()}>Save type</Button>
         ) : null}
       </form>
-      <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canEdit={canEditPricing} canTogglePayment={canConfigure} paymentsOn={paymentsOn} />
-    </li>
-  );
-}
-
-export function BuiltinTypeRow({ makerspaceId, machineType, canConfigure, canEditPricing = canConfigure, currency, paymentsOn = true }: {
-  makerspaceId: number; machineType: MachineType; canConfigure: boolean; canEditPricing?: boolean; currency: string; paymentsOn?: boolean;
-}) {
-  const config = configFor(machineType);
-  return (
-    <li className="grid gap-4 rounded-lg border border-line bg-canvas p-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <span className="min-w-0">
-          <h3 className="text-title text-ink">{machineType.icon ? `${machineType.icon} ` : ""}{machineType.name}</h3>
-          <span className="text-caption text-ink-muted">
-            <span className="font-mono">{machineType.slug}</span> · {meteringUnits.find((unit) => unit.value === config.metering_unit)?.label ?? config.metering_unit} · {config.requires_booking ? "Booking required" : "No booking"}
-          </span>
-        </span>
-        <Chip size="sm">Built-in · settings fixed</Chip>
-      </div>
       <PricingEditor makerspaceId={makerspaceId} machineType={machineType} currency={currency} canEdit={canEditPricing} canTogglePayment={canConfigure} paymentsOn={paymentsOn} />
     </li>
   );

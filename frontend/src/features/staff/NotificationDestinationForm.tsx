@@ -62,8 +62,10 @@ export function DestinationForm({
           }),
         },
       ),
+    // Settled, not just success: a failed write can still have changed the server's
+    // list (or raced another tab), so the cached rooms must be refetched either way.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: DESTINATIONS_KEY(makerspaceId) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: DESTINATIONS_KEY(makerspaceId) });
       showToast(destination ? "Room saved" : "Room added", { tone: "success" });
       onDone();
     },

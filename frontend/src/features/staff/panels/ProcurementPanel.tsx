@@ -36,11 +36,13 @@ import { emptyProcurementForm, ProcurementCreateDialog, type ProcurementForm } f
 import { ProcurementEditDialog } from "./ProcurementEditDialog";
 import { ProcurementMoveModal } from "./ProcurementMoveModal";
 import { errorText, Panel, type Makerspace, useStaffGet } from "./shared";
+import { formatMoney, useMakerspaceCurrency, withCurrency } from "../paymentsApi";
 
 type StatusFilter = "all" | ToBuyStatus;
 type UpdateVariables = { id: number; payload: { status: ToBuyStatus; vendor_name: string; actual_unit_cost: number | null } };
 
 const HEADERS = ["Item", "Qty", "Est. unit", "Actual unit", "Vendor", "Purchaser", "Ordered", "Received", "Receipts", "Status", "Moved"];
+const COST_HEADERS = new Set(["Est. unit", "Actual unit"]);
 
 type ProcurementPanelProps = {
   makerspace: Makerspace;
@@ -58,6 +60,7 @@ export function ProcurementPanel({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("requested");
   const [moveTarget, setMoveTarget] = useState<ToBuyItem | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
+  const currency = useMakerspaceCurrency(makerspace.id);
   const base = `/procurement/makerspace/${makerspace.id}/to-buy`;
   const statusParam = statusFilter === "all" ? "" : `&status=${statusFilter}`;
   const queryKey = ["procurement", makerspace.id, statusFilter];
@@ -162,9 +165,9 @@ export function ProcurementPanel({
     >
       <div className="grid gap-5">
         <div className="grid gap-3 sm:grid-cols-3">
-          <StatTile label="Visible estimated total" value={formatAmount(visibleEstimatedTotal)} hint="Everything in this view" />
-          <StatTile label="Open budget" value={formatAmount(openBudget)} hint="Not yet received or cancelled" />
-          <StatTile label="Received actual total" value={formatAmount(receivedTotal)} hint="Actual cost where known" />
+          <StatTile label="Visible estimated total" value={formatAmount(visibleEstimatedTotal, currency)} hint="Everything in this view" />
+          <StatTile label="Open budget" value={formatAmount(openBudget, currency)} hint="Not yet received or cancelled" />
+          <StatTile label="Received actual total" value={formatAmount(receivedTotal, currency)} hint="Actual cost where known" />
         </div>
         <div role="group" aria-label="Status" className="flex flex-wrap items-center gap-2">
           {(["all", ...statusOptions] as StatusFilter[]).map((status) => (
@@ -179,6 +182,7 @@ export function ProcurementPanel({
           items={items}
           filtered={statusFilter !== "all"}
           makerspaceSlug={makerspace.slug}
+          currency={currency}
           onEdit={(item) => { update.reset(); setEditId(item.id); }}
           onMove={setMoveTarget}
           onAdd={openCreate}
@@ -193,12 +197,14 @@ export function ProcurementPanel({
         requiresMachineType={requiresMachineType}
         typeOptions={typeOptions}
         typesLoading={machineTypes.isLoading}
+        currency={currency}
         pending={create.isPending}
         error={create.error}
         onSubmit={() => create.mutate()}
       />
       <ProcurementEditDialog
         item={editing}
+        currency={currency}
         savePending={update.isPending}
         saveError={update.error}
         deletePending={remove.isPending}
@@ -213,11 +219,12 @@ export function ProcurementPanel({
   );
 }
 
-function ProcurementTable({ rows, items, filtered, makerspaceSlug, onEdit, onMove, onAdd }: {
+function ProcurementTable({ rows, items, filtered, makerspaceSlug, currency, onEdit, onMove, onAdd }: {
   rows: ToBuyItem[];
   items: UseQueryResult<ToBuyItem[], Error>;
   filtered: boolean;
   makerspaceSlug: string;
+  currency: string;
   onEdit: (item: ToBuyItem) => void;
   onMove: (item: ToBuyItem) => void;
   onAdd: () => void;
@@ -243,7 +250,7 @@ function ProcurementTable({ rows, items, filtered, makerspaceSlug, onEdit, onMov
     <Table label="To Buy items" className="min-w-[1080px]" containerClassName="max-h-[36rem] overflow-y-auto">
       <THead className="sticky top-0 z-[1]">
         <tr>
-          {HEADERS.map((header) => <TH key={header}>{header}</TH>)}
+          {HEADERS.map((header) => <TH key={header}>{COST_HEADERS.has(header) ? withCurrency(header, currency) : header}</TH>)}
           <TH><span className="sr-only">Actions</span></TH>
         </tr>
       </THead>
@@ -263,6 +270,7 @@ function GroupRows({ label, rows, makerspaceSlug, onEdit, onMove }: { label: str
   </>;
 }
 
-function formatAmount(value: number) {
+function formatAmount(value: number, currency: string) {
+  if (currency) return formatMoney(value.toFixed(2), currency);
   return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

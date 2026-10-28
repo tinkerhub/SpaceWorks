@@ -39,8 +39,21 @@ def membership_makerspace_entry(
         "can_verify": membership.can_verify,
         "verified_at": membership.verified_at,
         "referrals_enabled": membership.makerspace.referrals_enabled,
+        # select_related caches a missing reverse one-to-one as absent, so this never queries.
+        "currency": _currency(getattr(getattr(membership.makerspace, "payment_settings", None), "default_currency", None)),
         "source": "membership",
     }
+
+
+def _currency(code):
+    """The makerspace's lowercase ISO currency, or the payment-settings default with no row.
+
+    Carried on the auth payload so every staff member can label prices, not only those
+    allowed to read the payment settings themselves.
+    """
+    from apps.payments.models import MakerspacePaymentSettings
+
+    return code or MakerspacePaymentSettings._meta.get_field("default_currency").default
 
 
 def _legacy_role_name(role):
@@ -73,6 +86,7 @@ def organization_makerspace_entries(user, *, makerspace_ids=None):
             "organization__makerspace_links__makerspace_id",
             "organization__makerspace_links__makerspace__slug",
             "organization__makerspace_links__makerspace__referrals_enabled",
+            "organization__makerspace_links__makerspace__payment_settings__default_currency",
         )
         .order_by(
             "organization__name",
@@ -81,7 +95,7 @@ def organization_makerspace_entries(user, *, makerspace_ids=None):
         )
     )
     entries = {}
-    for _organization_id, name, value, space_id, slug, referrals_enabled in rows:
+    for _organization_id, name, value, space_id, slug, referrals_enabled, currency in rows:
         if not isinstance(value, list):
             logging.getLogger(__name__).warning(
                 "Ignoring malformed granted actions on an organization membership."
@@ -113,6 +127,7 @@ def organization_makerspace_entries(user, *, makerspace_ids=None):
                 "can_verify": False,
                 "verified_at": None,
                 "referrals_enabled": referrals_enabled,
+                "currency": _currency(currency),
                 "source": "organization",
             },
         )

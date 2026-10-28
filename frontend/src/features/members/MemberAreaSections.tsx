@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { MailCheck, MailWarning } from "lucide-react";
+import { CheckCircle2, MailCheck, MailWarning } from "lucide-react";
 
 import { Avatar, Button, Callout, Chip, StatusChip, buttonClasses } from "../../components/ui";
 import { AccountCard } from "../account/AccountCard";
@@ -84,7 +84,12 @@ export function MembershipCards({ membership, waiver, presence, accepting, prese
         description={`${membership.makerspace.name} · ${statusLabel(membership.role)}`}
         action={<StatusChip tone={statusTone(membership.membership_status)}>{statusLabel(membership.membership_status)}</StatusChip>}
       >
-        {waiver?.has_waiver ? (
+        {waiver?.has_waiver && !membership.waiver_acceptance_required ? (
+          <Chip size="sm" tone="success" icon={<CheckCircle2 />}>
+            Waiver accepted <span className="font-mono">({waiver.version})</span>
+          </Chip>
+        ) : null}
+        {waiver?.has_waiver && membership.waiver_acceptance_required ? (
           <div className="flex flex-col gap-3">
             <h3 className="text-label text-ink">
               Current waiver <span className="font-mono text-ink-muted">({waiver.version})</span>

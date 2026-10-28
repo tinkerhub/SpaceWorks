@@ -34,7 +34,6 @@ EXEMPTIONS = {
     ("makerspaces/lifecycle_purge.py", "purge"),
     # /control/ is the superadmin recovery surface for archived/import-failed rows.
     ("makerspaces/admin.py", "ArchivedFilter.queryset"),
-    ("makerspaces/admin.py", "MakerspaceAdmin.has_delete_permission"),
     ("makerspaces/admin.py", "MakerspaceAdmin.archived"),
     # Members may discover old charges only after a tenant has actually been archived.
     ("payments/views_member.py", "ArchivedPaymentDiscoveryView.get"),

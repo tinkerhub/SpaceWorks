@@ -256,6 +256,15 @@ def update_role(*, makerspace, role, actor, name=None, granted_actions=None):
             changes.append("name")
         if granted_actions is not None:
             role.granted_actions = _validate_actions(actor, makerspace, granted_actions, role)
+            if (
+                set(role.granted_actions) != old_actions
+                and rbac.Action.MANAGE_MAKERSPACE in old_actions
+                and not _superadmin(actor)
+            ):
+                # Every holder of a manager-level role shares it: a local manager narrowing
+                # it (or stripping manage_makerspace) would demote their co-managers. Same
+                # rule as the Space Manager guard in `_validate_actions`.
+                raise PermissionDenied("Only a superadmin can change a makerspace manager role.")
             if set(role.granted_actions) != old_actions:
                 changes.append("granted_actions")
         if changes:

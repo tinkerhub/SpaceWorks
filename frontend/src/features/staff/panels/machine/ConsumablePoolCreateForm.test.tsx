@@ -142,6 +142,28 @@ describe("ConsumablePoolCreateForm", () => {
     expect(screen.queryByRole("button", { name: "Add a custom colour" })).not.toBeInTheDocument();
   });
 
+  it("derives a type's pool unit instead of offering a free choice", async () => {
+    renderForm({
+      ...printerType, id: 5, slug: "resin_printer", name: "Resin printers", managing_action: "",
+      capability_config: { metering_unit: "volume", requires_booking: false },
+      effective_config: { metering_unit: "volume", requires_booking: false, uses_consumables: true, overridden: false },
+    });
+    expect(screen.queryByRole("combobox", { name: "Unit" })).not.toBeInTheDocument();
+    expect(screen.getByText("Milliliters")).toBeVisible();
+    fireEvent.change(screen.getByRole("textbox", { name: "Material" }), { target: { value: "Grey resin" } });
+    fireEvent.change(screen.getByRole("spinbutton", { name: "Initial quantity" }), { target: { value: "500" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add pool" }));
+    await waitFor(() => {
+      const post = staffRequest.mock.calls.find(([, init]) => init?.method === "POST");
+      expect(post && JSON.parse(String(post[1].body))).toMatchObject({ machine_type_id: 5, unit: "milliliters" });
+    });
+  });
+
+  it("keeps an explicit unit choice for shared, makerspace-wide stock", () => {
+    renderForm(undefined);
+    expect(screen.getByRole("combobox", { name: "Unit" })).toBeVisible();
+  });
+
   it("keeps generic machine types on free-text fields with an optional swatch picker", () => {
     renderForm({
       ...printerType,

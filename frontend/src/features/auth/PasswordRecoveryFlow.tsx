@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { AuthLayout } from "../../components/chrome/AuthLayout";
 import { Button, Callout, ErrorText, Field, Input, buttonClasses } from "../../components/ui";
@@ -10,11 +10,13 @@ import {
   confirmOtpPasswordReset,
   isRecoveryUnavailable,
   requestPasswordReset,
+  signInPath,
 } from "./passwordRecovery";
 
 type RecoveryStep = "request" | "confirm" | "success" | "unavailable";
 
 export function PasswordRecoveryFlow() {
+  const signInHref = signInPath(useLocation().search);
   const [step, setStep] = useState<RecoveryStep>("request");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -72,7 +74,7 @@ export function PasswordRecoveryFlow() {
     && newPassword === confirmPassword
     && !pending;
 
-  const backToSignIn = <Link className={buttonClasses({ variant: "quiet", fullWidth: true })} to="/admin">Back to sign in</Link>;
+  const backToSignIn = <Link className={buttonClasses({ variant: "quiet", fullWidth: true })} to={signInHref}>Back to sign in</Link>;
 
   if (step === "unavailable") {
     return (
@@ -90,7 +92,7 @@ export function PasswordRecoveryFlow() {
   if (step === "success") {
     return (
       <AuthLayout kicker="Account access" title="Password updated" description="Your password has been updated. You can now sign in.">
-        <Link className={buttonClasses({ variant: "primary", fullWidth: true })} to="/admin">Go to sign in</Link>
+        <Link className={buttonClasses({ variant: "primary", fullWidth: true })} to={signInHref}>Go to sign in</Link>
       </AuthLayout>
     );
   }

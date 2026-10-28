@@ -1,4 +1,4 @@
-import { apiGet, publicV1Request, tenantPublicRequest } from "../../lib/api";
+import { apiGet, tenantPublicRequest } from "../../lib/api";
 import type {
   CheckinMatch as GeneratedCheckinMatch,
   PublicToolCheckout,
@@ -108,10 +108,12 @@ export async function submitPublicRequest(
 }
 
 export async function fetchRequestStatus(
+  slug: string,
   publicToken: string,
 ): Promise<PublicRequestStatus> {
-  return publicV1Request<PublicRequestStatus>(
-    `/public/requests/${publicToken}/status`,
+  return tenantPublicRequest<PublicRequestStatus>(
+    slug,
+    `/public/requests/${encodeURIComponent(publicToken)}/status`,
   );
 }
 

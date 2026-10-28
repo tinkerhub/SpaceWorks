@@ -97,6 +97,9 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
     queryClient.invalidateQueries({ queryKey: ["direct-loans", makerspace.id] });
     queryClient.invalidateQueries({ queryKey: ["accountability", makerspace.id] });
     queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspace.id] });
+    // The Requests tab's active-loans queue and the dashboard's loan tiles count these too.
+    queryClient.invalidateQueries({ queryKey: ["active", makerspace.id] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard", makerspace.id] });
     invalidateInventoryViews(queryClient, makerspace.id, makerspace.slug);
     invalidateContainerViews(queryClient, makerspace.id);
   };

@@ -48,8 +48,12 @@ class MakerspaceMembershipAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
     @admin.action(description="Revoke selected memberships")
     def revoke_memberships(self, request, queryset):
-        revoked = 0
+        revoked = skipped = 0
         for membership in queryset:
+            if membership.status == "revoked":
+                # The service would no-op; counting it would overstate what was done.
+                skipped += 1
+                continue
             try:
                 revoke_membership(request.user, membership, reason="Revoked from /control/")
             except APIException as exc:
@@ -58,6 +62,10 @@ class MakerspaceMembershipAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
                 revoked += 1
         if revoked:
             self.message_user(request, f"Revoked {revoked} membership(s).", level=messages.SUCCESS)
+        if skipped:
+            self.message_user(
+                request, f"Skipped {skipped} already-revoked membership(s).", level=messages.WARNING
+            )
 
 
 @admin.register(MakerspaceWaiver)

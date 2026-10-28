@@ -8,6 +8,9 @@ import { isBuiltinPrinterType, type MachineType } from "../../machinesApi";
 import { PoolColourSelector } from "./PoolColourSelector";
 import { poolPath, poolQueryKey, type PoolUnit } from "./servicePools";
 import { useNotify } from "./machineUi";
+import { typePoolUnit } from "./typeConfig";
+
+const UNIT_NAMES: Record<PoolUnit, string> = { grams: "Grams", milliliters: "Milliliters", millimeters: "Millimeters", count: "Count" };
 
 type Props = {
   makerspaceId: number;
@@ -43,6 +46,10 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
   const brandListId = useId();
   const [pool, setPool] = useState(blankPool);
   const printerType = isBuiltinPrinterType(machineType);
+  // A type's stock is always kept in the unit its jobs are metered in; only shared,
+  // makerspace-wide stock chooses one.
+  const derivedUnit = machineType ? typePoolUnit(machineType) : undefined;
+  const unit = derivedUnit ?? pool.unit;
   const materialPresets = machineType?.capability_config?.accepted_materials;
   const brands = useMemo(() => {
     const used = new Map<string, string>();
@@ -63,8 +70,8 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
         color_hex: pool.colorHex,
         brand: pool.brand.trim(),
         quantity: pool.quantity,
-        unit: pool.unit,
-        low_threshold_grams: pool.unit === "grams" && pool.lowThreshold ? pool.lowThreshold : null,
+        unit,
+        low_threshold_grams: unit === "grams" && pool.lowThreshold ? pool.lowThreshold : null,
       }),
     }),
     onSuccess: async () => {
@@ -100,10 +107,10 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
           <Input list={brandListId} value={pool.brand} onChange={(event) => setPool({ ...pool, brand: event.target.value })} />
         </Field>
         <datalist id={brandListId}>{brands.map((brand) => <option key={brand} value={brand} />)}</datalist>
-        {printerType ? (
+        {derivedUnit ? (
           <div className="grid gap-1.5">
             <span className="text-label text-ink">Unit</span>
-            <p className="flex min-h-11 items-center text-body-ui text-ink-secondary">Grams</p>
+            <p className="flex min-h-11 items-center text-body-ui text-ink-secondary">{UNIT_NAMES[derivedUnit]}</p>
           </div>
         ) : (
           <Field label="Unit">
@@ -118,7 +125,7 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
         <Field label="Initial quantity">
           <Input type="number" min="0" step="any" inputMode="decimal" value={pool.quantity} onChange={(event) => setPool({ ...pool, quantity: event.target.value })} required />
         </Field>
-        {pool.unit === "grams" ? (
+        {unit === "grams" ? (
           <Field label="Low threshold (grams)">
             <Input type="number" min="0" step="any" inputMode="decimal" value={pool.lowThreshold} onChange={(event) => setPool({ ...pool, lowThreshold: event.target.value })} />
           </Field>

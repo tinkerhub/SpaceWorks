@@ -20,6 +20,7 @@ from apps.accounts.social_lockout import (
     users_locked_out_by_disabling,
 )
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
 class PlatformSocialAuthSettingsForm(forms.ModelForm):
@@ -74,8 +75,9 @@ class PlatformSocialAuthSettingsForm(forms.ModelForm):
 
 
 @admin.register(PlatformSocialAuthSettings)
-class PlatformSocialAuthSettingsAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class PlatformSocialAuthSettingsAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     form = PlatformSocialAuthSettingsForm
+    audit_secret_fields = ("apple_private_key_raw",)
 
     def has_add_permission(self, request):
         return not PlatformSocialAuthSettings.objects.exists()
@@ -126,7 +128,7 @@ class PlatformLoginMethodsForm(forms.ModelForm):
 
 
 @admin.register(PlatformLoginMethods)
-class PlatformLoginMethodsAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class PlatformLoginMethodsAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     """Which ways in this deployment offers. Platform-scoped, never a tenant feature."""
 
     form = PlatformLoginMethodsForm
@@ -184,7 +186,7 @@ class OidcProviderForm(forms.ModelForm):
 
 
 @admin.register(OidcProvider)
-class OidcProviderAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class OidcProviderAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     """Deployment-configured OpenID Connect providers.
 
     Superadmin-only and platform-scoped, like the built-in providers and for the same

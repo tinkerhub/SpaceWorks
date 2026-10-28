@@ -157,7 +157,8 @@ def test_space_manager_can_revoke_delegable_membership():
     )
 
     assert response.status_code == 204
-    assert not MakerspaceMembership.objects.filter(pk=membership_id).exists()
+    # Revoked, not deleted: the row keeps its history and stops granting authority.
+    assert MakerspaceMembership.objects.get(pk=membership_id).status == "revoked"
     # The account itself is not deleted.
     assert User.objects.filter(pk=target.id).exists()
 
@@ -212,7 +213,7 @@ def test_superadmin_can_revoke_space_manager_membership():
     )
 
     assert response.status_code == 204
-    assert not MakerspaceMembership.objects.filter(pk=membership_id).exists()
+    assert MakerspaceMembership.objects.get(pk=membership_id).status == "revoked"
 
 
 def test_machine_manager_sees_own_makerspace_in_switcher_with_modules():

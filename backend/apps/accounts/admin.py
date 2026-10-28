@@ -2,30 +2,24 @@ from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.db import transaction
-from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
-from django.utils.translation import gettext
 from unfold.admin import ModelAdmin
-from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+from unfold.forms import AdminPasswordChangeForm, UserCreationForm
 from rest_framework.exceptions import APIException
 
 from apps.accounts.admin_membership_inline import (
     MakerspaceMembershipInline,
     StaffMembershipAdminMixin,
 )
+from apps.accounts.admin_user_control import (
+    ControlUserChangeForm,
+    UserControlAdminMixin,
+    api_exception_message as _api_exception_message,
+)
 from apps.accounts.models import NativeAppRegistration, User
-from apps.accounts.principal_guards import (
-    refuse_anonymous_requester_access_mutation,
-    refuse_anonymous_requester_credential,
-)
-from apps.accounts.transition_services import (
-    WalkInTransitionError,
-    transition_walk_in_to_account,
-)
+from apps.accounts.principal_guards import refuse_anonymous_requester_access_mutation
 from apps.admin_api.services_user_access import reset_user_password
 from apps.audit import services as audit
 from apps.makerspaces import limits
@@ -46,9 +40,12 @@ class RestrictAccessForm(forms.Form):
 
 
 @admin.register(User)
-class UserAdmin(StaffMembershipAdminMixin, SuperuserOnlyModelAdmin, DjangoUserAdmin, ModelAdmin):
+class UserAdmin(
+    UserControlAdminMixin, StaffMembershipAdminMixin, SuperuserOnlyModelAdmin,
+    DjangoUserAdmin, ModelAdmin,
+):
     actions = ["restrict_access", "restore_access", "reset_password_selected"]
-    form = UserChangeForm
+    form = ControlUserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
     fieldsets = tuple(
@@ -81,60 +78,6 @@ class UserAdmin(StaffMembershipAdminMixin, SuperuserOnlyModelAdmin, DjangoUserAd
     # Restricting/restoring audits, guards walk-in records and re-checks the staff quota;
     # the Restrict/Restore actions do that, a raw field edit would not.
     readonly_fields = ("access_status", "restriction_reason")
-
-    def user_change_password(self, request, id, form_url=""):
-        """Make the inherited password form an explicit account transition."""
-        user = self.get_object(request, id)
-        if request.method == "POST" and user is not None:
-            try:
-                refuse_anonymous_requester_credential(user)
-            except APIException as exc:
-                self.message_user(request, _api_exception_message(exc), level=messages.ERROR)
-                return HttpResponseRedirect(
-                    reverse(
-                        f"{self.admin_site.name}:{user._meta.app_label}_{user._meta.model_name}_change",
-                        args=(user.pk,),
-                    )
-                )
-        if (
-            request.method != "POST"
-            or user is None
-            or not user.is_walk_in
-            or not self.has_change_permission(request, user)
-        ):
-            return super().user_change_password(request, id, form_url)
-
-        form = self.change_password_form(user, request.POST)
-        if not form.is_valid() or not form.cleaned_data["set_usable_password"]:
-            return super().user_change_password(request, id, form_url)
-
-        password = form.cleaned_data["password1"]
-
-        def write_password(locked_user):
-            locked_user.set_password(password)
-            locked_user.save(update_fields=["password"])
-
-        try:
-            user = transition_walk_in_to_account(
-                user,
-                actor=request.user,
-                credential_writer=write_password,
-            )
-        except WalkInTransitionError:
-            # A concurrent transition won the row lock. The record is now an ordinary
-            # account, so the inherited form is again the correct writer.
-            return super().user_change_password(request, id, form_url)
-
-        form.user = user
-        self.log_change(request, user, self.construct_change_message(request, form, None))
-        messages.success(request, gettext("Password changed successfully."))
-        update_session_auth_hash(request, user)
-        return HttpResponseRedirect(
-            reverse(
-                f"{self.admin_site.name}:{user._meta.app_label}_{user._meta.model_name}_change",
-                args=(user.pk,),
-            )
-        )
 
     @admin.action(description="Reset selected user passwords")
     def reset_password_selected(self, request, queryset):
@@ -285,12 +228,3 @@ class NativeAppRegistrationAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
 from apps.accounts import admin_claim, admin_social  # noqa: E402,F401
 from apps.accounts import admin_password_reset, admin_unregistered  # noqa: E402,F401
-
-
-def _api_exception_message(exc):
-    detail = getattr(exc, "detail", None)
-    if isinstance(detail, list):
-        return "; ".join(str(item) for item in detail)
-    if isinstance(detail, dict):
-        return "; ".join(f"{key}: {value}" for key, value in detail.items())
-    return str(detail or exc)

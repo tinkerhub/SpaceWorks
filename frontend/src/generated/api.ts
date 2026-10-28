@@ -266,6 +266,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspace/{makerspace_id}/machine-type-pricing/{machine_type_id}",
   "/api/v1/admin/makerspace/{makerspace_id}/machine-types",
   "/api/v1/admin/makerspace/{makerspace_id}/machine-types/{id}",
+  "/api/v1/admin/makerspace/{makerspace_id}/machine-types/{id}/settings",
   "/api/v1/admin/makerspace/{makerspace_id}/machines",
   "/api/v1/admin/makerspace/{makerspace_id}/membership-invitations",
   "/api/v1/admin/makerspace/{makerspace_id}/modules",
@@ -900,6 +901,7 @@ export type AuthMembership = {
   "can_verify": boolean;
   "verified_at": string | null;
   "referrals_enabled": boolean;
+  "currency": string;
 };
 
 export type AuthMembershipSourceEnum = "membership" | "organization";
@@ -1645,6 +1647,13 @@ export type EducationEntry = {
   "institution": string;
   "qualification"?: string;
   "year"?: string;
+};
+
+export type EffectiveTypeConfig = {
+  "metering_unit": MeteringUnit60eEnum;
+  "requires_booking": boolean;
+  "uses_consumables": boolean;
+  "overridden": boolean;
 };
 
 export type EmailLog = {
@@ -2783,6 +2792,7 @@ export type MachineType = {
   "is_builtin"?: boolean;
   "managing_action": string;
   "capability_config": unknown;
+  "effective_config": EffectiveTypeConfig;
   "makerspace": number | null;
 };
 
@@ -2794,6 +2804,7 @@ export type MachineTypeAccess = {
   "is_builtin": boolean;
   "managing_action": string;
   "capability_config": unknown;
+  "effective_config": EffectiveTypeConfig;
   "makerspace": number | null;
   "can_create_machine": boolean;
 };
@@ -2830,6 +2841,12 @@ export type MachineTypePricingSet = {
   "flat_fee": string;
   "payment_enabled": boolean;
   "free_below_quantity"?: string;
+};
+
+export type MachineTypeSettings = {
+  "metering_unit"?: MeteringUnit60eEnum | NullEnum | null;
+  "requires_booking"?: boolean | null;
+  "uses_consumables"?: boolean | null;
 };
 
 export type MachineUsageEntry = {
@@ -3319,6 +3336,8 @@ export type MemberWaiverResponse = {
   "body"?: string;
   "version"?: string;
 };
+
+export type MeteringUnit60eEnum = "minutes" | "weight" | "volume" | "length" | "count";
 
 export type MethodEnum = "PUT";
 
@@ -6280,15 +6299,13 @@ export type TypedManualUsageResponse = {
   "percent_complete": number;
   "reason": string;
   "consumed_grams": string;
-  "metering_unit": TypedManualUsageResponseMeteringUnitEnum;
+  "metering_unit": MeteringUnit60eEnum;
   "consumed_quantity": string;
   "hours": string;
   "note": string;
   "price": string | null;
   "created_at": string;
 };
-
-export type TypedManualUsageResponseMeteringUnitEnum = "minutes" | "weight" | "volume" | "length" | "count";
 
 export type TypeEnum = "box" | "asset" | "product";
 

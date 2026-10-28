@@ -151,6 +151,8 @@ AUDIT_META_REFERENCES = {
         ("membership.referred", "role_id"), ("membership.role_changed", "role_id"),
         ("role.created", "id"), ("staff.role_assigned", "new_role_id"),
         ("staff.role_assigned", "old_role_id"),
+        ("staff.membership_revoked", "assigned_role_id"),
+        ("staff.membership_updated", "previous_role_id"),
     ),
     **_reference(
         R, "makerspaces.MakerspaceMembership",
@@ -266,4 +268,9 @@ AUDIT_META_REFERENCES.update(
 )
 AUDIT_META_REFERENCES.update(
     _reference(S, "boxes.QrScanEvent", ("qr.scanned", "scan_id"))
+)
+# A per-makerspace override names a GLOBAL built-in machine type, which is shared platform
+# catalog rather than tenant content, so the id is kept as a source-local snapshot.
+AUDIT_META_REFERENCES.update(
+    _reference(S, "machines.MachineType", ("machine_type.settings_overridden", "machine_type_id"))
 )

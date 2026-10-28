@@ -5,6 +5,7 @@ import { Button, Card, CardHeader, Dropdown, Field, Input, SettingsRow, StatusCh
 import type { Makerspace as MakerspaceContract, MembershipPolicyEnum } from "../../generated/api";
 import { staffRequest } from "../../lib/api";
 import { errorText, type Makerspace } from "./panels/shared";
+import { useMakerspaceCurrency, withCurrency } from "./paymentsApi";
 import { SettingSwitch } from "./settingsControls";
 
 export function MakerspaceMembershipSettings({ makerspace, settings, loading }: {
@@ -14,6 +15,7 @@ export function MakerspaceMembershipSettings({ makerspace, settings, loading }: 
 }) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const currency = useMakerspaceCurrency(makerspace.id);
   const membershipPolicy = settings?.membership_policy ?? makerspace.membership_policy ?? "request";
   const referralsEnabled = settings?.referrals_enabled ?? makerspace.referrals_enabled ?? false;
   const [duesAmount, setDuesAmount] = useState(
@@ -86,11 +88,11 @@ export function MakerspaceMembershipSettings({ makerspace, settings, loading }: 
         />
       </SettingsRow>
       <SettingsRow title="Membership dues" description="The amount charged when a membership is activated. Use 0 for no charge.">
-        <form className="flex min-w-0 flex-wrap items-end gap-3" onSubmit={(event) => { event.preventDefault(); updateDues.mutate(); }}>
-          <Field label="Dues amount" error={updateDues.error?.message} className="w-40">
+        <form className="flex min-w-0 flex-wrap items-start gap-3" onSubmit={(event) => { event.preventDefault(); updateDues.mutate(); }}>
+          <Field label={withCurrency("Dues amount", currency)} error={updateDues.error?.message} className="w-40">
             <Input type="number" min="0" step="0.01" value={duesAmount} disabled={loading || updateDues.isPending} onChange={(event) => setDuesAmount(event.target.value)} />
           </Field>
-          <Button type="submit" disabled={loading} loading={updateDues.isPending} loadingLabel="Saving…">Save dues</Button>
+          <Button type="submit" className="mt-[26px]" disabled={loading} loading={updateDues.isPending} loadingLabel="Saving…">Save dues</Button>
         </form>
       </SettingsRow>
     </Card>

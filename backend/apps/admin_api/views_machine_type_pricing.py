@@ -48,9 +48,9 @@ class MachineTypePricingListView(APIView):
 
     @extend_schema(tags=["Admin machines"], summary="List makerspace machine-type pricing", responses={200: MachineTypePricingListSerializer, 403: OpenApiResponse(description="Space-manager identity or machine management required.")})
     def get(self, request, makerspace_id):
-        machine_types = list(_priced_types(request.user, makerspace_id).only("id", "capability_config"))
+        machine_types = list(_priced_types(request.user, makerspace_id).only("id", "makerspace_id", "capability_config"))
         pricing_by_type = {row.machine_type_id: row for row in MakerspaceMachineTypePricing.objects.filter(makerspace_id=makerspace_id, machine_type_id__in=[row.pk for row in machine_types])}
-        rows = [pricing_by_type.get(row.pk) or MakerspaceMachineTypePricing(makerspace_id=makerspace_id, machine_type_id=row.pk, free_below_quantity=default_free_below(row)) for row in machine_types]
+        rows = [pricing_by_type.get(row.pk) or MakerspaceMachineTypePricing(makerspace_id=makerspace_id, machine_type_id=row.pk, free_below_quantity=default_free_below(row, makerspace_id, row=None)) for row in machine_types]
         makerspace = get_object_or_404(Makerspace.objects.all(), pk=makerspace_id)
         return Response({"currency": MakerspacePaymentSettings.for_makerspace(makerspace).default_currency, "results": MachineTypePricingSerializer(rows, many=True).data})
 
@@ -72,7 +72,7 @@ class MachineTypePricingDetailView(APIView):
                 raise PermissionDenied("Only a space manager can turn online payment on or off.")
             row, created = MakerspaceMachineTypePricing.objects.get_or_create(
                 makerspace_id=makerspace_id, machine_type=machine_type,
-                defaults={"free_below_quantity": default_free_below(machine_type), **serializer.validated_data, "created_by": request.user, "updated_by": request.user},
+                defaults={"free_below_quantity": default_free_below(machine_type, makerspace_id, row=None), **serializer.validated_data, "created_by": request.user, "updated_by": request.user},
             )
             if not created:
                 # No row to lock above means a concurrent first save may have made it since;

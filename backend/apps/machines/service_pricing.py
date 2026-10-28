@@ -6,11 +6,11 @@ from rest_framework.exceptions import ValidationError
 
 from apps.machines.metering import MeteringUnit, metering_unit_for_pool
 from apps.machines.models import MakerspaceMachineTypePricing
+from apps.machines.type_settings import _UNSET, effective_metering_unit
 
 
-def effective_quantity(service_request, machine_type):
-    config = machine_type.capability_config or {}
-    if config.get("metering_unit") == "minutes":
+def effective_quantity(service_request, machine_type, *, row=_UNSET):
+    if effective_metering_unit(machine_type, service_request.makerspace_id, row=row) == MeteringUnit.MINUTES:
         return _decimal(service_request.actual_minutes)
     quantity = service_request.actual_consumed_quantity
     if quantity is not None:
@@ -32,20 +32,16 @@ def compute_amount(service_request):
     if pricing is None:
         return Decimal("0.00")
 
-    amount = pricing.rate_per_unit * effective_quantity(service_request, machine_type) + pricing.flat_fee
+    amount = pricing.rate_per_unit * effective_quantity(service_request, machine_type, row=pricing) + pricing.flat_fee
     if amount <= 0:
         return Decimal("0.00")
     return amount.quantize(Decimal("0.01"))
 
 
-def machine_type_metering_unit(machine_type):
-    # Every seeded type names its unit; weight is the printer default an unnamed one meant.
-    return (machine_type.capability_config or {}).get("metering_unit") or MeteringUnit.WEIGHT
-
-
-def default_free_below(machine_type):
-    """Starting free threshold for a type's pricing: 20 g for weight-metered printers."""
-    return Decimal("20") if machine_type_metering_unit(machine_type) == MeteringUnit.WEIGHT else Decimal("0")
+def default_free_below(machine_type, makerspace_id=None, *, row=_UNSET):
+    """Starting free threshold for a type's pricing: 20 g for weight-metered types."""
+    unit = effective_metering_unit(machine_type, makerspace_id, row=row)
+    return Decimal("20") if unit == MeteringUnit.WEIGHT else Decimal("0")
 
 
 def manual_usage_price(machine, *, duration_minutes, grams=0, quantity=None, metering_unit=None, pool=None, **_):
@@ -60,11 +56,11 @@ def manual_usage_price(machine, *, duration_minutes, grams=0, quantity=None, met
     ).first()
     if pricing is None or (pricing.rate_per_unit <= 0 and pricing.flat_fee <= 0):
         return None
-    type_unit = machine_type_metering_unit(machine.machine_type)
+    type_unit = effective_metering_unit(machine.machine_type, machine.makerspace_id, row=pricing)
     if type_unit == MeteringUnit.MINUTES:
         amount_of = _decimal(duration_minutes)
     else:
-        unit = metering_unit or (metering_unit_for_pool(pool.unit) if pool else None) or MeteringUnit.WEIGHT
+        unit = metering_unit or (metering_unit_for_pool(pool.unit) if pool else None) or type_unit
         if unit != type_unit:
             # The rate is per unit of the type; 10 ml priced per gram (or let in under the
             # free weight) would log a wrong price, not a rounding difference.

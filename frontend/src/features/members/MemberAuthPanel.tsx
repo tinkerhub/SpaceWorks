@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { AuthLayout } from "../../components/chrome/AuthLayout";
 import { Button, Callout, ErrorText, Field, Input, PasswordInput, buttonClasses } from "../../components/ui";
@@ -21,6 +21,7 @@ export function MemberAuthPanel({
   onCancel?: () => void;
   makerspaceSlug?: string;
 }) {
+  const { pathname } = useLocation();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -196,7 +197,7 @@ export function MemberAuthPanel({
           </Field>
         ) : null}
         {showPassword && mode === "login" ? (
-          <Link className={buttonClasses({ variant: "quiet", size: "sm", className: "-mt-2 self-start" })} to="/reset-password">Forgot password?</Link>
+          <Link className={buttonClasses({ variant: "quiet", size: "sm", className: "-mt-2 self-start" })} to={`/reset-password?next=${encodeURIComponent(pathname)}`}>Forgot password?</Link>
         ) : null}
         {notice ? <Callout tone="success" role="status">{notice}</Callout> : null}
         <ErrorText message={error} />

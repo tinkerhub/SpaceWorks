@@ -16,8 +16,10 @@ import { PublicEvidenceUpload } from "./PublicEvidenceUpload";
 import type { CheckinMatch } from "./api";
 import { checkoutTool, returnTool } from "./selfCheckoutApi";
 import { PublicSelfCheckoutResult } from "./PublicSelfCheckoutResult";
+import { PublicSignInCallout, memberSignInHref } from "./PublicSignInCallout";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
 import { useMakerspacePublic } from "./useMakerspacePublic";
+import { usePublicSession } from "./usePublicSession";
 
 type Mode = "checkout" | "return";
 
@@ -50,6 +52,9 @@ export function PublicSelfCheckoutPage() {
     featureEnabled(features, "inventory.self_checkout") &&
     (requiresCheckin || moduleEnabled("membership"));
   const identityReady = !requiresCheckin || confirmedCheckin !== null;
+  // Off the roster the loan is the signed-in member's own.
+  const session = usePublicSession(makerspaceSlug, enabled && !requiresCheckin);
+  const needsSignIn = !requiresCheckin && session.signedOut;
   const checkinPayload =
     requiresCheckin && confirmedCheckin
       ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
@@ -137,7 +142,13 @@ export function PublicSelfCheckoutPage() {
             />
           ) : null}
 
-          {ready && enabled ? (
+          {ready && enabled && needsSignIn ? (
+            <PublicSignInCallout href={memberSignInHref(space.header.homePath, moduleEnabled("member_accounts"))}>
+              Self-checkout is recorded under your member account.
+            </PublicSignInCallout>
+          ) : null}
+
+          {ready && enabled && !needsSignIn ? (
             <Card className="space-y-4">
               {requiresCheckin ? (
                 <CheckinIdentityStep

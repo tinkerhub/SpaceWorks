@@ -13,7 +13,8 @@ export type FormState = {
   estimatedFilamentGrams: string;
   material: string;
   color: string;
-  quantity: number;
+  // Raw text so the field can be emptied while typing; `printQuantity` clamps it.
+  quantity: string;
   sourceLink: string;
 };
 
@@ -25,9 +26,13 @@ export const initialForm: FormState = {
   estimatedFilamentGrams: "",
   material: "",
   color: "",
-  quantity: 1,
+  quantity: "1",
   sourceLink: "",
 };
+
+export function printQuantity(raw: string) {
+  return Math.max(1, Math.floor(Number(raw)) || 1);
+}
 
 export function optional(value: string) {
   const trimmed = value.trim();
@@ -141,7 +146,8 @@ export function PrintDetailsForm({
                 min={1}
                 type="number"
                 value={form.quantity}
-                onChange={(event) => updateField("quantity", Math.max(1, Number(event.target.value) || 1))}
+                onChange={(event) => updateField("quantity", event.target.value)}
+                onBlur={() => updateField("quantity", String(printQuantity(form.quantity)))}
               />
             </Field>
             <Field label="Estimated filament (g)" optional helperText="If you know it from your slicer. Staff can adjust this.">

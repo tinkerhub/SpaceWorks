@@ -39,3 +39,9 @@ export function isRecoveryUnavailable(error: unknown) {
       && error.code === "recovery_unavailable",
   );
 }
+
+/** Where "Back to sign in" goes: a same-site `next` path (e.g. /member), else the staff console. */
+export function signInPath(search: string) {
+  const next = new URLSearchParams(search).get("next") ?? "";
+  return /^\/(?![/\\])/.test(next) ? next : "/admin";
+}

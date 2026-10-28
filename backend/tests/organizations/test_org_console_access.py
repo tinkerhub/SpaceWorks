@@ -106,6 +106,7 @@ def test_org_only_space_is_projected_into_user_payload():
             "can_verify": False,
             "verified_at": None,
             "referrals_enabled": makerspace.referrals_enabled,
+            "currency": "inr",
             "source": "organization",
         }
     ]

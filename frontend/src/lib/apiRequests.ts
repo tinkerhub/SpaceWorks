@@ -1,10 +1,12 @@
 import { API_URL, API_V1_URL } from "./apiConfig";
-import { apiError, messageForStatus } from "./apiErrors";
+import { apiError, messageForStatus, StructuredApiError } from "./apiErrors";
 import {
   authHeaders,
   cacheTenantPublishableKey,
   canRefreshAfterUnauthorized,
+  clearAccessToken,
   expireStaffAuthSession,
+  getAccessToken,
   publicHeaders,
   refreshAccessToken,
   tenantPublishableKeys,
@@ -74,7 +76,20 @@ export async function tenantPublicRequest<T>(
     const bootstrap = await bootstrapTenant({ slug: normalized });
     publishableKey = bootstrap.public_api.publishable_key;
   }
-  return publicV1Request<T>(path, options, publishableKey);
+  try {
+    return await publicV1Request<T>(path, options, publishableKey);
+  } catch (error) {
+    // A signed-in member who reloaded holds no access token until the refresh cookie is
+    // exchanged; without this every account-only public action would 401 after a reload.
+    const unauthorized = error instanceof StructuredApiError && error.status === 401;
+    if (!unauthorized) throw error;
+    if (await refreshAccessToken()) return publicV1Request<T>(path, options, publishableKey);
+    // The held token is dead and cannot be renewed: drop it, or every later public call on
+    // this page keeps sending it, and retry once anonymously so open routes still answer.
+    if (!getAccessToken()) throw error;
+    clearAccessToken();
+    return publicV1Request<T>(path, options, publishableKey);
+  }
 }
 
 export async function tenantPublicRequestBlob(slug: string, path: string): Promise<Blob> {

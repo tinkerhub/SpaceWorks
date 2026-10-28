@@ -11,6 +11,8 @@ import {
   type CustomAnswers,
   type CustomFormSchema,
 } from "../forms/customFormTypes";
+import { PublicSignInCallout } from "./PublicSignInCallout";
+import { usePublicSession } from "./usePublicSession";
 
 type RegistrationResult = { status: "pending_approval" | "registered" | "waitlisted" };
 
@@ -34,10 +36,11 @@ function failureMessage(error: StructuredApiError | null) {
   return error.detail ?? error.message;
 }
 
-export function EventRegistrationForm({ makerspaceSlug, publicToken, waitlist, approvalRequired, customForm }: {
-  makerspaceSlug: string; publicToken: string; waitlist: boolean; approvalRequired: boolean;
+export function EventRegistrationForm({ makerspaceSlug, signInHref, publicToken, waitlist, approvalRequired, customForm }: {
+  makerspaceSlug: string; signInHref?: string; publicToken: string; waitlist: boolean; approvalRequired: boolean;
   customForm: CustomFormSchema;
 }) {
+  const session = usePublicSession(makerspaceSlug);
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [website, setWebsite] = useState("");
@@ -74,6 +77,10 @@ export function EventRegistrationForm({ makerspaceSlug, publicToken, waitlist, a
         </Callout>
       </div>
     );
+  }
+
+  if (session.signedOut) {
+    return <PublicSignInCallout href={signInHref}>Registrations are made from your member account.</PublicSignInCallout>;
   }
 
   const submit = (event: FormEvent) => {

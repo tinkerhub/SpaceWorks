@@ -25,7 +25,7 @@ const user: StaffAuthUser = {
   makerspaces: [{
     id: 1, slug: "lab", role: "space_manager", role_id: null, role_name: "Space Manager", role_slug: "space_manager", source: "membership",
     actions: ["manage_makerspace", "edit_inventory"], can_configure_machine_types: true, is_machine_only: false,
-    can_refer: false, can_verify: false, verified_at: null, referrals_enabled: false,
+    can_refer: false, can_verify: false, verified_at: null, referrals_enabled: false, currency: "inr",
   }],
 };
 

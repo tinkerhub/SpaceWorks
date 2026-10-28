@@ -7,45 +7,17 @@ type SpaceWorksLogoProps = {
   className?: string;
 };
 
-function SpaceWorksMark({ size, className }: { size: number; className?: string }) {
+// The Tinker Space Inventory tile, the same file the browser uses as its favicon.
+function SpaceWorksMark({ size, className, decorative = false }: { size: number; className?: string; decorative?: boolean }) {
   return (
-    <svg
-      aria-label="Space Works"
+    <img
+      // Beside the "Space Works" wordmark the image is decorative, or it is read out twice.
+      alt={decorative ? "" : "Space Works"}
       className={className}
-      fill="none"
       height={size}
-      role="img"
-      viewBox="0 0 64 64"
+      src="/favicon.png"
       width={size}
-    >
-      <polygon
-        points="8,22 2,10 28,10 32,22"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
-      <polygon
-        points="32,22 36,10 62,10 56,22"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
-      <rect
-        height="34"
-        rx="5"
-        stroke="currentColor"
-        strokeWidth="3"
-        width="48"
-        x="8"
-        y="22"
-      />
-      <rect fill="#7dd3fc" height="11" rx="2.5" width="18" x="12" y="27" />
-      <rect fill="#fcdf46" height="11" rx="2.5" width="18" x="34" y="27" />
-      <rect fill="#74dd9c" height="11" rx="2.5" width="18" x="12" y="42" />
-      <rect fill="#f9a8d4" height="11" rx="2.5" width="18" x="34" y="42" />
-    </svg>
+    />
   );
 }
 
@@ -62,7 +34,7 @@ export function SpaceWorksLogo({
           className,
         ].filter(Boolean).join(" ")}
       >
-        <SpaceWorksMark className="shrink-0" size={size} />
+        <SpaceWorksMark className="shrink-0" decorative size={size} />
         <span className="min-w-0 break-words font-semibold tracking-wide">Space Works</span>
       </span>
     );

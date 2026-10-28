@@ -1,5 +1,8 @@
 import type { QueryClient } from "@tanstack/react-query";
 
+import { machineKeys } from "./machinesApi";
+import { poolQueryKey } from "./panels/machine/servicePools";
+
 export function invalidateInventoryViews(queryClient: QueryClient, makerspaceId: number, slug?: string) {
   queryClient.invalidateQueries({ queryKey: ["inventory", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["inventory-all", makerspaceId] });
@@ -20,10 +23,11 @@ export function invalidatePublicInventory(queryClient: QueryClient, slug?: strin
 
 export function invalidatePrintingViews(queryClient: QueryClient, makerspaceId: number | "all") {
   if (makerspaceId !== "all") {
-    queryClient.invalidateQueries({ queryKey: ["print-printers", makerspaceId] });
-    queryClient.invalidateQueries({ queryKey: ["print-spools", makerspaceId] });
-    queryClient.invalidateQueries({ queryKey: ["print-requests", makerspaceId] });
+    // Printing now lives on machines: a spool joins a consumable pool on a printer.
+    queryClient.invalidateQueries({ queryKey: poolQueryKey(makerspaceId) });
+    queryClient.invalidateQueries({ queryKey: ["printer-machines", makerspaceId] });
   }
+  queryClient.invalidateQueries({ queryKey: machineKeys.all });
   queryClient.invalidateQueries({ queryKey: ["printer-service-report"] });
   queryClient.invalidateQueries({ queryKey: ["operations-report"] });
 }

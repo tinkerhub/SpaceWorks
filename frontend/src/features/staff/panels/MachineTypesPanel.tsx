@@ -9,7 +9,8 @@ import {
   getMachineTypes,
   machineKeys,
 } from "../machinesApi";
-import { BuiltinTypeRow, CapabilityFields, CustomTypeRow, defaultConfig } from "./machine/MachineTypeEditors";
+import { BuiltinTypeRow } from "./machine/BuiltinTypeRow";
+import { CapabilityFields, CustomTypeRow, defaultConfig } from "./machine/MachineTypeEditors";
 import { useNotify } from "./machine/machineUi";
 import { useConsoleModule } from "./machine/useConsoleModule";
 
@@ -37,13 +38,14 @@ export function MachineTypesPanel({ makerspaceId, canConfigureMachineTypes, canE
     onError: (error) => notify.failure("Couldn't create the machine type.", error),
   });
   const types = collectionResults(machineTypes.data);
-  const currency = pricing.data?.currency ?? "Currency";
+  // Empty until pricing loads: the labels then show no currency rather than a placeholder word.
+  const currency = pricing.data?.currency?.toUpperCase() ?? "";
 
   return (
     <CollapsibleSection title="Machine types and pricing" count={types.length || undefined} open={open} onToggle={() => setOpen((current) => !current)}>
       <div className="grid gap-5 p-4">
         <p className="text-body-ui text-ink-muted">
-          Built-in types keep fixed settings. Prices are set per makerspace, in the currency shown beside each amount.
+          A built-in type's unit, booking and consumables can be changed for this makerspace only. Prices are set per makerspace, in the currency shown beside each amount.
         </p>
         {canConfigureMachineTypes ? (
           <form className="grid gap-4 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-3" onSubmit={(event) => { event.preventDefault(); create.mutate(); }}>
@@ -67,7 +69,7 @@ export function MachineTypesPanel({ makerspaceId, canConfigureMachineTypes, canE
         {types.length ? (
           <ul className="grid gap-3">
             {types.map((machineType) => machineType.is_builtin || machineType.makerspace === null
-              ? <BuiltinTypeRow key={machineType.id} makerspaceId={makerspaceId} machineType={machineType} canConfigure={canConfigureMachineTypes} canEditPricing={canEditPricing} currency={currency} paymentsOn={paymentsOn} />
+              ? <BuiltinTypeRow key={machineType.id} makerspaceId={makerspaceId} machineType={machineType} canConfigure={canConfigureMachineTypes} canEditPricing={canEditPricing} currency={currency} paymentsOn={paymentsOn} showBooking={bookingsOn} />
               : <CustomTypeRow key={machineType.id} makerspaceId={makerspaceId} machineType={machineType} canConfigure={canConfigureMachineTypes} canEditPricing={canEditPricing} currency={currency} paymentsOn={paymentsOn} showBooking={bookingsOn} />)}
           </ul>
         ) : null}

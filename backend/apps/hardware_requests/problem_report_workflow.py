@@ -18,7 +18,7 @@ ACCOUNTABILITY_OUTCOMES = {
 }
 ASSET_STATUS_OUTCOMES = {
     PublicProblemReport.Outcome.DAMAGED: InventoryAsset.Status.DAMAGED,
-    PublicProblemReport.Outcome.MISSING: InventoryAsset.Status.DAMAGED,
+    PublicProblemReport.Outcome.MISSING: InventoryAsset.Status.LOST,
     PublicProblemReport.Outcome.NEEDS_FIX: InventoryAsset.Status.MAINTENANCE,
 }
 

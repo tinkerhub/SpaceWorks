@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { invalidateInventoryViews } from "../queryInvalidation";
+import { invalidateContainerViews, invalidateInventoryViews } from "../queryInvalidation";
 
 export type InvalidationScope = {
   inventory: boolean;
@@ -14,7 +14,7 @@ export function actionInvalidationScope(path: string): InvalidationScope {
   return { inventory, ledger, needsFix };
 }
 
-export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: number, scope: InvalidationScope) {
+export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: number, scope: InvalidationScope, slug?: string) {
   queryClient.invalidateQueries({ queryKey: ["pending", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["accepted", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["active", makerspaceId] });
@@ -24,10 +24,14 @@ export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: 
   queryClient.invalidateQueries({ queryKey: ["dashboard", makerspaceId] });
 
   if (scope.inventory) {
-    invalidateInventoryViews(queryClient, makerspaceId);
+    // The slug refreshes the public catalogue's availability as well.
+    invalidateInventoryViews(queryClient, makerspaceId, slug);
+    invalidateContainerViews(queryClient, makerspaceId);
   }
   if (scope.needsFix) {
     queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspaceId] });
+    // A return can record lost or damaged units against the borrower.
+    queryClient.invalidateQueries({ queryKey: ["accountability", makerspaceId] });
   }
   if (scope.ledger) {
     queryClient.invalidateQueries({ queryKey: ["ledger", makerspaceId] });

@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { MachineTypePricing } from "../../../../generated/api";
 import type { MachineType } from "../../machinesApi";
+import { formatMoney } from "../../paymentsApi";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
 import { manualPriceCell, manualUsagePrice, useManualPrice } from "./manualPrice";
 import { blankServiceDraft } from "./serviceDrafts";
@@ -35,10 +36,18 @@ describe("manualUsagePrice", () => {
     expect(manualUsagePrice(undefined, "weight", manual({ quantity: "50" }))).toBeNull();
   });
 
-  it("formats a logged price, a free run, or a dash", () => {
-    expect(manualPriceCell("40.00", "INR")).toBe("INR 40.00");
+  it("formats a logged price as money, a free run, or a dash", () => {
+    expect(manualPriceCell("40.00", "INR")).toBe(formatMoney("40.00", "INR"));
+    expect(manualPriceCell("40.00", "inr")).toBe(formatMoney("40.00", "INR"));
+    expect(manualPriceCell("40.00", "")).toBe("40.00");
     expect(manualPriceCell("0.00", "INR")).toBe("Free");
     expect(manualPriceCell(null, "INR")).toBe("—");
+  });
+
+  it("prices by the effective unit the API resolved for this makerspace", () => {
+    // A built-in laser switched to count here: the quantity, not the minutes, is priced.
+    const overridden = { ...pricing, free_below_quantity: "0.00" };
+    expect(manualUsagePrice(overridden, "count", manual({ quantity: "3", duration_minutes: "40" }))).toBe(6);
   });
 });
 
@@ -75,6 +84,19 @@ describe("useManualPrice placeholder", () => {
     await waitFor(() => expect(free.result.current.placeholder).toBe("Free"));
     const unpriced = placeholderFor([{ ...pricing, rate_per_unit: "0.00" }], "25");
     await waitFor(() => expect(unpriced.result.current.placeholder).toBe("No price set"));
+  });
+
+  it("reads the unit from effective_config, not the built-in capability_config", async () => {
+    staffRequest.mockReset();
+    staffRequest.mockResolvedValue({ currency: "inr", results: [{ ...pricing, machine_type_id: 2, free_below_quantity: "0.00" }] });
+    const laser: MachineType = {
+      ...printerType, id: 2, slug: "laser_cutter", capability_config: { metering_unit: "minutes", requires_booking: true },
+      effective_config: { metering_unit: "count", requires_booking: true, uses_consumables: true, overridden: true },
+    };
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+    const hook = renderHook(() => useManualPrice(7, laser, manual({ quantity: "4", duration_minutes: "90" })), { wrapper });
+    await waitFor(() => expect(hook.result.current.placeholder).toBe("8.00"));
   });
 
   it("says Auto for a type outside the pricing scope, which the server still prices", async () => {

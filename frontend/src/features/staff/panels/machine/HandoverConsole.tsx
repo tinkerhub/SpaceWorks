@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { MachineServiceRequest } from "../../../../generated/api";
 import { Button, Chip, EmptyState, PageHeader, SkeletonRows, Table, TBody, TD, TH, THead, TR } from "../../../../components/ui";
 import { staffRequest } from "../../../../lib/api";
+import { formatMoney, invalidatePaymentViews } from "../../paymentsApi";
 import { useStaffGet } from "../shared";
 import { useNotify, When } from "./machineUi";
 import { paymentTone, showPaymentChip } from "./ServiceQueue";
@@ -61,9 +62,11 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       }),
     onSuccess: async (_result, row) => {
       notify.success(`Payment recorded for ${row.title}`);
+      invalidatePaymentViews(queryClient, makerspaceId);
       await refresh();
     },
-    onError: () => notify.failure("Couldn't record that payment. It may have been settled already."),
+    // The server's reason, not a guess: a handout-only desk role is refused 403 here.
+    onError: (error) => notify.failure("Couldn't record that payment.", error),
   });
 
   if (!enabled) return null;
@@ -115,7 +118,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                     <div className="flex flex-wrap items-center justify-end gap-2">
                       {manualPayment ? (
                         <Button size="sm" disabled={busy} loading={recordPayment.isPending && recordPayment.variables?.id === row.id} onClick={() => recordPayment.mutate(row)}>
-                          Record payment · {manualPayment.currency.toUpperCase()} {manualPayment.amount}
+                          Record payment · {formatMoney(manualPayment.amount, manualPayment.currency)}
                         </Button>
                       ) : null}
                       <Button size="sm" disabled={busy} loading={collect.isPending && collect.variables?.id === row.id} onClick={() => collect.mutate(row)}>
@@ -137,7 +140,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
       ) : null}
       {recordPayment.isError ? (
         <p className="text-caption text-danger-fg" role="alert">
-          Could not record that payment. It may have been settled already.
+          Could not record that payment. {recordPayment.error?.message}
         </p>
       ) : null}
     </section>

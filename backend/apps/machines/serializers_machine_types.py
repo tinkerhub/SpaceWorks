@@ -1,9 +1,32 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.machines.metering import MeteringUnit
 from apps.machines.models import MachineType
+from apps.machines.type_settings import cached_effective_config
 
 
-class MachineTypeSerializer(serializers.ModelSerializer):
+class EffectiveTypeConfigSerializer(serializers.Serializer):
+    """A type's settings as they apply in one makerspace (built-in overrides resolved)."""
+
+    metering_unit = serializers.ChoiceField(choices=MeteringUnit.choices)
+    requires_booking = serializers.BooleanField()
+    uses_consumables = serializers.BooleanField()
+    overridden = serializers.BooleanField(help_text="True when this makerspace overrides a built-in setting.")
+
+
+class EffectiveConfigMixin(serializers.Serializer):
+    effective_config = serializers.SerializerMethodField()
+
+    @extend_schema_field(EffectiveTypeConfigSerializer)
+    def get_effective_config(self, obj):
+        # A custom type belongs to its makerspace; a built-in is resolved for the makerspace
+        # the view names (none: the built-in's own settings).
+        makerspace_id = obj.makerspace_id or self.context.get("makerspace_id")
+        return cached_effective_config(self.context, obj, makerspace_id)
+
+
+class MachineTypeSerializer(EffectiveConfigMixin, serializers.ModelSerializer):
     class Meta:
         model = MachineType
         fields = [
@@ -14,6 +37,7 @@ class MachineTypeSerializer(serializers.ModelSerializer):
             'is_builtin',
             'managing_action',
             'capability_config',
+            'effective_config',
             'makerspace',
         ]
         read_only_fields = ['managing_action', 'makerspace', 'capability_config']

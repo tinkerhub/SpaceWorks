@@ -90,7 +90,7 @@ describe("PrinterServiceConsole", () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByText(/payment paid INR 25.00/i)).toBeVisible();
+    expect(await screen.findByText(/payment paid ₹25\.00/i)).toBeVisible();
   });
 
   it("offers settlement only for a completed request with a pending payment row", async () => {
@@ -129,7 +129,7 @@ describe("PrinterServiceConsole", () => {
 
     const payableRequest = (await screen.findByText("Paid print")).closest("article")!;
     const freeRequest = screen.getByText("Free print").closest("article")!;
-    expect(within(payableRequest).getByRole("button", { name: /record payment.*INR 25.00/i })).toBeVisible();
+    expect(within(payableRequest).getByRole("button", { name: "Record payment · ₹25.00" })).toBeVisible();
     expect(within(freeRequest).queryByRole("button", { name: /record payment/i })).not.toBeInTheDocument();
     expect(within(freeRequest).getByRole("button", { name: "Collect" })).toBeVisible();
   });

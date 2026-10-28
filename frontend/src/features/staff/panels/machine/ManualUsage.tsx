@@ -14,7 +14,9 @@ type Props = {
   pools: PrinterPool[];
   /** "Machine" or "Printer". */
   machineNoun: string;
-  unitLabel: string;
+  /** Short unit the quantity is typed in ("g", "items"); omitted for a minutes type. */
+  unitLabel?: string;
+  /** Show the pool picker: only types that use consumables have pools. */
   hasPool: boolean;
   pending: boolean;
   onSubmit: () => void;
@@ -35,7 +37,9 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
   const update = (patch: Partial<typeof manual>) => setDraft((current) => ({ ...current, manual: { ...current.manual, ...patch } }));
   return (
     <div className="grid gap-4">
-      <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-4 md:items-end" onSubmit={(event) => { event.preventDefault(); onSubmit(); }}>
+      {/* Top-aligned, not bottom: a helper line under one field (Price) would otherwise push
+          its label above its neighbours'. */}
+      <form className="grid items-start gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-4" onSubmit={(event) => { event.preventDefault(); onSubmit(); }}>
         <Field label={machineNoun}>
           <Dropdown aria-label={`Manual usage ${noun}`} value={manual.machine_id} onChange={(event) => update({ machine_id: event.target.value, consumable_pool_id: "" })}>
             <option value="" disabled>Choose a {noun}</option>
@@ -53,9 +57,9 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
         <Field label="Minutes">
           <Input aria-label="Manual usage minutes" type="number" min="0" value={manual.duration_minutes} onChange={(event) => update({ duration_minutes: event.target.value })} />
         </Field>
-        {hasPool ? (
-          <Field label={unitLabel.charAt(0).toUpperCase() + unitLabel.slice(1)}>
-            <Input aria-label={`Manual usage ${unitLabel}`} type="number" min="0" value={manual.quantity} onChange={(event) => update({ quantity: event.target.value })} />
+        {unitLabel ? (
+          <Field label={`Quantity (${unitLabel})`}>
+            <Input aria-label="Manual usage quantity" type="number" min="0" step="any" value={manual.quantity} onChange={(event) => update({ quantity: event.target.value })} />
           </Field>
         ) : null}
         <Field label="Outcome">
@@ -85,7 +89,9 @@ export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, uni
         <Field label="Note" className="sm:col-span-2">
           <Input aria-label="Manual usage note" value={manual.note} onChange={(event) => update({ note: event.target.value })} />
         </Field>
-        <Button type="submit" loading={pending} loadingLabel="Logging…" disabled={!manual.machine_id || !manual.duration_minutes}>Log usage</Button>
+        <div className="flex justify-end sm:col-span-2 md:col-span-4">
+          <Button type="submit" loading={pending} loadingLabel="Logging…" disabled={!manual.machine_id || !manual.duration_minutes}>Log usage</Button>
+        </div>
       </form>
       {rows.length ? (
         <Table label="Manual usage log">

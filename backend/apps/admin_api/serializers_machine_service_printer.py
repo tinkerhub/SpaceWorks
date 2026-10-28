@@ -24,7 +24,9 @@ class PrinterPoolCreateSerializer(serializers.Serializer):
     color_hex = serializers.CharField(max_length=7, required=False, allow_blank=True)
     brand = serializers.CharField(max_length=100, required=False, allow_blank=True)
     lot_code = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    unit = serializers.ChoiceField(choices=("grams", "milliliters", "millimeters", "count"), required=False, default="grams")
+    # Omit for a type- or machine-scoped pool: its unit is derived from the type's effective
+    # metering unit (a different one is refused). Shared pools default to grams.
+    unit = serializers.ChoiceField(choices=("grams", "milliliters", "millimeters", "count"), required=False)
     quantity = serializers.DecimalField(required=False, max_digits=12, decimal_places=2, min_value=Decimal("0"))
     initial_grams = serializers.DecimalField(required=False, max_digits=12, decimal_places=2, min_value=Decimal("0"))
     low_threshold_grams = serializers.DecimalField(required=False, allow_null=True, max_digits=12, decimal_places=2, min_value=Decimal("0"))

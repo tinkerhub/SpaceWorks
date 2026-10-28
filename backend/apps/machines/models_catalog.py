@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from apps.machines.metering import MeteringUnit, validate_type_config
@@ -74,6 +75,12 @@ class MakerspaceMachineTypePricing(models.Model):
     # Manual usage below this many of the type's own unit (grams, minutes, ml, ...) is logged
     # as free. Printers start at 20 g (`default_free_below`); other types start at 0.
     free_below_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
+    # Makerspace-only settings for a GLOBAL built-in type (custom types edit their own
+    # capability_config). NULL inherits the built-in value; read them only through
+    # `type_settings.effective_type_config`, never directly.
+    metering_unit_override = models.CharField(max_length=12, choices=MeteringUnit.choices, null=True, blank=True)
+    requires_booking_override = models.BooleanField(null=True, blank=True)
+    uses_consumables_override = models.BooleanField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)

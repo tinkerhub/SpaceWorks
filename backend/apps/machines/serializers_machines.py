@@ -17,6 +17,7 @@ from apps.machines.printer_capabilities import validate_machine_payload
 from apps.warranty.models import Warranty
 from apps.warranty.status import STATUS_UNKNOWN, warranty_status
 from apps.machines.serializers_machine_types import MachineTypeSerializer
+from apps.machines.type_settings import cached_effective_config
 
 
 class MachineOperatorSerializer(serializers.ModelSerializer):
@@ -148,6 +149,15 @@ class MachineSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # The nested type has no makerspace of its own when it is a built-in; resolve its
+        # effective settings for the machine's makerspace, where its jobs are metered.
+        data['machine_type']['effective_config'] = cached_effective_config(
+            self.context, instance.machine_type, instance.makerspace_id
+        )
+        return data
 
     def get_usage_hours(self, obj) -> Decimal:
         if hasattr(obj, 'usage_total'):

@@ -17,6 +17,7 @@ from apps.hardware_requests.self_checkout_helpers import (
     _issued_request,
     _locked_qrs_for_payloads,
     _reject_overlapping_checkout_targets,
+    _reviewed_request_holds_box,
 )
 from apps.hardware_requests.self_checkout_workflow import qr_has_active_loan
 from apps.hardware_requests.workflow_errors import (
@@ -94,6 +95,10 @@ def issue_direct_loan(
             ).exists():
                 raise InvalidTransition(
                     "That container is already out on another direct handout."
+                )
+            if _reviewed_request_holds_box(container):
+                raise InvalidTransition(
+                    "That container is already out on an issued request."
                 )
 
         # A container-only handout (no QRs, no items) assigns an EMPTY vessel. If the box

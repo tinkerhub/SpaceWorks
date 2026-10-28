@@ -37,12 +37,23 @@ def _date_param(request, name):
     return parsed
 
 
-def _makerspace_for_inventory_view(user, makerspace_id):
+def _makerspace_for_inventory_view(user, makerspace_id, report_action=None):
+    """Resolve by VIEW_INVENTORY, or by the report's own action when one is given.
+
+    The union keeps the inventory-first 403 (an inventory viewer who may not run the
+    report sees "forbidden", not "missing") while a role holding only the report's
+    action -- view_audit without view_inventory, say -- reaches the reports the
+    catalog lists for it instead of a 404.
+    """
     queryset = rbac.scope_by_action(
         user, rbac.Action.VIEW_INVENTORY, Makerspace.objects.all(), field="id"
     )
+    if report_action is not None:
+        queryset = queryset | rbac.scope_by_action(
+            user, report_action, Makerspace.objects.all(), field="id"
+        )
     queryset = rbac.hide_from_superadmin(user, queryset, field="id")
-    return get_object_or_404(queryset, pk=makerspace_id)
+    return get_object_or_404(queryset.distinct(), pk=makerspace_id)
 
 
 def _makerspace_for_catalog(user, makerspace_id):

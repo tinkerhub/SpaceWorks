@@ -54,7 +54,9 @@ class TenantDumpCatalogError(AssertionError):
 # Re-blessed for priced manual usage: MakerspaceMachineTypePricing.free_below_quantity and
 # MachineUsageEntry.price (both tenant content that travels as-is; the price is a logged
 # figure, not a Payment).
-CATALOG_SCHEMA_SHA256 = "80cd1906773133e2426900b1cd64d8fa8d0f369ba43c120501c3e1dacef5f8e9"
+# Re-blessed for per-makerspace built-in machine-type settings: the three nullable
+# MakerspaceMachineTypePricing.*_override columns (tenant content that travels as-is).
+CATALOG_SCHEMA_SHA256 = "06a35a1c40086d81302245b58ccf33d17db20956bb246382977b0383c49e60e4"
 
 
 def catalog_models(apps_registry=apps):

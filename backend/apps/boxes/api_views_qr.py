@@ -250,9 +250,12 @@ class QrRevokeView(QrPermissionMixin, APIView):
         responses={200: QrCodeSerializer},
     )
     def post(self, request, pk, *args, **kwargs):
-        qr = locked_qr_for_action(request.user, rbac.Action.MANAGE_QR, pk=pk)
-        self._require_qr(request.user, qr.makerspace_id)
-        revoke_qr_code(request.user, qr)
+        # select_for_update outside a transaction raises TransactionManagementError
+        # under autocommit, so the lock and the revoke share one atomic block.
+        with transaction.atomic():
+            qr = locked_qr_for_action(request.user, rbac.Action.MANAGE_QR, pk=pk)
+            self._require_qr(request.user, qr.makerspace_id)
+            revoke_qr_code(request.user, qr)
         return Response(QrCodeSerializer(qr).data)
 
 

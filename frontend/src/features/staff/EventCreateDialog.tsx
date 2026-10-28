@@ -6,6 +6,7 @@ import { EventSeriesFields, emptySeriesForm, seriesPayload } from "./EventSeries
 import { useCreateEvent } from "./eventsApi";
 import { useCreateEventSeries } from "./eventSeriesApi";
 import { eventErrorText } from "./eventUi";
+import { useMakerspaceCurrency } from "./paymentsApi";
 
 type Mode = "single" | "series";
 
@@ -20,6 +21,7 @@ export function EventCreateDialog({ makerspaceId, open, onClose, onCreatedEvent,
   const { showToast } = useToast();
   const create = useCreateEvent(makerspaceId);
   const createSeries = useCreateEventSeries(makerspaceId);
+  const currency = useMakerspaceCurrency(makerspaceId);
   const [mode, setMode] = useState<Mode>("single");
   const [values, setValues] = useState<EventFormValues>(emptyEventForm);
   const [seriesValues, setSeriesValues] = useState(emptySeriesForm);
@@ -77,7 +79,7 @@ export function EventCreateDialog({ makerspaceId, open, onClose, onCreatedEvent,
           options={[{ value: "single", label: "One-time event" }, { value: "series", label: "Series" }]}
         />
         {mode === "single"
-          ? <EventFields values={values} setValues={setValues} />
+          ? <EventFields values={values} setValues={setValues} currency={currency} />
           : <EventSeriesFields values={seriesValues} setValues={setSeriesValues} />}
         <ErrorText message={error ? eventErrorText(error) : null} />
       </form>

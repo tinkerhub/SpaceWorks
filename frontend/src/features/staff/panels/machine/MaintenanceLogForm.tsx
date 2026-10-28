@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Button, CheckboxField, Field, Input, Textarea } from "../../../../components/ui";
 import { useLogMaintenance, type MaintenanceSchedule } from "./maintenanceApi";
+import { useMakerspaceCurrency, withCurrency } from "../../paymentsApi";
 import { formatDay, useNotify } from "./machineUi";
 
 /**
@@ -22,6 +23,7 @@ export function MaintenanceLogForm({ makerspaceId, machineId, schedule, onCancel
   const [partsNote, setPartsNote] = useState("");
   const [setIdle, setSetIdle] = useState(false);
   const log = useLogMaintenance(makerspaceId, machineId);
+  const currency = useMakerspaceCurrency(makerspaceId);
   const headingId = schedule ? `complete-maintenance-${schedule.id}` : "log-maintenance-title";
 
   const reset = () => {
@@ -69,7 +71,7 @@ export function MaintenanceLogForm({ makerspaceId, machineId, schedule, onCancel
         <Field label="Performed at" helperText="Leave empty for now.">
           <Input type="datetime-local" value={performedAt} onChange={(event) => setPerformedAt(event.target.value)} />
         </Field>
-        <Field label="Cost" helperText="Optional.">
+        <Field label={withCurrency("Cost", currency)} helperText="Optional.">
           <Input type="number" min="0" step="0.01" inputMode="decimal" value={cost} onChange={(event) => setCost(event.target.value)} />
         </Field>
         <Field label="Parts and notes" helperText="Optional." className="sm:col-span-2">

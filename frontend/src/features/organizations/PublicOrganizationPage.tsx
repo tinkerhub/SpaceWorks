@@ -6,8 +6,9 @@ import { SkipLink } from "../../components/SkipLink";
 import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
 import { SiteFooter } from "../../components/SiteFooter";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { Card, EmptyState, Skeleton } from "../../components/ui";
+import { Card, EmptyState, Skeleton, StatusChip } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
+import { AVAILABILITY_TONE } from "../inventory/PublicEventCard";
 import {
   usePublicOrganization,
   usePublicOrganizationEvents,
@@ -90,7 +91,7 @@ export function PublicOrganizationPage() {
                         {event.location ? <p className="mt-1 text-sm text-muted">{event.location}</p> : null}
                         {event.description ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-ink">{event.description}</p> : null}
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                          <span className="chip chip-available">{event.availability}</span>
+                          <StatusChip tone={AVAILABILITY_TONE[event.availability]} size="sm">{event.availability}</StatusChip>
                           <Link className="desk-button-primary max-w-full" to={`/m/${event.host.slug}/events`}>
                             Register at {event.host.name}
                           </Link>

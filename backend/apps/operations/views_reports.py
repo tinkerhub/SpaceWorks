@@ -66,12 +66,13 @@ class AnalyticsView(APIView):
         responses={200: ANALYTICS_REPORT_RESPONSE, **ERROR_RESPONSES},
     )
     def get(self, request, makerspace_id, report_key="summary", *args, **kwargs):
-        # Inventory-first resolution, deliberately: scoping the queryset by the REPORT's
-        # own action would turn "you may not run this report" into a 404 instead of a
-        # 403, which is the contract pinned by
-        # test_report_rbac_status_codes_match_inventory_first_resolution.
-        makerspace = _makerspace_for_inventory_view(request.user, makerspace_id)
+        # Resolved by VIEW_INVENTORY OR the report's own action: inventory viewers keep the
+        # 403 pinned by test_report_rbac_status_codes_match_inventory_first_resolution,
+        # and a role the catalog lists the report for (view_audit only) is not a 404.
         definition = reports.validate_report_key(report_key)
+        makerspace = _makerspace_for_inventory_view(
+            request.user, makerspace_id, definition.required_action
+        )
         require_action(request.user, definition.required_action, makerspace.id)
         require_module(makerspace, "reports")
         require_report_applicable(definition, makerspace)
@@ -136,7 +137,9 @@ class AccountabilityReportView(APIView):
         request=None, responses={200: OpenApiTypes.OBJECT, **ERROR_RESPONSES},
     )
     def get(self, request, makerspace_id, *args, **kwargs):
-        makerspace = _makerspace_for_inventory_view(request.user, makerspace_id)
+        makerspace = _makerspace_for_inventory_view(
+            request.user, makerspace_id, rbac.Action.VIEW_AUDIT
+        )
         require_action(request.user, rbac.Action.VIEW_AUDIT, makerspace.id)
         require_module(makerspace, "reports")
         return Response(accountability.accountability_data(makerspace.id))
@@ -180,12 +183,14 @@ class ReportExportView(APIView):
         responses=EXPORT_RESPONSES,
     )
     def get(self, request, makerspace_id, report_key, *args, **kwargs):
-        # Inventory-first resolution, deliberately: scoping the queryset by the REPORT's
-        # own action would turn "you may not run this report" into a 404 instead of a
-        # 403, which is the contract pinned by
-        # test_report_rbac_status_codes_match_inventory_first_resolution.
-        makerspace = _makerspace_for_inventory_view(request.user, makerspace_id)
-        definition = reports.validate_report_key(report_key, for_export=True)
+        # Same VIEW_INVENTORY-or-report-action resolution as AnalyticsView. Exportability is
+        # checked only after the makerspace resolves, so a hidden or out-of-scope space
+        # stays a 404 rather than leaking a 400 for a non-exportable report key.
+        definition = reports.validate_report_key(report_key)
+        makerspace = _makerspace_for_inventory_view(
+            request.user, makerspace_id, definition.required_action
+        )
+        reports.validate_report_key(report_key, for_export=True)
         require_action(request.user, definition.required_action, makerspace.id)
         require_module(makerspace, "reports")
         require_report_applicable(definition, makerspace)

@@ -88,6 +88,15 @@ def attach_staff_membership(
             )
             created = True
         else:
+            # A NEW account would collide with the case-insensitive email constraint and
+            # 500; refuse it as a field error instead. Attaching an existing username
+            # never writes its email, so it is unaffected.
+            if (
+                email
+                and not User.objects.filter(username=username).exists()
+                and User.objects.filter(email__iexact=email).exists()
+            ):
+                raise ValidationError({"email": "A user with that email already exists."})
             user, created = User.objects.get_or_create(
                 username=username, defaults=user_defaults
             )

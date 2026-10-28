@@ -4,6 +4,7 @@ from unfold.admin import ModelAdmin
 
 from apps.integrations.models_push import PlatformPushSettings, PushDevice
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
 class PlatformPushSettingsForm(forms.ModelForm):
@@ -38,8 +39,9 @@ class PlatformPushSettingsForm(forms.ModelForm):
 
 
 @admin.register(PlatformPushSettings)
-class PlatformPushSettingsAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class PlatformPushSettingsAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     form = PlatformPushSettingsForm
+    audit_secret_fields = ("fcm_service_account_raw", "apns_private_key_raw")
     fieldsets = ((None, {"fields": (
         "fcm_service_account_raw", "clear_fcm_credentials",
         "apns_private_key_raw", "clear_apns_credentials",

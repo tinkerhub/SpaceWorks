@@ -90,6 +90,7 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
   const afterStaffChange = () => {
     queryClient.invalidateQueries({ queryKey: ["staff", "memberships", msId] });
     queryClient.invalidateQueries({ queryKey: ["staff", "roles", msId] });
+    queryClient.invalidateQueries({ queryKey: ["members", msId] }); // Members shows the same rows
     onAuthRefresh();
   };
   const succeeded = (message: string) => showToast(message, { tone: "success" });

@@ -84,7 +84,7 @@ def _checkout_box(qr, *, require_public=True):
         makerspace=qr.makerspace,
         container=box,
         status=PublicToolLoan.Status.CHECKED_OUT,
-    ).exists():
+    ).exists() or _reviewed_request_holds_box(box):
         raise RequestValidationError("This box is already checked out.")
     asset_filters = {
         "box": box,
@@ -154,6 +154,18 @@ def _checkout_box(qr, *, require_public=True):
         _issue_product(product, 1)
         issued_quantities[product] += 1
     return box.label, dict(issued_quantities), issued_asset_ids, box
+
+
+def _reviewed_request_holds_box(box):
+    # The reverse of handover_workflow._active_public_container_loan_exists: a box
+    # issued on a reviewed request is out the door, so no handout may take it too.
+    return HardwareRequest.objects.filter(
+        assigned_box=box,
+        status__in=[
+            HardwareRequest.Status.ISSUED,
+            HardwareRequest.Status.PARTIALLY_RETURNED,
+        ],
+    ).exists()
 
 
 def _eligible_product(pk, makerspace, *, require_public=True):

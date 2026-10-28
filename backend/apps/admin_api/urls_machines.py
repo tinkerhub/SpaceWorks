@@ -26,6 +26,7 @@ from apps.admin_api.views_machine_type_pricing import (
 from apps.admin_api.views_machine_types import (
     MachineTypeDetailView,
     MachineTypeListCreateView,
+    MachineTypeSettingsView,
 )
 from apps.admin_api.views_machines import MachineDetailView, MachineListCreateView
 from apps.admin_api.views_machines_actions import (
@@ -52,6 +53,11 @@ urlpatterns = [
         'makerspace/<int:makerspace_id>/machine-types/<int:pk>',
         MachineTypeDetailView.as_view(),
         name='admin-machine-type-detail',
+    ),
+    path(
+        'makerspace/<int:makerspace_id>/machine-types/<int:pk>/settings',
+        MachineTypeSettingsView.as_view(),
+        name='admin-machine-type-settings',
     ),
     path(
         'makerspace/<int:makerspace_id>/machine-type-pricing',

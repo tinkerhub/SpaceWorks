@@ -6,6 +6,7 @@ import { MaintenanceDocuments } from "./MaintenanceDocuments";
 import { MaintenanceLogForm } from "./MaintenanceLogForm";
 import { MaintenanceSchedules } from "./MaintenanceSchedules";
 import { useMaintenanceLogs, useMaintenanceSchedules, type MaintenanceSchedule } from "./maintenanceApi";
+import { formatMoney, useMakerspaceCurrency } from "../../paymentsApi";
 import { When } from "./machineUi";
 
 type MaintenanceTabProps = {
@@ -23,6 +24,7 @@ export function MaintenanceTab({
   const [completing, setCompleting] = useState<MaintenanceSchedule | null>(null);
   const schedules = useMaintenanceSchedules(makerspaceId, machineId, enabled);
   const logs = useMaintenanceLogs(makerspaceId, machineId, enabled);
+  const currency = useMakerspaceCurrency(makerspaceId);
 
   if (schedules.isLoading || logs.isLoading) {
     return (
@@ -83,7 +85,7 @@ export function MaintenanceTab({
                       <strong className="text-body-ui font-semibold text-ink">{log.summary}</strong>
                       <span className="text-caption text-ink-muted">
                         <When value={log.performed_at} />
-                        {log.cost ? ` · Cost ${log.cost}` : ""}
+                        {log.cost ? ` · Cost ${currency ? formatMoney(log.cost, currency) : log.cost}` : ""}
                         {log.documents.length ? ` · ${log.documents.length} ${log.documents.length === 1 ? "attachment" : "attachments"}` : ""}
                       </span>
                     </span>

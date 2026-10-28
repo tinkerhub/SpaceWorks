@@ -31,7 +31,9 @@ class MembershipListCreateView(APIView):
     def get(self, request, makerspace_id):
         makerspace = _makerspace(request.user, makerspace_id)
         memberships = (
-            MakerspaceMembership.objects.filter(makerspace=makerspace)
+            # Revoked rows are kept for history (Remove role revokes, never deletes), but
+            # they are not staff any more, so the staff list leaves them out.
+            MakerspaceMembership.objects.filter(makerspace=makerspace, status="active")
             .select_related("user", "makerspace", "assigned_role")
             .order_by("user__username")
         )
@@ -71,6 +73,13 @@ class MembershipListCreateView(APIView):
             # actor-membership) and deadlocks (P2).
             makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
             role_services.can_assign_role(request.user, makerspace, role)
+            previous_role_id = (
+                MakerspaceMembership.objects.filter(
+                    makerspace=makerspace, user__username=data["username"]
+                )
+                .values_list("assigned_role_id", flat=True)
+                .first()
+            )
             membership, created, is_break_glass = attach_staff_membership(
                 actor=request.user,
                 makerspace=makerspace,
@@ -90,7 +99,11 @@ class MembershipListCreateView(APIView):
                 ),
                 makerspace=makerspace,
                 target=membership.user,
-                meta={"role_id": role.id, "role_slug": role.slug},
+                meta={
+                    "role_id": role.id,
+                    "role_slug": role.slug,
+                    "previous_role_id": previous_role_id,
+                },
             )
         membership = (
             MakerspaceMembership.objects.select_related("user", "makerspace", "assigned_role")

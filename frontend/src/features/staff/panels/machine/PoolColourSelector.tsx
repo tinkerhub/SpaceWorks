@@ -9,6 +9,7 @@ import { staffRequest, type StaffAuthUser } from "../../../../lib/api";
 import { machineKeys, updateMachineType, type MachineType } from "../../machinesApi";
 import { PoolColourSwatchControl } from "./PoolColourSwatchControl";
 import { useNotify } from "./machineUi";
+import { configFor } from "./typeConfig";
 
 type Props = {
   makerspaceId: number;
@@ -87,7 +88,7 @@ export function PoolColourSelector({ makerspaceId, machineType, existingPools, v
   const appendColour = useMutation({
     mutationFn: ({ name }: { name: string; hex: string }) => {
       if (!machineType) throw new Error("A machine type is required.");
-      const capabilityConfig = machineType.capability_config ?? { metering_unit: "count", requires_booking: false };
+      const capabilityConfig = configFor(machineType);
       return updateMachineType(makerspaceId, machineType.id, {
         name: machineType.name,
         icon: machineType.icon,

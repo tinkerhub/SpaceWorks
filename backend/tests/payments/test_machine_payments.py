@@ -109,7 +109,7 @@ def test_completion_creates_payment_and_checkout_failure_never_blocks(monkeypatc
     start(row, actor, role_scope.EXEMPT, machine_id=row.assigned_machine_id)
     assert complete(row, actor, actual_minutes=1, consumptions=[]).status == MachineServiceRequest.Status.COMPLETED
     payment = Payment.objects.get(subject_id=row.pk)
-    assert (payment.amount, payment.currency) == (Decimal("3.00"), "usd")
+    assert (payment.amount, payment.currency) == (Decimal("3.00"), "inr")
 
 
 def test_checked_in_walk_in_completion_uses_counter_settlement():

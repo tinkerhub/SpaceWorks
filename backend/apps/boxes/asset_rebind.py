@@ -1,4 +1,5 @@
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from apps.accounts import rbac
@@ -14,6 +15,9 @@ from apps.inventory import availability
 from apps.inventory.availability import InsufficientStock
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 from apps.makerspaces.guards import require_module
+# Models stay installed even when the warranty app is tombstoned (only its surfaces go),
+# so the import is safe on every deployment profile.
+from apps.warranty.models import Warranty
 
 
 OUTSTANDING_REQUEST_STATUSES = (
@@ -81,6 +85,16 @@ def move_asset_across_makerspaces(
             ])
     except IntegrityError as exc:
         raise Conflict("An asset with that tag already exists in the destination makerspace.") from exc
+    # The warranty travels with the asset: Warranty.clean requires the two to share a
+    # makerspace, and a stale tenant would leave it reported (and its documents served)
+    # by the space that no longer owns the asset. WarrantyDocument has no tenant column.
+    moved_warranty_id = (
+        Warranty.objects.filter(asset=asset).values_list("pk", flat=True).first()
+    )
+    if moved_warranty_id is not None:
+        Warranty.objects.filter(pk=moved_warranty_id).update(
+            makerspace=dest_makerspace, updated_at=timezone.now()
+        )
 
     qr.makerspace = dest_makerspace
     try:
@@ -115,19 +129,22 @@ def move_asset_across_makerspaces(
         actor=user,
         context=QrScanEvent.Context.REASSIGNMENT,
     )
+    meta = {
+        "old_makerspace_id": source_makerspace_id,
+        "new_makerspace_id": dest_makerspace.id,
+        "asset_id": asset.id,
+        "dest_product_id": dest_product.id,
+        "old_tag": old_tag,
+        "new_tag": final_tag,
+    }
+    if moved_warranty_id is not None:
+        meta["warranty_id"] = moved_warranty_id
     audit.record(
         user,
         "inventory.asset_moved_makerspace",
         makerspace=dest_makerspace,
         target=asset,
-        meta={
-            "old_makerspace_id": source_makerspace_id,
-            "new_makerspace_id": dest_makerspace.id,
-            "asset_id": asset.id,
-            "dest_product_id": dest_product.id,
-            "old_tag": old_tag,
-            "new_tag": final_tag,
-        },
+        meta=meta,
     )
     return QrRebindResult(qr=qr)
 

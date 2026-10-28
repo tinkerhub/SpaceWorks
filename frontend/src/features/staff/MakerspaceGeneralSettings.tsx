@@ -61,7 +61,7 @@ export function MakerspaceGeneralSettings({ makerspace, settings, loading }: Pro
       <CardHeader title="General" description="Loan defaults and what the public can browse." />
       <SettingsRow title="Default loan days" description="Default return window applied when a hardware request is issued.">
         <form
-          className="flex min-w-0 flex-wrap items-end gap-3"
+          className="flex min-w-0 flex-wrap items-start gap-3"
           onSubmit={(event) => {
             event.preventDefault();
             updateDefaultLoanDays.mutate(defaultLoanDays);
