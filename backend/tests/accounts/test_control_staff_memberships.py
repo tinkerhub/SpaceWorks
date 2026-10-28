@@ -215,3 +215,29 @@ def test_member_role_is_not_a_staff_grant_but_stays_on_existing_members():
         data={"user": existing.user_id, "makerspace": space.pk, "assigned_role": member_role.pk}, instance=existing,
     )
     assert form.is_valid(), form.errors
+
+
+def test_a_new_row_for_a_hidden_member_or_revoked_staffer_regrants_their_row():
+    space = _space("ctl-adopt")
+    member = make_user("ctl-adopt-member")
+    revoked = make_user("ctl-adopt-revoked")
+    member_row = MakerspaceMembership.objects.create(
+        user=member, makerspace=space, role=MakerspaceMembership.Role.CUSTOM,
+        assigned_role=space.roles.get(slug="member"),
+    )
+    revoked_row = MakerspaceMembership.objects.create(
+        user=revoked, makerspace=space, role=MakerspaceMembership.Role.INVENTORY_MANAGER,
+        assigned_role=space.roles.get(legacy_role="inventory_manager"), status="revoked",
+        revoked_at=timezone.now(),
+    )
+    inventory = space.roles.get(legacy_role="inventory_manager")
+
+    for user, row in ((member, member_row), (revoked, revoked_row)):
+        # The Makerspace page lists active staff only, so these rows are not on it; a new
+        # row must take them over rather than fail uniq(user, makerspace).
+        form = _form(user, space, inventory)
+        assert form.is_valid(), form.errors
+        saved = form.save()
+        assert saved.pk == row.pk
+        assert (saved.assigned_role_id, saved.status) == (inventory.pk, "active")
+    assert MakerspaceMembership.objects.filter(makerspace=space).count() == 2
