@@ -65,6 +65,11 @@ def set_type_override(machine_type, makerspace, actor, values):
         makerspace=makerspace, machine_type=machine_type, defaults={"created_by": actor}
     )
     row = MakerspaceMachineTypePricing.objects.select_for_update().get(pk=row.pk)
+    # Lock every active pool of the type before the in-flight check. A job reserving stock
+    # locks its pool and only then reads the unit, so the two now serialize: a start that
+    # got in first is seen by the busy check below, and one that waits re-reads the new
+    # unit and is refused instead of reserving in the old one.
+    list(_active_type_pools(machine_type, makerspace.pk).select_for_update(of=("self",)).order_by("pk").values_list("pk", flat=True))
     old = effective_type_config(machine_type, makerspace.pk, row=row)
     for key, column in OVERRIDE_COLUMNS.items():
         if key in values:

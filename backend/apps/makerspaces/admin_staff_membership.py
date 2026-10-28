@@ -71,6 +71,8 @@ class StaffMembershipForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.instance.pk is None:
+            self._adopt_hidden_row(cleaned)
         makerspace = cleaned.get("makerspace") or getattr(self.instance, "makerspace", None)
         if makerspace is not None and not makerspace.superadmin_access_enabled:
             # A hard-hidden makerspace has withdrawn superadmin authority; recovery there
@@ -100,6 +102,28 @@ class StaffMembershipForm(forms.ModelForm):
             self.instance.revoked_by = None
             self.instance.revocation_reason = ""
         return cleaned
+
+    def _adopt_hidden_row(self, cleaned):
+        """Re-staff a user who already has a row here instead of failing uniq(user, makerspace).
+
+        The Makerspace page lists active staff only, so a community member or a revoked
+        staffer has a row the inline cannot show; a new row for them would hit the unique
+        constraint. Granting a role on their existing row is exactly what Add staff does.
+        """
+        user = cleaned.get("user")
+        makerspace = cleaned.get("makerspace")
+        user_id = user.pk if user else self.instance.user_id
+        makerspace_id = makerspace.pk if makerspace else self.instance.makerspace_id
+        if not (user_id and makerspace_id):
+            return
+        existing = (
+            MakerspaceMembership.objects.select_for_update(of=("self",))
+            .filter(user_id=user_id, makerspace_id=makerspace_id)
+            .first()
+        )
+        if existing is not None:
+            existing._adopted_hidden_row = True
+            self.instance = existing
 
     def _check_new_staff(self, makerspace):
         # The same gates Add staff applies (attach_staff_membership): no staff for an
@@ -148,7 +172,9 @@ def audit_staff_memberships(request, formset):
     if formset.model is not MakerspaceMembership:
         return
     for membership in formset.new_objects:
-        audit_staff_membership(request.user, membership, created=True)
+        # A re-granted hidden row is an update of an existing membership, not a new one.
+        created = not getattr(membership, "_adopted_hidden_row", False)
+        audit_staff_membership(request.user, membership, created=created)
     for membership, _fields in formset.changed_objects:
         audit_staff_membership(request.user, membership, created=False)
 
