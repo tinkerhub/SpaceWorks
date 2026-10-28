@@ -6,6 +6,10 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
+- **2026-10-28 — Sidebar dropdowns.** The staff console sidebar now starts with every group
+  folded (it remembers the ones you open), and Machines unfolds into one link per machine type
+  the actor can reach.
+
 - **2026-10-24 — Staff from /control/, priced manual usage, control-plane audit.** A superadmin can
   make staff entirely in `/control/`: the membership inlines (User and Makerspace pages) pick a real
   role, mirror the legacy `role`, reactivate on re-grant and are audited; removal is the "Revoke

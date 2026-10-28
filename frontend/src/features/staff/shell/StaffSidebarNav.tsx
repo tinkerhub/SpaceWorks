@@ -1,14 +1,16 @@
 import { useEffect, useId, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
 import { Tooltip } from "../../../components/ui";
 import { cn } from "../../../lib/cn";
-import { staffTabPath } from "../staffTabs";
-import { staffNavGroups, staffTabIcon, staffTabLabel, type StaffNavGroup } from "./staffNavItems";
-import { useNavGroupsCollapsed } from "./useNavGroupsCollapsed";
+import { parseMachineTypeSegment, staffSubPathFromPath, staffTabPath } from "../staffTabs";
+import { staffNavGroups, type StaffNavGroup, type StaffNavRow } from "./staffNavItems";
+import { useMachineTypeNavLinks } from "./useMachineTypeNavLinks";
+import { useNavGroupsOpen } from "./useNavGroupsOpen";
 
 export type StaffNavProps = {
+  activeMakerspaceId?: number;
   activeMakerspaceSlug?: string;
   activeTab: string;
   allowedTabs: readonly string[];
@@ -36,9 +38,21 @@ function UnreadBadge({ count, collapsed }: { count: number; collapsed: boolean }
   );
 }
 
-type NavGroupProps = { group: StaffNavGroup; props: StaffNavProps; open: boolean; onToggle: () => void };
+type NavGroupProps = {
+  group: StaffNavGroup;
+  props: StaffNavProps;
+  activeTypeId: number | null;
+  open: boolean;
+  onToggle: () => void;
+};
 
-function NavGroup({ group, props, open, onToggle }: NavGroupProps) {
+function rowActive(row: StaffNavRow, activeTab: string, activeTypeId: number | null) {
+  // A row under a tab with sub-links matches on the type in the URL too; "" (the index)
+  // parses to null, so "All machine types" is the current page only when no type is open.
+  return row.tab === activeTab && (row.subPath === undefined || parseMachineTypeSegment(row.subPath) === activeTypeId);
+}
+
+function NavGroup({ group, props, activeTypeId, open, onToggle }: NavGroupProps) {
   const headingId = useId();
   const listId = useId();
   const { activeMakerspaceSlug, activeTab, collapsed, guestOnly, singleTenantLocked, unreadCount, onNavigate } = props;
@@ -61,18 +75,17 @@ function NavGroup({ group, props, open, onToggle }: NavGroupProps) {
         </button>
       ) : null}
       <ul id={listId} hidden={!expanded} className="flex flex-col gap-0.5">
-        {group.tabs.map((tab) => {
-          const Icon = staffTabIcon(tab);
-          const label = staffTabLabel(tab);
-          const active = tab === activeTab;
+        {group.rows.map((row) => {
+          const { tab, label, icon: Icon } = row;
+          const active = rowActive(row, activeTab, activeTypeId);
           const unread = tab === "notifications" ? unreadCount : 0;
           // The visible label leads the accessible name; the unread count is folded in after it.
           const accessibleName = unread > 0 ? `${label}, ${unread} unread` : collapsed ? label : undefined;
           return (
-            <li key={tab}>
+            <li key={`${tab}/${row.subPath ?? ""}`}>
               <RailTip collapsed={collapsed} label={label}>
                 <Link
-                  to={staffTabPath(tab, guestOnly, activeMakerspaceSlug, singleTenantLocked)}
+                  to={staffTabPath(tab, guestOnly, activeMakerspaceSlug, singleTenantLocked, row.subPath)}
                   onClick={() => onNavigate(tab)}
                   aria-current={active ? "page" : undefined}
                   aria-label={accessibleName}
@@ -97,10 +110,16 @@ function NavGroup({ group, props, open, onToggle }: NavGroupProps) {
 
 /** The staff console's section list: every tab this actor's role and modules allow, grouped. */
 export function StaffSidebarNav(props: StaffNavProps) {
-  const groups = staffNavGroups(props.allowedTabs);
-  const { collapsed: closedGroups, setGroupOpen } = useNavGroupsCollapsed();
+  const location = useLocation();
+  const machineTypeLinks = useMachineTypeNavLinks(props.activeMakerspaceId, props.allowedTabs.includes("machines"));
+  // The icon rail cannot tell one machine-type row from another, so it keeps the single row.
+  const groups = staffNavGroups(props.allowedTabs, props.collapsed ? [] : machineTypeLinks);
+  const activeTypeId = props.activeTab === "machines"
+    ? parseMachineTypeSegment(staffSubPathFromPath(location.pathname, props.guestOnly))
+    : null;
+  const { open: openGroups, setGroupOpen } = useNavGroupsOpen();
   const activeGroup = groups.find((group) => group.tabs.includes(props.activeTab))?.label;
-  // Landing on a tab inside a folded group (a link, a refresh) opens that group.
+  // Every group starts folded; landing on a tab inside one (a link, a refresh) opens it.
   useEffect(() => {
     if (activeGroup) setGroupOpen(activeGroup, true);
   }, [activeGroup, setGroupOpen]);
@@ -111,8 +130,9 @@ export function StaffSidebarNav(props: StaffNavProps) {
           <NavGroup
             group={group}
             props={props}
-            open={!closedGroups.has(group.label)}
-            onToggle={() => setGroupOpen(group.label, closedGroups.has(group.label))}
+            activeTypeId={activeTypeId}
+            open={openGroups.has(group.label)}
+            onToggle={() => setGroupOpen(group.label, !openGroups.has(group.label))}
           />
         </div>
       ))}

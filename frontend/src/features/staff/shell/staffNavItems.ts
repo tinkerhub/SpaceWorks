@@ -17,6 +17,7 @@ import {
   Inbox,
   KeyRound,
   LayoutDashboard,
+  LayoutGrid,
   Mail,
   MailCheck,
   NotebookText,
@@ -88,19 +89,45 @@ export function staffTabLabel(tab: string) {
   return TAB_LABELS[tab] ?? tab;
 }
 
+/** A link nested under a tab: one per reachable machine type under Machines. */
+export type StaffNavSubLink = { label: string; subPath: string };
+
+export type StaffNavRow = {
+  tab: string;
+  label: string;
+  icon: LucideIcon;
+  /** Set only on rows under a tab with sub-links; "" is that tab's index page. */
+  subPath?: string;
+};
+
 export type StaffNavGroup = {
   label: string;
   tabs: string[];
-  /** A one-tab group named after its only tab ("Machines") needs no heading over it. */
+  rows: StaffNavRow[];
+  /** A one-row group named after its only tab ("Events") needs no heading over it. */
   showHeading: boolean;
 };
 
-/** The sidebar's groups: `TAB_GROUPS` narrowed to the tabs this actor may open, empties dropped. */
-export function staffNavGroups(allowedTabs: readonly string[]): StaffNavGroup[] {
+function tabRows(tab: string, machineTypeLinks: readonly StaffNavSubLink[]): StaffNavRow[] {
+  if (tab !== "machines" || !machineTypeLinks.length) {
+    return [{ tab, label: staffTabLabel(tab), icon: staffTabIcon(tab) }];
+  }
+  return [
+    { tab, label: "All machine types", icon: LayoutGrid, subPath: "" },
+    ...machineTypeLinks.map((link) => ({ tab, label: link.label, icon: staffTabIcon(tab), subPath: link.subPath })),
+  ];
+}
+
+/**
+ * The sidebar's groups: `TAB_GROUPS` narrowed to the tabs this actor may open, empties
+ * dropped. Machines unfolds into one row per type in `machineTypeLinks` when there are any.
+ */
+export function staffNavGroups(allowedTabs: readonly string[], machineTypeLinks: readonly StaffNavSubLink[] = []): StaffNavGroup[] {
   return TAB_GROUPS
     .map((group) => {
       const tabs = group.tabs.filter((tab) => allowedTabs.includes(tab));
-      return { label: group.label, tabs, showHeading: !(tabs.length === 1 && staffTabLabel(tabs[0]) === group.label) };
+      const rows = tabs.flatMap((tab) => tabRows(tab, machineTypeLinks));
+      return { label: group.label, tabs, rows, showHeading: !(rows.length === 1 && rows[0].label === group.label) };
     })
     .filter((group) => group.tabs.length > 0);
 }
