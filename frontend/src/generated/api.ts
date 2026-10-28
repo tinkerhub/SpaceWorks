@@ -319,6 +319,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspaces/{makerspace_id}/evidence-retention",
   "/api/v1/admin/makerspaces/{makerspace_id}/evidence-retention/preview",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/consumable-pools",
+  "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/printer-queue",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/requests",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/typed-manual-usage",
   "/api/v1/admin/makerspaces/{makerspace_id}/machines/{machine_id}/maintenance/logs/",
@@ -2807,6 +2808,7 @@ export type MachineTypeAccess = {
   "effective_config": EffectiveTypeConfig;
   "makerspace": number | null;
   "can_create_machine": boolean;
+  "can_manage_public_queue": boolean;
 };
 
 export type MachineTypeCreate = {
@@ -4944,6 +4946,17 @@ export type PublicPrinterQueue = {
   "id": number;
   "name": string;
   "description": string;
+};
+
+export type PublicPrinterQueueError = {
+  "detail": string;
+  "code"?: string;
+};
+
+export type PublicPrinterQueueState = {
+  "enabled": boolean;
+  "queue_id": number | null;
+  "name": string | null;
 };
 
 export type PublicPrinterStatus = {

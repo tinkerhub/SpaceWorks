@@ -1,7 +1,8 @@
+import { PublicPrinterQueueSetup } from "./PublicPrinterQueueSetup";
 import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type { MachineServiceRequest, PrinterPool, PrinterServiceReport, TypedManualUsageResponse } from "../../../../generated/api";
+import type { MachineServiceRequest, MachineTypeAccess, PrinterPool, PrinterServiceReport, TypedManualUsageResponse } from "../../../../generated/api";
 import { EmptyState, ErrorBlock, SectionHeading, Skeleton } from "../../../../components/ui";
 import { staffRequest } from "../../../../lib/api";
 import { machineKeys } from "../../machinesApi";
@@ -21,7 +22,7 @@ type Props = {
   canManage: boolean;
   printingEnabled: boolean;
   reportsEnabled?: boolean;
-  machineType: MachineType;
+  machineType: MachineType & Partial<Pick<MachineTypeAccess, "can_manage_public_queue">>;
   machines: Machine[];
   pools: PrinterPool[];
   draft: ServiceDraft;
@@ -124,6 +125,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
       {printingEnabled ? (
         <section className="grid gap-4">
           <SectionHeading title="3D-printer queue" description="Accept jobs, reserve filament, start work, reconcile actual grams, then complete, fail, collect or reprint." />
+          {machineType.can_manage_public_queue === true ? <PublicPrinterQueueSetup makerspaceId={makerspaceId} /> : null}
           <ServiceQueue
             makerspaceId={makerspaceId}
             requests={requests.data}

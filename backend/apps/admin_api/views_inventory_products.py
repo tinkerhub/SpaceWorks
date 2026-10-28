@@ -30,6 +30,10 @@ from apps.makerspaces.guards import require_module
 
 
 @extend_schema(tags=["Admin inventory"], summary="List or create inventory products")
+@extend_schema_view(post=extend_schema(
+    description="Individual products must start with zero total and available stock. Generate verified units in QR Tools afterwards.",
+    responses={201: InventoryProductAdminSerializer, 400: OpenApiResponse(description="Invalid product, nonzero individual initial stock, or protected quantity buckets supplied.")},
+))
 class InventoryListCreateView(generics.ListCreateAPIView):
     serializer_class = InventoryProductAdminSerializer
     permission_classes = [IsActiveStaff]
@@ -123,7 +127,7 @@ class InventoryQuantityAdjustmentView(APIView):
         tags=["Admin inventory"],
         summary="Adjust inventory quantity buckets",
         request=InventoryQuantityAdjustmentSerializer,
-        responses={200: InventoryProductAdminSerializer},
+        responses={200: InventoryProductAdminSerializer, 400: OpenApiResponse(description="Invalid adjustment, insufficient stock, or individual item: use QR Tools and unit-status workflows instead.")},
     )
     def post(self, request, pk, *args, **kwargs):
         product = get_object_or_404(
@@ -140,7 +144,7 @@ class InventoryQuantityAdjustmentView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         try:
-            locked = availability.adjust_quantities(
+            locked = availability.adjust_manual_quantities(
                 product,
                 delta_available=data["delta_available"],
                 delta_damaged=data["delta_damaged"],

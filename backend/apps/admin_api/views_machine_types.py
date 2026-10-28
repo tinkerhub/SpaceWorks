@@ -81,7 +81,7 @@ class MachineTypeListCreateView(APIView):
                 manage_granted
                 and role_scope.scope_covers_type(machine_scope, row)
             ) or row.managing_action in direct_actions
-        return Response(MachineTypeAccessSerializer(rows, many=True, context=_type_context(makerspace_id, rows)).data)
+        return Response(MachineTypeAccessSerializer(rows, many=True, context={**_type_context(makerspace_id, rows), "request": request}).data)
 
     @extend_schema(
         tags=['Admin machines'],

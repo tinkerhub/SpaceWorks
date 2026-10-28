@@ -14,7 +14,7 @@ const UNIT_NAMES: Record<PoolUnit, string> = { grams: "Grams", milliliters: "Mil
 
 type Props = {
   makerspaceId: number;
-  machineType?: MachineType;
+  machineType: MachineType;
   existingPools: PrinterPool[];
 };
 
@@ -46,11 +46,10 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
   const brandListId = useId();
   const [pool, setPool] = useState(blankPool);
   const printerType = isBuiltinPrinterType(machineType);
-  // A type's stock is always kept in the unit its jobs are metered in; only shared,
-  // makerspace-wide stock chooses one.
-  const derivedUnit = machineType ? typePoolUnit(machineType) : undefined;
+  // New stock always belongs to this type and uses its metering unit.
+  const derivedUnit = typePoolUnit(machineType);
   const unit = derivedUnit ?? pool.unit;
-  const materialPresets = machineType?.capability_config?.accepted_materials;
+  const materialPresets = machineType.capability_config?.accepted_materials;
   const brands = useMemo(() => {
     const used = new Map<string, string>();
     existingPools.forEach(({ brand }) => {
@@ -63,7 +62,7 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
     mutationFn: () => staffRequest<PrinterPool>(poolPath(makerspaceId), {
       method: "POST",
       body: JSON.stringify({
-        machine_type_id: machineType?.id ?? null,
+        machine_type_id: machineType.id,
         is_public: pool.isPublic,
         material: pool.material.trim(),
         color: pool.color.trim(),
@@ -82,9 +81,7 @@ export function ConsumablePoolCreateForm({ makerspaceId, machineType, existingPo
     onError: (error) => notify.failure(printerType ? "Couldn't add the filament." : "Couldn't add the pool.", error),
   });
 
-  const scopeCopy = machineType
-    ? `Type-wide: available to every ${machineType.name} machine.`
-    : "Space-wide: available to every compatible machine in this makerspace.";
+  const scopeCopy = `Type-wide: available to every ${machineType.name} machine.`;
 
   return (
     <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); createPool.mutate(); }}>

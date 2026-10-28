@@ -77,7 +77,7 @@ export function ConsumablesTab({ machineId, canEdit, canOperate, retired = false
 
   return (
     <section className="grid gap-4">
-      <SectionHeading as="h3" title="Consumables" description="Stock this machine draws from: inventory products by count, or a local ledger in grams." />
+      <SectionHeading as="h3" title="Inventory links and local ledger" description="Link inventory items by count or keep a separate local grams ledger. Manage filament and other type stock on the machine type's page; copying it here would duplicate its balance." />
       {consumables.isLoading ? (
         <div className="grid gap-2" role="status" aria-label="Loading consumables">
           <Skeleton className="h-20 w-full" />
@@ -98,7 +98,7 @@ export function ConsumablesTab({ machineId, canEdit, canOperate, retired = false
       ) : null}
       {canEdit && !retired ? (
         <form className="grid gap-4 rounded-lg border border-line bg-subtle p-4" onSubmit={(event) => { event.preventDefault(); link.mutate(); }}>
-          <h4 className="text-title text-ink">Link a consumable</h4>
+          <h4 className="text-title text-ink">Link inventory or create a local ledger</h4>
           <SegmentedControl
             ariaLabel="Measurement"
             size="sm"

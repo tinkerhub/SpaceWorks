@@ -1,3 +1,4 @@
+from apps.inventory.availability_manual_adjustments import adjust_manual_quantities
 from apps.inventory.availability_assets import (
     ASSET_QUANTITY_BUCKETS,
     ASSET_QUANTITY_FIELDS,

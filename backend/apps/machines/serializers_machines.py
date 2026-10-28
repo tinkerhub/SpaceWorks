@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -149,6 +150,18 @@ class MachineSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+
+    def update(self, instance, validated_data):
+        # Workflow-owned status/publicity/lifecycle columns must never be written
+        # back from the stale instance that the view fetched before validation.
+        validated_data.pop("machine_type", None)
+        with transaction.atomic():
+            locked = Machine.objects.select_for_update().get(pk=instance.pk)
+            for field, value in validated_data.items():
+                setattr(locked, field, value)
+            if validated_data:
+                locked.save(update_fields=[*validated_data, "updated_at"])
+            return locked
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

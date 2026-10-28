@@ -7,7 +7,7 @@ from apps.admin_api.serializers_inventory import InventoryProductAdminCreateSeri
 from apps.admin_api.views_inventory import _assert_box_in_makerspace, _assert_category_in_makerspace
 from apps.audit import services as audit
 from apps.inventory import availability
-from apps.inventory.models import InventoryProduct
+from apps.inventory.models import InventoryProduct, TrackingMode
 from apps.procurement.models import ToBuyItem
 
 
@@ -44,6 +44,8 @@ def move_to_inventory(
         quantity = _positive_quantity(quantity)
 
         if mode == MoveMode.CREATE:
+            if tracking_mode == TrackingMode.INDIVIDUAL:
+                raise ValidationError({"tracking_mode": "Procurement supports quantity stock only. Create an individual item with zero stock in Inventory, then generate verified units in QR Tools."})
             product = _create_inventory_product(
                 locked,
                 box_id=box_id,
@@ -61,6 +63,9 @@ def move_to_inventory(
         else:
             raise ValidationError({"mode": "Use create or topup."})
 
+        product = InventoryProduct.objects.select_for_update().get(pk=product.pk)
+        if product.tracking_mode == TrackingMode.INDIVIDUAL:
+            raise ValidationError({"product_id": "Individual items cannot be topped up here. Verify physical units and generate them in QR Tools."})
         try:
             product = availability.adjust_quantities(
                 product,

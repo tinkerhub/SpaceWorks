@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -47,8 +47,10 @@ class ToBuyMoveBaseView(APIView):
 class ToBuyMoveToInventoryView(ToBuyMoveBaseView):
     @extend_schema(
         summary="Move a received hardware to-buy item into inventory",
+        description="Quantity-tracked stock only. Creating or topping up individual items returns 400 without changing procurement or stock. Create a zero-stock item in Inventory, verify units and generate them in QR Tools instead.",
         request=MoveToInventoryRequestSerializer,
-        responses={200: ToBuyItemSerializer, **PROCUREMENT_ERROR_RESPONSES},
+        responses={200: ToBuyItemSerializer, **PROCUREMENT_ERROR_RESPONSES,
+                   400: OpenApiResponse(description="Invalid move or individual-tracked create/topup; use Inventory and QR Tools for verified unit stock.")},
     )
     def post(self, request, pk, *args, **kwargs):
         item = self.get_item(pk)

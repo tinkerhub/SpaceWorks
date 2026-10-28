@@ -51,12 +51,13 @@ export function HardwareMoveForm({ form, setForm, products, categories, containe
         options={[{ value: "create", label: "Create item" }, { value: "topup", label: "Top up" }]}
         className="w-max"
       />
+      <p className="text-caption text-ink-muted">This moves quantity-tracked stock. For individual tools, create an item with zero stock in Inventory and generate verified units in QR Tools.</p>
       <Field label="Quantity"><Input type="number" min="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} /></Field>
       {form.mode === "topup" ? (
         <Field label="Existing product">
           <Dropdown value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })}>
             <option value="" disabled>Select product</option>
-            {products.map((product) => <option key={product.id} value={String(product.id)}>{product.name} ({product.available_quantity} available)</option>)}
+            {products.filter((product) => product.tracking_mode === "quantity").map((product) => <option key={product.id} value={String(product.id)}>{product.name} ({product.available_quantity} available)</option>)}
           </Dropdown>
         </Field>
       ) : (
@@ -66,7 +67,6 @@ export function HardwareMoveForm({ form, setForm, products, categories, containe
             <Field label="Tracking mode">
               <Dropdown value={form.trackingMode} onChange={(e) => setForm({ ...form, trackingMode: e.target.value as HardwareForm["trackingMode"] })}>
                 <option value="quantity">Quantity</option>
-                <option value="individual">Individual</option>
               </Dropdown>
             </Field>
           </div>

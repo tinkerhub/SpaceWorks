@@ -26,7 +26,7 @@ describe("MachinesPanel index and per-type subpages", () => {
 
   // A single reachable type renders ITS PAGE inline at the index URL rather than redirecting.
   // An unconditional redirect would make the index unreachable, and with it machine-type
-  // configuration, shared pools and the delegated recipient picker -- all of which the scoped
+  // configuration and the delegated recipient picker -- all of which the scoped
   // maintainer with one type is exactly the actor who needs them.
   it("renders the sole reachable type inline without hiding the index controls", async () => {
     renderPanel({ types: [laserType] });
@@ -37,7 +37,7 @@ describe("MachinesPanel index and per-type subpages", () => {
     expect(screen.queryByLabelText("Machine type")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Printer model")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add Laser cutters" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Shared consumables/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Shared consumables/ })).not.toBeInTheDocument();
   });
 
   it("renders a zero-machine reachable type and its service queue", async () => {
@@ -57,16 +57,6 @@ describe("MachinesPanel index and per-type subpages", () => {
     expect(screen.getByText("Cut acrylic")).toBeVisible();
   });
 
-  it("shows shared pools only in the Shared consumables section", async () => {
-    renderPanel({ pools: [pool(1, "Shared acrylic", null)] });
-    await screen.findByText("No machines are registered for this type.");
-    expect(screen.queryByText(/Shared acrylic/, { selector: "strong" })).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /Shared consumables.*1 item\b/ }));
-
-    expect(screen.getAllByText(/Shared acrylic/, { selector: "strong" })).toHaveLength(1);
-  });
-
   it("shows a bound pool only on its machine's type page", async () => {
     const setup: Setup = {
       types: [laserType, printerType],
@@ -83,7 +73,7 @@ describe("MachinesPanel index and per-type subpages", () => {
     expect(screen.getAllByText(/Printer PLA/, { selector: "strong" }).length).toBeGreaterThan(0);
   });
 
-  it("keeps type-wide pools out of Shared and on their machine-type page", async () => {
+  it("shows type-wide pools on their machine-type page", async () => {
     const typedPool = pool(4, "All-printer PLA", null, "grams", printerType.id);
     const setup: Setup = {
       types: [printerType],
@@ -94,7 +84,7 @@ describe("MachinesPanel index and per-type subpages", () => {
 
     expect(await screen.findByText("All-printer PLA", { selector: "strong" })).toBeVisible();
     expect(screen.getByText("Type-wide")).toBeVisible();
-    expect(screen.getByRole("button", { name: /Shared consumables.*0 items\b/ })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /Shared consumables/ })).not.toBeInTheDocument();
   });
 
   it("mounts no service requests when machine_service is disabled", async () => {

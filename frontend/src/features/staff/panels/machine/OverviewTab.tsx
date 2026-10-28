@@ -11,6 +11,7 @@ import {
   updateMachine,
   type Machine,
   type MachineStatus,
+  type MachineListResponse,
 } from "../../machinesApi";
 import { ImageUploader } from "../../ImageUploader";
 import { MachinePublicSettings } from "../MachinePublicSettings";
@@ -43,13 +44,17 @@ export function OverviewTab({ machine, makerspaceId, canManageMachines, canEdit,
       firmware_version: machine.firmware_version,
       camera_feed_url: machine.camera_feed_url,
     });
-    setStatus(machine.status);
-  }, [machine]);
+  }, [machine.id, machine.name, machine.location, machine.notes, machine.firmware_version, machine.camera_feed_url]);
+
+  useEffect(() => { setStatus(machine.status); }, [machine.id, machine.status]);
+  const statusDirty = status !== machine.status;
 
   const refreshMachine = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: machineKeys.detail(machine.id) }),
       queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
+      queryClient.invalidateQueries({ queryKey: ["machine-public-preview", machine.id] }),
+      queryClient.invalidateQueries({ queryKey: ["public-machines"] }),
     ]);
   };
   const save = useMutation({
@@ -64,8 +69,17 @@ export function OverviewTab({ machine, makerspaceId, canManageMachines, canEdit,
     onError: (error) => notify.failure("Couldn't save the machine.", error),
   });
   const setStatusMutation = useMutation({
-    mutationFn: () => setMachineStatus(machine.id, status),
-    onSuccess: async () => { notify.success(`Status set to ${machineStatusLabel(status).toLowerCase()}`); await refreshMachine(); },
+    mutationFn: (desiredStatus: MachineStatus) => setMachineStatus(machine.id, desiredStatus),
+    onSuccess: async (updated) => {
+      setStatus(updated.status);
+      queryClient.setQueryData<Machine>(machineKeys.detail(updated.id), (current) =>
+        current ? { ...current, status: updated.status } : current);
+      queryClient.setQueryData<MachineListResponse<Machine>>(machineKeys.list(makerspaceId), (current) =>
+        current ? { ...current, results: current.results.map((row) =>
+          row.id === updated.id ? { ...row, status: updated.status } : row) } : current);
+      notify.success(`Status set to ${machineStatusLabel(updated.status).toLowerCase()}`);
+      await refreshMachine();
+    },
     onError: (error) => notify.failure("Couldn't change the status.", error),
   });
   const lifecycle = useMutation({
@@ -94,14 +108,15 @@ export function OverviewTab({ machine, makerspaceId, canManageMachines, canEdit,
               {MACHINE_STATUSES.map((value) => <option key={value} value={value}>{machineStatusLabel(value)}</option>)}
             </Dropdown>
           </Field>
-          <Button disabled={!canSetStatus || status === machine.status} loading={setStatusMutation.isPending} loadingLabel="Setting…" onClick={() => setStatusMutation.mutate()}>
+          <Button disabled={!canSetStatus || status === machine.status} loading={setStatusMutation.isPending} loadingLabel="Setting…" onClick={() => setStatusMutation.mutate(status)}>
             Set status
           </Button>
         </div>
+        {statusDirty ? <p className="text-caption text-ink-muted" role="status">Unsaved status change. Choose Set status to apply it, or restore the current status before saving machine details.</p> : null}
         {setStatusMutation.error instanceof Error ? <p className="text-caption text-danger-fg">{setStatusMutation.error.message}</p> : null}
       </section>
 
-      <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); save.mutate(); }}>
+      <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); if (!statusDirty && !setStatusMutation.isPending) save.mutate(); }}>
         <SectionHeading as="h3" title="Machine details" />
         <Field label="Name">
           <Input value={form.name} disabled={!canEdit} onChange={(event) => updateField("name", event.target.value)} required />
@@ -122,8 +137,8 @@ export function OverviewTab({ machine, makerspaceId, canManageMachines, canEdit,
         </Field>
         {save.error instanceof Error ? <p className="text-caption text-danger-fg">{save.error.message}</p> : null}
         {canEdit ? (
-          <Button className="justify-self-start" variant="primary" type="submit" loading={save.isPending} loadingLabel="Saving…" disabled={!form.name.trim()}>
-            Save changes
+          <Button className="justify-self-start" variant="primary" type="submit" loading={save.isPending} loadingLabel="Saving…" disabled={!form.name.trim() || statusDirty || setStatusMutation.isPending}>
+            Save machine details
           </Button>
         ) : null}
       </form>

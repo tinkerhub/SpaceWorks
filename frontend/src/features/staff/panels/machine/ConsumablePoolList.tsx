@@ -1,21 +1,11 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Button, Chip, CollapsibleSection, EmptyState, ErrorBlock, Field, Input, ProgressBar, StatusChip, Switch } from "../../../../components/ui";
+import { Button, Chip, EmptyState, ErrorBlock, Field, Input, ProgressBar, StatusChip, Switch } from "../../../../components/ui";
 import type { PrinterPool } from "../../../../generated/api";
 import { staffRequest } from "../../../../lib/api";
-import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
 import { useNotify } from "./machineUi";
 import { poolLabel, poolQueryKey } from "./servicePools";
-
-type Props = {
-  makerspaceId: number;
-  pools: PrinterPool[];
-  existingPools: PrinterPool[];
-  poolError: unknown;
-  open: boolean;
-  onToggle: () => void;
-};
 
 type StockState = { label: string; tone: "danger" | "warning" | "success" };
 
@@ -29,24 +19,8 @@ export function poolStockState(pool: PrinterPool): StockState {
   return { label: "In stock", tone: "success" };
 }
 
-export function SharedConsumablesSection({ makerspaceId, pools, existingPools, poolError, open, onToggle }: Props) {
-  return (
-    <CollapsibleSection title="Shared consumables" count={pools.length} open={open} onToggle={onToggle}>
-      <div className="grid gap-5 p-4">
-        <div className="rounded-lg border border-line bg-subtle p-4">
-          <ConsumablePoolCreateForm makerspaceId={makerspaceId} existingPools={existingPools} />
-        </div>
-        <section className="grid gap-3">
-          <h4 className="text-title text-ink">Space-wide stock</h4>
-          <ConsumablePoolList makerspaceId={makerspaceId} pools={pools} />
-        </section>
-        <ErrorBlock error={poolError} />
-      </div>
-    </CollapsibleSection>
-  );
-}
-
-export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: number; pools: PrinterPool[] }) {
+export function ConsumablePoolList({ makerspaceId, pools, canManage }: { makerspaceId: number; pools: PrinterPool[]; canManage: boolean }) {
+  const listId = useId();
   const queryClient = useQueryClient();
   const notify = useNotify();
   const [adjustingId, setAdjustingId] = useState<number | null>(null);
@@ -94,7 +68,7 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
           const isPublic = pool.is_public !== false;
           const isAdjusting = adjustingId === pool.id;
           const validAdjustment = quantityDelta.trim() !== "" && Number.isFinite(Number(quantityDelta)) && Number(quantityDelta) !== 0;
-          const switchId = `pool-visibility-${pool.id}`;
+          const switchId = `${listId}-pool-visibility-${pool.id}`;
           return (
             <li className="grid min-w-0 content-start gap-3 rounded-lg border border-line bg-canvas p-4" key={pool.id}>
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -124,7 +98,7 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
                   <span>{Math.round(percent)}% remaining</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-3 border-t border-line pt-3">
+              {canManage ? <div className="flex items-center justify-between gap-3 border-t border-line pt-3">
                 {/* The accessible name STARTS with the visible text, so voice control can act on
                     what the user reads (WCAG 2.5.3 Label in Name); the pool name keeps it unique. */}
                 <label htmlFor={switchId} className="cursor-pointer text-label text-ink">Visible to requesters</label>
@@ -135,8 +109,8 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
                   disabled={visibility.isPending}
                   onCheckedChange={(checked) => visibility.mutate({ id: pool.id, isPublic: checked })}
                 />
-              </div>
-              {isAdjusting ? (
+              </div> : null}
+              {canManage ? (isAdjusting ? (
                 <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => { event.preventDefault(); if (validAdjustment) adjustPool.mutate({ id: pool.id, quantity_delta: quantityDelta }); }}>
                   <Field label={`Adjustment (${unit}, + or −)`} className="min-w-48 flex-1">
                     <Input
@@ -158,7 +132,7 @@ export function ConsumablePoolList({ makerspaceId, pools }: { makerspaceId: numb
                 <Button className="justify-self-start" size="sm" onClick={() => { setAdjustingId(pool.id); setQuantityDelta(""); adjustPool.reset(); }}>
                   Adjust stock
                 </Button>
-              )}
+              )) : null}
             </li>
           );
         })}

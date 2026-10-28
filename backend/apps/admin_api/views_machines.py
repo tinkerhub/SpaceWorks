@@ -152,6 +152,7 @@ class MachineDetailView(APIView):
     @extend_schema(
         tags=['Admin machines'],
         summary='Update a machine',
+        description='Saves editable machine details only. Status, publicity and lifecycle fields are read-only and require their dedicated workflows; machine type is immutable.',
         request=MachineSerializer,
         responses={
             200: MachineSerializer,

@@ -72,10 +72,15 @@ def assert_individual_assets_available(product, required_qty):
     ).count()
     already_reserved = max(int(getattr(product, "reserved_quantity", 0) or 0), 0)
     if available_assets < required_qty + already_reserved:
+        guidance = (
+            " No individual units are registered. Verify physical stock, then generate units in QR Tools."
+            if not InventoryAsset.objects.filter(product_id=product.pk).exists()
+            else " Existing units are unavailable or already reserved; check unit statuses and reservations."
+        )
         raise InsufficientStock(
-            f"Insufficient available assets for product {product.pk}: "
+            f"Insufficient available assets for product {product.pk}: {product.name}; "
             f"requested {required_qty}, already reserved {already_reserved}, "
-            f"available assets {available_assets}."
+            f"available assets {available_assets}.{guidance}"
         )
 
 

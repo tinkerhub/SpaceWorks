@@ -239,7 +239,8 @@
 - `backend/apps/machines/` — machine registry and service workflows. Machine-role authorization keeps a
   thin `role_scope.py` import surface over `role_scope_resolution.py` (including the identity-sensitive
   `EXEMPT`/`NOTHING` sentinels), `role_scope_grants.py`, and `role_scope_queries.py`; scope mutations remain
-  in `role_scope_services.py`. `type_settings.py` is the only place a type's metering unit,
+  in `role_scope_services.py`. `service_public_queue.py` owns explicit idempotent public-printer
+  queue setup; `admin_api/views_machine_printer_queue.py` exposes its scoped GET/POST. `type_settings.py` is the only place a type's metering unit,
   booking flag and consumables flag are read: it resolves a global built-in's per-makerspace overrides
   (nullable columns on `MakerspaceMachineTypePricing`), and `type_settings_service.py` writes them.
 - `backend/apps/events/` — the separable events module. `models.py` is the stable explicit re-export barrel
@@ -257,6 +258,11 @@
 - `backend/apps/warranty/`, `apps/maintenance/`, `apps/events/`, `apps/bookings/`, `apps/forms_schema/`,
   `apps/encryption/`, `apps/procurement/`, `apps/notifications/`, `apps/operations/report_registry.py` — the
   remaining FabLab + governance modules.
+- `frontend/src/features/staff/panels/machine/ConsumablePoolList.tsx` renders stock controls;
+  `MachineTypeConsumables.tsx` reuses the canonical pool query in authorized machine drawers.
+  `PublicPrinterQueueSetup.tsx` exposes explicit queue enablement on the printer type's console.
+- `backend/apps/inventory/availability_manual_adjustments.py` — locked manual-quantity guard;
+  `availability.py` explicitly re-exports it alongside asset-backed quantity primitives.
 - `backend/tests/` — pytest behavior tests (external behavior, not implementation).
 - `frontend/src/features/inventory/` — public catalog/detail/self-checkout + `ProductCard`/
   `AvailabilityBadge`. `frontend/src/features/staff/` — staff console panels (`panels/UsersInvitations.tsx` for staff invitations
