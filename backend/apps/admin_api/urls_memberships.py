@@ -9,6 +9,7 @@ from apps.admin_api.views_member_claim import (
     MemberClaimCodeListCreateView,
     MemberClaimCodeRevokeView,
 )
+from apps.admin_api.views_member_machine_scope import MemberMachineScopeView
 from apps.admin_api.views_member_memberships import (
     AdminInvitationView,
     AdminMembershipRequestListView,
@@ -74,6 +75,11 @@ management_urlpatterns = [
         "makerspaces/<int:makerspace_id>/memberships/<int:membership_id>/role",
         MembershipRoleAssignView.as_view(),
         name="admin-membership-role-assign",
+    ),
+    path(
+        "makerspaces/<int:makerspace_id>/memberships/<int:membership_id>/machine-scope",
+        MemberMachineScopeView.as_view(),
+        name="admin-membership-machine-scope",
     ),
     path(
         "makerspaces/<int:makerspace_id>/roles/capabilities",

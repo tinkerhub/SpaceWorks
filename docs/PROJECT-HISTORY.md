@@ -6,9 +6,12 @@
 
 ## Condensed changelog (newest first — full detail in `git log`)
 
-- **2026-10-28 — Sidebar dropdowns.** The staff console sidebar now starts with every group
-  folded (it remembers the ones you open), and Machines unfolds into one link per machine type
-  the actor can reach.
+- **2026-10-28 — Per-person machine types; sidebar dropdowns.** A Space Manager can tick extra
+  machine types for one staff member from **Users → Machine types**; their reach is their role's
+  types plus their own, and a personal type never grants the Machines capability itself
+  (`MembershipMachineTypeScope`, unioned in `role_scope_resolution`). The staff console sidebar now
+  starts with every group folded (it remembers the ones you open), and Machines unfolds into one
+  link per machine type the actor can reach.
 
 - **2026-10-24 — Staff from /control/, priced manual usage, control-plane audit.** A superadmin can
   make staff entirely in `/control/`: the membership inlines (User and Makerspace pages) pick a real

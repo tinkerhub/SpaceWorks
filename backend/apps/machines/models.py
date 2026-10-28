@@ -15,6 +15,7 @@ from .printing_cutover_models import PrintingCutoverRepair, PrintingCutoverState
 # Role -> machine/type scope links. Imported here so Django registers them with this app;
 # they use string FK references, so the import order relative to MachineType/Machine below
 # does not matter.
+from .models_member_scope import MembershipMachineTypeScope
 from .models_role_scope import RoleMachineScope, RoleMachineTypeScope
 from .models_catalog import (
     Machine,
@@ -43,6 +44,7 @@ __all__ = [
     "MachineUsageEntry",
     "MachineUsageEntryQuerySet",
     "MakerspaceMachineTypePricing",
+    "MembershipMachineTypeScope",
     "PrintingCutoverRepair",
     "PrintingCutoverState",
     "RoleMachineScope",

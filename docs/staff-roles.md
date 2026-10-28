@@ -52,6 +52,16 @@ On top of the role, **a section whose module is off is not shown at all** (for e
 without `machines`, no Stocktake without `stocktake`, no Members without `membership`). Turning the
 module back on brings the section and its data back.
 
+## Which machines a person manages
+
+A role with the Machines capability manages only the machine types ticked for it: under
+**Users → Roles**, reopen the role and use **Machine scope**. To give one person extra types
+without a role per person, use **Users → Machine types** on their row. Their reach is the role's
+types **plus** their own; personal types never grant the Machines capability itself, so the role
+must already include it. For "this person runs only the lasers", give them a Machines role with
+no types ticked and tick Laser for them. The built-in Machine Manager role starts linked to every
+built-in type, so it already covers all of them. A Space Manager always covers every machine.
+
 ## Front-desk (handover) roles
 
 There is no built-in Guest Admin. Create a custom role under **Users → Roles** and give it only the

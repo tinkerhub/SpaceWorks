@@ -1627,6 +1627,18 @@ Load-bearing details that carried over unchanged:
     The payload carries `scoping_applies:false` for an exempt or non-machine role so the editor
     renders inert rather than offering ticks `role_scope` will ignore. A role being **created** has no
     id to link to, so the editor appears on reopen and says so.
+  - **Personal type links** (`MembershipMachineTypeScope`, migration `0025`) let one member reach
+    extra types without a role per person. `role_scope_resolution` unions them into the role's
+    type set **only in the role-scoped branch** (`_role_links` + `_personal_types`, shared by
+    `manage_scopes_for` and `manage_scopes_for_memberships` so the two cannot drift): EXEMPT and
+    NOTHING are decided by the role first, so a personal link can neither narrow a space manager
+    nor revive a tenant-mismatched role. They **never grant** `MANAGE_MACHINES` — `rbac.can` is
+    untouched, and a member whose role lacks the action gains nothing. Edited at
+    `PUT/GET /admin/makerspaces/<id>/memberships/<membership_id>/machine-scope`
+    (`member_scope_services.py`, rendered by `MemberMachineScopeModal.tsx` from the Users table),
+    with the same rules as the role editor: `MANAGE_MAKERSPACE` revalidated under the makerspace
+    lock, replace-not-merge, unknown id is a 400, audited as `membership.machine_scope_changed`.
+    Like role scopes they are **dropped** on tenant migration and never travel.
   - `can_create_machine` needs a **type** link specifically: a machine link granted one machine, not
     the right to add more of its kind. `can_see_machines` requires a link too, since a tab that
     renders an empty list and 403s on every action is worse than no tab. Resolution always ANDs the
