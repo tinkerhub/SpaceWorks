@@ -33,9 +33,11 @@ def can_manage_public_queue(actor, makerspace_id, machine_type=None):
 
 
 def _require_setup(actor, makerspace, *, locked=False):
-    guard = require_module_locked if locked else require_module
     for key in ("machines", "machine_service", "printing"):
-        makerspace = guard(makerspace, key)
+        makerspace = (
+            require_module_locked(makerspace, key, no_key=True)
+            if locked else require_module(makerspace, key)
+        )
     printer = resolve_global_printer_type()
     if printer is None:
         raise ValidationError({"machine_type": "The built-in printer type is not installed."})

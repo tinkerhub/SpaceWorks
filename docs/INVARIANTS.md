@@ -1556,6 +1556,10 @@ Load-bearing console details:
   mirrors that authority; direct type-manager access or a machine-only link does not suffice.
   POST rechecks gates and authority under a makerspace lock before any queue lock. Prefer an existing
   active queue in deterministic name/id order; otherwise activate or create only `Public Requests`.
+  Queue submission also locks the authoritative makerspace before the queue (active or inactive),
+  after its PII write-fence check and before its module recheck, including on self-hosts.
+  Setup and submission use `FOR NO KEY UPDATE` for that makerspace lock: module-install writes
+  still serialize, while a starting job can finish its audit foreign-key checks and release its queue.
   A conflicting type returns 409. Preserve capacity, allocation, name and other inactive queues.
   Audit only actual create/activate, atomically; repeated POST and every public GET have no writes.
 - **Machine status and details saves are separate.** Unsaved status disables details save; scalar
