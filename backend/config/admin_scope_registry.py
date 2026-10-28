@@ -33,6 +33,7 @@ NESTED_MAKERSPACE_LOOKUPS = {
     # row that always names a tenant.
     "machines.rolemachinetypescope": "role__makerspace_id",
     "machines.rolemachinescope": "role__makerspace_id",
+    "machines.membershipmachinetypescope": "membership__makerspace_id",
     "bookings.booking": "space__makerspace_id",
     "presence.presencesession": "makerspace_id",
     "payments.makerspacepaymentsettings": "makerspace_id",

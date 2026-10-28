@@ -327,6 +327,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspaces/{makerspace_id}/member-claim-codes",
   "/api/v1/admin/makerspaces/{makerspace_id}/member-claim-codes/{claim_id}/revoke",
   "/api/v1/admin/makerspaces/{makerspace_id}/memberships",
+  "/api/v1/admin/makerspaces/{makerspace_id}/memberships/{membership_id}/machine-scope",
   "/api/v1/admin/makerspaces/{makerspace_id}/memberships/{membership_id}/role",
   "/api/v1/admin/makerspaces/{makerspace_id}/roles",
   "/api/v1/admin/makerspaces/{makerspace_id}/roles/capabilities",
@@ -3207,6 +3208,18 @@ export type MemberLoanActivity = {
   "checked_out_at": string;
   "due_at": string | null;
   "overdue": boolean;
+};
+
+export type MemberMachineScope = {
+  "machine_type_ids": Array<number>;
+  "role_machine_type_ids": Array<number>;
+  "available_machine_types": Array<MachineScopeOption>;
+  "scoping_applies": boolean;
+  "role_covers_all": boolean;
+};
+
+export type MemberMachineScopeWrite = {
+  "machine_type_ids": Array<number>;
 };
 
 export type MemberMachineServiceActivity = {

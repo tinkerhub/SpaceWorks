@@ -18,13 +18,14 @@ import {
   TR,
   type StatusTone,
 } from "../../../components/ui";
+import { MemberMachineScopeModal } from "./MemberMachineScopeModal";
 import { roleManagesMakerspace, type StaffMembershipRow, type StaffRole } from "./rolesApi";
 
 // Only the actions the backend would accept are offered: a non-superadmin cannot touch a row
 // whose role holds manage_makerspace, restrict/restore is superadmin-only, and nobody acts on
 // their own row here -- no self-revoke or self-demotion, and their password is the account
 // dialog's Change password. A locked row shows its role as plain text, never a control.
-export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, roles, currentUsername, isSuperadmin, onRestrict, onRestore, onResetPassword, onRevoke, onChangeRole }: {
+export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, roles, currentUsername, isSuperadmin, machinesOn = false, onRestrict, onRestore, onResetPassword, onRevoke, onChangeRole }: {
   rows: StaffMembershipRow[];
   makerspaceNames: Map<number, string>;
   loading: boolean;
@@ -32,6 +33,8 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
   roles: StaffRole[];
   currentUsername: string;
   isSuperadmin: boolean;
+  /** The machines module is on here, so per-person machine types are worth offering. */
+  machinesOn?: boolean;
   onRestrict: (membership: StaffMembershipRow) => void;
   onRestore: (membership: StaffMembershipRow) => void;
   onResetPassword: (membership: StaffMembershipRow) => void;
@@ -42,6 +45,7 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
   const [roleId, setRoleId] = useState<number | "">("");
   const [assignPending, setAssignPending] = useState(false);
   const [assignError, setAssignError] = useState("");
+  const [machineTarget, setMachineTarget] = useState<StaffMembershipRow | null>(null);
   const openChange = (membership: StaffMembershipRow) => {
     setAssignError("");
     setChangeTarget(membership);
@@ -93,6 +97,7 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
                   <div className="flex flex-wrap justify-end gap-2">
                     {isProtected ? <span className="text-caption text-ink-muted">{own ? "You" : "Managed by a platform admin"}</span> : <>
                       <Button size="sm" disabled={!assignableRoles.length} onClick={() => openChange(membership)}>Change role</Button>
+                      {machinesOn ? <Button size="sm" onClick={() => setMachineTarget(membership)}>Machine types</Button> : null}
                       {isSuperadmin ? <Button size="sm" variant="danger" onClick={() => onRestrict(membership)}>Restrict…</Button> : null}
                       <Button size="sm" onClick={() => onResetPassword(membership)}>Reset password</Button>
                       {isSuperadmin && membership.user.access_status !== "active" ? <Button size="sm" onClick={() => onRestore(membership)}>Restore</Button> : null}
@@ -106,6 +111,7 @@ export function UsersTable({ rows, makerspaceNames, loading, assignableRoles, ro
         </TBody>
       </Table>
       <ChangeRoleModal target={changeTarget} roleId={roleId} roles={assignableRoles} pending={assignPending} error={assignError} onClose={() => setChangeTarget(null)} onChange={setRoleId} onSubmit={submitChange} />
+      {machineTarget ? <MemberMachineScopeModal target={machineTarget} onClose={() => setMachineTarget(null)} /> : null}
     </>
   );
 }

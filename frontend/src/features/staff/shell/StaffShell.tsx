@@ -13,7 +13,7 @@ import { StaffSidebar, type StaffSidebarProps } from "./StaffSidebar";
 import { useSidebarCollapsed } from "./useSidebarCollapsed";
 
 export type StaffShellProps = {
-  nav: Omit<StaffSidebarProps["nav"], "unreadCount" | "onNavigate">;
+  nav: Omit<StaffSidebarProps["nav"], "activeMakerspaceId" | "unreadCount" | "onNavigate">;
   account: Omit<StaffSidebarProps["account"], "onOpenAccount">;
   activeMakerspaceId?: number;
   publicPath: string | null;
@@ -57,6 +57,7 @@ export function StaffShell({
     <StaffSidebar
       nav={{
         ...nav,
+        activeMakerspaceId,
         unreadCount,
         onNavigate: (tab) => {
           onSelectTab(tab);

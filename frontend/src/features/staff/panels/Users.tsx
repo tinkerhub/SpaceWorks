@@ -178,7 +178,7 @@ export function Users({ makerspaces, isSuperadmin, currentUser, onAuthRefresh }:
         </Field>
       </div>
       <ErrorText message={panelError} />
-      <UsersTable
+      <UsersTable machinesOn={moduleEnabled(modules, "machines")}
         rows={rows}
         makerspaceNames={makerspaceNames}
         loading={memberships.isLoading || rolesList.isLoading}

@@ -79,6 +79,26 @@ export function setRoleMachineScope(
   });
 }
 
+export type MemberMachineScope = {
+  /** The member's personal types, on top of their role's. */
+  machine_type_ids: number[];
+  role_machine_type_ids: number[];
+  available_machine_types: MachineScopeOption[];
+  /** False when personal types would change nothing: exempt, or the role lacks Machines. */
+  scoping_applies: boolean;
+  role_covers_all: boolean;
+};
+
+export function getMemberMachineScope(msId: number, membershipId: number) {
+  return staffRequest<MemberMachineScope>(`/admin/makerspaces/${msId}/memberships/${membershipId}/machine-scope`);
+}
+
+export function setMemberMachineScope(msId: number, membershipId: number, body: { machine_type_ids: number[] }) {
+  return staffRequest<MemberMachineScope>(`/admin/makerspaces/${msId}/memberships/${membershipId}/machine-scope`, {
+    method: "PUT", body: JSON.stringify(body),
+  });
+}
+
 /**
  * The capability catalog. Pass the role being edited: the server then keeps listing
  * actions that role already holds even when their module is switched off, so an edit

@@ -62,11 +62,11 @@ describe("staff sidebar gating", () => {
     const nav = renderWorkspace({ actions: ["view_inventory", "edit_inventory"], modules: [...CORE, "machines", "stocktake"] });
 
     for (const label of ["Dashboard", "Inventory", "Categories", "To-be-fixed", "Stocktake", "Ledger"]) {
-      expect(nav.getByRole("link", { name: label })).toBeInTheDocument();
+      expect(nav.getByRole("link", { name: label, hidden: true })).toBeInTheDocument();
     }
     // `machines` is on, but the role holds neither manage_printing nor manage_machines.
     for (const label of ["Machines", "Settings", "Users", "Modules", "Audit log", "Platform settings"]) {
-      expect(nav.queryByRole("link", { name: label })).not.toBeInTheDocument();
+      expect(nav.queryByRole("link", { name: label, hidden: true })).not.toBeInTheDocument();
     }
   });
 
@@ -74,16 +74,16 @@ describe("staff sidebar gating", () => {
     const nav = renderWorkspace({ actions: [], superadmin: true, modules: CORE });
 
     for (const label of ["Inventory", "Settings", "Modules", "Audit log"]) {
-      expect(nav.getByRole("link", { name: label })).toBeInTheDocument();
+      expect(nav.getByRole("link", { name: label, hidden: true })).toBeInTheDocument();
     }
     for (const label of ["Machines", "Events", "Bookings", "Payments", "Stocktake", "To Buy", "Notifications"]) {
-      expect(nav.queryByRole("link", { name: label })).not.toBeInTheDocument();
+      expect(nav.queryByRole("link", { name: label, hidden: true })).not.toBeInTheDocument();
     }
   });
 
   it("never lists the removed organization pages", () => {
     const nav = renderWorkspace({ actions: [], superadmin: true, modules: [...CORE, "events", "machines"] });
-    expect(nav.queryByRole("link", { name: /organi[sz]ation|organized events/i })).not.toBeInTheDocument();
+    expect(nav.queryByRole("link", { name: /organi[sz]ation|organized events/i, hidden: true })).not.toBeInTheDocument();
     expect(nav.getByRole("link", { name: "Events" })).toBeInTheDocument();
     expect(nav.getByRole("link", { name: "Machines" })).toBeInTheDocument();
   });
