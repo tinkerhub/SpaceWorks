@@ -78,7 +78,14 @@ export function MaintenanceDocuments({
               <span className="min-w-0 flex-1 text-caption text-ink-secondary">
                 Attachment #{document.id} · {formatBytes(document.size_bytes)} · <When value={document.created_at} />
               </span>
-              <Button size="sm" variant="quiet" onClick={() => view.mutate(document.id, { onError: (caught) => notify.failure("Couldn't open the attachment.", caught) })}>
+              <Button
+                size="sm"
+                variant="quiet"
+                disabled={view.isPending}
+                loading={view.isPending && view.variables === document.id}
+                loadingLabel="Opening…"
+                onClick={() => view.mutate(document.id, { onError: (caught) => notify.failure("Couldn't open the attachment.", caught) })}
+              >
                 Download
               </Button>
               {canDelete && !retired ? (

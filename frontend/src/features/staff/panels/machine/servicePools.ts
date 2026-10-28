@@ -15,6 +15,20 @@ export const unitLabels: Record<MeteringUnit, string> = {
   minutes: "minutes",
 };
 
+/** Short unit for field labels and amounts ("Actual quantity (g)"). */
+export const unitShort: Record<MeteringUnit, string> = {
+  weight: "g",
+  volume: "ml",
+  length: "mm",
+  count: "items",
+  minutes: "min",
+};
+
+/** The unit a job or run's measured quantity is typed in, or undefined for a minutes type. */
+export function quantityUnit(meteringUnit: MeteringUnit): string | undefined {
+  return meteringUnit === "minutes" ? undefined : unitShort[meteringUnit];
+}
+
 export const poolUnits: Partial<Record<MeteringUnit, PoolUnit>> = {
   weight: "grams",
   volume: "milliliters",

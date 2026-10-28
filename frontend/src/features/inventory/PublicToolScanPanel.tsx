@@ -86,17 +86,20 @@ export function PublicToolScanPanel({
     onError: () => showToast("Checkout failed", { tone: "error" }),
   });
   const returnTool = useMutation({
-    mutationFn: () =>
+    mutationFn: (payload: string) =>
       publicToolReturn(makerspaceSlug, {
-        payload: effectiveReturnPayload,
+        payload,
         evidence_id: returnEvidenceId as number,
         remark: returnRemark.trim(),
         report_problem: reportProblem,
         problem_note: reportProblem ? problemNote.trim() : "",
         ...checkinPayload,
       }),
-    onSuccess: () => {
+    onSuccess: (_, payload) => {
       invalidatePublicInventory(queryClient, makerspaceSlug);
+      setReturnPayload("");
+      // A tool scanned for both desks is back, so it must not go out again on this checkout.
+      setPendingPayloads((current) => current.filter((item) => item !== payload));
       setReturnEvidenceId(null);
       setReturnRemark("");
       setReportProblem(false);
@@ -177,7 +180,10 @@ export function PublicToolScanPanel({
               setScannerTarget("checkout");
               setScannerOpen(true);
             }}
-            onSubmit={() => checkout.mutate()}
+            onSubmit={() => {
+              returnTool.reset();
+              checkout.mutate();
+            }}
           >
             <div className="mt-3">
               <PublicEvidenceUpload
@@ -218,7 +224,10 @@ export function PublicToolScanPanel({
               <Textarea rows={2} className="min-h-16" value={problemNote} onChange={(event) => setProblemNote(event.target.value)} />
             </Field>
           ) : null}
-          <Button fullWidth disabled={returnDisabled} loading={returnTool.isPending} loadingLabel="Returning…" onClick={() => returnTool.mutate()}>
+          <Button fullWidth disabled={returnDisabled} loading={returnTool.isPending} loadingLabel="Returning…" onClick={() => {
+            checkout.reset();
+            returnTool.mutate(effectiveReturnPayload);
+          }}>
             Return
           </Button>
         </section>

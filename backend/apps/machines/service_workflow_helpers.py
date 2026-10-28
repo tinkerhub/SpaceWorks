@@ -147,3 +147,53 @@ def _audit_transition(actor, service_request, event, extra=None):
 def _notify_after_commit(service_request, event):
     request_id = service_request.pk
     transaction.on_commit(lambda: notify_service_status(MachineServiceRequest.objects.select_related("bucket__machine__makerspace", "queue__makerspace").get(pk=request_id), event))
+
+
+def _record_unpooled_actual(service_request, *, actual_grams=None, actual_quantity=None):
+    """Persist what a run without a consumable pool measured, so pricing reads it, not zero.
+
+    Returns the fields set. A minutes type records only its unit: pricing reads actual_minutes.
+    """
+    from apps.machines.metering import MeteringUnit
+    from apps.machines.type_settings import effective_metering_unit
+    machine = service_request.assigned_machine
+    if machine is None:
+        return []
+    unit = effective_metering_unit(machine.machine_type, service_request.makerspace_id)
+    service_request.metering_unit = unit
+    measured = actual_quantity if actual_quantity is not None else (actual_grams if unit == MeteringUnit.WEIGHT else None)
+    if unit == MeteringUnit.MINUTES or measured is None:
+        return ["metering_unit"]
+    quantity = _decimal(measured, "actual_quantity")
+    if quantity < 0:
+        raise ServiceConsumptionInvalid("actual_quantity must be non-negative.")
+    service_request.actual_consumed_quantity = quantity
+    fields = ["metering_unit", "actual_consumed_quantity"]
+    if unit == MeteringUnit.WEIGHT:
+        service_request.actual_consumed_grams = quantity
+        fields.append("actual_consumed_grams")
+    return fields
+
+
+def _record_unpooled_plan(service_request, machine, planned_quantity):
+    """Keep a planned quantity given without a pool: a plan in the type's unit, nothing reserved."""
+    from apps.machines.metering import MeteringUnit
+    from apps.machines.type_settings import effective_metering_unit
+    unit = effective_metering_unit(machine.machine_type, service_request.makerspace_id)
+    if unit == MeteringUnit.MINUTES:
+        raise ServiceConsumptionInvalid("A consumable pool and exactly one planned quantity must be supplied together.")
+    quantity = _decimal(planned_quantity, "planned_quantity")
+    if quantity < 0:
+        raise ServiceConsumptionInvalid("planned_quantity must be non-negative.")
+    service_request.metering_unit, service_request.planned_quantity = unit, quantity
+    if unit == MeteringUnit.WEIGHT:
+        service_request.planned_grams = quantity
+
+
+def _failed_share(reserved, percent, unit):
+    """The planned quantity a failed run used, rounded to whole items for count units."""
+    from decimal import ROUND_HALF_UP, Decimal
+    share = reserved * percent / 100
+    if unit == "count":
+        return share.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+    return share

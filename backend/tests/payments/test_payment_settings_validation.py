@@ -196,7 +196,7 @@ def test_api_rejects_malformed_default_currency():
     assert "default_currency" in response.data
     assert MakerspacePaymentSettings.objects.get(
         makerspace=makerspace
-    ).default_currency == "usd"
+    ).default_currency == "inr"
 
 
 @pytest.mark.parametrize(

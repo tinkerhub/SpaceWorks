@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { CheckboxField, Dropdown, Field, Input, Textarea } from "../../components/ui";
 import type { EventPayload, StaffEvent } from "./eventsApi";
+import { withCurrency } from "./paymentsApi";
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 
 export type EventFormValues = Omit<EventPayload, "starts_at" | "ends_at" | "registration_cutoff_at"> & {
@@ -48,9 +49,11 @@ export function payloadFor(values: EventFormValues): EventPayload {
   };
 }
 
-export function EventFields({ values, setValues, disabled = false, approvalLocked = false }: {
+export function EventFields({ values, setValues, disabled = false, approvalLocked = false, currency = "" }: {
   values: EventFormValues; setValues: Dispatch<SetStateAction<EventFormValues>>;
   disabled?: boolean; approvalLocked?: boolean;
+  /** Upper-case code shown beside the price, e.g. "INR"; omitted when unknown. */
+  currency?: string;
 }) {
   // Functional updates keep edits before the drawer's load effect re-renders from dropping required fields via a stale empty copy.
   const set = <K extends keyof EventFormValues>(key: K, value: EventFormValues[K]) => setValues((current) => ({ ...current, [key]: value }));
@@ -69,7 +72,7 @@ export function EventFields({ values, setValues, disabled = false, approvalLocke
     </Field>
     <Field label="Location" optional><Input value={values.location} onChange={(e) => set("location", e.target.value)} disabled={disabled} maxLength={255} /></Field>
     <Field label="Capacity" helperText="Use 0 for unlimited."><Input type="number" min="0" value={values.capacity} onChange={(e) => set("capacity", Number(e.target.value))} disabled={disabled} /></Field>
-    <Field label="Registration price" helperText="Charged only when a place is confirmed."><Input type="number" min="0" step="0.01" value={values.payment_amount} onChange={(e) => set("payment_amount", e.target.value)} disabled={disabled} /></Field>
+    <Field label={withCurrency("Registration price", currency)} helperText="Charged only when a place is confirmed."><Input type="number" min="0" step="0.01" value={values.payment_amount} onChange={(e) => set("payment_amount", e.target.value)} disabled={disabled} /></Field>
     <Field label="Registration cutoff">
       <Dropdown value={cutoffMode} disabled={disabled} onChange={(e) => setCutoffMode(e.target.value)}>
         <option value="none">No cutoff</option>

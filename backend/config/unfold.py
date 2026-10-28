@@ -1,5 +1,6 @@
 import os
 
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -67,7 +68,12 @@ def _managed_item(title, icon, route, app_label=None):
 UNFOLD = {
     "SITE_TITLE": SITE_NAME,
     "SITE_HEADER": SITE_NAME,
-    "SITE_SYMBOL": "inventory_2",
+    # The Tinker Space Inventory tile (apps/makerspaces/static/brand/logo.png), the same
+    # image the SPA uses as its favicon and logo.
+    "SITE_ICON": lambda request: static("brand/logo.png"),
+    "SITE_FAVICONS": [
+        {"rel": "icon", "type": "image/png", "href": lambda request: static("brand/logo.png")},
+    ],
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
     "THEME": "dark",

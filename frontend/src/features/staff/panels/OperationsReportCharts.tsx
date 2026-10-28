@@ -8,8 +8,10 @@ export const REPORT_CHART_COLORS = [
 export function BarChart({ rows, valueLabel }: { rows: ChartRow[]; valueLabel?: string }) {
   const maxValue = Math.max(...rows.map((row) => row.value), 0);
   if (!rows.length || maxValue <= 0) return <p className="text-body-ui text-ink-muted">No chart data.</p>;
+  // role="img" hides the rows from assistive technology, so the label carries the data.
+  const description = rows.map((row) => `${row.label}: ${formatNumber(row.value)}`).join(", ");
   return (
-    <div className="space-y-2" aria-label={`Bar chart of ${valueLabel ?? "values"}`} role="img">
+    <div className="space-y-2" aria-label={`Bar chart of ${valueLabel ?? "values"}: ${description}`} role="img">
       {rows.map((row, index) => (
         <div key={`${row.label}-${index}`} className="grid grid-cols-[minmax(0,1fr)_minmax(4rem,2fr)_auto] items-center gap-2 text-body-ui sm:grid-cols-[minmax(7rem,11rem)_1fr_auto]">
           <span className="truncate text-ink" title={row.label}>{row.label}</span>
@@ -50,8 +52,9 @@ export function StackedBarChart({ rows, valueLabel }: { rows: StackedChartRow[];
   const max = Math.max(...rows.map((row) => row.segments.reduce((sum, segment) => sum + segment.value, 0)), 0);
   if (!rows.length || max <= 0) return <p className="text-body-ui text-ink-muted">No chart data.</p>;
   const labels = [...new Set(rows.flatMap((row) => row.segments.map((segment) => segment.label)))];
+  const description = rows.map((row) => `${row.label}: ${row.segments.map((segment) => `${segment.label} ${formatNumber(segment.value)}`).join(", ")}`).join("; ");
   return (
-    <div role="img" aria-label={`Stacked bar chart of ${valueLabel ?? "values"}`} className="space-y-3">
+    <div role="img" aria-label={`Stacked bar chart of ${valueLabel ?? "values"}: ${description}`} className="space-y-3">
       {rows.map((row, index) => (
         <div key={`${row.label}-${index}`} className="grid grid-cols-[8rem_1fr] items-center gap-2 text-body-ui">
           <span className="truncate text-ink" title={row.label}>{row.label}</span>

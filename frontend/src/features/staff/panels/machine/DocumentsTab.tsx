@@ -95,7 +95,7 @@ export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdi
         </ul>
       ) : null}
       {canEdit ? (
-        <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem_auto] sm:items-end"
+        <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"
           onSubmit={(event) => { event.preventDefault(); upload.mutate(); }}>
           <Field label="File" helperText="PDF, image or CAD file.">
             <Input ref={fileInput} type="file" accept={ACCEPT} className="py-2" onChange={(event) => setFile(event.target.files?.[0] ?? null)} required />
@@ -105,7 +105,9 @@ export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdi
               {DOC_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}
             </Dropdown>
           </Field>
-          <Button variant="primary" type="submit" loading={upload.isPending} loadingLabel="Uploading…" disabled={!file || !docType.trim()}>Upload</Button>
+          <div className="flex justify-end sm:col-span-2">
+            <Button variant="primary" type="submit" loading={upload.isPending} loadingLabel="Uploading…" disabled={!file || !docType.trim()}>Upload</Button>
+          </div>
         </form>
       ) : null}
       {[upload.error, view.error, remove.error].map((error, index) => error instanceof Error

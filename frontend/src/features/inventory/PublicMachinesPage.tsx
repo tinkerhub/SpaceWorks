@@ -39,16 +39,24 @@ export function PublicMachinesPage() {
   const { moduleEnabled } = useModules();
   const machines = useQuery({
     queryKey: ["public-machines", makerspaceSlug],
-    queryFn: () => tenantPublicRequest<PaginatedMachines>(
-      makerspaceSlug, publicMachinesPath(makerspaceSlug),
-    ),
+    // Grouped by type on one page, so every DRF page is fetched rather than paged through.
+    queryFn: async () => {
+      const all: PublicMachine[] = [];
+      for (let page = 1; ; page += 1) {
+        const data = await tenantPublicRequest<PaginatedMachines>(
+          makerspaceSlug, `${publicMachinesPath(makerspaceSlug)}?page=${page}`,
+        );
+        all.push(...data.results);
+        if (!data.next) return all;
+      }
+    },
     retry: (count, error) => !(error instanceof StructuredApiError && error.status < 500) && count < 2,
   });
 
   // The public payload carries no type id, so the type name is the grouping key.
   const groups = useMemo(() => {
     const byType = new Map<string, { icon: string; machines: PublicMachine[] }>();
-    for (const machine of machines.data?.results ?? []) {
+    for (const machine of machines.data ?? []) {
       const key = machine.machine_type.name;
       const existing = byType.get(key);
       if (existing) existing.machines.push(machine);
@@ -88,8 +96,9 @@ export function PublicMachinesPage() {
               onToggle={() => toggleGroup(group.name)}
             >
               <ul className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-                {group.machines.map((machine) => (
-                  <li key={machine.name} className="overflow-hidden rounded-lg border border-line bg-canvas">
+                {/* The public projection carries no id; the API orders by (name, id), so name + position is stable. */}
+                {group.machines.map((machine, index) => (
+                  <li key={`${machine.name}-${index}`} className="overflow-hidden rounded-lg border border-line bg-canvas">
                     {/* Decorative: the machine name is rendered right below it. */}
                     {machine.image_url ? <img src={machine.image_url} alt="" loading="lazy" className="aspect-[16/9] w-full border-b border-line object-cover" /> : null}
                     <div className="grid gap-2 p-4">

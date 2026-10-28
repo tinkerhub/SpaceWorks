@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="docs/banner.svg" alt="Space Works — Open Source Makerspace Manager" width="860">
+  <img src="docs/brand/logo.png" alt="Tinker Space Inventory" width="160">
 
   <h1>Space Works — Open Source Makerspace Manager</h1>
 

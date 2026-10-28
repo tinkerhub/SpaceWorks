@@ -21,6 +21,7 @@ from django.urls import reverse
 from apps.hardware_requests.admin_workflow import WORKFLOW_EXCEPTIONS
 from apps.hardware_requests.models import HardwareRequest
 from apps.hardware_requests.request_workflow import accept_request, reject_request
+from config.admin_source_gate import admin_tenant_write, gate_refusals
 
 
 class RequestReviewAdminMixin:
@@ -60,7 +61,13 @@ class RequestReviewAdminMixin:
             raise Http404("No hardware request matches the given query.")
 
         if request.method == "POST":
-            return self._apply_review(request, obj)
+            # A custom URL, so the changeform source-gate hook never runs for it.
+            try:
+                with admin_tenant_write([obj.makerspace_id]):
+                    return self._apply_review(request, obj)
+            except gate_refusals() as exc:
+                self.message_user(request, str(exc), level=messages.ERROR)
+                return redirect(request.path)
 
         return TemplateResponse(
             request,

@@ -15,6 +15,7 @@ from apps.machines.service_workflow_helpers import (
     _assert_submission_write_allowed,
     _audit_transition,
     _decimal,
+    _failed_share,
     _lock_assigned_machine,
     _locked_request,
     _locked_submission_machine,
@@ -22,6 +23,8 @@ from apps.machines.service_workflow_helpers import (
     _minutes,
     _notify_after_commit,
     _percent,
+    _record_unpooled_actual,
+    _record_unpooled_plan,
     _release_queue_machine,
     _require_available,
     _require_edge,
@@ -137,6 +140,9 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
             raise ServiceMachineUnavailable("Machine is not available for this service request.")
         if locked.queue_id and machine.machine_type_id != queue.machine_type_id:
             raise ServiceMachineUnavailable("Machine is not compatible with this service queue.")
+        bucket_machine = locked.bucket.machine if locked.bucket_id else None
+        if bucket_machine is not None and machine.pk != bucket_machine.pk and machine.machine_type_id != bucket_machine.machine_type_id:
+            raise ServiceMachineUnavailable("Machine is not the same type as the one this request was made for.")
         _require_available(machine)
         if locked.queue_id and queue.capacity is not None:
             active = MachineServiceRequest.objects.select_for_update().filter(queue=locked.queue, status=MachineServiceRequest.Status.IN_PROGRESS).count()
@@ -145,7 +151,9 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
         if estimated_minutes is not None:
             locked.estimated_minutes = _minutes(estimated_minutes, "estimated_minutes")
         _require_printer_start_inputs(locked, machine, consumable_pool_id, planned_grams)
-        if consumable_pool_id is not None or planned_grams is not None or planned_quantity is not None:
+        if consumable_pool_id is None and planned_grams is None and planned_quantity is not None:
+            _record_unpooled_plan(locked, machine, planned_quantity)
+        elif consumable_pool_id is not None or planned_grams is not None or planned_quantity is not None:
             if consumable_pool_id is None or (planned_grams is None) == (planned_quantity is None):
                 raise ServiceConsumptionInvalid("A consumable pool and exactly one planned quantity must be supplied together.")
             from apps.machines.models import MachineConsumablePool
@@ -161,7 +169,7 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
         if locked.run_consumable_pool_id:
             pool = locked.run_consumable_pool
             locked.run_consumable_label, locked.run_consumable_material, locked.run_consumable_color = pool.label, pool.material, pool.color
-        locked.save(update_fields=["assigned_machine", "status", "handled_by", "started_at", "estimated_minutes", "run_machine_name", "run_machine_model", "run_consumable_label", "run_consumable_material", "run_consumable_color", "run_estimated_minutes", "run_planned_grams", "updated_at"])
+        locked.save(update_fields=["assigned_machine", "status", "handled_by", "started_at", "estimated_minutes", "run_machine_name", "run_machine_model", "run_consumable_label", "run_consumable_material", "run_consumable_color", "run_estimated_minutes", "run_planned_grams", "metering_unit", "planned_quantity", "planned_grams", "updated_at"])
         machine.status = Machine.Status.RUNNING
         machine.save(update_fields=["status", "updated_at"])
         _audit_transition(actor, locked, "assigned", extra={"machine_id": machine.pk})
@@ -187,8 +195,9 @@ def complete(service_request, actor, *, actual_minutes, consumptions, actual_gra
                               actual_quantity=actual_quantity)
             locked.refresh_from_db()
             locked.actual_minutes = _minutes(actual_minutes, "actual_minutes")
+        measured = [] if locked.run_consumable_pool_id else _record_unpooled_actual(locked, actual_grams=actual_grams, actual_quantity=actual_quantity)
         locked.status, locked.handled_by, locked.completed_at = MachineServiceRequest.Status.COMPLETED, actor, timezone.now()
-        locked.save(update_fields=["status", "handled_by", "actual_minutes", "completed_at", "updated_at"])
+        locked.save(update_fields=["status", "handled_by", "actual_minutes", "completed_at", "updated_at", *measured])
         _release_queue_machine(locked)
         _audit_transition(actor, locked, "completed")
         _notify_after_commit(locked, "completed")
@@ -236,21 +245,24 @@ def fail(service_request, actor, *, reason, percent_complete, actual_minutes, co
         if locked.run_consumable_pool_id:
             from apps.machines.service_consumable_pools import reconcile_request
             if locked.reserved_quantity is not None and locked.metering_unit != "weight":
-                expected_quantity = locked.reserved_quantity * locked.fail_percent_complete / 100
+                expected_quantity = _failed_share(locked.reserved_quantity, locked.fail_percent_complete, locked.metering_unit)
                 reconcile_request(locked, actor,
                                   actual_quantity=expected_quantity if actual_quantity is None else actual_quantity,
                                   reason=locked.reason)
             else:
+                # The generic console sends actual_quantity for every unit, grams included.
+                measured = actual_grams if actual_grams is not None else actual_quantity
                 expected = locked.planned_grams * locked.fail_percent_complete / 100
-                reconcile_request(locked, actor, actual_grams=expected if actual_grams is None else actual_grams,
+                reconcile_request(locked, actor, actual_grams=expected if measured is None else measured,
                                   reason=locked.reason)
             locked.refresh_from_db()
             locked.actual_minutes = _minutes(actual_minutes, "actual_minutes")
             locked.fail_percent_complete = _percent(percent_complete)
             locked.reason = str(reason).strip()
             locked.failed_at = timezone.now()
+        measured = [] if locked.run_consumable_pool_id else _record_unpooled_actual(locked, actual_grams=actual_grams, actual_quantity=actual_quantity)
         locked.status, locked.handled_by = MachineServiceRequest.Status.FAILED, actor
-        locked.save(update_fields=["status", "handled_by", "actual_minutes", "fail_percent_complete", "reason", "failed_at", "updated_at"])
+        locked.save(update_fields=["status", "handled_by", "actual_minutes", "fail_percent_complete", "reason", "failed_at", "updated_at", *measured])
         _release_queue_machine(locked)
         _audit_transition(actor, locked, "failed")
         _notify_after_commit(locked, "failed")

@@ -342,6 +342,23 @@ release performs the same check. Hosts on 0.8.5-main.11 or older run their insta
 lacks this step, so apply the notes below by hand once, or rerun the curl installer and choose an
 update (which installs the new updater and applies the same unedited-only rule).
 
+**2026-10 (0.8.5): default currency is INR.** The payment-settings default moved from `usd` to
+`inr`, and the migration flips every makerspace still set to `usd` to `inr` (any other currency is
+left alone; payments already raised keep their own currency). A makerspace that really charges in
+US dollars must set it back under Settings → Payments → Currency after upgrading.
+
+**2026-10 (0.8.5): machine-type settings per makerspace.** No manual step. Built-in machine
+types are no longer fixed: a Space Manager can set a built-in type's metering unit, whether it
+needs a booking, and whether it uses consumables for their own makerspace (Machines → Machine
+types; "Use built-in settings" undoes it). The migration gives CNC Mill, PCB Mill and Other the
+minutes unit they never had (they were priced by weight on the server and by count in the console,
+so a priced one refused every manual-usage log), and resets those three types' "free below" from
+the old 20 g default to 0. A makerspace that was already running one of them by weight (an active
+consumable pool or a per-unit price) keeps weight through a makerspace override, and keeps its
+threshold, so its pools and rates mean what they did; switch it to minutes in the type's settings
+when you are ready. Consumable
+pools tied to a type now always take that type's unit.
+
 **2026-10 (0.8.5): item codes.** No manual step. The migration gives every makerspace a
 platform-unique item-code prefix (initials of its name, e.g. "Tinkerspace Kochi" → `TK`), codes the
 old default categories (Microcontrollers → `MCU`, Sensors → `SNS`, Actuators → `ACT`, Cables → `CBL`,

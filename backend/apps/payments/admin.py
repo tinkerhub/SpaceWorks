@@ -19,6 +19,9 @@ from apps.payments.models import (
 )
 from apps.separability.tombstones import app_is_tombstoned
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import record_admin_save
+
+_KEY_FIELDS = ("stripe_publishable_key", "stripe_secret_key", "stripe_webhook_secret")
 
 
 class MakerspacePaymentSettingsAdminForm(forms.ModelForm):
@@ -55,15 +58,11 @@ class MakerspacePaymentSettingsAdminForm(forms.ModelForm):
         return settings
 
     def payment_setting_changes(self):
-        changes = {
-            "makerspace": self.cleaned_data["makerspace"],
-            "default_currency": self.cleaned_data["default_currency"],
-        }
-        for field in (
-            "stripe_publishable_key",
-            "stripe_secret_key",
-            "stripe_webhook_secret",
-        ):
+        changes = {"default_currency": self.cleaned_data["default_currency"]}
+        if "makerspace" in self.cleaned_data:
+            # Read-only once the row exists, so only an add form carries it.
+            changes["makerspace"] = self.cleaned_data["makerspace"]
+        for field in _KEY_FIELDS:
             if self.cleaned_data[field] or field in getattr(
                 self, "_unreadable_raw_fields", ()
             ):
@@ -101,6 +100,15 @@ class MakerspacePaymentSettingsAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     def configured(self, obj):
         return obj.is_configured
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        # Re-pointing a row would hand one space's Stripe keys to another.
+        return fields if obj is None else (*fields, "makerspace")
+
+    def has_delete_permission(self, request, obj=None):
+        # Payments and checkout sessions resolve their keys through this row.
+        return False
+
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         if request.method != "POST" or object_id is None:
             return super().changeform_view(request, object_id, form_url, extra_context)
@@ -112,7 +120,26 @@ class MakerspacePaymentSettingsAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
             )
 
     def save_model(self, request, obj, form, change):
-        updated = update_payment_settings(obj, form.payment_setting_changes())
+        old_currency = form.initial.get("default_currency") if change else None
+        changes = form.payment_setting_changes()
+        updated = update_payment_settings(obj, changes)
+        # Key fields are write-only (blank keeps), so they appear in `changes` only when
+        # written; names are recorded, never values.
+        record_admin_save(
+            request.user,
+            updated,
+            created=not change,
+            changed_fields=[
+                name for name in changes
+                if name in _KEY_FIELDS or name in form.changed_data
+            ],
+            makerspace=updated.makerspace,
+            detail=(
+                {"default_currency": {"old": old_currency, "new": updated.default_currency}}
+                if old_currency != updated.default_currency
+                else {}
+            ),
+        )
         for field in obj._meta.concrete_fields:
             setattr(obj, field.attname, getattr(updated, field.attname))
 

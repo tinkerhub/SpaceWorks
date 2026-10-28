@@ -17410,6 +17410,79 @@
                 }
             }
         },
+        "/api/v1/admin/makerspace/{makerspace_id}/machine-types/{id}/settings": {
+            "put": {
+                "operationId": "api_v1_admin_makerspace_machine_types_settings_update",
+                "description": "Overrides metering_unit, requires_booking and uses_consumables of a global built-in type in this makerspace only; other makerspaces are unaffected. A null value restores the built-in setting. Custom types are edited through the type itself. A unit change is refused while the type has active pools in another unit or jobs in progress or holding reserved stock here.",
+                "summary": "Set a built-in machine type's settings for this makerspace",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin machines"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MachineTypeSettings"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MachineTypeSettings"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MachineTypeSettings"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MachineType"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid setting, custom type, or the type has pools or jobs in flight."
+                    },
+                    "403": {
+                        "description": "Space-manager identity required."
+                    },
+                    "404": {
+                        "description": "Machine type not found."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/makerspace/{makerspace_id}/machines": {
             "get": {
                 "operationId": "api_v1_admin_makerspace_machines_retrieve",
@@ -22491,6 +22564,9 @@
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid pool, a unit other than the type's metering unit, or a type that uses no consumables."
                     }
                 }
             }
@@ -25413,7 +25489,7 @@
         "/api/v1/admin/memberships/{id}": {
             "delete": {
                 "operationId": "api_v1_admin_memberships_destroy",
-                "description": "Remove a single makerspace membership (un-assign a delegable role).\n\nScope contract (mirrors the create path's non-escalation model): a Space Manager may\nrevoke ONLY delegable-role memberships within their MANAGE_MAKERSPACE scope; a superadmin\nmay revoke any, except inside a superadmin-hidden makerspace (governance hard-block ->\n404). 404-before-403: out-of-scope existence is hidden as 404, a delegable-scope actor\naiming at a SPACE_MANAGER gets 403.",
+                "description": "Revoke a single makerspace membership (un-assign a delegable role).\n\nScope contract (mirrors the create path's non-escalation model): a Space Manager may\nrevoke ONLY delegable-role memberships within their MANAGE_MAKERSPACE scope; a superadmin\nmay revoke any, except inside a superadmin-hidden makerspace (governance hard-block ->\n404). 404-before-403: out-of-scope existence is hidden as 404, a delegable-scope actor\naiming at a SPACE_MANAGER gets 403.",
                 "summary": "Revoke a staff membership",
                 "parameters": [
                     {
@@ -42782,6 +42858,9 @@
                     },
                     "referrals_enabled": {
                         "type": "boolean"
+                    },
+                    "currency": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -42789,6 +42868,7 @@
                     "can_configure_machine_types",
                     "can_refer",
                     "can_verify",
+                    "currency",
                     "id",
                     "is_machine_only",
                     "referrals_enabled",
@@ -45796,6 +45876,31 @@
                 },
                 "required": [
                     "institution"
+                ]
+            },
+            "EffectiveTypeConfig": {
+                "type": "object",
+                "description": "A type's settings as they apply in one makerspace (built-in overrides resolved).",
+                "properties": {
+                    "metering_unit": {
+                        "$ref": "#/components/schemas/MeteringUnit60eEnum"
+                    },
+                    "requires_booking": {
+                        "type": "boolean"
+                    },
+                    "uses_consumables": {
+                        "type": "boolean"
+                    },
+                    "overridden": {
+                        "type": "boolean",
+                        "description": "True when this makerspace overrides a built-in setting."
+                    }
+                },
+                "required": [
+                    "metering_unit",
+                    "overridden",
+                    "requires_booking",
+                    "uses_consumables"
                 ]
             },
             "EmailLog": {
@@ -50578,6 +50683,14 @@
                     "capability_config": {
                         "readOnly": true
                     },
+                    "effective_config": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EffectiveTypeConfig"
+                            }
+                        ],
+                        "readOnly": true
+                    },
                     "makerspace": {
                         "type": "integer",
                         "readOnly": true,
@@ -50586,6 +50699,7 @@
                 },
                 "required": [
                     "capability_config",
+                    "effective_config",
                     "id",
                     "makerspace",
                     "managing_action",
@@ -50624,6 +50738,14 @@
                     "capability_config": {
                         "readOnly": true
                     },
+                    "effective_config": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/EffectiveTypeConfig"
+                            }
+                        ],
+                        "readOnly": true
+                    },
                     "makerspace": {
                         "type": "integer",
                         "readOnly": true,
@@ -50637,6 +50759,7 @@
                 "required": [
                     "can_create_machine",
                     "capability_config",
+                    "effective_config",
                     "icon",
                     "id",
                     "is_builtin",
@@ -50781,6 +50904,31 @@
                     "payment_enabled",
                     "rate_per_unit"
                 ]
+            },
+            "MachineTypeSettings": {
+                "type": "object",
+                "description": "A built-in type's settings for this makerspace only; null restores the built-in value.",
+                "properties": {
+                    "metering_unit": {
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MeteringUnit60eEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
+                    },
+                    "requires_booking": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "uses_consumables": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
+                }
             },
             "MachineUsageEntry": {
                 "type": "object",
@@ -52826,6 +52974,17 @@
                     "name",
                     "slug"
                 ]
+            },
+            "MeteringUnit60eEnum": {
+                "enum": [
+                    "minutes",
+                    "weight",
+                    "volume",
+                    "length",
+                    "count"
+                ],
+                "type": "string",
+                "description": "* `minutes` - Minutes\n* `weight` - Weight\n* `volume` - Volume\n* `length` - Length\n* `count` - Count"
             },
             "MethodEnum": {
                 "enum": [
@@ -57863,12 +58022,7 @@
                         "maxLength": 100
                     },
                     "unit": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/PrinterPoolCreateUnitEnum"
-                            }
-                        ],
-                        "default": "grams"
+                        "$ref": "#/components/schemas/PrinterPoolCreateUnitEnum"
                     },
                     "quantity": {
                         "type": "string",
@@ -64510,7 +64664,7 @@
                     "metering_unit": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/TypedManualUsageResponseMeteringUnitEnum"
+                                "$ref": "#/components/schemas/MeteringUnit60eEnum"
                             }
                         ],
                         "readOnly": true
@@ -64561,17 +64715,6 @@
                     "reason",
                     "service_request_id"
                 ]
-            },
-            "TypedManualUsageResponseMeteringUnitEnum": {
-                "enum": [
-                    "minutes",
-                    "weight",
-                    "volume",
-                    "length",
-                    "count"
-                ],
-                "type": "string",
-                "description": "* `minutes` - Minutes\n* `weight` - Weight\n* `volume` - Volume\n* `length` - Length\n* `count` - Count"
             },
             "User": {
                 "type": "object",

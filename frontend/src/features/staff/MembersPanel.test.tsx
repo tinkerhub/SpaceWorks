@@ -150,4 +150,14 @@ describe("MembersPanel", () => {
       { method: "POST", body: JSON.stringify({ role_id: 4 }) },
     ));
   });
+
+  it("refreshes the Users panel's staff list after a membership change", async () => {
+    renderPanel();
+    const staffListCalls = () => staffRequest.mock.calls.filter(([url]) => String(url).endsWith("/memberships")).length;
+    await screen.findByText("Record witnessed acceptance");
+    await waitFor(() => expect(staffListCalls()).toBe(1));
+
+    fireEvent.click(screen.getByText("Record witnessed acceptance"));
+    await waitFor(() => expect(staffListCalls()).toBe(2));
+  });
 });

@@ -39,3 +39,16 @@ describe("useScopeOptions", () => {
     expect(result.current.machineTypes).toHaveLength(1);
   });
 });
+
+describe("useScopeOptions categories", () => {
+  it("walks every category page, not just the first 24", async () => {
+    staffRequest.mockImplementation(async (path: string) => {
+      if (path === "/admin/makerspace/7/categories") return { results: [{ id: 1, name: "One" }], next: "http://api/x?page=2" };
+      if (path === "/admin/makerspace/7/categories?page=2") return { results: [{ id: 2, name: "Two" }], next: null };
+      return [];
+    });
+    const { result } = renderHook(() => useScopeOptions(7, true, false), { wrapper });
+
+    await waitFor(() => expect(result.current.categories.map((item) => item.id)).toEqual([1, 2]));
+  });
+});

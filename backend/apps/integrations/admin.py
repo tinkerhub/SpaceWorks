@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 from apps.integrations import admin_email_templates  # noqa: F401
 from apps.integrations import admin_destinations  # noqa: F401
@@ -26,7 +27,7 @@ class PlatformEmailSettingsAdminForm(forms.ModelForm):
         return cleaned
 
 @admin.register(PlatformEmailSettings)
-class PlatformEmailSettingsAdmin(SuperuserOnlyModelAdmin, admin.ModelAdmin):
+class PlatformEmailSettingsAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, admin.ModelAdmin):
     form = PlatformEmailSettingsAdminForm
     list_display = ("smtp_host", "smtp_port", "from_email", "updated_at")
     # smtp_password holds the Fernet-encrypted value; never edit it as raw ciphertext

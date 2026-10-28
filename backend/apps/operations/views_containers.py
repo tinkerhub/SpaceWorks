@@ -1,4 +1,6 @@
-from django.db import transaction
+from contextlib import contextmanager
+
+from django.db import IntegrityError, transaction
 from django.db.models import OuterRef, Subquery
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
@@ -39,6 +41,17 @@ def _with_active_box_qr(queryset):
     return queryset.annotate(_active_qr_code_id=Subquery(active_qr))
 
 
+@contextmanager
+def _duplicate_label_as_400():
+    # `uniq_box_label_per_makerspace` (or a race past full_clean) was a bare 500; the
+    # savepoint keeps the outer transaction usable. Same message as CreateBoxQrView.
+    try:
+        with transaction.atomic():
+            yield
+    except IntegrityError:
+        raise ValidationError({"label": ["A container with this label already exists in this makerspace."]})
+
+
 @extend_schema_view(
     get=extend_schema(tags=["Containers"], summary="List containers", request=None, responses={200: BoxSerializer(many=True)}),
     post=extend_schema(tags=["Containers"], summary="Create container", request=BoxSerializer, responses={201: BoxSerializer}),
@@ -69,7 +82,8 @@ class ContainerListCreateView(generics.ListCreateAPIView):
             # Re-checked under the makerspace lock: a concurrent uninstall must not
             # leave a container (and its QR) behind for a module that is now off.
             require_module_locked(makerspace_id, "containers")
-            box = serializer.save(makerspace_id=makerspace_id)
+            with _duplicate_label_as_400():
+                box = serializer.save(makerspace_id=makerspace_id)
             QrCode.objects.get_or_create(
                 makerspace_id=makerspace_id,
                 target_type=QrCode.TargetType.BOX,
@@ -116,7 +130,8 @@ class ContainerDetailView(generics.RetrieveUpdateAPIView):
             for field, value in serializer.validated_data.items():
                 setattr(box, field, value)
             box.full_clean()  # parent cycles; a Django ValidationError maps to a typed 400
-            box = serializer.save()
+            with _duplicate_label_as_400():
+                box = serializer.save()
             audit.record(
                 self.request.user,
                 "container.updated",
@@ -156,7 +171,8 @@ class ContainerMoveView(APIView):
                 if field in data:
                     setattr(box, field, data[field])
             box.full_clean()
-            box.save()
+            with _duplicate_label_as_400():
+                box.save()
             audit.record(request.user, "container.moved", makerspace=box.makerspace, target=box)
         return Response(BoxSerializer(box).data)
 

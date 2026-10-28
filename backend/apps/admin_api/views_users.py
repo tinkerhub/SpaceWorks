@@ -18,6 +18,7 @@ from apps.admin_api.serializers_users import (
 )
 from apps.audit import services as audit
 from apps.audit.models import AuditLog
+from apps.makerspaces import membership_services
 from apps.makerspaces.models import Makerspace, MakerspaceMembership, MakerspaceRole
 from apps.makerspaces.origin_scope import (
     AMBIGUOUS_STAFF_ORIGIN_SCOPE,
@@ -102,6 +103,16 @@ class StaffListCreateView(generics.ListCreateAPIView):
             makerspace=makerspace, legacy_role=target_role
         )
         with transaction.atomic():
+            # Makerspace row first (the attach service's lock order), so the prior role
+            # read below cannot race another attach to the same makerspace.
+            Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+            previous_role_id = (
+                MakerspaceMembership.objects.filter(
+                    makerspace=makerspace, user__username=data["username"]
+                )
+                .values_list("assigned_role_id", flat=True)
+                .first()
+            )
             membership, created, is_break_glass = attach_staff_membership(
                 actor=request.user,
                 makerspace=makerspace,
@@ -121,7 +132,10 @@ class StaffListCreateView(generics.ListCreateAPIView):
                 ),
                 makerspace=membership.makerspace,
                 target=membership.user,
-                meta={"membership_role": target_role},
+                meta={
+                    "membership_role": target_role,
+                    **({} if created else {"previous_role_id": previous_role_id}),
+                },
             )
         return Response(StaffMembershipSerializer(membership).data, status=201)
 
@@ -142,7 +156,7 @@ def _can_create_staff_role(user, target_role, makerspace_id):
     responses={204: None},
 )
 class MembershipRevokeView(APIView):
-    """Remove a single makerspace membership (un-assign a delegable role).
+    """Revoke a single makerspace membership (un-assign a delegable role).
 
     Scope contract (mirrors the create path's non-escalation model): a Space Manager may
     revoke ONLY delegable-role memberships within their MANAGE_MAKERSPACE scope; a superadmin
@@ -156,44 +170,38 @@ class MembershipRevokeView(APIView):
     def delete(self, request, pk):
         actor = request.user
         is_superadmin = actor.is_superuser or actor.role == User.Role.SUPERADMIN
-        # Lock the membership row and run the authorization re-check + delete + audit in one
-        # transaction: a concurrent promotion to SPACE_MANAGER must not slip past the role
-        # guard, and a delete must never commit without its audit row.
-        with transaction.atomic():
-            membership = (
-                MakerspaceMembership.objects.select_for_update()
-                .select_related("makerspace", "user")
-                .filter(pk=pk)
-                .first()
-            )
-            if membership is None:
+        membership = (
+            MakerspaceMembership.objects.select_related("makerspace", "user", "assigned_role")
+            .filter(pk=pk)
+            .first()
+        )
+        if membership is None:
+            raise Http404
+        if is_superadmin:
+            if rbac._id_in(membership.makerspace_id, rbac.superadmin_hidden_makerspace_ids()):
                 raise Http404
-            if is_superadmin:
-                if rbac._id_in(
-                    membership.makerspace_id, rbac.superadmin_hidden_makerspace_ids()
-                ):
-                    raise Http404
-            else:
-                if not rbac.can(
-                    actor, rbac.Action.MANAGE_MAKERSPACE, membership.makerspace_id
-                ):
-                    raise Http404
-                if rbac.Action.MANAGE_MAKERSPACE in rbac.actions_for_membership(membership):
-                    raise PermissionDenied(
-                        "Only a superadmin can revoke a Space Manager membership."
-                    )
-            makerspace, target_user, role = (
-                membership.makerspace,
-                membership.user,
-                membership.role,
-            )
-            membership.delete()
+        else:
+            if not rbac.can(actor, rbac.Action.MANAGE_MAKERSPACE, membership.makerspace_id):
+                raise Http404
+            if rbac.Action.MANAGE_MAKERSPACE in rbac.actions_for_membership(membership):
+                raise PermissionDenied("Only a superadmin can revoke a Space Manager membership.")
+        assigned_role = membership.assigned_role
+        # Revoke, never delete: the shared service ends presence sessions, cancels pending
+        # dues and open membership requests, keeps the row (and its PROTECT-referenced
+        # history) and re-checks the Space Manager guard under the makerspace-first locks,
+        # so a concurrent promotion still cannot slip past it.
+        with transaction.atomic():
+            membership_services.revoke_membership(actor, membership)
             audit.record(
                 actor,
                 "staff.membership_revoked",
-                makerspace=makerspace,
-                target=target_user,
-                meta={"membership_role": role},
+                makerspace=membership.makerspace,
+                target=membership.user,
+                meta={
+                    "membership_role": membership.role,
+                    "assigned_role_id": assigned_role.id if assigned_role else None,
+                    "assigned_role_name": assigned_role.name if assigned_role else None,
+                },
             )
         return Response(status=204)
 

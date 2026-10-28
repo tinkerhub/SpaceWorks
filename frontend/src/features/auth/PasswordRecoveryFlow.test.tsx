@@ -125,6 +125,24 @@ describe("password recovery", () => {
     });
   });
 
+  it("sends a member back to the sign-in page named by `next`", async () => {
+    publicV1Request.mockRejectedValueOnce({ code: "recovery_unavailable" });
+    renderPage("/reset-password?next=%2Fm%2Fforge%2Fmember");
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: EMAIL } });
+    fireEvent.click(screen.getByRole("button", { name: "Request recovery code" }));
+
+    expect(await screen.findByRole("link", { name: "Back to sign in" })).toHaveAttribute("href", "/m/forge/member");
+  });
+
+  it("ignores an off-site `next` on the legacy reset link", async () => {
+    publicV1Request.mockResolvedValueOnce({ detail: "Password updated." });
+    renderPage("/reset-password?uid=user-42&token=legacy-token&next=%2F%2Fevil.example");
+    fillPassword();
+    fireEvent.click(screen.getByRole("button", { name: "Update password" }));
+
+    expect(await screen.findByRole("link", { name: "Go to sign in" })).toHaveAttribute("href", "/admin");
+  });
+
   it("disables resend for the visible cooldown and then re-enables it", async () => {
     vi.useFakeTimers();
     publicV1Request.mockResolvedValueOnce({ detail: ACKNOWLEDGEMENT });

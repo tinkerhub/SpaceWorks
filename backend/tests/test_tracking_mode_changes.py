@@ -183,7 +183,8 @@ def test_control_admin_change_form_makes_owned_fields_read_only():
     add_readonly = set(model_admin.get_readonly_fields(request, None))
 
     assert set(OWNED) <= change_readonly
-    assert not set(OWNED) & add_readonly
+    # From the first save too: stock arrives through the audited adjust action.
+    assert set(OWNED) <= add_readonly
     assert set(availability.AVAILABILITY_OWNED_FIELDS) == set(OWNED)
     form_fields = model_admin.get_form(request, product).base_fields
     assert not set(OWNED) & set(form_fields)

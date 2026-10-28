@@ -15,12 +15,14 @@ from apps.apiclients.services import sync_makerspace_origins
 from apps.audit import services as audit
 from apps.makerspaces import limits
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
 
 @admin.register(ApiClient)
-class ApiClientAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class ApiClientAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     form = ApiClientAdminForm
+    audit_secret_fields = ("telegram_bot_token", "smtp_password")
     list_display = (
         "label",
         "client_id",

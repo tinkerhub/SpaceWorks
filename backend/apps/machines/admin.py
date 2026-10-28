@@ -22,10 +22,11 @@ from apps.machines.models import (
     ServiceRequestFile,
 )
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
 @admin.register(MachineType)
-class MachineTypeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class MachineTypeAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = ("id", "slug", "name", "makerspace", "is_builtin", "managing_action")
     list_filter = ("is_builtin", "makerspace")
     search_fields = ("slug", "name", "makerspace__name")
@@ -53,7 +54,7 @@ class MachineTypeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
 
 @admin.register(Machine)
-class MachineAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class MachineAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     list_display = (
         'id', 'name', 'makerspace', 'machine_type', 'status', 'is_public', 'is_active'
     )
@@ -228,7 +229,7 @@ class ServiceRequestConsumptionAdmin(_ReadOnlyMachineChildAdmin):
 
 
 @admin.register(RoleMachineTypeScope)
-class RoleMachineTypeScopeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class RoleMachineTypeScopeAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     """Which machine types a role's MANAGE_MACHINES grant reaches.
 
     Writable here on purpose: this is the break-glass surface for a deployment that has
@@ -246,7 +247,7 @@ class RoleMachineTypeScopeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
 
 @admin.register(RoleMachineScope)
-class RoleMachineScopeAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class RoleMachineScopeAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
     """Which individual machines a role's MANAGE_MACHINES grant reaches."""
 
     list_display = ("id", "role", "machine", "created_at")

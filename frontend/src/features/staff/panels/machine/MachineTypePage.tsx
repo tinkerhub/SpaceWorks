@@ -9,6 +9,7 @@ import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
 import { ConsumablePoolList } from "./SharedConsumablesSection";
 import { MACHINE_STATUSES, MachineStatusChip, machineStatusLabel } from "./machineUi";
 import type { ServiceDraft } from "./serviceDrafts";
+import { typePoolUnit } from "./typeConfig";
 
 export type StatusFilter = "all" | MachineStatus;
 
@@ -63,6 +64,8 @@ export function MachineTypePage({
 }: Props) {
   const canCreate = canManage && machineType.can_create_machine === true;
   const loaded = !machinesLoading && !machinesFailed;
+  // A type that takes no consumables (minutes-metered, or switched off) has no stock to show.
+  const usesConsumables = typePoolUnit(machineType) !== undefined;
 
   return (
     <div className="grid gap-8">
@@ -137,7 +140,7 @@ export function MachineTypePage({
 
       {machineServiceEnabled && canManage ? (
         <>
-          <section className="grid gap-4" aria-labelledby={`consumables-${machineType.id}`}>
+          {usesConsumables ? <section className="grid gap-4" aria-labelledby={`consumables-${machineType.id}`}>
             <div>
               <h2 className="text-h4 text-ink" id={`consumables-${machineType.id}`}>Consumables</h2>
               <p className="mt-1 text-body-ui text-ink-muted">Stock used by this machine type and any pools reserved for one of its machines.</p>
@@ -149,7 +152,7 @@ export function MachineTypePage({
               <h3 className="text-title text-ink">Stock</h3>
               <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} />
             </div>
-          </section>
+          </section> : null}
           {isBuiltinPrinterType(machineType) ? (
             <PrinterServiceConsole makerspaceId={makerspaceId} canManage={canManage} printingEnabled={printingEnabled} reportsEnabled={reportsEnabled} machineType={machineType} machines={allMachines} pools={formPools} draft={draft} setDraft={setDraft} />
           ) : (

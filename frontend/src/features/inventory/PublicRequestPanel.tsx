@@ -1,15 +1,15 @@
 import { useMemo, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Card, useToast } from "../../components/ui";
 import type { RequestCartItem } from "../../types/inventory";
 import { BorrowRequestCard } from "./BorrowRequestCard";
-import { getAccessToken, refreshAccessToken } from "../../lib/api";
 import { submitPublicRequest, type CheckinMatch } from "./api";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { invalidatePublicInventory } from "../staff/queryInvalidation";
 import { PublicRequestHeader, type DeskIdentity } from "./PublicRequestHeader";
 import { useCheckinProvider } from "./useCheckinProvider";
+import { usePublicSession } from "./usePublicSession";
 import { PublicToolScanPanel } from "./PublicToolScanPanel";
 import { RequestDeskTabs, type ActiveTab } from "./RequestDeskTabs";
 
@@ -31,6 +31,7 @@ type PublicRequestPanelProps = {
   // where that is. Off, the only accounts are staff accounts.
   memberAccountsOn?: boolean;
   memberAreaHref?: string;
+  requestStatusHref?: string;
 };
 
 // The header is required for account-less submissions, and it is what makes a retry
@@ -55,6 +56,7 @@ export function PublicRequestPanel({
   selfCheckout = false,
   memberAccountsOn = true,
   memberAreaHref,
+  requestStatusHref,
 }: PublicRequestPanelProps) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -70,31 +72,24 @@ export function PublicRequestPanel({
   const [contactPhone, setContactPhone] = useState("");
   const [website, setWebsite] = useState("");
   const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(null);
+  // Remounts the identity step so the previous person's typed name and matches go too.
+  const [checkinStepKey, setCheckinStepKey] = useState(0);
   const [publicToken, setPublicToken] = useState("");
   const idempotencyKey = useRef(newIdempotencyKey());
-  // A signed-in member who RELOADED this page holds no in-memory access token -- it lives
-  // behind the refresh cookie, and unlike `MemberArea` this page never hydrates. Without
-  // the probe they would be classified as anonymous and their request filed against the
-  // SHARED anonymous principal, which every per-person view excludes: it would vanish from
-  // their own activity and take the unverified-contact path instead of notifying them.
-  const sessionProbe = useQuery({
-    queryKey: ["public-request-session", makerspaceSlug],
-    queryFn: async () => (getAccessToken() ? true : refreshAccessToken()),
-    // On `checked_in` the roster is the identity for everyone, signed in or not, so there is
-    // nothing to probe. Every other policy files the request under the signed-in caller, and
-    // without the probe a reload made a signed-in borrower's submit go out bare and 401.
-    enabled: requestAccess !== "checked_in" && !disabled,
-    staleTime: Infinity,
-    retry: false,
-  });
-  const authenticated = sessionProbe.data === true || Boolean(getAccessToken());
+  // Without the probe a reloaded member would be classified as anonymous and their request
+  // filed against the SHARED anonymous principal, which every per-person view excludes. On
+  // `checked_in` the roster is the identity for everyone, so there is nothing to probe.
+  const { authenticated, settled: sessionSettled } = usePublicSession(
+    makerspaceSlug,
+    requestAccess !== "checked_in" && !disabled,
+  );
   // Policy AND caller state. `tenantPublicRequest` still attaches Authorization when a
   // token is in memory, and the backend then takes the AUTHENTICATED branch and ignores
   // these contact fields -- so asking for them would promise something the stored request
   // does not honour. Until the probe settles we assume a member: claiming "no account
   // needed" and then discovering a session would be the worse way round.
   const accountLess =
-    requestAccess === "anyone" && sessionProbe.isFetched && !authenticated;
+    requestAccess === "anyone" && sessionSettled && !authenticated;
   // Mirrors `RequestSubmitView`: the roster on `checked_in` for everyone (a signed-in
   // account, staff included, is not a bypass), contact details on `anyone` without a
   // session, otherwise the caller's own account (membership, waiver and presence only
@@ -103,7 +98,7 @@ export function PublicRequestPanel({
   const checkinProvider = useCheckinProvider(makerspaceSlug);
   // The `accounts` and `members` policies with nobody signed in: the backend can only 401,
   // so the desk says where to sign in -- or, with no member accounts, that there is nowhere.
-  const signedOut = !requestAccess && sessionProbe.isFetched && !authenticated;
+  const signedOut = !requestAccess && sessionSettled && !authenticated;
   const borrowIdentity: DeskIdentity = checkedIn
     ? "checkin"
     : accountLess
@@ -164,6 +159,9 @@ export function PublicRequestPanel({
       setContactPhone("");
       setRequestedFor("");
       setWebsite("");
+      // A kiosk serves a queue of people: the next one must not inherit this identity.
+      setConfirmedCheckin(null);
+      setCheckinStepKey((key) => key + 1);
       // Only after the server accepted it: reusing the key for the NEXT request would
       // return this one back instead of creating anything.
       idempotencyKey.current = newIdempotencyKey();
@@ -181,7 +179,7 @@ export function PublicRequestPanel({
   // While the probe is unresolved `accountLess` is still false, so `contactReady` is
   // vacuously true and the button would go live before the contact fields exist. On a
   // slow refresh a visitor could submit a member-shaped body and take a 400.
-  const policyResolved = checkedIn || sessionProbe.isFetched;
+  const policyResolved = checkedIn || sessionSettled;
   const canSubmit =
     !signedOut &&
     requestedFor.trim().length > 0 &&
@@ -224,10 +222,11 @@ export function PublicRequestPanel({
                 {checkedIn ? (
                   <div className="mb-4">
                     <CheckinIdentityStep
+                      key={checkinStepKey}
                       makerspaceSlug={makerspaceSlug}
                       confirmed={confirmedCheckin}
                       onConfirm={setConfirmedCheckin}
-                      disabled={submitMutation.isPending || submitted}
+                      disabled={submitMutation.isPending}
                     />
                   </div>
                 ) : null}
@@ -252,6 +251,7 @@ export function PublicRequestPanel({
                   website={website}
                   onWebsiteChange={setWebsite}
                   publicToken={publicToken}
+                  statusHref={requestStatusHref}
                 />
               </div>
             ) : null}

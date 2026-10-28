@@ -49,7 +49,7 @@ export function MakerspaceItemCodeSettings({ makerspace, settings, loading }: Pr
         description="Unique across the platform. Leave it blank to use the default from your makerspace's name."
       >
         <form
-          className="flex min-w-0 flex-wrap items-end gap-3"
+          className="flex min-w-0 flex-wrap items-start gap-3"
           onSubmit={(event) => {
             event.preventDefault();
             save.mutate(normalized);

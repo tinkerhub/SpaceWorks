@@ -12,6 +12,8 @@ const {
   submitPrintRequest,
   uploadToStorage,
   useTenantBootstrap,
+  getAccessToken,
+  refreshAccessToken,
 } = vi.hoisted(() => ({
   fetchPrintQueues: vi.fn(),
   fetchPublicConsumablePools: vi.fn(),
@@ -21,7 +23,14 @@ const {
   submitPrintRequest: vi.fn(),
   uploadToStorage: vi.fn(),
   useTenantBootstrap: vi.fn(),
+  getAccessToken: vi.fn(),
+  refreshAccessToken: vi.fn(),
 }));
+
+vi.mock("../../lib/api", async () => {
+  const actual = await vi.importActual<typeof import("../../lib/api")>("../../lib/api");
+  return { ...actual, getAccessToken, refreshAccessToken };
+});
 
 vi.mock("./publicApi", async () => {
   const actual = await vi.importActual<typeof import("./publicApi")>("./publicApi");
@@ -136,6 +145,9 @@ describe("checked-in public print requests", () => {
     uploadToStorage.mockResolvedValue(undefined);
     submitPrintRequest.mockReset();
     submitPrintRequest.mockResolvedValue({ public_token: "print-token", status: "pending" });
+    getAccessToken.mockReturnValue("");
+    refreshAccessToken.mockReset();
+    refreshAccessToken.mockResolvedValue(true);
   });
 
   it("gates the form and sends identity with every presign and submission", async () => {
@@ -184,5 +196,36 @@ describe("checked-in public print requests", () => {
     const body = submitPrintRequest.mock.calls[0][1];
     expect(body.checkin_mid).toBeUndefined();
     expect(body.name).toBeUndefined();
+  });
+
+  it("asks a signed-out visitor to sign in instead of showing the form", async () => {
+    refreshAccessToken.mockResolvedValue(false);
+    renderPage();
+
+    // `member_accounts` is off in this bootstrap, so there is nowhere to sign in.
+    expect(await screen.findByText(/an account is required/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^title$/i)).not.toBeInTheDocument();
+  });
+
+  it("lets quantity be cleared while typing, clamps it, and resets the form after submitting", async () => {
+    renderPage();
+    const title = await screen.findByLabelText(/^title$/i);
+    const quantity = screen.getByLabelText(/^quantity$/i);
+    fireEvent.change(title, { target: { value: "Bracket" } });
+    fireEvent.change(quantity, { target: { value: "" } });
+    expect(quantity).toHaveValue(null);
+    fireEvent.blur(quantity);
+    expect(quantity).toHaveValue(1);
+    fireEvent.change(quantity, { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText(/model, cad/i), {
+      target: { files: [new File(["solid"], "bracket.stl", { type: "model/stl" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit print request/i }));
+
+    await waitFor(() => expect(submitPrintRequest).toHaveBeenCalledTimes(1));
+    expect(submitPrintRequest.mock.calls[0][1]).toMatchObject({ title: "Bracket", quantity: 3 });
+    await waitFor(() => expect(screen.getByLabelText(/^title$/i)).toHaveValue(""));
+    expect(screen.queryByText("bracket.stl")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit print request/i })).toBeDisabled();
   });
 });

@@ -52,3 +52,25 @@ describe("ScannerPanel QR resolve errors", () => {
     expect(await screen.findByText("QR code not recognised on this site.")).toBeVisible();
   });
 });
+
+describe("ScannerPanel revoke", () => {
+  it("shows the revoked QR from the revoke response instead of re-resolving", async () => {
+    const qr = { id: 5, makerspace: 7, payload: "SW:abc123", status: "active" };
+    staffRequest.mockImplementation(async (path: string) => {
+      if (path === "/admin/qr/resolve") return { qr, target: { type: "box", id: 3, label: "Bin", code: "BX-1" }, allowed_actions: ["revoke"] };
+      if (path === "/admin/qr/5/revoke") return { ...qr, status: "revoked" };
+      if (path === "/auth/me") return { makerspaces: [] };
+      return { results: [] };
+    });
+    renderPanel();
+    fireEvent.change(screen.getByLabelText("QR payload"), { target: { value: "SW:abc123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Resolve" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Revoke QR…" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Revoke QR" }));
+
+    expect(await screen.findByText("Revoked")).toBeVisible();
+    expect(screen.queryByText("Active")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Revoke QR…" })).not.toBeInTheDocument();
+    expect(staffRequest.mock.calls.filter(([path]) => path === "/admin/qr/resolve")).toHaveLength(1);
+  });
+});

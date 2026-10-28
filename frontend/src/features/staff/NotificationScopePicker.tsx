@@ -91,10 +91,7 @@ export function useScopeOptions(makerspaceId: number, enabled = true, machinesOn
   });
   const categories = useQuery({
     queryKey: ["categories", makerspaceId, "scope"],
-    queryFn: () =>
-      staffRequest<{ results?: { id: number; name: string }[] } | { id: number; name: string }[]>(
-        `/admin/makerspace/${makerspaceId}/categories`,
-      ).catch(() => []),
+    queryFn: () => allCategoryPages(makerspaceId).catch(() => []),
     enabled,
   });
 
@@ -103,6 +100,30 @@ export function useScopeOptions(makerspaceId: number, enabled = true, machinesOn
     machines: machinesOn ? unwrap(machines.data) : [],
     categories: unwrap(categories.data),
   };
+}
+
+// Hard stop on the page walk: a server that always returns `next` must not spin forever.
+const MAX_CATEGORY_PAGES = 50;
+
+/**
+ * Every category, not just page one: the endpoint pages at 24, and a category missing from
+ * the picker cannot be ticked at all. Paged with `?page=N` rather than DRF's absolute
+ * `next` URL, which `staffRequest` would prefix with the API base (see `getMachines`).
+ */
+async function allCategoryPages(makerspaceId: number): Promise<ScopeOption[]> {
+  type Page = { results?: ScopeOption[]; next?: string | null } | ScopeOption[];
+  const path = `/admin/makerspace/${makerspaceId}/categories`;
+  const first = await staffRequest<Page>(path);
+  if (Array.isArray(first)) return first;
+  const results = [...(first.results ?? [])];
+  let next = first.next;
+  for (let page = 2; next && page <= MAX_CATEGORY_PAGES; page += 1) {
+    const response = await staffRequest<Page>(`${path}?page=${page}`);
+    if (Array.isArray(response)) break;
+    results.push(...(response.results ?? []));
+    next = response.next;
+  }
+  return results;
 }
 
 function unwrap(value: unknown): ScopeOption[] {

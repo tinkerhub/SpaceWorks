@@ -28,6 +28,7 @@ import {
 import { type Makerspace, useStaffGet } from "./panels/shared";
 import { useTenant } from "../../lib/tenant";
 import { wipeOfflineScopes } from "./eventCheckInOfflineStore";
+import { staffMeKey } from "./paymentsApi";
 
 export function useStaffSession(guestOnly: boolean) {
   const tenant = useTenant();
@@ -53,6 +54,8 @@ export function useStaffSession(guestOnly: boolean) {
   }, [routeMakerspaceSlug]);
   const hydrateUser = useCallback((nextUser: StaffAuthUser) => {
     setUser(nextUser);
+    // Panels read the same payload (currency, per-space actions) through this query.
+    queryClient.setQueryData(staffMeKey, nextUser);
     if (tenant.mode === "single" && tenant.makerspaceId !== null) {
       setSelected(tenant.makerspaceId);
       return;
@@ -66,7 +69,7 @@ export function useStaffSession(guestOnly: boolean) {
     const saved = readStoredMakerspace();
     const staffSaved = nextUser.makerspaces.some((item) => item.id === saved) ? saved : null;
     setSelected(superadmin ? saved : staffSaved ?? nextUser.makerspaces[0]?.id ?? null);
-  }, [setSelected, tenant.makerspaceId, tenant.mode]);
+  }, [queryClient, setSelected, tenant.makerspaceId, tenant.mode]);
 
   // Refetch /auth/me and re-hydrate after a role edit/assignment may have changed the
   // current actor's own effective actions, so tabs/capabilities recompute immediately.

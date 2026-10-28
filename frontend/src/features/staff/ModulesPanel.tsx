@@ -73,6 +73,9 @@ export function ModulesPanel({ makerspaceId, makerspaceSlug }: { makerspaceId: n
       client.invalidateQueries({ queryKey: ["member", makerspaceSlug, "bootstrap"] });
       client.invalidateQueries({ queryKey: ["report-catalog"] });
       client.invalidateQueries({ queryKey: ["operations-report"] });
+      // Role capabilities and notification rules are listed per installed module.
+      client.invalidateQueries({ queryKey: ["staff", "capabilities", makerspaceId] });
+      client.invalidateQueries({ queryKey: ["notification-rules", makerspaceId] });
       setPendingUninstall(null);
       showToast(action === "install" ? `${label} installed` : `${label} uninstalled`, { tone: "success" });
     },

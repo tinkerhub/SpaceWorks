@@ -21,7 +21,9 @@
 
 - `backend/config/` — Django project (`settings.py`, `urls.py`, wsgi/asgi). All API routes under `/api/`.
   `config/admin_access.py` holds the `/control/` gating, CSP middleware, and the hidden-scope drift-guard
-  registries (`NESTED_MAKERSPACE_LOOKUPS`, `GLOBAL_ADMIN_MODELS`).
+  registries (`NESTED_MAKERSPACE_LOOKUPS`, `GLOBAL_ADMIN_MODELS`). `config/admin_audit.py` is the
+  `AdminAuditMixin` that writes `control.object_*` audit rows (changed field names, never values) for raw
+  `/control/` edits; `config/admin_source_gate.py` gates `/control/` writes, custom views included.
 - `backend/apps/accounts/` — custom `User` model (`AUTH_USER_MODEL`), browser JWT auth, attested device
   grants/rotating refresh families, Google/Apple social identities + nonce/JWKS verification, and the
   Auth & RBAC module: thin `rbac.py` import surface/coordinator over `rbac_actions.py`,
@@ -237,7 +239,9 @@
 - `backend/apps/machines/` — machine registry and service workflows. Machine-role authorization keeps a
   thin `role_scope.py` import surface over `role_scope_resolution.py` (including the identity-sensitive
   `EXEMPT`/`NOTHING` sentinels), `role_scope_grants.py`, and `role_scope_queries.py`; scope mutations remain
-  in `role_scope_services.py`.
+  in `role_scope_services.py`. `type_settings.py` is the only place a type's metering unit,
+  booking flag and consumables flag are read: it resolves a global built-in's per-makerspace overrides
+  (nullable columns on `MakerspaceMachineTypePricing`), and `type_settings_service.py` writes them.
 - `backend/apps/events/` — the separable events module. `models.py` is the stable explicit re-export barrel
   over `models_event.py`, `models_registration.py`, `models_attendance.py`, `models_feedback.py`,
   `models_certificates.py`, `models_series.py`, `models_calendar.py`, `models_collaborators.py` and

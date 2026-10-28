@@ -20,6 +20,7 @@ from apps.makerspaces.models import (
     Makerspace, MakerspaceArchiveRequest,
 )
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
 class ArchivedFilter(admin.SimpleListFilter):
@@ -41,8 +42,13 @@ class ArchivedFilter(admin.SimpleListFilter):
 
 
 @admin.register(Makerspace)
-class MakerspaceAdmin(MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+class MakerspaceAdmin(
+    AdminAuditMixin, MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
+    SuperuserOnlyModelAdmin, ModelAdmin,
+):
     form = MakerspaceAdminForm
+    # Audited by the capability and image mixins with their own actions.
+    audit_exclude_fields = ("capabilities", "logo_upload", "clear_logo", "cover_upload", "clear_cover")
     actions = ["archive_makerspaces", "unarchive_makerspaces", "purge_makerspaces"]
     list_display = (
         "name",
@@ -139,30 +145,10 @@ class MakerspaceAdmin(MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
         return super().get_inline_instances(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        # The normal admin delete button is a permanent purge entry point. Keep it
-        # object-scoped so the default bulk delete action stays disabled; bulk
-        # purges must use the slug-confirming `purge_makerspaces` action below.
-        if obj is None:
-            return False
-        return super().has_delete_permission(request, obj) and obj.archived_at is not None
-
-    def get_deleted_objects(self, objs, request):
-        # Django's stock collector asks every related ModelAdmin whether it can
-        # delete each related object. Several of those admins intentionally
-        # disable ordinary deletes to preserve history, which blocks a whole-space
-        # purge even though lifecycle.purge() deletes the complete graph safely.
-        objs = list(objs)
-        return (
-            [f"{self.opts.verbose_name}: {obj}" for obj in objs],
-            {self.opts.verbose_name_plural: len(objs)},
-            set(),
-            [],
-        )
-
-    def delete_model(self, request, obj):
-        from apps.makerspaces import lifecycle
-
-        lifecycle.purge(obj, request.user)
+        # A delete is a permanent purge. Django's generic "Are you sure?" page is not
+        # enough confirmation for that, so the only way in is the `purge_makerspaces`
+        # action below, which makes the superadmin type each makerspace's slug.
+        return False
 
     @admin.display(boolean=True, description="Archived")
     def archived(self, obj):

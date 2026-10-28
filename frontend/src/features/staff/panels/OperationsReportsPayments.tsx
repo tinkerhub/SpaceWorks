@@ -1,4 +1,5 @@
 import { Table, TBody, TD, TH, THead, TR } from "../../../components/ui";
+import { formatMoney } from "../paymentsApi";
 import { BarChart, DataState, ReportCard, ScopeGroup } from "./OperationsReportsParts";
 import { useStaffGet } from "./shared";
 
@@ -71,8 +72,8 @@ function PaymentTable({ rows }: { rows: PaymentReportRow[] }) {
           <TD>{label(row.subject_type)}</TD>
           <TD>{label(row.status)}</TD>
           <TD className="text-right tabular-nums">{row.payment_count}</TD>
-          <TD className="text-right tabular-nums">{money(row.amount_total, row.currency)}</TD>
-          <TD className="text-right font-semibold tabular-nums">{money(row.outstanding_amount, row.currency)}</TD>
+          <TD className="text-right tabular-nums">{formatMoney(row.amount_total, row.currency)}</TD>
+          <TD className="text-right font-semibold tabular-nums">{formatMoney(row.outstanding_amount, row.currency)}</TD>
         </TR>
       ))}</TBody>
     </Table>
@@ -96,12 +97,4 @@ function currencyGroups(rows: PaymentReportRow[]) {
 
 function label(value: string) {
   return value.replace(/_/g, " ").replace(/^./, (letter) => letter.toUpperCase());
-}
-
-function money(amount: string, currency: string) {
-  try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: currency.toUpperCase() }).format(Number(amount));
-  } catch {
-    return `${currency.toUpperCase()} ${amount}`;
-  }
 }

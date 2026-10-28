@@ -9,6 +9,7 @@ import { StructuredApiError, tenantPublicRequest, tenantPublicRequestBlob } from
 import { useModules } from "../../lib/modules";
 import { PublicEventCard, type PublicEvent } from "./PublicEventCard";
 import { PublicLoadError } from "./PublicInventoryParts";
+import { memberSignInHref } from "./PublicSignInCallout";
 import { useMakerspacePublic } from "./useMakerspacePublic";
 
 const PUBLIC_EVENTS_PATH: ApiPath = "/api/v1/public/{makerspace_slug}/events/";
@@ -84,6 +85,7 @@ export function PublicEventsPage() {
                     key={item.public_token}
                     event={item}
                     makerspaceSlug={makerspaceSlug}
+                    signInHref={memberSignInHref(space.header.homePath, moduleEnabled("member_accounts"))}
                     open={open}
                     onToggle={() => setActiveToken(open ? null : item.public_token)}
                     calendarPending={calendarToken === item.public_token}

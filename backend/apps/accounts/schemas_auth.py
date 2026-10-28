@@ -24,6 +24,9 @@ AuthMembershipSerializer = inline_serializer(
         "can_verify": serializers.BooleanField(),
         "verified_at": serializers.DateTimeField(allow_null=True),
         "referrals_enabled": serializers.BooleanField(),
+        # Lowercase ISO 4217 code every staff member labels prices with; the payment
+        # settings default ("inr") when the makerspace has none saved.
+        "currency": serializers.CharField(),
     },
 )
 UserPayloadSerializer = inline_serializer(

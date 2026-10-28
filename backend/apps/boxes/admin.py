@@ -216,6 +216,17 @@ class QrScanEventAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_filter = ("makerspace", "context")
     search_fields = ("qr_code__payload",)
     readonly_fields = ("qr_code", "makerspace", "request", "actor", "context", "created_at")
+    fields = readonly_fields
+
+    # Scan history is immutable evidence (Hard Rules): view only.
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(BoxScan)

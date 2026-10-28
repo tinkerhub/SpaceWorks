@@ -54,6 +54,8 @@ def validate_type_config(config, *, is_custom=False):
         raise ValidationError("metering_unit must be a supported metering unit.")
     if "requires_booking" in config and type(config["requires_booking"]) is not bool:
         raise ValidationError("requires_booking must be true or false.")
+    if "uses_consumables" in config and type(config["uses_consumables"]) is not bool:
+        raise ValidationError("uses_consumables must be true or false.")
     if is_custom:
         for key in ("accepted_materials", "accepted_colours"):
             if key not in config:

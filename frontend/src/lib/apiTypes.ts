@@ -60,6 +60,8 @@ export type StaffAuthUser = {
     can_verify: boolean;
     verified_at: string | null;
     referrals_enabled: boolean;
+    /** Lowercase ISO code every staff member labels prices with. */
+    currency: string;
   }[];
 };
 

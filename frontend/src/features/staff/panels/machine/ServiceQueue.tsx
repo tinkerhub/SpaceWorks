@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Button, Chip, Dropdown, EmptyState, Field, Input, Skeleton, type ChipTone } from "../../../../components/ui";
 import type { MachineServiceRequest, PrinterPool } from "../../../../generated/api";
 import type { Machine } from "../../machinesApi";
+import { formatMoney } from "../../paymentsApi";
 import { ServiceStatusChip } from "./machineUi";
 import type { ServiceActionName, ServiceDraft } from "./serviceDrafts";
 import { paymentState } from "./servicePaymentState";
@@ -37,7 +38,10 @@ export function showPaymentChip(request: Pick<MachineServiceRequest, "payment" |
 type Options = {
   /** "Machine" or "Printer": the start form's machine picker label. */
   machineNoun: string;
-  unitLabel: string;
+  /** Short unit the quantity fields are labelled in ("g", "items"); omitted for a minutes
+   *  type, which has no quantity to type. A type without consumables still measures one. */
+  unitLabel?: string;
+  /** Show the pool picker: only types that use consumables have pools. */
   hasPool: boolean;
   /** The printer flow also plans grams at accept time and offers reprint after a failure. */
   plannedOnAccept?: boolean;
@@ -120,7 +124,7 @@ function ServiceActions({ request, allowReprint, onAction }: { request: MachineS
     return <><Button size="sm" onClick={() => onAction("complete")}>Complete</Button><Button size="sm" variant="danger-quiet" onClick={() => onAction("fail")}>Fail…</Button></>;
   }
   if (request.status === "completed" && request.payment?.status === "pending") {
-    return <Button size="sm" onClick={() => onAction("record-manual-payment")}>Record payment · {request.payment.currency.toUpperCase()} {request.payment.amount}</Button>;
+    return <Button size="sm" onClick={() => onAction("record-manual-payment")}>Record payment · {formatMoney(request.payment.amount, request.payment.currency)}</Button>;
   }
   if (request.status === "completed") return <Button size="sm" onClick={() => onAction("collect")}>Collect</Button>;
   return allowReprint && request.status === "failed" ? <Button size="sm" onClick={() => onAction("reprint")}>Reprint</Button> : null;
@@ -143,7 +147,7 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
     </Field>
   );
   const name = action.name;
-  const planned = hasPool ? input("planned_quantity", `Planned ${unitLabel}`) : null;
+  const planned = unitLabel ? input("planned_quantity", `Planned quantity (${unitLabel})`) : null;
   return (
     <form
       className="grid gap-3 rounded-lg border border-line bg-subtle p-4"
@@ -174,7 +178,7 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
         {name === "complete" || name === "fail" ? (
           <>
             {input("actual_minutes", "Actual minutes")}
-            {hasPool ? input("actual_quantity", `Actual ${unitLabel}`) : null}
+            {unitLabel ? input("actual_quantity", `Actual quantity (${unitLabel})`) : null}
             {name === "fail" ? <>{input("percent_complete", "Percent complete")}{input("reason", "Reason", false)}</> : null}
           </>
         ) : null}

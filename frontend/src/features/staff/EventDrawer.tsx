@@ -18,6 +18,7 @@ import {
 } from "./eventsApi";
 import type { EventPatch } from "./eventsApi";
 import { eventDateTime, eventErrorText } from "./eventUi";
+import { useMakerspaceCurrency } from "./paymentsApi";
 
 type Action = "publish" | "cancel" | "complete";
 
@@ -42,6 +43,7 @@ export function EventDrawer({ eventId, makerspaceId, onClose }: {
   const cancel = useCancelEvent(makerspaceId, eventId);
   const complete = useCompleteEvent(makerspaceId, eventId);
   const invalidateEvent = useEventInvalidation(makerspaceId, eventId);
+  const currency = useMakerspaceCurrency(makerspaceId);
 
   useEffect(() => { if (event) setValues(valuesFor(event)); }, [event?.updated_at]);
   const lifecycle = confirm === "publish" ? publish : confirm === "cancel" ? cancel : complete;
@@ -88,7 +90,7 @@ export function EventDrawer({ eventId, makerspaceId, onClose }: {
         <ImageUploader endpoint={`/admin/events/${eventId}/image`} currentUrl={event.image_url} label="Event photo (shown publicly)" shape="wide" disabled={readOnly} onChanged={invalidateEvent} />
         <form className="grid gap-4" onSubmit={(e) => { e.preventDefault(); saveOccurrence(); }}>
           <SectionHeading as="h3" title={event.series_summary ? "Edit this date" : "Details"} description={event.series_summary ? "Changes here apply to this date only." : undefined} />
-          <EventFields values={values} setValues={setValues} disabled={readOnly} approvalLocked={event.status !== "draft"} />
+          <EventFields values={values} setValues={setValues} disabled={readOnly} approvalLocked={event.status !== "draft"} currency={currency} />
           {!readOnly ? (
             <div><Button variant={event.status === "draft" ? "secondary" : "primary"} type="submit" loading={update.isPending} loadingLabel="Saving…">Save changes</Button></div>
           ) : <p className="text-body-ui text-ink-muted">Completed and cancelled events are read-only.</p>}

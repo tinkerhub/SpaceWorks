@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import {
   consumePendingRestore,
@@ -9,6 +9,7 @@ import {
   subscribe,
   trapDialogFocus,
 } from "./dialogFocus";
+import { Input } from "./inputs";
 // Bundle the wasm binary with our own build (Vite emits it under /assets) instead
 // of letting zxing-wasm fetch it from the jsdelivr CDN - the strict app CSP only
 // allows connect-src 'self', so the CDN fetch would be blocked and detection would
@@ -29,6 +30,42 @@ const loadZxingReader = () => {
   return zxingReaderPromise;
 };
 
+const SECURE_CONTEXT_ERROR =
+  "Camera needs a secure connection (https:// or localhost). Open this site over HTTPS or on the same machine to scan.";
+
+// Same wording as CameraCapture, so both camera surfaces fail the same way.
+function cameraErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message === SECURE_CONTEXT_ERROR) return error.message;
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError") {
+      return "Camera permission was denied. Allow camera access in your browser and try again.";
+    }
+    if (error.name === "NotFoundError") return "No camera was found on this device.";
+  }
+  return "The camera could not start. Close this window and try again.";
+}
+
+/** The fallback when a label will not scan or there is no camera: the code printed under the QR. */
+function TypedCodeForm({ onSubmit }: { onSubmit: (code: string) => void }) {
+  const inputId = useId();
+  const [code, setCode] = useState("");
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (code.trim()) onSubmit(code.trim());
+  };
+  return (
+    <form className="grid gap-1.5" onSubmit={submit}>
+      <label htmlFor={inputId} className="text-label text-ink">Type the code</label>
+      <div className="flex gap-2">
+        <Input id={inputId} className="min-w-0 flex-1" value={code} autoComplete="off" spellCheck={false} onChange={(event) => setCode(event.target.value)} />
+        <button className="desk-button shrink-0" type="submit" disabled={!code.trim()}>
+          Use code
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function QrScanner({ onScan, onClose }: QrScannerProps) {
   const titleId = useId();
   const layerRef = useRef<HTMLDivElement | null>(null);
@@ -48,6 +85,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
   const isDetectingRef = useRef(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const stopScanner = () => {
     if (intervalRef.current !== null) {
@@ -71,6 +109,9 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
   useEffect(() => {
     onScanRef.current = onScan;
   }, [onScan]);
+  useEffect(() => {
+    if (error) closeButtonRef.current?.focus();
+  }, [error]);
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const token = pushDialog({
@@ -144,7 +185,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
         }
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "QR scanner could not start.");
+        setError(cameraErrorMessage(err));
         stopScanner();
       } finally {
         isDetectingRef.current = false;
@@ -156,9 +197,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
       // (anything other than localhost / HTTPS), which would otherwise throw an
       // opaque "Cannot read properties of undefined" instead of a clear message.
       if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error(
-          "Camera needs a secure connection (https:// or localhost). Open this site over HTTPS or on the same machine to scan."
-        );
+        throw new Error(SECURE_CONTEXT_ERROR);
       }
       try {
         return await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -195,7 +234,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
         intervalRef.current = window.setInterval(detect, 400);
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : "Camera access was denied.");
+        setError(cameraErrorMessage(err));
       }
     };
 
@@ -217,8 +256,9 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
         <h2 id={titleId} className="sr-only">QR scanner</h2>
         {error ? (
           <div className="grid gap-3">
-            <p className="text-sm text-danger">{error}</p>
-            <button className="desk-button w-full" type="button" onClick={close}>
+            <p role="alert" className="text-sm text-danger">{error}</p>
+            <TypedCodeForm onSubmit={(code) => onScanRef.current(code)} />
+            <button ref={closeButtonRef} className="desk-button w-full" type="button" onClick={close}>
               Close
             </button>
           </div>
@@ -237,6 +277,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
               ) : null}
             </div>
             <p className="text-center text-sm text-muted">Point the camera at a QR code</p>
+            <TypedCodeForm onSubmit={(code) => onScanRef.current(code)} />
             <button className="desk-button-primary w-full" type="button" onClick={close}>
               Done
             </button>

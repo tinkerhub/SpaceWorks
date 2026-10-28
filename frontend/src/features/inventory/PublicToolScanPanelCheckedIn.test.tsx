@@ -223,4 +223,26 @@ describe("checked-in public tool scanning", () => {
       evidence_id: 91,
     });
   });
+
+  it("clears a returned scan, drops it from the checkout queue and shows only the latest result", async () => {
+    renderPanel(false);
+    await uploadEvidence(/issue photo/i);
+    scanTool("tool-one");
+    fireEvent.click(screen.getByRole("button", { name: /^check out 1 tool$/i }));
+    expect(await screen.findByText(/^Issued: Tool loan$/)).toBeInTheDocument();
+
+    scanTool("tool-one");
+    expect(screen.getByText(/scanned ok/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /remove tool/i })).toHaveLength(1);
+    await uploadEvidence(/return photo/i);
+    fireEvent.change(screen.getByLabelText(/return condition notes/i), {
+      target: { value: "Returned clean" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^return$/i }));
+
+    expect(await screen.findByText(/^Returned: Tool loan$/)).toBeInTheDocument();
+    expect(screen.queryByText(/^Issued: Tool loan$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/scanned ok/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove tool/i })).not.toBeInTheDocument();
+  });
 });

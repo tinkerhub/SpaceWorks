@@ -1,6 +1,50 @@
 """Late source-gate resolution shared by every Django ModelAdmin."""
 
+from contextlib import ExitStack, contextmanager
+
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
+from django.db import transaction
+
+
+def gate_refusals():
+    """The errors a frozen or unrestored tenant raises; custom views show them as messages."""
+    from apps.backup.not_restored import TenantNotRestored
+    from apps.tenant_migration.gate_errors import SourceMigrationGateError
+
+    return (SourceMigrationGateError, TenantNotRestored)
+
+
+@contextmanager
+def admin_tenant_write(makerspace_ids):
+    """Hold each tenant's source-gate lock across a custom /control/ write.
+
+    Custom admin URLs are not model change/delete views, so the mixin below never sees
+    them and the middleware only holds the unscoped lock for /control/. A frozen tenant
+    raises one of `gate_refusals()` before the body runs.
+    """
+    from apps.tenant_migration.gate_runtime import boundary_tenant_write
+
+    with ExitStack() as locks:
+        for makerspace_id in sorted({int(pk) for pk in makerspace_ids if pk is not None}):
+            locks.enter_context(boundary_tenant_write(makerspace_id))
+        yield
+
+
+def source_gate_refusal(makerspace_ids):
+    """Return why a write inside the current transaction is refused, or None.
+
+    The shared lock is taken in a savepoint, so it is held to commit on success and a
+    refusal never poisons the surrounding admin transaction.
+    """
+    from apps.tenant_migration.gate_runtime import assert_write_allowed
+
+    try:
+        with transaction.atomic():
+            for makerspace_id in sorted({int(pk) for pk in makerspace_ids if pk is not None}):
+                assert_write_allowed(makerspace_id)
+    except gate_refusals() as exc:
+        return str(exc)
+    return None
 
 
 class AdminSourceGateMixin:

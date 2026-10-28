@@ -227,7 +227,11 @@ def test_triage_rbac_wrong_role_403_and_cross_tenant_404():
 
 @pytest.mark.parametrize(
     ("outcome", "target_status"),
-    [("damaged", InventoryAsset.Status.DAMAGED), ("needs_fix", InventoryAsset.Status.MAINTENANCE)],
+    [
+        ("damaged", InventoryAsset.Status.DAMAGED),
+        ("needs_fix", InventoryAsset.Status.MAINTENANCE),
+        ("missing", InventoryAsset.Status.LOST),
+    ],
 )
 def test_individual_tracked_triage_flips_returned_asset_status(outcome, target_status):
     makerspace = make_space(f"problem-asset-{outcome}")
@@ -255,5 +259,8 @@ def test_individual_tracked_triage_flips_returned_asset_status(outcome, target_s
     assert product.available_quantity == 0
     if outcome == "needs_fix":
         assert product.needs_fix_quantity == 1
+    elif outcome == "missing":
+        assert product.lost_quantity == 1
+        assert product.damaged_quantity == 0
     else:
         assert product.damaged_quantity == 1

@@ -97,6 +97,8 @@ def build_dashboard(
                     views_dashboard.HardwareRequest.Status.PARTIALLY_RETURNED,
                 ],
                 return_due_at__lt=now,
+                # Handout requests are counted once, through their loan, below.
+                public_tool_loan__isnull=True,
             ).count()
             direct_overdue = PublicToolLoan.objects.filter(
                 makerspace=makerspace,

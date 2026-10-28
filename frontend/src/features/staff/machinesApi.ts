@@ -20,6 +20,8 @@ export type MachineType = {
   // and an absent value correctly reads as "no creation authority proven".
   can_create_machine?: boolean;
   capability_config?: MachineTypeCapabilityConfig;
+  /** Settings as they apply in this makerspace, built-in overrides resolved. */
+  effective_config?: EffectiveTypeConfig;
 };
 
 // Mirrors backend `printer_capabilities.is_printer_type`: the built-in printer is the GLOBAL
@@ -35,9 +37,18 @@ export type MeteringUnit = "weight" | "volume" | "length" | "count" | "minutes";
 export type MachineTypeCapabilityConfig = {
   metering_unit: MeteringUnit;
   requires_booking: boolean;
+  uses_consumables?: boolean;
   accepted_materials?: string[];
   accepted_colours?: string[];
 };
+export type EffectiveTypeConfig = {
+  metering_unit: MeteringUnit;
+  requires_booking: boolean;
+  uses_consumables: boolean;
+  overridden: boolean;
+};
+/** A built-in type's settings for one makerspace; null restores the built-in value. */
+export type MachineTypeSettings = Partial<{ [K in "metering_unit" | "requires_booking" | "uses_consumables"]: EffectiveTypeConfig[K] | null }>;
 
 export type Machine = {
   id: number;
@@ -213,6 +224,12 @@ export function updateMachineType(
   });
 }
 
+export function setMachineTypeSettings(makerspaceId: number, typeId: number, payload: MachineTypeSettings) {
+  return staffRequest<MachineType>(`/admin/makerspace/${makerspaceId}/machine-types/${typeId}/settings`, {
+    method: "PUT", body: JSON.stringify(payload),
+  });
+}
+
 export function getMachineTypePricing(makerspaceId: number) {
   return staffRequest<MachineTypePricingList>(`/admin/makerspace/${makerspaceId}/machine-type-pricing`);
 }
@@ -277,49 +294,17 @@ export function unretireMachine(machineId: number) {
   });
 }
 
-export function getMachineUsage(machineId: number) {
-  return staffRequest<MachineCollection<MachineUsageEntry>>(`/admin/machines/${machineId}/usage`);
-}
-
-export function addMachineUsage(machineId: number, payload: { hours: string; note: string }) {
-  return staffRequest<MachineUsageEntry>(`/admin/machines/${machineId}/usage`, {
-    method: "POST", body: JSON.stringify(payload),
-  });
-}
-
-export function getMachineOperators(machineId: number) {
-  return staffRequest<MachineCollection<MachineOperator>>(`/admin/machines/${machineId}/operators`);
-}
-
-export function getOperatorCandidates(machineId: number) {
-  return staffRequest<MachineOperatorCandidate[]>(`/admin/machines/${machineId}/operator-candidates`);
-}
-
-export function addMachineOperator(machineId: number, payload: { user_id: number; access_level: MachineAccessLevel }) {
-  return staffRequest<MachineOperator>(`/admin/machines/${machineId}/operators`, {
-    method: "POST", body: JSON.stringify(payload),
-  });
-}
-
-export function updateMachineOperator(machineId: number, userPk: number, accessLevel: MachineAccessLevel) {
-  return staffRequest<MachineOperator>(`/admin/machines/${machineId}/operators/${userPk}`, {
-    method: "PATCH", body: JSON.stringify({ access_level: accessLevel }),
-  });
-}
-
-export function deleteMachineOperator(machineId: number, userPk: number) {
-  return staffRequest<void>(`/admin/machines/${machineId}/operators/${userPk}`, { method: "DELETE" });
-}
-
-export function getMachineErrorLogs(machineId: number) {
-  return staffRequest<MachineCollection<MachineErrorLog>>(`/admin/machines/${machineId}/error-logs`);
-}
-
-export function addMachineErrorLog(machineId: number, payload: { severity: string; message: string }) {
-  return staffRequest<MachineErrorLog>(`/admin/machines/${machineId}/error-logs`, {
-    method: "POST", body: JSON.stringify(payload),
-  });
-}
+export {
+  addMachineErrorLog,
+  addMachineOperator,
+  addMachineUsage,
+  deleteMachineOperator,
+  getMachineErrorLogs,
+  getMachineOperators,
+  getMachineUsage,
+  getOperatorCandidates,
+  updateMachineOperator,
+} from "./machineActivityApi";
 
 export {
   getConsumableCandidates,

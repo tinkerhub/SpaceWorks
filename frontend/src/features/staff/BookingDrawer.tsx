@@ -22,6 +22,7 @@ import {
 import { CustomAnswersView } from "../forms/CustomAnswersView";
 import { BookableSpaceForm, valuesForSpace } from "./BookableSpaceForm";
 import {
+  bookingKeys,
   useBookableSpace,
   useBookingAction,
   useDeactivateBookableSpace,
@@ -33,6 +34,7 @@ import {
   type BookingStatus,
 } from "./bookingsApi";
 import { PaymentReconcileActions } from "./PaymentReconcileActions";
+import { useMakerspaceCurrency } from "./paymentsApi";
 
 type PendingAction = { booking: Booking; action: BookingAction };
 
@@ -97,6 +99,7 @@ export function BookingDrawer({ makerspaceId, spaceId, onClose }: {
   const { showToast } = useToast();
   const bookings = useSpaceBookings(spaceId, filters, page);
   const update = useUpdateBookableSpace(makerspaceId, spaceId);
+  const currency = useMakerspaceCurrency(makerspaceId);
   const deactivate = useDeactivateBookableSpace(makerspaceId, spaceId);
   const action = useBookingAction(makerspaceId, spaceId);
   const failed = (error: unknown) => showToast(errorText(error), { tone: "error" });
@@ -128,6 +131,7 @@ export function BookingDrawer({ makerspaceId, spaceId, onClose }: {
               error={update.error ? errorText(update.error) : undefined}
               submitLabel="Save changes"
               disabled={!space.is_active}
+              currency={currency}
             />
             <section aria-labelledby="space-bookings-title" className="grid gap-3">
               <SectionHeading
@@ -177,10 +181,7 @@ export function BookingDrawer({ makerspaceId, spaceId, onClose }: {
                   <PaymentReconcileActions
                     makerspaceId={makerspaceId}
                     payment={booking.payment}
-                    invalidateKeys={[
-                      ["booking-space", spaceId, "bookings"],
-                      ["booking-space", spaceId],
-                    ]}
+                    invalidateKeys={[bookingKeys.bookings(spaceId), bookingKeys.detail(spaceId)]}
                   />
                   <BookingActions booking={booking} onAction={(nextAction) => setPendingAction({ booking, action: nextAction })} />
                 </Card>

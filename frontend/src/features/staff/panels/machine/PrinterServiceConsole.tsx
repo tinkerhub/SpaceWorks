@@ -6,6 +6,7 @@ import { EmptyState, ErrorBlock, SectionHeading, Skeleton } from "../../../../co
 import { staffRequest } from "../../../../lib/api";
 import { machineKeys } from "../../machinesApi";
 import type { Machine, MachineType } from "../../machinesApi";
+import { invalidatePaymentViews } from "../../paymentsApi";
 import { useStaffGet } from "../shared";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
 import { manualPriceCell, useManualPrice } from "./manualPrice";
@@ -67,7 +68,9 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
   const invalidate = () => void Promise.all([
     queryClient.invalidateQueries({ queryKey: ["machine-service-requests", makerspaceId, machineType.id] }),
     queryClient.invalidateQueries({ queryKey: ["machine-service-manual", makerspaceId, machineType.id] }),
-    queryClient.invalidateQueries({ queryKey: ["printer-service-report", makerspaceId, machineType.id] }),
+    // Prefixes: this console's own report and the Operations reports, which key by date range.
+    queryClient.invalidateQueries({ queryKey: ["printer-service-report", makerspaceId] }),
+    queryClient.invalidateQueries({ queryKey: ["machine-service-report", makerspaceId] }),
     // A completed job lands on the front desk's handover list.
     queryClient.invalidateQueries({ queryKey: ["machine-service-handover", makerspaceId] }),
     queryClient.invalidateQueries({ queryKey: ["operations-report"] }),
@@ -110,6 +113,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
       notify.success(SERVICE_ACTION_COPY[action.name].done);
       setDraft(clearedActionDraft);
       invalidate();
+      if (action.name === "record-manual-payment") invalidatePaymentViews(queryClient, makerspaceId);
     },
     onError: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
   });
@@ -129,7 +133,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
             machines={machines}
             pools={actionPools}
             machineNoun="Printer"
-            unitLabel="grams"
+            unitLabel="g"
             hasPool
             plannedOnAccept
             allowReprint
@@ -147,7 +151,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
           machines={machines}
           pools={manualPools}
           machineNoun="Printer"
-          unitLabel="grams"
+          unitLabel="g"
           hasPool
           pending={submitManual.isPending}
           onSubmit={() => submitManual.mutate()}

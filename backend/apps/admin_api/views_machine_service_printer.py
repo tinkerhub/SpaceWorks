@@ -2,7 +2,7 @@
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -106,7 +106,7 @@ class MachineServicePrinterPoolListCreateView(APIView):
         ).order_by("material", "color", "id")
         return Response(PrinterPoolSerializer(rows, many=True).data)
 
-    @extend_schema(tags=["Admin machine service"], request=PrinterPoolCreateSerializer, responses={201: PrinterPoolSerializer})
+    @extend_schema(tags=["Admin machine service"], request=PrinterPoolCreateSerializer, responses={201: PrinterPoolSerializer, 400: OpenApiResponse(description="Invalid pool, a unit other than the type's metering unit, or a type that uses no consumables.")})
     def post(self, request, makerspace_id):
         space = _space(request.user, makerspace_id)
         serializer = PrinterPoolCreateSerializer(data=request.data)

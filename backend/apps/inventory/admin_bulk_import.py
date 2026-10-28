@@ -9,6 +9,7 @@ from apps.makerspaces.guards import require_module
 from apps.makerspaces.models import Makerspace
 from apps.makerspaces.servability import servable_queryset
 from rest_framework.exceptions import ValidationError as DRFValidationError
+from config.admin_source_gate import admin_tenant_write, gate_refusals
 
 
 SESSION_KEY = "admin_inventory_bulk_import_preview"
@@ -42,18 +43,21 @@ def bulk_import_view(model_admin, request):
             if makerspace is None:
                 form.add_error(None, "Makerspace is hidden or archived.")
             else:
+                result = None
                 try:
                     require_module(makerspace, "bulk_import")
+                    # A custom URL: the changeform source-gate hook never runs for it.
+                    with admin_tenant_write([makerspace.pk]):
+                        result = bulk_import.apply_import(
+                            request.user,
+                            makerspace,
+                            stored["rows"],
+                            stored["mapping"],
+                        )
                 except DRFValidationError as exc:
                     form.add_error(None, exc.detail)
-                    result = None
-                else:
-                    result = bulk_import.apply_import(
-                        request.user,
-                        makerspace,
-                        stored["rows"],
-                        stored["mapping"],
-                    )
+                except gate_refusals() as exc:
+                    form.add_error(None, str(exc))
                 if result is None:
                     preview = None
                     return _render(model_admin, request, form, preview, stored)

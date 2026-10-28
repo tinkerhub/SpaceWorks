@@ -4,6 +4,7 @@ import { Button, Dropdown, ErrorText, Field, Input, SwitchRow, Textarea } from "
 import { CustomFormBuilder } from "../forms/CustomFormBuilder";
 import type { CustomFormSchema } from "../forms/customFormTypes";
 import type { BookableSpace, BookableSpacePayload } from "./bookingsApi";
+import { withCurrency } from "./paymentsApi";
 
 type FormValues = BookableSpacePayload;
 
@@ -39,13 +40,15 @@ export function valuesForSpace(space: BookableSpace): FormValues {
   };
 }
 
-export function BookableSpaceForm({ initialValues = EMPTY_SPACE_FORM, onSubmit, pending, error, submitLabel, disabled = false }: {
+export function BookableSpaceForm({ initialValues = EMPTY_SPACE_FORM, onSubmit, pending, error, submitLabel, disabled = false, currency = "" }: {
   initialValues?: FormValues;
   onSubmit: (payload: BookableSpacePayload) => void;
   pending: boolean;
   error?: string;
   submitLabel: string;
   disabled?: boolean;
+  /** Upper-case code shown beside the price, e.g. "INR"; omitted when unknown. */
+  currency?: string;
 }) {
   const [values, setValues] = useState<FormValues>(initialValues);
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) => setValues((current) => ({ ...current, [key]: value }));
@@ -97,7 +100,7 @@ export function BookableSpaceForm({ initialValues = EMPTY_SPACE_FORM, onSubmit, 
             <option value="approve">Staff approval required</option>
           </Dropdown>
         </Field>
-        <Field label="Booking price" helperText="Use 0 for no charge.">
+        <Field label={withCurrency("Booking price", currency)} helperText="Use 0 for no charge.">
           <Input type="number" min="0" step="0.01" value={values.payment_amount} onChange={(event) => set("payment_amount", event.target.value)} />
         </Field>
         <Field label="Requester email">

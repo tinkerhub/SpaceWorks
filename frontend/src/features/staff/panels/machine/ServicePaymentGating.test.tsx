@@ -70,6 +70,6 @@ describe("machine service payment copy", () => {
         machines={[]} pools={[]} meta={() => "meta"} pending={false} onSubmit={() => {}} machineNoun="Printer" unitLabel="grams" hasPool />,
     );
 
-    expect(await screen.findByText("Payment owed INR 40.00")).toBeVisible();
+    expect(await screen.findByText("Payment owed ₹40.00")).toBeVisible();
   });
 });

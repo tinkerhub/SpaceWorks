@@ -1,6 +1,7 @@
 ﻿from decimal import Decimal
 
 import pytest
+from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
@@ -125,12 +126,19 @@ def test_superadmin_can_delete_archived_makerspace_from_django_admin(monkeypatch
     client.force_login(superadmin)
     url = reverse("admin:makerspaces_makerspace_delete", args=[archived.pk])
 
-    confirm = client.get(url)
+    # The generic delete page is no purge entry point; only the slug-confirmed action is.
+    assert client.get(url).status_code == 403
+    assert client.post(url, {"post": "yes"}).status_code == 403
 
-    assert confirm.status_code == 200
-    assert "doesn&#x27;t have permission" not in confirm.content.decode()
-
-    deleted = client.post(url, {"post": "yes"})
+    deleted = client.post(
+        reverse("admin:makerspaces_makerspace_changelist"),
+        {
+            "action": "purge_makerspaces",
+            ACTION_CHECKBOX_NAME: [str(archived.pk)],
+            "confirm_purge": "1",
+            f"slug_{archived.pk}": archived.slug,
+        },
+    )
 
     assert deleted.status_code == 302
     assert not Makerspace.objects.filter(pk=archived.pk).exists()

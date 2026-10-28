@@ -4,7 +4,8 @@ import type { MachineServiceRequest, PrinterPool, TypedManualUsageResponse } fro
 import { ErrorBlock, SectionHeading } from "../../../../components/ui";
 import { staffRequest } from "../../../../lib/api";
 import { machineKeys } from "../../machinesApi";
-import type { Machine, MachineType, MeteringUnit } from "../../machinesApi";
+import type { Machine, MachineType } from "../../machinesApi";
+import { invalidatePaymentViews } from "../../paymentsApi";
 import { useStaffGet } from "../shared";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
 import { manualPriceCell, useManualPrice } from "./manualPrice";
@@ -12,7 +13,8 @@ import { useNotify } from "./machineUi";
 import { SERVICE_ACTION_COPY, ServiceQueue } from "./ServiceQueue";
 import { clearedActionDraft } from "./serviceDrafts";
 import type { ServiceActionName, ServiceDraft } from "./serviceDrafts";
-import { poolQueryKey, poolUnits, unitLabels, usablePools } from "./servicePools";
+import { poolQueryKey, quantityUnit, unitLabels, usablePools } from "./servicePools";
+import { effectiveConfig, typePoolUnit } from "./typeConfig";
 
 type Props = {
   makerspaceId: number;
@@ -27,9 +29,11 @@ type Props = {
 export function MachineServiceConsole({ makerspaceId, canManage, machineType, machines, pools, draft, setDraft }: Props) {
   const queryClient = useQueryClient();
   const notify = useNotify();
-  const meteringUnit = (machineType.capability_config?.metering_unit ?? "count") as MeteringUnit;
+  const meteringUnit = effectiveConfig(machineType).metering_unit;
   const unitLabel = unitLabels[meteringUnit];
-  const poolUnit = poolUnits[meteringUnit];
+  const poolUnit = typePoolUnit(machineType);
+  // Any non-minute type measures a quantity for pricing, consumables or not; only pools need poolUnit.
+  const quantityLabel = quantityUnit(meteringUnit);
   // Filter by the stable machine-type ID, not the slug: slugs are not unique across the
   // global/tenant split, so a makerspace-local type sharing a built-in's slug would pull in
   // the other type's jobs and let a manager mutate them from the wrong section.
@@ -53,6 +57,9 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
     // A completed job lands on the front desk's handover list.
     queryClient.invalidateQueries({ queryKey: ["machine-service-handover", makerspaceId] }),
     queryClient.invalidateQueries({ queryKey: ["operations-report"] }),
+    // The Operations reports key by date range under these prefixes.
+    queryClient.invalidateQueries({ queryKey: ["machine-service-report", makerspaceId] }),
+    queryClient.invalidateQueries({ queryKey: ["printer-service-report", makerspaceId] }),
     queryClient.invalidateQueries({ queryKey: poolQueryKey(makerspaceId) }),
     // Service transitions change the assigned machine's status, and manual usage its
     // usage hours; without this the integrated machine row and the status filter
@@ -67,7 +74,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
         machine_id: Number(draft.manual.machine_id),
         consumable_pool_id: poolUnit && draft.manual.consumable_pool_id ? Number(draft.manual.consumable_pool_id) : null,
         duration_minutes: Number(draft.manual.duration_minutes),
-        quantity: poolUnit && draft.manual.quantity ? draft.manual.quantity : undefined,
+        quantity: quantityLabel && draft.manual.quantity ? draft.manual.quantity : undefined,
         metering_unit: meteringUnit,
         outcome: draft.manual.outcome,
         percent_complete: Number(draft.manual.percent_complete),
@@ -87,12 +94,13 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
     mutationFn: (action: { id: number; name: ServiceActionName }) =>
       staffRequest(`/admin/machine-service/requests/${action.id}/${action.name}`, {
         method: "POST",
-        body: JSON.stringify(actionBody(action.name, draft.actionValues, !!poolUnit)),
+        body: JSON.stringify(actionBody(action.name, draft.actionValues, !!poolUnit, !!quantityLabel)),
       }),
     onSuccess: (_result, action) => {
       notify.success(SERVICE_ACTION_COPY[action.name].done);
       setDraft(clearedActionDraft);
       invalidate();
+      if (action.name === "record-manual-payment") invalidatePaymentViews(queryClient, makerspaceId);
     },
     onError: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
   });
@@ -103,7 +111,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
       <section className="grid gap-4">
         <SectionHeading
           title="Service queue"
-          description={`This type is metered in ${unitLabel}. ${poolUnit ? "Choose a machine before selecting its consumable pool." : "Minutes-based services do not use consumable pools."}`}
+          description={`This type is metered in ${unitLabel}. ${poolUnit ? "Choose a machine before selecting its consumable pool." : "This type does not use consumable pools."}`}
         />
         <ServiceQueue
           makerspaceId={makerspaceId}
@@ -114,7 +122,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           machines={machines}
           pools={actionPools}
           machineNoun="Machine"
-          unitLabel={unitLabel}
+          unitLabel={quantityLabel}
           hasPool={!!poolUnit}
           meta={(request) => `Planned ${request.planned_quantity ?? "0"} ${unitLabel} · actual ${request.actual_consumed_quantity ?? "0"} ${unitLabel}`}
           pending={runAction.isPending}
@@ -129,7 +137,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           machines={machines}
           pools={manualPools}
           machineNoun="Machine"
-          unitLabel={unitLabel}
+          unitLabel={quantityLabel}
           hasPool={!!poolUnit}
           pending={submitManual.isPending}
           onSubmit={() => submitManual.mutate()}
@@ -149,10 +157,11 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
   );
 }
 
-function actionBody(action: ServiceActionName, values: ServiceDraft["actionValues"], hasPool: boolean) {
+function actionBody(action: ServiceActionName, values: ServiceDraft["actionValues"], hasPool: boolean, measured: boolean) {
+  const quantity = (value: string) => (measured && value ? value : undefined);
   if (action === "accept") return { estimated_minutes: Number(values.estimated_minutes) };
-  if (action === "start") return { machine_id: values.machine_id ? Number(values.machine_id) : null, consumable_pool_id: hasPool && values.consumable_pool_id ? Number(values.consumable_pool_id) : undefined, estimated_minutes: Number(values.estimated_minutes), planned_quantity: hasPool && values.planned_quantity ? values.planned_quantity : undefined };
-  if (action === "complete") return { actual_minutes: Number(values.actual_minutes), actual_quantity: hasPool && values.actual_quantity ? values.actual_quantity : undefined };
-  if (action === "fail") return { actual_minutes: Number(values.actual_minutes), actual_quantity: hasPool && values.actual_quantity ? values.actual_quantity : undefined, percent_complete: Number(values.percent_complete), reason: values.reason };
+  if (action === "start") return { machine_id: values.machine_id ? Number(values.machine_id) : null, consumable_pool_id: hasPool && values.consumable_pool_id ? Number(values.consumable_pool_id) : undefined, estimated_minutes: Number(values.estimated_minutes), planned_quantity: quantity(values.planned_quantity) };
+  if (action === "complete") return { actual_minutes: Number(values.actual_minutes), actual_quantity: quantity(values.actual_quantity) };
+  if (action === "fail") return { actual_minutes: Number(values.actual_minutes), actual_quantity: quantity(values.actual_quantity), percent_complete: Number(values.percent_complete), reason: values.reason };
   return action === "reject" ? { reason: values.reason } : {};
 }

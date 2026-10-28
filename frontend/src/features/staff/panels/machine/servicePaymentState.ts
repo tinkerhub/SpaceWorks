@@ -1,4 +1,5 @@
 import type { MachineServiceRequest } from "../../../../generated/api";
+import { formatMoney } from "../../paymentsApi";
 
 type ServicePaymentFields = Pick<
   MachineServiceRequest,
@@ -8,7 +9,7 @@ type ServicePaymentFields = Pick<
 export function paymentState(request: ServicePaymentFields) {
   if (request.payment) {
     const { amount, currency, status } = request.payment;
-    const priced = ` ${currency.toUpperCase()} ${amount}`;
+    const priced = ` ${formatMoney(amount, currency)}`;
     if (status === "pending") return `owed${priced}`;
     if (status === "paid_online" || status === "paid_offline") {
       return `paid${priced}`;

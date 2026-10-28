@@ -15,6 +15,7 @@ from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import rbac
 from apps.admin_api.permissions import IsActiveSuperAdmin
 from apps.makerspaces.module_groups import deployment_app_status, grouped_module_status
 from apps.makerspaces.module_install import (
@@ -37,8 +38,13 @@ class ModuleActionSerializer(serializers.Serializer):
 
 def _makerspace(makerspace_id):
     # Archived spaces are excluded everywhere but /control/, and installing a module on
-    # one would be a change nobody can see the effect of.
-    return get_object_or_404(servable_queryset(), pk=makerspace_id)
+    # one would be a change nobody can see the effect of. A space that has blocked
+    # superadmin access is hard-hidden too: this is a global superpower, which even a
+    # superadmin holding a membership there does not keep (same 404 as staff revoke).
+    return get_object_or_404(
+        servable_queryset().exclude(pk__in=rbac.superadmin_hidden_makerspace_ids()),
+        pk=makerspace_id,
+    )
 
 
 class ModuleGroupListView(APIView):

@@ -1,5 +1,6 @@
 import { Button, Dialog, Dropdown, ErrorText, Field, Input } from "../../../components/ui";
 import { errorText } from "./shared";
+import { withCurrency } from "../paymentsApi";
 import type { Kind } from "./ProcurementPanelRows";
 import type { ProcurementMachineTypeOption } from "./ProcurementPanelTypes";
 
@@ -42,6 +43,7 @@ export function ProcurementCreateDialog({
   pending,
   error,
   onSubmit,
+  currency,
 }: {
   open: boolean;
   onClose: () => void;
@@ -54,6 +56,8 @@ export function ProcurementCreateDialog({
   pending: boolean;
   error: unknown;
   onSubmit: () => void;
+  /** Upper-case makerspace currency, or "" when unknown. */
+  currency: string;
 }) {
   const formId = "procurement-create-form";
   const ready = canSubmitProcurement(form, requiresMachineType);
@@ -107,13 +111,13 @@ export function ProcurementCreateDialog({
         <Field label="Link" optional className="sm:col-span-2">
           <Input inputMode="url" placeholder="https://" value={form.link} onChange={(event) => setForm({ ...form, link: event.target.value })} />
         </Field>
-        <Field label="Estimated unit cost" optional>
+        <Field label={withCurrency("Estimated unit cost", currency)} optional>
           <Input type="number" min={0} step="0.01" inputMode="decimal" value={form.estimated_unit_cost} onChange={(event) => setForm({ ...form, estimated_unit_cost: event.target.value })} />
         </Field>
         <Field label="Vendor" optional>
           <Input value={form.vendor_name} onChange={(event) => setForm({ ...form, vendor_name: event.target.value })} />
         </Field>
-        <Field label="Actual unit cost" optional>
+        <Field label={withCurrency("Actual unit cost", currency)} optional>
           <Input type="number" min={0} step="0.01" inputMode="decimal" value={form.actual_unit_cost} onChange={(event) => setForm({ ...form, actual_unit_cost: event.target.value })} />
         </Field>
         {error ? <div className="sm:col-span-2"><ErrorText message={errorText(error, "Could not add item.")} /></div> : null}

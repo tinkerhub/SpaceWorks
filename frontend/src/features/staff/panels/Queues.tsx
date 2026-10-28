@@ -93,7 +93,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
 
   const action = useMutation({
     mutationFn: ({ path, body }: { path: string; body?: object }) => staffRequest(path, { method: "POST", body: JSON.stringify(body ?? {}) }),
-    onSuccess: (_data, { path }) => invalidateRequestQueues(queryClient, makerspace.id, actionInvalidationScope(path)),
+    onSuccess: (_data, { path }) => invalidateRequestQueues(queryClient, makerspace.id, actionInvalidationScope(path), makerspace.slug),
   });
   useEffect(() => {
     setDefaultLoanDays(String(makerspace.default_loan_days ?? 7));

@@ -21,7 +21,7 @@ def user_payload(user, request=None):
     from apps.accounts import rbac
     from apps.makerspaces.origin_scope import origin_scoped_makerspace_id
 
-    memberships = user.makerspace_memberships.select_related("makerspace", "assigned_role")
+    memberships = user.makerspace_memberships.select_related("makerspace__payment_settings", "assigned_role")
     claim_context = getattr(user, "_claim_audit_context", None)
     if claim_context is not None:
         memberships = memberships.filter(pk=claim_context.membership_id)

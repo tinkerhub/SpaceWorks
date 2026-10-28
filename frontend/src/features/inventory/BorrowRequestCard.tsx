@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { Button, Callout, Card, Chip, ErrorText, Field, Input, Textarea } from "../../components/ui";
 import type { RequestCartItem } from "../../types/inventory";
 import type { DeskIdentity } from "./PublicRequestHeader";
@@ -39,6 +41,8 @@ type BorrowRequestCardProps = {
   // The ONLY handle an account-less requester has on their request: their contact details
   // are unverified so no lifecycle email is sent, and status lookup is by token.
   publicToken?: string;
+  // Where that token can be looked up again.
+  statusHref?: string;
 };
 
 export function BorrowRequestCard({
@@ -62,6 +66,7 @@ export function BorrowRequestCard({
   website = "",
   onWebsiteChange,
   publicToken,
+  statusHref,
 }: BorrowRequestCardProps) {
   const accountLess = identity === "contact";
   const tokenOnly = accountLess || identity === "checkin";
@@ -157,7 +162,14 @@ export function BorrowRequestCard({
               <>
                 <p>Save this reference: a request made without an account has no sign-in to come back to, and staff will ask for it.</p>
                 {publicToken ? (
-                  <p className="mt-2 break-all rounded-md bg-canvas px-2 py-1 font-mono text-xs text-ink">{publicToken}</p>
+                  <>
+                    <p className="mt-2 break-all rounded-md bg-canvas px-2 py-1 font-mono text-xs text-ink">{publicToken}</p>
+                    {statusHref ? (
+                      <Link className="mt-2 inline-block font-semibold underline underline-offset-4" to={`${statusHref}?token=${encodeURIComponent(publicToken)}`}>
+                        Check its status
+                      </Link>
+                    ) : null}
+                  </>
                 ) : null}
               </>
             ) : (

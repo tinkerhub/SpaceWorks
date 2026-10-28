@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from apps.accounts import rbac
 from apps.admin_api.permissions import IsActiveStaff
-from apps.admin_api.serializers_machine_types import MachineTypeAccessSerializer
+from apps.admin_api.serializers_machine_types import MachineTypeAccessSerializer, MachineTypeSettingsSerializer
 from apps.audit import services as audit
 from apps.machines import access, role_scope
 from apps.machines.models import Machine, MachineType
@@ -18,7 +18,19 @@ from apps.machines.serializers import (
     MachineTypeSerializer,
     MachineTypeUpdateSerializer,
 )
+from apps.machines.type_settings import effective_type_config, effective_type_configs, settings_from_config
+from apps.machines.type_settings_service import assert_settings_change_allowed, set_type_override
 from apps.makerspaces.guards import require_module
+from apps.makerspaces.models import Makerspace
+
+
+def _type_context(makerspace_id, machine_types):
+    """Serializer context with every type's effective settings resolved in one query."""
+    configs = effective_type_configs(machine_types, makerspace_id)
+    return {
+        "makerspace_id": makerspace_id,
+        "_effective_type_configs": {(pk, makerspace_id): config for pk, config in configs.items()},
+    }
 
 
 class MachineTypeListCreateView(APIView):
@@ -69,7 +81,7 @@ class MachineTypeListCreateView(APIView):
                 manage_granted
                 and role_scope.scope_covers_type(machine_scope, row)
             ) or row.managing_action in direct_actions
-        return Response(MachineTypeAccessSerializer(rows, many=True).data)
+        return Response(MachineTypeAccessSerializer(rows, many=True, context=_type_context(makerspace_id, rows)).data)
 
     @extend_schema(
         tags=['Admin machines'],
@@ -143,6 +155,13 @@ class MachineTypeDetailView(APIView):
         serializer.is_valid(raise_exception=True)
         try:
             with transaction.atomic():
+                if "capability_config" in serializer.validated_data:
+                    locked = MachineType.objects.select_for_update().get(pk=machine_type.pk)
+                    assert_settings_change_allowed(
+                        machine_type, makerspace_id,
+                        effective_type_config(locked, makerspace_id),
+                        settings_from_config(serializer.validated_data["capability_config"]),
+                    )
                 machine_type = serializer.save()
                 audit.record(
                     request.user,
@@ -156,3 +175,42 @@ class MachineTypeDetailView(APIView):
                 'A machine type with this name or slug already exists in this makerspace.'
             )
         return Response(MachineTypeSerializer(machine_type).data)
+
+
+class MachineTypeSettingsView(APIView):
+    """A built-in type's metering unit, booking and consumables switch for ONE makerspace."""
+
+    permission_classes = [IsActiveStaff]
+
+    @extend_schema(
+        tags=['Admin machines'],
+        summary="Set a built-in machine type's settings for this makerspace",
+        description=(
+            "Overrides metering_unit, requires_booking and uses_consumables of a global built-in "
+            "type in this makerspace only; other makerspaces are unaffected. A null value restores "
+            "the built-in setting. Custom types are edited through the type itself. A unit change "
+            "is refused while the type has active pools in another unit or jobs in progress or "
+            "holding reserved stock here."
+        ),
+        request=MachineTypeSettingsSerializer,
+        responses={
+            200: MachineTypeSerializer,
+            400: OpenApiResponse(description='Invalid setting, custom type, or the type has pools or jobs in flight.'),
+            403: OpenApiResponse(description='Space-manager identity required.'),
+            404: OpenApiResponse(description='Machine type not found.'),
+        },
+    )
+    def put(self, request, makerspace_id, pk, *args, **kwargs):
+        require_module(makerspace_id, 'machines')
+        if not rbac.is_space_manager_identity(request.user, makerspace_id):
+            raise PermissionDenied()
+        makerspace = get_object_or_404(
+            rbac.scope_by_makerspace(request.user, Makerspace.objects.all(), makerspace_field='id'), pk=makerspace_id
+        )
+        machine_type = get_object_or_404(
+            MachineType.objects.filter(Q(makerspace_id=makerspace_id) | Q(makerspace__isnull=True)), pk=pk
+        )
+        serializer = MachineTypeSettingsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        set_type_override(machine_type, makerspace, request.user, serializer.validated_data)
+        return Response(MachineTypeSerializer(machine_type, context={"makerspace_id": makerspace.pk}).data)

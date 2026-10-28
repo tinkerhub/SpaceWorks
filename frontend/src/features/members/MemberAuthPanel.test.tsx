@@ -13,7 +13,7 @@ import { MemberAuthPanel } from "./MemberAuthPanel";
 function renderPanel(config: Record<string, unknown> = {}) {
   publicV1Request.mockImplementation((path: string) => (path === "/config" ? Promise.resolve(config) : Promise.resolve({})));
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={["/m/forge/member"]}>
       <MemberAuthPanel onAuthenticated={vi.fn()} />
     </MemoryRouter>,
   );
@@ -29,7 +29,7 @@ describe("member sign-in", () => {
     renderPanel();
 
     expect(screen.getByRole("heading", { level: 1, name: "Member sign in" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute("href", "/reset-password");
+    expect(screen.getByRole("link", { name: "Forgot password?" })).toHaveAttribute("href", "/reset-password?next=%2Fm%2Fforge%2Fmember");
     await waitFor(() => expect(publicV1Request).toHaveBeenCalledWith("/config"));
   });
 

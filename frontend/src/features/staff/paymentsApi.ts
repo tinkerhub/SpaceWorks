@@ -1,6 +1,8 @@
-import type { QueryClient } from "@tanstack/react-query";
+import { useQuery, type QueryClient } from "@tanstack/react-query";
 
-import { staffRequest } from "../../lib/api";
+import { staffRequest, type StaffAuthUser } from "../../lib/api";
+import { bookingKeys } from "./bookingsApi";
+import { eventKeys } from "./eventsApiTypes";
 
 export const PAYMENT_SUBJECTS = [
   ["machine_service_request", "Machine service"],
@@ -59,6 +61,12 @@ export function invalidatePaymentViews(queryClient: QueryClient, makerspaceId: n
   queryClient.invalidateQueries({ queryKey: ["payments", makerspaceId] });
   queryClient.invalidateQueries({ queryKey: ["operations-report", "payment-reconciliation"] });
   queryClient.invalidateQueries({ queryKey: ["dashboard", makerspaceId] });
+  // Every screen that shows a payment chip or a "Record payment" button for one subject.
+  queryClient.invalidateQueries({ queryKey: ["machine-service-handover", makerspaceId] });
+  queryClient.invalidateQueries({ queryKey: ["machine-service-requests", makerspaceId] });
+  queryClient.invalidateQueries({ queryKey: ["members", makerspaceId] });
+  queryClient.invalidateQueries({ queryKey: eventKeys.all(makerspaceId) });
+  queryClient.invalidateQueries({ queryKey: bookingKeys.all(makerspaceId) });
 }
 
 /** Chip tone for a payment status: settled = success, open = warning, written off = neutral. */
@@ -78,4 +86,31 @@ export function formatMoney(amount: string, currency: string) {
   } catch {
     return `${currency.toUpperCase()} ${amount}`;
   }
+}
+
+/** The cached `/auth/me` payload; the staff session seeds it on sign-in. */
+export const staffMeKey = ["staff", "me"] as const;
+
+/**
+ * The makerspace's payment currency, upper-cased, or "" while it is unknown. Every staff
+ * member's auth payload carries it per makerspace; only a superadmin looking at a makerspace
+ * they are not a member of has no entry, and they can read the payment settings instead.
+ */
+export function useMakerspaceCurrency(makerspaceId: number) {
+  const me = useQuery({ queryKey: staffMeKey, queryFn: () => staffRequest<StaffAuthUser>("/auth/me") });
+  const fromAuth = me.data?.makerspaces?.find(({ id }) => id === makerspaceId)?.currency;
+  const settings = useQuery({
+    queryKey: ["payment-settings", makerspaceId],
+    queryFn: () => staffRequest<{ default_currency: string }>(`/admin/makerspace/${makerspaceId}/payment-settings`),
+    enabled: !me.isPending && !fromAuth,
+    // A 403 is an answer here, not a fault.
+    retry: false,
+    retryOnMount: false,
+  });
+  return (fromAuth ?? settings.data?.default_currency ?? "").toUpperCase();
+}
+
+/** "Booking price (INR)" -- or the bare label when the currency is unknown. */
+export function withCurrency(label: string, currency: string) {
+  return currency ? `${label} (${currency})` : label;
 }

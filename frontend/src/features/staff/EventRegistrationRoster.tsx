@@ -24,6 +24,7 @@ import { EventRegisterMember } from "./EventRegisterMember";
 import { PaymentReconcileActions } from "./PaymentReconcileActions";
 import { useCorrectAttendance } from "./eventFeedbackApi";
 import {
+  eventKeys,
   useApproveEventRegistration,
   useEventRegistrations,
   useMarkEventAttended,
@@ -123,7 +124,7 @@ export function EventRegistrationRoster({ event, makerspaceId, offlineCheckInEna
                     <span className="block text-label text-ink">{row.name}</span>
                     <a className="block break-all text-caption text-ink-secondary hover:underline" href={`mailto:${row.email}`}>{row.email}</a>
                     {row.phone ? <a className="block text-caption text-ink-muted hover:underline" href={`tel:${row.phone}`}>{row.phone}</a> : null}
-                    <PaymentReconcileActions makerspaceId={makerspaceId} payment={row.payment} invalidateKeys={[["event", event.id, "registrations"], ["event", event.id], ["events", makerspaceId]]} />
+                    <PaymentReconcileActions makerspaceId={makerspaceId} payment={row.payment} invalidateKeys={[eventKeys.registrations(event.id), eventKeys.detail(event.id), eventKeys.all(makerspaceId)]} />
                   </TD>
                   <TD><StatusChip tone={REGISTRATION_TONES[row.status] ?? "neutral"} size="sm">{eventStatusLabel(row.status)}</StatusChip></TD>
                   <TD>

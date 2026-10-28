@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button, Card, CardHeader, ConfirmDialog, ErrorText, Field, Input, PasswordInput, SettingsRow, StatusChip, useToast } from "../../components/ui";
 import { staffRequest } from "../../lib/api";
+import { machineKeys } from "./machinesApi";
 import { errorText, type Makerspace, useStaffGet } from "./panels/shared";
 
 type PaymentSettings = {
@@ -26,7 +27,7 @@ export function MakerspacePaymentSettings({ makerspace }: { makerspace: Makerspa
   const [publishableKey, setPublishableKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [webhookSecret, setWebhookSecret] = useState("");
-  const [currency, setCurrency] = useState("usd");
+  const [currency, setCurrency] = useState("inr");
   const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
@@ -50,6 +51,8 @@ export function MakerspacePaymentSettings({ makerspace }: { makerspace: Makerspa
       setSecretKey("");
       setWebhookSecret("");
       refresh();
+      // The machine-type pricing list reports this currency too.
+      queryClient.invalidateQueries({ queryKey: machineKeys.pricing(makerspace.id) });
       showToast("Payment settings saved", { tone: "success" });
     },
     onError: (error) => showToast(errorText(error, "Couldn't save the payment settings"), { tone: "error" }),

@@ -9,6 +9,7 @@ from apps.audit import services as audit
 from apps.machines.consumable_scope import pool_serves_machine
 from apps.machines.metering import MeteringUnit, metering_unit_for_pool, pool_unit_for_metering
 from apps.machines.models import MachineConsumableAdjustment, MachineServiceRequest
+from apps.machines.type_settings import effective_metering_unit
 
 
 def _quantity(value, field):
@@ -22,8 +23,7 @@ def _quantity(value, field):
 
 
 def _unit(request, machine):
-    configured = (machine.machine_type.capability_config or {}).get("metering_unit")
-    unit = request.metering_unit or configured or MeteringUnit.WEIGHT
+    unit = request.metering_unit or effective_metering_unit(machine.machine_type, request.makerspace_id)
     if unit not in MeteringUnit.values:
         raise ValidationError({"metering_unit": "Unsupported metering unit."})
     return unit

@@ -40,7 +40,7 @@ class MakerspacePaymentSettings(models.Model):
     stripe_secret_key = models.TextField(blank=True, default="")
     stripe_webhook_secret = models.TextField(blank=True, default="")
     default_currency = models.CharField(
-        max_length=3, default="usd", validators=[currency_validator]
+        max_length=3, default="inr", validators=[currency_validator]
     )
     connect_account_id = models.CharField(
         max_length=255,

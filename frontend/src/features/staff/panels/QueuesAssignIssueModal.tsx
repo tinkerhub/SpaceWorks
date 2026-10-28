@@ -134,11 +134,11 @@ function AssetScanList({ scanned, requiredScans, pending, onScan, onManual, onRe
           ))}
         </ul>
       ) : null}
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex items-start gap-2">
         <Field label="Asset QR code" optional helperText="No camera? Scan into this field with a handheld scanner." className="min-w-0 flex-1">
           <Input className="font-mono" value={manual} disabled={pending} onChange={(event) => setManual(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addManual(); } }} />
         </Field>
-        <Button size="sm" disabled={pending || !manual.trim()} onClick={addManual}>Add code</Button>
+        <Button className="mt-[26px]" disabled={pending || !manual.trim()} onClick={addManual}>Add code</Button>
       </div>
     </section>
   );

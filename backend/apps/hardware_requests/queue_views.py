@@ -131,6 +131,9 @@ class ActiveLoansView(generics.ListAPIView):
                     HardwareRequest.Status.ISSUED,
                     HardwareRequest.Status.PARTIALLY_RETURNED,
                 ],
+                # Self-checkout and direct handouts are returned through their
+                # PublicToolLoan, never the reviewed-request return this queue drives.
+                public_tool_loan__isnull=True,
             )
             .order_by("-issued_at", "-created_at")
         )

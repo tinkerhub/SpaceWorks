@@ -60,7 +60,12 @@ export function MembersPanel({ makerspaceId, actorActions, isSuperadmin, current
   const [inviteEmail, setInviteEmail] = useState("");
   const [waiver, setWaiver] = useState({ version: "", body: "" });
   const [revokeTarget, setRevokeTarget] = useState<AdminMembership | null>(null);
-  const refresh = () => client.invalidateQueries({ queryKey: key });
+  // The Users panel lists the same memberships under its own key, so a role change or
+  // revoke here must refresh it too.
+  const refresh = () => {
+    client.invalidateQueries({ queryKey: key });
+    client.invalidateQueries({ queryKey: ["staff", "memberships", makerspaceId] });
+  };
   // Every mutation refreshes the page's queries and confirms in a toast; failures also stay
   // visible in the panel's error line below the header.
   const notify = (message: string) => ({

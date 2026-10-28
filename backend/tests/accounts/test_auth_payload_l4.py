@@ -64,6 +64,7 @@ def test_seeded_default_role_includes_metadata_and_effective_actions():
         "can_verify": False,
         "verified_at": None,
         "referrals_enabled": False,
+        "currency": "inr",
         "source": "membership",
     }
     assert payload["actions"] == sorted(membership.assigned_role.granted_actions)
@@ -239,3 +240,30 @@ def test_auth_payload_query_count_does_not_scale_with_memberships():
     assert len(user_payload(many_user)["makerspaces"]) == 4
     # Same query count for 1 vs 4 memberships => no per-membership query.
     assert _payload_query_count(many_user) == _payload_query_count(one_user)
+
+
+def test_every_entry_carries_the_makerspace_currency_without_extra_queries():
+    from apps.payments.models import MakerspacePaymentSettings
+    from tests.organizations.test_org_authority import grant, link, make_organization
+
+    user = active_staff("auth-payload-currency")
+    default_space = make_space("auth-payload-currency-default")
+    priced_space = make_space("auth-payload-currency-usd")
+    org_space = make_space("auth-payload-currency-org")
+    for space in (default_space, priced_space):
+        MakerspaceMembership.objects.create(
+            user=user, makerspace=space, role=MakerspaceMembership.Role.INVENTORY_MANAGER,
+            assigned_role=seeded(space, MakerspaceMembership.Role.INVENTORY_MANAGER),
+        )
+    organization = make_organization("auth-payload-currency-org")
+    link(organization, org_space, "manager")
+    grant(organization, user, [rbac.Action.MANAGE_EVENTS])
+    before = _payload_query_count(user)
+    MakerspacePaymentSettings.objects.create(makerspace=priced_space, default_currency="usd")
+    MakerspacePaymentSettings.objects.create(makerspace=org_space, default_currency="eur")
+
+    currencies = {row["id"]: row["currency"] for row in user_payload(user)["makerspaces"]}
+
+    assert currencies == {default_space.id: "inr", priced_space.id: "usd", org_space.id: "eur"}
+    # Read off joins the payload already makes: no query per entry, and none added.
+    assert _payload_query_count(user) == before

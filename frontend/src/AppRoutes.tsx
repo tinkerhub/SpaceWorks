@@ -7,6 +7,7 @@ import { PublicEventFeedbackPage } from "./features/inventory/PublicEventFeedbac
 import { PublicEventsPage } from "./features/inventory/PublicEventsPage";
 import { PublicInventoryPage } from "./features/inventory/PublicInventoryPage";
 import { PublicMachinesPage } from "./features/inventory/PublicMachinesPage";
+import { PublicRequestStatusPage } from "./features/inventory/PublicRequestStatusPage";
 import { PublicSelfCheckoutPage } from "./features/inventory/PublicSelfCheckoutPage";
 import { ArchivedPayments } from "./features/members/ArchivedPayments";
 import { MemberArea } from "./features/members/MemberArea";
@@ -39,6 +40,7 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
   if (mode === "single") return <Routes>
     <Route path="/" element={<PublicInventoryPage />} />
     <Route path="/checkout" element={<PublicSelfCheckoutPage />} />
+    <Route path="/request" element={<PublicRequestStatusPage />} />
     <Route path="/events" element={events(<PublicEventsPage />)} />
     <Route path="/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
@@ -60,6 +62,7 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
     <Route path="/o/:organizationSlug" element={<PublicOrganizationPage />} />
     <Route path="/m/:slug" element={<PublicInventoryPage />} />
     <Route path="/m/:slug/checkout" element={<PublicSelfCheckoutPage />} />
+    <Route path="/m/:slug/request" element={<PublicRequestStatusPage />} />
     <Route path="/m/:slug/events" element={events(<PublicEventsPage />)} />
     <Route path="/m/:slug/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/m/:slug/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />

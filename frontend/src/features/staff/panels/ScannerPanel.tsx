@@ -8,7 +8,7 @@ import { staffRequest, type StaffAuthUser } from "../../../lib/api";
 import { errorText, Panel, StatusWord, type Makerspace, type Product, useStaffGet } from "./shared";
 import { qrResolveErrorText } from "../evidenceUi";
 import { invalidateInventoryViews, invalidateQrViews } from "../queryInvalidation";
-import { BoxContentsList, MoveAssetForm, RebindForm, targetTitle, type BoxContents, type Rebound, type Resolved } from "./ScannerPanelForms";
+import { BoxContentsList, MoveAssetForm, RebindForm, targetTitle, type BoxContents, type Rebound, type Resolved, type ResolvedQr } from "./ScannerPanelForms";
 
 type ListResponse<T> = T[] | { results: T[] };
 
@@ -92,11 +92,16 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
     });
   };
   const revoke = useMutation({
-    mutationFn: (qrId: number) => staffRequest(`/admin/qr/${qrId}/revoke`, { method: "POST", body: JSON.stringify({}) }),
-    onSuccess: () => {
+    mutationFn: (qrId: number) => staffRequest<ResolvedQr>(`/admin/qr/${qrId}/revoke`, { method: "POST", body: JSON.stringify({}) }),
+    onSuccess: (qr) => {
       setConfirmRevoke(false);
       if (resolvedQrMakerspaceId) invalidateQrViews(queryClient, resolvedQrMakerspaceId, resolved?.qr.id);
-      if (resolved) resolve.mutate(resolved.qr.payload);
+      // Resolve only matches ACTIVE codes, so re-resolving a revoked one 404s and left the
+      // stale "active" card up. The revoke response IS the updated QR: show it, and drop
+      // the actions a revoked code no longer supports.
+      setResolved((current) => (current ? { ...current, qr: { ...current.qr, ...qr }, allowed_actions: [] } : current));
+      setShowRebind(false);
+      setShowMove(false);
       showToast("QR revoked", { tone: "success" });
     },
     onError: (error) => showToast(errorText(error, "Could not revoke the QR"), { tone: "error" }),
@@ -180,8 +185,9 @@ export function ScannerPanel({ makerspace, isSuperadmin, makerspaces }: {
   // Rebind UI only targets PRODUCT QRs (the cross-makerspace quantity-product
   // transfer scenario). The form always submits target_type "product", so offering
   // it for an asset QR would silently convert that QR's type - disallow it here.
-  const canRebind = Boolean(resolved && target && target.type === "product" && hasRebindPermissions);
-  const canMoveAsset = Boolean(resolved && target && target.type === "asset" && isSuperadmin);
+  const qrActive = resolved?.qr.status === "active";
+  const canRebind = Boolean(resolved && target && qrActive && target.type === "product" && hasRebindPermissions);
+  const canMoveAsset = Boolean(resolved && target && qrActive && target.type === "asset" && isSuperadmin);
   const destinationMakerspaces = makerspaces.filter((space) => space.id !== resolvedQrMakerspaceId);
   const handoutActions = actions.filter((action) => HANDOUT_ACTIONS.includes(action));
 

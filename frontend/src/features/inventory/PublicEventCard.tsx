@@ -22,7 +22,7 @@ export type PublicEvent = {
   series: { public_token: string; title: string } | null;
 };
 
-const AVAILABILITY_TONE: Record<PublicEvent["availability"], StatusTone> = {
+export const AVAILABILITY_TONE: Record<PublicEvent["availability"], StatusTone> = {
   Available: "success",
   Limited: "warning",
   Full: "danger",
@@ -49,6 +49,7 @@ function DateBlock({ iso }: { iso: string }) {
 type PublicEventCardProps = {
   event: PublicEvent;
   makerspaceSlug: string;
+  signInHref?: string;
   open: boolean;
   onToggle: () => void;
   calendarPending: boolean;
@@ -57,7 +58,7 @@ type PublicEventCardProps = {
 };
 
 /** Event card: cover, date block, title and meta, availability, then register / calendar. */
-export function PublicEventCard({ event, makerspaceSlug, open, onToggle, calendarPending, calendarError, onDownloadCalendar }: PublicEventCardProps) {
+export function PublicEventCard({ event, makerspaceSlug, signInHref, open, onToggle, calendarPending, calendarError, onDownloadCalendar }: PublicEventCardProps) {
   const unlimited = event.capacity === 0 || event.capacity === null;
   const waitlist = event.availability === "Full";
   const actionLabel = event.registration_requires_approval ? "Apply" : waitlist ? "Join waitlist" : "Register";
@@ -111,6 +112,7 @@ export function PublicEventCard({ event, makerspaceSlug, open, onToggle, calenda
             <EventRegistrationForm
               key={event.public_token}
               makerspaceSlug={makerspaceSlug}
+              signInHref={signInHref}
               publicToken={event.public_token}
               waitlist={waitlist}
               approvalRequired={event.registration_requires_approval}

@@ -7,6 +7,7 @@ import { BookableSpaceForm } from "./BookableSpaceForm";
 import { BookingDrawer } from "./BookingDrawer";
 import { useBookableSpaces, useCreateBookableSpace, type BookableSpace } from "./bookingsApi";
 import { Panel, errorText } from "./panels/shared";
+import { useMakerspaceCurrency } from "./paymentsApi";
 
 const KIND_LABELS: Record<BookableSpace["kind"], string> = {
   dev_room: "Development room",
@@ -46,6 +47,7 @@ export function BookingsPanel({ makerspaceId }: { makerspaceId: number }) {
   const { showToast } = useToast();
   const spaces = useBookableSpaces(makerspaceId, page);
   const create = useCreateBookableSpace(makerspaceId);
+  const currency = useMakerspaceCurrency(makerspaceId);
   const apiError = spaces.error instanceof StructuredApiError ? spaces.error : null;
 
   if (apiError?.status === 403) {
@@ -99,6 +101,7 @@ export function BookingsPanel({ makerspaceId }: { makerspaceId: number }) {
           pending={create.isPending}
           error={create.error?.message}
           submitLabel="Create space"
+          currency={currency}
         />
       </Modal>
       {selectedId !== null ? <BookingDrawer key={selectedId} makerspaceId={makerspaceId} spaceId={selectedId} onClose={() => setSelectedId(null)} /> : null}
