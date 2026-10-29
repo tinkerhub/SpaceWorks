@@ -241,6 +241,9 @@ OBJECT_MUTATION_PARTICIPANTS = {
         "Reached only through the tenant-resolved inventory image route and admin bulk import."
     ),
     "apps.machines.public_printer_service.submit_request": "Runs inside the public-slug printer request route.",
+    "apps.machines.public_service_intake.submit_typed_request": (
+        "Runs inside the public-slug machine-service request route's tenant boundary."
+    ),
     "apps.machines.services.attach_document": "Runs inside the model-resolved machine document route.",
     "apps.machines.services.remove_document": "Runs inside the model-resolved machine document route.",
     "apps.machines.services.remove_image": "Runs inside the model-resolved machine image route.",

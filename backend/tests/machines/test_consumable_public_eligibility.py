@@ -1,8 +1,10 @@
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 from apps.machines.models import (
+    Machine,
     MachineConsumablePool,
     MachineServiceRequest,
     MachineType,
@@ -20,6 +22,7 @@ def _pool(space, material, **overrides):
     values = {
         "makerspace": space,
         "material": material,
+        "color": "Blue",
         "initial_grams": "100",
         "remaining_grams": "100",
     }
@@ -44,15 +47,31 @@ def _public_pool_setup(slug):
     queue = ServiceQueue.objects.create(
         makerspace=space, machine_type=printer_type, name="Public print queue"
     )
+    public_printer = Machine.objects.create(makerspace=space, machine_type=printer_type,
+                                            name="Published printer", is_public=True, type_payload={"model": "MK4"})
+    private_printer = Machine.objects.create(makerspace=space, machine_type=printer_type,
+                                             name="Private printer", is_public=False, type_payload={"model": "MK4"})
+    laser = Machine.objects.create(makerspace=space, machine_type=non_printer_type,
+                                   name="Published laser", is_public=True)
+    retired_printer = Machine.objects.create(makerspace=space, machine_type=printer_type,
+                                             name="Retired printer", is_public=True, is_active=False, type_payload={"model": "MK4"})
+    foreign = make_space(f"{slug}-foreign")
     excluded = [
-        _pool(space, "Exhausted", remaining_grams="0"),
-        _pool(space, "Private", is_public=False),
-        _pool(space, "Laser stock", machine_type=non_printer_type),
-        _pool(space, "Liquid", unit="milliliters"),
+        _pool(foreign, "PLA", machine_type=printer_type),
+        _pool(space, "PLA"),  # Legacy unbound stock is deliberately not public type stock.
+        _pool(space, "PLA", machine=private_printer),
+        _pool(space, "PLA", machine=laser),
+        _pool(space, "PLA", machine=retired_printer),
+        _pool(space, "Unknown", machine_type=printer_type),
+        _pool(space, "PLA", color="Invisible", machine_type=printer_type),
+        _pool(space, "PLA", machine_type=printer_type, remaining_grams="0"),
+        _pool(space, "PLA", machine_type=printer_type, is_public=False),
+        _pool(space, "PLA", machine_type=non_printer_type),
+        _pool(space, "PLA", machine_type=printer_type, unit="milliliters"),
     ]
     included = [
-        _pool(space, "Shared PLA"),
-        _pool(space, "Printer PETG", machine_type=printer_type),
+        _pool(space, "PLA", machine_type=printer_type),
+        _pool(space, "PETG", machine=public_printer),
     ]
     return space, queue, excluded, included
 
@@ -76,6 +95,7 @@ def test_public_submit_rejects_forged_ids_for_every_ineligible_active_pool():
     url = reverse("public-printer-service-request", args=[space.slug])
 
     for pool in excluded:
+        cache.clear()  # Isolate pool validation from the real burst throttle.
         assert pool.is_active
         response = client.post(
             url,
@@ -91,3 +111,38 @@ def test_public_submit_rejects_forged_ids_for_every_ineligible_active_pool():
         assert "consumable_pool_id" in response.data
 
     assert not MachineServiceRequest.objects.filter(makerspace=space).exists()
+
+
+def test_type_catalog_and_typed_submission_share_the_safe_compatible_pool_choices():
+    space, queue, excluded, included = _public_pool_setup("typed-public-stock")
+    printer = queue.machine_type
+    queue.delete()  # Public type intake must work before staff configure any queue.
+    catalog = APIClient().get(reverse("public-machine-service-types", args=[space.slug]))
+    assert catalog.status_code == 200
+    type_row = next(row for row in catalog.data["results"] if row["id"] == printer.pk)
+    assert {row["id"] for row in type_row["consumable_pools"]} == {pool.pk for pool in included}
+    assert all(set(row) == {"id", "material", "color"} for row in type_row["consumable_pools"])
+    assert not ServiceQueue.objects.filter(makerspace=space).exists()
+    actor, client = active_member_client(space, "typed-stock-maker")
+    url = reverse("public-machine-service-request-submit", args=[space.slug])
+    for pool in excluded:
+        cache.clear()
+        invalid = client.post(url, {"machine_type_id": printer.pk, "title": "Forged stock",
+                                    "consumable_pool_id": pool.pk}, format="json")
+        assert invalid.status_code == 400 and "consumable_pool_id" in invalid.data
+        assert not ServiceQueue.objects.filter(makerspace=space).exists()
+    pool = included[1]
+    response = client.post(url, {
+        "machine_type_id": printer.pk, "title": "Enclosure", "consumable_pool_id": pool.pk,
+        "project_brief": "Outdoor enclosure", "preferred_settings": {"notes": "Use supports"},
+        "estimated_filament_grams": "12.50", "quantity": 3,
+    }, format="json")
+    assert response.status_code == 201, response.data
+    row = MachineServiceRequest.objects.get(public_token=response.data["public_token"])
+    assert row.requester_id == actor.pk and row.assigned_machine_id is None
+    assert row.queue.machine_type_id == printer.pk
+    assert row.capability_payload == {
+        "requested_material": pool.material, "requested_color": pool.color, "quantity": 3,
+        "project_brief": "Outdoor enclosure", "requested_consumable_pool": pool.pk,
+        "preferred_settings": {"notes": "Use supports"}, "estimated_grams": "12.50",
+    }

@@ -39,8 +39,7 @@ export function optional(value: string) {
   return trimmed || undefined;
 }
 
-// Group active spools by material so same-material filaments are listed together and
-// distinguished by color (the public /spools endpoint already orders by material,color).
+// Keep compatible public stock together by material, distinguished by color.
 export function groupPoolsByMaterial(
   pools: PublicFilamentPool[],
 ): [string, PublicFilamentPool[]][] {
@@ -57,7 +56,10 @@ export function groupPoolsByMaterial(
 type PrintDetailsFormProps = {
   form: FormState;
   updateField: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
-  poolsQuery: UseQueryResult<PublicFilamentPool[], Error>;
+  poolsQuery: Pick<UseQueryResult<PublicFilamentPool[], Error>, "data" | "isSuccess" | "isLoading" | "isError" | "error">;
+  mode?: "printer" | "generic";
+  serviceLabels?: boolean;
+  attachmentAccept?: string;
   modelFiles: File[];
   setModelFiles: Dispatch<SetStateAction<File[]>>;
   screenshotFiles: File[];
@@ -88,12 +90,17 @@ export function PrintDetailsForm({
   website,
   onWebsiteChange,
   onSubmit,
+  mode = "printer",
+  serviceLabels = false,
+  attachmentAccept = "",
 }: PrintDetailsFormProps) {
   const noAvailablePools = poolsQuery.isSuccess && (poolsQuery.data?.length ?? 0) === 0;
+  const unavailableSelection = Boolean(form.consumablePoolId)
+    && !(poolsQuery.data ?? []).some((pool) => String(pool.id) === form.consumablePoolId);
   return (
     <Card className="@container">
       {identityStep ? <div className="mb-5">{identityStep}</div> : null}
-      <SectionHeading title="Print details" description="Tell staff what to print. Files upload when you submit." />
+      <SectionHeading title={serviceLabels ? "Service request" : "Print details"} description={serviceLabels ? "Describe your project. Staff will assign a machine. Files upload when you submit." : "Tell staff what to print. Files upload when you submit."} />
       <form className="mt-5 space-y-5" onSubmit={onSubmit}>
         {/* Honeypot: hidden from humans; bots that autofill it trigger the server decoy. */}
         <input
@@ -106,8 +113,9 @@ export function PrintDetailsForm({
           onChange={(event) => onWebsiteChange(event.target.value)}
         />
         <fieldset className="min-w-0 space-y-5" disabled={submitPending || !identityReady}>
-          <TextInput label="Title" required value={form.title} onChange={(value) => updateField("title", value)} />
-          <TextArea label="Project brief" optional value={form.projectBrief} onChange={(value) => updateField("projectBrief", value)} />
+          <TextInput label="Title" maxLength={200} required value={form.title} onChange={(value) => updateField("title", value)} />
+          <TextArea label={mode === "printer" ? "Project brief" : "Description"} optional value={form.projectBrief} onChange={(value) => updateField("projectBrief", value)} />
+          {mode === "printer" ? <>
           <TextArea
             label="Slicer settings / personal preferences"
             optional
@@ -115,22 +123,15 @@ export function PrintDetailsForm({
             onChange={(value) => updateField("preferredSettings", value)}
           />
           <div className="grid gap-5 @min-[36rem]:grid-cols-2">
-            {noAvailablePools ? (
-              <div className="grid gap-1.5">
-                <span className="text-label text-ink">Filament / material</span>
-                <EmptyState
-                  title="No filament currently available"
-                  description="There is no filament available to choose right now. You can still submit without a preference, and staff will confirm the options."
-                />
-              </div>
-            ) : (
+            <div className="grid gap-1.5">
               <Field
                 label="Filament / material"
                 helperText={poolsQuery.isLoading ? "Loading filament…" : undefined}
-                error={poolsQuery.isError ? poolsQuery.error.message : undefined}
+                error={poolsQuery.isError ? poolsQuery.error?.message : undefined}
               >
                 <Dropdown value={form.consumablePoolId} onChange={(event) => updateField("consumablePoolId", event.target.value)}>
                   <option value="">No preference</option>
+                  {unavailableSelection ? <option value={form.consumablePoolId} disabled>Selected filament unavailable</option> : null}
                   {groupPoolsByMaterial(poolsQuery.data ?? []).flatMap(([material, pools]) =>
                     pools.map((pool) => (
                       <option key={pool.id} value={pool.id}>
@@ -140,10 +141,16 @@ export function PrintDetailsForm({
                   )}
                 </Dropdown>
               </Field>
-            )}
+              {noAvailablePools ? <EmptyState
+                title="No filament currently available"
+                description="There is no filament available to choose right now. You can still submit without a preference, and staff will confirm the options."
+              /> : null}
+            </div>
             <Field label="Quantity">
               <Input
                 min={1}
+                step={1}
+                required
                 type="number"
                 value={form.quantity}
                 onChange={(event) => updateField("quantity", event.target.value)}
@@ -153,14 +160,17 @@ export function PrintDetailsForm({
             <Field label="Estimated filament (g)" optional helperText="If you know it from your slicer. Staff can adjust this.">
               <Input
                 min={0}
+                max={999999.99}
                 step="0.01"
                 type="number"
                 value={form.estimatedFilamentGrams}
                 onChange={(event) => updateField("estimatedFilamentGrams", event.target.value)}
               />
             </Field>
-            <TextInput label="Source link" optional value={form.sourceLink} onChange={(value) => updateField("sourceLink", value)} />
           </div>
+          </> : null}
+          <TextInput label="Source link" type="url" maxLength={200} optional value={form.sourceLink} onChange={(value) => updateField("sourceLink", value)} />
+          {mode === "printer" ? (
           <div className="grid gap-5 @min-[36rem]:grid-cols-2">
             <FilePicker
               accept=".stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"
@@ -175,6 +185,7 @@ export function PrintDetailsForm({
               setFiles={setScreenshotFiles}
             />
           </div>
+          ) : attachmentAccept ? <FilePicker accept={attachmentAccept} files={modelFiles} label="Attachments" setFiles={setModelFiles} /> : null}
         </fieldset>
 
         {uploadProgress ? <p className="text-body-ui text-ink-muted" aria-live="polite">{uploadProgress}</p> : null}
@@ -183,11 +194,11 @@ export function PrintDetailsForm({
           variant="primary"
           type="submit"
           fullWidth
-          disabled={!form.title.trim() || !identityReady}
+          disabled={!form.title.trim() || !identityReady || submitPending}
           loading={submitPending}
           loadingLabel="Submitting…"
         >
-          Submit print request
+          {serviceLabels ? "Submit service request" : "Submit print request"}
         </Button>
       </form>
     </Card>

@@ -1,6 +1,6 @@
 import pytest
 
-from apps.accounts.claim_route_types import BODY_OBJECT, ID, PUBLIC_TOKEN, SLUG
+from apps.accounts.claim_route_types import ID, PUBLIC_TOKEN, SLUG
 from apps.accounts.claim_tenants import claim_tenant_matches, resolve_claim_tenant
 from apps.bookings.models import BookableSpace
 from apps.machines.models import Machine, MachineType
@@ -24,7 +24,7 @@ def test_slug_and_id_resolvers_return_the_exact_makerspace():
     ) == space
 
 
-def test_public_token_and_body_object_resolve_row_ownership():
+def test_public_token_and_service_slug_resolve_the_exact_tenant():
     space = Makerspace.objects.create(name="Owner", slug="owner")
     bookable = BookableSpace.objects.create(makerspace=space, name="Bench")
     machine_type = MachineType.objects.create(
@@ -40,9 +40,9 @@ def test_public_token_and_body_object_resolve_row_ownership():
         url_kwargs={"public_token": bookable.public_token},
     ) == space
     assert resolve_claim_tenant(
-        BODY_OBJECT,
+        SLUG,
         view_name="public-machine-service-request-submit",
-        url_kwargs={},
+        url_kwargs={"makerspace_slug": space.slug},
         body={"machine_id": machine.pk},
     ) == space
 

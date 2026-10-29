@@ -44,7 +44,7 @@ describe("PublicPrinterQueueSetup", () => {
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(path, { method: "POST", body: "{}" }));
     expect(screen.getByRole("button")).toBeDisabled();
     resolvePost(enabled);
-    expect(await screen.findByText(/Public print requests enabled · Public Requests/)).toBeVisible();
+    expect(await screen.findByText(/Public print queue ready · Public Requests/)).toBeVisible();
     expect(screen.queryByRole("button", { name: "Enable public print requests" })).not.toBeInTheDocument();
     expect(client.getQueryData(["public-printer-queue-setup", 1])).toEqual(enabled);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["public-printer-queues"] });
@@ -57,7 +57,7 @@ describe("PublicPrinterQueueSetup", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Enable public print requests" }));
     expect(await screen.findByText("Public Requests belongs to another machine type")).toBeVisible();
     expect(screen.getByRole("button", { name: "Enable public print requests" })).toBeEnabled();
-    expect(screen.queryByText(/Public print requests enabled ·/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Public print queue ready ·/)).not.toBeInTheDocument();
   });
 
   it("shows GET errors with no setup action", async () => {

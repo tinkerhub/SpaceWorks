@@ -259,7 +259,18 @@ Required by `printing`.
 
 - **What it is** — the service/job queue: a member asks for work on a machine, staff run it.
 - **What it adds** — the `machine_service_requests` workflow: request intake, the staff queue, file
-  uploads, consumption ledgers and the usage entries a finished job produces.
+  uploads, consumption ledgers and the usage entries a finished job produces. Public intake chooses
+  a **machine type**; staff assign a specific machine later. The paginated type catalog requires
+  public inventory plus `machines` and `machine_service`, and at least one active, explicitly
+  published machine of that type in idle, running or reserved state. Private hardware stays private.
+  Printers additionally require `printing`. Only safe file policy and compatible public material
+  choices appear; token status contains lifecycle and queue position, without contact details.
+  The first authorized real upload/submission POST reuses an active same-type queue in name/id order
+  or creates an audited default named `Public Requests - type <id>` when no queue exists. GET never
+  creates setup. If only inactive queues exist, or the default name belongs to another type, POST
+  returns 409 for staff to resolve. Uploaded files pin the exact queue, even if queue ordering changes;
+  deactivating it causes a conflict. The existing staff printer setup action remains available for
+  deliberate creation/reactivation of `Public Requests`.
 - **Without it** — machines are a registry you look at, not a queue you work. Jobs are arranged in person
   or by message; nothing records who ran what, on which machine, using how much material. `printing`
   cannot be installed while this is off.
@@ -273,8 +284,9 @@ Required by `printing`.
 - **What it is** — 3D printing as a machine type on top of the service queue.
 - **What it adds** — the `printing_requests` workflow: print-specific intake, print files, and the
   printer-facing view of the queue.
-- **Without it** — 3D printers can still be registered as machines and their jobs run through the
-  ordinary service queue; what you lose is the print-specific handling around them, including the
+- **Without it** — 3D printers can still be registered and staff can manage their ordinary service
+  jobs. Public printer intake is disabled, including requests through the machine-type form or the
+  legacy machine-id API. You also lose the print-specific handling around them, including the
   public print-status page (an old status link answers like an unknown one), the printing email
   templates and the print counters on the dashboard.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately; print jobs are

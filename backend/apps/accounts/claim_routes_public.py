@@ -3,7 +3,6 @@
 from apps.accounts.claim_route_types import (
     AnonymousRead,
     Allowed,
-    BODY_OBJECT,
     PUBLIC_TOKEN,
     ReadOnly,
     Refused,
@@ -21,8 +20,12 @@ def _anonymous(name):
 
 PUBLIC_CLAIM_ROUTES = {
     **_anonymous("public-machines"),
+    **_anonymous("public-machine-service-types"),
+    ("public-machine-service-upload", "POST"): Allowed(tenant=SLUG, audited=True),
+    ("public-machine-service-upload", "OPTIONS"): AnonymousRead(),
+    **_anonymous("public-machine-service-status"),
     ("public-machine-service-request-submit", "POST"): Allowed(
-        tenant=BODY_OBJECT, audited=True
+        tenant=SLUG, audited=True
     ),
     ("public-machine-service-request-submit", "OPTIONS"): AnonymousRead(),
     **_anonymous("public-printer-service-queues"),

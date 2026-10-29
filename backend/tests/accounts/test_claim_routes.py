@@ -40,11 +40,11 @@ def test_current_all_active_tree_has_a_complete_claim_matrix(settings):
     # 72 at D3 + the D5 claim-redemption endpoint + three organization routes (public
     # detail, public events, invitation redeem) + seven event artifact/post-event routes
     # (calendar, calendar feed, feedback, certificate download, check-in station) + the
-    # reinstated check-in lookup route. The count is per PATTERN, not per method, so
+    # reinstated check-in lookup route and three typed-service routes. The count is per PATTERN, not per method, so
     # classifying both the lookup POST and its OPTIONS preflight still adds only one.
     # The count is asserted so that adding a claim-reachable route is a visible decision
     # here, not only inside the matrix.
-    assert len(validate_claim_route_matrix()) == 86
+    assert len(validate_claim_route_matrix()) == 89
 
 
 def test_unclassified_runtime_lookup_fails_closed_and_middleware_stays_out():

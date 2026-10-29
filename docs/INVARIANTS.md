@@ -1550,18 +1550,41 @@ Load-bearing console details:
   including cached data, require `MANAGE_MACHINES` and `machine_service`; operator-only actors
   do not access this endpoint. Only compatible active pools are shown. Pool controls require the
   explicit `canManage` prop; a read-only list exposes no adjustment or visibility mutations.
-- **Public printer queue setup is explicit and audited.** `service_public_queue` requires all of
-  `machines`, `machine_service`, `printing`, `MANAGE_MACHINES`, and full role scope for the GLOBAL
-  built-in printer type, identically for GET and POST. The type-list-only `can_manage_public_queue`
-  mirrors that authority; direct type-manager access or a machine-only link does not suffice.
-  POST rechecks gates and authority under a makerspace lock before any queue lock. Prefer an existing
-  active queue in deterministic name/id order; otherwise activate or create only `Public Requests`.
-  Queue submission also locks the authoritative makerspace before the queue (active or inactive),
-  after its PII write-fence check and before its module recheck, including on self-hosts.
-  Setup and submission use `FOR NO KEY UPDATE` for that makerspace lock: module-install writes
-  still serialize, while a starting job can finish its audit foreign-key checks and release its queue.
-  A conflicting type returns 409. Preserve capacity, allocation, name and other inactive queues.
-  Audit only actual create/activate, atomically; repeated POST and every public GET have no writes.
+- **Public intake chooses a machine TYPE; staff assign the machine later.** The allowlisted,
+  paginated catalog requires a servable public space, public inventory, `machines`, `machine_service`,
+  and a same-tenant active PUBLIC machine in idle/running/reserved state. The type belongs to the
+  space or is global. The built-in printer also requires `printing`, including legacy machine-id
+  submissions. Never publish private hardware as a side effect. Catalog GET never writes; only
+  type id/name/icon, printer flag, safe file policy and compatible public material choices leave it.
+- **Automatic public queue setup happens only on an authorized real upload/submission POST.**
+  Recheck public type eligibility and modules under the makerspace lock; prefer an active same-type
+  queue in deterministic name/id order. With no queues, create and audit `Public Requests - type <id>`.
+  If only inactive queues exist or another type owns that name, return 409 without activation or
+  replacement. Upload returns `queue_id`; files must all be unused and owned by the same requester
+  in that tenant and exact queue. Recover the queue from files, reject mixed/missing/foreign files,
+  mismatched pins and deactivated queues, and never reroute when active queue ordering changes.
+  Validate declarations before setup/storage; staging/finalization failures roll back DB setup and
+  request changes. Finalize through the existing policy/ownership/object-validation service.
+- **Staff printer setup remains explicit and audited.** `service_public_queue` requires `machines`,
+  `machine_service`, `printing`, `MANAGE_MACHINES`, and full scope for the GLOBAL printer type on GET
+  and POST. The type-list-only `can_manage_public_queue` mirrors that authority. Its deliberate POST
+  may activate/create `Public Requests`; it preserves capacity, allocation and other inactive queues.
+  Audit only actual create/activate; repeated POST and every GET have no writes.
+- **PII fence precedes makerspace, then queue/machine locks.** All shared-kernel submission targets
+  (queue, machine, legacy bucket) and public intake use this order, resolving ownership from stored
+  rows and rechecking it under locks; bucket callers lock the machine before the bucket. They acquire the
+  mapped-write fence first, including self-hosts. Use `FOR NO KEY UPDATE` for the makerspace throughout:
+  module/quota/storage writers still serialize while staff can finish audit FK checks and release
+  their queue. `limits.check_quota` and `add_storage` opt into `no_key=True` only at service workflow,
+  public printer/typed quota and service-file finalization callsites; other callers keep their default
+  stronger lock. Never upgrade this lock while holding a queue. Printer quota is charged once.
+- **Public printer stock is compatible and explicitly public.** Only same-tenant, active, in-stock
+  gram pools for the printer type or an eligible public machine of that type are selectable. Exclude
+  unbound legacy, foreign/private/inactive-machine and incompatible-material pools. Typed printer
+  input reuses the printer serializer and validated kernel payload; generic types reject printer
+  fields and arbitrary capability payloads. Generic token status exposes the lifecycle/queue allowlist
+  and actual `in_progress`, with servability, `machines`, `machine_service` and printer `printing`
+  gates; a disabled module gives the same 404 as an unknown token.
 - **Machine status and details saves are separate.** Unsaved status disables details save; scalar
   effect dependencies keep unrelated refreshes from discarding drafts. Status uses its dedicated
   operator-accessible endpoint and authoritative response. `MachineSerializer.update` locks a fresh

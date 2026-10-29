@@ -7,6 +7,7 @@ import { PublicEventFeedbackPage } from "./features/inventory/PublicEventFeedbac
 import { PublicEventsPage } from "./features/inventory/PublicEventsPage";
 import { PublicInventoryPage } from "./features/inventory/PublicInventoryPage";
 import { PublicMachinesPage } from "./features/inventory/PublicMachinesPage";
+import { PublicMachineServicePage } from "./features/machineService/PublicMachineServicePage";
 import { PublicRequestStatusPage } from "./features/inventory/PublicRequestStatusPage";
 import { PublicSelfCheckoutPage } from "./features/inventory/PublicSelfCheckoutPage";
 import { ArchivedPayments } from "./features/members/ArchivedPayments";
@@ -28,6 +29,7 @@ const events = (page: ReactNode) => <RequireModule module="events">{page}</Requi
 const machines = <RequireModule module="machines"><PublicMachinesPage /></RequireModule>;
 const bookings = <RequireModule module="bookings"><PublicBookingsPage /></RequireModule>;
 const print = <RequireModule module="printing"><PublicPrintRequestPage /></RequireModule>;
+const machineService = <RequireModule module="machines"><RequireModule module="machine_service"><PublicMachineServicePage /></RequireModule></RequireModule>;
 
 export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landing: ReactNode }) {
   const location = useLocation();
@@ -45,6 +47,7 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
     <Route path="/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
     <Route path="/machines" element={machines} />
+    <Route path="/machine-service" element={machineService} />
     <Route path="/bookings" element={bookings} />
     <Route path="/print" element={print} />
     <Route path="/member" element={<MemberArea />} />
@@ -67,6 +70,7 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
     <Route path="/m/:slug/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/m/:slug/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
     <Route path="/m/:slug/machines" element={machines} />
+    <Route path="/m/:slug/machine-service" element={machineService} />
     <Route path="/m/:slug/bookings" element={bookings} />
     <Route path="/m/:slug/admin/*" element={<StaffApp />} />
     <Route path="/m/:slug/print" element={print} />

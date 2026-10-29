@@ -25,10 +25,10 @@ export function PublicPrinterQueueSetup({ makerspaceId }: { makerspaceId: number
   return <div className="grid gap-2">
     {setup.isLoading ? <Skeleton className="h-10 w-full" /> : null}
     {setup.data?.enabled === false ? <>
-      <p className="text-body-ui text-ink-muted">Enable a queue so requesters can submit print jobs from the public page.</p>
+      <p className="text-body-ui text-ink-muted">Public requests create a queue automatically when none exists. You can also prepare or reactivate a queue here.</p>
       <Button className="justify-self-start" loading={enable.isPending} onClick={() => enable.mutate()}>Enable public print requests</Button>
     </> : null}
-    {setup.data?.enabled ? <p className="text-caption text-ink-muted">Public print requests enabled · {setup.data.name}</p> : null}
+    {setup.data?.enabled ? <p className="text-caption text-ink-muted">Public print queue ready · {setup.data.name}</p> : null}
     <ErrorBlock error={setup.error ?? enable.error} />
   </div>;
 }

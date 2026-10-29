@@ -20,6 +20,8 @@ vi.mock("./features/inventory/PublicMachinesPage", () => ({ PublicMachinesPage: 
 vi.mock("./features/bookings/PublicBookingsPage", () => ({ PublicBookingsPage: () => <p>bookings-page</p> }));
 vi.mock("./features/printing/PublicPrintRequestPage", () => ({ PublicPrintRequestPage: () => <p>print-page</p> }));
 
+vi.mock("./features/machineService/PublicMachineServicePage", () => ({ PublicMachineServicePage: () => <p>service-page</p> }));
+
 import { AppRoutes } from "./AppRoutes";
 
 const CORE = ["public_inventory", "request_workflow", "staff_admin", "scanner", "qr_management", "evidence_uploads"];
@@ -89,5 +91,20 @@ describe("public module pages on a single-tenant deployment", () => {
     renderAt(`/${subpath}`, "single");
     expect(screen.getByText(page)).toBeInTheDocument();
     expect(bootstrapTenant).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("uniform service route gates", () => {
+  it.each(["central", "single"] as const)("requires both modules in %s deployment", async (mode) => {
+    for (const enabled of [[], ["machines"], ["machine_service"], ["machines", "machine_service"]]) {
+      const modules = [...CORE, ...enabled];
+      useTenant.mockReturnValue(mode === "single" ? single(modules) : central);
+      bootstrapTenant.mockResolvedValue({ makerspace: { slug: "forge" }, modules });
+      const view = renderAt(mode === "single" ? "/machine-service" : "/m/forge/machine-service", mode);
+      if (enabled.length === 2) expect(await screen.findByText("service-page")).toBeInTheDocument();
+      else expect(await screen.findByText("Page not found")).toBeInTheDocument();
+      view.unmount();
+    }
   });
 });

@@ -33,6 +33,8 @@ describe("PrintDetailsForm", () => {
 
     expect(screen.getByRole("heading", { name: "No filament currently available" })).toBeVisible();
     expect(screen.getByText(/still submit without a preference/i)).toBeVisible();
-    expect(screen.queryByRole("combobox", { name: "Filament / material" })).not.toBeInTheDocument();
+    const filament = screen.getByRole("combobox", { name: "Filament / material" });
+    expect(filament).toBeEnabled();
+    expect(filament).toHaveTextContent("No preference");
   });
 });

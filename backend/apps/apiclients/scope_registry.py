@@ -108,7 +108,7 @@ def resolve_target(request, entry):
             row = HardwareRequest.objects.select_related("makerspace").filter(
                 public_token=token
             ).first()
-        elif view_name == "public-printer-service-status":
+        elif view_name in {"public-printer-service-status", "public-machine-service-status"}:
             from apps.machines.models import MachineServiceRequest
 
             row = MachineServiceRequest.objects.select_related("makerspace").filter(
