@@ -86,8 +86,8 @@ export function PublicInventoryPage() {
   }
 
   return (
-    <PublicShell width="xl" header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Inventory" />}>
-      <PublicContainer width="xl" className={selectedCount > 0 ? "pb-24 md:pb-10" : undefined}>
+    <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Inventory" />}>
+      <PublicContainer className={selectedCount > 0 ? "pb-24 md:pb-10" : undefined}>
         <PageHeader
           kicker="Public inventory"
           title={<MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace?.logo_url} size="xl" />}
