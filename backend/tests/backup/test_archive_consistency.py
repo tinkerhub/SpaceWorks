@@ -51,7 +51,7 @@ def test_unversioned_backup_pauses_and_checks_background_writers(monkeypatch, se
             return [{"worker": {"ok": "started"}}]
 
     monkeypatch.setattr(quiescence.current_app, "control", Control())
-    monkeypatch.setattr(quiescence.current_app.conf, "task_default_queue", "celery")
+    monkeypatch.setitem(quiescence.current_app.conf, "task_default_queue", "celery")
 
     paused = quiescence.pause_worker_consumers()
     quiescence.assert_workers_drained()
