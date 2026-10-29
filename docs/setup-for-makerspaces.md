@@ -108,6 +108,29 @@ Log into the **staff console** address (`/admin`) and:
    alert go out by email, Telegram, Slack, Mattermost or Discord and choose who receives each one;
    reword the messages in the **Email templates** tab.
 
+### Stock, machine consumables and public printing
+
+For individually tracked tools, create the inventory item with **zero stock**, verify the physical
+units, then generate their tags and QR codes in **QR Tools**. Counts follow those units. Manual
+quantity adjustments and procurement moves support quantity-tracked stock only. Existing inventory
+is not repaired automatically: check the actual units before generating missing assets.
+
+In **Machines → machine type → Consumables**, add stock for that type, such as filament for 3D
+printers. There is no Shared consumables section. Existing machine-specific and legacy space-wide
+pools stay usable by compatible jobs and appear in authorized machine drawers; no stock is deleted
+or reassigned. The drawer's inventory-item links and local grams ledger are separate tools: do not
+copy a filament pool there, which would create a second balance for the same material.
+
+With **machines**, **machine_service** and **printing** enabled, open **Machines → 3D printers →
+3D-printer queue → Enable public print requests**. This requires machine-management permission
+covering the whole built-in printer type. It reuses an active queue or enables/creates only the
+`Public Requests` default, preserving existing capacity and allocation settings. If that name belongs
+to another type, rename the conflicting queue first. Viewing the public page never creates a queue.
+
+In a machine drawer, use **Set status** to change operating status. **Save machine details** saves
+name, location and other details separately. An unsaved status change blocks the details save: apply
+it with Set status or restore the current status first. Authorized operators can still set status.
+
 ### Who gets told, and where
 
 Out of the box, an alert goes to everyone whose job covers it — a booking alert reaches the people

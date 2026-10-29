@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Chip, DetailDrawer, EmptyState, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui";
 import { getMachine, machineKeys } from "../../machinesApi";
+import { MachineTypeConsumables } from "./MachineTypeConsumables";
 import { ConsumablesTab } from "./ConsumablesTab";
 import { DocumentsTab } from "./DocumentsTab";
 import { ErrorsTab } from "./ErrorsTab";
@@ -27,12 +28,13 @@ const TAB_LABELS: Record<MachineTab, string> = {
 };
 
 export function MachineDrawer({
-  machineId, makerspaceId, canManageMachines, maintenanceEnabled, onClose,
+  machineId, makerspaceId, canManageMachines, maintenanceEnabled, machineServiceEnabled = false, onClose,
 }: {
   machineId: number;
   makerspaceId: number;
   canManageMachines: boolean;
   maintenanceEnabled: boolean;
+  machineServiceEnabled?: boolean;
   onClose: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<MachineTab>("overview");
@@ -101,6 +103,10 @@ export function MachineDrawer({
               </TabsContent>
             ) : null}
             <TabsContent value="consumables">
+              {canManageMachines && machineServiceEnabled ? <MachineTypeConsumables
+                machine={details} makerspaceId={makerspaceId}
+                canManageMachines={canManageMachines} machineServiceEnabled={machineServiceEnabled}
+              /> : null}
               <ConsumablesTab machineId={machineId} canEdit={details.can_edit} canOperate={details.can_operate} retired={!details.is_active} />
             </TabsContent>
             <TabsContent value="documents">

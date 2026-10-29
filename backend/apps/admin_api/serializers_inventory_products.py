@@ -115,6 +115,10 @@ class InventoryProductAdminCreateSerializer(InventoryProductAdminSerializer):
             raise serializers.ValidationError(rejected)
         total = attrs.get("total_quantity", 0)
         available = attrs.get("available_quantity", 0)
+        if attrs.get("tracking_mode") == TrackingMode.INDIVIDUAL and (total or available):
+            raise serializers.ValidationError({
+                "tracking_mode": "Create individual items with zero stock, then generate verified units in QR Tools."
+            })
         if available > total:
             raise serializers.ValidationError(
                 {"available_quantity": "Available quantity cannot exceed total quantity."}

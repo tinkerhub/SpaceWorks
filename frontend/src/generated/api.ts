@@ -319,6 +319,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspaces/{makerspace_id}/evidence-retention",
   "/api/v1/admin/makerspaces/{makerspace_id}/evidence-retention/preview",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/consumable-pools",
+  "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/printer-queue",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/requests",
   "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/typed-manual-usage",
   "/api/v1/admin/makerspaces/{makerspace_id}/machines/{machine_id}/maintenance/logs/",
@@ -326,6 +327,7 @@ export const openApiPaths = [
   "/api/v1/admin/makerspaces/{makerspace_id}/member-claim-codes",
   "/api/v1/admin/makerspaces/{makerspace_id}/member-claim-codes/{claim_id}/revoke",
   "/api/v1/admin/makerspaces/{makerspace_id}/memberships",
+  "/api/v1/admin/makerspaces/{makerspace_id}/memberships/{membership_id}/machine-scope",
   "/api/v1/admin/makerspaces/{makerspace_id}/memberships/{membership_id}/role",
   "/api/v1/admin/makerspaces/{makerspace_id}/roles",
   "/api/v1/admin/makerspaces/{makerspace_id}/roles/capabilities",
@@ -2807,6 +2809,7 @@ export type MachineTypeAccess = {
   "effective_config": EffectiveTypeConfig;
   "makerspace": number | null;
   "can_create_machine": boolean;
+  "can_manage_public_queue": boolean;
 };
 
 export type MachineTypeCreate = {
@@ -3205,6 +3208,18 @@ export type MemberLoanActivity = {
   "checked_out_at": string;
   "due_at": string | null;
   "overdue": boolean;
+};
+
+export type MemberMachineScope = {
+  "machine_type_ids": Array<number>;
+  "role_machine_type_ids": Array<number>;
+  "available_machine_types": Array<MachineScopeOption>;
+  "scoping_applies": boolean;
+  "role_covers_all": boolean;
+};
+
+export type MemberMachineScopeWrite = {
+  "machine_type_ids": Array<number>;
 };
 
 export type MemberMachineServiceActivity = {
@@ -4944,6 +4959,17 @@ export type PublicPrinterQueue = {
   "id": number;
   "name": string;
   "description": string;
+};
+
+export type PublicPrinterQueueError = {
+  "detail": string;
+  "code"?: string;
+};
+
+export type PublicPrinterQueueState = {
+  "enabled": boolean;
+  "queue_id": number | null;
+  "name": string | null;
 };
 
 export type PublicPrinterStatus = {

@@ -54,7 +54,7 @@ function authUser() {
   };
 }
 
-function renderForm(machineType?: MachineType, pools: PrinterPool[] = [existingPool]) {
+function renderForm(machineType: MachineType, pools: PrinterPool[] = [existingPool]) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
@@ -93,7 +93,9 @@ describe("ConsumablePoolCreateForm", () => {
     await waitFor(() => {
       const call = staffRequest.mock.calls.find(([, options]) => options?.method === "POST");
       expect(call?.[0]).toBe("/admin/makerspaces/1/machine-service/consumable-pools");
-      expect(JSON.parse(call?.[1]?.body as string)).toMatchObject({ color: "Blue", color_hex: "#123456" });
+      expect(JSON.parse(call?.[1]?.body as string)).toMatchObject({
+        machine_type_id: printerType.id, color: "Blue", color_hex: "#123456",
+      });
     });
   });
 
@@ -157,11 +159,6 @@ describe("ConsumablePoolCreateForm", () => {
       const post = staffRequest.mock.calls.find(([, init]) => init?.method === "POST");
       expect(post && JSON.parse(String(post[1].body))).toMatchObject({ machine_type_id: 5, unit: "milliliters" });
     });
-  });
-
-  it("keeps an explicit unit choice for shared, makerspace-wide stock", () => {
-    renderForm(undefined);
-    expect(screen.getByRole("combobox", { name: "Unit" })).toBeVisible();
   });
 
   it("keeps generic machine types on free-text fields with an optional swatch picker", () => {

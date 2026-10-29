@@ -11,7 +11,6 @@ import { MachineDrawer } from "./machine/MachineDrawer";
 import { MachineTypeCards } from "./machine/MachineTypeCards";
 import { MachineCreateDialog } from "./machine/MachineCreateDialog";
 import { MachineTypePage, type StatusFilter } from "./machine/MachineTypePage";
-import { SharedConsumablesSection } from "./machine/SharedConsumablesSection";
 import { poolPath, poolQueryKey } from "./machine/servicePools";
 import { useServiceDrafts } from "./machine/serviceDrafts";
 import { MachineTypesPanel } from "./MachineTypesPanel";
@@ -47,7 +46,6 @@ export function MachinesPanel({
 }: Props) {
   const location = useLocation();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [sharedOpen, setSharedOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   // Lives HERE, in the container that survives index-to-type navigation, not in
   // `MachineTypePage`. Only one type is mounted at a time now, so a hook inside the page
@@ -64,8 +62,8 @@ export function MachinesPanel({
   );
   const types = collectionResults(machineTypes.data);
   const allMachines = machines.data?.results ?? [];
-  const pools = poolQuery.data ?? [];
-  const sharedPools = useMemo(
+  const pools = canManage && machineServiceEnabled ? poolQuery.data ?? [] : [];
+  const legacyPools = useMemo(
     () => pools.filter((pool) => pool.machine_id === null && pool.machine_type_id === null),
     [pools],
   );
@@ -103,7 +101,7 @@ export function MachinesPanel({
   const unknownType = requestedTypeId !== null && sourcesSettled && !selectedType;
 
   // NO auto-redirect when a single type is reachable. Redirecting would make this index --
-  // and with it machine-type configuration, shared consumable pools and the delegated
+  // and with it machine-type configuration and the delegated
   // recipient picker -- permanently unreachable for exactly the scoped maintainer those
   // controls are meant for. A single-type actor gets that type's page rendered inline below
   // instead, which lands them on their machines without hiding anything, and removes the
@@ -145,11 +143,8 @@ export function MachinesPanel({
   const loadErrors = [
     machineTypes.error instanceof Error ? `Machine types: ${machineTypes.error.message}` : null,
     machines.error instanceof Error ? `Machines: ${machines.error.message}` : null,
-    // Panel level, not inside the Shared section: pools feed every type's start and
-    // manual-usage forms, and Shared may be collapsed. A failed load would otherwise hand
-    // those forms an empty selector with no indication stock failed to fetch, and an
-    // operator would retry a start that cannot succeed.
-    poolQuery.error instanceof Error ? `Consumable pools could not be loaded: ${poolQuery.error.message}` : null,
+    // Pool failures also affect job forms, so surface them at panel level.
+    canManage && machineServiceEnabled && poolQuery.error instanceof Error ? `Consumable pools could not be loaded: ${poolQuery.error.message}` : null,
   ].filter((message): message is string => message !== null);
   const total = machines.data?.count;
 
@@ -192,7 +187,7 @@ export function MachinesPanel({
           statusFilter={statusFilter}
           onStatusFilter={setStatusFilter}
           typePools={typePools}
-          formPools={[...sharedPools, ...typePools]}
+          formPools={[...legacyPools, ...typePools]}
           existingPools={pools}
           machinesLoading={machines.isLoading}
           machinesFailed={machines.isError}
@@ -217,20 +212,16 @@ export function MachinesPanel({
           unreachable for an actor who only ever has one type. */}
       {!onTypePage ? (
         <div className="grid gap-4 border-t border-line pt-6">
-          <SectionHeading title="Setup" description="Machine types and pricing, who gets notified, and consumables shared across the space." />
+          <SectionHeading title="Setup" description="Machine types, pricing and notification recipients." />
           <MachineTypesPanel makerspaceId={makerspaceId} canConfigureMachineTypes={canConfigureMachineTypes} canEditPricing={canConfigureMachineTypes || canManage} />
 
           {maintenanceEnabled && delegatedRecipientRulesEnabled ? (
             <NotificationRecipientPicker delegated makerspaceId={makerspaceId} />
           ) : null}
-
-          {canManage && machineServiceEnabled ? (
-            <SharedConsumablesSection makerspaceId={makerspaceId} pools={sharedPools} existingPools={pools} poolError={poolQuery.error} open={sharedOpen} onToggle={() => setSharedOpen((current) => !current)} />
-          ) : null}
         </div>
       ) : null}
 
-      {selectedId !== null ? <MachineDrawer key={selectedId} machineId={selectedId} makerspaceId={makerspaceId} canManageMachines={canManage} maintenanceEnabled={maintenanceEnabled} onClose={() => setSelectedId(null)} /> : null}
+      {selectedId !== null ? <MachineDrawer key={selectedId} machineId={selectedId} makerspaceId={makerspaceId} canManageMachines={canManage} maintenanceEnabled={maintenanceEnabled} machineServiceEnabled={machineServiceEnabled} onClose={() => setSelectedId(null)} /> : null}
     </section>
   );
 }

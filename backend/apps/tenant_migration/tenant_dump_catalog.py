@@ -56,7 +56,9 @@ class TenantDumpCatalogError(AssertionError):
 # figure, not a Payment).
 # Re-blessed for per-makerspace built-in machine-type settings: the three nullable
 # MakerspaceMachineTypePricing.*_override columns (tenant content that travels as-is).
-CATALOG_SCHEMA_SHA256 = "06a35a1c40086d81302245b58ccf33d17db20956bb246382977b0383c49e60e4"
+# Re-blessed for personal machine-type links: machines.MembershipMachineTypeScope (DROP,
+# like the role scope tables -- a source member's reach must not grant target authority).
+CATALOG_SCHEMA_SHA256 = "970deb65702c37a5668fa27a20c7fe19f93ad7a69e8af063ff1059eda9359d3f"
 
 
 def catalog_models(apps_registry=apps):

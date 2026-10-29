@@ -29,7 +29,7 @@ def require_module_for_servable(makerspace, module_key):
     return makerspace
 
 
-def require_module_locked(makerspace_or_id, module_key):
+def require_module_locked(makerspace_or_id, module_key, *, no_key=False):
     """Re-check a module gate while holding the makerspace row lock (plan A8).
 
     `require_module` at the view boundary reads an unlocked row, so a concurrent
@@ -42,9 +42,12 @@ def require_module_locked(makerspace_or_id, module_key):
     `check_quota` serializes creators against each other. Call this **inside** the
     creation service's `transaction.atomic()`, next to the quota check, so both
     share one lock and one ordering.
+
+    Queue writers use ``no_key=True`` so concurrent job audit foreign-key checks
+    can finish. This still conflicts with module-install configuration writes.
     """
     pk = makerspace_or_id.pk if isinstance(makerspace_or_id, Makerspace) else makerspace_or_id
-    locked = Makerspace.objects.select_for_update().get(pk=pk)
+    locked = Makerspace.objects.select_for_update(no_key=no_key).get(pk=pk)
     if not module_enabled(locked, module_key):
         raise ValidationError({"module": f"{module_key} is disabled for this makerspace."})
     return locked

@@ -30,10 +30,16 @@ from apps.machines.service_reports_views import (
     SuperadminMachineServiceReportView,
 )
 
+from apps.admin_api.views_machine_printer_queue import MachinePrinterQueueView
+
 from .urls_utils import _separable
 
 
 urlpatterns = [
+    path(
+        "makerspaces/<int:makerspace_id>/machine-service/printer-queue",
+        MachinePrinterQueueView.as_view(), name="admin-machine-printer-queue",
+    ),
     path("makerspace/<int:makerspace_id>/machine-service-report", MakerspaceMachineServiceReportView.as_view(), name="admin-makerspace-machine-service-report"),
     path("machine-service-report", SuperadminMachineServiceReportView.as_view(), name="admin-machine-service-report"),
     path(

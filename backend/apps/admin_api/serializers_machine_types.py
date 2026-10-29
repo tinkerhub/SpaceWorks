@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 
+from apps.machines.service_public_queue import can_manage_public_queue
 from apps.machines.metering import MeteringUnit
 from apps.machines.models import MachineType
 from apps.machines.serializers_machine_types import EffectiveConfigMixin
@@ -9,6 +10,13 @@ from apps.machines.serializers_machine_types import EffectiveConfigMixin
 
 class MachineTypeAccessSerializer(EffectiveConfigMixin, serializers.ModelSerializer):
     can_create_machine = serializers.BooleanField(read_only=True)
+    can_manage_public_queue = serializers.SerializerMethodField()
+
+    def get_can_manage_public_queue(self, obj) -> bool:
+        request = self.context.get("request")
+        return bool(request and can_manage_public_queue(
+            request.user, self.context["makerspace_id"], obj
+        ))
 
     class Meta:
         model = MachineType
@@ -23,6 +31,7 @@ class MachineTypeAccessSerializer(EffectiveConfigMixin, serializers.ModelSeriali
             "effective_config",
             "makerspace",
             "can_create_machine",
+            "can_manage_public_queue",
         )
         read_only_fields = fields
 

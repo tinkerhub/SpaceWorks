@@ -46,7 +46,7 @@ export function ItemModal({ title, open, onClose, form, setForm, categories, inc
           </div>
           <Field label="Description" optional><Textarea rows={3} placeholder="Notes for staff and borrowers" value={form.description} onChange={(e) => set("description", e.target.value)} /></Field>
           <Field label="Storage location" optional helperText="Staff only. Never shown on the public page."><Input placeholder="e.g. Shelf B3" value={form.storage_location} onChange={(e) => set("storage_location", e.target.value)} /></Field>
-          {includeQuantities ? (
+          {includeQuantities && form.tracking_mode !== "individual" ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Total quantity"><Input type="number" min="0" inputMode="numeric" value={form.total_quantity} onChange={(e) => set("total_quantity", e.target.value)} /></Field>
               <Field label="Available quantity"><Input type="number" min="0" inputMode="numeric" value={form.available_quantity} onChange={(e) => set("available_quantity", e.target.value)} /></Field>
@@ -68,6 +68,7 @@ export function ItemModal({ title, open, onClose, form, setForm, categories, inc
             </Field>
           </div>
         </fieldset>
+        {includeQuantities && form.tracking_mode === "individual" ? <p className="text-caption text-ink-muted">Individual items start with zero stock. After saving, verify physical units and generate their tags and QR codes in QR Tools.</p> : null}
         {includeQuantities ? <p className="text-caption text-ink-muted">You can add a photo after saving. The item opens for editing so you can upload one.</p> : null}
         <ErrorText message={error} />
         {children}
@@ -77,6 +78,11 @@ export function ItemModal({ title, open, onClose, form, setForm, categories, inc
 }
 
 export function QuantityAdjust({ product, form, setForm, pending, error, onSubmit }: { product: AdminProduct; form: AdjustmentForm; setForm: (updater: (current: AdjustmentForm) => AdjustmentForm) => void; pending: boolean; error?: string; onSubmit: () => void }) {
+  if (product.tracking_mode === "individual") return (
+    <section className="grid gap-3 border-t border-line pt-5">
+      <SectionHeading as="h3" title="Unit stock" description="Individual counts come from unit assets. Verify physical stock, then use QR Tools to generate units or update their status." />
+    </section>
+  );
   const set = (key: keyof AdjustmentForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
   return (
     <section className="grid gap-4 border-t border-line pt-5">

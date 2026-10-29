@@ -6,7 +6,7 @@ import type { Machine, MachineStatus, MachineType } from "../../machinesApi";
 import { MachineServiceConsole } from "./MachineServiceConsole";
 import { PrinterServiceConsole } from "./PrinterServiceConsole";
 import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
-import { ConsumablePoolList } from "./SharedConsumablesSection";
+import { ConsumablePoolList } from "./ConsumablePoolList";
 import { MACHINE_STATUSES, MachineStatusChip, machineStatusLabel } from "./machineUi";
 import type { ServiceDraft } from "./serviceDrafts";
 import { typePoolUnit } from "./typeConfig";
@@ -150,7 +150,7 @@ export function MachineTypePage({
             </Card>
             <div className="grid gap-3">
               <h3 className="text-title text-ink">Stock</h3>
-              <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} />
+              <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} canManage={canManage} />
             </div>
           </section> : null}
           {isBuiltinPrinterType(machineType) ? (

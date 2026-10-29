@@ -70,6 +70,8 @@ EXPLICIT_AUTHORITY_FIELDS = {
     ("machines.MachineOperator", "access_level"): "Owner decision 22 preserves the operate/manage/full grant.",
     ("machines.MachineOperator", "assigned_by"): "Owner decision 22 preserves assignment provenance with FK closure.",
     ("machines.MachineOperator", "assigned_at"): "Owner decision 22 preserves assignment-time provenance.",
+    ("machines.MembershipMachineTypeScope", "membership"): "Dropped personal authority scope.",
+    ("machines.MembershipMachineTypeScope", "machine_type"): "Dropped personal authority scope.",
     ("machines.RoleMachineScope", "role"): "Dropped role authority scope.",
     ("machines.RoleMachineScope", "machine"): "Dropped role authority scope.",
     ("machines.RoleMachineTypeScope", "role"): "Dropped role authority scope.",

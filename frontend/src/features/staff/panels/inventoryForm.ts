@@ -31,7 +31,7 @@ export function payloadFromForm(form: ItemForm, includeQuantities: boolean) {
     name: form.name.trim(), tracking_mode: form.tracking_mode, category: form.category ? Number(form.category) : null, description: form.description,
     storage_location: form.storage_location, is_public: form.is_public, public_self_checkout_enabled: form.public_self_checkout_enabled,
     show_public_count: form.show_public_count, public_availability_mode: form.public_availability_mode,
-    ...(includeQuantities ? { total_quantity: Number(form.total_quantity || 0), available_quantity: Number(form.available_quantity || 0) } : {}),
+    ...(includeQuantities ? { total_quantity: form.tracking_mode === "individual" ? 0 : Number(form.total_quantity || 0), available_quantity: form.tracking_mode === "individual" ? 0 : Number(form.available_quantity || 0) } : {}),
   };
 }
 

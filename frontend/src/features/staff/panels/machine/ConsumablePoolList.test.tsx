@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PrinterPool } from "../../../../generated/api";
-import { ConsumablePoolList } from "./SharedConsumablesSection";
+import { ConsumablePoolList } from "./ConsumablePoolList";
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
@@ -32,7 +32,7 @@ function renderList(pools: PrinterPool[]) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <ConsumablePoolList makerspaceId={1} pools={pools} />
+      <ConsumablePoolList makerspaceId={1} pools={pools} canManage />
     </QueryClientProvider>,
   );
 }

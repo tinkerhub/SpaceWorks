@@ -7,6 +7,7 @@ from django.apps import apps
 from .archive_stream import PORTABLE_DATASETS
 from .models_import_job import ImportIdentityDecision
 from .protocol_errors import MembershipDependencyError
+from .target_projection import ROW_POLICIES, RowDisposition
 
 
 def validate_membership_dispositions(archive, decisions):
@@ -33,6 +34,14 @@ def validate_membership_dispositions(archive, decisions):
     for model in apps.get_models():
         label = model._meta.label
         if label not in PORTABLE_DATASETS:
+            continue
+        policy = ROW_POLICIES.get(label)
+        # Only an unconditional DROP proves no row can retain this reference.
+        if (
+            policy is not None
+            and policy.disposition is RowDisposition.DROP
+            and policy.condition is None
+        ):
             continue
         dependency_fields = tuple(
             field

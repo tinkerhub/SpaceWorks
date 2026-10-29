@@ -70,6 +70,7 @@ EXPLICIT_DROP_MODEL_REASONS = {
     "integrations.RecipientCategoryScope": "The owning disclosure recipient is dropped.",
     "integrations.RecipientMachineScope": "The owning disclosure recipient is dropped.",
     "integrations.RecipientMachineTypeScope": "The owning disclosure recipient is dropped.",
+    "machines.MembershipMachineTypeScope": "Source personal scopes must not grant target type authority.",
     "machines.RoleMachineScope": "Source role scopes must not grant target machine authority.",
     "machines.RoleMachineTypeScope": "Source role scopes must not grant target type authority.",
     "makerspaces.MakerspaceRole": "Source roles are replaced by target-seeded protected defaults.",

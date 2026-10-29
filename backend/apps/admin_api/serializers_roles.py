@@ -71,6 +71,24 @@ class RoleMachineScopeWriteSerializer(serializers.Serializer):
     )
 
 
+class MemberMachineScopeSerializer(serializers.Serializer):
+    """One member's personal type links, plus what their role already covers."""
+
+    machine_type_ids = serializers.ListField(child=serializers.IntegerField())
+    role_machine_type_ids = serializers.ListField(child=serializers.IntegerField(), read_only=True)
+    available_machine_types = MachineScopeOptionSerializer(many=True, read_only=True)
+    # False when personal links would change nothing: the member is exempt, or their role
+    # holds no MANAGE_MACHINES grant for the links to widen.
+    scoping_applies = serializers.BooleanField(read_only=True)
+    role_covers_all = serializers.BooleanField(read_only=True)
+
+
+class MemberMachineScopeWriteSerializer(serializers.Serializer):
+    machine_type_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=True
+    )
+
+
 class CapabilitySerializer(serializers.Serializer):
     value = serializers.CharField()
     label = serializers.CharField()

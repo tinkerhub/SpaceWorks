@@ -1306,6 +1306,14 @@ account-less requester at once — and the read-side exclusion is the backstop f
   quantity would be phantom stock the next reconcile silently zeroes. Units are generated afterwards with
   their QR codes.
 
+- **All individual item creation starts with zero stock**, including the admin API. Generate verified
+  units afterwards in QR Tools. Manual API and `/control/` quantity changes use the locked
+  `availability_manual_adjustments` wrapper and reject individual items; the underlying
+  `adjust_quantities` remains available for asset-backed transfers/rebinding. Procurement refuses
+  individual create/topup atomically. No automatic repair of existing counts is performed: verify
+  physical units before generating assets. Reservation errors distinguish missing unit rows from
+  unavailable/reserved units and identify the product.
+
 ## Handover roles and the retired Guest Admin
 
 **Guest Admin is no longer a built-in role** (migration `makerspaces/0052`); handover staff get a **custom
@@ -1501,7 +1509,7 @@ unchanged.
 SUBPAGES.** `MachinesPanel` is the container: it owns the queries (machines, types, and ONE
 canonical pool query), the status filter, the service drafts, the create form and the drawer, and
 routes between an index of type cards (`MachineTypeCards`) and one type's page (`MachineTypePage`,
-which replaced the collapsible `MachineTypeSection`); `SharedConsumablesSection` owns unbound pools.
+which replaced the collapsible `MachineTypeSection`). Consumable creation is per type; there is no Shared console section.
 - **The URL is `/admin/machines/<id>-<slug>` and THE ID IS AUTHORITATIVE.** Machine-type slug
   uniqueness is only *scoped* (`uniq_global_machinetype_slug` / `uniq_lab_machinetype_slug`), so a
   makerspace may legally own a local type carrying a global built-in's slug and both appear in one
@@ -1516,8 +1524,8 @@ which replaced the collapsible `MachineTypeSection`); `SharedConsumablesSection`
   precisely so a test can hold it — the panel's own tests mount a router at the deep link and stay
   green with it reverted.
 - **A single reachable type renders its page INLINE at the index URL; it does NOT redirect.**
-  Redirecting would make the index — and with it machine creation, machine-type configuration,
-  shared pools and the delegated recipient picker — permanently unreachable for exactly the scoped
+  Redirecting would make the index — and with it machine creation, machine-type configuration and
+  the delegated recipient picker — permanently unreachable for exactly the scoped
   maintainer those controls exist for. Rendering inline also removes the redirect loop, the
   flash-redirect and the one-versus-many decision during loading.
 - **An unknown or unreachable id normalises to the index, and only once BOTH server-scoped sources
@@ -1531,14 +1539,35 @@ which replaced the collapsible `MachineTypeSection`); `SharedConsumablesSection`
 - **`useServiceDrafts` lives in the container, not the page.** Only one type is mounted at a time
   now, so a hook inside the page would discard a half-typed service form on every navigation.
 
-Load-bearing details that carried over unchanged:
-- **Three DISTINCT pool concepts.** *Type display* pools are bound to a machine of that type;
-  *shared display* pools (`machine_id === null`) appear ONLY in the Shared section, ending the
-  duplication where a shared pool rendered under every compatible type; *form-usable* pools are
-  shared pools **plus pools bound to the machine selected in that form** — the UI previously
-  offered every pool bound anywhere in the type while the backend rejected them. Pool **creation**
-  lives in the Shared section only, because both former create forms omitted `machine_id` and
-  could therefore only ever produce shared pools.
+Load-bearing console details:
+- **Consumables are type-first.** Console creation requires a machine type and sends its id.
+  Type pages show type-bound and machine-bound stock via `ConsumablePoolList`; there is no Shared
+  section or global creation form. Existing global and machine-specific database scopes remain
+  compatible: legacy unbound pools are still usable in job forms and compatible machine drawers,
+  without deleting, reassigning or duplicating their balances. Inventory links/local grams ledgers
+  are separate workflows, not a way to link filament pools to inventory products.
+- **Drawer pooled stock uses the canonical `poolPath`/`poolQueryKey`.** Fetch AND rendering,
+  including cached data, require `MANAGE_MACHINES` and `machine_service`; operator-only actors
+  do not access this endpoint. Only compatible active pools are shown. Pool controls require the
+  explicit `canManage` prop; a read-only list exposes no adjustment or visibility mutations.
+- **Public printer queue setup is explicit and audited.** `service_public_queue` requires all of
+  `machines`, `machine_service`, `printing`, `MANAGE_MACHINES`, and full role scope for the GLOBAL
+  built-in printer type, identically for GET and POST. The type-list-only `can_manage_public_queue`
+  mirrors that authority; direct type-manager access or a machine-only link does not suffice.
+  POST rechecks gates and authority under a makerspace lock before any queue lock. Prefer an existing
+  active queue in deterministic name/id order; otherwise activate or create only `Public Requests`.
+  Queue submission also locks the authoritative makerspace before the queue (active or inactive),
+  after its PII write-fence check and before its module recheck, including on self-hosts.
+  Setup and submission use `FOR NO KEY UPDATE` for that makerspace lock: module-install writes
+  still serialize, while a starting job can finish its audit foreign-key checks and release its queue.
+  A conflicting type returns 409. Preserve capacity, allocation, name and other inactive queues.
+  Audit only actual create/activate, atomically; repeated POST and every public GET have no writes.
+- **Machine status and details saves are separate.** Unsaved status disables details save; scalar
+  effect dependencies keep unrelated refreshes from discarding drafts. Status uses its dedicated
+  operator-accessible endpoint and authoritative response. `MachineSerializer.update` locks a fresh
+  machine row (no nullable joined lock) and saves only validated editable columns, so stale details
+  cannot overwrite workflow-owned status, publicity or lifecycle fields. These fields keep the
+  existing read-only API contract; the machine type stays immutable.
 - **Pages derive from TYPES, never from status-filtered machine rows** — a status filter
   matching nothing must still render that type's queue, manual usage and bound pools. But the
   type list is **merged with the nested `machine.machine_type`** as a display-only fallback: the
@@ -1627,6 +1656,18 @@ Load-bearing details that carried over unchanged:
     The payload carries `scoping_applies:false` for an exempt or non-machine role so the editor
     renders inert rather than offering ticks `role_scope` will ignore. A role being **created** has no
     id to link to, so the editor appears on reopen and says so.
+  - **Personal type links** (`MembershipMachineTypeScope`, migration `0025`) let one member reach
+    extra types without a role per person. `role_scope_resolution` unions them into the role's
+    type set **only in the role-scoped branch** (`_role_links` + `_personal_types`, shared by
+    `manage_scopes_for` and `manage_scopes_for_memberships` so the two cannot drift): EXEMPT and
+    NOTHING are decided by the role first, so a personal link can neither narrow a space manager
+    nor revive a tenant-mismatched role. They **never grant** `MANAGE_MACHINES` — `rbac.can` is
+    untouched, and a member whose role lacks the action gains nothing. Edited at
+    `PUT/GET /admin/makerspaces/<id>/memberships/<membership_id>/machine-scope`
+    (`member_scope_services.py`, rendered by `MemberMachineScopeModal.tsx` from the Users table),
+    with the same rules as the role editor: `MANAGE_MAKERSPACE` revalidated under the makerspace
+    lock, replace-not-merge, unknown id is a 400, audited as `membership.machine_scope_changed`.
+    Like role scopes they are **dropped** on tenant migration and never travel.
   - `can_create_machine` needs a **type** link specifically: a machine link granted one machine, not
     the right to add more of its kind. `can_see_machines` requires a link too, since a tab that
     renders an empty list and 403s on every action is worse than no tab. Resolution always ANDs the

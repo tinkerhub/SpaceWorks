@@ -47,7 +47,7 @@ class InventoryQuantityActionsMixin:
 
         data = form.cleaned_data
         try:
-            locked = availability.adjust_quantities(
+            locked = availability.adjust_manual_quantities(
                 product,
                 delta_available=data["delta_available"],
                 delta_damaged=data["delta_damaged"],

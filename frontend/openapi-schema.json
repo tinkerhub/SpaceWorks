@@ -6636,6 +6636,9 @@
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid adjustment, insufficient stock, or individual item: use QR Tools and unit-status workflows instead."
                     }
                 }
             }
@@ -8657,6 +8660,7 @@
             },
             "patch": {
                 "operationId": "api_v1_admin_machines_partial_update",
+                "description": "Saves editable machine details only. Status, publicity and lifecycle fields are read-only and require their dedicated workflows; machine type is immutable.",
                 "summary": "Update a machine",
                 "parameters": [
                     {
@@ -16315,6 +16319,7 @@
             },
             "post": {
                 "operationId": "api_v1_admin_makerspace_inventory_create",
+                "description": "Individual products must start with zero total and available stock. Generate verified units in QR Tools afterwards.",
                 "summary": "List or create inventory products",
                 "parameters": [
                     {
@@ -16359,11 +16364,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/InventoryProductAdminCreate"
+                                    "$ref": "#/components/schemas/InventoryProductAdmin"
                                 }
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid product, nonzero individual initial stock, or protected quantity buckets supplied."
                     }
                 }
             }
@@ -22571,6 +22579,190 @@
                 }
             }
         },
+        "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/printer-queue": {
+            "get": {
+                "operationId": "api_v1_admin_makerspaces_machine_service_printer_queue_retrieve",
+                "description": "Requires machines, machine_service and printing, plus full built-in printer type management scope. Does not create or activate queues.",
+                "summary": "Read public printer queue setup",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin machine service"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueState"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        },
+                        "description": "A required module is disabled, the built-in printer type is missing, or the body is invalid."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Active staff with MANAGE_MACHINES and full built-in printer type scope required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace is absent or outside the actor's scope."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Public Requests belongs to another machine type; no queue is changed."
+                    }
+                }
+            },
+            "post": {
+                "operationId": "api_v1_admin_makerspaces_machine_service_printer_queue_create",
+                "description": "Idempotently reuses an active built-in printer queue, or activates/creates only Public Requests. Authority and module gates are rechecked under the makerspace lock; only actual changes are audited.",
+                "summary": "Enable public print requests",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin machine service"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueState"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        },
+                        "description": "A required module is disabled, the built-in printer type is missing, or the body is invalid."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Active staff with MANAGE_MACHINES and full built-in printer type scope required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace is absent or outside the actor's scope."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicPrinterQueueError"
+                                }
+                            }
+                        },
+                        "description": "Public Requests belongs to another machine type; no queue is changed."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/makerspaces/{makerspace_id}/machine-service/requests": {
             "get": {
                 "operationId": "api_v1_admin_makerspaces_machine_service_requests_list",
@@ -23651,6 +23843,212 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/MembershipList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/makerspaces/{makerspace_id}/memberships/{membership_id}/machine-scope": {
+            "get": {
+                "operationId": "api_v1_admin_makerspaces_memberships_machine_scope_retrieve",
+                "description": "Machine types one member manages on top of their role's links.\n\nSpace-manager only (`_makerspace` requires MANAGE_MAKERSPACE, and the service\nrevalidates it under locks). Personal links only widen a MANAGE_MACHINES grant the\nmember's role already holds; they never grant it.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "membership_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin memberships"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberMachineScope"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "api_v1_admin_makerspaces_memberships_machine_scope_update",
+                "description": "Machine types one member manages on top of their role's links.\n\nSpace-manager only (`_makerspace` requires MANAGE_MAKERSPACE, and the service\nrevalidates it under locks). Personal links only widen a MANAGE_MACHINES grant the\nmember's role already holds; they never grant it.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "makerspace_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "membership_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin memberships"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberMachineScopeWrite"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberMachineScopeWrite"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberMachineScopeWrite"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberMachineScope"
                                 }
                             }
                         },
@@ -37933,6 +38331,7 @@
         "/api/v1/procurement/to-buy/{id}/move-to-inventory": {
             "post": {
                 "operationId": "api_v1_procurement_to_buy_move_to_inventory_create",
+                "description": "Quantity-tracked stock only. Creating or topping up individual items returns 400 without changing procurement or stock. Create a zero-stock item in Inventory, verify units and generate them in QR Tools instead.",
                 "summary": "Move a received hardware to-buy item into inventory",
                 "parameters": [
                     {
@@ -37984,14 +38383,7 @@
                         "description": ""
                     },
                     "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "description": "Invalid request."
+                        "description": "Invalid move or individual-tracked create/topup; use Inventory and QR Tools for verified unit stock."
                     },
                     "401": {
                         "description": "Authentication credentials were not provided."
@@ -50754,10 +51146,15 @@
                     "can_create_machine": {
                         "type": "boolean",
                         "readOnly": true
+                    },
+                    "can_manage_public_queue": {
+                        "type": "boolean",
+                        "readOnly": true
                     }
                 },
                 "required": [
                     "can_create_machine",
+                    "can_manage_public_queue",
                     "capability_config",
                     "effective_config",
                     "icon",
@@ -52436,6 +52833,61 @@
                     "due_at",
                     "label",
                     "overdue"
+                ]
+            },
+            "MemberMachineScope": {
+                "type": "object",
+                "description": "One member's personal type links, plus what their role already covers.",
+                "properties": {
+                    "machine_type_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "role_machine_type_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "readOnly": true
+                    },
+                    "available_machine_types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MachineScopeOption"
+                        },
+                        "readOnly": true
+                    },
+                    "scoping_applies": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "role_covers_all": {
+                        "type": "boolean",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "available_machine_types",
+                    "machine_type_ids",
+                    "role_covers_all",
+                    "role_machine_type_ids",
+                    "scoping_applies"
+                ]
+            },
+            "MemberMachineScopeWrite": {
+                "type": "object",
+                "properties": {
+                    "machine_type_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "machine_type_ids"
                 ]
             },
             "MemberMachineServiceActivity": {
@@ -59370,6 +59822,41 @@
                     "description",
                     "id",
                     "name"
+                ]
+            },
+            "PublicPrinterQueueError": {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "detail"
+                ]
+            },
+            "PublicPrinterQueueState": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "queue_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "name",
+                    "queue_id"
                 ]
             },
             "PublicPrinterStatus": {

@@ -109,7 +109,7 @@ describe("staff console with only the core modules", () => {
     renderConsole("/m/forge/admin/dashboard");
     const nav = await screen.findByRole("navigation", { name: "Staff sections" });
     expect(within(nav).getByRole("group", { name: "Inventory" })).toBeInTheDocument();
-    expect(within(nav).getByRole("link", { name: "Inventory" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Inventory", hidden: true })).toBeInTheDocument();
     for (const group of ["Machines", "Events", "Bookings"]) {
       expect(within(nav).queryByRole("group", { name: group })).not.toBeInTheDocument();
       expect(within(nav).queryByRole("link", { name: group })).not.toBeInTheDocument();

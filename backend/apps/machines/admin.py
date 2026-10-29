@@ -11,6 +11,7 @@ from apps.machines.models import (
     MachineOperator,
     MachineType,
     MachineUsageEntry,
+    MembershipMachineTypeScope,
     RoleMachineScope,
     RoleMachineTypeScope,
     MachineConsumablePool,
@@ -254,4 +255,19 @@ class RoleMachineScopeAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin
     list_filter = ("role__makerspace",)
     search_fields = ("role__name", "machine__name")
     raw_id_fields = ("role", "machine")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(MembershipMachineTypeScope)
+class MembershipMachineTypeScopeAdmin(AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+    """Machine types one member reaches on top of their role's links.
+
+    Writable for the same break-glass reason as the role scope admin. Staff edit these from
+    the Users page, which enforces the tenant match; resolution re-checks it regardless.
+    """
+
+    list_display = ("id", "membership", "machine_type", "created_at")
+    list_filter = ("membership__makerspace",)
+    search_fields = ("membership__user__username", "machine_type__name")
+    raw_id_fields = ("membership", "machine_type")
     readonly_fields = ("created_at",)

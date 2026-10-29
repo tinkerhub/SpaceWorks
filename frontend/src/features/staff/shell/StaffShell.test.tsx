@@ -63,7 +63,7 @@ function openAccountMenu() {
 
 beforeEach(() => {
   staffRequest.mockReset();
-  staffRequest.mockResolvedValue({ count: 0 });
+  staffRequest.mockResolvedValue({ count: 0, results: [] });
   window.localStorage.clear();
 });
 

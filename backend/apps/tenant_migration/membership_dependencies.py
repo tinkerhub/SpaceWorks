@@ -21,6 +21,10 @@ MEMBERSHIP_DEPENDENT_MODELS = {
             "rather than carrying a live subscribable token across deployments."
         ),
     ),
+    "machines.MembershipMachineTypeScope": MembershipDependency(
+        retained_by_import=False,
+        reason="Archived personal scopes are dropped to preserve target machine authority.",
+    ),
     "makerspaces.MemberProfile": MembershipDependency(
         retained_by_import=True,
         reason="A member profile is owned by one non-null makerspace membership.",

@@ -152,6 +152,7 @@ FIRST_PARTY_FIELD_NAMES = {
     'machines.PrintingCutoverState': frozenset('created_at id kernel_authoritative_at makerspace reconciled_at updated_at'.split()),
     'machines.PrintingCutoverRepair': frozenset('created_at detail id kind legacy_id legacy_model makerspace resolved_at resolved_by'.split()),
     'machines.RoleMachineTypeScope': frozenset('created_at id machine_type role'.split()),
+    'machines.MembershipMachineTypeScope': frozenset('created_at id machine_type membership'.split()),
     'machines.RoleMachineScope': frozenset('created_at id machine role'.split()),
     'machines.MachineType': frozenset('capability_config icon id is_builtin makerspace managing_action name slug'.split()),
     'machines.MakerspaceMachineTypePricing': frozenset('created_at created_by flat_fee free_below_quantity id machine_type makerspace metering_unit_override payment_enabled rate_per_unit requires_booking_override updated_at updated_by uses_consumables_override'.split()),

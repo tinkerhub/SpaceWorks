@@ -19,6 +19,12 @@ _ALLOWED = {
 
 def _locked_submission_target(target):
     if isinstance(target, ServiceQueue):
+        from apps.makerspaces.models import Makerspace
+
+        # Match public queue setup: makerspace first, then queue, even on self-hosts
+        # where quota checks take no lock. Resolve ownership from the stored row.
+        makerspace_id = ServiceQueue.objects.values_list("makerspace_id", flat=True).get(pk=target.pk)
+        Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace_id)
         queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=target.pk)
         if queue.machine_type.makerspace_id not in (None, queue.makerspace_id):
             raise ServiceMachineUnavailable("Service queue machine type is outside its makerspace.")
@@ -80,7 +86,9 @@ def _require_module(makerspace, *, locked=False):
     if locked:
         from apps.makerspaces.models import Makerspace
 
-        makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        # Serialize configuration changes without blocking concurrent job audit
+        # foreign-key checks while this submission waits for its target lock.
+        makerspace = Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace.pk)
     if not module_enabled(makerspace, "machine_service"):
         raise ValidationError("Machine service is disabled for this makerspace.")
 

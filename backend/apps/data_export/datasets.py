@@ -77,6 +77,7 @@ DATASET_SPECS = {
     "machines.MachineType": ("machines/types.csv", P(("makerspace",), include_global_if_unowned=True)),
     "machines.MachineUsageEntry": ("machines/usage_entries.csv", P(("machine__makerspace",))),
     "machines.MakerspaceMachineTypePricing": ("machines/type_pricing.csv", P(("makerspace",), ("machine_type__makerspace",))),
+    "machines.MembershipMachineTypeScope": ("members/member_machine_type_scopes.csv", P(("membership__makerspace",), ("machine_type__makerspace",))),
     "machines.RoleMachineScope": ("members/role_machine_scopes.csv", P(("role__makerspace",), ("machine__makerspace",))),
     "machines.RoleMachineTypeScope": ("members/role_machine_type_scopes.csv", P(("role__makerspace",), ("machine_type__makerspace",))),
     "machines.ServiceBucket": ("machine_service/buckets.csv", P(("machine__makerspace",))),
