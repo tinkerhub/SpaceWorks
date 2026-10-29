@@ -30,7 +30,7 @@ export function MakerspaceSiteHeader({ homePath, name, logoUrl, moduleEnabled, s
   const sections: (SiteNavLink & { module?: string })[] = [
     { to: base || "/", label: "Inventory", exact: true },
     { to: at("machines"), label: "Machines", module: "machines" },
-    { to: at("print"), label: "3D printing", module: "printing" },
+    ...(moduleEnabled("machines") ? [{ to: at("machine-service"), label: "Service requests", module: "machine_service" }] : []),
     { to: at("events"), label: "Events", module: "events" },
     { to: at("bookings"), label: "Bookings", module: "bookings" },
   ];

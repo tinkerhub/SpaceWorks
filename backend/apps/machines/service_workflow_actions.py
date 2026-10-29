@@ -43,8 +43,8 @@ def submit(bucket_or_machine, requester, *, requester_name, contact_email, conta
         machine_type = target.machine_type if isinstance(target, ServiceQueue) else target.machine_type
         _validate_capability_payload(machine_type, capability_payload or {})
         _require_module(makerspace, locked=True)
-        limits.check_quota(makerspace, "machine_service_open", adding=1)
-        limits.check_quota(makerspace, "machine_service_submit", adding=1)
+        limits.check_quota(makerspace, "machine_service_open", adding=1, no_key=True)
+        limits.check_quota(makerspace, "machine_service_submit", adding=1, no_key=True)
         if isinstance(target, ServiceQueue):
             if not target.is_active:
                 raise ServiceMachineUnavailable("Service queue is inactive.")

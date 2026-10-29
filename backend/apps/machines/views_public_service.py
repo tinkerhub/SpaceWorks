@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,27 +14,31 @@ from apps.checkin.principal import resolve_request_principal
 from apps.hardware_requests import checkin_submit
 from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.hardware_requests.public_view_helpers import _enforce_throttles
-from apps.machines import service_workflow
+from apps.machines.printer_capabilities import is_printer_type
+from apps.machines.public_service_catalog import resolve_public_service_type
+from apps.machines.public_service_intake import submit_typed_request
+from apps.machines.public_service_legacy import submit_legacy_machine
 from apps.machines.models import Machine, MachineServiceRequest
 from apps.machines.public_service_serializers import (
     PublicMachineServiceSubmitResponseSerializer,
-    PublicMachineServiceSubmitSerializer,
+    PublicMachineServiceSubmitSerializer, PRINTER_INPUT_FIELDS,
 )
 from apps.makerspaces.guards import require_module
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.platform import module_enabled
 from apps.makerspaces.request_access import checkin_requests_allowed
 from apps.presence.guard import require_active_account, require_active_member_presence
+from apps.openapi import PUBLIC_API_AUTH_PARAMETERS
 
 
 SERVICE_SUBMIT_ERRORS = {
     400: OpenApiResponse(ErrorSerializer, description="Invalid machine service request input."),
     401: OpenApiResponse(ErrorSerializer, description="Authentication is required."),
     403: OpenApiResponse(ErrorSerializer, description="Active membership, waiver acceptance, and presence are required."),
-    404: OpenApiResponse(ErrorSerializer, description="Makerspace or machine not found."),
+    404: OpenApiResponse(ErrorSerializer, description="Makerspace, published machine type or machine not found."),
     409: OpenApiResponse(ErrorSerializer, description="Machine service request conflict."),
     429: OpenApiResponse(ErrorSerializer, description="Request rate limit exceeded."),
-    503: OpenApiResponse(ErrorSerializer, description="Check-in roster is unavailable."),
+    503: OpenApiResponse(ErrorSerializer, description="Check-in roster, storage or protected writes are temporarily unavailable."),
 }
 
 
@@ -63,6 +67,8 @@ class PublicMachineServiceSubmitView(APIView):
     @extend_schema(
         tags=["Public machine service"],
         summary="Submit a public machine service request",
+        description="Choose machine_type_id for an unassigned queued proposal; staff assign the machine later. Supply exactly one of machine_type_id or the legacy machine_id. Printer fields are accepted only for printer types. Requires an active requester or a verified checked-in principal.",
+        parameters=PUBLIC_API_AUTH_PARAMETERS,
         auth=[{"jwtAuth": []}, {}],
         request=PublicMachineServiceSubmitSerializer,
         responses={201: PublicMachineServiceSubmitResponseSerializer, **SERVICE_SUBMIT_ERRORS},
@@ -99,10 +105,17 @@ class PublicMachineServiceSubmitView(APIView):
             )
         else:
             checkin_mid = None
-        machine = get_object_or_404(
-            Machine.objects.filter(makerspace=makerspace, is_active=True),
-            pk=data["machine_id"],
-        )
+        if "machine_type_id" in data:
+            machine_type = resolve_public_service_type(makerspace, data["machine_type_id"])
+            if not is_printer_type(machine_type) and PRINTER_INPUT_FIELDS.intersection(request.data):
+                raise ValidationError("Printer fields require a printer machine type.")
+        else:
+            machine = get_object_or_404(
+                Machine.objects.select_related("machine_type").filter(makerspace=makerspace, is_active=True),
+                pk=data["machine_id"],
+            )
+            if is_printer_type(machine.machine_type):
+                require_module(makerspace, "printing")
         principal = resolve_request_principal(
             makerspace,
             request,
@@ -110,19 +123,13 @@ class PublicMachineServiceSubmitView(APIView):
             typed_name=data.get("name", ""),
         )
         actor = principal.user if principal is not None else request.user
-        service_request = service_workflow.submit(
-            machine,
-            actor,
-            member=actor,
-            actor=actor,
-            requester_name=actor.display_name,
-            contact_email=actor.email,
-            contact_phone=actor.phone,
-            title=data["title"],
-            description=data.get("description", ""),
-            source_link=data.get("source_link", ""),
-            capability_payload=data.get("capability_payload"),
-        )
+        if "machine_type_id" in data:
+            service_request = submit_typed_request(
+                makerspace, data, actor,
+                supplied_printer_fields=PRINTER_INPUT_FIELDS.intersection(request.data),
+            )
+        else:
+            service_request = submit_legacy_machine(makerspace, data["machine_id"], data, actor)
         return Response(
             PublicMachineServiceSubmitResponseSerializer(service_request).data,
             status=status.HTTP_201_CREATED,

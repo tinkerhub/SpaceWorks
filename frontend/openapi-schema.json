@@ -39655,8 +39655,25 @@
         "/api/v1/public/{makerspace_slug}/machine-service-requests": {
             "post": {
                 "operationId": "api_v1_public_machine_service_requests_create",
+                "description": "Choose machine_type_id for an unassigned queued proposal; staff assign the machine later. Supply exactly one of machine_type_id or the legacy machine_id. Printer fields are accepted only for printer types. Requires an active requester or a verified checked-in principal.",
                 "summary": "Submit a public machine service request",
                 "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
                     {
                         "in": "path",
                         "name": "makerspace_slug",
@@ -39744,7 +39761,7 @@
                                 }
                             }
                         },
-                        "description": "Makerspace or machine not found."
+                        "description": "Makerspace, published machine type or machine not found."
                     },
                     "409": {
                         "content": {
@@ -39774,7 +39791,7 @@
                                 }
                             }
                         },
-                        "description": "Check-in roster is unavailable."
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
                     }
                 }
             }
@@ -39898,6 +39915,66 @@
                         },
                         "description": ""
                     },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid machine service request input."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Active membership, waiver acceptance, and presence are required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace, published machine type or machine not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Machine service request conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Request rate limit exceeded."
+                    },
                     "503": {
                         "content": {
                             "application/json": {
@@ -39906,7 +39983,7 @@
                                 }
                             }
                         },
-                        "description": "Check-in roster is unavailable."
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
                     }
                 }
             }
@@ -39958,11 +40035,71 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PublicPrinterSubmitResponse"
+                                    "$ref": "#/components/schemas/PublicPrinterUploadResponse"
                                 }
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid machine service request input."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Active membership, waiver acceptance, and presence are required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace, published machine type or machine not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Machine service request conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Request rate limit exceeded."
                     },
                     "503": {
                         "content": {
@@ -39972,7 +40109,278 @@
                                 }
                             }
                         },
-                        "description": "Check-in roster is unavailable."
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
+                    }
+                }
+            }
+        },
+        "/api/v1/public/{makerspace_slug}/machine-service/types": {
+            "get": {
+                "operationId": "api_v1_public_machine_service_types_list",
+                "description": "Published active machines in idle, running or reserved state accept queued proposals. This read never initializes a queue.",
+                "summary": "List published machine service types",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
+                    {
+                        "in": "path",
+                        "name": "makerspace_slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Public machine service"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedPublicMachineServiceTypeList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid machine service request input."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Active membership, waiver acceptance, and presence are required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace, published machine type or machine not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Machine service request conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Request rate limit exceeded."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
+                    }
+                }
+            }
+        },
+        "/api/v1/public/{makerspace_slug}/machine-service/uploads": {
+            "post": {
+                "operationId": "api_v1_public_machine_service_uploads_create",
+                "description": "Requires an active requester, membership/presence when installed, or a verified checked-in principal. Returns the exact queue pin for submission; upload bytes to the returned presign before submitting.",
+                "summary": "Stage an owned machine-type attachment",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
+                    {
+                        "in": "path",
+                        "name": "makerspace_slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Public machine service"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PublicMachineServiceUpload"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PublicMachineServiceUpload"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PublicMachineServiceUpload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicMachineServiceUploadResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid machine service request input."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Active membership, waiver acceptance, and presence are required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace, published machine type or machine not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Machine service request conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Request rate limit exceeded."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
                     }
                 }
             }
@@ -41353,6 +41761,125 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/public/machine-service/requests/{public_token}/status": {
+            "get": {
+                "operationId": "api_v1_public_machine_service_requests_status_retrieve",
+                "description": "PII-free lifecycle and queue position. A disabled service module returns the same response as an unknown token.",
+                "summary": "Track machine service by public token",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
+                    {
+                        "in": "path",
+                        "name": "public_token",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Public machine service"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicMachineServiceStatus"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid machine service request input."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Active membership, waiver acceptance, and presence are required."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace, published machine type or machine not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Machine service request conflict."
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Request rate limit exceeded."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Check-in roster, storage or protected writes are temporarily unavailable."
                     }
                 }
             }
@@ -55732,6 +56259,37 @@
                     }
                 }
             },
+            "PaginatedPublicMachineServiceTypeList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicMachineServiceType"
+                        }
+                    }
+                }
+            },
             "PaginatedPublicProductList": {
                 "type": "object",
                 "required": [
@@ -59447,6 +60005,72 @@
                     "usage_hours"
                 ]
             },
+            "PublicMachineServiceStatus": {
+                "type": "object",
+                "description": "Same PII-free lifecycle allowlist, with the kernel's actual status.",
+                "properties": {
+                    "public_token": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "accepted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "estimated_minutes": {
+                        "type": "integer"
+                    },
+                    "queue_position": {
+                        "type": "integer",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "queue_approved_ahead": {
+                        "type": "integer",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "queue_awaiting_review_ahead": {
+                        "type": "integer",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "accepted_at",
+                    "completed_at",
+                    "created_at",
+                    "estimated_minutes",
+                    "public_token",
+                    "queue_approved_ahead",
+                    "queue_awaiting_review_ahead",
+                    "queue_position",
+                    "started_at",
+                    "status",
+                    "title"
+                ]
+            },
             "PublicMachineServiceSubmit": {
                 "type": "object",
                 "properties": {
@@ -59461,16 +60085,43 @@
                         "type": "string",
                         "maxLength": 200
                     },
-                    "machine_id": {
+                    "queue_id": {
                         "type": "integer",
-                        "minimum": 1
+                        "minimum": 1,
+                        "nullable": true
                     },
                     "title": {
                         "type": "string",
                         "maxLength": 200
                     },
-                    "description": {
+                    "project_brief": {
                         "type": "string"
+                    },
+                    "preferred_settings": {
+                        "nullable": true
+                    },
+                    "material": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "color": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "consumable_pool_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "estimated_filament_grams": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,6}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "default": 1
                     },
                     "source_link": {
                         "oneOf": [
@@ -59485,10 +60136,27 @@
                             }
                         ]
                     },
+                    "file_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    "machine_type_id": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "machine_id": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "description": {
+                        "type": "string"
+                    },
                     "capability_payload": {}
                 },
                 "required": [
-                    "machine_id",
                     "title"
                 ]
             },
@@ -59508,9 +60176,135 @@
                     "status"
                 ]
             },
+            "PublicMachineServiceType": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "is_printer": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "file_policy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicServiceFilePolicy"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "materials": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "colors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "consumable_pools": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicPrinterPool"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "colors",
+                    "consumable_pools",
+                    "file_policy",
+                    "icon",
+                    "id",
+                    "is_printer",
+                    "materials",
+                    "name"
+                ]
+            },
+            "PublicMachineServiceUpload": {
+                "type": "object",
+                "properties": {
+                    "checkin_mid": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "queue_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "nullable": true
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/PublicMachineServiceUploadKindEnum"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "content_type": {
+                        "type": "string",
+                        "maxLength": 128
+                    },
+                    "machine_type_id": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "filename",
+                    "machine_type_id"
+                ]
+            },
+            "PublicMachineServiceUploadKindEnum": {
+                "enum": [
+                    "stl",
+                    "screenshot",
+                    "attachment"
+                ],
+                "type": "string",
+                "description": "* `stl` - stl\n* `screenshot` - screenshot\n* `attachment` - attachment"
+            },
+            "PublicMachineServiceUploadResponse": {
+                "type": "object",
+                "properties": {
+                    "file_id": {
+                        "type": "integer"
+                    },
+                    "upload": {
+                        "$ref": "#/components/schemas/PublicServiceUpload"
+                    },
+                    "queue_id": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "file_id",
+                    "queue_id",
+                    "upload"
+                ]
+            },
             "PublicMachineType": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
                     "name": {
                         "type": "string",
                         "readOnly": true
@@ -59522,6 +60316,7 @@
                 },
                 "required": [
                     "icon",
+                    "id",
                     "name"
                 ]
             },
@@ -60056,6 +60851,21 @@
                 "type": "string",
                 "description": "* `stl` - stl\n* `screenshot` - screenshot"
             },
+            "PublicPrinterUploadResponse": {
+                "type": "object",
+                "properties": {
+                    "file_id": {
+                        "type": "integer"
+                    },
+                    "upload": {
+                        "$ref": "#/components/schemas/PublicServiceUpload"
+                    }
+                },
+                "required": [
+                    "file_id",
+                    "upload"
+                ]
+            },
             "PublicProduct": {
                 "type": "object",
                 "properties": {
@@ -60188,6 +60998,58 @@
                     "created_at",
                     "items",
                     "status"
+                ]
+            },
+            "PublicServiceFilePolicy": {
+                "type": "object",
+                "properties": {
+                    "allowed_extensions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "allowed_mimes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "max_bytes": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "allowed_extensions",
+                    "allowed_mimes",
+                    "max_bytes"
+                ]
+            },
+            "PublicServiceUpload": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "headers": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "url"
                 ]
             },
             "PublicSpaceAvailability": {

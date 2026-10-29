@@ -152,13 +152,15 @@ def _storage(makerspace) -> int:
     return makerspace.storage_bytes_used
 
 
-def add_storage(makerspace, size_bytes) -> None:
+def add_storage(makerspace, size_bytes, *, no_key=False) -> None:
     """Charge managed object storage; raise when over the storage cap.
 
     Opens its own ``transaction.atomic()`` so the ``select_for_update`` row lock
     works at every finalize call site regardless of whether the caller already
     holds a transaction (it degrades to a savepoint when nested). On self-host or
-    unlimited it is a no-op.
+    unlimited it is a no-op. Queue workflows opt into ``no_key=True`` so a
+    staff transaction can finish audit FK checks while releasing its queue lock;
+    NO KEY UPDATE still serializes concurrent quota/storage writers.
     """
     from apps.makerspaces import limits
 
@@ -173,7 +175,7 @@ def add_storage(makerspace, size_bytes) -> None:
     from apps.makerspaces.models import Makerspace
 
     with transaction.atomic():
-        locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        locked = Makerspace.objects.select_for_update(no_key=no_key).get(pk=makerspace.pk)
         if locked.storage_bytes_used + size_bytes > limit:
             raise serializers.ValidationError(
                 {
@@ -232,11 +234,13 @@ _COUNTERS: dict[str, Callable[[object], int]] = {
 }
 
 
-def check_quota(makerspace, key, *, adding=1) -> None:
+def check_quota(makerspace, key, *, adding=1, no_key=False) -> None:
     """Raise when a managed limit would be exceeded.
 
     The caller must wrap this check and its create operation in
     ``transaction.atomic()`` so the makerspace row lock serializes creators.
+    Queue workflows use ``no_key=True`` to preserve audit FK lock compatibility;
+    other callers retain the stronger default row lock.
     """
     from apps.makerspaces import limits
 
@@ -250,7 +254,7 @@ def check_quota(makerspace, key, *, adding=1) -> None:
 
     from apps.makerspaces.models import Makerspace
 
-    locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+    locked = Makerspace.objects.select_for_update(no_key=no_key).get(pk=makerspace.pk)
     current = counter(locked)
     if current + adding > limit:
         resource = RESOURCE_LABELS.get(key, key.replace("_", " "))

@@ -240,7 +240,18 @@
   thin `role_scope.py` import surface over `role_scope_resolution.py` (including the identity-sensitive
   `EXEMPT`/`NOTHING` sentinels), `role_scope_grants.py`, and `role_scope_queries.py`; scope mutations remain
   in `role_scope_services.py`. `service_public_queue.py` owns explicit idempotent public-printer
-  queue setup; `admin_api/views_machine_printer_queue.py` exposes its scoped GET/POST. `type_settings.py` is the only place a type's metering unit,
+  queue setup; `admin_api/views_machine_printer_queue.py` exposes its scoped GET/POST for deliberate
+  creation/reactivation. `public_service_catalog.py` owns shared published-type and compatible public
+  pool eligibility. `public_service_queue.py` owns deterministic first-authorized-POST setup and
+  attachment queue pinning; inactive-only setup returns 409. `public_service_intake.py` routes typed
+  proposals through the existing workflow and file finalizer, leaving machine assignment to staff,
+  and returns PII-free token lifecycle status. `public_service_legacy.py` retains machine-id intake
+  with the printer module gate. All submissions share `service_workflow_helpers.py`'s locking order:
+  PII fence, makerspace `NO KEY UPDATE`, then queue or machine (and legacy bucket), with ownership
+  rechecked under locks. `public_service_serializers.py` and `views_public_service_types.py` expose
+  the safe paginated catalog/upload/status contracts; `views_public_service.py` accepts either
+  type or legacy machine id. Public machine summaries expose type id for grouping, never machine id.
+  `type_settings.py` is the only place a type's metering unit,
   booking flag and consumables flag are read: it resolves a global built-in's per-makerspace overrides
   (nullable columns on `MakerspaceMachineTypePricing`), and `type_settings_service.py` writes them.
 - `backend/apps/events/` — the separable events module. `models.py` is the stable explicit re-export barrel
@@ -276,6 +287,9 @@
   by the staff `ChangePasswordGate`, the staff `AccountDialog` (opened from the username in `StaffHeader`)
   and the member area's `MemberAccountSection`; it stores the re-issued access token the endpoint returns.
   Role-assignment ceiling for role selects: `staff/panels/rolesApi.ts` `assignableRolesFor`.
+  `frontend/src/features/machineService/` owns the shared public type selector, job form, uploads
+  and token status; `printing/PublicPrintRequestPage.tsx` keeps `/print` links working through that
+  same page. Printer fields and file widgets remain shared in `features/printing/`.
   `frontend/src/features/printing|bookings|forms|...` — feature slices. `frontend/src/lib/`,
   `components/ui/`, `types/`, `generated/api.ts`. `lib/api.ts` is a thin **re-export barrel** (explicit
   named re-exports, never `export *`) over `apiConfig` / `apiTypes` / `apiErrors` / `apiSession` /

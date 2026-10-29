@@ -504,6 +504,7 @@ export const openApiPaths = [
   "/api/v1/procurement/to-buy/{id}/receipts",
   "/api/v1/procurement/to-buy/{id}/receipts/presign",
   "/api/v1/public/machine-service/3d-printer/requests/{public_token}/status",
+  "/api/v1/public/machine-service/requests/{public_token}/status",
   "/api/v1/public/makerspaces/",
   "/api/v1/public/organizations/{slug}/",
   "/api/v1/public/organizations/{slug}/events/",
@@ -522,6 +523,8 @@ export const openApiPaths = [
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/queues",
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/requests",
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/uploads",
+  "/api/v1/public/{makerspace_slug}/machine-service/types",
+  "/api/v1/public/{makerspace_slug}/machine-service/uploads",
   "/api/v1/public/{makerspace_slug}/machines",
   "/api/v1/public/{makerspace_slug}/membership-requests",
   "/api/v1/public/{makerspace_slug}/presence-sessions",
@@ -3919,6 +3922,13 @@ export type PaginatedPublicMachineList = {
   "results": Array<PublicMachine>;
 };
 
+export type PaginatedPublicMachineServiceTypeList = {
+  "count": number;
+  "next"?: string | null;
+  "previous"?: string | null;
+  "results": Array<PublicMachineServiceType>;
+};
+
 export type PaginatedPublicProductList = {
   "count": number;
   "next"?: string | null;
@@ -4876,14 +4886,38 @@ export type PublicMachine = {
   "usage_hours": string;
 };
 
+export type PublicMachineServiceStatus = {
+  "public_token": string;
+  "status": string;
+  "title": string;
+  "created_at": string;
+  "accepted_at": string | null;
+  "started_at": string | null;
+  "completed_at": string | null;
+  "estimated_minutes": number;
+  "queue_position": number | null;
+  "queue_approved_ahead": number | null;
+  "queue_awaiting_review_ahead": number | null;
+};
+
 export type PublicMachineServiceSubmit = {
   "website"?: string;
   "checkin_mid"?: number | null;
   "name"?: string;
-  "machine_id": number;
+  "queue_id"?: number | null;
   "title": string;
-  "description"?: string;
+  "project_brief"?: string;
+  "preferred_settings"?: unknown | null;
+  "material"?: string;
+  "color"?: string;
+  "consumable_pool_id"?: number | null;
+  "estimated_filament_grams"?: string | null;
+  "quantity"?: number;
   "source_link"?: string;
+  "file_ids"?: Array<number>;
+  "machine_type_id"?: number;
+  "machine_id"?: number;
+  "description"?: string;
   "capability_payload"?: unknown;
 };
 
@@ -4892,7 +4926,37 @@ export type PublicMachineServiceSubmitResponse = {
   "status": string;
 };
 
+export type PublicMachineServiceType = {
+  "id": number;
+  "name": string;
+  "icon": string;
+  "is_printer": boolean;
+  "file_policy": PublicServiceFilePolicy;
+  "materials": Array<string>;
+  "colors": Array<string>;
+  "consumable_pools": Array<PublicPrinterPool>;
+};
+
+export type PublicMachineServiceUpload = {
+  "checkin_mid"?: number | null;
+  "name"?: string;
+  "queue_id"?: number | null;
+  "kind"?: PublicMachineServiceUploadKindEnum;
+  "filename": string;
+  "content_type"?: string;
+  "machine_type_id": number;
+};
+
+export type PublicMachineServiceUploadKindEnum = "stl" | "screenshot" | "attachment";
+
+export type PublicMachineServiceUploadResponse = {
+  "file_id": number;
+  "upload": PublicServiceUpload;
+  "queue_id": number;
+};
+
 export type PublicMachineType = {
+  "id": number;
   "name": string;
   "icon": string;
 };
@@ -5019,6 +5083,11 @@ export type PublicPrinterUpload = {
 
 export type PublicPrinterUploadKindEnum = "stl" | "screenshot";
 
+export type PublicPrinterUploadResponse = {
+  "file_id": number;
+  "upload": PublicServiceUpload;
+};
+
 export type PublicPrintStatusLookupPolicyEnum = "token_only" | "email_unverified";
 
 export type PublicProduct = {
@@ -5048,6 +5117,23 @@ export type PublicRequestStatus = {
   "status": string;
   "created_at": string;
   "items": Array<PublicRequestItemStatus>;
+};
+
+export type PublicServiceFilePolicy = {
+  "allowed_extensions": Array<string>;
+  "allowed_mimes": Array<string>;
+  "max_bytes": number;
+};
+
+export type PublicServiceUpload = {
+  "url": string;
+  "method"?: string;
+  "fields"?: {
+  [key: string]: string;
+};
+  "headers"?: {
+  [key: string]: string;
+};
 };
 
 export type PublicSpaceAvailability = {

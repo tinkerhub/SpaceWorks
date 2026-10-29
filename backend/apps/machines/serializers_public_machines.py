@@ -6,6 +6,7 @@ from apps.machines import services
 
 
 class PublicMachineTypeSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(read_only=True)
     icon = serializers.CharField(read_only=True)
 

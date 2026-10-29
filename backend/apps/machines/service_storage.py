@@ -254,7 +254,7 @@ def finalize_file(service_request, *, file_id, actor):
                 or (locked_request.bucket_id and locked_file.machine_id != locked_request.bucket.machine_id)
             ):
                 raise ValidationError({"file_id": "Attachment is unavailable for this request."}, code="invalid_attachment")
-            limits.add_storage(locked_request.makerspace, result.size)
+            limits.add_storage(locked_request.makerspace, result.size, no_key=True)
             locked_file.service_request = locked_request
             locked_file.attached_at = timezone.now()
             locked_file.size_bytes = result.size

@@ -18,25 +18,35 @@ _ALLOWED = {
 
 
 def _locked_submission_target(target):
-    if isinstance(target, ServiceQueue):
-        from apps.makerspaces.models import Makerspace
+    from apps.makerspaces.models import Makerspace
 
-        # Match public queue setup: makerspace first, then queue, even on self-hosts
-        # where quota checks take no lock. Resolve ownership from the stored row.
+    # All submissions share the public wrapper's order, including self-hosts
+    # where quota checks take no lock. Never trust a caller's cached ownership.
+    if isinstance(target, ServiceQueue):
         makerspace_id = ServiceQueue.objects.values_list("makerspace_id", flat=True).get(pk=target.pk)
         Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace_id)
         queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=target.pk)
-        if queue.machine_type.makerspace_id not in (None, queue.makerspace_id):
+        if queue.makerspace_id != makerspace_id or queue.machine_type.makerspace_id not in (None, makerspace_id):
             raise ServiceMachineUnavailable("Service queue machine type is outside its makerspace.")
         return queue
     if isinstance(target, ServiceBucket):
-        bucket = ServiceBucket.objects.select_related("machine__makerspace").get(pk=target.pk)
-        return Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=bucket.machine_id)
-    return Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(pk=target.pk)
+        machine_id, makerspace_id = ServiceBucket.objects.values_list("machine_id", "machine__makerspace_id").get(pk=target.pk)
+    else:
+        machine_id = target.pk
+        makerspace_id = Machine.objects.values_list("makerspace_id", flat=True).get(pk=machine_id)
+    Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace_id)
+    machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=machine_id)
+    if machine.makerspace_id != makerspace_id or machine.machine_type.makerspace_id not in (None, makerspace_id):
+        raise ServiceMachineUnavailable("Machine or machine type is outside its makerspace.")
+    if isinstance(target, ServiceBucket):
+        bucket = ServiceBucket.objects.select_for_update(of=("self",)).get(pk=target.pk)
+        if bucket.machine_id != machine.pk:
+            raise ServiceMachineUnavailable("Service bucket machine changed during submission.")
+    return machine
 
 
 def _locked_submission_machine(target):
-    """Legacy helper retained for per-machine callers and their lock ordering."""
+    """Legacy helper retained with the common makerspace-first lock ordering."""
     return _locked_submission_target(target)
 
 
@@ -44,9 +54,10 @@ def _assert_submission_write_allowed(target):
     from apps.encryption.write_fence import assert_mapped_write_allowed
     if isinstance(target, ServiceQueue):
         makerspace_id = ServiceQueue.objects.only("makerspace_id").get(pk=target.pk).makerspace_id
+    elif isinstance(target, ServiceBucket):
+        makerspace_id = ServiceBucket.objects.values_list("machine__makerspace_id", flat=True).get(pk=target.pk)
     else:
-        machine_id = target.machine_id if isinstance(target, ServiceBucket) else target.pk
-        makerspace_id = Machine.objects.only("makerspace_id").get(pk=machine_id).makerspace_id
+        makerspace_id = Machine.objects.only("makerspace_id").get(pk=target.pk).makerspace_id
     assert_mapped_write_allowed(makerspace_id)
 
 

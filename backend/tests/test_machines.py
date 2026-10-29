@@ -939,7 +939,7 @@ def test_publicity_toggle_requires_manage_machines_and_returns_public_preview():
         'status',
         'usage_hours',
     }
-    assert set(response.data['machine_type']) == {'name', 'icon'}
+    assert set(response.data['machine_type']) == {'id', 'name', 'icon'}
     assert Decimal(response.data['usage_hours']) == Decimal('3.25')
     audit = AuditLog.objects.get(action='machine.publicity_changed')
     assert audit.actor == manager

@@ -1,26 +1,25 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { deferred, genericType, printerType, serviceStatus } from "../machineService/serviceTestFixtures";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  fetchPrintQueues,
-  fetchPublicConsumablePools,
-  fetchPrintStatus,
+  fetchServiceTypes,
+  fetchServiceStatus,
   lookupCheckin,
-  presignPrintUpload,
-  submitPrintRequest,
+  presignServiceUpload,
+  submitServiceRequest,
   uploadToStorage,
   useTenantBootstrap,
   getAccessToken,
   refreshAccessToken,
 } = vi.hoisted(() => ({
-  fetchPrintQueues: vi.fn(),
-  fetchPublicConsumablePools: vi.fn(),
-  fetchPrintStatus: vi.fn(),
+  fetchServiceTypes: vi.fn(),
+  fetchServiceStatus: vi.fn(),
   lookupCheckin: vi.fn(),
-  presignPrintUpload: vi.fn(),
-  submitPrintRequest: vi.fn(),
+  presignServiceUpload: vi.fn(),
+  submitServiceRequest: vi.fn(),
   uploadToStorage: vi.fn(),
   useTenantBootstrap: vi.fn(),
   getAccessToken: vi.fn(),
@@ -32,18 +31,16 @@ vi.mock("../../lib/api", async () => {
   return { ...actual, getAccessToken, refreshAccessToken };
 });
 
-vi.mock("./publicApi", async () => {
-  const actual = await vi.importActual<typeof import("./publicApi")>("./publicApi");
-  return {
-    ...actual,
-    fetchPrintQueues,
-    fetchPublicConsumablePools,
-    fetchPrintStatus,
-    presignPrintUpload,
-    submitPrintRequest,
-    uploadToStorage,
-  };
-});
+vi.mock("./publicApi", async () => ({
+  ...await vi.importActual<typeof import("./publicApi")>("./publicApi"), uploadToStorage,
+}));
+vi.mock("../machineService/publicApi", async () => ({
+  ...await vi.importActual<typeof import("../machineService/publicApi")>("../machineService/publicApi"),
+  fetchServiceTypes, fetchServiceStatus, presignServiceUpload, submitServiceRequest,
+}));
+vi.mock("../../lib/modules", () => ({ useModules: () => ({ loading: false,
+  moduleEnabled: (key: string) => useTenantBootstrap().data.modules.includes(key),
+}) }));
 
 vi.mock("../inventory/api", async () => {
   const actual = await vi.importActual<typeof import("../inventory/api")>(
@@ -69,10 +66,11 @@ vi.mock("../../lib/tenant", async () => {
       makerspaceId: null,
       modules: new Set<string>(),
     }),
-    useTenantPath: (slug: string) => () => `/m/${slug}`,
+    useTenantPath: (slug: string) => (path = "") => `/m/${slug}${path ? `/${path}` : ""}`,
   };
 });
 
+import { PublicMachineServicePage } from "../machineService/PublicMachineServicePage";
 import { PublicPrintRequestPage } from "./PublicPrintRequestPage";
 
 const IDENTITY = {
@@ -85,7 +83,7 @@ const IDENTITY = {
   reason: "" as const,
 };
 
-function renderPage(requestAccess?: "anyone" | "checked_in") {
+function renderPage(requestAccess?: "anyone" | "checked_in", path = "/m/forge/print") {
   useTenantBootstrap.mockReturnValue({
     data: {
       makerspace: {
@@ -102,7 +100,7 @@ function renderPage(requestAccess?: "anyone" | "checked_in") {
         request_access: requestAccess,
       },
       frontend: { type: "central", hostname: "", allowed_origins: [] },
-      modules: ["machine_service", "printing"],
+      modules: ["machines", "machine_service", "printing"],
       features: [],
       workflows: [],
       theme: {},
@@ -118,9 +116,10 @@ function renderPage(requestAccess?: "anyone" | "checked_in") {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/m/forge/print"]}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/m/:slug/print" element={<PublicPrintRequestPage />} />
+          <Route path="/m/:slug/machine-service" element={<PublicMachineServicePage />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -129,22 +128,22 @@ function renderPage(requestAccess?: "anyone" | "checked_in") {
 
 describe("checked-in public print requests", () => {
   beforeEach(() => {
-    fetchPrintQueues.mockReset();
-    fetchPrintQueues.mockResolvedValue([{ id: 8, name: "Printers", description: "" }]);
-    fetchPublicConsumablePools.mockReset();
-    fetchPublicConsumablePools.mockResolvedValue([]);
-    fetchPrintStatus.mockReset();
+    fetchServiceTypes.mockReset();
+    fetchServiceTypes.mockResolvedValue([printerType]);
+    window.localStorage.clear();
+    fetchServiceStatus.mockReset().mockResolvedValue(serviceStatus);
     lookupCheckin.mockReset();
     lookupCheckin.mockResolvedValue([IDENTITY]);
-    presignPrintUpload.mockReset();
-    presignPrintUpload.mockResolvedValue({
+    presignServiceUpload.mockReset();
+    presignServiceUpload.mockResolvedValue({
+      queue_id: 8,
       file_id: 17,
       upload: { url: "https://storage.example/upload", fields: {} },
     });
     uploadToStorage.mockReset();
     uploadToStorage.mockResolvedValue(undefined);
-    submitPrintRequest.mockReset();
-    submitPrintRequest.mockResolvedValue({ public_token: "print-token", status: "pending" });
+    submitServiceRequest.mockReset();
+    submitServiceRequest.mockResolvedValue({ public_token: "print-token", status: "pending" });
     getAccessToken.mockReturnValue("");
     refreshAccessToken.mockReset();
     refreshAccessToken.mockResolvedValue(true);
@@ -153,6 +152,7 @@ describe("checked-in public print requests", () => {
   it("gates the form and sends identity with every presign and submission", async () => {
     renderPage("checked_in");
     const nameInput = await screen.findByLabelText(/your name/i);
+    expect(refreshAccessToken).not.toHaveBeenCalled();
     expect(await screen.findByLabelText(/^title$/i)).toBeDisabled();
 
     fireEvent.change(nameInput, { target: { value: "ada example" } });
@@ -167,20 +167,65 @@ describe("checked-in public print requests", () => {
         files: [new File(["solid"], "bracket.stl", { type: "model/stl" })],
       },
     });
-    fireEvent.click(screen.getByRole("button", { name: /submit print request/i }));
+    fireEvent.click(screen.getByRole("button", { name: /submit service request/i }));
 
-    await waitFor(() => expect(presignPrintUpload).toHaveBeenCalledTimes(1));
-    expect(presignPrintUpload.mock.calls[0][1]).toMatchObject({
+    await waitFor(() => expect(presignServiceUpload).toHaveBeenCalledTimes(1));
+    expect(presignServiceUpload.mock.calls[0][1]).toMatchObject({
       checkin_mid: 443,
       name: "Ada Example",
     });
-    await waitFor(() => expect(submitPrintRequest).toHaveBeenCalledTimes(1));
-    expect(submitPrintRequest.mock.calls[0][1]).toMatchObject({
+    await waitFor(() => expect(submitServiceRequest).toHaveBeenCalledTimes(1));
+    expect(submitServiceRequest.mock.calls[0][1]).toMatchObject({
       title: "Bracket",
+      machine_type_id: printerType.id,
+      queue_id: 8,
       file_ids: [17],
       checkin_mid: 443,
       name: "Ada Example",
     });
+  });
+
+
+  it("uses the same checked-in identity for generic attachments and the shared typed POST", async () => {
+    fetchServiceTypes.mockResolvedValue([genericType, printerType]);
+    renderPage("checked_in", "/m/forge/machine-service?type=11");
+    fireEvent.change(await screen.findByLabelText(/your name/i), { target: { value: "Ada Example" } });
+    expect(screen.getByLabelText(/^title$/i)).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /find me/i }));
+    await screen.findByText("Metrocard");
+    fireEvent.change(screen.getByLabelText(/^title$/i), { target: { value: "Cut enclosure" } });
+    fireEvent.change(screen.getByLabelText(/^description/i), { target: { value: "Plywood panels" } });
+    fireEvent.change(screen.getByLabelText(/^attachments/i), {
+      target: { files: [new File(["%PDF-"], "drawing.pdf", { type: "application/pdf" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /submit service request/i }));
+    await waitFor(() => expect(submitServiceRequest).toHaveBeenCalledTimes(1));
+    expect(presignServiceUpload).toHaveBeenCalledWith("forge", expect.objectContaining({
+      machine_type_id: 11, kind: "attachment", checkin_mid: 443, name: "Ada Example",
+    }));
+    expect(submitServiceRequest).toHaveBeenCalledWith("forge", expect.objectContaining({
+      machine_type_id: 11, title: "Cut enclosure", description: "Plywood panels", queue_id: 8,
+      file_ids: [17], checkin_mid: 443, name: "Ada Example",
+    }));
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+  });
+
+
+  it("keeps generic input disabled while check-in is pending or unreadable", async () => {
+    const lookup = deferred<typeof IDENTITY[]>();
+    lookupCheckin.mockReturnValue(lookup.promise);
+    fetchServiceTypes.mockResolvedValue([genericType, printerType]);
+    renderPage("checked_in", "/m/forge/machine-service?type=11");
+    fireEvent.change(await screen.findByLabelText(/your name/i), { target: { value: "Ada Example" } });
+    fireEvent.click(screen.getByRole("button", { name: /find me/i }));
+    expect(await screen.findByRole("button", { name: /checking/i })).toBeDisabled();
+    expect(screen.getByLabelText(/^title$/i)).toBeDisabled();
+    lookup.reject(new Error("Roster unavailable"));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/could not check the check-in list/i);
+    expect(screen.getByLabelText(/^title$/i)).toBeDisabled();
+    expect(screen.getByRole("button", { name: /submit service request/i })).toBeDisabled();
+    expect(presignServiceUpload).not.toHaveBeenCalled();
+    expect(submitServiceRequest).not.toHaveBeenCalled();
   });
 
   it("leaves the existing form and request body unchanged for other policies", async () => {
@@ -190,10 +235,10 @@ describe("checked-in public print requests", () => {
     expect(title).toBeEnabled();
 
     fireEvent.change(title, { target: { value: "Bracket" } });
-    fireEvent.click(screen.getByRole("button", { name: /submit print request/i }));
-    await waitFor(() => expect(submitPrintRequest).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: /submit service request/i }));
+    await waitFor(() => expect(submitServiceRequest).toHaveBeenCalledTimes(1));
 
-    const body = submitPrintRequest.mock.calls[0][1];
+    const body = submitServiceRequest.mock.calls[0][1];
     expect(body.checkin_mid).toBeUndefined();
     expect(body.name).toBeUndefined();
   });
@@ -220,12 +265,12 @@ describe("checked-in public print requests", () => {
     fireEvent.change(screen.getByLabelText(/model, cad/i), {
       target: { files: [new File(["solid"], "bracket.stl", { type: "model/stl" })] },
     });
-    fireEvent.click(screen.getByRole("button", { name: /submit print request/i }));
+    fireEvent.click(screen.getByRole("button", { name: /submit service request/i }));
 
-    await waitFor(() => expect(submitPrintRequest).toHaveBeenCalledTimes(1));
-    expect(submitPrintRequest.mock.calls[0][1]).toMatchObject({ title: "Bracket", quantity: 3 });
+    await waitFor(() => expect(submitServiceRequest).toHaveBeenCalledTimes(1));
+    expect(submitServiceRequest.mock.calls[0][1]).toMatchObject({ title: "Bracket", quantity: 3 });
     await waitFor(() => expect(screen.getByLabelText(/^title$/i)).toHaveValue(""));
     expect(screen.queryByText("bracket.stl")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /submit print request/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /submit service request/i })).toBeDisabled();
   });
 });

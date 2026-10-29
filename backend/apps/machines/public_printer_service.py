@@ -4,10 +4,8 @@ from decimal import Decimal
 import json
 
 from django.db import transaction
-from django.db.models import Q
 from rest_framework.exceptions import NotFound, ValidationError
 
-from apps.machines.metering import ConsumablePoolUnit
 from apps.machines.models import (
     MachineConsumablePool,
     MachineServiceRequest,
@@ -44,19 +42,9 @@ def _eligible_public_pools(makerspace):
     printer_type = resolve_global_printer_type()
     if printer_type is None:
         return MachineConsumablePool.objects.none()
-    serves_printers = (
-        Q(machine_type=printer_type)
-        | Q(machine__machine_type=printer_type)
-        | Q(machine__isnull=True, machine_type__isnull=True)
-    )
-    return MachineConsumablePool.objects.filter(
-        serves_printers,
-        makerspace=makerspace,
-        is_active=True,
-        is_public=True,
-        remaining_grams__gt=0,
-        unit=ConsumablePoolUnit.GRAMS,
-    )
+    from apps.machines.public_service_catalog import eligible_public_pools
+
+    return eligible_public_pools(makerspace, printer_type)
 
 
 def public_pools(makerspace):
@@ -133,7 +121,17 @@ def submit_request(makerspace, data, actor, *, compatibility=False):
     """Submit a kernel request and charge print quota exactly once."""
     queue = resolve_queue(makerspace, data.get("queue_id"), compatibility=compatibility)
     with transaction.atomic():
-        limits.check_quota(makerspace, "print", adding=1)
+        from apps.encryption.write_fence import assert_mapped_write_allowed
+        from apps.makerspaces.models import Makerspace
+        from apps.makerspaces.guards import require_module
+
+        assert_mapped_write_allowed(makerspace.pk)
+        makerspace = Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace.pk)
+        require_module(makerspace, "printing")
+        queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=queue.pk)
+        if not queue.is_active:
+            raise ValidationError({"queue_id": "Select an active public printer queue."})
+        limits.check_quota(makerspace, "print", adding=1, no_key=True)
         row = submit(queue, actor, member=actor, actor=actor, requester_name=actor.display_name or "", contact_email=actor.email or "", contact_phone=actor.phone or "", title=data["title"], description=data.get("description", ""), source_link=data.get("source_link", ""), capability_payload=_kernel_payload(queue, data))
         ids = data.get("file_ids") or []
         files = list(ServiceRequestFile.objects.select_for_update().filter(id__in=ids, makerspace=makerspace, queue=queue, owner_user_id=actor.pk, service_request__isnull=True, attached_at__isnull=True))

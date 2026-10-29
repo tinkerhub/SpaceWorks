@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 import uuid
 
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.permissions import AllowAny
@@ -12,15 +12,14 @@ from apps.apiclients.throttling import ClientTierRateThrottle
 from apps.checkin.principal import resolve_request_principal
 from apps.checkin.throttles import CheckinMidUploadThrottle
 from apps.hardware_requests import checkin_submit
-from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.hardware_requests.public_view_helpers import _enforce_throttles
 from apps.machines.models import MachineServiceRequest
 from apps.machines.public_printer_service import public_pools, public_queues, public_status, resolve_queue, stage_upload, submit_request
 from apps.machines.public_printer_service_serializers import PublicPrinterPoolSerializer, PublicPrinterQueueSerializer, PublicPrinterStatusSerializer, PublicPrinterSubmitResponseSerializer, PublicPrinterSubmitSerializer, PublicPrinterUploadSerializer
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.platform import module_enabled
-from apps.machines.views_public_service import require_public_machine_requester
-from apps.machines.permissions import IsActiveRequester
+from apps.machines.views_public_service import SERVICE_SUBMIT_ERRORS, require_public_machine_requester
+from apps.machines.public_service_serializers import PublicPrinterUploadResponseSerializer
 from apps.makerspaces.request_access import checkin_requests_allowed
 
 
@@ -72,10 +71,8 @@ class PublicPrinterUploadView(APIView):
         auth=[{"jwtAuth": []}, {}],
         request=PublicPrinterUploadSerializer,
         responses={
-            201: PublicPrinterSubmitResponseSerializer,
-            503: OpenApiResponse(
-                ErrorSerializer, description="Check-in roster is unavailable."
-            ),
+            201: PublicPrinterUploadResponseSerializer,
+            **SERVICE_SUBMIT_ERRORS,
         },
     )
     def post(self, request, makerspace_slug):
@@ -126,9 +123,7 @@ class PublicPrinterRequestView(APIView):
         request=PublicPrinterSubmitSerializer,
         responses={
             201: PublicPrinterSubmitResponseSerializer,
-            503: OpenApiResponse(
-                ErrorSerializer, description="Check-in roster is unavailable."
-            ),
+            **SERVICE_SUBMIT_ERRORS,
         },
     )
     def post(self, request, makerspace_slug):

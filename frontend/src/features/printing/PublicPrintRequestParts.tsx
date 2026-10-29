@@ -14,20 +14,21 @@ export type TextInputProps = {
   type?: string;
   optional?: boolean;
   helperText?: string;
+  maxLength?: number;
 };
 
 const steps = [
   { key: "pending", label: "Requested" },
   { key: "accepted", label: "Accepted" },
-  { key: "in_progress", label: "Printing" },
+  { key: "in_progress", label: "In progress" },
   { key: "completed", label: "Ready to collect" },
   { key: "collected", label: "Collected" },
 ];
 
-export function TextInput({ label, value, onChange, required = false, type = "text", optional, helperText }: TextInputProps) {
+export function TextInput({ label, value, onChange, required = false, type = "text", optional, helperText, maxLength }: TextInputProps) {
   return (
     <Field label={label} optional={optional} helperText={helperText}>
-      <Input required={required} type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      <Input required={required} type={type} maxLength={maxLength} value={value} onChange={(event) => onChange(event.target.value)} />
     </Field>
   );
 }
@@ -202,7 +203,7 @@ export function StatusResult({
 }) {
   if (isPending) {
     return (
-      <div className="space-y-2" aria-busy="true" aria-label="Loading print status">
+      <div className="space-y-2" aria-busy="true" aria-label="Loading service request status">
         <Skeleton className="h-5 w-2/3" />
         <Skeleton className="h-32 w-full" />
       </div>

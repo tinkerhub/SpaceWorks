@@ -41,6 +41,20 @@ describe("MakerspaceSiteHeader", () => {
   });
 });
 
+describe("Service request navigation", () => {
+  it.each([
+    [[], false], [["machines"], false], [["machine_service"], false],
+    [["machines", "machine_service"], true], [["machines", "machine_service", "printing"], true],
+  ] as [string[], boolean][])("follows machines + machine_service for %j", (modules, visible) => {
+    renderMakerspaceHeader(modules);
+    const nav = within(screen.getByRole("navigation", { name: "Main navigation" }));
+    const link = nav.queryByRole("link", { name: "Service requests" });
+    if (visible) expect(link).toHaveAttribute("href", "/m/forge/machine-service");
+    else expect(link).not.toBeInTheDocument();
+    expect(nav.queryByRole("link", { name: /print request/i })).not.toBeInTheDocument();
+  });
+});
+
 describe("PlatformSiteHeader", () => {
   it("offers staff login but never a member area", () => {
     render(

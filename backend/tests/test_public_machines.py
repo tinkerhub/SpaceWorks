@@ -29,7 +29,7 @@ PUBLIC_MACHINE_KEYS = {
     'status',
     'usage_hours',
 }
-PUBLIC_MACHINE_TYPE_KEYS = {'name', 'icon'}
+PUBLIC_MACHINE_TYPE_KEYS = {'id', 'name', 'icon'}
 
 
 def make_public_space(slug):
@@ -89,6 +89,7 @@ def test_public_machine_list_is_exact_and_excludes_private_and_retired():
     row = list_response.data['results'][0]
     assert set(row) == PUBLIC_MACHINE_KEYS
     assert set(row['machine_type']) == PUBLIC_MACHINE_TYPE_KEYS
+    assert row['machine_type']['id'] == public.machine_type_id
     assert Decimal(row['usage_hours']) == Decimal('2.25')
     assert private.name not in str(list_response.data)
     assert retired.name not in str(list_response.data)

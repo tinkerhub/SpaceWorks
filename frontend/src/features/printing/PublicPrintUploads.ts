@@ -1,6 +1,6 @@
 ﻿export type PublicPrintUploadItem = {
   file: File;
-  kind: "stl" | "screenshot";
+  kind: "stl" | "screenshot" | "attachment";
 };
 
 type UploadProgress = (message: string) => void;

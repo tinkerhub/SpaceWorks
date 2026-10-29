@@ -342,6 +342,21 @@ release performs the same check. Hosts on 0.8.5-main.11 or older run their insta
 lacks this step, so apply the notes below by hand once, or rerun the curl installer and choose an
 update (which installs the new updater and applies the same unedited-only rule).
 
+**2026-10: public machine service by type.** No migration or environment change. Public clients can
+choose a machine type and submit an unassigned job; staff choose its machine later. Enable public
+inventory, `machines` and `machine_service`, then explicitly publish at least one active machine
+of the type in idle/running/reserved state. Printers also require `printing`; this gate now applies
+to legacy machine-id submissions too. Adding a private machine does not publish it. The first
+authorized real upload/submission POST reuses a same-type active queue (name/id order), or creates
+an audited `Public Requests - type <id>` default if no queue exists; catalog GET never creates one.
+An inactive-only type or a conflicting default name returns 409: staff must deliberately configure
+or reactivate a queue. The existing scoped staff printer setup action still enables `Public Requests`.
+Uploads return a queue pin; submissions with files must retain that exact active queue. Public printer
+material choices now exclude unbound legacy pools and private/foreign/inactive-machine pools;
+use an explicitly public compatible printer-type pool or one on a published eligible printer.
+Existing printer URLs remain available. New catalog/upload/token routes require explicit API-client
+`public:read`/`public:write` grants and are not added to the frozen `legacy:v1` capability.
+
 **2026-10 (0.8.5): default currency is INR.** The payment-settings default moved from `usd` to
 `inr`, and the migration flips every makerspace still set to `usd` to `inr` (any other currency is
 left alone; payments already raised keep their own currency). A makerspace that really charges in
