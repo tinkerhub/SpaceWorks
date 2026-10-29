@@ -620,6 +620,7 @@ export type AdminRequest = {
   "status": string;
   "requested_for": string;
   "rejection_reason": string;
+  "assigned_box_id": number | null;
   "assigned_box_label": string | null;
   "accepted_by": AdminRequestActor | null;
   "issued_by": AdminRequestActor | null;
@@ -5708,7 +5709,7 @@ export type ReturnReminderCronResponse = {
 
 export type ReturnRequest = {
   "evidence_id": number;
-  "box_code": string;
+  "box_code"?: string;
   "remark": string;
   "resolutions": Array<ReturnItemResolution>;
 };

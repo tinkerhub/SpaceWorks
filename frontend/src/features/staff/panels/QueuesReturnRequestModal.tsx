@@ -12,6 +12,7 @@ type PendingOutcome = AssetReturnOutcome | "pending";
 type AssetOutcomeState = Record<number, Record<number, PendingOutcome>>;
 
 export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmit, makerspaceId }: FormModalProps<ReturnRequestValues> & { makerspaceId: number }) {
+  const hasAssignedContainer = row?.assigned_box_id != null || (row?.assigned_box_id === undefined && Boolean(row?.assigned_box_label || row?.assigned_box));
   const [evidenceId, setEvidenceId] = useState<number | null>(null);
   const [boxCode, setBoxCode] = useState(row?.assigned_box?.code ?? "");
   const [remark, setRemark] = useState("");
@@ -92,8 +93,8 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
           {issueError ? <p className="text-caption text-warning-fg" role="status">{issueError}</p> : null}
           <EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={setEvidenceId} />
         </div>
-        {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Box: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
-        <BoxCodeField value={boxCode} onChange={setBoxCode} makerspaceId={makerspaceId} pending={pending} />
+        {hasAssignedContainer && row?.assigned_box_label ? <p className="text-caption text-ink-muted">Assigned container: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
+        {hasAssignedContainer ? <BoxCodeField value={boxCode} onChange={setBoxCode} makerspaceId={makerspaceId} pending={pending} /> : null}
         <Field label="Remark" helperText="Required. Note the condition of what came back.">
           <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} />
         </Field>
@@ -106,16 +107,14 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
   function submitReturn() {
     if (evidenceId === null) return setValidationError("Upload a return photo before submitting.");
     if (!remark.trim()) return setValidationError("Return remark is required.");
-    // The server matches this against the loan's container; without it the API answers with a
-    // bare "This field may not be blank." that names no field the form shows.
-    if (!boxCode.trim()) return setValidationError("Scan or choose the loan's container before submitting.");
+    if (hasAssignedContainer && !boxCode.trim()) return setValidationError("Scan or choose the loan's container before submitting.");
     const finalResolutions = buildFinalResolutions();
     if (finalResolutions.length === 0) return setValidationError("Resolve at least one item.");
     if (finalResolutions.some((resolution) => resolution.returned < 0 || resolution.damaged < 0 || resolution.missing < 0)) return setValidationError("Resolution quantities cannot be negative.");
     const overReturn = overReturnError(row, finalResolutions);
     if (overReturn) return setValidationError(overReturn);
     setValidationError("");
-    onSubmit({ evidenceId, boxCode: boxCode.trim(), remark: remark.trim(), resolutions: finalResolutions });
+    onSubmit({ evidenceId, boxCode: hasAssignedContainer ? boxCode.trim() : "", remark: remark.trim(), resolutions: finalResolutions });
   }
 
   function buildFinalResolutions(): ReturnRequestValues["resolutions"] {

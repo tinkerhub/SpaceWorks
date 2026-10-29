@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { QrCode, X } from "lucide-react";
 
-import { Button, Chip, Dropdown, ErrorText, Field, Input, Modal, SectionHeading, Textarea } from "../../../components/ui";
+import { Button, CheckboxField, Chip, Dropdown, ErrorText, Field, Input, Modal, SectionHeading, Textarea } from "../../../components/ui";
 import QrScanner from "../../../components/ui/QrScanner";
 import { staffRequest } from "../../../lib/api";
 import { isQrNotRecognised, QR_NOT_RECOGNISED } from "../evidenceUi";
@@ -13,7 +13,11 @@ type ScannedAsset = { payload: string; label: string };
 type Disposition = "needs_fix" | "remove";
 type RejectState = Record<number, { broken: number; disposition: Disposition }>;
 
-export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit, makerspaceId }: FormModalProps<AssignIssueValues> & { makerspaceId: number }) {
+export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit, makerspaceId, assignedContainerCode = "" }: FormModalProps<AssignIssueValues> & { makerspaceId: number; assignedContainerCode?: string }) {
+  const rowHasContainer = row?.assigned_box_id != null || (row?.assigned_box_id === undefined && Boolean(row?.assigned_box_label || row?.assigned_box));
+  const hasAssignedContainer = rowHasContainer || Boolean(assignedContainerCode);
+  const [useContainer, setUseContainer] = useState(rowHasContainer);
+  const containerSelected = hasAssignedContainer || useContainer;
   const [boxCode, setBoxCode] = useState(row?.assigned_box?.code ?? "");
   const [evidenceId, setEvidenceId] = useState<number | null>(null);
   const [remark, setRemark] = useState("Issued from staff app.");
@@ -27,6 +31,7 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
   useEffect(() => {
     if (open) {
       setBoxCode(row?.assigned_box?.code ?? "");
+      setUseContainer(rowHasContainer);
       setEvidenceId(null);
       setRemark("Issued from staff app.");
       setRejects({});
@@ -34,7 +39,7 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
       setShowScanner(false);
       setValidationError("");
     }
-  }, [open, row]);
+  }, [open, row, rowHasContainer]);
 
   const handleScan = async (payload: string) => {
     const clean = payload.trim();
@@ -67,13 +72,20 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
       open={open}
       onClose={onClose}
       size="lg"
-      title={row ? `Assign and issue request #${row.id}` : "Assign and issue"}
-      description="Scan the box, take the issue photo, then hand the items over."
-      footer={<FormFooter formId="assign-issue-form" pending={pending} submitLabel="Assign + issue" onCancel={onClose} />}
+      title={row ? `Issue request #${row.id}` : "Issue request"}
+      description="Take the issue photo and scan each individually tracked unit. Use a container if needed."
+      footer={<FormFooter formId="assign-issue-form" pending={pending} submitLabel="Issue" onCancel={onClose} />}
     >
       <form id="assign-issue-form" className="grid gap-5" onSubmit={(event) => submitForm(event, () => submitAssign())}>
-        {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Box: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
-        <BoxCodeField value={boxCode} onChange={(code) => { setBoxCode(code); setValidationError(""); }} makerspaceId={makerspaceId} pending={pending} />
+        <CheckboxField label="Use a container" checked={containerSelected} disabled={pending || hasAssignedContainer} onCheckedChange={(checked) => { setUseContainer(checked === true); setValidationError(""); }} description={hasAssignedContainer ? "A container is already assigned to this request." : "Optional. Scan or choose a container to carry the items."} />
+        {assignedContainerCode ? (
+          <p className="text-caption text-ink-muted">Assigned container: <span className="font-mono text-ink">{assignedContainerCode}</span></p>
+        ) : containerSelected ? (
+          <>
+            {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Assigned container: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
+            <BoxCodeField value={boxCode} onChange={(code) => { setBoxCode(code); setValidationError(""); }} makerspaceId={makerspaceId} pending={pending} />
+          </>
+        ) : null}
         <EvidenceUpload makerspaceId={makerspaceId} evidenceType="issue" label="Issue photo" disabled={pending} onUploaded={setEvidenceId} />
         <Field label="Remark">
           <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} />
@@ -87,14 +99,15 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
   );
 
   function submitAssign() {
-    if (!boxCode.trim()) return setValidationError("Scan or choose a container before issuing.");
+    const selectedCode = containerSelected ? (assignedContainerCode || boxCode).trim() : "";
+    if (containerSelected && !selectedCode) return setValidationError("Scan or choose a container before issuing.");
     if (evidenceId === null) return setValidationError("Upload an issue photo before issuing.");
     const overflow = (row?.items ?? []).find((item) => (rejects[item.id]?.broken ?? 0) > item.accepted_quantity);
     if (overflow) return setValidationError(`Can't reject more than ${overflow.accepted_quantity} of ${overflow.product_name}.`);
     if (scanned.length !== requiredScans) return setValidationError(`Scan exactly ${requiredScans} asset QR code(s) for the individually-tracked items (scanned ${scanned.length}).`);
     const rejectList = Object.entries(rejects).filter(([, value]) => value.broken > 0).map(([itemId, value]) => ({ item_id: Number(itemId), broken: value.broken, disposition: value.disposition }));
     setValidationError("");
-    onSubmit({ boxCode: boxCode.trim(), evidenceId, remark, rejects: rejectList, assetQrPayloads: scanned.map((item) => item.payload) });
+    onSubmit({ boxCode: selectedCode, evidenceId, remark, rejects: rejectList, assetQrPayloads: scanned.map((item) => item.payload) });
   }
 }
 

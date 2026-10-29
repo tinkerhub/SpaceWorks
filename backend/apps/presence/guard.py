@@ -110,8 +110,8 @@ def require_active_member_presence(user, makerspace):
     reject; a tombstone is supposed to yield a smaller system, not a stuck one.
 
     Membership and the waiver are still enforced, so the identity and liability factors
-    are untouched, and so are the Hard Rules' non-negotiables (a box QR scan and an
-    issue photo), which live in the workflow rather than here. What lapses is only
+    are untouched, and so are the Hard Rules' non-negotiables (issue photos and QR
+    scans for tracked units and assigned containers), enforced by the workflow. What lapses is only
     "is this member physically checked in right now", which a deployment without
     check-in cannot answer and has decided it does not need to.
 

@@ -74,6 +74,7 @@ class AdminRequestSerializer(serializers.Serializer):
     status = serializers.CharField(read_only=True)
     requested_for = serializers.CharField(read_only=True)
     rejection_reason = serializers.CharField(read_only=True)
+    assigned_box_id = serializers.IntegerField(read_only=True, allow_null=True)
     assigned_box_label = serializers.CharField(
         source="assigned_box.label",
         read_only=True,
@@ -175,7 +176,7 @@ class ReturnItemResolutionSerializer(serializers.Serializer):
 
 class ReturnRequestSerializer(serializers.Serializer):
     evidence_id = serializers.IntegerField()
-    box_code = serializers.CharField()
+    box_code = serializers.CharField(required=False, allow_blank=True, default="")
     remark = serializers.CharField(allow_blank=False, trim_whitespace=True)
     resolutions = ReturnItemResolutionSerializer(many=True, allow_empty=False)
 

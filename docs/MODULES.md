@@ -14,7 +14,7 @@ happens to its data.
 
 | Level | Who changes it | What it means |
 |---|---|---|
-| **Core module** | nobody | Always on. The Hard Rules make the loan spine *the system*: issuing hardware needs a box QR scan **and** an issue photo, so catalogue + requests + staff console + evidence + QR + scanner ship with every install. |
+| **Core module** | nobody | Always on. Issue photos are always required; QR support is needed for individually tracked units and container-based handovers. Catalogue + requests + staff console + evidence + QR + scanner ship with every install. Containers are optional on reviewed requests; an assigned container requires its scan, and individually tracked units always need their own QR scans. |
 | **Module** | superadmin (console or CLI) | A whole capability. Installing adds its surfaces; uninstalling hides them and **keeps every row**. |
 | **Feature** | Space Manager (in the console) | A switch *inside* a module, for something narrower than a whole capability. Inert while its parent module is off. |
 
@@ -130,8 +130,9 @@ thirteen modules under it are optional.
 
 - **What it is** — generating, revoking and printing the QR codes for boxes, tools and asset units.
 - **What it adds** — the `qr_generate`, `qr_revoke` and `qr_print` workflows, plus QR rebinding.
-- **Without it** — not an option: issuing reviewed-request hardware requires a box QR scan, so a space
-  with no QR codes could not complete a handover.
+- **Without it** — not an option: individually tracked units and container-based handovers need QR
+  codes. Reviewed requests can issue quantity-tracked items without a container; issue photos remain
+  required, and an assigned container still requires its scan.
 - **Data** — core; not separately purgeable. Scan records are immutable.
 
 ### scanner
@@ -140,7 +141,9 @@ thirteen modules under it are optional.
 
 - **What it is** — the camera scanner and the container lookup it feeds.
 - **What it adds** — the `qr_scan` and `container_lookup` workflows.
-- **Without it** — not an option, for the same reason as `qr_management`: no scan, no handover.
+- **Without it** — not an option: scans are required for individually tracked units and for assigned
+  containers. A reviewed request without a container still requires an issue photo and each tracked
+  unit's own QR scan.
 - **Data** — core; not separately purgeable.
 
 ### asset_units
@@ -164,8 +167,10 @@ thirteen modules under it are optional.
   direct handout can resolve a scanned container into the loan.
 - **Without it** — you cannot create, list, open, edit or re-parent containers in the console, and a
   direct handout will not accept one. Storage location stops being modelled as a hierarchy. Scanning a box QR still
-  resolves — that is [`scanner`](#scanner) — and containers that already exist keep their codes, so the
-  box-scan-at-issue rule is unaffected.
+  resolves — that is [`scanner`](#scanner) — and containers that already exist keep their codes.
+  Reviewed requests can be issued without a container. If one is assigned, its scan is required at
+  issue and return; otherwise returns record no container scan. Photos remain required, as do each
+  individually tracked unit's own QR scans at issue.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
 
 ### bulk_import

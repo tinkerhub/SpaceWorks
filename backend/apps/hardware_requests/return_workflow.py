@@ -58,7 +58,7 @@ def return_items(actor, request, evidence_id, remark, box_code, resolutions):
             raise ReturnValidationError("Return evidence has already been used.")
         charge_storage_once(evidence, finalized.size)
         box = _matching_box(locked, box_code)
-        scan = _record_scan(actor, locked, box)
+        scan = _record_scan(actor, locked, box) if box is not None else None
         validated_resolutions = build_resolutions(locked, resolutions)
 
         availability.return_items(locked, validated_resolutions)
@@ -93,6 +93,12 @@ def _require_returnable(locked):
 
 
 def _matching_box(locked, box_code):
+    if locked.assigned_box_id is None:
+        if box_code:
+            raise ReturnValidationError("This loan has no assigned container; leave box_code blank.")
+        return None
+    if not box_code:
+        raise ReturnValidationError("Scan the assigned container before returning this loan.")
     box = Box.objects.filter(makerspace=locked.makerspace, code=box_code).first()
     if box is None or box.pk != locked.assigned_box_id:
         raise ReturnValidationError("Scanned box does not match this loan.")
@@ -128,7 +134,7 @@ def _audit_return(actor, locked, box, evidence, scan, request_action):
         request_action,
         makerspace=locked.makerspace,
         target=locked,
-        meta={"box_id": box.pk, "evidence_id": evidence.pk},
+        meta={"box_id": box.pk if box is not None else None, "evidence_id": evidence.pk},
     )
     audit.record(
         actor,
@@ -137,10 +143,11 @@ def _audit_return(actor, locked, box, evidence, scan, request_action):
         target=evidence,
         meta={"request_id": locked.pk},
     )
-    audit.record(
-        actor,
-        "box.scanned",
-        makerspace=locked.makerspace,
-        target=scan,
-        meta={"box_id": box.pk, "request_id": locked.pk},
-    )
+    if scan is not None:
+        audit.record(
+            actor,
+            "box.scanned",
+            makerspace=locked.makerspace,
+            target=scan,
+            meta={"box_id": box.pk, "request_id": locked.pk},
+        )

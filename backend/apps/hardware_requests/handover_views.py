@@ -58,6 +58,11 @@ class IssueRequestView(APIView):
     @extend_schema(
         tags=["Admin requests"],
         summary="Issue accepted request",
+        description=(
+            "Issue photo evidence is always required, with an asset QR scan for each "
+            "individually tracked unit. A container is optional; if one is assigned, "
+            "its issue scan is required before issuing."
+        ),
         request=IssueRequestSerializer,
         responses={200: AdminRequestSerializer, **ACTION_ERROR_RESPONSES, 503: ERROR_503},
     )
@@ -86,6 +91,12 @@ class ReturnRequestView(APIView):
     @extend_schema(
         tags=["Admin requests"],
         summary="Return issued request items",
+        description=(
+            "Return photo evidence, a remark and item outcomes are always required. "
+            "For a loan with an assigned container, box_code must match that container. "
+            "For a loan without one, omit box_code or send an empty string; "
+            "a nonempty code is rejected."
+        ),
         request=ReturnRequestSerializer,
         responses={200: AdminRequestSerializer, **ACTION_ERROR_RESPONSES, 503: ERROR_503},
     )

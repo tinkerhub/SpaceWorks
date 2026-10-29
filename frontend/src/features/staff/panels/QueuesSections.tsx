@@ -80,7 +80,7 @@ export function PendingActions({ row, disabled, openModal, setAcceptRow, setReje
 export function AcceptedActions({ row, disabled, openModal, setAssignIssueRow, setDueRow }: QueueActionProps & { setAssignIssueRow: Setter; setDueRow: Setter | null }) {
   return (
     <>
-      <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAssignIssueRow, row)}>Assign + issue</Button>
+      <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAssignIssueRow, row)}>Issue</Button>
       {setDueRow ? <Button size="sm" variant="quiet" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</Button> : null}
     </>
   );

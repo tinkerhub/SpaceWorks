@@ -70,7 +70,7 @@ handout actions you want:
 | Action | Lets them |
 |---|---|
 | `view_inventory` | See the inventory |
-| `assign_box`, `issue_request` | Hand over accepted requests (box QR scan plus issue photo) |
+| `assign_box`, `issue_request` | Hand over accepted requests (issue photo always required; container optional, with its scan required if assigned; each individually tracked unit needs its own QR scan) |
 | `issue_direct_loan` | Make a direct handout without a request |
 | `return_request`, `upload_evidence` | Take returns with a photo and remark |
 | `collect_service_request` | Hand finished machine jobs to their owners |

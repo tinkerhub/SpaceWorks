@@ -408,8 +408,14 @@ backs a JSONField default. `frontend_exposed=False` marks an internal master swi
 from both the bootstrap `modules` array and `MODULE_WORKFLOWS`, preserving the byte-for-byte payload
 invariant; unknown legacy keys stay exposed (`_canonical_modules` deliberately preserves them).
 `is_core` marks the six un-toggleable modules — `public_inventory`, `request_workflow`, `staff_admin`,
-`evidence_uploads`, `qr_management`, `scanner` — because the Hard Rules require a box QR scan **and** an
-issue photo to issue hardware. `tests/makerspaces/test_module_registry.py` is the drift guard: it
+`evidence_uploads`, `qr_management`, `scanner` — because issue photos are always required, and QR
+support is needed for individually tracked units and container-based handovers. Containers are optional
+on reviewed requests; an assigned container still requires its scan, and individually tracked units
+always require their own asset QR scans. Returns always require a photo, remark and item outcomes;
+an assigned container requires its matching scan. A return without an assigned container accepts only
+an omitted or blank `box_code`, records `ReturnEvent.box=None` and no `BoxScan` or `box.scanned` audit
+entry, and retains the request/evidence audit entries with `box_id: null` in request metadata.
+`tests/makerspaces/test_module_registry.py` is the drift guard: it
 AST-parses `apps/` and fails if a registered module has no real guard call site, if a guarded key is
 unregistered, if the derived lists change, or if a migration-referenced callable stops resolving.
 

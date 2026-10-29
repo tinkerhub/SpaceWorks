@@ -105,10 +105,14 @@ the Auth module** — forgetting this is a cross-tenant data leak, not just a bu
 
 ## Hard Rules Baked Into Workflows (don't regress these)
 
-- Reviewed-request hardware **cannot be issued** without both a box QR scan and an issue photo.
+- Reviewed-request hardware **cannot be issued** without an issue photo. A container is optional;
+  if one is assigned, its QR scan is required. Individually tracked units always require their own
+  asset QR scans, with or without a container.
 - Public self-checkout and staff direct handout **cannot be issued** without uploaded issue evidence and an
   eligible scanned/selected tool.
 - Hardware **cannot be returned** without a return photo and a return remark/notes.
+  Reviewed-request returns require the matching container scan if a container is assigned;
+  otherwise they record no container or container scan.
 - Issued quantity cannot exceed accepted quantity without authorized workflow permission.
 - **Guest Admin is no longer a built-in role**; handover staff get a **custom role** holding the handout
   actions. It issues accepted requests, creates **direct handouts**, processes scoped returns and uploads

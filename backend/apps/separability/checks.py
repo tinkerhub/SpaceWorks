@@ -132,8 +132,8 @@ def check_tombstones_are_legal(app_configs, **kwargs):
     three produce a setting that reads as a working tombstone and does nothing:
 
     * an app owning a **core** module, whose surfaces the rest of the system needs --
-      the Hard Rules require a box QR scan and an issue photo to hand hardware over,
-      so evidence and QR cannot be removed. Tombstoning those would not yield a
+      issue photos are required, and QR supports tracked units and container-based
+      handovers, so evidence and QR cannot be removed. Tombstoning those would not yield a
       smaller install, it would yield a broken one, discovered as scattered 404s;
     * an app nobody has done the separability work for, whose surfaces would stay
       wired and whose retention hooks were never checked;

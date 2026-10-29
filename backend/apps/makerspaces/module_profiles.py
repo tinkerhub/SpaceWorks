@@ -90,9 +90,9 @@ PROFILES = {
 
 # NOTE ON HOW LEAN A PROFILE CAN GET. Six modules are core and no profile can drop them
 # -- `public_inventory`, `request_workflow`, `staff_admin`, `evidence_uploads`,
-# `qr_management`, `scanner` -- because the Hard Rules require a box QR scan AND an issue
-# photo to hand hardware over, so the loan spine is the system rather than a feature of
-# it. `workshop` therefore still ships the request workflow; what it does not ship is
+# `qr_management`, `scanner` -- because issue photos are required and QR supports tracked
+# units and container-based handovers. Containers are optional; the loan spine remains
+# the system. `workshop` therefore still ships the request workflow; what it does not ship is
 # everything else. A deployment that wants to go further removes whole apps with
 # TOMBSTONED_APPS, which is a different axis -- `suggest_tombstones` reads the installed
 # modules and names the apps that are safe to drop.

@@ -54,7 +54,8 @@ export type HardwareRequest = {
   return_due_at: string | null;
   return_reminder_sent_at: string | null;
   items: RequestItem[];
-  // AdminRequestSerializer serializes the assigned container as the flat `assigned_box_label`.
+  assigned_box_id?: number | null;
+  // Label and legacy object support older staff API responses.
   assigned_box_label?: string | null;
   assigned_box?: { code: string; label: string };
 };
@@ -72,6 +73,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
   const [dueRow, setDueRow] = useState<HardwareRequest | null>(null);
   const [rejectRow, setRejectRow] = useState<HardwareRequest | null>(null);
   const [assignIssueRow, setAssignIssueRow] = useState<HardwareRequest | null>(null);
+  const [assignedContainerCode, setAssignedContainerCode] = useState("");
   const [returnRow, setReturnRow] = useState<HardwareRequest | null>(null);
   const [modalError, setModalError] = useState("");
   const [defaultLoanDays, setDefaultLoanDays] = useState(String(makerspace.default_loan_days ?? 7));
@@ -101,6 +103,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
 
   const openModal = (setter: (row: HardwareRequest | null) => void, row: HardwareRequest) => {
     setModalError("");
+    setAssignedContainerCode("");
     setter(row);
   };
   const closeModals = () => {
@@ -109,6 +112,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
     setDueRow(null);
     setRejectRow(null);
     setAssignIssueRow(null);
+    setAssignedContainerCode("");
     setReturnRow(null);
     setModalError("");
   };
@@ -117,6 +121,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
     setDueRow(null);
     setRejectRow(null);
     setAssignIssueRow(null);
+    setAssignedContainerCode("");
     setReturnRow(null);
     setModalError("");
   };
@@ -147,10 +152,14 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
   const submitAssignIssue = async (values: AssignIssueValues) => {
     if (!assignIssueRow) return;
     setModalError("");
-    let boxAssigned = false;
+    let boxAssigned = Boolean(assignedContainerCode);
     try {
-      await action.mutateAsync({ path: `/admin/requests/${assignIssueRow.id}/assign-box`, body: { box_code: values.boxCode } });
-      boxAssigned = true;
+      if (values.boxCode && !assignedContainerCode) {
+        await action.mutateAsync({ path: `/admin/requests/${assignIssueRow.id}/assign-box`, body: { box_code: values.boxCode } });
+        // Keep the modal row stable: replacing it would reset the uploaded photo and scans.
+        setAssignedContainerCode(values.boxCode);
+        boxAssigned = true;
+      }
       await action.mutateAsync({
         path: `/admin/requests/${assignIssueRow.id}/issue`,
         body: { evidence_id: values.evidenceId, remark: values.remark, rejects: values.rejects, asset_qr_payloads: values.assetQrPayloads },
@@ -159,8 +168,8 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
       clearModals();
     } catch (error) {
       const message = errorText(error, "Could not issue the request.");
-      setModalError(boxAssigned ? `Box assigned, but issue failed: ${message} The request still needs the issue step; retry with the assigned box.` : message);
-      showToast(boxAssigned ? "Box assigned, but the issue step failed." : message, { tone: "error" });
+      setModalError(boxAssigned ? `Container assigned, but issue failed: ${message} Retry to issue with the assigned container.` : message);
+      showToast(boxAssigned ? "Container assigned, but the issue step failed." : message, { tone: "error" });
     }
   };
   const searching = debouncedSearch.trim().length > 0;
@@ -199,7 +208,7 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
       <AcceptRequestModal row={acceptRow} open={Boolean(acceptRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAccept} />
       <ReturnDueModal row={dueRow} defaultValue={dueRow?.return_due_at ? localDateTimeValue(dueRow.return_due_at) : localDateTimeValue(defaultDueDate(Number(defaultLoanDays) || 7).toISOString())} open={Boolean(dueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturnDue} />
       <RejectRequestModal row={rejectRow} open={Boolean(rejectRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReject} />
-      <AssignIssueModal row={assignIssueRow} open={Boolean(assignIssueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAssignIssue} makerspaceId={makerspace.id} />
+      <AssignIssueModal row={assignIssueRow} assignedContainerCode={assignedContainerCode} open={Boolean(assignIssueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAssignIssue} makerspaceId={makerspace.id} />
       <ReturnRequestModal row={returnRow} open={Boolean(returnRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturn} makerspaceId={makerspace.id} />
     </Panel>
   );

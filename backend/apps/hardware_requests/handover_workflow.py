@@ -126,15 +126,16 @@ def issue_request(actor, request, evidence_id, remark="", asset_qr_payloads=None
         # request/evidence row locks never span S3 I/O. Quota remains charged at the
         # consuming workflow boundary and only for PUT-backed managed storage.
         charge_storage_once(evidence, finalized.size)
-        if not locked.assigned_box_id or not BoxScan.objects.filter(
-            request=locked,
-            box_id=locked.assigned_box_id,
-            context=BoxScan.Context.ISSUE,
-        ).exists():
-            raise RequestValidationError("Box scan required before issue.")
-        assigned_box = Box.objects.select_for_update().get(pk=locked.assigned_box_id)
-        if _active_public_container_loan_exists(assigned_box):
-            raise BoxUnavailable("Box is already out on another loan.")
+        if locked.assigned_box_id:
+            if not BoxScan.objects.filter(
+                request=locked,
+                box_id=locked.assigned_box_id,
+                context=BoxScan.Context.ISSUE,
+            ).exists():
+                raise RequestValidationError("Box scan required before issue.")
+            assigned_box = Box.objects.select_for_update().get(pk=locked.assigned_box_id)
+            if _active_public_container_loan_exists(assigned_box):
+                raise BoxUnavailable("Box is already out on another loan.")
 
         if rejects_by_item:
             validate_broken_rejects(locked, rejects_by_item)
