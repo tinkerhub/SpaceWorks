@@ -23,6 +23,7 @@ vi.mock("../../lib/api", async () => {
   return { ...actual, getAccessToken, refreshAccessToken };
 });
 
+import { accessToken } from "../../test/accessTokens";
 import { PublicSelfCheckoutPage } from "./PublicSelfCheckoutPage";
 
 function renderPage({ modules, requestAccess }: { modules: string[]; requestAccess?: "anyone" | "checked_in" }) {
@@ -59,7 +60,10 @@ describe("public self-checkout availability", () => {
     useModules.mockReset();
     getAccessToken.mockReturnValue("");
     refreshAccessToken.mockReset();
-    refreshAccessToken.mockResolvedValue(true);
+    refreshAccessToken.mockImplementation(async () => {
+      getAccessToken.mockReturnValue(accessToken("checkout-restored-member"));
+      return true;
+    });
   });
 
   it("serves the roster form on a checked-in space with membership off", () => {

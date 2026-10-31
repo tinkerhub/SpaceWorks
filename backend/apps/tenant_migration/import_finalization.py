@@ -11,6 +11,9 @@ from .object_import import promote_import_objects
 from .object_verification import verify_import_objects
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def finalize_import_job(job, *, actor):
     """Promote remaining objects, verify them, and durably complete once."""
     job = TenantImportJob.objects.select_related("target_makerspace").get(pk=job.pk)

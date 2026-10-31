@@ -64,7 +64,9 @@ def test_successful_preflight_has_no_deployment_side_effects(monkeypatch, tmp_pa
     )
 
     assert result.archive_sha256 == fixture.expected_sha256
-    assert result.host_restore_gate == "not configured"
+    assert result.host_restore_gate == {
+        "state": "not_checked", "admission": "static-artifact-only", "authority": False,
+    }
     assert env_path.read_bytes() == original_env
     assert not list(tmp_path.glob(".env.pre-restore-*"))
     assert BackupArchive.objects.count() == 0
@@ -83,7 +85,7 @@ def test_expected_digest_is_optional_but_still_computed(monkeypatch, tmp_path):
     assert result.archive_sha256 == fixture.expected_sha256
 
 
-def test_preflight_and_import_commands_share_the_same_refusal(
+def test_preflight_and_import_commands_refuse_unsupported_b1_before_member_checks(
     monkeypatch, tmp_path
 ):
     fixture = make_import_fixture(tmp_path)
@@ -107,6 +109,6 @@ def test_preflight_and_import_commands_share_the_same_refusal(
         )
 
     assert str(preflight_error.value) == str(import_error.value)
-    assert "[missing_component]" in str(preflight_error.value)
+    assert "[compound_host_unsupported]" in str(preflight_error.value)
     assert BackupArchive.objects.count() == 0
     assert RestoreOperation.objects.count() == 0

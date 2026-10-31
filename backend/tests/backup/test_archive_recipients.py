@@ -16,6 +16,7 @@ from apps.backup.recipients import (
 )
 from apps.makerspaces import lifecycle
 from apps.makerspaces.models import Makerspace
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 
 VALID_RECIPIENT = (
@@ -101,7 +102,7 @@ def test_uppercase_recipient_is_stored_lowercase_and_reserved_form_cannot_reente
 
 
 @pytest.mark.django_db(transaction=True)
-def test_reservation_is_global_and_survives_real_makerspace_purge(monkeypatch):
+def test_reservation_is_global_and_survives_real_makerspace_purge(purge_store, purge_clock):
     actor = User.objects.create_superuser(
         username="archive-reservation-purge",
         email="archive-reservation-purge@example.test",
@@ -130,8 +131,7 @@ def test_reservation_is_global_and_survives_real_makerspace_purge(monkeypatch):
     first.archived_at = timezone.now()
     first.archived_by = actor
     first.save(update_fields=("archived_at", "archived_by"))
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda keys: None)
+    arm(first, actor, purge_clock)
     lifecycle.purge(first, actor)
 
     assert not Makerspace.objects.filter(pk=first.pk).exists()

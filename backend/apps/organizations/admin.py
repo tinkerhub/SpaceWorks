@@ -55,7 +55,7 @@ class OrganizationAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name", "slug", "legal_name", "registration_number")
     prepopulated_fields = {"slug": ("name",)}
-    readonly_fields = ("created_by", "created_at", "updated_at")
+    readonly_fields = ("created_by", "created_at", "updated_at", "logo_key")
     inlines = (OrganizationMakerspaceInline,)
 
     def _has_hidden_links(self, obj):

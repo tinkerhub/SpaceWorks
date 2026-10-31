@@ -1,0 +1,53 @@
+{
+  "new_cases_authored": 35,
+  "runtime_status": "root Node20 focused 78 passed; TSC passed",
+  "runtime_report": "docs/audits/2026-10-29/evidence/ui-service-ownership-corrected-runtime.log",
+  "runtime_report_sha256": "d6bf504aa9ae2c038b79a180c3610bd0dcfa85af27342cb9159694e2375790c4",
+  "files": [
+    {
+      "path": "frontend/src/features/machineService/ServiceRequestOwnership.test.tsx",
+      "lines": 134,
+      "sha256": "3ad75e63814116aab2b1f3f820eb54ee6f8b356c1a75e455ba4fd65658a9f34b"
+    },
+    {
+      "path": "frontend/src/features/machineService/ServiceSubmissionContracts.test.tsx",
+      "lines": 178,
+      "sha256": "34f064be7316d58180e1f20e481419c35223056be8e0987039011efb82c8e592"
+    },
+    {
+      "path": "frontend/src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+      "lines": 198,
+      "sha256": "681cb047ec5288f678751aa7d8f00d6fcba90bea0cbb76599271f73930ac81f4"
+    },
+    {
+      "path": "frontend/src/features/machineService/ServiceStatusOwnership.test.tsx",
+      "lines": 194,
+      "sha256": "0bfdd4352de3350cccf37657c6046634a5d29a7f1f8ec2f4b2ae540ba2d82f78"
+    },
+    {
+      "path": "frontend/src/features/machineService/ServiceRequestForm.test.tsx",
+      "lines": 200,
+      "sha256": "71e40a358c714c11a340a867796a06dc8129561742936e51dd27acdc5ea21762"
+    },
+    {
+      "path": "frontend/src/features/machineService/PublicMachineServicePage.test.tsx",
+      "lines": 265,
+      "sha256": "e76c28b39e45c4fa39bf7d95275ade796977f362d6a0fb63fb277f1d5a97a61f"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+      "lines": 97,
+      "sha256": "d7fbc5bffa95e0ac0c5a44c2a57244532db56a04a2794db2473041b6e1e67c2c"
+    },
+    {
+      "path": "frontend/src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+      "lines": 280,
+      "sha256": "9229d170d3bd2c9f7a836d9a31c25b5737aa4750171a74439438c3d14e1e1d7a"
+    },
+    {
+      "path": "frontend/src/test/serviceOwnershipHarness.tsx",
+      "lines": 162,
+      "sha256": "0a1eaba83c2023b170bdb3cee880bde46f80fc12015d60fc8315a2a354bdd290"
+    }
+  ]
+}

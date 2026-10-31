@@ -1,0 +1,21 @@
+Added **17 ownership cases plus 32 return-path cases** in:
+
+- [PasswordRecoveryFlow.ownership.test.tsx](frontend/src/features/auth/PasswordRecoveryFlow.ownership.test.tsx)
+- [LegacyPasswordResetForm.ownership.test.tsx](frontend/src/features/auth/LegacyPasswordResetForm.ownership.test.tsx)
+- [passwordRecovery.returnPath.test.ts](frontend/src/features/auth/passwordRecovery.returnPath.test.ts)
+- Shared [recoveryOwnershipHarness.tsx](frontend/src/test/recoveryOwnershipHarness.tsx)
+
+Coverage includes before-paint query resets, same-epoch A→B→A races, stale success/rejection/finally, direct prop changes, synchronous deduplication, captured-email payloads, cooldown ownership, unmount completion, and resolved URL origins. All four files are under 300 lines.
+
+For root’s Node 20 environment, from `frontend/`:
+
+```sh
+npm test -- \
+  src/features/auth/PasswordRecoveryFlow.ownership.test.tsx \
+  src/features/auth/LegacyPasswordResetForm.ownership.test.tsx \
+  src/features/auth/passwordRecovery.returnPath.test.ts \
+  src/features/auth/PasswordRecoveryFlow.test.tsx
+npx tsc -b
+```
+
+**Runtime verification remains pending.** No production or existing-test edits, test runs, builds, staging, or commits performed.

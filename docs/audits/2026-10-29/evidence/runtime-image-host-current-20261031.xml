@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="49" time="73.227" timestamp="2026-10-30T20:53:32.105675+00:00">
+    <testcase classname="tests.test_runtime_image_provisioning_atomic_failures" name="test_file_fsync_failure_refuses_before_replace_preserving_original_inode" time="0.970" />
+    <testcase classname="tests.test_runtime_image_provisioning_atomic_failures" name="test_replace_failure_refuses_without_false_success_or_temporary_files" time="1.371" />
+    <testcase classname="tests.test_runtime_image_provisioning_atomic_failures" name="test_directory_fsync_failure_reports_replaced_complete_private_dotenv" time="0.918" />
+    <testcase classname="tests.test_runtime_image_provisioning_bundle" name="test_actual_bundle_installs_provisioner_and_all_60_files_preserving_private_state" time="3.024" />
+    <testcase classname="tests.test_runtime_image_provisioning_bundle" name="test_actual_bundle_refuses_only_missing_provisioner_before_any_destination_write" time="0.409" />
+    <testcase classname="tests.test_runtime_image_provisioning_default_regression" name="test_default_published_prepare_binds_actual_repository_digest" time="1.227" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_selects_repository_not_config_id_and_accepts_duplicate_candidate" time="0.797" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_selected_repository_parses_real_tag_and_registry_port[registry.example:5443/team/backend:release-registry.example:5443/team/backend]" time="0.046" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_selected_repository_parses_real_tag_and_registry_port[ubuntu:latest-docker.io/library/ubuntu]" time="0.021" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_selected_repository_parses_real_tag_and_registry_port[index.docker.io/ubuntu:latest-docker.io/library/ubuntu]" time="0.019" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[missing]" time="0.576" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[malformed]" time="0.499" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[ambiguous]" time="0.402" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[wrong-repo]" time="0.707" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[entrypoint]" time="0.902" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[id]" time="0.536" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[unpublished]" time="0.657" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unusable_image_reference_refuses_before_inspection[registry.example:5443/team/backend]" time="0.309" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unusable_image_reference_refuses_before_inspection[image1]" time="0.213" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unusable_image_reference_refuses_before_inspection[registry.example:70000/backend:tag]" time="0.249" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_atomic_persistence_preserves_unrelated_bytes_and_fsyncs_private_replacement" time="0.613" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST=a\nSPACEWORKS_OCI_DIGEST=b\n]" time="0.482" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST='first\nsecond'\n]" time="0.311" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[config-id]" time="0.353" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[repo-digest]" time="0.322" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[dotenv]" time="0.411" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unsafe_selected_file_or_parent_fails_closed[symlink]" time="0.362" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unsafe_selected_file_or_parent_fails_closed[hardlink]" time="0.312" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unsafe_selected_file_or_parent_fails_closed[parent]" time="0.291" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_unsafe_selected_file_or_parent_fails_closed[permissions]" time="0.288" />
+    <testcase classname="tests.test_runtime_image_provisioning_helper" name="test_clear_removes_previous_digest_without_inspecting_and_warns_full_unavailable" time="0.325" />
+    <testcase classname="tests.test_runtime_image_provisioning_pull_policy" name="test_setup_helper_docker_runs_and_application_start_explicitly_forbid_pulls" time="3.811" />
+    <testcase classname="tests.test_runtime_image_provisioning_pull_policy" name="test_cache_eviction_at_record_helper_refuses_before_any_application_start" time="1.873" />
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start" time="3.925" />
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_source_setup_clears_stale_identity_before_records_and_raw_build_start" time="2.881" />
+    <testcase classname="tests.test_runtime_image_provisioning_update" name="test_update_binds_new_tag_and_digest_before_raw_no_repull_start" time="15.322" />
+    <testcase classname="tests.test_runtime_image_provisioning_update" name="test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[deploy]" time="7.223" />
+    <testcase classname="tests.test_runtime_image_provisioning_update" name="test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-identity]" time="4.258" />
+    <testcase classname="tests.test_runtime_image_provisioning_update" name="test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-records]" time="7.434" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_tls_overlay_does_not_reintroduce_a_compose_profile" time="0.169" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_tls_overlay_passes_the_storage_domain_to_caddy" time="0.017" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_host_version_and_force_decide_whether_to_apply[different-version]" time="0.950" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_host_version_and_force_decide_whether_to_apply[already-installed]" time="0.441" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_host_version_and_force_decide_whether_to_apply[force-reinstall]" time="0.875" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_host_version_and_force_decide_whether_to_apply[untracked-install]" time="0.743" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_failure_logs_without_update_control_and_keeps_previous_version[backup]" time="0.544" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_failure_logs_without_update_control_and_keeps_previous_version[deploy]" time="0.278" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_upgrade_retains_tls_layer_for_later_runner_updates" time="0.397" />
+    <testcase classname="tests.test_platform_update_scripts" name="test_an_installer_pinned_release_wins_over_a_newer_latest" time="0.203" />
+  </testsuite>
+</testsuites>

@@ -21,6 +21,10 @@ HARDWARE_REQUESTER_DEFAULTS = {
             "{% if request.rejection_reason %}\n\nReason: {{ request.rejection_reason }}{% endif %}"
         ),
     },
+    "request_cancelled": {
+        "subject": "{{ makerspace.name }} request cancelled",
+        "text": "Your makerspace request #{{ request.id }} has been cancelled before handover.",
+    },
     "request_issued": {
         "subject": "{{ makerspace.name }} request issued",
         "text": (
@@ -53,6 +57,10 @@ HARDWARE_STAFF_DEFAULTS = {
     "rejected": {
         "subject": "{{ makerspace.name }} hardware request #{{ request.id }} rejected",
         "text": "Hardware request #{{ request.id }} was rejected.\n\n{{ staff_summary }}",
+    },
+    "cancelled": {
+        "subject": "{{ makerspace.name }} hardware request #{{ request.id }} cancelled",
+        "text": "Hardware request #{{ request.id }} was cancelled before handover. Its reservation was released.",
     },
     "issued": {
         "subject": "{{ makerspace.name }} hardware request #{{ request.id }} issued",

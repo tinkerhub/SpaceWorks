@@ -1,5 +1,9 @@
 """Read-only compound admission before the host ledger records any effect."""
 
+from dataclasses import replace
+import re
+
+from apps.backup.compound_protocol import PROTOCOL_VERSION
 from apps.backup.import_preflight import (
     ImportPreflightError,
     validate_import_preflight,
@@ -52,9 +56,32 @@ def validate_compound_preflight(
     capability_facts = capability.validate(
         inputs=inputs, manifest=result.manifest, topology=topology
     )
-    if not isinstance(capability_facts, dict) or capability_facts.get("validated") is not True:
-        raise CompoundRestoreRefused("The installed compound host capability is invalid.")
+    result = replace(result, host_restore_gate=_validated_host_status(capability_facts))
     return result, topology, capability_facts
+
+
+def _validated_host_status(facts):
+    if not isinstance(facts, dict) or facts.get("validated") is not True:
+        raise CompoundRestoreRefused("The installed compound host capability is invalid.")
+    protocol = facts.get("compound_protocol")
+    digest = facts.get("record_sha256")
+    migration = facts.get("migration_version")
+    if (
+        not isinstance(protocol, str)
+        or protocol != PROTOCOL_VERSION
+        or not isinstance(digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        or not isinstance(migration, str)
+        or not migration.strip()
+    ):
+        raise CompoundRestoreRefused(
+            "The validated host capability returned incomplete or malformed facts."
+        )
+    return {
+        "state": "validated", "authority": True,
+        "compound_protocol": protocol, "record_sha256": digest,
+        "migration_version": migration,
+    }
 
 
 def _validate_topology(facts):

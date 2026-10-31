@@ -1,0 +1,23 @@
+Stage 1 verdict: **minimum corrections required to the proposed mechanism; the bounded outcome is sound.**
+
+The defect is confirmed in [WalkInMemberForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/WalkInMemberForm.tsx:36): selection follows `invalidateQueries()` without verifying the refreshed roster. Installed TanStack Query Core **5.105.0** swallows refetch errors by default, resolves immediately for initially paused queries, and resolves when nothing matches. Rejection from the awaited `onSuccess` callback also enters the mutation’s error path.
+
+Make these details explicit before implementation:
+
+1. **Separate committed creation from roster refresh.** Store the server receipt synchronously before refreshing. Catch refresh failures within that phase and show “Person created; refresh the borrower list to select them.” While that receipt is current, prevent another creation POST—including forced same-tick clicks. Genuine POST failures must still permit creation retry.
+
+2. **Verify an actual canonical read.** Target exactly `["direct-loan-members", makerId]` with `exact: true` and `throwOnError: true`. Require an actual successful refresh, current successful/idle query state, and the returned roster containing `user_id`. Existing cached data or promise resolution alone is insufficient. Missing, inactive, disabled, failed, paused or absent results cannot authorize selection.
+
+3. **Handle pauses that occur after fetching starts.** A post-`await` check alone cannot release pending when the query enters a paused retry later. Observe that transition locally, release the refresh UI lock, and preserve explicit retry. Consume eventual rejection and prevent a superseded attempt from selecting. Production uses `retry: 1`; the existing harness disables retries, so this needs a dedicated real-client case.
+
+4. **Keep retry under the original owner.** [owner.finish()](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/auth/useAuthActionOwner.ts:55) releases pending without invalidating the receipt; `owner.begin()` increments its sequence and would invalidate it. Use a synchronous local refresh lock and attempt identity. Retain both captured and latest parent edit predicates. Cancel, borrower change, handout/form departure and actor change permanently retire the receipt and its callbacks.
+
+Exact source scope:
+
+- [WalkInMemberForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/WalkInMemberForm.tsx): receipt, refresh/selection handling and truthful retry UI.
+- Optionally one focused adjacent helper, under 300 lines.
+- No production changes needed in `DirectLoanBorrower`, `DirectLoans`, shared types, `MemberClaimCodes`, the owner hook or global query policies.
+
+For Stage 3, retain the requested matrix and add **missing canonical query**, **pause during retry**, and **overlapping/retired refresh attempts**. Update standalone happy-path tests to mount a real canonical roster query; they currently select successfully without one.
+
+No writes, tests, TSC, application runtime, staging or commits performed. Implementation remains deferred until the hardware test author freezes source writes. `codex doctor` found configured authentication but failed network reachability.

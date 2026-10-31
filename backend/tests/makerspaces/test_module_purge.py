@@ -25,8 +25,14 @@ from apps.makerspaces.module_install import install_module, uninstall_module
 from tests.module_helpers import disable_module
 from apps.makerspaces.module_purge import purge_module, purgeable_modules
 from apps.payments.models import Payment
+from tests.makerspaces.module_cleanup_support import module_store
 
-pytestmark = pytest.mark.django_db(transaction=True)
+pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture(autouse=True)
+def strict_module_provider(module_store):
+    return module_store
 
 
 def superadmin(name="purge-admin"):
@@ -101,6 +107,7 @@ def test_unknown_module_is_rejected():
 # --- what actually gets deleted ----------------------------------------------
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_events_removes_events_and_registrations_but_keeps_the_payment():
     makerspace = space("purge-events", "events")
     actor = superadmin("events-admin")
@@ -116,7 +123,7 @@ def test_purging_events_removes_events_and_registrations_but_keeps_the_payment()
     )
     uninstall_module(makerspace, "events")
 
-    counts = purge_module(makerspace, "events", actor)
+    receipt, counts = purge_module(makerspace, "events", actor)
 
     assert not Event.objects.filter(makerspace=makerspace).exists()
     assert not EventRegistration.objects.filter(event__makerspace=makerspace).exists()
@@ -131,6 +138,7 @@ def test_purging_events_removes_events_and_registrations_but_keeps_the_payment()
     assert "payments" not in counts, "no plan reports a payment delete any more"
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_one_module_leaves_another_modules_payments_intact():
     # The whole-makerspace purge deletes every Payment; a per-module purge must not.
     makerspace = space("purge-scoped", "events", "bookings")
@@ -165,6 +173,7 @@ def test_purging_one_module_leaves_another_modules_payments_intact():
     assert BookableSpace.objects.filter(makerspace=makerspace).exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_bookings_removes_spaces_and_bookings():
     makerspace = space("purge-bookings", "bookings")
     bookable = BookableSpace.objects.create(makerspace=makerspace, name="Bench")
@@ -183,6 +192,7 @@ def test_purging_bookings_removes_spaces_and_bookings():
     assert not Booking.objects.filter(space__makerspace=makerspace).exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_membership_keeps_waiver_evidence_but_removes_community_data():
     makerspace = space("purge-membership", "membership")
     member = User.objects.create_user(username="waiver-member", email="wm@example.test", password="password")
@@ -216,6 +226,7 @@ def test_purging_membership_keeps_waiver_evidence_but_removes_community_data():
     assert not MembershipRequest.objects.filter(pk=request.pk).exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_machine_service_keeps_machines_module_data():
     """The `machines` module stays installed, so its rows must survive.
 
@@ -264,7 +275,7 @@ def test_purging_machine_service_keeps_machines_module_data():
     uninstall_module(makerspace, "printing")
     uninstall_module(makerspace, "machine_service")
 
-    counts = purge_module(makerspace, "machine_service", actor)
+    receipt, counts = purge_module(makerspace, "machine_service", actor)
 
     assert not MachineServiceRequest.objects.filter(makerspace=makerspace).exists()
     assert not ServiceQueue.objects.filter(makerspace=makerspace).exists()
@@ -279,11 +290,14 @@ def test_purging_machine_service_keeps_machines_module_data():
     assert counts["machine_usage_entries"] == 1
 
 
+@pytest.mark.django_db(transaction=True)
 def test_purging_an_empty_module_is_a_no_op_not_an_error():
     makerspace = space("purge-empty", "events")
     uninstall_module(makerspace, "events")
 
-    assert purge_module(makerspace, "events", superadmin("empty-admin")) == {}
+    receipt, counts = purge_module(makerspace, "events", superadmin("empty-admin"))
+    assert counts == {}
+    assert receipt.graph_purged_at is not None and receipt.last_verified_at is not None
 
 
 def test_every_purgeable_plan_names_a_registered_module():

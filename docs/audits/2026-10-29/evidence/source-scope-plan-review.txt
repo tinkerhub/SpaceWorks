@@ -1,0 +1,12 @@
+Concrete correction required: extend the allowed scope to the draft reset in [source_primitive_registry.py:198](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/source_primitive_registry.py:198).
+
+`unreviewed_registry()` copies derived records, then clears only status, reviewer and report. After adding the proposed fields, it must also set `report_binding=None` and `review_fingerprint=None`. Otherwise drafting from a reviewed derived census retains those bindings. Status still prevents approval, but this violates the requested null-fields contract. Add a focused regression proving all review fields are cleared without mutating the original census.
+
+The remaining bounded plan is approved:
+
+- Exact cache exclusion, canonical dated-audit data classification, opaque SVG hashing and the four exact public-template exceptions.
+- Reuse existing report validation without changing report-path privacy.
+- Bind the derivation fingerprint to inputs, output, command and versions, then combine it with the actual report binding. Validate both before returning an excluded output.
+- Preserve explicit report-byte checks even when audit artifacts are classified as documentation.
+
+No edits, tests or corpus scan performed. This is plan approval apart from the draft-reset correction; it makes no release-readiness or ledger-approval claim.

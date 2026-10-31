@@ -31,6 +31,8 @@ from apps.makerspaces.models import (
 )
 from apps.makerspaces.walk_in_services import create_walk_in_member
 from tests.device_helpers import make_native_app_registration
+from tests.makerspaces.module_cleanup_support import module_store, actor as cleanup_actor
+from apps.object_storage_lifecycle import storage_lifecycle
 
 pytestmark = pytest.mark.django_db
 
@@ -158,6 +160,7 @@ def member_of(makerspace, username):
     )
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_profile_image_key_from_another_makerspace_is_refused():
     """The prefix check is what stops one tenant attaching another tenant's object."""
     space = make_space("image-scope-a")
@@ -174,12 +177,14 @@ def test_a_profile_image_key_from_another_makerspace_is_refused():
     assert "object_key" in response.data
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_member_cannot_edit_another_members_project():
     space = make_space("project-owner")
     mine = member_of(space, "mine")
     theirs = member_of(space, "theirs")
     their_profile = profile_services.profile_for(theirs)
-    profile_services.save_projects(their_profile, [{"title": "Theirs"}])
+    with storage_lifecycle(theirs.makerspace_id) as guard:
+        profile_services.save_projects(their_profile, [{"title": "Theirs"}], guard=guard)
     their_project = their_profile.projects.get()
 
     response = authed(mine.user).put(
@@ -382,6 +387,7 @@ def test_the_control_plane_login_is_refused_once_another_route_exists(settings):
     assert "_auth_user_id" not in refused.client.session
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_malformed_project_id_does_not_delete_the_avatar():
     space = make_space("image-malformed")
     membership = member_of(space, "owner")
@@ -621,98 +627,78 @@ def test_the_account_email_still_wins_over_the_supplied_one():
     assert EventRegistration.objects.get().email == membership.user.email.lower()
 
 
-def test_purging_a_module_releases_the_storage_its_images_held(monkeypatch):
-    """Deleting the rows without freeing the quota inflates the counter forever -- it
-    keeps blocking uploads for storage nothing holds until an operator runs the
-    reconciler by hand.
+def _image_purge_case(module_store, slug, *, missing=False):
+    from apps.makerspaces.purge_storage import bucket_name
 
-    Lives in `module_purge`, POST-COMMIT, and generic over every plan's keys: it was
-    first written inside `membership_delete`, which runs in the purge transaction while
-    the makerspace row is locked, so a slow or unavailable bucket would have held the
-    lock across one HEAD per image and a `StorageUnavailable` would have rolled back the
-    whole purge.
-    """
-    from apps.inventory import public_image_storage
-    from apps.makerspaces import limits, module_purge
-
-    space = make_space("purge-storage")
+    space = make_space(slug)
+    membership = member_of(space, "image-owner")
+    profile = profile_services.profile_for(membership)
     key = build_object_key("member", space.pk, ".png")
-
-    # Storage accounting is a no-op on self-host, so managed mode has to be forced.
-    monkeypatch.setattr(limits, "is_self_host", lambda: False)
-    monkeypatch.setattr(public_image_storage, "object_size", lambda object_key: 4096)
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda object_key: True)
+    MemberProfile.objects.filter(pk=profile.pk).update(avatar_key=key)
+    space.enabled_modules = [key for key in space.enabled_modules if key != "membership"]
+    space.save(update_fields=["enabled_modules"])
     Makerspace.objects.filter(pk=space.pk).update(storage_bytes_used=10_000)
+    if not missing:
+        module_store.put(bucket_name("public_image"), key, b"x" * 4096)
+    return space, profile, cleanup_actor(slug)
 
-    module_purge._delete_public_images_and_free_storage(space, [key])
 
+@pytest.mark.django_db(transaction=True)
+def test_purging_a_module_releases_the_storage_its_images_held(module_store):
+    """HEAD freezes the charge before bytes; graph and credit commit together."""
+    from apps.makerspaces.module_purge import purge_module
+
+    space, profile, actor = _image_purge_case(module_store, "purge-storage")
+    receipt, _counts = purge_module(space, "membership", actor)
+    assert receipt.graph_purged_at is not None
+    assert not MemberProfile.objects.filter(pk=profile.pk).exists()
     space.refresh_from_db()
     assert space.storage_bytes_used == 10_000 - 4096
 
 
-def test_storage_is_not_freed_when_the_object_delete_failed(monkeypatch):
-    """`delete_object` swallows its own errors, so a failed delete is invisible.
+@pytest.mark.django_db(transaction=True)
+def test_storage_is_not_freed_when_the_object_delete_failed(module_store):
+    from django.core.exceptions import ValidationError
+    from apps.makerspaces.module_purge import purge_module
+    from apps.makerspaces.models import ModulePurgeReceipt
 
-    Freeing anyway decrements the counter while the object survives -- permanently
-    undercounting, in the direction that hands a makerspace free storage.
-    """
-    from apps.inventory import public_image_storage
-    from apps.makerspaces import limits, module_purge
+    space, profile, actor = _image_purge_case(module_store, "purge-storage-delete-failed")
+    module_store.failure = "storage"
+    with pytest.raises(ValidationError):
+        purge_module(space, "membership", actor)
+    space.refresh_from_db()
+    assert space.storage_bytes_used == 10_000
+    assert MemberProfile.objects.filter(pk=profile.pk).exists()
+    assert ModulePurgeReceipt.objects.get().graph_purged_at is None
 
-    space = make_space("purge-storage-delete-failed")
-    monkeypatch.setattr(limits, "is_self_host", lambda: False)
-    monkeypatch.setattr(public_image_storage, "object_size", lambda object_key: 4096)
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda object_key: False)
-    Makerspace.objects.filter(pk=space.pk).update(storage_bytes_used=10_000)
 
-    module_purge._delete_public_images_and_free_storage(
-        space, [build_object_key("member", space.pk, ".png")]
-    )
+@pytest.mark.django_db(transaction=True)
+def test_freeing_storage_skips_an_object_that_is_already_gone(module_store):
+    from apps.makerspaces.module_purge import purge_module
 
+    space, profile, actor = _image_purge_case(module_store, "purge-storage-missing", missing=True)
+    receipt, _counts = purge_module(space, "membership", actor)
+    assert receipt.graph_purged_at is not None
+    assert not MemberProfile.objects.filter(pk=profile.pk).exists()
     space.refresh_from_db()
     assert space.storage_bytes_used == 10_000
 
 
-def test_freeing_storage_skips_an_object_that_is_already_gone(monkeypatch):
-    """`object_size` returns None for a missing object; charging None back would
-    corrupt the counter in the other direction."""
-    from apps.inventory import public_image_storage
-    from apps.makerspaces import limits, module_purge
+@pytest.mark.django_db(transaction=True)
+def test_storage_accounting_failure_refuses_before_irreversible_purge(module_store):
+    """The byte-first contract replaces the obsolete best-effort post-delete helper."""
+    from django.core.exceptions import ValidationError
+    from apps.makerspaces.module_purge import purge_module
+    from apps.makerspaces.models import ModulePurgeReceipt
 
-    space = make_space("purge-storage-missing")
-    monkeypatch.setattr(limits, "is_self_host", lambda: False)
-    monkeypatch.setattr(public_image_storage, "object_size", lambda object_key: None)
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda object_key: True)
-    Makerspace.objects.filter(pk=space.pk).update(storage_bytes_used=10_000)
-
-    module_purge._delete_public_images_and_free_storage(
-        space, [build_object_key("member", space.pk, ".png")]
-    )
-
+    space, profile, actor = _image_purge_case(module_store, "purge-storage-unavailable")
+    module_store.failure = "head"
+    with pytest.raises(ValidationError):
+        purge_module(space, "membership", actor)
+    assert not ModulePurgeReceipt.objects.exists() and not module_store.deletes
+    assert MemberProfile.objects.filter(pk=profile.pk).exists()
     space.refresh_from_db()
     assert space.storage_bytes_used == 10_000
-
-
-def test_storage_accounting_never_breaks_a_purge(monkeypatch):
-    """It runs after the rows are already gone, so raising would report a failure for
-    work that succeeded -- and there is nothing left to roll back."""
-    from apps.inventory import public_image_storage
-    from apps.makerspaces import limits, module_purge
-
-    space = make_space("purge-storage-unavailable")
-    monkeypatch.setattr(limits, "is_self_host", lambda: False)
-
-    def unavailable(object_key):
-        from apps.evidence.storage import StorageUnavailable
-
-        raise StorageUnavailable()
-
-    monkeypatch.setattr(public_image_storage, "object_size", unavailable)
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda object_key: True)
-
-    module_purge._delete_public_images_and_free_storage(
-        space, [build_object_key("member", space.pk, ".png")]
-    )
 
 
 def test_a_github_count_is_never_written_under_a_changed_handle(monkeypatch):
@@ -801,6 +787,7 @@ def test_the_member_image_presign_is_capped_per_member(monkeypatch):
     assert client.post(url, payload, format="json").status_code == 429
 
 
+@pytest.mark.django_db(transaction=True)
 def test_the_presign_cap_does_not_block_clearing_an_image(monkeypatch):
     """Sharing one budget across the view's methods would let a member who spent their
     uploads lose the ability to CLEAR one -- the single action that frees storage."""
@@ -814,10 +801,13 @@ def test_the_presign_cap_does_not_block_clearing_an_image(monkeypatch):
     MemberProfile.objects.filter(pk=profile.pk).update(
         avatar_key=build_object_key("member", space.pk, ".png")
     )
-    # Clearing frees the quota and deletes the object, so both storage calls are stubbed
-    # -- MinIO is on a remapped host port here and the real ones raise StorageUnavailable.
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda object_key: None)
-    monkeypatch.setattr(public_image_storage, "object_size", lambda object_key: 1024)
+    from tests.atomic_publication.domain import bind_store
+    from tests.atomic_publication.store import png
+
+    store = bind_store(monkeypatch, public_image_storage)
+    profile.refresh_from_db()
+    key = profile.avatar_key
+    store.seed(key, png(), "image/png")
     client = authed(membership.user)
     url = f"/api/v1/member/makerspaces/{space.pk}/profile/image"
 
@@ -828,6 +818,8 @@ def test_the_presign_cap_does_not_block_clearing_an_image(monkeypatch):
         url, {"filename": "b.png", "content_type": "image/png"}, format="json"
     ).status_code == 429
     assert client.delete(url).status_code == 200
+    profile.refresh_from_db()
+    assert profile.avatar_key == "" and key not in store.objects
 
 
 def test_one_members_uploads_do_not_spend_anothers_budget(monkeypatch):

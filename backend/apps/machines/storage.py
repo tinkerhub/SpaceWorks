@@ -6,6 +6,7 @@ image magic for images) — stronger than trusting the declared content type.
 """
 from dataclasses import dataclass
 import logging
+import re
 import uuid
 
 import boto3
@@ -23,7 +24,7 @@ from apps.maker_file_formats import (
     has_required_signature,
     sniff_pdf_or_image,
 )
-from apps.object_storage import delete_all_versions
+from apps.object_storage import delete_accepted_object_versions
 
 logger = logging.getLogger(__name__)
 PDF_CONTENT_TYPE = "application/pdf"
@@ -57,20 +58,21 @@ def _public_client():
     return _s3_client(settings.AWS_S3_PUBLIC_ENDPOINT_URL)
 
 
-def machine_object_key(makerspace_id, ext):
+def machine_object_key(makerspace_id, machine_id, ext):
     safe_ext = str(ext).lower().lstrip(".")
-    return f"machines/{makerspace_id}/{uuid.uuid4().hex}.{safe_ext}"
+    return f"machines/{makerspace_id}/{machine_id}/documents/{uuid.uuid4().hex}.{safe_ext}"
 
 
 def staging_key(final_key):
     return f"staging/{final_key}"
 
 
-def assert_machine_object_key_for_makerspace(object_key, makerspace_id):
-    if not str(object_key).startswith(f"machines/{makerspace_id}/"):
-        raise ValidationError(
-            {"object_key": "Machine document key does not belong to this makerspace."}
-        )
+def assert_machine_object_key_for_makerspace(object_key, makerspace_id, machine_id):
+    prefix = f"machines/{makerspace_id}/{machine_id}/documents/"
+    if not re.fullmatch(re.escape(prefix) + r"[0-9a-f]{32}\.[a-z0-9]+", str(object_key)):
+        raise ValidationError({
+            "object_key": "Machine document key is not bound to this resource. Request a fresh upload URL."
+        })
 
 
 def ext_for(content_type, filename):
@@ -100,7 +102,7 @@ def presigned_upload(object_key, content_type):
             return {"url": url, "method": "PUT", "headers": {"Content-Type": content_type}}
         return _public_client().generate_presigned_post(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
+            Key=staging_key(object_key),
             Fields={"Content-Type": content_type},
             Conditions=[
                 {"Content-Type": content_type},
@@ -114,11 +116,13 @@ def presigned_upload(object_key, content_type):
 
 def delete_object(object_key):
     try:
-        delete_all_versions(
+        delete_accepted_object_versions(
             _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key
         )
     except (BotoCoreError, ClientError):
         logger.exception("Failed to delete machine document %s.", object_key)
+        return False
+    return True
 
 
 def copy_object(source_key, dest_key):
@@ -150,27 +154,15 @@ def object_size(object_key):
 
 
 def finalize_upload(object_key, max_bytes):
-    if settings.STORAGE_PRESIGN_METHOD != "put":
-        return object_size(object_key)
+    from apps.object_publication import InvalidObjectSize
 
-    final_size = object_size(object_key)
-    if final_size is not None:
+    try:
+        result = _publish_upload(object_key, max_bytes)
+    except InvalidObjectSize as exc:
+        return exc.size
+    if result is not None:
         delete_object(staging_key(object_key))
-        return final_size
-
-    upload_staging_key = staging_key(object_key)
-    size = object_size(upload_staging_key)
-    if size is None:
-        return None
-    if not (1 <= size <= max_bytes):
-        return size
-
-    copy_object(upload_staging_key, object_key)
-    delete_object(upload_staging_key)
-    final_size = object_size(object_key)
-    if final_size is None or not (1 <= final_size <= max_bytes):
-        delete_object(object_key)
-    return final_size
+    return result.size if result is not None else None
 
 
 def presigned_get_url(object_key):
@@ -184,25 +176,9 @@ def presigned_get_url(object_key):
         raise StorageUnavailable from exc
 
 
-def validate_machine_object(object_key):
-    size = object_size(object_key)
-    if size is None:
-        raise ValidationError({"object_key": "Machine document was not found."})
-    if size == 0:
-        raise ValidationError({"object_key": "Machine document is empty."})
-    if size > settings.MACHINE_DOC_MAX_BYTES:
-        raise ValidationError({"object_key": "Machine document exceeds the size limit."})
-
-    try:
-        response = _client().get_object(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
-        )
-        data = response["Body"].read(settings.MACHINE_DOC_MAX_BYTES)
-        stored_content_type = str(response.get("ContentType", "")).lower()
-    except (BotoCoreError, ClientError, OSError) as exc:
-        raise StorageUnavailable from exc
-
+def _validate_snapshot(object_key, observed):
+    size, data = observed.size, observed.data()
+    stored_content_type = observed.content_type
     ext = extension_from_name(object_key)
     if not allowed_pair(
         ext,
@@ -232,3 +208,41 @@ def validate_machine_object(object_key):
             )
         content_type = stored_content_type
     return MachineObjectValidationResult(size=size, content_type=content_type)
+
+
+def validate_machine_object(object_key):
+    from apps.object_publication import InvalidObjectSize, validate_existing
+
+    try:
+        result = validate_existing(
+            _client(), settings.AWS_STORAGE_BUCKET_NAME, object_key,
+            settings.MACHINE_DOC_MAX_BYTES, lambda observed: _validate_snapshot(object_key, observed),
+        )
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Machine document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Machine document was not found."})
+    return result
+
+
+def prepare_upload(object_key, max_bytes=None):
+    from apps.object_publication import InvalidObjectSize
+
+    try:
+        result = _publish_upload(object_key, max_bytes or settings.MACHINE_DOC_MAX_BYTES)
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Machine document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Machine document was not found."})
+    delete_object(staging_key(object_key))
+    return result
+
+
+def _publish_upload(object_key, max_bytes):
+    from apps.object_publication import publish
+
+    return publish(
+        _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key,
+        staging_key=staging_key(object_key), max_bytes=max_bytes or settings.MACHINE_DOC_MAX_BYTES,
+        validator=lambda observed: _validate_snapshot(object_key, observed),
+    )

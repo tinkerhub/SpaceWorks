@@ -116,7 +116,7 @@ def calls_gate(node):
         and (getattr(item.func, "id", None) or getattr(item.func, "attr", None))
         in {
             "assert_write_allowed", "fanout_tenant_write", "source_archive_write",
-            "tenant_write",
+            "tenant_write", "boundary_tenant_write", "storage_lifecycle",
         }
         for item in ast.walk(node)
     )

@@ -1,0 +1,107 @@
+{
+  "status": "passed_with_explicit_bounded_history",
+  "scope": "65 backend cases resolved by62 initial observed passes plus exact3 unchanged live-provider reruns. No fresh full65 rerun or original closed-driver claim.",
+  "initial_backend_run": {
+    "cases": 65,
+    "passed": 62,
+    "failed": 3,
+    "errors": 0,
+    "skips": 0,
+    "actual_pytest_exit_code": 1,
+    "driver_exit_code": 1,
+    "seconds": 907.725,
+    "snapshot_inventory_sha256": "6a3de5d932823bfba1bf4ba7083b07159f113e756d32c361c6faffb949281ad5",
+    "postrun_inventory_guard": "FAILED: external native probe added one CPython3.14 bytecode cache",
+    "all_4829_expected_file_bytes_and_modes_unchanged": true,
+    "missing_or_changed_expected_entries": 0,
+    "only_added_path": "scripts/__pycache__/provision-runtime-image.cpython-314.pyc",
+    "added_cache_sha256": "b932e4ae84f0489992b828a09ac00dc6f3e1a6824c32b4e593bb3f941e748d87",
+    "added_cache_magic": "2b0e0d0a",
+    "native_probe_origin_confirmed": true,
+    "original_frame_cache_and_failed_guard_preserved": true,
+    "private_env_input_and_linux_cli_bytes_unchanged": true,
+    "runtime_interpreter": {
+      "version": "3.12.16",
+      "cache_tag": "cpython-312",
+      "magic": "cb0d0d0a"
+    },
+    "cache_not_usable_by_primary_python312_and_outside_backend_import_closure": true
+  },
+  "initial_live_failure_classification": {
+    "tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]": "EndpointConnectionError at real localS3put/cleanup while service stopped",
+    "tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]": "EndpointConnectionError at real localS3put/cleanup while service stopped",
+    "tests/backup/test_signed_full_runtime_role_exact.py::test_real_signed_full_capture_and_restore_use_exact_runtime_login": "S3unavailable-probe selectedquiesced; unchanged integration oracle requiresversioned"
+  },
+  "provider_readiness": {
+    "actual_existing_private_bucket_versioning_enabled": true,
+    "actual_existing_public_bucket_versioning_enabled": true,
+    "only_read_only_get_bucket_versioning": true,
+    "source_env_unchanged": true,
+    "no_versioning_or_assertion_workaround": true,
+    "retained_private_minio_restarted_with_existing_data": true
+  },
+  "clean_retry": {
+    "cases": 3,
+    "passed": 3,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "driver_exit_code": 0,
+    "seconds": 329.591,
+    "exact_original_failure_ids": [
+      "tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]",
+      "tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]",
+      "tests/backup/test_signed_full_runtime_role_exact.py::test_real_signed_full_capture_and_restore_use_exact_runtime_login"
+    ],
+    "clean_inventory_sha256": "8ccdd6c54e4907f850e3ba5410fbad288dfe013ce1904e8cb7588df7b422da5a",
+    "expected_entry_count": 4829,
+    "all_expected_entries_equal_original_frozen_manifest": true,
+    "same_production_source_env_assertions_and_per_test_deadlines": true,
+    "complete_postrun_frozen_guard_passed": true
+  },
+  "coverage": {
+    "backend_unique_case_ids": 65,
+    "resolved_backend_unique_case_ids": 65,
+    "new_admission_freeze_signature_durable_failure_cases": 17,
+    "existing_direct_full_consumers": 48,
+    "all_cases_actual_XML_ids_equal_frozen_collections": true
+  },
+  "source": {
+    "touched_production_sha256": {
+      "scripts/provision-runtime-image.py": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+      "scripts/setup-host-orchestration.sh": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+      "scripts/update.sh": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+      "scripts/install-host-bundle.sh": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+      "setup.sh": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31",
+      "backend/apps/backup/runtime_image_identity.py": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+      "backend/apps/backup/full_capture.py": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+      "backend/apps/backup/archive_payload.py": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f"
+    },
+    "no_backend_Docker_socket_or_privilege_expansion": true,
+    "strict_signed_full_validation_unchanged": true,
+    "ordinary_makerspace_and_non_full_behavior_preserved": true,
+    "backend_OCI_literals_are_explicit_synthetic_metadata_not_image_attestation": true,
+    "actual_Docker_repository_digest_provisioning_proven_separately": true
+  },
+  "related_host_proofs": {
+    "runtime-image-host-provisioning-runtime-20261031.json": "12f85b0dc711d6c87115d984cf5a9a7edd8f0bad91b3fdef7100bbf275872522",
+    "runtime-image-cached-docker-positive-20261031.json": "08c54b9e8b41be6973ae7c7af1ebc661c12c7b5b5e647aff3a1524b1b87d903d",
+    "runtime-image-copy60-runtime-20261031.json": "65600e3a3319d17992b0e0ed8520bb9a1b307259d9a4747a360f786b6453eb2a"
+  },
+  "sanitized_xml": [
+    {
+      "file": "runtime-image-backend-initial-history-20261031.xml",
+      "sha256": "92d258602c36075a52d676c6a57b3034cd8dd6824728b269c109fe832ca82076",
+      "cases": 65
+    },
+    {
+      "file": "runtime-image-backend-live-retry-20261031.xml",
+      "sha256": "67ed5036872b209884dbbb9638d9bec5465ae8b8b2be728b39afa0c819756427",
+      "cases": 3
+    }
+  ],
+  "privacy": {
+    "raw_XML_logs_SQL_and_env_private": true,
+    "no_raw_tracebacks_published": true
+  }
+}

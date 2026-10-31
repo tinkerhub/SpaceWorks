@@ -1,0 +1,7 @@
+Updated only [test_x12_derivation_source_binding.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/tenant_migration/test_x12_derivation_source_binding.py:65).
+
+- Added expected-manifest normalization via `json.dumps(sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)` followed by `json.loads`.
+- Both persisted and emitted whole-manifest comparisons use that normalized expected value.
+- Preserved all source/catalog checks, exact authenticated emitted-inner SHA binding, real decryption, and selected reader.
+
+Whitespace check passed. No production/docs/other test edits, test or migration runs, staging, or commits. Frozen.

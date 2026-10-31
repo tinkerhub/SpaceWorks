@@ -1,0 +1,122 @@
+{
+  "format": "spaceworks-ui-staff-source-freeze-v1",
+  "reviewer": "Codex /root/audit_ui_finish",
+  "status": "Source read complete; Stage 3 test writing and root runtime pending",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/machineDocumentsApi.ts",
+      "sha256": "516713a21d3528e4928f23820870901e6d7dbc8f491d86a030d625c1d92ec2d2",
+      "lines": 50
+    },
+    {
+      "path": "frontend/src/features/staff/ImageUploader.tsx",
+      "sha256": "f4d21f36095780f251a00734b430b3f2eac72f80739b04ce829b955e5a74d628",
+      "lines": 229
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ServiceQueue.tsx",
+      "sha256": "cbc7fcd785c9921a022ad322a30ace7f0bbfccd3ad37c8709fa4994b6d82d575",
+      "lines": 202
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/MachineServiceConsole.tsx",
+      "sha256": "4363e3ae459eb300f4dde8eca8dd63939973670ca427f889c1a44f29de9fa8ac",
+      "lines": 174
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/PrinterServiceConsole.tsx",
+      "sha256": "645046439f0386972daf00e6a9bce77670189c65275cdcd66d281b8fe4901c5d",
+      "lines": 208
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/DocumentsTab.tsx",
+      "sha256": "ac0f3f071b2544c440af2484c3d17dadb848398da3af4f60e3555e36983fbad0",
+      "lines": 183
+    },
+    {
+      "path": "frontend/src/features/staff/panels/MachinesPanel.tsx",
+      "sha256": "47b6076a943644870d441f46b8c5448f54bc30881e31bf4e7f228fd08de9e218",
+      "lines": 228
+    },
+    {
+      "path": "frontend/src/lib/uploadProtocol.ts",
+      "sha256": "9971db5454988c59054d09feb50dfd182730df56215df429c8b5ac778a6dbc09",
+      "lines": 37
+    },
+    {
+      "path": "frontend/src/features/staff/imageUploadApi.ts",
+      "sha256": "321d9748a9263b7f35312209ca9671c7d1af5fea8fa407de738193192ee97262",
+      "lines": 73
+    },
+    {
+      "path": "frontend/src/features/staff/warrantyApi.ts",
+      "sha256": "229d78081fdf75d07e1a741250537721ccf66bcc0e2c8a80bfb82fa48bf8cf48",
+      "lines": 114
+    },
+    {
+      "path": "frontend/src/features/staff/WarrantySection.tsx",
+      "sha256": "0fcb33bf4cd9e048a232fadf94ea25e3d3271d1005308dc4fcfe8a9b198226a7",
+      "lines": 183
+    },
+    {
+      "path": "frontend/src/features/staff/WarrantyDocuments.tsx",
+      "sha256": "797326a2a9bd7de31af2aa3230a8a9bac9d3b784559919743b0afc5ad9aebfe6",
+      "lines": 152
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanReturnModal.tsx",
+      "sha256": "62c4156feec11c2f77400c7db3ae261a68e5f84690124f51ee4d27889fc02a9f",
+      "lines": 172
+    },
+    {
+      "path": "frontend/src/features/staff/handover/IssueDialog.tsx",
+      "sha256": "d7fd10a28d0730a5de74d92e046e084b21ceccf5da8322926a13e3831113ea81",
+      "lines": 93
+    },
+    {
+      "path": "frontend/src/features/staff/panels/ProcurementReceipts.tsx",
+      "sha256": "339386e86e36135ef104e581e29b4c6f4bcc2b9bbd6c0f4e7f59baf0f34c40cf",
+      "lines": 191
+    },
+    {
+      "path": "frontend/src/features/staff/panels/EvidenceUpload.tsx",
+      "sha256": "6b46cb547e08886cf17fe82abb3c2c55cdfcbe8099f3904a39a2e3ecb7b40fb8",
+      "lines": 162
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesAssignIssueModal.tsx",
+      "sha256": "626e730e782880a554d49978f67e47da70479e0ba20a07462d5cbd853b178953",
+      "lines": 196
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesReturnRequestModal.tsx",
+      "sha256": "abc0acceb2f2504b3db0d7a2e086a0dbfded9b9dbde238049dd274a8efe5063b",
+      "lines": 204
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/MaintenanceDocuments.tsx",
+      "sha256": "26adb7aa6fb1b2e5d63f689fa6ccfe5cf91860be9641ca71a66fc6fd43670b57",
+      "lines": 218
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/maintenanceApi.ts",
+      "sha256": "81c02256c42066885966be582292dfdb16476ea456a8a8c797fe65f47ab71512",
+      "lines": 230
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/useMaintenanceDocumentTask.ts",
+      "sha256": "0c052928d78278b537552bb3f558c69eeaa5cf475edca4d609e036eb268a064e",
+      "lines": 48
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/useServiceOperation.ts",
+      "sha256": "798aa2bda30fc2e479806617aeb110752dba1bf1564015270c8d04d4f95e4d20",
+      "lines": 37
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ManualUsage.tsx",
+      "sha256": "05d522af09c953049675ba66884e7a579d9fee7d691362ab9050600b4b5c05a5",
+      "lines": 122
+    }
+  ]
+}

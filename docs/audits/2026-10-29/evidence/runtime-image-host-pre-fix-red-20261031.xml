@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.614" timestamp="2026-10-30T20:45:21.512701+00:00">
+    <testcase classname="tests.test_runtime_image_provisioning_default_regression" name="test_default_published_prepare_binds_actual_repository_digest" time="0.460">
+      <failure message="The unchanged pre-P1 public default prepare function completed but left persisted OCI identity blank; expected actual repository digest." type="AssertionError">The unchanged pre-P1 public default prepare function completed but left persisted OCI identity blank; expected actual repository digest.</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

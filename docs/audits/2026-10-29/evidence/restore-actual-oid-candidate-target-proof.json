@@ -1,0 +1,30 @@
+{
+  "status": "actual-guarded-host-only-oid-candidate-target-pass",
+  "old_pair_sha256": {
+    "backend/apps/backup/host_restore_admission.py": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+    "scripts/restore.sh": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3"
+  },
+  "candidate_pair_sha256": {
+    "backend/apps/backup/host_restore_admission.py": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+    "scripts/restore.sh": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668"
+  },
+  "root_private_source_evidence": "/var/lib/docker/volumes/swdrill2026103004564540338d_authority/_data/ops/private/oid-json-candidate-00eb5a29280c4dd485dad484fae599fb",
+  "held_existing_root_host_lock": true,
+  "candidate_full25_guard_passed": true,
+  "candidate_target_passed": true,
+  "original_pair_restored": true,
+  "original_full25_guard_passed": true,
+  "oci_digest": "sha256:a11d4aa3c786c54d979da3ac1934dd9a0390b2b21b87a793b80b1f9914b780ea",
+  "actual_role_count": 6,
+  "target_oid_type": "int",
+  "effects": [
+    "Temporary exact reviewed root host-source pair only, then original pair restored",
+    "One fixed SELECT-only maintenance oneoff/tracked cleanup plus db exec SELECT",
+    "Root-private source byte/hash evidence; no credentials/environment copied"
+  ],
+  "limits": [
+    "No service/control/backup/grants/quiescence/restore SQL or protected-state writes",
+    "Retained fourth topology is diagnostic only; never restore this hybrid",
+    "A fifth fresh genuine complete-source OCI/topology is still required"
+  ]
+}

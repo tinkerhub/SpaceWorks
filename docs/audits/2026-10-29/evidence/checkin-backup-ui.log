@@ -1,0 +1,45 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory/CheckinIdentityStep.dispatch.test.tsx src/features/staff/BackupArchiveFormat.test.tsx
+
+
+ RUN  v4.1.12 /app
+
+ ❯ src/features/staff/BackupArchiveFormat.test.tsx (14 tests | 2 failed) 632ms
+     ✓ offers restore for signed full 193ms
+     ✓ offers restore for legacy v1 51ms
+     ✓ offers restore for legacy v2 24ms
+     ✓ offers restore for legacy v3 19ms
+     ✓ retains download but no restore for B1 partial 18ms
+     ✓ retains download but no restore for B1 full-looking 12ms
+     ✓ retains download but no restore for old B1 11ms
+     ✓ retains download but no restore for future 12ms
+     ✓ retains download but no restore for signed legacy header 19ms
+     ✓ retains download but no restore for unidentified 23ms
+     ✓ explains disaster before recording intent 33ms
+     ✓ explains rollback_in_place before recording intent 24ms
+     × shows privileged supervisor instruction safely for 87654321-1234-4234-8234-123456789abc 105ms
+     × shows privileged supervisor instruction safely for unsafe; do-not-execute 87ms
+ ✓ src/features/inventory/CheckinIdentityStep.dispatch.test.tsx (5 tests) 373ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/staff/BackupArchiveFormat.test.tsx > restore intent handoff > shows privileged supervisor instruction safely for 87654321-1234-4234-8234-123456789abc
+ FAIL  src/features/staff/BackupArchiveFormat.test.tsx > restore intent handoff > shows privileged supervisor instruction safely for unsafe; do-not-execute
+TypeError: Cannot read properties of undefined (reading 'startsWith')
+ ❯ src/features/staff/BackupArchiveFormat.test.tsx:91:16
+     89|       }
+     90|       if (path === "/admin/platform/restores") return Promise.resolve(…
+     91|       if (path.startsWith("/admin/platform/restores/")) return Promise…
+       |                ^
+     92|       return Promise.resolve([]);
+     93|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 17 passed (19)
+   Start at  20:00:13
+   Duration  5.17s (transform 760ms, setup 438ms, import 1.46s, tests 1.01s, environment 1.96s)
+

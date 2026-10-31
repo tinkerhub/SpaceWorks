@@ -1,5 +1,6 @@
 """Host-side build and setting checks used by backup restore preflight."""
 
+from collections.abc import Mapping
 import hashlib
 import json
 import os
@@ -18,14 +19,15 @@ def build_info():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def check_setting_policies(archived):
+def check_setting_policies(archived, *, environment: Mapping[str, str] | None = None):
+    environment = os.environ if environment is None else environment
     blocking = []
     warnings = []
     for name, policy in POLICIES.items():
         if policy.policy == Policy.EXCLUDED:
             continue
         fact = archived.get(name, {})
-        raw = os.environ.get(name, "")
+        raw = environment.get(name, "")
         if policy.policy == Policy.EXACT_FINGERPRINT:
             matches = fact.get("fingerprint") == hashlib.sha256(
                 raw.encode()

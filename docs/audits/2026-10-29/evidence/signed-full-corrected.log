@@ -1,0 +1,133 @@
+...............................................FF....................... [ 31%]
+........................................................................ [ 63%]
+........................................................................ [ 95%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+_ test_rehydrate_restores_available_metadata_and_second_export_is_valid[fresh-snapshot-null-expiry] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_rehydrate_restores_availa0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffa4a83e00>
+source_state = 'fresh-snapshot-null-expiry'
+
+    @pytest.mark.parametrize("source_state", ["fresh-snapshot-null-expiry", "already-retained-same-expiry"])
+    def test_rehydrate_restores_available_metadata_and_second_export_is_valid(tmp_path, monkeypatch, source_state):
+        fixture, archive, restore = selected_restore(tmp_path)
+        archive_id, restore_id = archive.pk, restore.pk
+        output = restore_control_records.export_control_record(restore_id, tmp_path / "control.json")
+        control_bytes = output.read_bytes()
+        control = json.loads(control_bytes)
+        expected = capture_archive_record(archive)
+        with transaction.atomic():
+            with pytest.raises(InternalError, match="immutable backup archive expiry"), transaction.atomic():
+                BackupArchive.objects.filter(pk=archive.pk).update(expires_at=None)
+        archive.refresh_from_db()
+        assert capture_archive_record(archive) == expected
+        if source_state == "fresh-snapshot-null-expiry":
+            # SQL-row replacement simulation, not pg_restore evidence. The simple
+            # operation protects its archive, so delete it first; no rollback evidence exists.
+            assert not restore.rollback_objects.exists()
+            RestoreOperation.objects.filter(pk=restore_id).delete()
+            BackupArchive.objects.filter(pk=archive_id).delete()
+            assert not RestoreOperation.objects.filter(pk=restore_id).exists()
+            assert not BackupArchive.objects.filter(pk=archive_id).exists()
+            # create_archive leaves expiry NULL; promotion assigns it after capture.
+            archive = BackupArchive.objects.create(
+                id=archive_id, scope="deployment", status="running", expires_at=None,
+                object_key=expected["object_key"], manifest={}, archive_sha256="",
+                size_bytes=0, completed_at=None,
+            )
+            archive.refresh_from_db()
+            assert archive.expires_at is None
+        else:
+            # Compatibility: an already-retained row keeps the same immutable expiry.
+            BackupArchive.objects.filter(pk=archive_id).update(status="running", manifest={}, archive_sha256="",
+                                                             size_bytes=0, completed_at=None)
+            archive.refresh_from_db()
+            assert archive.expires_at.isoformat() == expected["expires_at"]
+        assert archive.pk == archive_id
+        assert archive.status == "running"
+        assert archive.manifest == {}
+        assert archive.archive_sha256 == ""
+        assert archive.size_bytes == 0
+        assert archive.completed_at is None
+        assert output.read_bytes() == control_bytes
+        monkeypatch.setattr(storage, "delete_archive_prefix", lambda _prefix: True)
+        result = restore_control_records.rehydrate_control_record(restore_id, {
+            "control_record": output, "manifest": fixture.manifest_file,
+            "archive_id": str(archive_id), "kind": "disaster",
+        })
+        assert result.pk == restore_id
+>       assert result.archive_id == archive_id
+E       AssertionError: assert 'd5f0bd76-69ff-4253-bb21-4e0400fb6894' == UUID('d5f0bd76-69ff-4253-bb21-4e0400fb6894')
+E        +  where 'd5f0bd76-69ff-4253-bb21-4e0400fb6894' = <RestoreOperation: RestoreOperation object (39dc6a9b-79d8-4500-ba85-28ff86940a64)>.archive_id
+
+tests/backup/test_signed_full_control.py:140: AssertionError
+_ test_rehydrate_restores_available_metadata_and_second_export_is_valid[already-retained-same-expiry] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_rehydrate_restores_availa1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffffa4ad5e50>
+source_state = 'already-retained-same-expiry'
+
+    @pytest.mark.parametrize("source_state", ["fresh-snapshot-null-expiry", "already-retained-same-expiry"])
+    def test_rehydrate_restores_available_metadata_and_second_export_is_valid(tmp_path, monkeypatch, source_state):
+        fixture, archive, restore = selected_restore(tmp_path)
+        archive_id, restore_id = archive.pk, restore.pk
+        output = restore_control_records.export_control_record(restore_id, tmp_path / "control.json")
+        control_bytes = output.read_bytes()
+        control = json.loads(control_bytes)
+        expected = capture_archive_record(archive)
+        with transaction.atomic():
+            with pytest.raises(InternalError, match="immutable backup archive expiry"), transaction.atomic():
+                BackupArchive.objects.filter(pk=archive.pk).update(expires_at=None)
+        archive.refresh_from_db()
+        assert capture_archive_record(archive) == expected
+        if source_state == "fresh-snapshot-null-expiry":
+            # SQL-row replacement simulation, not pg_restore evidence. The simple
+            # operation protects its archive, so delete it first; no rollback evidence exists.
+            assert not restore.rollback_objects.exists()
+            RestoreOperation.objects.filter(pk=restore_id).delete()
+            BackupArchive.objects.filter(pk=archive_id).delete()
+            assert not RestoreOperation.objects.filter(pk=restore_id).exists()
+            assert not BackupArchive.objects.filter(pk=archive_id).exists()
+            # create_archive leaves expiry NULL; promotion assigns it after capture.
+            archive = BackupArchive.objects.create(
+                id=archive_id, scope="deployment", status="running", expires_at=None,
+                object_key=expected["object_key"], manifest={}, archive_sha256="",
+                size_bytes=0, completed_at=None,
+            )
+            archive.refresh_from_db()
+            assert archive.expires_at is None
+        else:
+            # Compatibility: an already-retained row keeps the same immutable expiry.
+            BackupArchive.objects.filter(pk=archive_id).update(status="running", manifest={}, archive_sha256="",
+                                                             size_bytes=0, completed_at=None)
+            archive.refresh_from_db()
+            assert archive.expires_at.isoformat() == expected["expires_at"]
+        assert archive.pk == archive_id
+        assert archive.status == "running"
+        assert archive.manifest == {}
+        assert archive.archive_sha256 == ""
+        assert archive.size_bytes == 0
+        assert archive.completed_at is None
+        assert output.read_bytes() == control_bytes
+        monkeypatch.setattr(storage, "delete_archive_prefix", lambda _prefix: True)
+        result = restore_control_records.rehydrate_control_record(restore_id, {
+            "control_record": output, "manifest": fixture.manifest_file,
+            "archive_id": str(archive_id), "kind": "disaster",
+        })
+        assert result.pk == restore_id
+>       assert result.archive_id == archive_id
+E       AssertionError: assert 'eae23334-3da9-4a6c-afcb-b6c989d0bd51' == UUID('eae23334-3da9-4a6c-afcb-b6c989d0bd51')
+E        +  where 'eae23334-3da9-4a6c-afcb-b6c989d0bd51' = <RestoreOperation: RestoreOperation object (4d08d31b-b1a8-4de2-9628-14f391ca7b35)>.archive_id
+
+tests/backup/test_signed_full_control.py:140: AssertionError
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/backup/test_signed_full_control.py::test_rehydrate_restores_available_metadata_and_second_export_is_valid[fresh-snapshot-null-expiry]
+FAILED tests/backup/test_signed_full_control.py::test_rehydrate_restores_available_metadata_and_second_export_is_valid[already-retained-same-expiry]
+2 failed, 224 passed, 1 warning in 144.86s (0:02:24)

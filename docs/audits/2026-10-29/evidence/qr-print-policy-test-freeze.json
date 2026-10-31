@@ -1,0 +1,513 @@
+{
+  "format": "spaceworks-qr-print-policy-test-freeze-v1",
+  "created_utc": "2026-10-30T02:46:09.694098+00:00",
+  "stage": "Stage 3 TESTS ONLY; author-only; root alone executes runtime",
+  "ownership": "backend/tests/qr_print_race_safety/test_fresh_policy.py",
+  "files": {
+    "backend/tests/qr_print_race_safety/test_fresh_policy.py": {
+      "sha256": "ff341bd81c1b416920f640f87cebf67bd923ef716426ac62fa70a1f021b2a021",
+      "lines": 208,
+      "functions": [
+        {
+          "name": "policy_lab",
+          "line": 22,
+          "end_line": 40,
+          "sha256": "c98d8f472987852f565960290bdb78821221fda4013040d83acd8a9c8edf40e3"
+        },
+        {
+          "name": "policy_state",
+          "line": 43,
+          "end_line": 51,
+          "sha256": "98b5f43b57bea0820fc1ba263e94468ce0992dee44cc4c6a7ee69519bc65e49d"
+        },
+        {
+          "name": "prepare_item",
+          "line": 54,
+          "end_line": 63,
+          "sha256": "92a25c18ed5efde370ffd3e02e4846fd3b4a9b99f9b505558d73343fed1a10c5"
+        },
+        {
+          "name": "assert_no_dml",
+          "line": 66,
+          "end_line": 70,
+          "sha256": "370135d630e0e45e2a27251b690da27cbe9300e2922774d181a79a79df2bda39"
+        },
+        {
+          "name": "observe_wait",
+          "line": 73,
+          "end_line": 90,
+          "sha256": "4d7d46e49f3293ac6cc2cb2e051800aa9153fa1b0fa64f6078cb87ae5578bcd8"
+        },
+        {
+          "name": "controller_lock",
+          "line": 93,
+          "end_line": 97,
+          "sha256": "77a44b8a81de489fa204528d66ecaebbbf82adb08654f27096816bb5c4efddb9"
+        },
+        {
+          "name": "assert_fresh_sql",
+          "line": 100,
+          "end_line": 110,
+          "sha256": "2ba90f88c3594f06e6cfad59e2f6c4e1342ef77bc86ec7f8ba281d6bcad8570c"
+        },
+        {
+          "name": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+          "line": 113,
+          "end_line": 159,
+          "sha256": "b124731ad0b2c33c02d87636c46eef296099c66235f9c66301277d2ca07e7c87"
+        },
+        {
+          "name": "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+          "line": 162,
+          "end_line": 208,
+          "sha256": "11a6efffdbe7eef7174040959309ae49386bca1dc3101a71b7cfd50c9e0cc04a"
+        }
+      ],
+      "test_functions": [
+        "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+        "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit"
+      ],
+      "static_cases": 16
+    }
+  },
+  "static_case_products": [
+    {
+      "node": "backend/tests/qr_print_race_safety/test_fresh_policy.py::test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "factors": [
+        {
+          "parameters": "kind",
+          "values": [
+            "product",
+            "asset"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "values": [
+            false,
+            true
+          ]
+        },
+        {
+          "parameters": "withdrawal",
+          "values": [
+            "inactive",
+            "suspended",
+            "role"
+          ]
+        }
+      ],
+      "product": 12
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_fresh_policy.py::test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+      "factors": [
+        {
+          "parameters": "kind",
+          "values": [
+            "product",
+            "asset"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "values": [
+            false,
+            true
+          ]
+        }
+      ],
+      "product": 4
+    }
+  ],
+  "static_cases": [
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": false,
+        "withdrawal": "inactive"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": false,
+        "withdrawal": "suspended"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": false,
+        "withdrawal": "role"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": true,
+        "withdrawal": "inactive"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": true,
+        "withdrawal": "suspended"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "product",
+        "existing": true,
+        "withdrawal": "role"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": false,
+        "withdrawal": "inactive"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": false,
+        "withdrawal": "suspended"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": false,
+        "withdrawal": "role"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": true,
+        "withdrawal": "inactive"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": true,
+        "withdrawal": "suspended"
+      }
+    },
+    {
+      "function": "test_policy_withdrawn_during_real_qr_wait_refuses_without_any_writes",
+      "parameters": {
+        "kind": "asset",
+        "existing": true,
+        "withdrawal": "role"
+      }
+    },
+    {
+      "function": "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+      "parameters": {
+        "kind": "product",
+        "existing": false
+      }
+    },
+    {
+      "function": "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+      "parameters": {
+        "kind": "product",
+        "existing": true
+      }
+    },
+    {
+      "function": "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+      "parameters": {
+        "kind": "asset",
+        "existing": false
+      }
+    },
+    {
+      "function": "test_grant_retained_during_real_qr_wait_writes_correct_snapshot_and_actor_audit",
+      "parameters": {
+        "kind": "asset",
+        "existing": true
+      }
+    }
+  ],
+  "static_case_count": 16,
+  "test_function_count": 2,
+  "existing_suite": {
+    "freeze_path": "/tmp/spaceworks-qr-print-race-test-freeze.json",
+    "freeze_sha256": "1f7f98726959a58d4b2c83e9cf36b151d77469477d85ad54187e0611f23b5b5d",
+    "static_case_count": 60,
+    "all_test_file_bytes_unchanged": true,
+    "all_seven_files_unchanged": false,
+    "author_modified_existing_files": false,
+    "file_hashes": {
+      "backend/tests/qr_print_race_safety/__init__.py": {
+        "prior_freeze": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+        "before_authoring": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+        "at_freeze": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+        "matches_prior_freeze": true
+      },
+      "backend/tests/qr_print_race_safety/helpers.py": {
+        "prior_freeze": "0061900c8286d81a157dc0c7a2e982bb86aa94b5c4c81aa69c2382b7ed30e991",
+        "before_authoring": "0061900c8286d81a157dc0c7a2e982bb86aa94b5c4c81aa69c2382b7ed30e991",
+        "at_freeze": "1dd5377265817b3232288c06b2c9443a7884c727c18c2008b2da8ef597523b47",
+        "matches_prior_freeze": false
+      },
+      "backend/tests/qr_print_race_safety/source_helpers.py": {
+        "prior_freeze": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+        "before_authoring": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+        "at_freeze": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+        "matches_prior_freeze": true
+      },
+      "backend/tests/qr_print_race_safety/test_item_contract.py": {
+        "prior_freeze": "ab8e23d7801217e3353b6c3a3848534925adc2299a4445121fb48f91074c1774",
+        "before_authoring": "ab8e23d7801217e3353b6c3a3848534925adc2299a4445121fb48f91074c1774",
+        "at_freeze": "ab8e23d7801217e3353b6c3a3848534925adc2299a4445121fb48f91074c1774",
+        "matches_prior_freeze": true
+      },
+      "backend/tests/qr_print_race_safety/test_refusals.py": {
+        "prior_freeze": "bb730046b9e6c3e868985fe3e3c2f1160cd174620be7ec12b20e082a8a2521cf",
+        "before_authoring": "bb730046b9e6c3e868985fe3e3c2f1160cd174620be7ec12b20e082a8a2521cf",
+        "at_freeze": "bb730046b9e6c3e868985fe3e3c2f1160cd174620be7ec12b20e082a8a2521cf",
+        "matches_prior_freeze": true
+      },
+      "backend/tests/qr_print_race_safety/test_source_boundary.py": {
+        "prior_freeze": "abc39cdbd91376700e2e6ce072bcd49f85859f72d7c4741aa6244c234a6dcd69",
+        "before_authoring": "abc39cdbd91376700e2e6ce072bcd49f85859f72d7c4741aa6244c234a6dcd69",
+        "at_freeze": "abc39cdbd91376700e2e6ce072bcd49f85859f72d7c4741aa6244c234a6dcd69",
+        "matches_prior_freeze": true
+      },
+      "backend/tests/qr_print_race_safety/test_transfer_races.py": {
+        "prior_freeze": "320fef26ea8c0a96f3fc2009a0c2d1045bbfa073cf16ba59cfeffbfa71bb0b05",
+        "before_authoring": "320fef26ea8c0a96f3fc2009a0c2d1045bbfa073cf16ba59cfeffbfa71bb0b05",
+        "at_freeze": "320fef26ea8c0a96f3fc2009a0c2d1045bbfa073cf16ba59cfeffbfa71bb0b05",
+        "matches_prior_freeze": true
+      }
+    }
+  },
+  "existing_helper_hashes": {
+    "backend/tests/box_parent_safety/pg_helpers.py": {
+      "before_authoring": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "at_freeze": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "unchanged": true
+    },
+    "backend/tests/qr_print_race_safety/__init__.py": {
+      "before_authoring": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+      "at_freeze": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+      "unchanged": true
+    },
+    "backend/tests/qr_print_race_safety/helpers.py": {
+      "before_authoring": "0061900c8286d81a157dc0c7a2e982bb86aa94b5c4c81aa69c2382b7ed30e991",
+      "at_freeze": "1dd5377265817b3232288c06b2c9443a7884c727c18c2008b2da8ef597523b47",
+      "unchanged": false
+    },
+    "backend/tests/qr_print_race_safety/source_helpers.py": {
+      "before_authoring": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+      "at_freeze": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+      "unchanged": true
+    },
+    "backend/tests/qr_target_safety_helpers.py": {
+      "before_authoring": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+      "at_freeze": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+      "unchanged": true
+    },
+    "backend/tests/tenant_migration/source_gate_helpers.py": {
+      "before_authoring": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332",
+      "at_freeze": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332",
+      "unchanged": true
+    }
+  },
+  "observed_source_hashes": {
+    "backend/apps/accounts/models.py": {
+      "before_authoring": "8e66e0b2d5e793b4503ec57f4947fd47aa0ce9edc619a14da1cc8dc3498df3ef",
+      "at_freeze": "8e66e0b2d5e793b4503ec57f4947fd47aa0ce9edc619a14da1cc8dc3498df3ef",
+      "unchanged": true
+    },
+    "backend/apps/accounts/rbac.py": {
+      "before_authoring": "7f64a57fc7dbfb83fed364bda06b1b88babffae5bb392d1ff9d99b451a6e3c2e",
+      "at_freeze": "7f64a57fc7dbfb83fed364bda06b1b88babffae5bb392d1ff9d99b451a6e3c2e",
+      "unchanged": true
+    },
+    "backend/apps/accounts/rbac_actions.py": {
+      "before_authoring": "5303d0865f8d707af43732a350e026ea260927b62a974e871b05f1253f1b0dac",
+      "at_freeze": "5303d0865f8d707af43732a350e026ea260927b62a974e871b05f1253f1b0dac",
+      "unchanged": true
+    },
+    "backend/apps/accounts/rbac_memberships.py": {
+      "before_authoring": "bec7fe5e56dab7be7c03a530996b425986e502084cca25fe178594062562e9dc",
+      "at_freeze": "bec7fe5e56dab7be7c03a530996b425986e502084cca25fe178594062562e9dc",
+      "unchanged": true
+    },
+    "backend/apps/boxes/asset_rebind.py": {
+      "before_authoring": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "at_freeze": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "unchanged": true
+    },
+    "backend/apps/boxes/qr_admission.py": {
+      "before_authoring": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "at_freeze": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "unchanged": true
+    },
+    "backend/apps/boxes/rebind.py": {
+      "before_authoring": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "at_freeze": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "unchanged": true
+    },
+    "backend/apps/makerspaces/guards.py": {
+      "before_authoring": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f",
+      "at_freeze": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f",
+      "unchanged": true
+    },
+    "backend/apps/makerspaces/models_memberships.py": {
+      "before_authoring": "f60ecfa622d7cb0a1892b2c694dbbd9afb87f069dfeab1fa940a141ea519589f",
+      "at_freeze": "f60ecfa622d7cb0a1892b2c694dbbd9afb87f069dfeab1fa940a141ea519589f",
+      "unchanged": true
+    },
+    "backend/apps/makerspaces/models_roles.py": {
+      "before_authoring": "f6cef0de1d4fa1cf0bdab24ca49fe279be4681a24a303bf2b5fec70360e5fece",
+      "at_freeze": "f6cef0de1d4fa1cf0bdab24ca49fe279be4681a24a303bf2b5fec70360e5fece",
+      "unchanged": true
+    },
+    "backend/apps/operations/serializers.py": {
+      "before_authoring": "3089d98e5503989ad0560d4d69460c44bcc84661fe515e7f5c542518c1c281c9",
+      "at_freeze": "3089d98e5503989ad0560d4d69460c44bcc84661fe515e7f5c542518c1c281c9",
+      "unchanged": true
+    },
+    "backend/apps/operations/services_qr_assets.py": {
+      "before_authoring": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+      "at_freeze": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+      "unchanged": true
+    },
+    "backend/apps/operations/views_qr_batches.py": {
+      "before_authoring": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2",
+      "at_freeze": "7c697ee0ae899af9db25ab220307307cc9c706591eab016ced1c3184aef5a474",
+      "unchanged": false
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "before_authoring": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "at_freeze": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "before_authoring": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "at_freeze": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/middleware.py": {
+      "before_authoring": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78",
+      "at_freeze": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78",
+      "unchanged": true
+    }
+  },
+  "owner_functions": {
+    "backend/apps/operations/services_qr_assets.py::add_qr_to_batch": {
+      "name": "add_qr_to_batch",
+      "line": 32,
+      "end_line": 75,
+      "sha256": "bffee508af69aa91800c51547042b6dd78235c4d7babaa2b190a0ef95a2b597d"
+    },
+    "backend/apps/operations/views_qr_batches.py::QrPrintBatchItemView.post": {
+      "name": "QrPrintBatchItemView.post",
+      "line": 92,
+      "end_line": 111,
+      "sha256": "684cec74ba370bced2441cc320c40e257e2a905d118435e3a477595cb4adafca"
+    },
+    "backend/apps/boxes/qr_admission.py::current_qr_actor": {
+      "name": "current_qr_actor",
+      "line": 32,
+      "end_line": 45,
+      "sha256": "df9a26b9bb08f503f000ba329e8826e969a4b6eecbb244b84b2cc39b2c1cf2a4"
+    },
+    "backend/apps/accounts/rbac.py::can": {
+      "name": "can",
+      "line": 200,
+      "end_line": 225,
+      "sha256": "a45a236879491e6eabca39bd870eef3e9aded9f23c8ea88d3fa630af58d48dd4"
+    },
+    "backend/apps/accounts/rbac_actions.py::actions_for_membership": {
+      "name": "actions_for_membership",
+      "line": 146,
+      "end_line": 165,
+      "sha256": "771f0b9e36e494c9ed250b8463b896fcc33217e119f5533645bb034bcac5db3c"
+    }
+  },
+  "concurrent_change_observed": {
+    "files": [
+      "backend/apps/operations/views_qr_batches.py",
+      "backend/tests/qr_print_race_safety/helpers.py"
+    ],
+    "details": {
+      "backend/apps/operations/views_qr_batches.py": "Concurrent OpenAPI response annotations on AssetGenerateView; item-add owner body hash unchanged.",
+      "backend/tests/qr_print_race_safety/helpers.py": "Concurrent lab fixture change explicitly enables asset_units/qr_print_batches before module checks. No edit/revert by this author; prior test files and other helper functions unchanged."
+    },
+    "reported_to_user_before_freeze": true
+  },
+  "stage_inputs": {
+    "/tmp/spaceworks-print-qr-policy-stage1.txt": "e53746d0098f68f4dcafabbae0c8920ce2775bdb209106a776759d3473e79168",
+    "/tmp/spaceworks-print-qr-policy-stage2.txt": "5d8a7d8dbd33a91eb13e18b34e191f3e04d4104b0fd58ef4cec0add57159741e"
+  },
+  "coverage": [
+    "12 negatives: PRODUCT/ASSET x NEW/EXISTING x inactive/suspended/assigned-role withdrawal. 4 retained-grant positives: PRODUCT/ASSET x NEW/EXISTING.",
+    "Actual HTTP/JWT caches valid User/grants before real scoped QR FOR UPDATE wait. Exact pg_blocking_pids singleton edge and full captured SQL/params precede policy mutation.",
+    "Full expected persisted winner-state computed INSIDE Controller atomic AFTER policy mutation WHILE QR held, BEFORE COMMIT releases QR. Full equality checked after API response.",
+    "Existing item/QR/domain/inventory counters/scans/audit/MAC snapshots plus every User/Membership/Role/OrganizationMembership field; memoryview converted to bytes without dropping fields.",
+    "Typed HTTP403 permission_denied with no API INSERT/UPDATE/DELETE at all, including rolled-back attempts. Existing item gets changed requested label/sort; new item proven missing.",
+    "Sole assigned custom role; global User REQUESTER (legacy Member), membership CUSTOM legacy fallback, no org membership. Canonical rbac.can false after grant withdrawal inside Controller and after response.",
+    "Unmocked current_qr_actor/rbac.can, real framework/audit. SQL asserts fresh User read after QR lock and fresh assigned-role reads for grant/positive paths.",
+    "Retained-grant controls mutate committed user/role fields, preserve MANAGE_QR, require exact item snapshot and one real actor audit with MAC. Entire other persisted state remains equal.",
+    "Existing Maker NO KEY UPDATE -> scoped QR FOR UPDATE -> item -> audit ordering reused. Legitimate module-positive fixture and prewarmed real MAC keys; no module on/off tests added.",
+    "Existing 60 static cases retain byte-identical test files. Concurrent lab helper change is separately flagged."
+  ],
+  "commands_for_root_only": [
+    "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest tests/qr_print_race_safety/test_fresh_policy.py -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-print-policy.xml\n'",
+    "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest tests/qr_print_race_safety -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-print-policy-combined.xml\n'"
+  ],
+  "runtime": {
+    "status": "PENDING_ROOT_ONLY",
+    "collected": false,
+    "executed": false,
+    "django_imported_by_author": false,
+    "builds": false,
+    "tests_passed": null,
+    "junit_paths_after_root_execution": [
+      "/tmp/spaceworks-qr-print-policy.xml",
+      "/tmp/spaceworks-qr-print-policy-combined.xml"
+    ]
+  },
+  "author_validation": [
+    "stdlib ast.parse only; no application/Django imports",
+    "12+4 static products, not collection or pass evidence",
+    "expected-state assignment inside Controller transaction verified",
+    "newfile <=300 lines; no trailing whitespace",
+    "prior test-file hashes unchanged; concurrent lab fixture drift recorded",
+    "service and HTTP item-add owner function hashes unchanged"
+  ],
+  "source_or_fixture_gaps": [
+    {
+      "kind": "concurrent_dependency_drift",
+      "path": "backend/tests/qr_print_race_safety/helpers.py",
+      "details": "Original seven-file freeze no longer matches lab fixture. Explicit module enabling is compatible, but all-seven byte-preservation cannot be claimed. No helper edit/revert by this author."
+    }
+  ],
+  "production_semantics_note": "rbac.can resolves grants and does not reject inactive/suspended users itself. Those cases assert actual current_qr_actor PermissionDenied; role withdrawal additionally asserts canonical rbac.can false.",
+  "source_edits": [],
+  "staged": false,
+  "committed": false,
+  "independent_review": "audit_backend_finish read the entire208-line new test module.12 withdrawal and4 positive real-QR-wait controls retain whole winner snapshot before QR release, fresh actor/membership SQL, exact role/no-organization authority, no-DML refusals and canonical actor audit. No runtime performed, no assertions weakened.",
+  "root_execution_status": "READY_ROOT_ONLY; run tests/qr_print_race_safety for60 prior+16 policy static cases against final194-line service source."
+}

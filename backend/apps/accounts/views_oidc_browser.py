@@ -105,6 +105,10 @@ class OidcBrowserCallbackView(APIView):
             401: OpenApiResponse(ErrorSerializer),
             403: OpenApiResponse(ErrorSerializer),
             409: OpenApiResponse(ErrorSerializer),
+            423: OpenApiResponse(
+                ErrorSerializer,
+                description="Source freeze: a makerspace affected by the identity transition is frozen for tenant migration.",
+            ),
             503: OpenApiResponse(ErrorSerializer),
         },
     )

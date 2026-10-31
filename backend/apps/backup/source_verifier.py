@@ -22,6 +22,7 @@ from apps.backup.projection_databases import restore_dump, temporary_database
 from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.reservation_catalog import load_unique_rules
 from apps.backup.reservation_keys import reservation_commitment
+from apps.backup.source_capture_facts import require_source_capture_facts
 from apps.backup.source_partition_proof import (
     PROOF_VERSION,
     _signature_payload,
@@ -41,6 +42,7 @@ def verify_and_sign_source_partition(
 ):
     """Recheck candidate/catalog/reservations, then construct the sole signed proof."""
 
+    require_source_capture_facts(capture)
     if not capture.slice_entries or not capture.unsealed_slices:
         raise BackupBuildError("The source verifier lacks both plaintext and sealed slices.")
     _verify_main_non_occupancy(capture)
@@ -77,28 +79,13 @@ def verify_and_sign_source_partition(
             "main_disjoint": "pass",
             "reconstruction_equal": "pass",
         })
-    object_facts = {
-        "population": capture.frozen_population,
-        "references": [
-            {
-                "bucket_kind": item.bucket_kind,
-                "site": item.site,
-                "candidate_owner": item.candidate_owner,
-                "makerspace_id": item.canonical_makerspace_id,
-                "coordination_policy": item.coordination_policy,
-            }
-            for item in capture.object_plan.references
-        ],
-    }
+    source_facts = require_source_capture_facts(capture)
     header = {
         "artifact_id": str(capture.archive.pk),
         "capture_id": str(capture.capture_id),
-        "source_database_identity": capture.source_database_identity,
-        "source_server_identity": capture.source_server_identity,
-        "frozen_dump_sha256": capture.source_dump_sha256,
+        **source_facts.as_dict(),
         "physical_catalog_digest": capture.source_catalog_digest,
         "registry_digest": capture.reservation_capture.registry_digest,
-        "frozen_population_ownership_digest": _digest(object_facts),
         "readable_main_semantic_digest": _digest(capture.expected_main_ledger),
         "component_ciphertext_ledger_digest": digest_json(component_ledger),
         "reservation_fence_ledger_digest": digest_json(reservation_ledger),
@@ -135,6 +122,7 @@ def verify_and_sign_source_partition(
         signature = sign_bytes(_signature_payload(payload), private)
     except Ed25519Error as exc:
         raise BackupBuildError("The source verifier signing identity is invalid.") from exc
+    require_source_capture_facts(capture)
     return {
         **payload,
         "proof_signature": {

@@ -1,0 +1,10 @@
+Implemented only:
+
+- [ResetPasswordPage.tsx](frontend/src/features/staff/ResetPasswordPage.tsx): exact JSON uid/token React key.
+- [LegacyPasswordResetForm.tsx](frontend/src/features/auth/LegacyPasswordResetForm.tsx): context-tagged state and mounted/action guards, including direct prop changes.
+- [PasswordRecoveryFlow.tsx](frontend/src/features/auth/PasswordRecoveryFlow.tsx): email-owned state, captured confirmation/resend email, guarded cooldown/finally, synchronous submission deduplication.
+- [passwordRecovery.ts](frontend/src/features/auth/passwordRecovery.ts): root-relative requirement, C0/space/DEL/backslash rejection, and trusted-base origin validation; safe query/hash retained.
+
+Generic OTP failures remain unchanged. Owner hook and global APIs untouched. All four files are under 300 lines; scoped whitespace check passed.
+
+No tests, builds, staging, or commits performed. Stage 3 verification remains pending. A separate review-guardrails document wasn’t located; the approved result’s guardrails were applied.

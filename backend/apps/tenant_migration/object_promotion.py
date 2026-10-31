@@ -28,6 +28,9 @@ PROMOTION_LEASE_DURATION = timedelta(minutes=15)
 logger = logging.getLogger(__name__)
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def promote_import_objects(job):
     promoted = 0
     row_ids = list(job.import_objects.order_by("pk").values_list("pk", flat=True))

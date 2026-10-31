@@ -44,10 +44,12 @@ def test_reconciliation_resumes_every_remote_byte_boundary(
     monkeypatch.setattr(
         reconciliation.storage, "stream_verify", lambda *_args, **_kwargs: (size, digest)
     )
-    monkeypatch.setattr(
-        reconciliation.storage, "create_final_from_staging",
-        lambda staging, final: copies.append((staging, final)),
-    )
+    def create_final(staging, final, **kwargs):
+        assert kwargs == {"expected_size": size, "expected_sha256": digest}
+        assert (staging, final) == (ledger.staging_locator, ledger.final_locator)
+        copies.append((staging, final))
+
+    monkeypatch.setattr(reconciliation.storage, "create_final_from_staging", create_final)
     monkeypatch.setattr(reconciliation.storage, "delete_archive", lambda _key: True)
     monkeypatch.setattr(
         reconciliation, "promote_verified_artifact",
@@ -121,10 +123,13 @@ def test_final_readback_precedes_any_promotion_lock(monkeypatch):
         return 9, "a" * 64
 
     monkeypatch.setattr(artifact_protocol.storage, "stream_verify", verify)
-    monkeypatch.setattr(
-        artifact_protocol.storage, "create_final_from_staging",
-        lambda *_args: events.append("create-final"),
-    )
+    def create_final(staging, final, **kwargs):
+        assert (staging, final) == (ledger.staging_locator, ledger.final_locator)
+        assert kwargs == {"expected_size": ledger.expected_size_bytes,
+                          "expected_sha256": ledger.outer_sha256}
+        events.append("create-final")
+
+    monkeypatch.setattr(artifact_protocol.storage, "create_final_from_staging", create_final)
     monkeypatch.setattr(artifact_protocol.storage, "delete_archive", lambda _key: True)
     monkeypatch.setattr(
         artifact_protocol, "mark_staging_verified", lambda *_args: events.append("mark-staging")

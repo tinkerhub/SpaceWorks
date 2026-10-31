@@ -1,0 +1,53 @@
+{
+  "snapshot": "/tmp/spaceworks-recovery-runtime-snapshot-20261030",
+  "results": [
+    {
+      "lane": "fast",
+      "exit_code": 1,
+      "seconds": 13.57,
+      "junit": "recovery-fast.xml"
+    },
+    {
+      "lane": "db",
+      "exit_code": 1,
+      "seconds": 114.86,
+      "junit": "recovery-db.xml"
+    },
+    {
+      "lane": "private",
+      "exit_code": 0,
+      "seconds": 10.63,
+      "junit": "recovery-private.xml"
+    },
+    {
+      "lane": "installed",
+      "exit_code": 1,
+      "seconds": 77.28,
+      "junit": "recovery-installed.xml"
+    },
+    {
+      "lane": "compat",
+      "exit_code": 1,
+      "seconds": 5.95,
+      "junit": "recovery-compat.xml"
+    },
+    {
+      "lane": "paths",
+      "exit_code": 0,
+      "seconds": 3.19,
+      "junit": "recovery-paths.xml"
+    },
+    {
+      "lane": "s3",
+      "exit_code": 0,
+      "seconds": 4.88,
+      "junit": "recovery-s3.xml"
+    },
+    {
+      "lane": "live",
+      "exit_code": 1,
+      "seconds": 11.8,
+      "junit": "recovery-live.xml"
+    }
+  ]
+}

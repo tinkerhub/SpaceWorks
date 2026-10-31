@@ -1,0 +1,176 @@
+{
+  "format": "spaceworks-ui-staff-hardware-combined-source-freeze-v1",
+  "status": "Current source frozen; final roster Stage3/test freeze and combined root runtime pending",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/DirectLoanBorrower.tsx",
+      "lines": 87,
+      "sha256": "35998ff869d15bf661b9546a3d6cd1370432e51b354e467cdb0ae062195bae5d"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanItems.tsx",
+      "lines": 185,
+      "sha256": "d3a174b3292c81acdafcb1d5fb3ca71c6a83aa4089d1232b6fa63459cb1faea7"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanReturnModal.tsx",
+      "lines": 185,
+      "sha256": "b18e3cf8931c1bad04a465a7931dbc860b8f605c1655a933626b41fcc0f9a328"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoans.tsx",
+      "lines": 207,
+      "sha256": "5e1fc6ed48610039f258d8f9e7b2b8ad808997afd1528bf8504610694c7d6a96"
+    },
+    {
+      "path": "frontend/src/features/staff/ImageUploader.tsx",
+      "lines": 229,
+      "sha256": "f4d21f36095780f251a00734b430b3f2eac72f80739b04ce829b955e5a74d628"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.tsx",
+      "lines": 166,
+      "sha256": "00e692c3c04685a9e5edccd41d19630c4f70fe321995e7d8c562cc0ffe7c12f9"
+    },
+    {
+      "path": "frontend/src/features/staff/WarrantyDocuments.tsx",
+      "lines": 152,
+      "sha256": "797326a2a9bd7de31af2aa3230a8a9bac9d3b784559919743b0afc5ad9aebfe6"
+    },
+    {
+      "path": "frontend/src/features/staff/WarrantySection.tsx",
+      "lines": 183,
+      "sha256": "0fcb33bf4cd9e048a232fadf94ea25e3d3271d1005308dc4fcfe8a9b198226a7"
+    },
+    {
+      "path": "frontend/src/features/staff/handover/IssueDialog.tsx",
+      "lines": 93,
+      "sha256": "d7fd10a28d0730a5de74d92e046e084b21ceccf5da8322926a13e3831113ea81"
+    },
+    {
+      "path": "frontend/src/features/staff/imageUploadApi.ts",
+      "lines": 73,
+      "sha256": "321d9748a9263b7f35312209ca9671c7d1af5fea8fa407de738193192ee97262"
+    },
+    {
+      "path": "frontend/src/features/staff/machineDocumentsApi.ts",
+      "lines": 50,
+      "sha256": "516713a21d3528e4928f23820870901e6d7dbc8f491d86a030d625c1d92ec2d2"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/EvidenceUpload.tsx",
+      "lines": 162,
+      "sha256": "6b46cb547e08886cf17fe82abb3c2c55cdfcbe8099f3904a39a2e3ecb7b40fb8"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/MachinesPanel.tsx",
+      "lines": 228,
+      "sha256": "47b6076a943644870d441f46b8c5448f54bc30881e31bf4e7f228fd08de9e218"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/ProcurementReceipts.tsx",
+      "lines": 191,
+      "sha256": "339386e86e36135ef104e581e29b4c6f4bcc2b9bbd6c0f4e7f59baf0f34c40cf"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/Queues.tsx",
+      "lines": 166,
+      "sha256": "356a7420977efcc8a0df96826e67eb9b3e103dd7cd0bb7f1240e2fc344fdeed3"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesAssignIssueModal.tsx",
+      "lines": 194,
+      "sha256": "ea6433ba1bd5f6a1f503c815c699389a5dbc178358d5ab98957df40ad828bb44"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesInvalidation.ts",
+      "lines": 42,
+      "sha256": "875c5f9eb25649333c337091537d9fbe1a2803883a7a4bd042d3f4d8c39bb5ea"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesModalShared.tsx",
+      "lines": 130,
+      "sha256": "f8a796d284593bd9ee6d397f1dc0d7835dd56b907719797c0d6055da337f7d10"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesReturnRequestModal.tsx",
+      "lines": 204,
+      "sha256": "abc0acceb2f2504b3db0d7a2e086a0dbfded9b9dbde238049dd274a8efe5063b"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/DocumentsTab.tsx",
+      "lines": 183,
+      "sha256": "ac0f3f071b2544c440af2484c3d17dadb848398da3af4f60e3555e36983fbad0"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/MachineServiceConsole.tsx",
+      "lines": 174,
+      "sha256": "4363e3ae459eb300f4dde8eca8dd63939973670ca427f889c1a44f29de9fa8ac"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/MaintenanceDocuments.tsx",
+      "lines": 218,
+      "sha256": "26adb7aa6fb1b2e5d63f689fa6ccfe5cf91860be9641ca71a66fc6fd43670b57"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ManualUsage.tsx",
+      "lines": 122,
+      "sha256": "05d522af09c953049675ba66884e7a579d9fee7d691362ab9050600b4b5c05a5"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/PrinterServiceConsole.tsx",
+      "lines": 208,
+      "sha256": "645046439f0386972daf00e6a9bce77670189c65275cdcd66d281b8fe4901c5d"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ServiceQueue.tsx",
+      "lines": 202,
+      "sha256": "cbc7fcd785c9921a022ad322a30ace7f0bbfccd3ad37c8709fa4994b6d82d575"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/maintenanceApi.ts",
+      "lines": 230,
+      "sha256": "81c02256c42066885966be582292dfdb16476ea456a8a8c797fe65f47ab71512"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/useMaintenanceDocumentTask.ts",
+      "lines": 48,
+      "sha256": "0c052928d78278b537552bb3f558c69eeaa5cf475edca4d609e036eb268a064e"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/useServiceOperation.ts",
+      "lines": 37,
+      "sha256": "798aa2bda30fc2e479806617aeb110752dba1bf1564015270c8d04d4f95e4d20"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/useQueueActions.ts",
+      "lines": 130,
+      "sha256": "2ec3709659cc59232221914837824e2d741e80395e25d880b74afa003f57fc68"
+    },
+    {
+      "path": "frontend/src/features/staff/refreshWalkInRoster.ts",
+      "lines": 97,
+      "sha256": "b420ded198232fe30bcd3c38af94cd266944d1738a13b71236387f995b8aaabb"
+    },
+    {
+      "path": "frontend/src/features/staff/useDirectLoanMutation.ts",
+      "lines": 49,
+      "sha256": "d64e8b07b270afba90fdc61d8858e3478dc86fb2d8695084939d8f81cb63720c"
+    },
+    {
+      "path": "frontend/src/features/staff/useHardwareQrVisit.ts",
+      "lines": 37,
+      "sha256": "4fe4ee635350eebe905baf837de6549026fcabfe248b41ec9ec32cc5279c890b"
+    },
+    {
+      "path": "frontend/src/features/staff/warrantyApi.ts",
+      "lines": 114,
+      "sha256": "229d78081fdf75d07e1a741250537721ccf66bcc0e2c8a80bfb82fa48bf8cf48"
+    },
+    {
+      "path": "frontend/src/lib/uploadProtocol.ts",
+      "lines": 37,
+      "sha256": "9971db5454988c59054d09feb50dfd182730df56215df429c8b5ac778a6dbc09"
+    }
+  ]
+}

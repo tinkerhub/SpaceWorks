@@ -1,0 +1,23 @@
+**NEEDS AMENDMENTS.** I completed the requested read-only Stage 1 review. The proposed direction is sound, but these details must be explicit before implementation:
+
+1. **Guard queued execution itself.** Capture the original owner, path and serialized body before `mutate`. Check ownership inside each `mutationFn`, immediately before `staffRequest`, including both assign and issue. The request wrapper captures the session when called; a paused mutation could otherwise start under a newer session. Guard success, failure and cleanup separately.
+
+2. **Use semantic form visits.** Include makerspace, session epoch, modal kind, row ID and a distinct visit identity. Reset drafts on those changes, including A→B→A, while preserving drafts across ordinary refetches of the same row. Keep committed assignment and uploaded evidence available for a current issue retry.
+
+3. **Bind scanner callbacks to their original visit.** Guard before QR dispatch and after resolution, including error and `finally` paths. A retained native scanner callback must not acquire fresh ownership after closing. Preserve multiple valid asset scans; a single “latest action wins” sequence must not discard earlier concurrent scans.
+
+4. **Lock every borrower-change path.** Disabling the dropdown is insufficient: [DirectLoanBorrower.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/DirectLoanBorrower.tsx:80) also selects borrowers through walk-in creation. Guard that callback against pending issue, changed form visit and changed session. Freeze nested item, container, QR and remark controls too, with synchronous handler guards.
+
+5. **Handle committed assignment independently.** `/assign-box` currently does not trigger container invalidation in [QueuesInvalidation.ts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/QueuesInvalidation.ts:10). Refresh the originating makerspace’s container views when assignment succeeds, even if ownership changes before issue. Do not publish stale UI state or automatically undo assignment.
+
+The smallest practical source surface is:
+
+- `Queues.tsx`, `QueuesAssignIssueModal.tsx`, `QueuesModalShared.tsx`, `QueuesInvalidation.ts`
+- `DirectLoans.tsx`, `DirectLoanItems.tsx`, `DirectLoanBorrower.tsx`, `DirectLoanReturnModal.tsx`
+- Small domain helpers only where needed to remain under 300 lines.
+
+Parent-controlled visit keys can reset accept, reject, due-date and return forms without necessarily editing each modal. Preserve the existing evidence `resourceContext` changes already present.
+
+Extend the proposed regression cases with paused first-stage dispatch after session change, delayed walk-in selection during issue, concurrent valid asset scans, and container invalidation after assignment succeeds but issue is suppressed. Use real request/session behavior for ownership tests.
+
+No files changed; no tests, builds, application runtime, staging or commits were run.

@@ -19,6 +19,7 @@ type Props = {
   /** Show the pool picker: only types that use consumables have pools. */
   hasPool: boolean;
   pending: boolean;
+  canEdit?: () => boolean;
   onSubmit: () => void;
   rows: ManualUsageRow[];
   /** Price field and column; logged with the run, never charged. */
@@ -31,67 +32,71 @@ export const blankManualUsage: ServiceDraft["manual"] = {
 };
 
 /** Log a run that happened outside the queue, and list the ones already logged. */
-export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, unitLabel, hasPool, pending, onSubmit, rows, price }: Props) {
+export function ManualUsage({ draft, setDraft, machines, pools, machineNoun, unitLabel, hasPool, pending, canEdit = () => !pending, onSubmit, rows, price }: Props) {
   const manual = draft.manual;
   const noun = machineNoun.toLowerCase();
-  const update = (patch: Partial<typeof manual>) => setDraft((current) => ({ ...current, manual: { ...current.manual, ...patch } }));
+  const update = (patch: Partial<typeof manual>) => {
+    if (canEdit()) setDraft((current) => canEdit() ? ({ ...current, manual: { ...current.manual, ...patch } }) : current);
+  };
   return (
     <div className="grid gap-4">
       {/* Top-aligned, not bottom: a helper line under one field (Price) would otherwise push
           its label above its neighbours'. */}
       <form className="grid items-start gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-4" onSubmit={(event) => { event.preventDefault(); onSubmit(); }}>
-        <Field label={machineNoun}>
-          <Dropdown aria-label={`Manual usage ${noun}`} value={manual.machine_id} onChange={(event) => update({ machine_id: event.target.value, consumable_pool_id: "" })}>
-            <option value="" disabled>Choose a {noun}</option>
-            {machines.map((machine) => <option key={machine.id} value={String(machine.id)}>{machine.name}</option>)}
-          </Dropdown>
-        </Field>
-        {hasPool ? (
-          <Field label="Pool">
-            <Dropdown aria-label="Manual usage pool" value={manual.consumable_pool_id} onChange={(event) => update({ consumable_pool_id: event.target.value })}>
-              <option value="">No pool</option>
-              {pools.map((pool) => <option key={pool.id} value={String(pool.id)}>{poolLabel(pool)}</option>)}
+        <fieldset disabled={pending} className="contents">
+          <Field label={machineNoun}>
+            <Dropdown aria-label={`Manual usage ${noun}`} value={manual.machine_id} onChange={(event) => update({ machine_id: event.target.value, consumable_pool_id: "" })}>
+              <option value="" disabled>Choose a {noun}</option>
+              {machines.map((machine) => <option key={machine.id} value={String(machine.id)}>{machine.name}</option>)}
             </Dropdown>
           </Field>
-        ) : null}
-        <Field label="Minutes">
-          <Input aria-label="Manual usage minutes" type="number" min="0" value={manual.duration_minutes} onChange={(event) => update({ duration_minutes: event.target.value })} />
-        </Field>
-        {unitLabel ? (
-          <Field label={`Quantity (${unitLabel})`}>
-            <Input aria-label="Manual usage quantity" type="number" min="0" step="any" value={manual.quantity} onChange={(event) => update({ quantity: event.target.value })} />
-          </Field>
-        ) : null}
-        <Field label="Outcome">
-          <Dropdown aria-label="Manual usage outcome" value={manual.outcome} onChange={(event) => update({ outcome: event.target.value, percent_complete: event.target.value === "failed" ? manual.percent_complete : "100" })}>
-            <option value="success">Success</option>
-            <option value="failed">Failed</option>
-          </Dropdown>
-        </Field>
-        {/* A failed run credits only the share that ran. The generic form used to send the
-            default 100 here with no field to change it, logging every failure as a full run;
-            switching back to Success resets it to 100 so a success is never part-credited. */}
-        {manual.outcome === "failed" ? (
-          <>
-            <Field label="Percent complete">
-              <Input aria-label="Percent complete" type="number" min="0" max="100" value={manual.percent_complete} onChange={(event) => update({ percent_complete: event.target.value })} />
+          {hasPool ? (
+            <Field label="Pool">
+              <Dropdown aria-label="Manual usage pool" value={manual.consumable_pool_id} onChange={(event) => update({ consumable_pool_id: event.target.value })}>
+                <option value="">No pool</option>
+                {pools.map((pool) => <option key={pool.id} value={String(pool.id)}>{poolLabel(pool)}</option>)}
+              </Dropdown>
             </Field>
-            <Field label="Failure reason">
-              <Input aria-label="Failure reason" value={manual.reason} onChange={(event) => update({ reason: event.target.value })} />
-            </Field>
-          </>
-        ) : null}
-        {price ? (
-          <Field label={`Price${price.currency ? ` (${price.currency})` : ""}`} helperText={price.hint ?? undefined}>
-            <Input aria-label="Manual usage price" type="number" min="0" step="0.01" inputMode="decimal" placeholder={price.placeholder} value={manual.price} onChange={(event) => update({ price: event.target.value })} />
+          ) : null}
+          <Field label="Minutes">
+            <Input aria-label="Manual usage minutes" type="number" min="0" value={manual.duration_minutes} onChange={(event) => update({ duration_minutes: event.target.value })} />
           </Field>
-        ) : null}
-        <Field label="Note" className="sm:col-span-2">
-          <Input aria-label="Manual usage note" value={manual.note} onChange={(event) => update({ note: event.target.value })} />
-        </Field>
-        <div className="flex justify-end sm:col-span-2 md:col-span-4">
-          <Button type="submit" loading={pending} loadingLabel="Logging…" disabled={!manual.machine_id || !manual.duration_minutes}>Log usage</Button>
-        </div>
+          {unitLabel ? (
+            <Field label={`Quantity (${unitLabel})`}>
+              <Input aria-label="Manual usage quantity" type="number" min="0" step="any" value={manual.quantity} onChange={(event) => update({ quantity: event.target.value })} />
+            </Field>
+          ) : null}
+          <Field label="Outcome">
+            <Dropdown aria-label="Manual usage outcome" value={manual.outcome} onChange={(event) => update({ outcome: event.target.value, percent_complete: event.target.value === "failed" ? manual.percent_complete : "100" })}>
+              <option value="success">Success</option>
+              <option value="failed">Failed</option>
+            </Dropdown>
+          </Field>
+          {/* A failed run credits only the share that ran. The generic form used to send the
+              default 100 here with no field to change it, logging every failure as a full run;
+              switching back to Success resets it to 100 so a success is never part-credited. */}
+          {manual.outcome === "failed" ? (
+            <>
+              <Field label="Percent complete">
+                <Input aria-label="Percent complete" type="number" min="0" max="100" value={manual.percent_complete} onChange={(event) => update({ percent_complete: event.target.value })} />
+              </Field>
+              <Field label="Failure reason">
+                <Input aria-label="Failure reason" value={manual.reason} onChange={(event) => update({ reason: event.target.value })} />
+              </Field>
+            </>
+          ) : null}
+          {price ? (
+            <Field label={`Price${price.currency ? ` (${price.currency})` : ""}`} helperText={price.hint ?? undefined}>
+              <Input aria-label="Manual usage price" type="number" min="0" step="0.01" inputMode="decimal" placeholder={price.placeholder} value={manual.price} onChange={(event) => update({ price: event.target.value })} />
+            </Field>
+          ) : null}
+          <Field label="Note" className="sm:col-span-2">
+            <Input aria-label="Manual usage note" value={manual.note} onChange={(event) => update({ note: event.target.value })} />
+          </Field>
+          <div className="flex justify-end sm:col-span-2 md:col-span-4">
+            <Button type="submit" loading={pending} loadingLabel="Logging…" disabled={!manual.machine_id || !manual.duration_minutes}>Log usage</Button>
+          </div>
+        </fieldset>
       </form>
       {rows.length ? (
         <Table label="Manual usage log">

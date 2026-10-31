@@ -1,8 +1,12 @@
-import { useId, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { Camera, CheckCircle2 } from "lucide-react";
 
 import { Button, CameraCapture, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+
+import { useAuthActionOwner } from "../../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../../lib/apiSession";
+import { admitUpload, uploadBytes } from "../../../lib/uploadProtocol";
 
 type UploadResponse = {
   evidence_id: number;
@@ -20,35 +24,53 @@ type UploadResponse = {
  * uploads the file straight to object storage with the presigned fields. The
  * resulting evidence_id is handed back to the parent form via onUploaded.
  */
-export function EvidenceUpload({
-  makerspaceId,
-  evidenceType,
-  disabled = false,
-  label,
-  onUploaded,
-}: {
+type EvidenceUploadProps = {
   makerspaceId: number;
   evidenceType: "issue" | "return";
   disabled?: boolean;
   label?: string;
+  resourceContext?: string | number | null;
   onUploaded: (evidenceId: number | null) => void;
-}) {
+};
+
+export function EvidenceUpload(props: EvidenceUploadProps) {
+  const scope = JSON.stringify([props.makerspaceId, props.evidenceType, props.resourceContext, getSessionGeneration()]);
+  return <OwnedEvidenceUpload key={scope} {...props} scope={scope} />;
+}
+
+function OwnedEvidenceUpload({ makerspaceId, evidenceType, disabled = false, label, onUploaded, scope }: EvidenceUploadProps & { scope: string }) {
+  const owner = useAuthActionOwner(scope);
+  const disabledRef = useRef(disabled);
+  const onUploadedRef = useRef(onUploaded);
+  disabledRef.current = disabled;
+  onUploadedRef.current = onUploaded;
+  useLayoutEffect(() => {
+    // A new semantic widget must clear the parent's old evidence before paint.
+    // Cleanup must never clear evidence belonging to the next mounted context.
+    if (owner.isContextCurrent()) onUploadedRef.current(null);
+  }, [owner.context]);
   const inputId = useId();
   const { showToast } = useToast();
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState<symbol | null>(null);
+  const cameraVisit = useRef<symbol | null>(null);
   const [cameraSupported] = useState(
     () => typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia,
   );
 
   async function handleFile(file: File) {
+    if (disabledRef.current || !owner.isIntentCurrent()) return;
+    const action = owner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => owner.isCurrent(action));
     setStatus("uploading");
     setError("");
     setFileName(file.name);
-    onUploaded(null); // invalidate any prior upload until this one completes
+    onUploadedRef.current(null); // invalidate any prior upload until this one completes
     try {
+      guard.assertCurrent();
       const presigned = await staffRequest<UploadResponse>(
         `/admin/makerspaces/${makerspaceId}/uploads/evidence-url`,
         {
@@ -56,31 +78,37 @@ export function EvidenceUpload({
           body: JSON.stringify({ evidence_type: evidenceType, content_type: file.type, size_bytes: file.size }),
         },
       );
-      if (presigned.method === "PUT") {
-        const upload = await fetch(presigned.upload_url, {
-          method: "PUT",
-          body: file,
-          headers: presigned.headers,
-        });
-        if (!upload.ok) throw new Error(`Storage upload failed (${upload.status})`);
-      } else {
-        const formData = new FormData();
-        Object.entries(presigned.fields).forEach(([key, value]) => formData.append(key, value));
-        formData.append("file", file);
-        // Direct presigned POST to object storage - no auth header, and we must NOT
-        // set Content-Type so the browser adds the multipart boundary itself.
-        const upload = await fetch(presigned.upload_url, { method: "POST", body: formData });
-        if (!upload.ok) throw new Error(`Storage upload failed (${upload.status})`);
-      }
+      await uploadBytes(file, { ...presigned, url: presigned.upload_url }, guard);
+      guard.assertCurrent();
       setStatus("done");
-      onUploaded(presigned.evidence_id);
+      onUploadedRef.current(presigned.evidence_id);
     } catch (err) {
+      if (!owner.isCurrent(action)) return;
       setStatus("error");
       const message = err instanceof Error ? err.message : "Upload failed.";
       setError(message);
       showToast(`Photo upload failed. ${message}`, { tone: "error" });
-      onUploaded(null);
+      onUploadedRef.current(null);
+    } finally {
+      owner.finish(action);
     }
+  }
+
+  function openCamera() {
+    if (disabledRef.current || !owner.isIntentCurrent() || owner.isPending()) return;
+    const visit = Symbol();
+    cameraVisit.current = visit;
+    setCameraOpen(visit);
+  }
+  function closeCamera() {
+    if (!owner.isContextCurrent() || cameraVisit.current !== cameraOpen) return;
+    cameraVisit.current = null;
+    setCameraOpen(null);
+  }
+  function captureCamera(file: File) {
+    if (disabledRef.current || !cameraOpen || cameraVisit.current !== cameraOpen || !owner.isIntentCurrent()) return;
+    closeCamera();
+    void handleFile(file);
   }
 
   return (
@@ -106,12 +134,12 @@ export function EvidenceUpload({
           className="block min-w-0 max-w-full flex-[1_1_15rem] text-sm text-ink-muted file:mr-3 file:min-h-9 pointer-coarse:file:min-h-11 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
         />
         {cameraSupported ? (
-          <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label ?? `${evidenceType} photo`}`} disabled={disabled || status === "uploading"} onClick={openCamera}>
             Camera
           </Button>
         ) : null}
       </div>
-      <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label ?? `${evidenceType} photo`} />
+      <CameraCapture open={cameraOpen !== null} onClose={closeCamera} onCapture={captureCamera} label={label ?? `${evidenceType} photo`} />
       {/* ONE persistent live region, not three conditional ones: a role="status" element that is
           inserted at the same moment its text appears is frequently not announced, because the
           region was not in the DOM for the screen reader to observe changing. */}

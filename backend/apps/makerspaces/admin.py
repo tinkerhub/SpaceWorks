@@ -10,6 +10,8 @@ from apps.makerspaces.admin_staff_membership import (
     MakerspaceMembershipInline,
     audit_staff_memberships,
 )
+from apps.makerspaces.admin_module_purge_receipts import ModulePurgeReceiptAdmin  # noqa: F401
+from apps.makerspaces.admin_purge_receipts import PurgeReceiptAdmin  # noqa: F401
 from apps.makerspaces.admin_subdomains import SubdomainRequestAdmin
 from apps.makerspaces.admin_archive_requests import MakerspaceArchiveRequestAdmin
 from apps.makerspaces.admin_imports import (  # noqa: F401
@@ -46,6 +48,11 @@ class MakerspaceAdmin(
     AdminAuditMixin, MakerspaceImageAdminMixin, MakerspaceCapabilityAdminMixin,
     SuperuserOnlyModelAdmin, ModelAdmin,
 ):
+    def get_urls(self):
+        from apps.makerspaces.urls_admin_purge import purge_urls
+
+        return purge_urls(self) + super().get_urls()
+
     form = MakerspaceAdminForm
     # Audited by the capability and image mixins with their own actions.
     audit_exclude_fields = ("capabilities", "logo_upload", "clear_logo", "cover_upload", "clear_cover")
@@ -74,6 +81,7 @@ class MakerspaceAdmin(
                 "fields": (
                     "name",
                     "public_code",
+                    "purge_started_at",
                     "item_code_prefix",
                     "slug",
                     "location",
@@ -104,7 +112,7 @@ class MakerspaceAdmin(
             },
         ),
     )
-    readonly_fields = ("logo_preview", "cover_preview")
+    readonly_fields = ("logo_preview", "cover_preview", "purge_started_at")
     inlines = (MakerspaceMembershipInline,)
 
     def save_formset(self, request, form, formset, change):
@@ -234,50 +242,9 @@ class MakerspaceAdmin(
 
     @admin.action(description="Purge selected archived makerspaces")
     def purge_makerspaces(self, request, queryset):
-        makerspaces = list(queryset)
-        if "confirm_purge" not in request.POST:
-            context = {
-                **self.admin_site.each_context(request),
-                "title": "Purge selected makerspaces",
-                "queryset": makerspaces,
-                "opts": self.model._meta,
-                "action_name": "purge_makerspaces",
-                "action_checkbox_name": ACTION_CHECKBOX_NAME,
-            }
-            return TemplateResponse(
-                request,
-                "admin/makerspaces/purge_confirmation.html",
-                context,
-            )
+        from apps.makerspaces.admin_purge import confirmation_page
 
-        from apps.makerspaces import lifecycle
-
-        for makerspace in makerspaces:
-            if request.POST.get(f"slug_{makerspace.pk}", "") != makerspace.slug:
-                self.message_user(
-                    request,
-                    f"{makerspace.name} ({makerspace.slug}): slug confirmation did not match",
-                    level=messages.ERROR,
-                )
-                continue
-
-            name = makerspace.name
-            slug = makerspace.slug
-            try:
-                lifecycle.purge(makerspace, request.user)
-            except ValidationError as err:
-                self.message_user(
-                    request,
-                    f"{name} ({slug}): {str(err)}",
-                    level=messages.ERROR,
-                )
-            else:
-                self.message_user(
-                    request,
-                    f"Purged makerspace {name} ({slug}).",
-                    level=messages.SUCCESS,
-                )
-        return None
+        return confirmation_page(self, request, list(queryset))
 
 
 from apps.makerspaces.admin_memberships import (  # noqa: E402,F401

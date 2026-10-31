@@ -1,3 +1,4 @@
+import { admitUpload, uploadBytes, type UploadGuard } from "../../lib/uploadProtocol";
 import { staffRequest } from '../../lib/api';
 import type { MachineCollection, MachineDocument } from './machinesApi';
 
@@ -6,7 +7,8 @@ type MachineUpload =
   | { url: string; method: 'PUT'; headers?: Record<string, string>; fields?: Record<string, string> };
 type MachinePresignResponse = { object_key: string; upload: MachineUpload };
 
-export async function uploadMachineDocument(machineId: number, file: File, docType: string) {
+export async function uploadMachineDocument(machineId: number, file: File, docType: string, guard: UploadGuard = admitUpload()) {
+  guard.assertCurrent();
   const presigned = await staffRequest<MachinePresignResponse>(
     `/admin/machines/${machineId}/documents/presign`,
     {
@@ -18,22 +20,10 @@ export async function uploadMachineDocument(machineId: number, file: File, docTy
     },
   );
 
-  if (presigned.upload.method === 'PUT') {
-    const response = await fetch(presigned.upload.url, {
-      method: 'PUT', body: file, headers: presigned.upload.headers,
-    });
-    if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
-  } else {
-    const formData = new FormData();
-    Object.entries(presigned.upload.fields ?? {}).forEach(([key, value]) =>
-      formData.append(key, value),
-    );
-    formData.append('file', file);
-    const response = await fetch(presigned.upload.url, { method: 'POST', body: formData });
-    if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
-  }
+  await uploadBytes(file, presigned.upload, guard);
+  guard.assertCurrent();
 
-  return staffRequest<MachineDocument>(`/admin/machines/${machineId}/documents`, {
+  const document = await staffRequest<MachineDocument>(`/admin/machines/${machineId}/documents`, {
     method: 'POST',
     body: JSON.stringify({
       object_key: presigned.object_key,
@@ -41,6 +31,8 @@ export async function uploadMachineDocument(machineId: number, file: File, docTy
       original_filename: file.name,
     }),
   });
+  guard.assertCurrent();
+  return document;
 }
 
 export function getMachineDocuments(machineId: number) {

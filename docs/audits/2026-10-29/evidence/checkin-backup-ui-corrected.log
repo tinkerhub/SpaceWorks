@@ -1,0 +1,16 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory/CheckinIdentityStep.dispatch.test.tsx src/features/staff/BackupArchiveFormat.test.tsx
+
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/staff/BackupArchiveFormat.test.tsx (14 tests) 965ms
+     ✓ offers restore for signed full  309ms
+ ✓ src/features/inventory/CheckinIdentityStep.dispatch.test.tsx (5 tests) 371ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  20:02:22
+   Duration  9.52s (transform 913ms, setup 836ms, import 2.13s, tests 1.34s, environment 4.58s)
+

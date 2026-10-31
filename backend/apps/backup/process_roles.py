@@ -25,6 +25,7 @@ class Admission:
 ALL_ROLES = frozenset(ProcessRole)
 ADMITTED_BY_STATE = {
     MarkerState.NORMAL: ALL_ROLES,
+    MarkerState.RESTORE_BLOCKED: frozenset({ProcessRole.MANAGEMENT}),
     MarkerState.CANDIDATE_PREPARATION: frozenset({ProcessRole.MIGRATE}),
     MarkerState.CANDIDATE_HEALTH: frozenset({ProcessRole.BACKEND}),
     MarkerState.QUARANTINED_AFTER_CUTOVER: frozenset({ProcessRole.BACKEND}),

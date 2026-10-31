@@ -4,6 +4,7 @@ import { MakerspaceSiteHeader } from "../../components/chrome/PublicHeaders";
 import { PublicContainer, PublicShell } from "../../components/chrome/PublicShell";
 import { Button, Card, Dropdown, EmptyState, Field, PageHeader, Skeleton } from "../../components/ui";
 import { useModules } from "../../lib/modules";
+import { useAuthActionOwner, type AuthAction } from "../auth/useAuthActionOwner";
 import { CheckinIdentityStep } from "../inventory/CheckinIdentityStep";
 import type { CheckinMatch } from "../inventory/api";
 import { PublicSignInCallout, memberSignInHref } from "../inventory/PublicSignInCallout";
@@ -16,10 +17,26 @@ import { useServiceTypes } from "./useServiceTypes";
 
 export function PublicMachineServicePage({ defaultPrinter = false }: { defaultPrinter?: boolean }) {
   const space = useMakerspacePublic();
-  const { makerspaceSlug: slug, bootstrap } = space;
   const modules = useModules();
   const enabled = modules.moduleEnabled("machines") && modules.moduleEnabled("machine_service")
     && (!defaultPrinter || modules.moduleEnabled("printing"));
+  const session = usePublicSession(space.makerspaceSlug, enabled && space.bootstrap?.makerspace.request_access !== "checked_in");
+  const scope = JSON.stringify([space.makerspaceSlug, space.bootstrap?.makerspace.request_access,
+    defaultPrinter, enabled, modules.moduleEnabled("printing")]);
+  const owner = useAuthActionOwner(scope);
+  return <ServiceVisit key={JSON.stringify([scope, owner.context.epoch])} space={space} modules={modules}
+    session={session} enabled={enabled} defaultPrinter={defaultPrinter} isPageCurrent={owner.isContextCurrent} />;
+}
+
+function ServiceVisit({ space, modules, session, enabled, defaultPrinter, isPageCurrent }: {
+  space: ReturnType<typeof useMakerspacePublic>;
+  modules: ReturnType<typeof useModules>;
+  session: ReturnType<typeof usePublicSession>;
+  enabled: boolean;
+  defaultPrinter: boolean;
+  isPageCurrent: () => boolean;
+}) {
+  const { makerspaceSlug: slug, bootstrap } = space;
   const catalog = useServiceTypes(slug, enabled);
   // Also filter cached catalog data when printing is switched off.
   const types = (catalog.data ?? []).filter((type) => !type.is_printer || modules.moduleEnabled("printing"));
@@ -29,15 +46,33 @@ export function PublicMachineServicePage({ defaultPrinter = false }: { defaultPr
   const requestedType = selection ?? search.get("type") ?? "";
   const fallback = defaultPrinter ? types.find((type) => type.is_printer) : types.length === 1 ? types[0] : undefined;
   const selected = requestedType ? types.find((type) => String(type.id) === requestedType) : selection === null ? fallback : undefined;
-  const [pending, setPending] = useState(false);
-  const [checkin, setCheckin] = useState<{ slug: string; match: CheckinMatch | null } | null>(null);
-  const confirmed = checkin?.slug === slug ? checkin.match : null;
+  const [confirmed, setConfirmed] = useState<CheckinMatch | null>(null);
   const checkedIn = bootstrap?.makerspace.request_access === "checked_in";
-  const session = usePublicSession(slug, enabled && !checkedIn);
-  const tracker = useServiceStatus(slug, enabled, defaultPrinter);
+  const person = JSON.stringify([confirmed?.mid, confirmed?.name]);
+  const tracker = useServiceStatus(slug, enabled, defaultPrinter, person);
   const loading = modules.loading || space.bootstrapQuery.isLoading || (enabled && catalog.isLoading);
   const error = space.bootstrapQuery.error || catalog.error;
   const identityReady = checkedIn ? confirmed !== null : session.authenticated;
+  const formVisible = !loading && !error && enabled && Boolean(selected)
+    && (checkedIn || session.authenticated);
+  const admissionOwner = useAuthActionOwner(JSON.stringify([selected?.id, person, formVisible]));
+  const [admission, setAdmission] = useState<{ context: typeof admissionOwner.context; action: AuthAction } | null>(null);
+  const pending = formVisible && admission?.context === admissionOwner.context;
+  function isFormCurrent() { return isPageCurrent() && admissionOwner.isIntentCurrent(); }
+  function onPendingChange(next: boolean, action: AuthAction) {
+    if (!isPageCurrent()) return;
+    if (next) {
+      if (isFormCurrent()) setAdmission({ context: admissionOwner.context, action });
+    } else {
+      // Disappearance releases only this action; obsolete cleanup cannot unlock B.
+      setAdmission((current) => current?.action === action ? null : current);
+    }
+  }
+  function changePerson(match: CheckinMatch | null) {
+    if (!isFormCurrent()) return;
+    if (confirmed?.mid !== match?.mid || confirmed?.name !== match?.name) admissionOwner.cancel();
+    setConfirmed(match);
+  }
 
   return <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={modules.moduleEnabled} page="Service request" />}>
     <PublicContainer>
@@ -52,7 +87,12 @@ export function PublicMachineServicePage({ defaultPrinter = false }: { defaultPr
           {!loading && !error && enabled && types.length > 0 ? <>
             <Card>
               <Field label="Machine type" helperText="Request a type of machine; staff will choose the equipment.">
-                <Dropdown value={selected ? String(selected.id) : ""} disabled={pending} onChange={(event) => setChoice({ slug, id: event.target.value })}>
+                <Dropdown value={selected ? String(selected.id) : ""} disabled={pending} onChange={(event) => {
+                  if (!isFormCurrent()) return;
+                  if (selected && event.target.value === String(selected.id)) return;
+                  admissionOwner.cancel();
+                  setChoice({ slug, id: event.target.value });
+                }}>
                   <option value="">Choose a machine type</option>
                   {types.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
                 </Dropdown>
@@ -63,15 +103,17 @@ export function PublicMachineServicePage({ defaultPrinter = false }: { defaultPr
               <Card aria-busy="true" aria-label="Checking sign-in"><Skeleton className="h-11 w-full" /></Card> :
               !checkedIn && session.signedOut ? <PublicSignInCallout href={memberSignInHref(space.header.homePath, modules.moduleEnabled("member_accounts"))}>
                 Service requests are filed under your account.
-              </PublicSignInCallout> : <ServiceRequestForm
-                key={`${slug}:${selected.id}`} slug={slug} type={selected} identityReady={identityReady}
+              </PublicSignInCallout> : <>
+              {checkedIn ? <Card><CheckinIdentityStep makerspaceSlug={slug} confirmed={confirmed}
+                onConfirm={changePerson} disabled={pending} /></Card> : null}
+              <ServiceRequestForm
+                key={JSON.stringify([selected.id, person])} slug={slug} type={selected} identityReady={identityReady}
                 identity={checkedIn && confirmed ? { name: confirmed.name, checkin_mid: confirmed.mid } : {}}
-                identityStep={checkedIn ? <CheckinIdentityStep makerspaceSlug={slug} confirmed={confirmed} onConfirm={(match) => setCheckin({ slug, match })} disabled={pending} /> : undefined}
-                onPendingChange={setPending} onSuccess={tracker.onSuccess}
-              />) : null}
+                isVisitCurrent={isFormCurrent} onPendingChange={onPendingChange} onSuccess={tracker.onSuccess}
+              /></>) : null}
           </> : null}
         </section>
-        {enabled ? <aside aria-label="Service request status"><ServiceStatusPanel tracker={tracker} statusPath={serviceRequestPath(space.tenantPath)} /></aside> : null}
+        {enabled ? <aside aria-label="Service request status"><ServiceStatusPanel tracker={tracker} statusPath={serviceRequestPath(space.tenantPath)} savedRequestsPath={space.tenantPath("my-requests")} /></aside> : null}
       </div>
     </PublicContainer>
   </PublicShell>;

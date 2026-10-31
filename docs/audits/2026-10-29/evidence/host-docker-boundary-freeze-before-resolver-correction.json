@@ -1,0 +1,26 @@
+{
+  "status": "test-only-source-inspected-runtime-unverified",
+  "files": [
+    {
+      "path": "backend/tests/host_operator_boundary_helpers.py",
+      "lines": 263,
+      "sha256": "253f80d9a1c5a500f314884e88075bdf5f5453febabe0afa4cdc25a83c25dade"
+    },
+    {
+      "path": "backend/tests/test_host_update_boundary.py",
+      "lines": 73,
+      "sha256": "54ed1320955ebb373e5b55ec33d7b49baf4f5de64878da4537d5a8ae30bd3f9f"
+    },
+    {
+      "path": "backend/tests/test_host_operator_docker_boundary.py",
+      "lines": 248,
+      "sha256": "60300ea055fa3227baaf3d217e806d71e7328f4d1dbc018a4a62f22b272eb830"
+    }
+  ],
+  "stage1": "APPROVED; parent authorized bounded existing guard correction",
+  "stage2_report_original_path": "evidence/host-docker-boundary-stage2.md",
+  "stage2_report_current_path": "docs/audits/2026-10-29/evidence/host-docker-boundary-stage2.md",
+  "source_changes": false,
+  "limits": "Static AST/literal import regression guard, not formal computed-import/RCE proof",
+  "parent_command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/repo/backend python -m pytest -q -c /dev/null --noconftest -p no:cacheprovider tests/test_host_update_boundary.py tests/test_host_operator_docker_boundary.py"
+}

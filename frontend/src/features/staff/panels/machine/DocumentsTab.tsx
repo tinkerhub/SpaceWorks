@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileText } from "lucide-react";
 
 import { Button, Chip, ConfirmDialog, Dropdown, EmptyState, Field, Input, SectionHeading, Skeleton } from "../../../../components/ui";
@@ -14,6 +14,10 @@ import {
 import type { MachineDocument } from "../../machinesApi";
 import { formatBytes, useNotify, When } from "./machineUi";
 
+import { useAuthActionOwner } from "../../../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../../../lib/apiSession";
+import { admitUpload } from "../../../../lib/uploadProtocol";
+
 // Mirrors backend `MachineDocument.DocType`. The old free-text field accepted anything, so a
 // typo uploaded the file to storage and only then failed the finalize step.
 const DOC_TYPES = [
@@ -22,7 +26,18 @@ const DOC_TYPES = [
 ];
 const ACCEPT = ".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf";
 
-export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdit: boolean }) {
+type Props = { machineId: number; canEdit: boolean };
+export function DocumentsTab(props: Props) {
+  return <OwnedDocumentsTab key={`${props.machineId}:${getSessionGeneration()}`} {...props} />;
+}
+function OwnedDocumentsTab({ machineId, canEdit }: Props) {
+  const uploadOwner = useAuthActionOwner(machineId);
+  const viewOwner = useAuthActionOwner(machineId);
+  const removeOwner = useAuthActionOwner(machineId);
+  const [uploading, setUploading] = useState(false);
+  const [viewing, setViewing] = useState<number | null>(null);
+  const [removing, setRemoving] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const queryClient = useQueryClient();
   const notify = useNotify();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -34,34 +49,76 @@ export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdi
     queryFn: () => getMachineDocuments(machineId),
   });
   const items = collectionResults(documents.data);
-  const upload = useMutation({
-    mutationFn: () => {
-      if (!file) throw new Error("Choose a document to upload");
-      return uploadMachineDocument(machineId, file, docType.trim());
-    },
-    onSuccess: async (document) => {
-      notify.success(`${document?.original_filename ?? file?.name ?? "Document"} uploaded`);
+  async function upload() {
+    if (!canEdit || !file || !uploadOwner.isIntentCurrent()) return;
+    const action = uploadOwner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => uploadOwner.isCurrent(action));
+    const selectedFile = file;
+    const selectedType = docType.trim();
+    setUploading(true);
+    setError(null);
+    try {
+      const document = await uploadMachineDocument(machineId, selectedFile, selectedType, guard);
+      guard.assertCurrent();
+      notify.success(`${document?.original_filename ?? selectedFile.name} uploaded`);
       setFile(null);
       setDocType("manual");
       if (fileInput.current) fileInput.current.value = "";
-      await queryClient.invalidateQueries({ queryKey: machineKeys.documents(machineId) });
-    },
-    onError: (error) => notify.failure("Couldn't upload the document.", error),
-  });
-  const view = useMutation({
-    mutationFn: (documentId: number) => getMachineDocumentUrl(documentId),
-    onSuccess: ({ url }) => window.open(url, "_blank", "noopener,noreferrer"),
-    onError: (error) => notify.failure("Couldn't open the document.", error),
-  });
-  const remove = useMutation({
-    mutationFn: deleteMachineDocument,
-    onSuccess: async () => {
-      notify.success(`${deleting?.original_filename ?? "Document"} deleted`);
+      void queryClient.invalidateQueries({ queryKey: machineKeys.documents(machineId) });
+    } catch (caught) {
+      if (uploadOwner.isCurrent(action)) {
+        setError(caught instanceof Error ? caught : new Error("Couldn't upload the document."));
+        notify.failure("Couldn't upload the document.", caught);
+      }
+    } finally {
+      if (uploadOwner.isCurrent(action)) setUploading(false);
+      uploadOwner.finish(action);
+    }
+  }
+  async function view(documentId: number) {
+    if (!viewOwner.isIntentCurrent()) return;
+    const action = viewOwner.begin();
+    if (!action) return;
+    setViewing(documentId);
+    setError(null);
+    try {
+      const { url } = await getMachineDocumentUrl(documentId);
+      if (viewOwner.isCurrent(action)) window.open(url, "_blank", "noopener,noreferrer");
+    } catch (caught) {
+      if (viewOwner.isCurrent(action)) {
+        setError(caught instanceof Error ? caught : new Error("Couldn't open the document."));
+        notify.failure("Couldn't open the document.", caught);
+      }
+    } finally {
+      if (viewOwner.isCurrent(action)) setViewing(null);
+      viewOwner.finish(action);
+    }
+  }
+  async function remove() {
+    if (!canEdit || !deleting || !removeOwner.isIntentCurrent()) return;
+    const action = removeOwner.begin();
+    if (!action) return;
+    const target = { ...deleting };
+    setRemoving(true);
+    setError(null);
+    try {
+      await deleteMachineDocument(target.id);
+      if (!removeOwner.isCurrent(action)) return;
+      notify.success(`${target.original_filename} deleted`);
       setDeleting(null);
-      await queryClient.invalidateQueries({ queryKey: machineKeys.documents(machineId) });
-    },
-    onError: (error) => notify.failure("Couldn't delete the document.", error),
-  });
+      void queryClient.invalidateQueries({ queryKey: machineKeys.documents(machineId) });
+    } catch (caught) {
+      if (removeOwner.isCurrent(action)) {
+        setError(caught instanceof Error ? caught : new Error("Couldn't delete the document."));
+        notify.failure("Couldn't delete the document.", caught);
+      }
+    } finally {
+      if (removeOwner.isCurrent(action)) setRemoving(false);
+      removeOwner.finish(action);
+    }
+  }
+  const canEditUpload = () => uploadOwner.isIntentCurrent() && !uploadOwner.isPending();
 
   return (
     <section className="grid gap-4">
@@ -88,39 +145,38 @@ export function DocumentsTab({ machineId, canEdit }: { machineId: number; canEdi
                   {formatBytes(document.size_bytes)} · <When value={document.created_at} />
                 </span>
               </span>
-              <Button size="sm" disabled={view.isPending && view.variables === document.id} onClick={() => view.mutate(document.id)}>View</Button>
-              {canEdit ? <Button size="sm" variant="danger-quiet" onClick={() => setDeleting(document)}>Delete…</Button> : null}
+              <Button size="sm" disabled={viewing === document.id} onClick={() => void view(document.id)}>View</Button>
+              {canEdit ? <Button size="sm" variant="danger-quiet" disabled={removing} onClick={() => { if (removeOwner.isIntentCurrent() && !removeOwner.isPending()) setDeleting(document); }}>Delete…</Button> : null}
             </li>
           ))}
         </ul>
       ) : null}
       {canEdit ? (
         <form className="grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"
-          onSubmit={(event) => { event.preventDefault(); upload.mutate(); }}>
+          onSubmit={(event) => { event.preventDefault(); void upload(); }}>
           <Field label="File" helperText="PDF, image or CAD file.">
-            <Input ref={fileInput} type="file" accept={ACCEPT} className="py-2" onChange={(event) => setFile(event.target.files?.[0] ?? null)} required />
+            <Input ref={fileInput} type="file" accept={ACCEPT} className="py-2" disabled={uploading} onChange={(event) => { if (canEditUpload()) setFile(event.target.files?.[0] ?? null); }} required />
           </Field>
           <Field label="Document type">
-            <Dropdown value={docType} onChange={(event) => setDocType(event.target.value)} required>
+            <Dropdown value={docType} disabled={uploading} onChange={(event) => { if (canEditUpload()) setDocType(event.target.value); }} required>
               {DOC_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}
             </Dropdown>
           </Field>
           <div className="flex justify-end sm:col-span-2">
-            <Button variant="primary" type="submit" loading={upload.isPending} loadingLabel="Uploading…" disabled={!file || !docType.trim()}>Upload</Button>
+            <Button variant="primary" type="submit" loading={uploading} loadingLabel="Uploading…" disabled={!file || !docType.trim()}>Upload</Button>
           </div>
         </form>
       ) : null}
-      {[upload.error, view.error, remove.error].map((error, index) => error instanceof Error
-        ? <p key={index} className="text-caption text-danger-fg">{error.message}</p> : null)}
+      {error ? <p className="text-caption text-danger-fg">{error.message}</p> : null}
       <ConfirmDialog
         open={deleting !== null}
         title={`Delete ${deleting?.original_filename ?? "this document"}?`}
         message="The file is removed from storage for good."
         confirmLabel="Delete document"
         tone="danger"
-        pending={remove.isPending}
-        onConfirm={() => { if (deleting) remove.mutate(deleting.id); }}
-        onCancel={() => setDeleting(null)}
+        pending={removing}
+        onConfirm={() => { void remove(); }}
+        onCancel={() => { if (removeOwner.isIntentCurrent() && !removeOwner.isPending()) setDeleting(null); }}
       />
     </section>
   );

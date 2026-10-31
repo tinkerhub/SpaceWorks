@@ -84,7 +84,7 @@ def test_print_batch_item_keeps_its_snapshot_after_qr_rebind():
         title="Printed labels",
         created_by=actor,
     )
-    item = add_qr_to_batch(batch, qr)
+    item = add_qr_to_batch(actor, batch, qr)
 
     with transaction.atomic():
         rebind_qr_target(

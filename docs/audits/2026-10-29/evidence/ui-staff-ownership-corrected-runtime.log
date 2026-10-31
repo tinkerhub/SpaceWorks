@@ -1,0 +1,66 @@
+
+> test
+> vitest run --maxWorkers=1 staffUploadProtocol.ownership imageUploadConfig.ownership ImageUploader.ownership WarrantySection.ownership StaffAttachmentBatches.ownership panels/machine panels/MachinesPanel panels/Queues panels/EvidenceUpload.ownership panels/HandoverEvidence.ownership panels/ProcurementPanel.test DirectLoans.test evidenceUi.test
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [32m✓[39m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1382[2mms[22m[39m
+   [33m[2m✓[22m[39m raw upload cannot finalize under the new resource or clear its selected file/type [33m 496[2mms[22m[39m
+   [33m[2m✓[22m[39m raw upload cannot finalize under the new actor or clear its selected file/type [33m 424[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1393[2mms[22m[39m
+     [33m[2m✓[22m[39m paused queue/manual keep click-time bodies, synchronous edit/duplicate guards, and independent owners [33m 378[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.ownership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1674[2mms[22m[39m
+   [33m[2m✓[22m[39m direct type A→B→A navigation preserves container service drafts and resets consumable fields and mutation error [33m 1090[2mms[22m[39m
+   [33m[2m✓[22m[39m type-local pending state resets while old A settlement cannot clear B or erase preserved A drafts [33m 582[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServiceConsoleContracts.ownership.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[33m 1884[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.workflows.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1656[2mms[22m[39m
+     [33m[2m✓[22m[39m creates consumables from a type page with that type scope [33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m offers shared pools plus only the selected machine's bound pool [33m 686[2mms[22m[39m
+ [32m✓[39m src/features/staff/StaffAttachmentBatches.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1528[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesHandoverModals.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1411[2mms[22m[39m
+     [33m[2m✓[22m[39m submits exact individual outcomes without a container, leaving pending units on loan [33m 366[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 1116[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachineTypesPanel.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1007[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects blank and case-insensitive duplicate entries before creation [33m 415[2mms[22m[39m
+ [32m✓[39m src/features/staff/ImageUploader.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1078[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesIssueFlow.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1031[2mms[22m[39m
+     [33m[2m✓[22m[39m skips assignment when no container is chosen (selected then cleared: false) [33m 322[2mms[22m[39m
+     [33m[2m✓[22m[39m locks a successful container assignment and preserves photo, scans and remark for issue retry [33m 414[2mms[22m[39m
+ [32m✓[39m src/features/staff/DirectLoans.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 616[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolCreateForm.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 693[2mms[22m[39m
+     [33m[2m✓[22m[39m selects a named tile and submits its most recent pool hex separately [33m 405[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MaintenanceDocuments.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 608[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/EvidenceUpload.ownership.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 681[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/maintenanceHooks.ownership.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 597[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/BuiltinTypeRow.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 644[2mms[22m[39m
+     [33m[2m✓[22m[39m lets a space manager change a built-in for this makerspace only, sending only what differs [33m 384[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/OverviewTab.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 553[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a status draft through unrelated refreshes and blocks both details click and submit [33m 340[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/manualPrice.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 511[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterServiceConsole.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 451[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/HandoverEvidence.ownership.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 484[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 445[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineDrawer.consumables.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffUploadProtocol.ownership.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 472[2mms[22m[39m
+ [32m✓[39m src/features/staff/WarrantySection.ownership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 444[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/HandoverConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterQueueAuthority.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 401[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 267[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsoleInvalidation.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 301[2mms[22m[39m
+     [33m[2m✓[22m[39m refreshes the Operations reports and every payment view after recording a payment [32m 300[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineCreateForm.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 231[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServicePaymentGating.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineTypeConsumables.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 204[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PublicPrinterQueueSetup.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 159[2mms[22m[39m
+ [32m✓[39m src/features/staff/imageUploadConfig.ownership.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m src/features/staff/evidenceUi.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/ProcurementPanel.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/typeConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m38 passed[39m[22m[90m (38)[39m
+[2m      Tests [22m [1m[32m247 passed[39m[22m[90m (247)[39m
+[2m   Start at [22m 21:07:49
+[2m   Duration [22m 75.65s[2m (transform 2.01s, setup 5.76s, import 14.04s, tests 25.25s, environment 25.84s)[22m
+

@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "scope": "Current public audit text artifacts",
+  "files_scanned": 608,
+  "jwt_shaped_values": 0,
+  "password_hashes": 0,
+  "actual_private_test_secret_matches": 0,
+  "raw_failed_runtime_logs": "Retained privately; not copied into this report.",
+  "limits": "Pattern and known-value scan is not a guarantee against every possible sensitive string."
+}

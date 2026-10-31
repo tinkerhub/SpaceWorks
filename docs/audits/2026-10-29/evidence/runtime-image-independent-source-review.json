@@ -1,0 +1,87 @@
+{
+  "status": "independent-root-source-read-approved-for-separate-Stage3-authoring-runtime-pending",
+  "finding": "review4-P1-default-runtime-OCI-identity",
+  "files": {
+    "scripts/provision-runtime-image.py": {
+      "sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+      "lines": 213,
+      "stage2_sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b"
+    },
+    "scripts/setup-host-orchestration.sh": {
+      "sha256": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+      "lines": 110,
+      "stage2_sha256": "d69705f6ba4fbcbcf6279c810cc6d1d9a4223963bca1262b5b3b80a2a0a70706"
+    },
+    "scripts/update.sh": {
+      "sha256": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+      "lines": 279,
+      "stage2_sha256": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5"
+    },
+    "scripts/install-host-bundle.sh": {
+      "sha256": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+      "lines": 64,
+      "stage2_sha256": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64"
+    },
+    "setup.sh": {
+      "sha256": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31",
+      "lines": 277,
+      "stage2_sha256": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31"
+    },
+    "backend/apps/backup/runtime_image_identity.py": {
+      "sha256": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+      "lines": 30,
+      "stage2_sha256": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736"
+    },
+    "backend/apps/backup/full_capture.py": {
+      "sha256": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+      "lines": 157,
+      "stage2_sha256": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074"
+    },
+    "backend/apps/backup/archive_payload.py": {
+      "sha256": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f",
+      "lines": 231,
+      "stage2_sha256": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f"
+    },
+    ".env.example": {
+      "sha256": "d14b1f964f3ebd76e76b7db1be126e5eb23c701be3c8d71c8068aeffc10ab61d",
+      "lines": 191,
+      "stage2_sha256": "d14b1f964f3ebd76e76b7db1be126e5eb23c701be3c8d71c8068aeffc10ab61d"
+    },
+    "docs/self-hosting.md": {
+      "sha256": "d133cc35c9b8d0962f260e4a9093e2a5b414c3504a165a79097024dc2e9e0e9e",
+      "lines": 1181,
+      "stage2_sha256": "a6669890a868940f207e97ca80a983c3be83acddb864f06e2f001a3778e12fcb"
+    },
+    "docs/SOURCE-MAP.md": {
+      "sha256": "8a57ff937aaf1fe4116f3b3429c1d7b98704d7629f9f9088d6ca95378345cff4",
+      "lines": 390,
+      "stage2_sha256": "8a57ff937aaf1fe4116f3b3429c1d7b98704d7629f9f9088d6ca95378345cff4"
+    }
+  },
+  "independent_parent_read": true,
+  "source_behavior_reviewed": [
+    "Actual selected repository RepoDigest plus expected entrypoint; image Id only as change witness",
+    "Atomic private dotenv update preserves unrelated secret bytes and rejects ambiguous/unsafe inputs",
+    "Setup rebinds after final pull; updater/rollback startup forbids implicit pulls",
+    "Rollback identity and record refresh chained explicitly under set +e; previous producer marker bytes retained",
+    "FULL selection freezes required OCI before source identity/dump; projection/signing refuse substitution; non-FULL routes retain existing behavior"
+  ],
+  "root_documentation_addendum": "Only self-hosting added explicit P2 capability upgrade note and verified primary Docker Compose reference after source author release; all eight production files match released Stage2 hashes. Later two-line no-pull helper behavior/reference note is also root-owned; final doc hash recorded.",
+  "primary_references": [
+    "https://docs.docker.com/reference/cli/docker/image/pull/",
+    "https://docs.docker.com/reference/cli/docker/compose/up/"
+  ],
+  "runtime_pending": true,
+  "no_protected_hash_refresh": true,
+  "production_approval": false,
+  "no_pull_followup": {
+    "status": "independently-read-exact-six-site-source-delta-runtime-pending",
+    "path": "scripts/setup-host-orchestration.sh",
+    "before_sha256": "d69705f6ba4fbcbcf6279c810cc6d1d9a4223963bca1262b5b3b80a2a0a70706",
+    "after_sha256": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+    "inverse_byte_reconstruction_passed": true,
+    "updater_producer_marker_changed": false,
+    "reason": "Keep post-provision host Docker helpers from implicitly replacing a missing cached image; fail before startup.",
+    "primary_reference": "https://docs.docker.com/reference/cli/docker/container/run/#set-the-pull-policy---pull"
+  }
+}

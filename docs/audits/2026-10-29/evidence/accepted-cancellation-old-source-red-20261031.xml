@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="5.142" timestamp="2026-10-30T22:34:09.299972+00:00">
+    <testcase classname="tests.hardware_requests.test_accepted_cancellation_api" name="test_real_accept_then_cancel_releases_only_the_approved_reservation" time="4.787">
+      <failure type="AssertionError" message="Actual acceptance reserved the approved stock; the old source has no cancellation route, so the first feature assertion observed cancel HTTP404 instead of200.">Actual acceptance reserved the approved stock; the old source has no cancellation route, so the first feature assertion observed cancel HTTP404 instead of200.</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

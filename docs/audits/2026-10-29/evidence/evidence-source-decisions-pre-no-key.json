@@ -1,0 +1,442 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root, GPT-6; exact serving-model identifier is not exposed in this session",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 19,
+  "observed_lexical_owner_count": 114,
+  "owner_census": {
+    "modules": 19,
+    "classes_including_nested_classes": 29,
+    "functions_including_methods": 66,
+    "method": "Python ast parsed actual source bytes without importing application code. Recursive ClassDef, FunctionDef and AsyncFunctionDef owners were enumerated, with a separate module owner per file. Declaration starts exclude decorators. Lambdas remain within their enclosing named owner.",
+    "difference_from_supplied_count": "The actual census is 114, not 111. No owners were removed to match the supplied estimate.",
+    "decision_method": "Individual decisions follow full source reading. The AST census supplied completeness metadata only.",
+    "reference_convention": "L references identify lines in the containing selected file. Other paths identify bounded context."
+  },
+  "selected_hashes_rechecked": true,
+  "selected_hashes_unchanged_during_review": true,
+  "final_hash_check_utc": "2026-10-29T19:52:05Z",
+  "stale_files": [],
+  "blanket_approval": false,
+  "runtime_validation": "Not performed. No tests, builds, application execution, provider calls or migrations were run.",
+  "changes_made": [],
+  "concurrent_plan": {
+    "path": "backend/apps/evidence/finalization.py",
+    "observed_signature": "charge_storage_once(evidence, size)",
+    "observed_forwarding": "add_storage(evidence.makerspace, size)",
+    "status": "The proposed optional no_key=False argument and forwarding were absent at both hash observations. This packet does not review or approve that future change."
+  },
+  "findings": [
+    {
+      "id": "EVID-S01",
+      "status": "finding-open",
+      "priority": "P2",
+      "title": "Compliance metrics count retained metadata as live objects after byte expiry",
+      "selected_owners": ["reports.py::build_evidence_compliance", "reports.py::_rolled_buckets", "reports.py::_live_buckets"],
+      "context_owner": "backend/apps/operations/report_rollups.py::_finalize_bucket",
+      "reachable_path": "A successful services_retention._complete leaves EvidencePhoto intact and writes EvidenceObjectRetentionState.EXPIRED. reports._live_buckets still increments object_live_count for that photo and sets object_expired_count to zero. Newly finalized rollups use the same constants.",
+      "impact": "Live and recomputed compliance output misrepresents expired bytes as live.",
+      "evidence": [
+        "backend/apps/evidence/reports.py:70-96",
+        "backend/apps/evidence/services_retention.py:194-236",
+        "backend/apps/operations/report_rollups.py:69-94",
+        "docs/audits/2026-10-29/evidence/evidence-report-open-findings.md:1-26"
+      ],
+      "required_resolution": "Specify creation-time history versus current retained-object state, including the meaning of bytes. Preserve append-only historical revisions; define how current metrics remain correct for older rolled buckets. Cover actual byte expiry, issue/return partitions and tenant scope.",
+      "test_evidence_limit": "operations/test_report_coverage_rollups.py:116-149 deletes photo rows through the maintenance gate. evidence/test_retention_rollup_boundaries.py:39-61 exercises mocked expiry but asserts only that an existing rollup is unchanged. Neither establishes correct current live/expired report metrics.",
+      "correction": "None."
+    },
+    {
+      "id": "EVID-S02",
+      "status": "finding-open",
+      "priority": "P1",
+      "title": "Expiry claims do not revalidate a newly committed retention policy",
+      "selected_owners": ["services_retention.py::sweep_evidence_retention", "services_retention.py::_sweep_makerspace", "services_retention.py::_claim"],
+      "reachable_path": "The sweep snapshots candidate IDs and policy_days once. Before a later candidate is claimed, a manager can commit update_policy increasing retention, for example from 30 to 365 days. _claim reloads the photo but never reloads policy or checks created_at against a fresh cutoff. The sweep deletes that candidate using the old snapshot.",
+      "impact": "Evidence bytes can be irreversibly deleted although the longer policy committed before their expiry claim.",
+      "evidence": [
+        "backend/apps/evidence/retention_policy.py:38-72",
+        "backend/apps/evidence/retention_policy.py:75-85",
+        "backend/apps/evidence/services_retention.py:99-126",
+        "backend/apps/evidence/services_retention.py:154-191",
+        "backend/apps/tenant_migration/gate_runtime.py:59-98"
+      ],
+      "boundary": "The tenant source boundary uses shared coordination; it does not serialize ordinary policy updates against the sweep. No runtime interleaving was executed.",
+      "correction": "None."
+    },
+    {
+      "id": "EVID-S03",
+      "status": "finding-open",
+      "priority": "P1",
+      "title": "Expiry can subtract uncharged, client-declared bytes from unrelated managed storage",
+      "selected_owners": ["services_retention.py::_sweep_makerspace", "services_retention.py::_complete"],
+      "reachable_path": "An authorized upload-URL request creates a photo with caller-supplied size_bytes before any upload or finalization. If no upload occurs, both object HEADs later return missing. The sweep falls back to recorded_size. With no finalization row, _complete treats quota_was_charged as true even in PUT mode and calls free_storage with that declared amount.",
+      "impact": "Expiry of an unuploaded photo can reduce storage_bytes_used for other objects, potentially to zero, weakening managed quota enforcement. This requires managed mode and an enabled sweep after the retention window.",
+      "evidence": [
+        "backend/apps/evidence/serializers.py:7-15",
+        "backend/apps/evidence/views.py:68-98",
+        "backend/apps/evidence/finalization.py:60-76",
+        "backend/apps/evidence/services_retention.py:111-118",
+        "backend/apps/evidence/services_retention.py:186-190",
+        "backend/apps/evidence/services_retention.py:215-221",
+        "backend/apps/makerspaces/limits_usage.py:191-202"
+      ],
+      "boundary": "Terminal-state idempotence prevents repeated subtraction for one row, but does not prove that the first subtraction corresponds to a charge. No provider or counter behavior was executed.",
+      "correction": "None."
+    },
+    {
+      "id": "EVID-S04",
+      "status": "finding-open",
+      "priority": "P2",
+      "title": "Skipping an active finalizer leaves a committed expiry blocker",
+      "selected_owners": ["services_retention.py::sweep_evidence_retention", "services_retention.py::_sweep_makerspace", "services_retention.py::_claim"],
+      "reachable_path": "For an eligible photo with a fresh PROMOTING finalization and no retention row, _claim creates an EXPIRING retention row before checking the finalizer. It then returns None normally, committing that new row without a claim token. The finalizer can finish, but the consuming workflow's lock_evidence_for_attachment returns false because any retention row exists.",
+      "impact": "A sweep that reports the photo as skipped can nevertheless reject the in-flight issue or return attachment and leave it blocked pending subsequent retention processing.",
+      "evidence": [
+        "backend/apps/evidence/services_retention.py:158-175",
+        "backend/apps/evidence/retention_models.py:51-62",
+        "backend/apps/evidence/finalization.py:106-118",
+        "backend/apps/evidence/finalization.py:151-172",
+        "backend/apps/hardware_requests/handover_workflow.py:106-128"
+      ],
+      "boundary": "The source-confirmed case uses an already eligible photo being finalized concurrently; no PostgreSQL interleaving was executed.",
+      "correction": "None."
+    },
+    {
+      "id": "EVID-S05",
+      "status": "finding-open",
+      "priority": "P1",
+      "title": "Evidence upload and detail omit staff-origin tenant admission",
+      "selected_owners": ["views.py::ActiveAuthenticatedPermission", "views.py::ActiveAuthenticatedPermission.has_permission", "views.py::EvidenceUploadUrlView", "views.py::EvidenceUploadUrlView.post", "views.py::EvidenceDetailView", "views.py::EvidenceDetailView.get_queryset", "views.py::EvidenceDetailView.retrieve"],
+      "reachable_path": "With API_CLIENT_AUTH_REQUIRED false and no opted-in HMAC credentials, an active staff_api actor authorized in spaces A and B can send an Origin-A request targeting B's upload URL or evidence detail. Upload checks HasMakerspaceAction; detail checks active authentication and actor-wide action scope. Neither invokes staff_origin_scope_allows or an equivalent origin restriction. JWT staff_api admission does not apply the staff-social origin validator.",
+      "impact": "A tenant frontend can obtain another authorized tenant's private evidence URL or create its upload metadata through the same actor session, violating the repository's origin-to-tenant boundary.",
+      "evidence": [
+        "backend/apps/evidence/views.py:40-52",
+        "backend/apps/evidence/views.py:63-98",
+        "backend/apps/evidence/views.py:120-145",
+        "backend/apps/evidence/views.py:186-205",
+        "backend/apps/accounts/permissions.py:44-63",
+        "backend/apps/accounts/authentication.py:59-86",
+        "backend/apps/makerspaces/origin_scope.py:139-161",
+        "backend/apps/inventory/middleware.py:45-65",
+        "docs/INVARIANTS.md:44-69"
+      ],
+      "boundary": "This does not bypass the actor's RBAC membership scope. It bypasses the additional browser-origin restriction. Retention settings use IsActiveStaff and do apply that restriction.",
+      "correction": "None."
+    }
+  ],
+  "files": [
+    {
+      "path": "backend/apps/evidence/__init__.py",
+      "file_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":1,"purpose":"Provide the evidence package marker.","runtime_boundary":"Empty import surface.","disposition":"Retain; it executes no application behavior.","decision":"reviewed-no-finding","evidence":"L1 is blank.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/admin.py",
+      "file_sha256": "3e4dfef7897ed3383b41c6af0e8642989c51b6686bc9f6a2af64dae3d7065a0f",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":102,"purpose":"Import private-preview dependencies and register EvidencePhotoAdmin.","runtime_boundary":"Django admin registration; no standalone API admission.","disposition":"Retain explicit superuser-admin inheritance; child behavior is decided separately.","decision":"reviewed-no-finding","evidence":"L1-11 import storage helpers and register the model with SuperuserOnlyModelAdmin.","findings":[]},
+        {"owner":"EvidencePhotoAdmin","kind":"class","line_start":11,"line_end":102,"purpose":"Declare read-only evidence listings, filters and preview fields.","runtime_boundary":"Control-plane ModelAdmin protected by its inherited active-superuser and hidden-space policy.","disposition":"Retain read-only presentation and inherited authorization.","decision":"reviewed-no-finding","evidence":"L12-36 declare fields; backend/config/admin_access.py:118-139,185-199 supplies scope and permission checks.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.get_queryset","kind":"method","line_start":38,"line_end":39,"purpose":"Fetch retention state alongside each photo.","runtime_boundary":"Extends the inherited scoped admin queryset.","disposition":"Retain superclass filtering before select_related; this nullable join is not combined with select_for_update.","decision":"reviewed-no-finding","evidence":"L38-39; backend/config/admin_access.py:118-139 excludes hidden tenants.","findings":[]},
+        {"owner":"EvidencePhotoAdmin._expired_label","kind":"method","line_start":42,"line_end":46,"purpose":"Render terminal expiry without storage access.","runtime_boundary":"Local formatting of related retention state.","disposition":"Retain the EXPIRED-only label and timestamp.","decision":"reviewed-no-finding","evidence":"L43-46 inspect state and return text; no object helper is called.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.photo_preview","kind":"method","line_start":48,"line_end":73,"purpose":"Render a signed evidence preview with staging fallback.","runtime_boundary":"Authorized admin rendering followed by object HEAD/signing outside a local row-lock transaction.","disposition":"Retain terminal-state short circuit, escaped HTML and unavailable fallback.","decision":"reviewed-no-finding","evidence":"L51-52 return before storage when expired; L58-63 select final/staging and handle failures; L66-73 use format_html.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.thumb","kind":"method","line_start":77,"line_end":88,"purpose":"Render a compact signed final-object thumbnail.","runtime_boundary":"Admin list rendering; intentionally omits staging HEAD requests.","disposition":"Retain expiry short circuit and failure placeholder; an unconsumed upload may lack a thumbnail by documented design.","decision":"reviewed-no-finding","evidence":"L80-85 avoid signing expired objects and catch failures; L54-57 explain the staging tradeoff.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.has_add_permission","kind":"method","line_start":92,"line_end":93,"purpose":"Disable manual evidence creation in admin.","runtime_boundary":"Django admin add permission.","disposition":"Retain unconditional refusal.","decision":"reviewed-no-finding","evidence":"L92-93 return False.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.has_change_permission","kind":"method","line_start":95,"line_end":96,"purpose":"Disable admin edits to immutable photos.","runtime_boundary":"Django admin change permission.","disposition":"Retain unconditional refusal alongside model/database guards.","decision":"reviewed-no-finding","evidence":"L95-96 return False; models.py:28-31 independently refuses saved-row mutation.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.has_delete_permission","kind":"method","line_start":98,"line_end":99,"purpose":"Disable ordinary admin photo deletion.","runtime_boundary":"Django admin delete permission.","disposition":"Retain unconditional refusal; maintenance deletion remains a separate boundary.","decision":"reviewed-no-finding","evidence":"L98-99 return False; models.py:33-34 refuses model deletion.","findings":[]},
+        {"owner":"EvidencePhotoAdmin.has_view_permission","kind":"method","line_start":101,"line_end":102,"purpose":"Delegate evidence viewing to the control-plane policy.","runtime_boundary":"Inherited active-superuser and hidden-object permission.","disposition":"Retain superclass delegation rather than introducing a broader permission.","decision":"reviewed-no-finding","evidence":"L101-102; backend/config/admin_access.py:185-199 checks active superuser, password rotation and hidden objects.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/apps.py",
+      "file_sha256": "2be2ccc01e361241892edb4c97d95c36e27ea4e7873e3e6d3b8e793d6eda7960",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":9,"purpose":"Expose the evidence AppConfig.","runtime_boundary":"Django application discovery.","disposition":"Retain the AppConfig-only import surface.","decision":"reviewed-no-finding","evidence":"L1 imports AppConfig; L4 declares EvidenceConfig.","findings":[]},
+        {"owner":"EvidenceConfig","kind":"class","line_start":4,"line_end":9,"purpose":"Declare application identity and default automatic primary keys.","runtime_boundary":"Django model registration.","disposition":"Retain apps.evidence and BigAutoField configuration.","decision":"reviewed-no-finding","evidence":"L5-6 explicitly set default_auto_field and name.","findings":[]},
+        {"owner":"EvidenceConfig.ready","kind":"method","line_start":8,"line_end":9,"purpose":"Register evidence configuration checks.","runtime_boundary":"Startup imports, without provider requests.","disposition":"Retain the check-registration import.","decision":"reviewed-no-finding","evidence":"L9 imports checks; checks.py:11,26 register its two functions.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/checks.py",
+      "file_sha256": "3ba7a6f8c9e4aa0845c6624fb6385f7692eda3864d5da5ac38e088cfb69b48fc",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":43,"purpose":"Import shared bucket validation and retention bounds for registered checks.","runtime_boundary":"Django system-check registration.","disposition":"Retain shared configuration definitions; declarations do not prove deployed bucket policy.","decision":"reviewed-no-finding","evidence":"L3-8 import Error/register, bucket validation and model bounds.","findings":[]},
+        {"owner":"check_storage_bucket_separation","kind":"function","line_start":12,"line_end":23,"purpose":"Reject a shared private-evidence and public-image bucket name.","runtime_boundary":"Static settings check, with no object-store request.","disposition":"Retain evidence.E001 and the shared normalized comparison.","decision":"reviewed-no-finding","evidence":"L13-23; backend/config/storage_validation.py:12-15 strips and casefolds both names.","findings":[]},
+        {"owner":"check_evidence_retention_settings","kind":"function","line_start":27,"line_end":43,"purpose":"Validate deployment retention duration and bounded sweep size.","runtime_boundary":"Django settings validation.","disposition":"Retain 30-3650-day and 1-1000-item checks with distinct error IDs.","decision":"reviewed-no-finding","evidence":"L29-40 return evidence.E002/E003 for out-of-range values.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/finalization.py",
+      "file_sha256": "471eecb8392f9ddfb8c508bccdee4341260ed4df4f52cfdf277055272294cb72",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":196,"purpose":"Declare promotion timing, transaction and journal dependencies.","runtime_boundary":"Internal evidence-finalization service, not an authorization endpoint.","disposition":"Retain named timing constants and separate immutable-photo/mutable-journal models; no future no_key forwarding is approved.","decision":"reviewed-no-finding","evidence":"L3-15 import dependencies and define five-second waiting with 0.05-second polling.","findings":[]},
+        {"owner":"FinalizationInProgress","kind":"class","line_start":18,"line_end":19,"purpose":"Distinguish concurrent finalization from invalid evidence.","runtime_boundary":"Internal exception translated by the storage facade.","disposition":"Retain the distinct signal.","decision":"reviewed-no-finding","evidence":"L18-19; storage.py:100-107 translates it to StorageUnavailable.","findings":[]},
+        {"owner":"finalize_upload","kind":"function","line_start":22,"line_end":57,"purpose":"Claim, validate, promote and journal staged evidence.","runtime_boundary":"Caller must resolve an eligible photo; provider work occurs between short journal transactions.","disposition":"Retain staging promotion, final-object validation, completed-result reuse and exception cleanup. Provider concurrency remains unexecuted.","decision":"reviewed-no-finding","evidence":"L26-33 handle claims/recovery; L36-54 validate final or staged bytes and promote; L55-57 release a failed claim. hardware_requests/handover_workflow.py:94-128 resolves tenant/type and rechecks attachment.","findings":["EVID-S04"]},
+        {"owner":"charge_storage_once","kind":"function","line_start":60,"line_end":76,"purpose":"Charge finalized PUT evidence once at workflow commit.","runtime_boundary":"Internal consuming-workflow transaction; locks its finalization journal and delegates managed quota enforcement.","disposition":"Retain the current journal flag and atomic charge. This does not validate the retention service's separate charge inference or the proposed no_key change.","decision":"reviewed-no-finding","evidence":"L62-76 limit this path to PUT, require FINALIZED, check quota_charged, charge and mark atomically; hardware_requests/handover_workflow.py:117-128 supplies the attachment boundary.","findings":["EVID-S03"]},
+        {"owner":"_claim","kind":"function","line_start":79,"line_end":103,"purpose":"Serialize promotion and refuse retention-owned photos.","runtime_boundary":"Short transaction locking photo, finalization journal, then retention state.","disposition":"Retain retention refusal and bounded takeover of stale promotion state. EVID-S04 concerns the retention claimant creating a blocker while skipping.","decision":"reviewed-no-finding","evidence":"L82-92 lock in order and reject any retention state; L93-102 reuse FINALIZED or claim PROMOTING.","findings":["EVID-S04"]},
+        {"owner":"lock_evidence_for_attachment","kind":"function","line_start":106,"line_end":118,"purpose":"Exclude expiring or expired photos from workflow attachment.","runtime_boundary":"Requires an enclosing atomic transaction; optional flag assumes photo and journal were already locked.","disposition":"Retain conservative refusal for every retention row, including partially failed deletion; callers must honor the returned boolean.","decision":"reviewed-no-finding","evidence":"L110-118 lock photo/journal/state and return state is None; hardware_requests/handover_workflow.py:117-128 and self_checkout_workflow.py:267-270 enforce refusal.","findings":["EVID-S04"]},
+        {"owner":"_recover_or_wait","kind":"function","line_start":121,"line_end":134,"purpose":"Reuse a concurrent finalization result or recover a validated final object.","runtime_boundary":"Bounded polling and provider reads outside a locally held row-lock transaction.","disposition":"Retain five-second waiting and explicit in-progress failure; this is not proof of provider interleavings.","decision":"reviewed-no-finding","evidence":"L124-134 check FINALIZED, validate a final object, recover it or time out.","findings":[]},
+        {"owner":"_validated_or_none","kind":"function","line_start":137,"line_end":148,"purpose":"Translate missing objects to absence while enforcing the caller's byte limit.","runtime_boundary":"Adapter around the image-validation storage primitive.","disposition":"Retain narrow missing handling; propagate invalid images and provider failures.","decision":"reviewed-no-finding","evidence":"L139-143 only convert code missing; L144-147 enforce 1 <= size <= max_bytes.","findings":[]},
+        {"owner":"_complete","kind":"function","line_start":151,"line_end":172,"purpose":"Persist validated size/MIME in the finalization journal.","runtime_boundary":"Internal completion/recovery transaction locking photo then journal; it does not authorize attachment.","disposition":"Retain idempotent journal completion and leave immutable metadata untouched. Attachment must still use the retention guard.","decision":"reviewed-no-finding","evidence":"L153-172 reuse FINALIZED or save journal fields only; hardware_requests/handover_workflow.py:123-124 performs the subsequent retention check.","findings":["EVID-S04"]},
+        {"owner":"_release_claim","kind":"function","line_start":175,"line_end":187,"purpose":"Reset only the failed promoter's current claim.","runtime_boundary":"Short photo/journal locking transaction.","disposition":"Retain token-and-status matching before resetting PENDING.","decision":"reviewed-no-finding","evidence":"L181-187 require PROMOTING and matching claim_token before mutation.","findings":[]},
+        {"owner":"_result","kind":"function","line_start":190,"line_end":196,"purpose":"Reconstruct a typed validation result from a completed journal.","runtime_boundary":"Internal data conversion, not provider validation.","disposition":"Retain the immutable result projection; callers establish FINALIZED status.","decision":"reviewed-no-finding","evidence":"L193-196 copy size_bytes/content_type; _claim:L93-94 and _recover_or_wait:L127-128 gate reuse on FINALIZED.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/image_validation.py",
+      "file_sha256": "c1a40bd6072fa2f6b99531c76c8e360eadc6b832c366126cc71df9bf83723c20",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":27,"purpose":"Declare the supported decoded-image format-to-MIME mapping.","runtime_boundary":"Pure byte-validation dependency used by storage.","disposition":"Retain the explicit JPEG/PNG/WEBP allowlist.","decision":"reviewed-no-finding","evidence":"L1-10 import BytesIO/Pillow and map only three raster formats.","findings":[]},
+        {"owner":"image_mime_from_bytes","kind":"function","line_start":13,"line_end":27,"purpose":"Identify and verify supported images from untrusted bytes.","runtime_boundary":"Pillow decoding; returns a detected MIME or None.","disposition":"Retain broad decoder-exception rejection so malformed inputs do not escape as ordinary request failures.","decision":"reviewed-no-finding","evidence":"L21-27 open bytes, inspect decoded format, verify the image and return None for decoder exceptions; storage.py:162-165 additionally checks the configured MIME allowlist.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/models.py",
+      "file_sha256": "311a66b7fc4c9b6eb256498905a8edf17f978524b95722a34c8c4c04a7b175f4",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":69,"purpose":"Expose immutable-photo, finalization and retention model names.","runtime_boundary":"Django model registration and explicit retention-model re-exports.","disposition":"Retain the separate model surfaces; their child definitions receive independent decisions.","decision":"reviewed-no-finding","evidence":"L1-2 import settings/models; L66-69 explicitly re-export both retention models.","findings":[]},
+        {"owner":"EvidencePhoto","kind":"class","line_start":5,"line_end":37,"purpose":"Store durable tenant-scoped evidence provenance and declared metadata.","runtime_boundary":"ORM model with protected tenant/uploader references; application guards supplement PostgreSQL mutation triggers.","disposition":"Retain immutable rows independently of byte retention. Declared size is not proof of an upload or quota charge.","decision":"reviewed-no-finding","evidence":"L12-26 define PROTECT references, unique object_key and immutable metadata; bounded trigger declarations in migrations/0002:13-28 and 0003:13-21 enforce the database boundary.","findings":["EVID-S03"]},
+        {"owner":"EvidencePhoto.EvidenceType","kind":"class","line_start":8,"line_end":10,"purpose":"Define issue and return evidence classifications.","runtime_boundary":"Django TextChoices used by model and request serializer.","disposition":"Retain the explicit two-value vocabulary.","decision":"reviewed-no-finding","evidence":"L8-10; serializers.py:8 uses these choices.","findings":[]},
+        {"owner":"EvidencePhoto.save","kind":"method","line_start":28,"line_end":31,"purpose":"Refuse ordinary updates to an existing evidence row.","runtime_boundary":"Model save path only; queryset/raw-SQL mutations require database triggers.","disposition":"Retain existing-primary-key refusal and explicitly preserve the trigger dependency.","decision":"reviewed-no-finding","evidence":"L29-31 reject saved instances; migrations/0002:22-24 declares BEFORE UPDATE protection.","findings":[]},
+        {"owner":"EvidencePhoto.delete","kind":"method","line_start":33,"line_end":34,"purpose":"Refuse ordinary instance deletion.","runtime_boundary":"Model instance deletion; maintenance-gated database deletion is separate.","disposition":"Retain unconditional refusal without treating it as a queryset deletion guard.","decision":"reviewed-no-finding","evidence":"L33-34; migrations/0003:18-21 permits only maintenance DELETE and continues rejecting UPDATE.","findings":[]},
+        {"owner":"EvidencePhoto.__str__","kind":"method","line_start":36,"line_end":37,"purpose":"Render a minimal evidence identifier.","runtime_boundary":"Local presentation without object access.","disposition":"Retain the type/primary-key label.","decision":"reviewed-no-finding","evidence":"L37 includes evidence_type and pk only.","findings":[]},
+        {"owner":"EvidenceUploadFinalization","kind":"class","line_start":40,"line_end":63,"purpose":"Coordinate promotion and record validated metadata plus charge status.","runtime_boundary":"Mutable one-to-one journal separate from EvidencePhoto; its evidence primary key remains part of the existing schema.","disposition":"Retain separation from immutable metadata. No tenant-migration catalog compatibility is inferred from this local model review.","decision":"reviewed-no-finding","evidence":"L48-63 define the one-to-one key, status, token, validated size/MIME and quota_charged flag; finalization.py:67-76 uses the flag transactionally.","findings":[]},
+        {"owner":"EvidenceUploadFinalization.Status","kind":"class","line_start":43,"line_end":46,"purpose":"Define pending, promoting and finalized journal states.","runtime_boundary":"Internal coordination vocabulary.","disposition":"Retain distinct in-progress and completed states.","decision":"reviewed-no-finding","evidence":"L43-46; finalization.py:93-102 uses the distinctions.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/reports.py",
+      "file_sha256": "8d0b099e81ee8b7b1632d09964f8833474eb5509a7169520ea2cd28939d752da",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":115,"purpose":"Declare evidence-compliance columns and shared report dependencies.","runtime_boundary":"Internal report builder imported through the report registry; declarations provide no actor authorization.","disposition":"Retain registry integration and explicit output fields; do not infer correctness of child metric producers.","decision":"reviewed-no-finding","evidence":"L7-17 import shared rollup definitions/report scope and declare separate live, expired and retained-metadata columns.","findings":["EVID-S01"]},
+        {"owner":"build_evidence_compliance","kind":"function","line_start":21,"line_end":43,"purpose":"Assemble scoped live and rolled evidence-compliance output.","runtime_boundary":"Internal builder; HTTP callers must admit actor, tenant and modules. Aggregate mode preserves makerspace_id.","disposition":"Keep EVID-S01 open because the assembled metrics inherit incorrect live/expired semantics despite tenant grouping.","decision":"finding-open","evidence":"L26-37 read scoped spaces and combine both metric sources; L39 adds makerspace_id for aggregate output. operations/views_reports.py:68-83 supplies single-tenant admission; report_scope.py:104-119 supplies aggregate eligibility.","findings":["EVID-S01"]},
+        {"owner":"_rolled_buckets","kind":"function","line_start":46,"line_end":67,"purpose":"Select the latest rollup revision for each historical bucket and metric.","runtime_boundary":"Tenant/report/date-filtered ORM reads, without rewriting historical rows.","disposition":"Retain revision selection mechanically, but leave the meaning of historical live/expired metrics unresolved under EVID-S01.","decision":"finding-open","evidence":"L49-62 scope rows and select latest revisions; L64-66 expose their metric values. operations/report_rollups.py:77-81 writes live=created and expired=0.","findings":["EVID-S01"]},
+        {"owner":"_live_buckets","kind":"function","line_start":70,"line_end":96,"purpose":"Compute unrolled evidence creation, attachment and object-state metrics.","runtime_boundary":"Tenant/date-scoped photo reads and shared attachment lookup.","disposition":"Correct retention-state classification before approval; retained photo existence cannot establish live bytes.","decision":"finding-open","evidence":"L81-86 count every photo as object_live_count; L95 forces object_expired_count=0. services_retention.py:208-214 changes separate retention state while retaining the photo.","findings":["EVID-S01"]},
+        {"owner":"_merge","kind":"function","line_start":99,"line_end":115,"purpose":"Combine day/month buckets and calculate attachment percentage.","runtime_boundary":"Pure aggregation of already supplied metric dictionaries; aggregate rows retain tenant identity.","disposition":"Retain summation and zero-denominator handling. This does not approve the upstream object-state values.","decision":"reviewed-no-finding","evidence":"L102-111 group periods/types and calculate the percentage; L113-114 retain makerspace_id.","findings":["EVID-S01"]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/responses.py",
+      "file_sha256": "220e40aafc2edf93b8dc4cdf490f8947557c2a670a97e58957d76cd218b90a9a",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":9,"purpose":"Import DRF response primitives for evidence storage failures.","runtime_boundary":"Response-construction utility.","disposition":"Retain the small shared response surface.","decision":"reviewed-no-finding","evidence":"L1-2 import status and Response only.","findings":[]},
+        {"owner":"storage_unavailable_response","kind":"function","line_start":5,"line_end":9,"purpose":"Return a consistent typed storage-unavailable error.","runtime_boundary":"HTTP error serialization; does not inspect or expose provider exceptions.","disposition":"Retain status 503, stable code and controlled detail.","decision":"reviewed-no-finding","evidence":"L6-9 emit code storage_unavailable and HTTP_503_SERVICE_UNAVAILABLE; views.py:75-81,176-182,188-194 use it.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/retention_models.py",
+      "file_sha256": "c0c598989d660e0ae19de2c35c6756481a945cae432dd6d89f629658d89b0e90",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":85,"purpose":"Declare retention bounds and mutable coordination model dependencies.","runtime_boundary":"Django schema declarations, separate from immutable photo storage.","disposition":"Retain shared duration constants and explicit model separation.","decision":"reviewed-no-finding","evidence":"L1-7 import validators/Q and define bounds 30 and 3650.","findings":[]},
+        {"owner":"EvidenceRetentionPolicy","kind":"class","line_start":10,"line_end":37,"purpose":"Store an optional per-makerspace retention override.","runtime_boundary":"Unique makerspace relation with an ordinary automatic primary key.","disposition":"Retain the tenant override and both validator/database range protection.","decision":"reviewed-no-finding","evidence":"L15-25 define the unique relation and range validators; L13-14 explain the non-OneToOne primary-key choice.","findings":[]},
+        {"owner":"EvidenceRetentionPolicy.Meta","kind":"class","line_start":28,"line_end":37,"purpose":"Enforce the override duration range in the database.","runtime_boundary":"Django CheckConstraint declaration; installation was not checked at runtime.","disposition":"Retain inclusive 30-3650-day bounds.","decision":"reviewed-no-finding","evidence":"L30-35 declare ck_evidence_retention_days_range with both bounds.","findings":[]},
+        {"owner":"EvidenceObjectRetentionState","kind":"class","line_start":40,"line_end":85,"purpose":"Store expiry claims, terminal timestamps, size and retry diagnostics.","runtime_boundary":"Mutable unique state per immutable photo, with an automatic primary key.","disposition":"Retain separate mutable state. The service must create it only at the intended claim boundary; EVID-S04 concerns that ordering.","decision":"reviewed-no-finding","evidence":"L51-66 define unique evidence relation, EXPIRING default, claim fields and terminal metadata.","findings":["EVID-S04"]},
+        {"owner":"EvidenceObjectRetentionState.Status","kind":"class","line_start":43,"line_end":45,"purpose":"Distinguish in-progress expiry from terminal expiry.","runtime_boundary":"Retention coordination vocabulary used by readers and writers.","disposition":"Retain separate EXPIRING and EXPIRED states.","decision":"reviewed-no-finding","evidence":"L43-45; views.py:147-163 returns 410 only for EXPIRED.","findings":[]},
+        {"owner":"EvidenceObjectRetentionState.Meta","kind":"class","line_start":68,"line_end":85,"purpose":"Constrain terminal expiry timestamps and claim cleanup.","runtime_boundary":"Database CheckConstraint declaration.","disposition":"Retain terminal timestamp/no-claim requirements and retryable EXPIRING state. The constraint does not establish policy freshness or charge provenance.","decision":"reviewed-no-finding","evidence":"L71-81 require expired timestamp and cleared claim fields for EXPIRED, or no expired timestamp for EXPIRING.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/retention_objects.py",
+      "file_sha256": "63aab09741a0fe0f87d76e859382c158cd50f4b3edc270ba5bfc641bd4ce085c",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":21,"purpose":"Expose the retention-state projection dependency.","runtime_boundary":"Internal object-capture support, not an authenticated endpoint.","disposition":"Retain the explicit retention-model import.","decision":"reviewed-no-finding","evidence":"L1 imports EvidenceObjectRetentionState.","findings":[]},
+        {"owner":"retention_object_states","kind":"function","line_start":4,"line_end":21,"purpose":"Return a tenant's retention states keyed by immutable final object key.","runtime_boundary":"Caller supplies an authorized makerspace; query is scoped through evidence__makerspace.","disposition":"Retain status/timestamp/size projection without provider reads. This does not approve unseen backup or migration consumers.","decision":"reviewed-no-finding","evidence":"L6-13 scope and select fields; L14-21 construct the key-indexed state mapping.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/retention_policy.py",
+      "file_sha256": "79287feaafad68763ec6684b9b07dc7f0498f00fab6d815e9fd8b9be3c9d732e",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":109,"purpose":"Import policy, aggregation and audit dependencies.","runtime_boundary":"Internal policy service; HTTP authorization lives in views_retention.","disposition":"Retain explicit dependencies and separate policy versus expiry services.","decision":"reviewed-no-finding","evidence":"L1-15 import transaction, aggregate expressions, audit and the three relevant models.","findings":[]},
+        {"owner":"effective_retention_days","kind":"function","line_start":18,"line_end":22,"purpose":"Resolve the current stored override or deployment default.","runtime_boundary":"Fresh tenant-policy query per invocation.","disposition":"Retain direct policy resolution; downstream delayed deletion must revalidate its snapshot.","decision":"reviewed-no-finding","evidence":"L19-22 query makerspace_id and select override/default; services_retention.py:100 calls it indirectly only once per tenant batch.","findings":["EVID-S02"]},
+        {"owner":"policy_payload","kind":"function","line_start":25,"line_end":35,"purpose":"Describe effective retention configuration and the global switch.","runtime_boundary":"Tenant-specific metadata projection without object access.","disposition":"Retain override/default distinction and visibility while expiry is disabled.","decision":"reviewed-no-finding","evidence":"L26-34 include platform_default_days, override_days, effective_days and object_expiry_enabled.","findings":[]},
+        {"owner":"update_policy","kind":"function","line_start":38,"line_end":72,"purpose":"Set or clear a tenant override with an audit entry.","runtime_boundary":"Caller supplies authorized actor and validated days; transaction locks makerspace then policy.","disposition":"Retain atomic update/audit and explicit clear behavior. The sweep's failure to synchronize fresh claims remains EVID-S02.","decision":"reviewed-no-finding","evidence":"L40-59 serialize policy edits; L61-70 record old/new effective values. views_retention.py:73-81 validates admission and serializer input.","findings":["EVID-S02"]},
+        {"owner":"object_candidates","kind":"function","line_start":75,"line_end":85,"purpose":"Build an ordered snapshot of nonterminal photos old enough under the current policy.","runtime_boundary":"Tenant/date-filtered candidate query; not a durable deletion authorization.","disposition":"Retain terminal exclusion and stable ordering; require the claimant to revalidate later policy changes.","decision":"reviewed-no-finding","evidence":"L77-84 calculate cutoff and exclude EXPIRED; services_retention.py:100-106 materializes IDs before individual claims.","findings":["EVID-S02"]},
+        {"owner":"preview_object_expiry","kind":"function","line_start":88,"line_end":109,"purpose":"Estimate candidate count and bytes without deleting objects.","runtime_boundary":"Read-only ORM aggregation; finalization size takes precedence over declared photo size.","disposition":"Retain preview while the switch is off; candidate_bytes is metadata-derived, not physical deletion proof.","decision":"reviewed-no-finding","evidence":"L90-109 aggregate coalesced sizes, count candidates and compare count to limit without storage calls.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/serializers.py",
+      "file_sha256": "bcbd86d512bdeb983ec9fcc319c18f5606ee9a34c44dfb411356363e4dd5b9fa",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":64,"purpose":"Declare DRF evidence upload, read and retention contracts.","runtime_boundary":"Input/output serialization; no actor authorization or provider validation.","disposition":"Retain explicit contracts and separate request/response types.","decision":"reviewed-no-finding","evidence":"L1-4 import settings, DRF serializers and EvidencePhoto.","findings":[]},
+        {"owner":"EvidenceUrlRequestSerializer","kind":"class","line_start":7,"line_end":15,"purpose":"Validate evidence type, declared MIME and optional size metadata.","runtime_boundary":"Upload-URL request parsing; size is caller-declared, not verified storage usage.","disposition":"Retain choice/MIME validation, with size treated as advisory. It must not authorize a quota refund as in EVID-S03.","decision":"reviewed-no-finding","evidence":"L8-10 define evidence choices and nullable nonnegative size; views.py:85-91 stores the declaration before upload.","findings":["EVID-S03"]},
+        {"owner":"EvidenceUrlRequestSerializer.validate_content_type","kind":"method","line_start":12,"line_end":15,"purpose":"Enforce exact declared-MIME allowlist membership.","runtime_boundary":"DRF field validation before presigning.","disposition":"Retain exact comparison and typed validation failure; actual bytes are checked separately.","decision":"reviewed-no-finding","evidence":"L13-15 reject any value outside EVIDENCE_ALLOWED_MIME; storage.py:162-165 checks decoded MIME.","findings":[]},
+        {"owner":"EvidenceUrlResponseSerializer","kind":"class","line_start":18,"line_end":24,"purpose":"Describe staging-upload instructions and evidence identity.","runtime_boundary":"Upload response serialization, including PUT method/headers when present.","disposition":"Retain provider-neutral POST/PUT fields; object_key is an identifier, not a writable final presign.","decision":"reviewed-no-finding","evidence":"L19-24 define response fields; storage.py:118,130 sign only staging_key(object_key).","findings":[]},
+        {"owner":"EvidenceGetResponseSerializer","kind":"class","line_start":27,"line_end":29,"purpose":"Describe a short-lived signed read URL.","runtime_boundary":"Authorized evidence-detail output.","disposition":"Retain URL plus explicit expiry duration; authorization defects remain in the view owners.","decision":"reviewed-no-finding","evidence":"L28-29; views.py:202-205 supplies the URL and configured TTL.","findings":["EVID-S05"]},
+        {"owner":"EvidenceExpiredResponseSerializer","kind":"class","line_start":32,"line_end":35,"purpose":"Describe terminal evidence-byte expiry.","runtime_boundary":"410 response schema without object data.","disposition":"Retain stable code/detail/timestamp fields.","decision":"reviewed-no-finding","evidence":"L33-35; views.py:151-164 emits these before any storage call.","findings":[]},
+        {"owner":"EvidenceRetentionPolicySerializer","kind":"class","line_start":38,"line_end":43,"purpose":"Describe effective tenant retention settings.","runtime_boundary":"Authorized GET/PATCH output serialization.","disposition":"Retain nullable override and separate global-switch visibility.","decision":"reviewed-no-finding","evidence":"L39-43 match retention_policy.py:29-34.","findings":[]},
+        {"owner":"EvidenceRetentionPatchSerializer","kind":"class","line_start":46,"line_end":51,"purpose":"Validate setting or clearing the retention override.","runtime_boundary":"PATCH body admission before the service transaction.","disposition":"Retain required nullable input and inclusive 30-3650 bounds.","decision":"reviewed-no-finding","evidence":"L47-51; views_retention.py:75-81 validates before update_policy.","findings":[]},
+        {"owner":"EvidenceRetentionPreviewRequestSerializer","kind":"class","line_start":54,"line_end":55,"purpose":"Bound preview continuation metadata.","runtime_boundary":"Read-only preview request parsing.","disposition":"Retain default 100 and bounds 1-1000.","decision":"reviewed-no-finding","evidence":"L55 defines the bounded IntegerField.","findings":[]},
+        {"owner":"EvidenceRetentionPreviewResponseSerializer","kind":"class","line_start":58,"line_end":64,"purpose":"Describe expiry preview time, policy, cutoff and estimates.","runtime_boundary":"Authorized metadata response; no physical-store claim.","disposition":"Retain explicit fields and has_more indicator.","decision":"reviewed-no-finding","evidence":"L59-64 match retention_policy.py:102-109.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/services_retention.py",
+      "file_sha256": "b53f9d590dcd11aa5877e1ba52e36ac0541354d7036da329d8a570e5a6d3fa1f",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":255,"purpose":"Declare retention coordination, recovery, storage, quota and source-gate dependencies.","runtime_boundary":"Internal scheduled/management service; declarations do not authorize deletion.","disposition":"Retain explicit integration boundaries while leaving child findings open.","decision":"reviewed-no-finding","evidence":"L12-23 import audit, recovery state, storage, policy candidates, limits, servability and fanout_tenant_write.","findings":[]},
+        {"owner":"ExpiryClaim","kind":"class","line_start":30,"line_end":35,"purpose":"Carry immutable claim identity and deletion metadata between transactions.","runtime_boundary":"In-memory claim data; recorded_size may originate from unverified photo metadata.","disposition":"Retain frozen claim identity; do not treat recorded_size as charge provenance.","decision":"reviewed-no-finding","evidence":"L29-35 define frozen evidence/tenant/key/token/size fields; L186-190 determines recorded_size.","findings":["EVID-S03"]},
+        {"owner":"sweep_evidence_retention","kind":"function","line_start":38,"line_end":88,"purpose":"Run a bounded, recovery-aware per-tenant expiry sweep or dry run.","runtime_boundary":"Internal worker entry; checks global switch/NORMAL recovery, then a source-gate fanout boundary per servable tenant.","disposition":"Retain those admission checks, but do not approve deletion behavior inherited from the open claimant/refund findings.","decision":"finding-open","evidence":"L50-62 enforce switch, NORMAL state and bounded batch size; L64-84 enter tenant boundaries and invoke the affected sweep.","findings":["EVID-S02","EVID-S03","EVID-S04"]},
+        {"owner":"_logged_summary","kind":"function","line_start":91,"line_end":96,"purpose":"Log sweep outcome counters and context.","runtime_boundary":"Structured logging of internal summary data.","disposition":"Retain structured context and unchanged summary return; counters are not runtime proof.","decision":"reviewed-no-finding","evidence":"L92-96 log extra fields and return summary.","findings":[]},
+        {"owner":"_sweep_makerspace","kind":"function","line_start":99,"line_end":151,"purpose":"Select candidates, claim each, delete both keys and finalize expiry.","runtime_boundary":"Tenant source boundary surrounds bounded work; provider I/O is outside the child row-lock transactions.","disposition":"Require fresh-policy claiming, correct skipped-finalizer behavior and charge-backed quota release before approval. Preserve strict two-key deletion and per-object failure isolation.","decision":"finding-open","evidence":"L100-106 retain one policy/ID snapshot; L111-118 delete final/staging and fall back to recorded size; L119-141 complete or release claims.","findings":["EVID-S02","EVID-S03","EVID-S04"]},
+        {"owner":"_claim","kind":"function","line_start":154,"line_end":191,"purpose":"Claim an evidence object for expiry in photo/journal/state lock order.","runtime_boundary":"Short atomic claim; no provider calls. Receives evidence_id and now, but no fresh policy validation.","disposition":"Correct missing policy revalidation and creation of EXPIRING state before the active-finalizer skip.","decision":"finding-open","evidence":"L159-165 lock/create state; L170-175 return after creation for a fresh promoter; L176-190 claim without checking policy or photo age.","findings":["EVID-S02","EVID-S04"]},
+        {"owner":"_complete","kind":"function","line_start":194,"line_end":236,"purpose":"Commit terminal expiry, quota release and append-only audit after deletion.","runtime_boundary":"Short transaction with photo/journal/state locks and claim-token validation; caller has already deleted both keys.","disposition":"Retain terminal/token idempotence and metadata preservation, but replace inferred charge status and untrusted refund amount before approval.","decision":"finding-open","evidence":"L203-214 prevent duplicate terminal completion; L215-221 assume charge when finalization is absent or method is POST; L222-235 append evidence.object_expired without updating EvidencePhoto.","findings":["EVID-S03"]},
+        {"owner":"_release","kind":"function","line_start":239,"line_end":255,"purpose":"Release a failed expiry lease while preserving retry state.","runtime_boundary":"Short transaction in the same lock order; only the matching nonterminal token is changed.","disposition":"Retain EXPIRING after partial deletion so attachment cannot consume uncertain bytes; preserve bounded diagnostic text.","decision":"reviewed-no-finding","evidence":"L241-249 lock and match token/status; L252-255 clear lease fields and retain last_error for retry.","findings":[]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/storage.py",
+      "file_sha256": "bb9bbcd88657e9aca22c807c708ca621609b7e47cd4cebff96d5edc11e7207f6",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":212,"purpose":"Import private S3, image-validation and version-deletion dependencies.","runtime_boundary":"Low-level storage primitives; no actor or tenant authorization is performed here.","disposition":"Retain private-bucket helpers behind authorized callers; declarations do not prove bucket ACLs.","decision":"reviewed-no-finding","evidence":"L5-14 import boto3/botocore, settings, image validation, delete_all_versions and logger.","findings":[]},
+        {"owner":"StorageUnavailable","kind":"class","line_start":17,"line_end":18,"purpose":"Represent provider/transport unavailability.","runtime_boundary":"Storage-to-service exception boundary.","disposition":"Retain the distinct retryable failure category.","decision":"reviewed-no-finding","evidence":"L17-18; views.py:75-81,176-182,188-194 translate it into typed 503 responses.","findings":[]},
+        {"owner":"EvidenceObjectValidationError","kind":"class","line_start":21,"line_end":24,"purpose":"Carry a machine-readable invalid-evidence reason.","runtime_boundary":"Internal validation failure distinct from provider availability.","disposition":"Retain code/message separation.","decision":"reviewed-no-finding","evidence":"L21-24; finalization.py:139-143 distinguishes missing from other validation failures.","findings":[]},
+        {"owner":"EvidenceObjectValidationError.__init__","kind":"method","line_start":22,"line_end":24,"purpose":"Initialize validation message and reason code.","runtime_boundary":"Local exception construction.","disposition":"Retain ordinary Exception initialization and explicit code.","decision":"reviewed-no-finding","evidence":"L23-24 call super and assign self.code.","findings":[]},
+        {"owner":"EvidenceValidationResult","kind":"class","line_start":28,"line_end":30,"purpose":"Carry validated byte size and detected MIME.","runtime_boundary":"Frozen result passed from provider validation into journal/workflow code.","disposition":"Retain immutable typed fields; this object supplies no authorization by itself.","decision":"reviewed-no-finding","evidence":"L27-30 declare a frozen dataclass; L167 constructs it after validation.","findings":[]},
+        {"owner":"_s3_client","kind":"function","line_start":32,"line_end":43,"purpose":"Construct a configured S3-compatible client.","runtime_boundary":"Provider-client construction using configured credentials, region, signing and addressing.","disposition":"Retain central client configuration; credential validity and endpoint policy remain deployment obligations.","decision":"reviewed-no-finding","evidence":"L33-43 bind endpoint and AWS/S3 settings without logging credentials.","findings":[]},
+        {"owner":"_client","kind":"function","line_start":46,"line_end":47,"purpose":"Select the backend-facing object-store endpoint.","runtime_boundary":"Internal storage operations.","disposition":"Retain AWS_S3_ENDPOINT_URL separation from browser signing.","decision":"reviewed-no-finding","evidence":"L47 calls _s3_client with AWS_S3_ENDPOINT_URL.","findings":[]},
+        {"owner":"_public_client","kind":"function","line_start":50,"line_end":51,"purpose":"Select the browser-facing signing endpoint.","runtime_boundary":"Presigned URL generation, still using the private bucket.","disposition":"Retain AWS_S3_PUBLIC_ENDPOINT_URL; its public-facing hostname does not make the bucket public.","decision":"reviewed-no-finding","evidence":"L51 selects the browser endpoint; L117,129,173 use AWS_STORAGE_BUCKET_NAME.","findings":[]},
+        {"owner":"evidence_object_key","kind":"function","line_start":54,"line_end":55,"purpose":"Generate a unique tenant/type-qualified final key.","runtime_boundary":"Internal key construction from validated tenant and evidence type.","disposition":"Retain random UUID identity and tenant namespace; authorization belongs to callers.","decision":"reviewed-no-finding","evidence":"L55 formats evidence/{makerspace_id}/{evidence_type}/{uuid}; views.py:64-71 supplies validated values.","findings":[]},
+        {"owner":"staging_key","kind":"function","line_start":58,"line_end":59,"purpose":"Derive the client-writable staging key.","runtime_boundary":"Deterministic key mapping, not an authorization primitive.","disposition":"Retain the staging/ prefix for presign, promotion, read fallback and retention.","decision":"reviewed-no-finding","evidence":"L59 prefixes the final key; L118,130 use it for both upload modes.","findings":[]},
+        {"owner":"delete_object","kind":"function","line_start":62,"line_end":68,"purpose":"Perform best-effort cleanup of an evidence key.","runtime_boundary":"Provider deletion with logged botocore failures; it supplies no success receipt.","disposition":"Retain for cleanup only; terminal expiry correctly uses the separate strict helper.","decision":"reviewed-no-finding","evidence":"L64-68 delegate deletion and log failures; finalization.py:28,32,49,53 use cleanup; services_retention.py:115-116 uses delete_object_strict.","findings":[]},
+        {"owner":"delete_object_strict","kind":"function","line_start":71,"line_end":83,"purpose":"Require version-aware deletion for terminal retention.","runtime_boundary":"Provider HEAD plus exact-key deletion; unsupported version listing and provider errors remain failures.","disposition":"Retain require_version_listing=True and failure translation. Success is deletion of the enumerated snapshot, not proof against arbitrary future writers.","decision":"reviewed-no-finding","evidence":"L73-83; backend/apps/object_storage.py:28-48 refuses unsupported listing in strict mode,61-77 checks deletion errors,149-169 enumerates exact-key versions and markers.","findings":[]},
+        {"owner":"copy_object","kind":"function","line_start":86,"line_end":97,"purpose":"Copy staged bytes to a final key in the private bucket.","runtime_boundary":"Low-level provider operation; caller-owned finalization coordination, not an independently immutable publication API.","disposition":"Retain only within the journal-coordinated finalization contract; do not infer safety for unseen callers.","decision":"reviewed-no-finding","evidence":"L88-97 copy within AWS_STORAGE_BUCKET_NAME and translate provider errors; finalization.py:26,40-54 surrounds the call with claiming and final validation.","findings":[]},
+        {"owner":"finalize_upload","kind":"function","line_start":100,"line_end":107,"purpose":"Expose coordinated finalization through the storage facade.","runtime_boundary":"Internal adapter translating concurrent-work timeout to storage unavailability.","disposition":"Retain delegation and explicit exception translation; workflow authorization remains external.","decision":"reviewed-no-finding","evidence":"L101-107 import the coordinator and map FinalizationInProgress; hardware_requests/handover_workflow.py:94-128 supplies surrounding checks.","findings":[]},
+        {"owner":"presigned_upload","kind":"function","line_start":110,"line_end":139,"purpose":"Issue staging-only POST or PUT upload instructions.","runtime_boundary":"Private-bucket signing; caller must enforce tenant/action admission.","disposition":"Retain exact declared Content-Type binding, TTL and POST byte range; PUT size is enforced during finalization. EVID-S05 remains in the caller.","decision":"reviewed-no-finding","evidence":"L114-126 sign PUT staging key with ContentType; L128-136 sign POST staging key with exact MIME and 1..EVIDENCE_MAX_BYTES conditions.","findings":["EVID-S05"]},
+        {"owner":"validate_evidence_object","kind":"function","line_start":142,"line_end":167,"purpose":"Validate object presence, byte size and actual allowed image format.","runtime_boundary":"Provider HEAD/GET plus bounded byte read and Pillow validation; no authorization.","disposition":"Retain missing/empty/oversize distinctions and decoded-MIME allowlist. This does not establish equality between declared MIME and detected MIME or a version-pinned provider snapshot.","decision":"reviewed-no-finding","evidence":"L143-158 bound size/read; L159-165 map provider failures and reject non-images; L167 returns detected MIME.","findings":[]},
+        {"owner":"presigned_get_url","kind":"function","line_start":169,"line_end":177,"purpose":"Sign a short-lived private-object read URL.","runtime_boundary":"Signing primitive only; callers must establish authorization and terminal retention state first.","disposition":"Retain private bucket and configured TTL; signing alone does not prove existence or permission.","decision":"reviewed-no-finding","evidence":"L171-177 sign get_object and translate failures; views.py:147-187 checks retention/existence before signing, with EVID-S05 still open.","findings":["EVID-S05"]},
+        {"owner":"object_exists","kind":"function","line_start":180,"line_end":194,"purpose":"Distinguish a missing current object from storage failure.","runtime_boundary":"Provider HEAD of a caller-supplied private key.","disposition":"Retain narrow 404/NoSuchKey/NotFound absence handling; authorization and other failures must not become missing.","decision":"reviewed-no-finding","evidence":"L186-193 return False only for missing responses and otherwise raise StorageUnavailable.","findings":[]},
+        {"owner":"object_size","kind":"function","line_start":197,"line_end":212,"purpose":"Read current object byte length or report absence.","runtime_boundary":"Provider HEAD returning ContentLength; absence is not proof of a prior quota charge.","disposition":"Retain typed failure handling and None for missing. The retention refund fallback remains EVID-S03.","decision":"reviewed-no-finding","evidence":"L203-210 narrowly classify missing/provider failure; L212 returns ContentLength.","findings":["EVID-S03"]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/tasks.py",
+      "file_sha256": "3e8f226b8ff66074752fc9c450267d24c48f4fb1f3ef8b205b699a27ee3aa240",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":11,"purpose":"Register the Celery evidence-retention adapter.","runtime_boundary":"Internal task registration, not an HTTP endpoint.","disposition":"Retain the stable task name and explicit service import; service findings are not closed.","decision":"reviewed-no-finding","evidence":"L1-6 import shared_task/service and declare the named task.","findings":[]},
+        {"owner":"sweep_evidence_retention_task","kind":"function","line_start":7,"line_end":11,"purpose":"Forward task arguments to the bounded retention service.","runtime_boundary":"Trusted task invocation; the service owns switch, recovery and tenant gates.","disposition":"Retain the thin adapter. It supplies no independent deletion approval or runtime evidence.","decision":"reviewed-no-finding","evidence":"L8-11 forward dry_run and batch_size; services_retention.py:50-84 supplies admission and fanout.","findings":["EVID-S02","EVID-S03","EVID-S04"]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/urls.py",
+      "file_sha256": "f2a7115a520570659221cf4e2dc946150bc5f40d49a8775ecab49a94d48d9d74",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":28,"purpose":"Register upload, detail, policy and preview routes.","runtime_boundary":"Django URL routing; permissions remain in the target views.","disposition":"Retain explicit integer tenant/photo path parameters and stable route names. Routing does not cure EVID-S05.","decision":"reviewed-no-finding","evidence":"L11-28 register four routes; views.py:54-61,134-140 and views_retention.py:54-95 provide operation schema declarations.","findings":["EVID-S05"]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/views.py",
+      "file_sha256": "69c510bb792cb478cb04d50c7fdfdc59022e24707e61f5e3802beaa736d504d1",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":206,"purpose":"Import evidence endpoint, RBAC, schema, storage and audit dependencies.","runtime_boundary":"DRF endpoint declarations with shared JWT authentication supplied by settings.","disposition":"Retain explicit dependencies; child permission declarations require the EVID-S05 correction.","decision":"reviewed-no-finding","evidence":"L11-35 import RBAC/action permissions, serializers, storage and module guard; backend/config/settings.py:794-804 selects JWT authentication and deny-by-default permissions.","findings":[]},
+        {"owner":"ActiveAuthenticatedPermission","kind":"class","line_start":40,"line_end":47,"purpose":"Admit authenticated, unrestricted actors with completed password rotation.","runtime_boundary":"Evidence-detail permission; lacks the additional staff-origin restriction.","disposition":"Keep active/password checks and add the required origin admission before approval.","decision":"finding-open","evidence":"L43-46 check authentication, access_status and must_change_password only; admin_api/permissions.py:25-30 shows the existing origin-aware boundary.","findings":["EVID-S05"]},
+        {"owner":"ActiveAuthenticatedPermission.has_permission","kind":"method","line_start":41,"line_end":47,"purpose":"Evaluate evidence-detail actor admission.","runtime_boundary":"DRF permission before detail lookup.","disposition":"Do not treat active authentication as sufficient browser-tenant admission.","decision":"finding-open","evidence":"L42-47 never call staff_origin_scope_allows; makerspaces/origin_scope.py:139-161 defines that additional check.","findings":["EVID-S05"]},
+        {"owner":"EvidenceUploadUrlView","kind":"class","line_start":50,"line_end":117,"purpose":"Declare the action-gated evidence-upload URL endpoint.","runtime_boundary":"StaffAPIView override uses IsAuthenticated and HasMakerspaceAction, which checks actor authority but not staff origin.","disposition":"Retain UPLOAD_EVIDENCE and membership-based authority; correct missing origin admission.","decision":"finding-open","evidence":"L51-52 override permissions; accounts/permissions.py:50-63 validates active status and rbac.can without an origin check.","findings":["EVID-S05"]},
+        {"owner":"EvidenceUploadUrlView.post","kind":"method","line_start":63,"line_end":117,"purpose":"Presign staging upload and atomically create immutable metadata plus audit.","runtime_boundary":"Action-gated request; presigning precedes the local database transaction. Declared size is unverified.","disposition":"Retain module/input validation, typed provider failure and atomic metadata/audit; require origin admission. Never use declared size as charge proof.","decision":"finding-open","evidence":"L65-81 validate and presign; L83-98 create photo/audit; L108-117 return instructions. No origin-target comparison is performed.","findings":["EVID-S05","EVID-S03"]},
+        {"owner":"EvidenceDetailView","kind":"class","line_start":120,"line_end":206,"purpose":"Expose private signed reads and terminal-expiry responses.","runtime_boundary":"Authenticated active actor plus action-filtered queryset; origin scope is missing.","disposition":"Retain scoped lookup and terminal-state behavior, but correct the additional browser-tenant boundary.","decision":"finding-open","evidence":"L121-123 declare permissions/queryset; L125-132 scope by actor action without request-origin restriction.","findings":["EVID-S05"]},
+        {"owner":"EvidenceDetailView.get_queryset","kind":"method","line_start":125,"line_end":132,"purpose":"Restrict photos to actor-authorized makerspaces and hidden-space policy.","runtime_boundary":"Object lookup queryset; action scope may include several tenants for one actor.","disposition":"Preserve RBAC/hidden-space filtering and additionally enforce the request's staff-origin tenant.","decision":"finding-open","evidence":"L127-132 apply scope_by_action and hide_from_superadmin only; accounts/rbac.py:76-106 can return multiple authorized tenants.","findings":["EVID-S05"]},
+        {"owner":"EvidenceDetailView.retrieve","kind":"method","line_start":143,"line_end":206,"purpose":"Return 410, missing-upload conflict, typed storage failure or signed private URL.","runtime_boundary":"Scoped object lookup followed by retention query and provider work; successful URL issuance is audited.","disposition":"Retain EXPIRED-before-storage ordering, staging fallback and typed 503 handling. The URL must not be issued through the missing origin admission.","decision":"finding-open","evidence":"L147-164 return 410 before L170 provider work; L172-175 try final then staging; L183-194 handle absence/signing failure; L196-205 audit and return URL.","findings":["EVID-S05"]}
+      ]
+    },
+    {
+      "path": "backend/apps/evidence/views_retention.py",
+      "file_sha256": "80efeeff77e9daab7334000406cb95a396a4fbd8b6dca6984371924b94c3b48c",
+      "fully_read": true,
+      "owners": [
+        {"owner":"<module>","kind":"module","line_start":1,"line_end":106,"purpose":"Declare retention endpoint dependencies and shared documented admission errors.","runtime_boundary":"DRF configuration/preview endpoints with active origin-aware permissions.","disposition":"Retain shared error declarations and existing policy/preview serializer integration.","decision":"reviewed-no-finding","evidence":"L8-22 import RBAC, IsActiveStaff, policy services and module guard; L25-30 declare shared errors.","findings":[]},
+        {"owner":"_manageable_makerspace","kind":"function","line_start":33,"line_end":48,"purpose":"Resolve a visible tenant and require manage-makerspace authority for retention settings.","runtime_boundary":"Called after active/origin-aware permission admission; uses visibility/action union, hidden filtering and a final action check.","disposition":"Retain MANAGE_MAKERSPACE rather than event authority and preserve scoped 404 versus visible-but-forbidden behavior.","decision":"reviewed-no-finding","evidence":"L37-47 scope, hide, resolve, require evidence_uploads and check rbac.can; admin_api/permissions.py:25-30 supplies origin admission.","findings":[]},
+        {"owner":"EvidenceRetentionPolicyView","kind":"class","line_start":51,"line_end":82,"purpose":"Declare active-staff policy read/update operations.","runtime_boundary":"IsAuthenticated plus IsActiveStaff, followed by tenant-specific manage authority.","disposition":"Retain origin-aware permission classes and explicit GET/PATCH schemas.","decision":"reviewed-no-finding","evidence":"L52 declares both permissions; L54-71 document request/response/error contracts.","findings":[]},
+        {"owner":"EvidenceRetentionPolicyView.get","kind":"method","line_start":59,"line_end":61,"purpose":"Return the authorized tenant's effective retention settings.","runtime_boundary":"Read-only policy lookup; available regardless of expiry switch.","disposition":"Retain manageable-tenant resolution before payload serialization.","decision":"reviewed-no-finding","evidence":"L60-61 resolve scope/action and return policy_payload.","findings":[]},
+        {"owner":"EvidenceRetentionPolicyView.patch","kind":"method","line_start":73,"line_end":82,"purpose":"Validate and persist an authorized retention override change.","runtime_boundary":"Origin/action admission plus bounded nullable DRF input; service owns transaction and audit.","disposition":"Retain validation and service delegation; sweep synchronization remains separately open under EVID-S02.","decision":"reviewed-no-finding","evidence":"L74-81 resolve tenant, validate input and call update_policy; retention_policy.py:39-70 locks and audits.","findings":["EVID-S02"]},
+        {"owner":"EvidenceRetentionPreviewView","kind":"class","line_start":85,"line_end":106,"purpose":"Declare the authorized read-only expiry preview operation.","runtime_boundary":"Active origin-aware actor admission followed by manage-makerspace resolution.","disposition":"Retain permission parity with policy management and explicit preview schema.","decision":"reviewed-no-finding","evidence":"L86 sets both permissions; L88-95 document bounded request and response/error contracts.","findings":[]},
+        {"owner":"EvidenceRetentionPreviewView.post","kind":"method","line_start":98,"line_end":106,"purpose":"Return candidate estimates under the current tenant policy.","runtime_boundary":"POST-shaped read-only query; no object access or deletion.","disposition":"Retain tenant/action resolution, bounded input and serialized preview output.","decision":"reviewed-no-finding","evidence":"L99-106 validate tenant and limit before preview_object_expiry; retention_policy.py:88-109 performs ORM-only estimation.","findings":[]}
+      ]
+    }
+  ],
+  "extra_context_read": [
+    {"path":"/Users/shaanshoukath/.claude/CLAUDE.md","read_ranges":[[1,207]],"purpose":"Repository-referenced global workflow context; the explicit read-only review request governs this packet."},
+    {"path":"docs/INVARIANTS.md","read_ranges":[[1,114],[270,375],[2138,2154]],"purpose":"Tenant/origin/hidden-space policy, managed quota, storage transactions, evidence retention, reporting and primary-key constraints."},
+    {"path":"docs/audits/2026-10-29/evidence/evidence-report-open-findings.md","read_ranges":[[1,26]],"purpose":"Existing EVID-S01 and unresolved historical/current metric meaning."},
+    {"path":"docs/audits/2026-10-29/evidence/inventory-source-decisions.json","read_ranges":[[1,22],[1640,1666],[1810,1856]],"purpose":"Format and seven-app scope context only; no approval inherited."},
+    {"path":"docs/audits/2026-10-29/evidence/source-review-segmentation.md","read_ranges":[[1,66]],"purpose":"Separate source decisions, final freeze/site binding and wider audit obligations."},
+    {"path":"backend/apps/accounts/permissions.py","read_ranges":[[1,85]],"purpose":"Upload action permission and StaffAPIView inheritance."},
+    {"path":"backend/apps/accounts/authentication.py","read_ranges":[[1,155],[160,226]],"purpose":"JWT session admission, staff_api versus staff-origin validation and member-surface restrictions."},
+    {"path":"backend/apps/accounts/rbac.py","read_ranges":[[58,235],[235,256]],"purpose":"Action scope, tenant membership, hidden/archive refusal and actor predicates."},
+    {"path":"backend/apps/accounts/rbac_superadmin.py","read_ranges":[[85,112]],"purpose":"Hidden-space exclusion and explicit-membership behavior."},
+    {"path":"backend/apps/admin_api/permissions.py","read_ranges":[[1,44],[45,67]],"purpose":"Active/origin-aware permissions and require_action comparison."},
+    {"path":"backend/config/admin_access.py","read_ranges":[[98,142],[170,216]],"purpose":"Inherited evidence-admin scope and active-superuser viewing boundary."},
+    {"path":"backend/config/storage_validation.py","read_ranges":[[1,20]],"purpose":"Normalized private/public bucket-name collision check."},
+    {"path":"backend/config/settings.py","read_ranges":[[790,811]],"purpose":"Optional client authentication and configured DRF JWT/permission defaults; middleware declarations at lines 191-213 were located by search."},
+    {"path":"backend/apps/inventory/middleware.py","read_ranges":[[25,91]],"purpose":"Establish the reachable optional-HMAC admission path for EVID-S05."},
+    {"path":"backend/apps/makerspaces/middleware.py","read_ranges":[[1,16]],"purpose":"Distinguish host validation from staff-origin tenant admission."},
+    {"path":"backend/apps/makerspaces/origin_scope.py","read_ranges":[[1,118],[139,197]],"purpose":"Origin resolution, native selection and the origin-to-target restriction omitted by evidence upload/detail."},
+    {"path":"backend/apps/makerspaces/origin_scope_routes.py","read_ranges":[[1,68],[111,145]],"purpose":"Bounded route-target resolution context."},
+    {"path":"backend/apps/makerspaces/origin_scope_model_lookups.py","read_ranges":[[104,114]],"purpose":"Confirm evidence-detail has an existing tenant lookup registration."},
+    {"path":"backend/apps/makerspaces/limits.py","read_ranges":[[1,43]],"purpose":"Locate the quota implementations through the explicit re-export barrel."},
+    {"path":"backend/apps/makerspaces/limits_usage.py","read_ranges":[[145,218]],"purpose":"Managed charge behavior and clamped quota subtraction supporting EVID-S03."},
+    {"path":"backend/apps/makerspaces/servability.py","read_ranges":[[1,67]],"purpose":"Retention/report tenant eligibility excludes archived, inactive, purging and unrestored tenants."},
+    {"path":"backend/apps/makerspaces/management/commands/recompute_storage.py","read_ranges":[[1,118]],"purpose":"Confirm terminal-expired evidence exclusion and distinguish reconciliation from charge provenance; command was not executed."},
+    {"path":"backend/apps/tenant_migration/gate_runtime.py","read_ranges":[[1,133]],"purpose":"Shared source boundaries, tenant fanout skipping and request write gating."},
+    {"path":"backend/apps/object_storage.py","read_ranges":[[1,81],[149,171]],"purpose":"Strict version-list failure, exact-key versions/delete markers, pagination and batch deletion errors."},
+    {"path":"backend/apps/hardware_requests/handover_workflow.py","read_ranges":[[78,140]],"purpose":"Bounded reviewed-issue caller: tenant/type resolution, promotion before transaction and attachment guard."},
+    {"path":"backend/apps/hardware_requests/self_checkout_workflow.py","read_ranges":[[25,105],[254,282]],"purpose":"Bounded public checkout evidence ownership, charge and attachment context; no workflow approval."},
+    {"path":"backend/apps/hardware_requests/self_checkout_models.py","read_ranges":[[1,146]],"purpose":"Check the actual PublicToolLoan evidence linkage when assessing report attachment context; no model approval."},
+    {"path":"backend/apps/hardware_requests/direct_loan_returns.py","read_ranges":[[232,254]],"purpose":"Validation-facade caller and domain-error translation."},
+    {"path":"backend/apps/hardware_requests/permissions.py","read_ranges":[[1,27]],"purpose":"Existing active-plus-origin permission pattern for comparison."},
+    {"path":"backend/apps/operations/report_rollups.py","read_ranges":[[1,146]],"purpose":"EVID-S01 constants, append-only revision selection and tenant-scoped attachment lookup; _finalize_bucket explicitly remains finding-open."},
+    {"path":"backend/apps/operations/reports_common.py","read_ranges":[[1,30]],"purpose":"Report-space filtering and result limiting."},
+    {"path":"backend/apps/operations/report_scope.py","read_ranges":[[1,119]],"purpose":"Typed/server-resolved scopes and eligible aggregate tenants."},
+    {"path":"backend/apps/operations/views_reports.py","read_ranges":[[1,43],[46,85],[146,174]],"purpose":"Bounded single-tenant and aggregate HTTP report admission."},
+    {"path":"backend/apps/operations/views_report_helpers.py","read_ranges":[[1,82]],"purpose":"Report tenant lookup, hidden filtering and superadmin aggregate guard."},
+    {"path":"backend/apps/operations/report_applicability.py","read_ranges":[[1,42]],"purpose":"Source-module applicability enforcement at report admission."},
+    {"path":"backend/apps/operations/report_definitions_coverage.py","read_ranges":[[1,30]],"purpose":"Evidence-compliance registry binding and required evidence_uploads module."},
+    {"path":"backend/tests/operations/test_report_coverage_rollups.py","read_ranges":[[116,151]],"purpose":"Read-only inspection of the maintenance-row-deletion regression; no tests executed."},
+    {"path":"backend/tests/evidence/test_retention_rollup_boundaries.py","read_ranges":[[39,62]],"purpose":"Read-only inspection of mocked byte-expiry/history preservation assertions; no tests executed."},
+    {"path":"backend/apps/evidence/migrations/0002_evidencephoto_immutable_triggers.py","read_ranges":[[12,31]],"purpose":"Excluded migration's bounded trigger declaration context only; neither reviewed as a selected owner nor executed."},
+    {"path":"backend/apps/evidence/migrations/0003_evidencephoto_purge_delete_guard.py","read_ranges":[[10,24]],"purpose":"Excluded migration's bounded DELETE-maintenance/UPDATE-refusal context only; neither selected nor executed."}
+  ],
+  "remaining_seven_app_scope": {
+    "meaning": "The seven-app lane remains separately auditable. Bounded context reads grant no owner approval outside the 19 selected files.",
+    "applications": [
+      {"path":"backend/apps/inventory","remaining_scope":"All production owners remain outside this packet; the middleware slice is context only."},
+      {"path":"backend/apps/hardware_requests","remaining_scope":"All workflow/model/permission owners and existing correction closures remain with the separate hardware audit."},
+      {"path":"backend/apps/operations","remaining_scope":"All owners remain separately reviewable. report_rollups._finalize_bucket is explicitly implicated in EVID-S01 and is not marked no-finding."},
+      {"path":"backend/apps/boxes","remaining_scope":"No production owner approved."},
+      {"path":"backend/apps/evidence","remaining_scope":"All 19 top-level Python files are covered at the recorded hashes. Migrations and any other paths remain excluded; runtime/provider/database proof remains outstanding."},
+      {"path":"backend/apps/procurement","remaining_scope":"No production owner approved."},
+      {"path":"backend/apps/warranty","remaining_scope":"No production owner approved."}
+    ],
+    "frontend": "No frontend owner approved."
+  },
+  "limitations": [
+    "This packet is direct source review, not the parent's Stage 4, runtime proof or deployment certification.",
+    "All 19 selected files were read completely; their final hashes matched the initial census. This is an observation through the stated check time, not a claim that concurrent writers are frozen.",
+    "Five findings remain open. EVID-S01 retains its existing durable record; EVID-S02 through EVID-S05 are new findings reported here without writing evidence files.",
+    "PostgreSQL trigger installation, actual lock interleavings, bucket privacy, anonymous staging denial, provider versioning/deletion behavior and quota counters were not exercised.",
+    "Signed upload declarations use exact configured MIME membership; byte validation independently accepts decoded allowed image MIME. No declared-versus-detected MIME equality claim is made.",
+    "Authorization, transaction and key-ownership preconditions of internal helpers remain caller responsibilities. No unseen caller is approved.",
+    "No source edits, tests, builds, migrations, staging, commits, application imports, provider calls or foreign-code dynamic evaluation occurred. An initial heredoc attempt was refused by the read-only environment; subsequent parsing used standard-library ast on source bytes.",
+    "The parent must bind these decisions to the actual sourceprimitivecensus and sites after final freeze, re-review changed dependency context and preserve open findings. No production ledger was modified."
+  ]
+}

@@ -1,0 +1,19 @@
+APPROVED.
+
+The wrapper-only fix matches the source intent. [StaffTabContent.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/StaffTabContent.tsx:274) is the only production Users caller. Passing `[activeMakerspace]` makes Users initialize queries, module checks, role choices, and mutation targets from the header tenant. Adding `key={makerspaceKey}` resets its local state and descendant dialogs when that tenant changes.
+
+The capability semantics support this approach: staff/role administration remains core RBAC regardless of the optional `membership` module; assignable roles still follow the actor’s action ceiling and active capability catalog. Existing backend permissions remain authoritative. Preserve the full lists for transfers, reports, and scanner.
+
+Create-makerspace already uses the global POST endpoint, checks the existing `isSuperadmin` prop, and invalidates `["staff", "makerspaces"]`, which matches the session-qualified list key. Its success handler does not select the created workspace.
+
+Minimal test plan in the new `StaffUsersScope.test.tsx`:
+
+- Alpha first, Demo active: verify real memberships, roles, and capabilities requests target Demo; no independent Users tenant selector appears.
+- Load valid, distinct tenant role catalogs; submit Add staff through the UI and assert Demo’s endpoint, exact payload, and `onAuthRefresh`.
+- Rerender the **same unkeyed StaffTabContent instance**, changing only active workspace props. Let production’s Users key cause the remount. Verify unsaved modal/filter/role selection resets, Alpha data appears, and Demo data never supplies Alpha’s view.
+- Exercise successful superadmin workspace creation: global POST, makerspace-prefix invalidation, active tenant unchanged. Verify an ordinary manager lacks the action.
+- With `canManageMakerspace=false`, verify Users stays unmounted and issues no Users requests.
+
+Use real Users descendants and providers, mock transport as needed, and avoid brittle exact GET counts. “Old query not reused” should mean no cross-tenant data reuse; valid same-tenant caching remains allowed.
+
+Keep production edits confined to the wrapper and both touched/new files within 300 lines. No edits or tests performed. Implementation remains deferred until root acknowledgement.

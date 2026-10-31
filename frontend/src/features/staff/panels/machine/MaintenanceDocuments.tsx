@@ -12,19 +12,33 @@ import {
 } from "./maintenanceApi";
 import { formatBytes, useNotify, When } from "./machineUi";
 
-export function MaintenanceDocuments({
-  machineId, logId, documents, canDelete, retired,
-}: {
+import { useAuthActionOwner } from "../../../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../../../lib/apiSession";
+import { admitUpload, type UploadGuard } from "../../../../lib/uploadProtocol";
+
+type Props = {
   machineId: number;
   logId: number;
   documents: MaintenanceDocument[];
   canDelete: boolean;
   retired: boolean;
-}) {
+};
+export function MaintenanceDocuments(props: Props) {
+  return <OwnedMaintenanceDocuments key={`${props.machineId}:${props.logId}:${getSessionGeneration()}`} {...props} />;
+}
+function OwnedMaintenanceDocuments({
+  machineId, logId, documents, canDelete, retired,
+}: Props) {
+  const owner = useAuthActionOwner(`${machineId}:${logId}`);
+  const viewOwner = useAuthActionOwner(`${machineId}:${logId}`);
+  const removeOwner = useAuthActionOwner(`${machineId}:${logId}`);
+  const [uploading, setUploading] = useState(false);
+  const [viewing, setViewing] = useState<number | null>(null);
+  const [removing, setRemoving] = useState(false);
   const notify = useNotify();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [pendingKey, setPendingKey] = useState("");
+  const [pendingKey, setPendingKey] = useState<{ key: string; origin: UploadGuard } | null>(null);
   const [uploadError, setUploadError] = useState<Error | null>(null);
   const [deleteDocumentId, setDeleteDocumentId] = useState<number | null>(null);
   const presign = usePresignMaintenanceDocument(logId);
@@ -32,9 +46,11 @@ export function MaintenanceDocuments({
   const view = useMaintenanceDocumentUrl();
   const remove = useDeleteMaintenanceDocument(machineId, logId);
 
-  const finish = async (key: string) => {
-    await finalize.mutateAsync(key);
-    setPendingKey("");
+  const finish = async (key: string, guard: UploadGuard) => {
+    guard.assertCurrent();
+    await finalize.mutateAsync({ key, guard });
+    guard.assertCurrent();
+    setPendingKey(null);
     setFile(null);
     if (input.current) input.current.value = "";
     notify.success("Attachment uploaded");
@@ -45,27 +61,93 @@ export function MaintenanceDocuments({
     notify.failure("Couldn't upload the attachment.", error);
   };
   const upload = async () => {
-    if (!file) return;
+    if (!file || retired || !owner.isIntentCurrent()) return;
+    const action = owner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => owner.isCurrent(action));
+    const origin = admitUpload(() => owner.isContextCurrent());
+    const selected = file;
+    setUploading(true);
+    setPendingKey(null);
     setUploadError(null);
     try {
-      const contract = await presign.mutateAsync(file);
-      await uploadToContract(file, contract);
-      setPendingKey(contract.object_key);
-      await finish(contract.object_key);
+      guard.assertCurrent();
+      const contract = await presign.mutateAsync({ file: selected, guard });
+      await uploadToContract(selected, contract, guard);
+      guard.assertCurrent();
+      setPendingKey({ key: contract.object_key, origin });
+      await finish(contract.object_key, guard);
     } catch (caught) {
-      fail(caught, "Unable to upload document.");
+      if (owner.isCurrent(action)) fail(caught, "Unable to upload document.");
+    } finally {
+      if (owner.isCurrent(action)) setUploading(false);
+      owner.finish(action);
     }
   };
   const retryFinalize = async () => {
+    if (!pendingKey || retired || !owner.isIntentCurrent() || !pendingKey.origin.isCurrent()) return;
+    const retry = pendingKey;
+    const action = owner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => retry.origin.isCurrent() && owner.isCurrent(action));
+    setUploading(true);
     setUploadError(null);
     try {
-      await finish(pendingKey);
+      await finish(retry.key, guard);
     } catch (caught) {
-      fail(caught, "Unable to finalize document.");
+      if (owner.isCurrent(action)) fail(caught, "Unable to finalize document.");
+    } finally {
+      if (owner.isCurrent(action)) setUploading(false);
+      owner.finish(action);
     }
   };
-  const error = uploadError ?? presign.error ?? finalize.error ?? view.error ?? remove.error;
-  const uploading = presign.isPending || finalize.isPending;
+  async function openDocument(id: number) {
+    if (!viewOwner.isIntentCurrent()) return;
+    const action = viewOwner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => viewOwner.isCurrent(action));
+    setViewing(id);
+    setUploadError(null);
+    try {
+      guard.assertCurrent();
+      await view.mutateAsync({ id, guard });
+    } catch (caught) {
+      if (viewOwner.isCurrent(action)) {
+        setUploadError(caught instanceof Error ? caught : new Error("Couldn't open the attachment."));
+        notify.failure("Couldn't open the attachment.", caught);
+      }
+    } finally {
+      if (viewOwner.isCurrent(action)) setViewing(null);
+      viewOwner.finish(action);
+    }
+  }
+  async function removeDocument() {
+    if (deleteDocumentId === null || retired || !canDelete || !removeOwner.isIntentCurrent()) return;
+    const id = deleteDocumentId;
+    const action = removeOwner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => removeOwner.isCurrent(action));
+    setRemoving(true);
+    setUploadError(null);
+    try {
+      guard.assertCurrent();
+      await remove.mutateAsync({ id, guard });
+      guard.assertCurrent();
+      notify.success("Attachment deleted");
+      setDeleteDocumentId(null);
+    } catch (caught) {
+      if (removeOwner.isCurrent(action)) {
+        setUploadError(caught instanceof Error ? caught : new Error("Couldn't delete the attachment."));
+        notify.failure("Couldn't delete the attachment.", caught);
+      }
+    } finally {
+      if (removeOwner.isCurrent(action)) setRemoving(false);
+      removeOwner.finish(action);
+    }
+  }
+  const canSelect = () => !retired && owner.isIntentCurrent() && !owner.isPending();
+  const canRemove = () => removeOwner.isIntentCurrent() && !removeOwner.isPending();
+  const error = uploadError;
 
   return (
     <div className="grid gap-3 border-t border-line pt-3">
@@ -81,15 +163,15 @@ export function MaintenanceDocuments({
               <Button
                 size="sm"
                 variant="quiet"
-                disabled={view.isPending}
-                loading={view.isPending && view.variables === document.id}
+                disabled={viewing !== null}
+                loading={viewing === document.id}
                 loadingLabel="Opening…"
-                onClick={() => view.mutate(document.id, { onError: (caught) => notify.failure("Couldn't open the attachment.", caught) })}
+                onClick={() => { void openDocument(document.id); }}
               >
                 Download
               </Button>
               {canDelete && !retired ? (
-                <Button size="sm" variant="danger-quiet" onClick={() => setDeleteDocumentId(document.id)}>Delete…</Button>
+                <Button size="sm" variant="danger-quiet" disabled={removing} onClick={() => { if (canRemove()) setDeleteDocumentId(document.id); }}>Delete…</Button>
               ) : null}
             </li>
           ))}
@@ -103,15 +185,18 @@ export function MaintenanceDocuments({
               type="file"
               className="py-2"
               accept=".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"
+              disabled={uploading}
               onChange={(event) => {
+                if (!canSelect()) return;
+                setPendingKey(null);
                 setFile(event.target.files?.[0] ?? null);
                 setUploadError(null);
               }}
             />
           </Field>
           <Button disabled={!file} loading={uploading} loadingLabel="Uploading…" onClick={() => void upload()}>Upload</Button>
-          {pendingKey && finalize.isError ? (
-            <Button onClick={() => void retryFinalize()}>Retry finalize</Button>
+          {pendingKey && pendingKey.origin.isCurrent() ? (
+            <Button disabled={uploading} onClick={() => void retryFinalize()}>Retry finalize</Button>
           ) : null}
         </div>
       ) : null}
@@ -124,16 +209,9 @@ export function MaintenanceDocuments({
         message="Permanently delete this maintenance attachment?"
         confirmLabel="Delete attachment"
         tone="danger"
-        pending={remove.isPending}
-        onConfirm={() => {
-          if (deleteDocumentId !== null) {
-            remove.mutate(deleteDocumentId, {
-              onSuccess: () => { notify.success("Attachment deleted"); setDeleteDocumentId(null); },
-              onError: (caught) => notify.failure("Couldn't delete the attachment.", caught),
-            });
-          }
-        }}
-        onCancel={() => setDeleteDocumentId(null)}
+        pending={removing}
+        onConfirm={() => { void removeDocument(); }}
+        onCancel={() => { if (canRemove()) setDeleteDocumentId(null); }}
       />
     </div>
   );

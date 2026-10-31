@@ -1,0 +1,12 @@
+{
+  "status": "passed-before-later-shutdown-configuration-correction",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "exit_code": 0,
+  "seconds": 589.651,
+  "initial_changed_file_count": 1823,
+  "verdict": "No concrete, actionable regressions were identified. TypeScript and Django checks passed, alongside 71 targeted tests; broader runtime validation was blocked by unavailable Compose and native test dependencies.",
+  "round1_currency_finding": "Corrected with provider-specific catalogue;567payment checks passed.",
+  "source_delta_record": "final-review-round2-source-delta.json",
+  "subsequent_scope": "Container cleanup then exposed a pre-existing missing exec in three Compose backend launchers. Its fix, admission/pin compatibility checks and another mandatory review remain required."
+}

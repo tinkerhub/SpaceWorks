@@ -1,0 +1,29 @@
+{
+  "status": "test-only-source-inspected-runtime-unverified",
+  "files": [
+    {
+      "path": "backend/tests/host_operator_boundary_helpers.py",
+      "lines": 263,
+      "sha256": "5a69defb11184370428a639442e75ff643c292575486ef9ee826182ca566afe1"
+    },
+    {
+      "path": "backend/tests/test_host_update_boundary.py",
+      "lines": 73,
+      "sha256": "54ed1320955ebb373e5b55ec33d7b49baf4f5de64878da4537d5a8ae30bd3f9f"
+    },
+    {
+      "path": "backend/tests/test_host_operator_docker_boundary.py",
+      "lines": 271,
+      "sha256": "189825b5930bd2739700f22eabf8a6c2aa7dda8ef270309ebccf102a1f9486b7"
+    }
+  ],
+  "stage1": "APPROVED; parent authorized bounded existing guard correction",
+  "stage2_report_original_path": "evidence/host-docker-boundary-stage2.md",
+  "stage2_report_current_path": "docs/audits/2026-10-29/evidence/host-docker-boundary-stage2.md",
+  "source_changes": false,
+  "limits": "Static AST/literal import regression guard, not formal computed-import/RCE proof",
+  "parent_command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/repo/backend python -m pytest -q -c /dev/null --noconftest -p no:cacheprovider tests/test_host_update_boundary.py tests/test_host_operator_docker_boundary.py",
+  "runtime_correction": "Python3 absolute imports have no implicit package-relative fallback; retain all-scope deferred import scanning and exact25 closure checks.",
+  "historical_runtime": "Root initial74:61PASS13FAIL; failures traced to test resolver false apps.py edge. Corrected source/test runtime pending.",
+  "stage3_correction_report": "host-docker-boundary-resolver-stage3.txt"
+}

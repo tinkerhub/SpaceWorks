@@ -1,0 +1,8 @@
+Implemented only the two allowed files:
+
+- OIDC: shared pure validator runs before admission and repeats against locked reads, preserving checks and precedence.
+- Admin password: fresh actor authorization after admission; Django 403 bypasses fallback; canonical audit receives the fresh actor.
+
+Files are 149/214 lines. AST checks passed; all other inventoried files and the index are unchanged. No tests, runtime, project imports, builds, staging or commits.
+
+[Source freeze manifest](/tmp/spaceworks-claim-source-policy-stage2-freeze.json). Independent verification remains pending.

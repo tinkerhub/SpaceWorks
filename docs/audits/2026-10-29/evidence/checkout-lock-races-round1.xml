@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="24" time="49.039" timestamp="2026-10-29T20:17:05.064376+00:00" hostname="25409a8d302b"><testcase classname="tests.test_checkout_lock_races" name="test_selected_quantity_box_vs_public_box_serializes_on_maker[direct-post]" time="3.538" /><testcase classname="tests.test_checkout_lock_races" name="test_selected_quantity_box_vs_public_box_serializes_on_maker[direct-put]" time="1.804" /><testcase classname="tests.test_checkout_lock_races" name="test_selected_quantity_box_vs_public_box_serializes_on_maker[public-post]" time="1.878" /><testcase classname="tests.test_checkout_lock_races" name="test_selected_quantity_box_vs_public_box_serializes_on_maker[public-put]" time="1.687" /><testcase classname="tests.test_checkout_lock_races" name="test_assigned_reviewed_box_vs_selected_container_units_waits_maker[reviewed-post]" time="2.284" /><testcase classname="tests.test_checkout_lock_races" name="test_assigned_reviewed_box_vs_selected_container_units_waits_maker[reviewed-put]" time="2.322" /><testcase classname="tests.test_checkout_lock_races" name="test_assigned_reviewed_box_vs_selected_container_units_waits_maker[direct-post]" time="2.092" /><testcase classname="tests.test_checkout_lock_races" name="test_assigned_reviewed_box_vs_selected_container_units_waits_maker[direct-put]" time="2.686" /><testcase classname="tests.test_checkout_native_lock_races" name="test_native_revoke_vs_public_checkout_waits_real_qr_and_rechecks[checkout-post]" time="1.792" /><testcase classname="tests.test_checkout_native_lock_races" name="test_native_revoke_vs_public_checkout_waits_real_qr_and_rechecks[checkout-put]" time="1.769" /><testcase classname="tests.test_checkout_native_lock_races" name="test_native_revoke_vs_public_checkout_waits_real_qr_and_rechecks[revoke-post]" time="1.767" /><testcase classname="tests.test_checkout_native_lock_races" name="test_native_revoke_vs_public_checkout_waits_real_qr_and_rechecks[revoke-put]" time="1.755" /><testcase classname="tests.test_checkout_native_lock_races" name="test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[post]" time="1.614" /><testcase classname="tests.test_checkout_native_lock_races" name="test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[put]" time="1.750" /><testcase classname="tests.test_checkout_evidence_lock_races" name="test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[checkout-post]" time="1.733" /><testcase classname="tests.test_checkout_evidence_lock_races" name="test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[checkout-put]" time="1.784" /><testcase classname="tests.test_checkout_evidence_lock_races" name="test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[triage-post]" time="1.848" /><testcase classname="tests.test_checkout_evidence_lock_races" name="test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[triage-put]" time="1.827"><failure message="AssertionError: ['SELECT &quot;makerspaces_makerspace&quot;.&quot;id&quot;, &quot;makerspaces_makerspace&quot;.&quot;name&quot;, &quot;makerspaces_makerspace&quot;.&quot;slug&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_code&quot;, &quot;makerspaces_makerspace&quot;.&quot;item_code_prefix&quot;, &quot;makerspaces_makerspace&quot;.&quot;location&quot;, &quot;makerspaces_makerspace&quot;.&quot;map_url&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_latitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_longitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_radius_m&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_enabled&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_inv...&#10;[truncated; full report in element text]">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff815e42c0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff815cfa70&gt;
+transport = 'put', winner = 'triage'
+
+    @pytest.mark.parametrize("transport", ["post", "put"])
+    @pytest.mark.parametrize("winner", ["checkout", "triage"])
+    def test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker(
+        monkeypatch, settings, transport, winner,
+    ):
+        lab = setup_lab(monkeypatch, settings, transport)
+        qr = product_qr(lab)
+        report = returned_report(lab, qr)
+        old_loan = report.loan
+        old_request = old_loan.request
+        old_return = old_loan.return_evidence_id
+        shared = photo(lab, lab.store, "issue")
+        assert not HardwareRequest.objects.filter(issue_evidence=shared).exists()
+        quota(lab, 2)
+        triage_locks = []
+    
+        def triaging():
+            def capture(execute, sql, params, many, context):
+                if "FOR UPDATE" in sql or "FOR NO KEY UPDATE" in sql:
+                    triage_locks.append(sql)
+                return execute(sql, params, many, context)
+    
+            with connection.execute_wrapper(capture):
+                return triage(lab, report, shared)
+    
+        operations = {
+            "checkout": lambda: public_checkout(lab, qr, shared),
+            "triage": triaging,
+        }
+        loser = "triage" if winner == "checkout" else "checkout"
+        first_module = self_checkout_workflow if winner == "checkout" else problem_report_workflow
+        second_module = problem_report_workflow if winner == "checkout" else self_checkout_workflow
+        prepared, resume = prepare_validation(
+            monkeypatch, second_module, label="Triage" if loser == "triage" else "Issue",
+        )
+        reached, release = pause_attachment(monkeypatch, first_module, shared.pk)
+    
+&gt;       first, second, pids, query = prepared_race(
+            operations[winner], operations[loser], reached, release, prepared, resume,
+            table="evidence_evidencephoto", clause="FOR UPDATE",
+        )
+
+tests/test_checkout_evidence_lock_races.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/checkout_lock_race_helpers.py:117: in prepared_race
+    raise error  # Never accept/retry a deadlock, timeout or worker exception.
+    ^^^^^^^^^^^
+tests/checkout_lock_race_helpers.py:64: in run
+    outcomes[name] = operation(), None
+                     ^^^^^^^^^^^
+tests/test_checkout_evidence_lock_races.py:58: in &lt;lambda&gt;
+    "checkout": lambda: public_checkout(lab, qr, shared),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/checkout_lock_fixture_helpers.py:94: in public_checkout
+    return issue_post(lab, f"/api/v1/public/{lab.space.slug}/tools/checkout", {
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+lab = namespace(space=&lt;Makerspace: inventory-lending&gt;, actor=&lt;User: lending-manager&gt;, product=&lt;InventoryProduct: Oscilloscop...fff815e6000&gt;, store=&lt;tests.inventory_lending_evidence_helpers.EvidenceStore object at 0xffff87021010&gt;, transport='put')
+url = '/api/v1/public/inventory-lending/tools/checkout'
+payload = {'payload': 'ecfa9bec722340c8ba720db21a46852c', 'evidence_id': 861, 'remark': 'Race handover'}
+
+    def issue_post(lab, url, payload):
+        """Capture real Maker lock SQL, including add_storage's finite-cap PUT lock."""
+        maker_locks = []
+    
+        def capture(execute, sql, params, many, context):
+            if 'FROM "makerspaces_makerspace"' in sql and "FOR " in sql:
+                maker_locks.append(sql)
+            return execute(sql, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = client(lab).post(url, payload, format="json")
+        if response.status_code in (200, 201):
+            assert maker_locks and all("FOR NO KEY UPDATE" in sql for sql in maker_locks), maker_locks
+            if lab.transport == "put":
+                # The domain guard and add_storage each execute their actual SELECT.
+&gt;               assert len(maker_locks) &gt;= 2, maker_locks
+                       ^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: ['SELECT "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace"."checkin_space_id", "makerspaces_makerspace"."checkin_api_url", "makerspaces_makerspace"."checkin_required_purpose", "makerspaces_makerspace"."checkin_provider_name", "makerspaces_makerspace"."public_stats_enabled", "makerspaces_makerspace"."public_stats_show_holder_names", "makerspaces_makerspace"."public_print_status_lookup_policy", "makerspaces_makerspace"."membership_policy", "makerspaces_makerspace"."membership_dues_amount", "makerspaces_makerspace"."referrals_enabled", "makerspaces_makerspace"."filament_low_stock_threshold_grams", "makerspaces_makerspace"."superadmin_access_enabled", "makerspaces_makerspace"."staff_notifications_enabled", "makerspaces_makerspace"."booking_requester_notifications_enabled", "makerspaces_makerspace"."logo_key", "makerspaces_makerspace"."cover_image_key", "makerspaces_makerspace"."frontend_domain", "makerspaces_makerspace"."frontend_domain_status", "makerspaces_makerspace"."domain_verification_token", "makerspaces_makerspace"."domain_verified_at", "makerspaces_makerspace"."frontend_domain_changed_at", "makerspaces_makerspace"."hidden_from_central_directory", "makerspaces_makerspace"."public_api_key", "makerspaces_makerspace"."cors_allowed_origins", "makerspaces_makerspace"."enabled_modules", "makerspaces_makerspace"."enabled_features", "makerspaces_makerspace"."resource_limit_overrides", "makerspaces_makerspace"."storage_bytes_used", "makerspaces_makerspace"."theme_config", "makerspaces_makerspace"."branding_config", "makerspaces_makerspace"."telegram_group_chat_id", "makerspaces_makerspace"."telegram_bot_token", "makerspaces_makerspace"."smtp_host", "makerspaces_makerspace"."smtp_port", "makerspaces_makerspace"."smtp_username", "makerspaces_makerspace"."smtp_password", "makerspaces_makerspace"."smtp_use_tls", "makerspaces_makerspace"."smtp_use_ssl", "makerspaces_makerspace"."smtp_from_email", "makerspaces_makerspace"."slack_webhook_url", "makerspaces_makerspace"."mattermost_webhook_url", "makerspaces_makerspace"."discord_webhook_url", "makerspaces_makerspace"."default_loan_days", "makerspaces_makerspace"."presence_preset_minutes", "makerspaces_makerspace"."created_by_id", "makerspaces_makerspace"."anonymous_requester_id", "makerspaces_makerspace"."archived_at", "makerspaces_makerspace"."purge_started_at", "makerspaces_makerspace"."lifecycle_state", "makerspaces_makerspace"."archived_by_id", "makerspaces_makerspace"."created_at", "makerspaces_makerspace"."updated_at" FROM "makerspaces_makerspace" WHERE "makerspaces_makerspace"."id" = %s LIMIT 21 FOR NO KEY UPDATE']
+
+tests/checkout_lock_fixture_helpers.py:89: AssertionError</failure></testcase><testcase classname="tests.test_checkout_evidence_lock_races" name="test_public_return_waits_attachment_evidence_without_maker_while_real_sweep_finishes[post]" time="1.797" /><testcase classname="tests.test_checkout_evidence_lock_races" name="test_public_return_waits_attachment_evidence_without_maker_while_real_sweep_finishes[put]" time="1.979" /><testcase classname="tests.test_asset_fix_concurrency" name="test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[shelve]" time="2.586" /><testcase classname="tests.test_asset_fix_concurrency" name="test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[metadata]" time="2.846" /><testcase classname="tests.test_asset_fix_concurrency" name="test_waiting_repair_rechecks_committed_repair_without_duplicate_audit" time="1.657" /><testcase classname="tests.test_asset_fix_concurrency" name="test_fix_module_lock_still_serializes_actual_module_configuration" time="1.581" /></testsuite></testsuites>

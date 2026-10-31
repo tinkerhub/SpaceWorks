@@ -10,13 +10,48 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.backup import storage
-from apps.backup.digests import SUPPORTED_ARCHIVE_FORMATS, sha256_file
+from apps.backup.digests import sha256_file
+from apps.backup.full_format import FULL_FORMAT
+from apps.backup.outer_manifest import _canonical_json
 from apps.backup.models import BackupArchive, PlatformBackupSettings, RestoreOperation
 
 
-def import_disaster_archive(actor, encrypted_path, manifest, *, expected_sha256=None):
+def require_import_principal(actor):
+    actor = User.objects.filter(pk=getattr(actor, "pk", None)).first()
+    if not actor or not (
+        actor.is_active
+        and actor.access_status == User.AccessStatus.ACTIVE
+        and not actor.must_change_password
+        and (actor.is_superuser or actor.role == User.Role.SUPERADMIN)
+    ):
+        raise ValidationError("The importing principal must be an active eligible superadmin.")
+    return actor
+
+
+def import_disaster_archive(
+    actor, encrypted_path, manifest, *, expected_sha256=None,
+    bundle=None, manifest_file=None, continuity_secrets_file=None, prospective_record=None,
+):
+    actor = require_import_principal(actor)
+    # Raw service callers must pass the same authenticated admission as the CLI.
+    if not all((bundle, manifest_file, continuity_secrets_file)):
+        raise ValidationError("Authenticated full bundle admission is required for import.")
+    from apps.backup.import_preflight import validate_import_preflight, ImportPreflightError
+
+    try:
+        admission = validate_import_preflight(
+            encrypted_file=encrypted_path, bundle=bundle, manifest_file=manifest_file,
+            continuity_secrets_file=continuity_secrets_file, expected_sha256=expected_sha256,
+            require_host_support=True, prospective_record=prospective_record,
+        )
+    except ImportPreflightError as exc:
+        raise ValidationError(str(exc)) from exc
+    if _canonical_json(admission.manifest) != _canonical_json(manifest):
+        raise ValidationError("The imported manifest differs from authenticated admission.")
+    manifest = admission.manifest
     if not isinstance(expected_sha256, str) or re.fullmatch(
         r"[0-9a-f]{64}", expected_sha256
     ) is None:
@@ -29,10 +64,10 @@ def import_disaster_archive(actor, encrypted_path, manifest, *, expected_sha256=
     except (KeyError, TypeError, ValueError) as exc:
         raise ValidationError("The imported archive manifest has no valid archive id.") from exc
     if (
-        manifest.get("format") not in SUPPORTED_ARCHIVE_FORMATS
+        manifest.get("format") != FULL_FORMAT
         or manifest.get("scope") != BackupArchive.Scope.DEPLOYMENT
     ):
-        raise ValidationError("Only a Phase 5A full-deployment archive can be imported.")
+        raise ValidationError("Only an authenticated signed full deployment archive can be imported.")
     if not manifest.get("age_encrypted"):
         raise ValidationError("The imported archive is not declared age-encrypted.")
     path = os.fspath(encrypted_path)

@@ -19,6 +19,9 @@ MAX_MEMBER_BYTES = 2 * 1024 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 20 * 1024 * 1024 * 1024
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def stage_encrypted_upload(upload):
     root = Path(settings.BACKUP_OPS_DIR, "tenant-imports")
     try:

@@ -1,0 +1,66 @@
+{
+  "status": "currentcheckpointsource independently inspected;317 static cases ready for root runtime; separately approved Box parent-writer/deletion race plan read-only pending, no new source writes during root test run",
+  "supersedes": "Later native-host admission, shared bulk audit atomicity and Box Maker NK supersede corresponding historic source snapshot entries; old manifests retained without silent refresh.",
+  "files": [
+    {
+      "path": "backend/apps/boxes/targets.py",
+      "sha256": "a965ce5d148bd19b1c1a51d036e0d1bb45630f4795f87845d52ef3e7d9b972ea",
+      "lines": 22
+    },
+    {
+      "path": "backend/apps/boxes/serializers.py",
+      "sha256": "eb87bb8fd67974bcc5d204a8a66d43dbc9b67a1111b040d59936628ebca90946",
+      "lines": 139
+    },
+    {
+      "path": "backend/apps/boxes/api_views_qr.py",
+      "sha256": "f3805d83b3e12cbe5e61f65b34e953c479f81a87d18a8320729834338d89d15f",
+      "lines": 282
+    },
+    {
+      "path": "backend/apps/boxes/services.py",
+      "sha256": "99ae6ed5e650da9f8914e1e777cbc5352db5c9c6482d09760eaa56df9b79d00c",
+      "lines": 79
+    },
+    {
+      "path": "backend/apps/boxes/admin_forms.py",
+      "sha256": "d742c13d4ca4df2820599f4e1eb93dc950ac3e28ac89ec5680222f4b11df6386",
+      "lines": 31
+    },
+    {
+      "path": "backend/apps/boxes/admin.py",
+      "sha256": "98337058c8b39e3ae74e149ab9a3c399252fc796daf7b8b9162f6ee114a32a17",
+      "lines": 290
+    },
+    {
+      "path": "backend/apps/operations/services_qr_assets.py",
+      "sha256": "ca152a5b0888da20cd9228ef9da2422fee3b48e8a1d7b97b476d1f3318d993c5",
+      "lines": 175
+    },
+    {
+      "path": "backend/apps/operations/views_qr_batches.py",
+      "sha256": "6b7e2f86959d00aa79949c52624cccde5a87505d70146b4cf00a3cc859964c7a",
+      "lines": 185
+    },
+    {
+      "path": "backend/apps/procurement/admin.py",
+      "sha256": "b108e4dbb8a2f704584caeddac10940ff2ea2f5d57915d955f5b929c907dd3c6",
+      "lines": 90
+    },
+    {
+      "path": "backend/apps/warranty/admin.py",
+      "sha256": "9ba83f58b54bf0914ac2203a61d7fc138eea40f5675488db29688e479ad0765c",
+      "lines": 178
+    },
+    {
+      "path": "backend/apps/warranty/admin_forms.py",
+      "sha256": "60c3a16dd9a5d925fe105a54c86d9cd3069610eadfeed171fc63b09622a35be9",
+      "lines": 101
+    },
+    {
+      "path": "backend/config/admin_audit.py",
+      "sha256": "5acc9bc3e6b74a2a68ed0c3e1a84ef09590471ff77354ed4675fd5c1037a3cf5",
+      "lines": 85
+    }
+  ]
+}

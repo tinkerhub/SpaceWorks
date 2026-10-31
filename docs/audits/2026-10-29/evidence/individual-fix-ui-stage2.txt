@@ -1,0 +1,13 @@
+Implemented only [NeedsFixShelf.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/NeedsFixShelf.tsx), now 161 lines.
+
+- Individual rows show **Manage units** instead of aggregate quantity, repair, or scrap controls. It opens the real `IndividualAssets` in `Modal`, with fixed product/makerspace IDs, `canEdit=true`, and the existing containers module flag.
+- Disabled `asset_units` disables management, shows a plain reason, and prevents mounting or fetching units.
+- Quantity defaults apply only to `undefined`. Explicit blank becomes zero and remains invalid. `run` revalidates before dispatch, including scrap confirmation.
+- Per-unit callbacks refresh the shelf and existing staff/public inventory queries.
+
+For separate Stage 3, exercise the real components through:
+
+- **Quantity for {name}**, **Move back to inventory**, **Scrap…**, then confirmation **Scrap**. Cover untouched defaults, exact typed quantities, invalid values, and stale confirmation.
+- **Manage units**, then controls in [IndividualAssets](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/InventoryAssets.tsx:39). Verify module gating, scoped requests, invalidations, and normal modal closing.
+
+`git diff --check` passed. No runtime tests, typecheck, build, staging, or commit performed.

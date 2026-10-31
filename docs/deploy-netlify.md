@@ -84,6 +84,13 @@ Storage URLs are baked into presigned uploads and every public image `src`, so a
 On R2 or S3 instead of the bundled MinIO, also set `STORAGE_PRESIGN_METHOD=put` and allow the site
 origin in the bucket's CORS rules in the provider dashboard.
 
+The public-image bucket must allow anonymous final-image reads while denying anonymous reads of
+`staging/` and staging versions. Apply the release's `deploy/init-object-buckets.sh` policy through
+the bundled bootstrap; on external storage, configure the equivalent policy while allowing signed
+backend staging reads. Keep the evidence bucket private. Upload failure diagnosis should check the
+browser-facing storage URL, running storage service, credentials and bucket CORS separately: a
+successful presign response alone does not prove the browser can upload bytes.
+
 ## 3. Register the site origin for staff sign-in
 
 `CORS_ALLOWED_ORIGINS` lets the browser *call* the API. It does **not** let staff stay signed in:
@@ -93,24 +100,41 @@ backend). Without it, staff
 can sign in but are signed out on the next page load (the refresh call answers
 `403 Origin not allowed.`).
 
-Sign in as the superadmin, open **Settings → Domain & access → Custom domain**, enter the site host
-(`tools.example.org` or `your-site.netlify.app`, no scheme) and save. On a self-hosted instance it is
-**Verified** immediately; there is no DNS TXT step. The site is now **origin-locked** to that
-makerspace (below), so one Netlify site serves one makerspace's staff; give a second makerspace its
-own site.
+Choose the deployment's intended scope before registering the host:
 
-Only a superadmin can set the custom domain on a self-hosted instance, because that value feeds the
-process-wide staff-origin allowlist. Before it is set, a sign-in on the site works but does not survive
-a reload, so set it in the same visit, straight after your first sign-in.
+- **Shared central portal:** a privileged deployment operator adds the portal's exact scheme and
+  host to `PLATFORM_STAFF_ORIGINS`, for example `https://portal.example.org` (no path or trailing
+  slash). Configure `CORS_ALLOWED_ORIGINS` separately as above; staff trust does not replace CORS.
+  Leave `VITE_TENANT_TOKEN` and runtime `tenantToken` unset, with runtime `originBootstrap` off for
+  central bootstrap mode. Apply server environment changes
+  through the orchestration commands in section 2 and recreate the backend containers so they receive
+  the new environment. Rebuild/redeploy the frontend when changing its `VITE_` variables.
+- **Dedicated makerspace site:** sign in as the superadmin, open **Settings → Domain & access →
+  Custom domain**, enter that makerspace's site host (no scheme), and save. On a self-hosted instance
+  it is **Verified** immediately; there is no DNS TXT step. Bind the frontend with
+  `VITE_TENANT_TOKEN` set to its public code and rebuild/redeploy. This site stays origin-locked.
+
+If a shared portal host was previously registered as one makerspace's `frontend_domain`, first
+configure deployment trust, then coherently remove that shared host from the makerspace or reassign
+the makerspace to its dedicated host with the matching frontend binding. Otherwise public
+origin-bootstrap can still resolve the shared portal as that one makerspace and put the app in
+single mode even without `VITE_TENANT_TOKEN`. Reload after applying the coordinated changes.
+
+`staff_origin_scope` gives `PLATFORM_STAFF_ORIGINS` precedence over makerspace domain matches.
+This is privileged operator policy, never a client hint: do not add a dedicated makerspace origin to
+global trust merely to enable switching. Only a superadmin can set a custom domain on a self-hosted
+instance because it feeds the process-wide staff-origin allowlist. Configure the chosen trust path
+in the first sign-in visit so refresh can survive the next reload.
 
 ### What an origin-locked site means
 
-Once a makerspace's custom domain is the site's host, every staff request from that origin is pinned
-to that makerspace:
+On a dedicated site whose verified custom domain is not in `PLATFORM_STAFF_ORIGINS`, every staff
+request from that origin is pinned to that makerspace:
 
-- Staff actions that target another makerspace are refused. Build with `VITE_TENANT_TOKEN` set to
-  that makerspace's public code so the console also hides the makerspace switcher; without it the
-  switcher still lists other makerspaces, and choosing one only produces `403`s.
+- Staff actions that target another makerspace are refused. The backend filters the switcher list
+  to makerspaces allowed for this account from this site; an unavailable deep link cannot grant
+  access to another space. A dedicated frontend binding also hides the global chooser. A shared
+  central portal can offer only the spaces its API-returned list authorizes.
 - **Platform-wide** staff endpoints (anything not tied to one makerspace) answer `403` from that
   origin, even for the superadmin. Do platform work (creating makerspaces, platform login methods) in
   the Django control plane at `/control/` on the backend.

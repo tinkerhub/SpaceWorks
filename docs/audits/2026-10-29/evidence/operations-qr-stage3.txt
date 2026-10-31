@@ -1,0 +1,20 @@
+Added **55 cases across 16 test functions**: 20 input, 13 audit, and 22 module/printing cases, including both PG winner orders.
+
+Static AST checks passed. New files are **123/144/174/216 lines**. The sole existing-test edit adds `actor` to the caller; all proof assertions remain intact. No production edits, runtime, staging, schema generation, or gates ran.
+
+Root can run serially from the repository root:
+
+```sh
+./scripts/dev-docker.sh exec -T backend sh -ec '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest -q --create-db \
+    tests/operations/test_qr_input_safety.py \
+    tests/operations/test_qr_audit_safety.py \
+    tests/operations/test_qr_print_module_safety.py \
+    tests/data_export/test_portable_reference_provenance.py::test_print_batch_item_keeps_its_snapshot_after_qr_rebind
+  python -m pytest -q --reuse-db tests/tenant_migration/test_reference_registry.py
+'
+```
+
+The second command is the bounded existing reference-guard check. Generic audit targets cover the new literal actions through their classified target models.

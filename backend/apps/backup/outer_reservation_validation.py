@@ -12,6 +12,7 @@ from apps.backup.reservation_registry import (
     component_canonicalizer_identities,
 )
 from apps.backup.source_partition_proof import verify_source_partition_proof
+from apps.backup.source_capture_facts import source_capture_facts_from_mapping
 
 
 _ORACLE_NAMES = frozenset({
@@ -51,6 +52,7 @@ def validate_reservation_manifest(manifest, component_ledger):
             "sequence_reservations": sequences,
         }
         expected = {
+            **source_capture_facts_from_mapping(manifest["source_capture"]).as_dict(),
             "artifact_id": manifest["artifact_id"],
             "capture_id": manifest["capture_id"],
             "physical_catalog_digest": manifest["main_component"][

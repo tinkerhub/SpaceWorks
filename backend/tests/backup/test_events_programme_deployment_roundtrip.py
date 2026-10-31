@@ -25,6 +25,7 @@ from tests.backup.test_compound_archive_e3 import (
     allow_projection_databases,
 )
 from tests.encryption.conftest import enabled_encryption
+from tests.makerspaces.module_cleanup_support import module_store, seed_versions
 from tests.tenant_migration.programme_graph import create_programme_graph
 
 
@@ -136,7 +137,7 @@ def _rows(space_id):
 
 
 def test_deployment_restore_preserves_disabled_archived_graph_and_two_key_request(
-    allow_projection_databases, monkeypatch, settings
+    allow_projection_databases, monkeypatch, settings, module_store
 ):
     with enabled_encryption():
         space, manager, _graph = _source_graph("programme-deployment")
@@ -160,14 +161,22 @@ def test_deployment_restore_preserves_disabled_archived_graph_and_two_key_reques
         purged_space.enabled_modules = []
         purged_space.save(update_fields=("enabled_modules",))
         settings.MANAGED_POSTGRES = True
-        monkeypatch.setattr(module_purge, "_delete_private_keys", lambda keys: keys)
-        monkeypatch.setattr(module_purge, "_free_private_storage", lambda *_args: None)
-        monkeypatch.setattr(
-            module_purge, "_delete_public_images_and_free_storage", lambda *_args: None
-        )
-        module_purge.purge_module(purged_space, "events", resolver)
-        module_purge.purge_module(purged_space, "bookings", resolver)
-        module_purge.purge_module(purged_space, "membership", resolver)
+        from apps.backup.object_reference_capture import build_object_ownership_plan
+        owned = build_object_ownership_plan([purged_space.pk])
+        seeded = set()
+        for ref in owned.references:
+            if ref.canonical_makerspace_id == purged_space.pk and ref.object_key and ref.site.split(":", 1)[0] in {
+                "events.Event", "events.EventSeries", "events.EventAttendanceCertificate",
+                "bookings.BookableSpace", "makerspaces.MemberProfile", "makerspaces.MemberProject",
+            }:
+                seeded |= seed_versions(module_store, ref.bucket_kind, ref.object_key, OBJECT_BYTES)
+        receipts = []
+        for module in ("events", "bookings", "membership"):
+            receipt, _counts = module_purge.purge_module(purged_space, module, resolver)
+            assert receipt.graph_purged_at and receipt.last_verified_at
+            receipts.append(receipt)
+        assert module_store.calls and not (seeded & module_store.objects.keys())
+        assert all(row.source_makerspace_id == purged_space.pk for row in receipts)
         assert not Event.objects.filter(makerspace=purged_space).exists()
         assert not BookableSpace.objects.filter(makerspace=purged_space).exists()
         assert not MemberProfile.objects.filter(

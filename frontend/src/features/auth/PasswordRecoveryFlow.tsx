@@ -12,60 +12,82 @@ import {
   requestPasswordReset,
   signInPath,
 } from "./passwordRecovery";
+import { useAuthActionOwner, type AuthAction } from "./useAuthActionOwner";
 
 type RecoveryStep = "request" | "confirm" | "success" | "unavailable";
+const emptyView = {
+  step: "request" as RecoveryStep,
+  confirmedEmail: "", code: "", newPassword: "", confirmPassword: "",
+  acknowledgement: "", error: "", pending: false, cooldown: 0,
+};
 
 export function PasswordRecoveryFlow() {
   const signInHref = signInPath(useLocation().search);
-  const [step, setStep] = useState<RecoveryStep>("request");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [acknowledgement, setAcknowledgement] = useState("");
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const owner = useAuthActionOwner(email);
+  const context = owner.context;
+  const [storedView, setView] = useState({ context, ...emptyView });
+  // A different email renders a fresh request immediately, even before any effects.
+  const view = storedView.context === context ? storedView : { context, ...emptyView };
+  const { step, code, newPassword, confirmPassword, acknowledgement, error, pending, cooldown } = view;
+  function updateView(patch: Partial<typeof emptyView>, action?: AuthAction) {
+    const isCurrent = () => action ? owner.isCurrent(action) : owner.isContextCurrent();
+    if (!isCurrent()) return;
+    setView((state) => isCurrent()
+      ? { ...(state.context === context ? state : { context, ...emptyView }), ...patch }
+      : state);
+  }
 
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = window.setInterval(() => {
-      setCooldown((seconds) => Math.max(0, seconds - 1));
+      if (!owner.isContextCurrent(context)) return;
+      setView((state) => owner.isContextCurrent(context) && state.context === context
+        ? { ...state, cooldown: Math.max(0, state.cooldown - 1) } : state);
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [cooldown > 0]);
+  }, [context, cooldown > 0]);
 
   const requestCode = async (isResend: boolean) => {
-    setPending(true);
-    setError("");
+    if (isResend ? step !== "confirm" || cooldown > 0 || view.confirmedEmail !== email : step !== "request") return;
+    const action = owner.begin();
+    if (!action) return;
+    const requestedEmail = isResend ? view.confirmedEmail : email;
+    updateView({ pending: true, error: "" }, action);
     try {
-      const result = await requestPasswordReset({ email });
-      setAcknowledgement(result.detail);
-      setCooldown(RESEND_COOLDOWN_SECONDS);
-      if (!isResend) setStep("confirm");
+      const result = await requestPasswordReset({ email: requestedEmail });
+      updateView({
+        confirmedEmail: requestedEmail, acknowledgement: result.detail,
+        cooldown: RESEND_COOLDOWN_SECONDS, step: "confirm",
+      }, action);
     } catch (requestError) {
       if (isRecoveryUnavailable(requestError)) {
-        setStep("unavailable");
+        updateView({ step: "unavailable" }, action);
       } else {
-        setError("Unable to request password recovery. Please try again.");
+        updateView({ error: "Unable to request password recovery. Please try again." }, action);
       }
     } finally {
-      setPending(false);
+      updateView({ pending: false }, action);
+      owner.finish(action);
     }
   };
 
   const submitConfirmation = async () => {
-    setPending(true);
-    setError("");
+    if (step !== "confirm" || view.confirmedEmail !== email) return;
+    const action = owner.begin();
+    if (!action) return;
+    const payload = { email: view.confirmedEmail, code, new_password: newPassword };
+    updateView({ pending: true, error: "" }, action);
     try {
-      await confirmOtpPasswordReset({ email, code, new_password: newPassword });
-      setStep("success");
+      await confirmOtpPasswordReset(payload);
+      updateView({ step: "success" }, action);
     } catch {
       // All server rejections intentionally share one message. Showing password-policy
       // details only after a valid OTP would recreate an account-existence oracle.
-      setError(CONFIRM_FAILURE_MESSAGE);
+      updateView({ error: CONFIRM_FAILURE_MESSAGE }, action);
     } finally {
-      setPending(false);
+      updateView({ pending: false }, action);
+      owner.finish(action);
     }
   };
 
@@ -108,7 +130,7 @@ export function PasswordRecoveryFlow() {
               type="email"
               required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => { if (owner.isContextCurrent()) setEmail(event.target.value); }}
             />
           </Field>
           <ErrorText message={error} />
@@ -136,15 +158,15 @@ export function PasswordRecoveryFlow() {
             maxLength={6}
             required
             value={code}
-            onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
+            onChange={(event) => updateView({ code: event.target.value.replace(/\D/g, "") })}
           />
         </Field>
         <NewPasswordFields
           idPrefix="otp-reset"
           newPassword={newPassword}
           confirmPassword={confirmPassword}
-          onNewPasswordChange={setNewPassword}
-          onConfirmPasswordChange={setConfirmPassword}
+          onNewPasswordChange={(value) => updateView({ newPassword: value })}
+          onConfirmPasswordChange={(value) => updateView({ confirmPassword: value })}
         />
         <ErrorText message={error} />
         <Button variant="primary" type="submit" fullWidth disabled={!canConfirm} loading={pending}>

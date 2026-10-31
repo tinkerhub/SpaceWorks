@@ -28,6 +28,7 @@ from .protocol_errors import (
     TransitionConflictError,
 )
 from . import source_gate
+from .gate_runtime import source_archive_boundary
 
 AGE_RECIPIENT = re.compile(r"\A(?:age1|age-plugin-)[A-Za-z0-9_-]{16,}\Z")
 logger = logging.getLogger(__name__)
@@ -95,11 +96,13 @@ def run_migration_export_job(job_id):
             recipient=migration.target_age_recipient,
         )
         size = os.path.getsize(path)
-        storage.upload_archive(job.object_key, path, "application/octet-stream")
-        export_services._finalize_job(job.pk, manifest, size)
-        TenantMigrationExportJob.objects.filter(export_job=job).update(
-            archive_digest=digest
-        )
+        gate = manifest["source"]["gate"]
+        with source_archive_boundary(
+            job.makerspace_id, uuid.UUID(gate["owner_id"]), gate["fencing_token"],
+        ):
+            storage.upload_archive(job.object_key, path, "application/octet-stream")
+            export_services._finalize_job(job.pk, manifest, size)
+            TenantMigrationExportJob.objects.filter(export_job=job).update(archive_digest=digest)
     except ClosureAdmissionError as exc:
         export_services._fail_job(job, DataExportJob.FailureCode.INTEGRITY_ERROR, str(exc))
     except Exception:

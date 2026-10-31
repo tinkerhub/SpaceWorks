@@ -1,0 +1,7 @@
+One actionable finding:
+
+- **P2 — Retained rows can permanently starve expiry cleanup.** [rollback_cleanup.py:71](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/rollback_cleanup.py:71) selects the first `limit` expired rows before checking outcomes. Failed restores’ rows remain retained by [rollback_cleanup_outcomes.py:19](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/rollback_cleanup_outcomes.py:19). Once 100 such rows occupy the oldest positions, every default sweep revisits them; later completed restores’ copies and storage charges never clear automatically. Filter eligible outcomes before limiting, or use a progressing cursor while preserving the fresh destructive-boundary checks. Add coverage with `limit=1`, an older failed row, and a newer completed row.
+
+No additional actionable defect found in the scoped admission/resume or dump-copy paths. Source tracing shows selected artifact bytes, capture, inner manifest, projection proof and client metadata are checked before effects on every invocation. Private dump copies are owned, hashed during preparation, checked again immediately before restore, and cleaned while the host lock remains held. Cleanup requires fresh terminal-outcome and NORMAL-state proof; a free lock alone does not authorize deletion.
+
+Limitations: source-only audit; tests were read, not run. No files changed. Producer-format work and real age/PostgreSQL integration validation were excluded. This is not the whole-workspace Stage 4 gate.

@@ -1,0 +1,27 @@
+Added only the five permitted new files. Static AST, whitespace and ≤300-line checks pass.
+
+| Test file | Functions | Expanded cases |
+|---|---:|---:|
+| `test_qr_target_boundaries.py` | 8 | 59 |
+| `test_qr_atomic_mutations.py` | 6 | 26 |
+| `test_native_box_creation.py` | 8 | 14 |
+| `test_native_document_audit.py` | 6 | 27 |
+| **Total** | **28** | **126** |
+
+Counts are static, not pytest collection. No runtime, application imports, builds, staging or commits were performed.
+
+Pending: Box edit auditing remains unasserted. Warranty stale-host race coverage remains excluded. Final freeze verification found **9/10 matches**; `backend/apps/warranty/admin.py` changed concurrently.
+
+Root-only runtime command:
+
+```bash
+./scripts/dev-docker.sh exec -T backend sh -c '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest -q --create-db \
+    tests/test_qr_target_boundaries.py \
+    tests/test_qr_atomic_mutations.py \
+    tests/test_native_box_creation.py \
+    tests/test_native_document_audit.py
+'
+```

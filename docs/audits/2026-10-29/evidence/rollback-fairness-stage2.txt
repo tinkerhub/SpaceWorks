@@ -1,0 +1,8 @@
+Implemented Stage 2 in exactly two files:
+
+- [rollback_cleanup.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/rollback_cleanup.py:78): added `_expired_candidates`; updated `_cleanup_expired` for bounded cursor fairness and truthful late-failure reporting.
+- [rollback_cleanup_progress.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/rollback_cleanup_progress.py:21): added progress/error types, `read_cleanup_progress`, `write_cleanup_progress`, and private validation helpers `_directory_identity`, `_file_identity`, `_unique_object`, `_validate_last_id`, `_parse`, `_read_progress`.
+
+Existing locks, per-row checks, deletion, settlement, and authority/source guards remain unchanged. Late persistence failure preserves actual counts and returns `rollback_cleanup_progress_unconfirmed`.
+
+Source-only checks passed. Files are 174 and 130 lines. No tests, docs, migrations, staging, or commits. Ready for separate Stage 3.

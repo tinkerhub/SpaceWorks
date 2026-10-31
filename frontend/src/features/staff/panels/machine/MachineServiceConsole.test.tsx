@@ -1,14 +1,20 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Machine, MachineType } from "../../machinesApi";
 import { MachineServiceConsole } from "./MachineServiceConsole";
 import { blankServiceDraft } from "./serviceDrafts";
+import { isolateMachineTestSession, machineConsoleTestClient, machineTestMakerspaces } from "./machineConsoleTestUtils";
+
+isolateMachineTestSession();
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
-vi.mock("../../../../lib/api", () => ({ staffRequest }));
+vi.mock("../../../../lib/api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../../../lib/api")>(),
+  staffRequest,
+}));
 
 describe("MachineServiceConsole", () => {
   beforeEach(() => {
@@ -27,6 +33,7 @@ describe("MachineServiceConsole", () => {
       capability_config: { metering_unit: "length", requires_booking: false },
     };
     staffRequest.mockImplementation(async (path?: string) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces();
       if (path?.includes("machine-service/requests")) return [{
         id: 4,
         title: "Laser job",
@@ -39,7 +46,7 @@ describe("MachineServiceConsole", () => {
       }];
       return [];
     });
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
 
     render(
       <QueryClientProvider client={client}>
@@ -66,6 +73,7 @@ describe("MachineServiceConsole", () => {
       capability_config: { metering_unit: "length", requires_booking: false },
     };
     staffRequest.mockImplementation(async (path?: string) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces();
       if (path?.includes("machine-service/requests")) return [
         {
           id: 4,
@@ -86,7 +94,7 @@ describe("MachineServiceConsole", () => {
       ];
       return [];
     });
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
 
     render(
       <QueryClientProvider client={client}>
@@ -114,6 +122,7 @@ describe("MachineServiceConsole", () => {
       effective_config: { metering_unit: "count", requires_booking: false, uses_consumables: false, overridden: true },
     };
     staffRequest.mockImplementation(async (path?: string) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces();
       if (path?.includes("machine-service/requests?")) return [{ id: 4, title: "Badges", status: "in_progress", payment: null, payment_status: "none", payment_amount: null }];
       return [];
     });
@@ -122,7 +131,7 @@ describe("MachineServiceConsole", () => {
     draft.actionValues.actual_quantity = "3";
     draft.manual = { ...draft.manual, machine_id: "11", duration_minutes: "10", quantity: "3" };
     const machines = [{ id: 11, name: "Press", makerspace: 1, machine_type: machineType }] as unknown as Machine[];
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
 
     render(
       <QueryClientProvider client={client}>

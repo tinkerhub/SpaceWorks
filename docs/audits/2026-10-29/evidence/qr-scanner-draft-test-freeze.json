@@ -1,0 +1,14 @@
+{
+  "format": "spaceworks-qr-scanner-draft-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "new_cases": 1,
+  "runtime_status": "Root focused scanner9PASS4.66s; complete current frontend1991PASS230files544.77s, TypeScript and production build exit0/build4.34s. Final source/release and later OIDC generated contract followup remain separate.",
+  "files": [
+    {
+      "path": "frontend/src/components/ui/QrScanner.draft.test.tsx",
+      "lines": 71,
+      "sha256": "530672056c8f42e4c9752adfc956ff5151daaa0146897a40ad83a5cb54fd2cec"
+    }
+  ],
+  "runtime_evidence": "frontend-final-scanner-complete.json"
+}

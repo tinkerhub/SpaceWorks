@@ -67,6 +67,9 @@ export type PublicRequestStatus = {
   items: {
     product_name: string;
     requested_quantity: number;
+    accepted_quantity?: number;
+    issued_quantity?: number;
+    returned_quantity?: number;
   }[];
 };
 

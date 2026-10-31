@@ -1,0 +1,25 @@
+{
+  "status": "bothfiles independently fully read; runtime pending root",
+  "cases": "30 static cases/11functions, actual collection pending; canonical source/host/FK waits and native HTTP",
+  "files": [
+    {
+      "path": "backend/tests/native_warranty_race_helpers.py",
+      "sha256": "cc423938f17d2ffe9a1520c960e1402e8e0e7514e7e81d901b01e920ad81541f",
+      "lines": 244
+    },
+    {
+      "path": "backend/tests/test_native_warranty_races.py",
+      "sha256": "6365c7d00f9d8a563db8377481c8e5c1b12f9ae60302eae36a7f4cd2867358e3",
+      "lines": 253
+    }
+  ],
+  "runtime_observation": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/documents-qr-native-round1.xml",
+    "junit_sha256": "249fb5e3be71a4d018600c029b3e754fbe626abdc756b64712eefeb3e83dceb7",
+    "group": "native_warranty",
+    "group_cases": 30,
+    "group_failures": 0,
+    "aggregate_result": "Broader317run304passed13failed; these group modules allpassed. Overall group not yetgreen; no countsum into whole suite."
+  }
+}

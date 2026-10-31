@@ -17,7 +17,7 @@ from apps.makerspaces import lifecycle
 from apps.makerspaces.models import Makerspace, MakerspaceMembership
 from apps.accounts.models import User
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def make_space(slug='event-image'):
@@ -82,7 +82,7 @@ def mock_public_storage(monkeypatch, *, size=123, managed=False):
     monkeypatch.setattr(
         'apps.inventory.public_image_storage.object_size', lambda object_key: size
     )
-    delete = Mock()
+    delete = Mock(return_value=True)
     monkeypatch.setattr('apps.inventory.public_image_storage.delete_object', delete)
     return delete
 

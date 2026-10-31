@@ -1,0 +1,13 @@
+APPROVED for the bounded fix plan. Actual source confirms all three defects, and the existing recovery tests do not cover these races or control-character return paths.
+
+Implementation constraints:
+
+- Encode the exact `uid`/`token` pair without collisions, such as `JSON.stringify([uid, token])`.
+- Tag state with the owner’s **context identity**, not just the pair/email string. This prevents A→B→A from reviving the first A’s credentials, success, or error.
+- Guard every asynchronous publication, including cooldown changes and pending cleanup. `finish(action)` releases ownership; it does not independently authorize result publication.
+- Keep confirmation and resend bound to the email captured by the successful current request.
+- Retain the root-relative prefix requirement alongside control/backslash rejection and any trusted-base URL validation.
+
+The proposed separate regression coverage is appropriate: held success/rejection, obsolete `finally`, duplicate submission before React commits, UID-only/token-only changes, direct prop changes, editable-email races, cooldown behavior, and actual resolved URL origins.
+
+No edits or tests were performed. The fixes remain pending implementation and separate verification; the earlier full frontend run does not verify them.

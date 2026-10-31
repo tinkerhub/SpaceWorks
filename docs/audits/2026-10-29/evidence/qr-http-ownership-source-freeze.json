@@ -1,0 +1,23 @@
+{
+  "status": "independently inspected current3 source files, no writer active on these owners; runtime pending",
+  "files": [
+    {
+      "path": "backend/apps/tenant_migration/gate_http_ownership.py",
+      "file_sha256": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+      "lines": 163
+    },
+    {
+      "path": "backend/apps/tenant_migration/middleware.py",
+      "file_sha256": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+      "lines": 146
+    },
+    {
+      "path": "backend/apps/tenant_migration/gate_runtime.py",
+      "file_sha256": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+      "lines": 208
+    }
+  ],
+  "owned_runtime_tests": "new qr_http_ownership_safety Stage3 author active",
+  "static_guard": "separate source-guard Stage2 author active, does not edit these3 files or primitives",
+  "root_pending": "actual27scope/sorted +generation19; API registry source validator and source census/hashes"
+}

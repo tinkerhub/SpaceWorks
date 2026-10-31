@@ -86,7 +86,7 @@ export function BorrowRequestCard({
         </p>
       ) : (
         <div className="mt-4 space-y-2">
-          <ul className="max-h-40 divide-y divide-line overflow-y-auto rounded-md border border-line">
+          <ul className="divide-y divide-line rounded-md border border-line">
             {items.map((item) => (
               <li className="flex items-center justify-between gap-3 px-3 py-2" key={item.productId}>
                 <span className="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]">{item.name}</span>
@@ -94,7 +94,7 @@ export function BorrowRequestCard({
               </li>
             ))}
           </ul>
-          <Button variant="quiet" size="sm" onClick={onClear}>
+          <Button variant="quiet" size="sm" disabled={submitPending} onClick={onClear}>
             Clear selection
           </Button>
         </div>
@@ -105,6 +105,7 @@ export function BorrowRequestCard({
           <>
             <Field label="Your name">
               <Input
+                disabled={submitPending}
                 autoComplete="name"
                 maxLength={200}
                 placeholder="Ada Lovelace"
@@ -115,6 +116,7 @@ export function BorrowRequestCard({
             </Field>
             <Field label="Email" helperText="Staff use this to reach you about the request.">
               <Input
+                disabled={submitPending}
                 autoComplete="email"
                 maxLength={254}
                 placeholder="you@example.com"
@@ -125,6 +127,7 @@ export function BorrowRequestCard({
             </Field>
             <Field label="Phone" optional>
               <Input
+                disabled={submitPending}
                 autoComplete="tel"
                 maxLength={32}
                 placeholder="+44 20 1234 5678"
@@ -140,6 +143,7 @@ export function BorrowRequestCard({
           <input
             autoComplete="off"
             name="website"
+            disabled={submitPending}
             tabIndex={-1}
             value={website}
             onChange={(event) => onWebsiteChange?.(event.target.value)}
@@ -147,6 +151,7 @@ export function BorrowRequestCard({
         </label>
         <Field label="Request purpose">
           <Textarea
+            disabled={submitPending}
             placeholder="What do you need these items for?"
             value={requestedFor}
             onChange={(event) => onRequestedForChange(event.target.value)}

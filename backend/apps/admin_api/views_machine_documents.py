@@ -55,7 +55,7 @@ class MachineDocumentPresignView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         ext = storage.ext_for(data['content_type'], data['filename'])
-        object_key = storage.machine_object_key(machine.makerspace_id, ext)
+        object_key = storage.machine_object_key(machine.makerspace_id, machine.pk, ext)
         try:
             upload = storage.presigned_upload(object_key, data['content_type'])
         except StorageUnavailable:

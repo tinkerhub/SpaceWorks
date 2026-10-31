@@ -13,6 +13,7 @@ OBJECT_FIELD_NAMES = frozenset({
 })
 
 NON_OBJECT_KEY_FIELDS = frozenset({
+    ("makerspaces.ModulePurgeReceipt", "module_key"),  # Registry identity, never an object locator.
     ("accounts.NativeAppRegistration", "verifier_config_key"),
     ("accounts.PlatformSocialAuthSettings", "apple_private_key"),
     ("audit.AuditMacKey", "wrapped_key"),

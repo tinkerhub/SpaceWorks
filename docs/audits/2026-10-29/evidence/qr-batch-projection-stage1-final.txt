@@ -1,0 +1,23 @@
+APPROVED for the bounded amended Stage2 plan. No mandatory revisions.
+
+The four-source scope covers both ZIP callers and the frontend consumer. Batch-local null projection preserves historical snapshots and authorized transfers. The admin exception handler prevents a 500; printable counts and “Download available” disclose partial output. Stage3 coverage is appropriately scoped.
+
+All four sources were read completely and remain below 300 lines. Current SHA-256 hashes:
+
+```text
+operations/serializers.py (224)
+0e81d5174d1506c70c70450eb726ea4b329b930ad75e2a3620155ca07724c647
+
+operations/qr_zip.py (19)
+1dc54dbbedd8fb57381bc487e5f42ba0fd01338a8edf9c8d787aa0e2921a4efd
+
+operations/admin.py (187)
+9233d46fa17d1f9156d6a6ffb32acafa554dfb5417b65d0bcda1fb2238f77dee
+
+panels/QrToolsBatch.tsx (90)
+476c201faba0f2bdcb372bf52486a88f1e7275cc8402e5485c3b94e0139231bf
+```
+
+No edits, tests, imports, Docker, or runtime execution performed. This approves only this plan.
+
+The result file could not be written because this session’s filesystem policy permits reads only.

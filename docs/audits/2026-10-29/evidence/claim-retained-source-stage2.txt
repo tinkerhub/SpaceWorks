@@ -1,0 +1,8 @@
+Implemented the retained-reference verification, same-key reuse, and claim lock-order rejection in the three allowed files.
+
+- Line counts: **280 / 217 / 76**, all ≤300.
+- AST checks passed; shared release semantics preserved.
+- Concurrent unowned changes preserved.
+- No application imports, runtime, tests, collection, build, staging, or commit.
+
+[Freeze report](/tmp/spaceworks-claim-retained-source-stage2-freeze.json) contains exact hashes, lexical functions, changes, and risks. Independent review and root runtime validation remain pending.

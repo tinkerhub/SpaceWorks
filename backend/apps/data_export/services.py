@@ -16,7 +16,14 @@ from rest_framework.exceptions import ValidationError
 
 from apps.audit import services as audit
 from apps.data_export import storage
+from apps.data_export.lifecycle import (
+    _claim_job,
+    _fail_job,
+    _finalize_job,
+    fail_dispatch,
+)
 from apps.data_export.models import DataExportJob
+from apps.data_export.source_boundary import gated_job
 from apps.data_export.runner import (
     ExportDeadlineExceeded,
     ExportIntegrityError,
@@ -61,6 +68,7 @@ def create_export_job(actor, makerspace):
     return job
 
 
+@gated_job
 def run_export_job(job_id):
     job = _claim_job(job_id)
     if job is None:
@@ -104,97 +112,17 @@ def run_export_job(job_id):
     return DataExportJob.objects.filter(pk=job_id).first()
 
 
-def _claim_job(job_id):
-    now = timezone.now()
-    with transaction.atomic():
-        job = (
-            DataExportJob.objects.select_for_update()
-            .select_related("makerspace", "requested_by")
-            .filter(pk=job_id)
-            .first()
-        )
-        if job is None or job.status != DataExportJob.Status.PENDING:
-            return None
-        job.status = DataExportJob.Status.RUNNING
-        job.started_at = now
-        job.deadline_at = now + timedelta(seconds=settings.DATA_EXPORT_DEADLINE_SECONDS)
-        job.failure_code = ""
-        job.failure_detail = ""
-        job.save(
-            update_fields=(
-                "status", "started_at", "deadline_at", "failure_code",
-                "failure_detail", "updated_at",
-            )
-        )
-        return job
-
-
-def _finalize_job(job_id, manifest, size):
-    try:
-        with transaction.atomic():
-            job = (
-                DataExportJob.objects.select_for_update()
-                .select_related("makerspace", "requested_by")
-                .get(pk=job_id)
-            )
-            if job.status != DataExportJob.Status.RUNNING:
-                raise ExportIntegrityError("The claimed export changed state before finalize.")
-            limits.add_storage(job.makerspace, size)
-            job.status = DataExportJob.Status.AVAILABLE
-            job.accounted_size_bytes = size
-            job.manifest = manifest
-            job.snapshot_at = manifest["snapshot_at"]
-            job.completed_at = timezone.now()
-            job.save(
-                update_fields=(
-                    "status", "accounted_size_bytes", "manifest", "snapshot_at",
-                    "completed_at", "updated_at",
-                )
-            )
-            audit.record(
-                job.requested_by,
-                "data_export.completed",
-                makerspace=job.makerspace,
-                target=job,
-                meta={
-                    "fidelity": job.fidelity,
-                    "row_counts": manifest["row_counts"],
-                    "total_rows": manifest["total_rows"],
-                },
-            )
-    except Exception:
-        storage.delete_object(
-            DataExportJob.objects.only("object_key").get(pk=job_id).object_key
-        )
-        raise
-
-
-def _fail_job(job, code, detail, manifest=None):
-    storage.delete_object(job.object_key)
-    DataExportJob.objects.filter(pk=job.pk).update(
-        status=DataExportJob.Status.FAILED,
-        failure_code=code,
-        failure_detail=detail[:500],
-        manifest=manifest or {},
-        completed_at=timezone.now(),
-        accounted_size_bytes=0,
-        download_token_digest="",
-        download_token_expires_at=None,
-        download_token_consumed_at=None,
-        download_issued_to=None,
-    )
-
-
 def issue_download_token(job, actor):
     raw = secrets.token_urlsafe(32)
-    now = timezone.now()
     with transaction.atomic():
         locked = DataExportJob.objects.select_for_update().select_related("makerspace").get(pk=job.pk)
+        now = timezone.now()
         if locked.status != DataExportJob.Status.AVAILABLE or locked.expires_at <= now:
             raise ValidationError({"detail": "This export is not available for download."})
         locked.download_token_digest = _token_digest(raw)
-        locked.download_token_expires_at = now + timedelta(
-            seconds=settings.DATA_EXPORT_DOWNLOAD_TTL_SECONDS
+        locked.download_token_expires_at = min(
+            locked.expires_at,
+            now + timedelta(seconds=settings.DATA_EXPORT_DOWNLOAD_TTL_SECONDS),
         )
         locked.download_token_consumed_at = None
         locked.download_issued_to = actor
@@ -232,6 +160,7 @@ def consume_download_token(job_id, raw_token):
         now = timezone.now()
         valid = bool(
             job and job.status == DataExportJob.Status.AVAILABLE
+            and job.expires_at > now
             and job.download_token_digest
             and job.download_token_consumed_at is None
             and job.download_token_expires_at and job.download_token_expires_at > now

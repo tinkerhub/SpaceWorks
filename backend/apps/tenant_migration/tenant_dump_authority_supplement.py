@@ -11,6 +11,8 @@ def _same(label, names, disposition, reason):
 
 
 SUPPLEMENTAL_AUTHORITY_ENTRIES = (
+    *_same("makerspaces.Makerspace", "purge_started_at", D.RESET,
+           "Source-local irreversible purge intent; new captures refuse this state."),
     *_same(
         "bookings.Booking",
         "public_token",

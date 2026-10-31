@@ -5,6 +5,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from apps.audit import services as audit
+from apps.boxes.contents import container_subtree_ids as _container_subtree_ids
 from apps.boxes.models import Box, QrCode, QrScanEvent
 from apps.evidence.models import EvidencePhoto
 from apps.evidence.finalization import charge_storage_once, lock_evidence_for_attachment
@@ -25,7 +26,9 @@ from apps.hardware_requests.workflow_errors import (
     RequestValidationError,
 )
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
+from apps.makerspaces.guards import require_feature, require_feature_locked
 from apps.makerspaces.platform import module_enabled
+from apps.makerspaces.servability import is_servable
 from apps.presence.guard import require_active_account, require_active_member_presence
 
 
@@ -57,6 +60,9 @@ def issue_direct_loan(
     items,
     container_id=None,
 ):
+    makerspace = require_feature(makerspace.pk, "inventory.self_checkout")
+    if not is_servable(makerspace):
+        raise RequestValidationError("Makerspace is not available.")
     require_eligible_borrower(borrower, makerspace)
     evidence = EvidencePhoto.objects.filter(
         pk=evidence_id,
@@ -68,12 +74,16 @@ def issue_direct_loan(
     if container_id is None and not qr_payloads and not items:
         raise RequestValidationError("Provide qr_payloads, items, or a container.")
     finalized = validate_evidence_upload(evidence, label="Issue")
-    due_at = timezone.now() + timedelta(days=(makerspace.default_loan_days or 7))
     with transaction.atomic():
         if not lock_evidence_for_attachment(evidence.pk):
             raise RequestValidationError("Evidence has expired under the retention policy.")
         if HardwareRequest.objects.filter(issue_evidence=evidence).exists():
             raise RequestValidationError("Evidence already used.")
+        makerspace = require_feature_locked(makerspace, "inventory.self_checkout", no_key=True)
+        if not is_servable(makerspace):
+            raise RequestValidationError("Makerspace is not available.")
+        require_eligible_borrower(borrower, makerspace)
+        due_at = timezone.now() + timedelta(days=(makerspace.default_loan_days or 7))
         container = None
         if container_id is not None:
             container = (
@@ -104,8 +114,7 @@ def issue_direct_loan(
         # A container-only handout (no QRs, no items) assigns an EMPTY vessel. If the box
         # - OR any child box nested under it - still holds available contents, a
         # container-only loan would walk them out the door while leaving them logically
-        # AVAILABLE (re-loanable) - so reject and make staff hand out the contents (scan
-        # the box QR) or empty it first.
+        # AVAILABLE (re-loanable) - require explicit contents selection or empty it first.
         if container is not None and not qr_payloads and not items:
             subtree_ids = _container_subtree_ids(makerspace, container)
             has_contents = (
@@ -118,8 +127,9 @@ def issue_direct_loan(
             )
             if has_contents:
                 raise RequestValidationError(
-                    "Container is not empty. Scan the box QR to hand out its contents, "
-                    "or empty the container before assigning it on its own."
+                    "Container is not empty. Scan each individual unit's own QR and "
+                    "select the container separately, or scan a quantity-only box QR. "
+                    "Empty the container before assigning it on its own."
                 )
 
         requester = borrower
@@ -132,7 +142,7 @@ def issue_direct_loan(
         if len({qr.id for qr in qrs}) != len(qrs):
             raise InvalidTransition("The same QR code was scanned more than once.")
         _reject_overlapping_checkout_targets(qrs)
-        charge_storage_once(evidence, finalized.size)
+        charge_storage_once(evidence, finalized.size, no_key=True)
         for qr in qrs:
             if qr.target_type == QrCode.TargetType.BOX and container is not None:
                 if container.id != qr.target_id:
@@ -211,25 +221,6 @@ def issue_direct_loan(
             )
         record_item_logs(actor, "admin_direct.checked_out", makerspace, request, loan)
         return loan
-
-
-def _container_subtree_ids(makerspace, container):
-    # Walk Box.parent children iteratively (Box.clean() forbids same-makerspace cycles,
-    # so this terminates) to collect the container + every descendant box id, so the
-    # empty-container guard sees contents nested in child boxes too.
-    ids = [container.id]
-    frontier = [container.id]
-    while frontier:
-        child_ids = list(
-            Box.objects.filter(parent_id__in=frontier, makerspace=makerspace)
-            .exclude(pk__in=ids)
-            .values_list("id", flat=True)
-        )
-        if not child_ids:
-            break
-        ids.extend(child_ids)
-        frontier = child_ids
-    return ids
 
 
 def _manual_product(makerspace, product_id):

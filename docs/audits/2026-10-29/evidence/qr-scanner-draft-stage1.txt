@@ -1,0 +1,14 @@
+**APPROVED.** No mandatory revisions.
+
+The diagnosis matches [QrScanner.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/components/ui/QrScanner.tsx:257): React retains the unkeyed parent `div`, but `TypedCodeForm` moves from child index 2 to 1. Without a key, it remounts and resets its local `code` state. Adding the same stable key to both form elements is a minimal fix that preserves component state and input identity.
+
+The proposed pending-promise regression test directly covers the lost draft, exact DOM identity, enabled submission, and exactly-once trimmed callback.
+
+Two implementation notes:
+
+- An optional `NotFoundError` variant must reject the retry too; the scanner retries that error with `{ video: true }`.
+- Existing tests cover Close focus and Escape dismissal, but do not explicitly click Close. Avoid claiming existing coverage verifies that click.
+
+This verdict is based on source inspection only. No edits, tests, imports, builds, runtime activity, or staging occurred. It establishes no connection to the previous stocktake failure.
+
+**The explicit source-write hold remains in force until root releases the frontend freeze.**

@@ -1,0 +1,1421 @@
+.......................F.....FF..............F..F.F....F..FFF..........F [ 32%]
+F.........F..................................F.......................... [ 64%]
+.....................F.................................................. [ 96%]
+........                                                                 [100%]
+=================================== FAILURES ===================================
+____________ test_run_cohort_is_servable_only_and_facts_are_frozen _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89a91850>
+sql = 'UPDATE "backup_backuprun" SET "holder" = %s, "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (UUID('e12fe9a1-980a-4af9-9273-6b7a02db8ada'), <django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89a93c50>, UUID('8d0475fa-180c-404b-b347-cc5b9770220f'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89a91850>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_cohort_is_servable_on0')
+
+    def test_run_cohort_is_servable_only_and_facts_are_frozen(tmp_path):
+        ordinary = space()
+        archived = space(archived_at=timezone.now())
+        run = run_for({str(ordinary.pk): True})
+        row = archive(run=run)
+        value = freeze_full(row, tmp_path / "capture")
+        before = value.promotion_snapshot()
+        assert [item["makerspace_id"] for item in before["retained"]] == [ordinary.pk, archived.pk]
+        assert before["servable_run_cohort"] == {str(ordinary.pk): True}
+        assert before["run"] == {"id": str(run.pk), "holder": str(run.holder),
+                                  "status": "running", "flag_snapshot": {str(ordinary.pk): True}}
+>       BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4(), flag_snapshot={})
+
+tests/backup/test_signed_full_capture.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89a91850>
+sql = 'UPDATE "backup_backuprun" SET "holder" = %s, "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (UUID('e12fe9a1-980a-4af9-9273-6b7a02db8ada'), <django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89a93c50>, UUID('8d0475fa-180c-404b-b347-cc5b9770220f'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89a91850>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+______ test_run_cannot_include_archived_retained_space_or_missing_holder _______
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89ebb290>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s, "holder" = NULL WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb620>, UUID('306fd935-e787-43f5-95c4-4af9cc42c4af'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89ebb290>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_cannot_include_archiv0')
+
+    def test_run_cannot_include_archived_retained_space_or_missing_holder(tmp_path):
+        ordinary, archived = space(), space(archived_at=timezone.now())
+        run = run_for({str(ordinary.pk): True, str(archived.pk): True})
+        row = archive(run=run)
+        with pytest.raises(BackupBuildError):
+            run_facts(row, {str(ordinary.pk): True})
+>       BackupRun.objects.filter(pk=run.pk).update(flag_snapshot={str(ordinary.pk): True}, holder=None)
+
+tests/backup/test_signed_full_capture.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89ebb290>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s, "holder" = NULL WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb620>, UUID('306fd935-e787-43f5-95c4-4af9cc42c4af'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89ebb290>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+__________ test_cached_run_relation_cannot_replace_persisted_binding ___________
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89e8e390>
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('6a817690-4d80-4603-b0fe-12c3ccb6a670'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89e8e390>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cached_run_relation_canno0')
+
+    def test_cached_run_relation_cannot_replace_persisted_binding(tmp_path):
+        ordinary = space()
+        run = run_for({str(ordinary.pk): True})
+        row = archive(run=run)
+>       BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+
+tests/backup/test_signed_full_capture.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89e8e390>
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('6a817690-4d80-4603-b0fe-12c3ccb6a670'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89e8e390>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+____ test_rehydrate_restores_available_metadata_and_second_export_is_valid _____
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89ebac30>
+sql = 'UPDATE "backup_backuparchive" SET "status" = %s, "manifest" = %s, "archive_sha256" = %s, "size_bytes" = %s, "completed_at" = NULL, "expires_at" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = ('running', <django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb590>, '', 0, UUID('2889c8cf-43ff-4d13-a010-4da658e33b85'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89ebac30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive expiry cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 21 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_rehydrate_restores_availa0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff89e8d670>
+
+    def test_rehydrate_restores_available_metadata_and_second_export_is_valid(tmp_path, monkeypatch):
+        fixture, archive, restore = selected_restore(tmp_path)
+        output = restore_control_records.export_control_record(restore.pk, tmp_path / "control.json")
+        expected = capture_archive_record(archive)
+        # Real source snapshot is before archive completion; simulate exactly its row.
+>       BackupArchive.objects.filter(pk=archive.pk).update(status="running", manifest={}, archive_sha256="",
+                                                         size_bytes=0, completed_at=None, expires_at=None)
+
+tests/backup/test_signed_full_control.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89ebac30>
+sql = 'UPDATE "backup_backuparchive" SET "status" = %s, "manifest" = %s, "archive_sha256" = %s, "size_bytes" = %s, "completed_at" = NULL, "expires_at" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = ('running', <django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb590>, '', 0, UUID('2889c8cf-43ff-4d13-a010-4da658e33b85'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89ebac30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive expiry cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 21 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+_ test_source_identity_uses_uuid_under_nocreatedb_nosuperuser_without_pg_monitor _
+
+    def test_source_identity_uses_uuid_under_nocreatedb_nosuperuser_without_pg_monitor():
+        expected = DeploymentDatabaseIdentity.load()
+        role = "stage3_runtime_" + uuid.uuid4().hex
+        identifier = sql.Identifier(role)
+        with connection.cursor() as cursor:
+            cursor.execute(sql.SQL("CREATE ROLE {} NOLOGIN NOCREATEDB NOSUPERUSER NOINHERIT").format(identifier))
+            cursor.execute(sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(identifier))
+            cursor.execute(sql.SQL("GRANT SELECT ON backup_deploymentdatabaseidentity TO {}").format(identifier))
+        raw = None
+        try:
+            raw = psycopg2.connect(**connection.get_connection_params())
+            with raw:
+                with raw.cursor() as cursor:
+                    cursor.execute(sql.SQL("SET ROLE {}").format(identifier))
+                    cursor.execute("SELECT rolcreatedb, rolsuper, pg_has_role(current_user, 'pg_monitor', 'MEMBER') "
+                                   "FROM pg_roles WHERE rolname=current_user")
+                    assert cursor.fetchone() == (False, False, False)
+                    cursor.execute("SAVEPOINT expected_permission_denial")
+>                   with pytest.raises(psycopg2.errors.InsufficientPrivilege):
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                   Failed: DID NOT RAISE InsufficientPrivilege
+
+tests/backup/test_signed_full_least_privilege.py:35: Failed
+_ test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[delete] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_1')
+change = 'delete'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+>           ordinary.delete()
+
+tests/backup/test_signed_full_promotion.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1299: in delete
+    collector.collect([self], keep_parents=keep_parents)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.models.deletion.Collector object at 0xffff89a91400>
+objs = [<Makerspace: Stage3 full>], source = None, nullable = False
+collect_related = True, source_attr = None, reverse_dependency = False
+keep_parents = False, fail_on_restricted = True
+
+    def collect(
+        self,
+        objs,
+        source=None,
+        nullable=False,
+        collect_related=True,
+        source_attr=None,
+        reverse_dependency=False,
+        keep_parents=False,
+        fail_on_restricted=True,
+    ):
+        """
+        Add 'objs' to the collection of objects to be deleted as well as all
+        parent instances. 'objs' must be a homogeneous iterable collection of
+        model instances (e.g. a QuerySet). If 'collect_related' is True,
+        related objects will be handled by their respective on_delete handler.
+    
+        If the call is the result of a cascade, 'source' should be the model
+        that caused it and 'nullable' should be set to True, if the relation
+        can be null.
+    
+        If 'reverse_dependency' is True, 'source' will be deleted before the
+        current model, rather than after. (Needed for cascading to parent
+        models, the one case in which the cascade follows the forwards
+        direction of an FK rather than the reverse direction.)
+    
+        If 'keep_parents' is True, data of parent model's will be not deleted.
+    
+        If 'fail_on_restricted' is False, error won't be raised even if it's
+        prohibited to delete such objects due to RESTRICT, that defers
+        restricted object checking in recursive calls where the top-level call
+        may need to collect more objects to determine whether restricted ones
+        can be deleted.
+        """
+        if self.can_fast_delete(objs):
+            self.fast_deletes.append(objs)
+            return
+        new_objs = self.add(
+            objs, source, nullable, reverse_dependency=reverse_dependency
+        )
+        if not new_objs:
+            return
+    
+        model = new_objs[0].__class__
+    
+        if not keep_parents:
+            # Recursively collect concrete model's parent models, but not their
+            # related objects. These will be found by meta.get_fields()
+            concrete_model = model._meta.concrete_model
+            for ptr in concrete_model._meta.parents.values():
+                if ptr:
+                    parent_objs = [getattr(obj, ptr.name) for obj in new_objs]
+                    self.collect(
+                        parent_objs,
+                        source=model,
+                        source_attr=ptr.remote_field.related_name,
+                        collect_related=False,
+                        reverse_dependency=True,
+                        fail_on_restricted=False,
+                    )
+        if not collect_related:
+            return
+    
+        model_fast_deletes = defaultdict(list)
+        protected_objects = defaultdict(list)
+        for related in get_candidate_relations_to_delete(model._meta):
+            # Preserve parent reverse relationships if keep_parents=True.
+            if (
+                keep_parents
+                and related.model._meta.concrete_model in model._meta.all_parents
+            ):
+                continue
+            field = related.field
+            on_delete = field.remote_field.on_delete
+            if on_delete == DO_NOTHING:
+                continue
+            related_model = related.related_model
+            if self.can_fast_delete(related_model, from_field=field):
+                model_fast_deletes[related_model].append(field)
+                continue
+            batches = self.get_del_batches(new_objs, [field])
+            for batch in batches:
+                sub_objs = self.related_objects(related_model, [field], batch)
+                # Non-referenced fields can be deferred if no signal receivers
+                # are connected for the related model as they'll never be
+                # exposed to the user. Skip field deferring when some
+                # relationships are select_related as interactions between both
+                # features are hard to get right. This should only happen in
+                # the rare cases where .related_objects is overridden anyway.
+                if not (
+                    sub_objs.query.select_related
+                    or self._has_signal_listeners(related_model)
+                ):
+                    referenced_fields = set(
+                        chain.from_iterable(
+                            (rf.attname for rf in rel.field.foreign_related_fields)
+                            for rel in get_candidate_relations_to_delete(
+                                related_model._meta
+                            )
+                        )
+                    )
+                    sub_objs = sub_objs.only(*tuple(referenced_fields))
+                if getattr(on_delete, "lazy_sub_objs", False) or sub_objs:
+                    try:
+                        on_delete(self, field, sub_objs, self.using)
+                    except ProtectedError as error:
+                        key = "'%s.%s'" % (field.model.__name__, field.name)
+                        protected_objects[key] += error.protected_objects
+        if protected_objects:
+>           raise ProtectedError(
+                "Cannot delete some instances of model %r because they are "
+                "referenced through protected foreign keys: %s."
+                % (
+                    model.__name__,
+                    ", ".join(protected_objects),
+                ),
+                set(chain.from_iterable(protected_objects.values())),
+            )
+E           django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Makerspace' because they are referenced through protected foreign keys: 'PiiMakerspaceWriteFence.makerspace'.", {<PiiMakerspaceWriteFence: PiiMakerspaceWriteFence object (1149)>})
+
+/usr/local/lib/python3.12/site-packages/django/db/models/deletion.py:354: ProtectedError
+_ test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[purging] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89c288c0>
+sql = 'UPDATE "makerspaces_makerspace" SET "purge_started_at" = %s WHERE "makerspaces_makerspace"."id" = %s'
+params = (datetime.datetime(2026, 10, 29, 19, 55, 43, 92182, tzinfo=datetime.timezone.utc), 5561)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89c288c0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.CheckViolation: new row for relation "makerspaces_makerspace" violates check constraint "makerspace_purge_requires_archive"
+E               DETAIL:  Failing row contains (5561, Stage3 full, full-e902a02935714972902a468577ed3342, , t, , 2026-10-29 19:55:42.967218+00, 2026-10-29 19:55:42.967222+00, null, [], pk_LewFG5qViPoCZTefBndSSjfbeXUJ6bEU, , , 587, , , t, , R8HT, {"support_url": "", "display_name": "", "support_email": ""}, ["asset_units", "bookings", "bulk_import", "containers", "discor..., {"mode": "light", "logo_url": "", "accent_color": "#16a34a", "pr..., 7, f, t, null, null, null, f, , , t, f, , token_only, 0.00, dv_oGmcrCWNAi8K7ctm4P5Eb4ZxilNYYs9kEvTuibTikXBsxWrm, null, pending, null, {}, 0, f, , , [], request, f, ["inventory.self_checkout", "payments.enabled", "mobile.push", "..., f, null, null, 25, 0.00, , f, active, null, disabled, null, , , , SF, 2026-10-29 19:55:43.092182+00).
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_6')
+change = 'purging'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+>           type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+
+tests/backup/test_signed_full_promotion.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89c288c0>
+sql = 'UPDATE "makerspaces_makerspace" SET "purge_started_at" = %s WHERE "makerspaces_makerspace"."id" = %s'
+params = (datetime.datetime(2026, 10, 29, 19, 55, 43, 92182, tzinfo=datetime.timezone.utc), 5561)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89c288c0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: new row for relation "makerspaces_makerspace" violates check constraint "makerspace_purge_requires_archive"
+E               DETAIL:  Failing row contains (5561, Stage3 full, full-e902a02935714972902a468577ed3342, , t, , 2026-10-29 19:55:42.967218+00, 2026-10-29 19:55:42.967222+00, null, [], pk_LewFG5qViPoCZTefBndSSjfbeXUJ6bEU, , , 587, , , t, , R8HT, {"support_url": "", "display_name": "", "support_email": ""}, ["asset_units", "bookings", "bulk_import", "containers", "discor..., {"mode": "light", "logo_url": "", "accent_color": "#16a34a", "pr..., 7, f, t, null, null, null, f, , , t, f, , token_only, 0.00, dv_oGmcrCWNAi8K7ctm4P5Eb4ZxilNYYs9kEvTuibTikXBsxWrm, null, pending, null, {}, 0, f, , , [], request, f, ["inventory.self_checkout", "payments.enabled", "mobile.push", "..., f, null, null, 25, 0.00, , f, active, null, disabled, null, , , , SF, 2026-10-29 19:55:43.092182+00).
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError
+_ test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-flags] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89b049e0>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89b055e0>, UUID('b544449b-43a9-4b4c-93a8-ada5ae0b7ce5'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89b049e0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_9')
+change = 'run-flags'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+            BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+        else:
+>           BackupRun.objects.filter(pk=run.pk).update(
+                flag_snapshot={str(ordinary.pk): 1} if change == "run-bool-int" else {},
+            )
+
+tests/backup/test_signed_full_promotion.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89b049e0>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89b055e0>, UUID('b544449b-43a9-4b4c-93a8-ada5ae0b7ce5'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89b049e0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+_ test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-bool-int] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89aaf2c0>, UUID('96667861-58c3-4f30-80dc-66ec9c964b65'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_10')
+change = 'run-bool-int'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+            BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+        else:
+>           BackupRun.objects.filter(pk=run.pk).update(
+                flag_snapshot={str(ordinary.pk): 1} if change == "run-bool-int" else {},
+            )
+
+tests/backup/test_signed_full_promotion.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0>
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (<django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89aaf2c0>, UUID('96667861-58c3-4f30-80dc-66ec9c964b65'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+_ test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[archive-run-binding] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20>
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('8ca1ea3e-0157-4823-85dd-de9d2673f76f'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_11')
+change = 'archive-run-binding'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+>           BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+
+tests/backup/test_signed_full_promotion.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20>
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('8ca1ea3e-0157-4823-85dd-de9d2673f76f'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError
+_ test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_full_artifact_operat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff89e729c0>
+settings = <pytest_django.fixtures.Settings object at 0xffff89e73d40>
+allow_projection_databases = None, ready_state = 'normal'
+
+    @pytest.mark.parametrize("ready_state", ["normal", "acknowledged-normal"])
+    def test_real_full_artifact_operational_omission_target_identity_and_live_bytes(
+        tmp_path, monkeypatch, settings, allow_projection_databases, ready_state,
+    ):
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space()
+        actor = User.objects.create_superuser(username="full-roundtrip", password="unused")
+        prefix = f"stage3-full-{uuid.uuid4().hex}"
+        private_key, public_key = f"{prefix}/issue.jpg", f"{prefix}/tool.png"
+        product = InventoryProduct.objects.create(makerspace=ordinary, name="Full roundtrip tool",
+                                                   description="snapshot-original", total_quantity=3,
+                                                   available_quantity=3, image_key=public_key)
+        photo = EvidencePhoto.objects.create(makerspace=ordinary, evidence_type="issue",
+                                              object_key=private_key, uploaded_by=actor)
+        purge, module_purge = receipt(), privileged_restored_orphan_receipt()
+        omitted = [apps.get_model(label) for label in sorted(OMITTED_OPERATIONAL_MODELS)]
+        source_counts = {model._meta.label: model.objects.count() for model in omitted}
+        assert all(source_counts.values())
+        identity, recipient = age_keypair(tmp_path)
+        settings.BACKUP_AGE_RECIPIENT = recipient
+        monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+        monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+        monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+        expected_continuity = {name: os.environ.get(name, "") for name in archive_payload.CONTINUITY_KEYS}
+        monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+        # The archive builder uses its imported payload function, which reads this seam.
+        s3 = storage.client()
+        objects = [(settings.AWS_STORAGE_BUCKET_NAME, private_key, b"live-private-issue-bytes"),
+                   (settings.PUBLIC_IMAGE_BUCKET, public_key, b"live-public-image-bytes")]
+        build = None
+        try:
+            expires = timezone.now().replace(microsecond=0) + timedelta(days=1)
+            for bucket, key, payload in objects:
+                s3.put_object(Bucket=bucket, Key=key, Body=payload, ContentType="application/octet-stream", Expires=expires)
+            expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+            real_dump, snapshots = archive_payload._pg_dump, []
+    
+            def observed_dump(destination, snapshot_id, **kwargs):
+                assert kwargs == {"exclude_operational": True}
+                snapshots.append(snapshot_id)
+                # Commit after exported snapshot, before actual pg_dump. Its bytes
+                # must contain the old row although source now has the new one.
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    pool.submit(independent_job, lambda: InventoryProduct.objects.filter(pk=product.pk).update(
+                        description="committed-after-export",
+                    )).result(timeout=10)
+                return real_dump(destination, snapshot_id, **kwargs)
+    
+            monkeypatch.setattr(archive_payload, "_pg_dump", observed_dump)
+            build = archive_builder.build_archive(archive())
+            assert len(snapshots) == 1
+            assert build.manifest["format"] == FULL_FORMAT
+            assert build.manifest["omitted_operational_models"] == sorted(OMITTED_OPERATIONAL_MODELS)
+            assert str(source_identity.database_uuid) == build.manifest["source_capture"]["server_identity"]["database_uuid"]
+            plain, extracted = tmp_path / "decrypted.tar", tmp_path / "decrypted"
+            decrypt(build, identity, plain)
+            extracted.mkdir()
+            # First authenticate tar, then extract only the regular, declared payload.
+            original = Path(build.tempdir.name) / "bundle"
+            verify_full_bundle(plain, build.manifest, original / "manifest.json", original / "keys/env.json")
+            with tarfile.open(plain) as bundle:
+                bundle.extractall(extracted, filter="data")
+            verify_full_root(extracted, build.manifest)
+            assert json.loads((extracted / "keys/env.json").read_bytes()) == expected_continuity
+            for bucket, key, payload in objects:
+                kind = "private" if bucket == settings.AWS_STORAGE_BUCKET_NAME else "public_image"
+                assert (extracted / "objects" / kind / key).read_bytes() == payload
+                fact = next(item for item in build.manifest["storage"]["objects"]
+                            if item["key"] == key and item["bucket_kind"] == kind)
+                assert fact["headers"]["Expires"] == str(expires)
+            assert sha((extracted / "database.dump").read_bytes()) == build.manifest["source_capture"]["dump_sha256"]
+            assert InventoryProduct.objects.get(pk=product.pk).description == "committed-after-export"
+            assert {model._meta.label: model.objects.count() for model in omitted} == source_counts
+            assert DeploymentDatabaseIdentity.objects.get(pk=1).database_uuid == source_identity.database_uuid
+            with temporary_database("full_stage3") as (using, name):
+                restore_dump(extracted / "database.dump", name)
+                assert schema_counts(using, omitted) == {model._meta.label: 0 for model in omitted}
+                with pytest.raises(BackupBuildError, match="identity is unavailable"):
+                    capture_source_identity(connections[using].connection)
+                assert InventoryProduct.objects.using(using).values().get(pk=product.pk) == expected_product
+                assert EvidencePhoto.objects.using(using).get(pk=photo.pk).object_key == private_key
+                target = establish_restored_database_identity(run_id=uuid.uuid4(), artifact_sha256="b" * 64,
+                                                              capture_id=uuid.uuid4(), using=using)
+                assert target.database_uuid != source_identity.database_uuid
+                database = connections[using]
+                with transaction.atomic(using=using):
+                    captured = full_restore_identity.capture_target_identity(database.connection)
+                marker = write_marker(tmp_path, captured, state=ready_state)
+                marker_bytes = marker.read_bytes()
+                monkeypatch.setattr("apps.backup.host_marker._assert_trusted_file", lambda _path: None)
+                # Real clean restore removes the target singleton via schema replacement;
+                # it cannot import the omitted source identity or purge authority.
+                clean_restore(extracted / "database.dump", name)
+                with pytest.raises(DatabaseIdentityError):
+                    full_restore_identity.verify_target_identity(database.connection, captured)
+                # An available but different physical target fact refuses without insertion.
+                changed = deepcopy(captured)
+                changed["identity"]["oid"] += 1
+                spoof_dir = tmp_path / "spoofed-physical-target"
+                spoof_dir.mkdir()
+                spoof_marker = write_marker(spoof_dir, changed, state=ready_state)
+                with pytest.raises(DatabaseIdentityError), transaction.atomic(using=using):
+                    full_restore_identity.restore_target_identity(database.connection, {"full_target_identity": changed}, spoof_marker)
+                assert raw_row(database.connection) == []
+                # Run the actual fixed maintenance bootstrap: identity, role guards,
+                # and grants all execute on its real connection before an injected
+                # final grant failure. Identity and role creation must both roll back.
+                from io import StringIO
+                from django.db import connection
+                bootstrap = load_bootstrap()
+                runtime_role = "stage3_bootstrap_" + uuid.uuid4().hex
+                real_grants = bootstrap.apply_grant_state
+                grants_applied = []
+    
+                def failed_grants(cursor, target, state):
+                    real_grants(cursor, target, state)
+                    assert full_restore_identity._read_row(cursor.connection) == captured["row"]
+                    grants_applied.append(True)
+                    raise RuntimeError("simulated final grant failure")
+    
+                with monkeypatch.context() as patch:
+                    patch.setenv("SPACEWORKS_RESTORE_IDENTITY", "1")
+                    patch.delenv("SPACEWORKS_GRANT_DATABASE_NAME", raising=False)
+                    patch.setenv("SPACEWORKS_HOST_MARKER_WRITE_PATH", str(marker))
+                    patch.setattr(bootstrap.sys, "stdin", StringIO(json.dumps({"full_target_identity": captured})))
+                    patch.setattr(bootstrap, "apply_grant_state", failed_grants)
+                    with pytest.raises(RuntimeError, match="Role/grant reprovisioning failed"):
+                        bootstrap._grant_only(database.connection.dsn, f"[REDACTED_SYNTHETIC_CREDENTIAL_URL]")
+>               assert grants_applied == [True]
+E               assert [] == [True]
+E                 
+E                 Right contains one more item: True
+E                 Use -v to get more diff
+
+tests/backup/test_signed_full_roundtrip.py:175: AssertionError
+_ test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal] _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_full_artifact_operat1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff89e73bc0>
+settings = <pytest_django.fixtures.Settings object at 0xffff89e8f080>
+allow_projection_databases = None, ready_state = 'acknowledged-normal'
+
+    @pytest.mark.parametrize("ready_state", ["normal", "acknowledged-normal"])
+    def test_real_full_artifact_operational_omission_target_identity_and_live_bytes(
+        tmp_path, monkeypatch, settings, allow_projection_databases, ready_state,
+    ):
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space()
+        actor = User.objects.create_superuser(username="full-roundtrip", password="unused")
+        prefix = f"stage3-full-{uuid.uuid4().hex}"
+        private_key, public_key = f"{prefix}/issue.jpg", f"{prefix}/tool.png"
+        product = InventoryProduct.objects.create(makerspace=ordinary, name="Full roundtrip tool",
+                                                   description="snapshot-original", total_quantity=3,
+                                                   available_quantity=3, image_key=public_key)
+        photo = EvidencePhoto.objects.create(makerspace=ordinary, evidence_type="issue",
+                                              object_key=private_key, uploaded_by=actor)
+        purge, module_purge = receipt(), privileged_restored_orphan_receipt()
+        omitted = [apps.get_model(label) for label in sorted(OMITTED_OPERATIONAL_MODELS)]
+        source_counts = {model._meta.label: model.objects.count() for model in omitted}
+        assert all(source_counts.values())
+        identity, recipient = age_keypair(tmp_path)
+        settings.BACKUP_AGE_RECIPIENT = recipient
+        monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+        monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+        monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+        expected_continuity = {name: os.environ.get(name, "") for name in archive_payload.CONTINUITY_KEYS}
+        monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+        # The archive builder uses its imported payload function, which reads this seam.
+        s3 = storage.client()
+        objects = [(settings.AWS_STORAGE_BUCKET_NAME, private_key, b"live-private-issue-bytes"),
+                   (settings.PUBLIC_IMAGE_BUCKET, public_key, b"live-public-image-bytes")]
+        build = None
+        try:
+            expires = timezone.now().replace(microsecond=0) + timedelta(days=1)
+            for bucket, key, payload in objects:
+                s3.put_object(Bucket=bucket, Key=key, Body=payload, ContentType="application/octet-stream", Expires=expires)
+            expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+            real_dump, snapshots = archive_payload._pg_dump, []
+    
+            def observed_dump(destination, snapshot_id, **kwargs):
+                assert kwargs == {"exclude_operational": True}
+                snapshots.append(snapshot_id)
+                # Commit after exported snapshot, before actual pg_dump. Its bytes
+                # must contain the old row although source now has the new one.
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    pool.submit(independent_job, lambda: InventoryProduct.objects.filter(pk=product.pk).update(
+                        description="committed-after-export",
+                    )).result(timeout=10)
+                return real_dump(destination, snapshot_id, **kwargs)
+    
+            monkeypatch.setattr(archive_payload, "_pg_dump", observed_dump)
+            build = archive_builder.build_archive(archive())
+            assert len(snapshots) == 1
+            assert build.manifest["format"] == FULL_FORMAT
+            assert build.manifest["omitted_operational_models"] == sorted(OMITTED_OPERATIONAL_MODELS)
+            assert str(source_identity.database_uuid) == build.manifest["source_capture"]["server_identity"]["database_uuid"]
+            plain, extracted = tmp_path / "decrypted.tar", tmp_path / "decrypted"
+            decrypt(build, identity, plain)
+            extracted.mkdir()
+            # First authenticate tar, then extract only the regular, declared payload.
+            original = Path(build.tempdir.name) / "bundle"
+            verify_full_bundle(plain, build.manifest, original / "manifest.json", original / "keys/env.json")
+            with tarfile.open(plain) as bundle:
+                bundle.extractall(extracted, filter="data")
+            verify_full_root(extracted, build.manifest)
+            assert json.loads((extracted / "keys/env.json").read_bytes()) == expected_continuity
+            for bucket, key, payload in objects:
+                kind = "private" if bucket == settings.AWS_STORAGE_BUCKET_NAME else "public_image"
+                assert (extracted / "objects" / kind / key).read_bytes() == payload
+                fact = next(item for item in build.manifest["storage"]["objects"]
+                            if item["key"] == key and item["bucket_kind"] == kind)
+                assert fact["headers"]["Expires"] == str(expires)
+            assert sha((extracted / "database.dump").read_bytes()) == build.manifest["source_capture"]["dump_sha256"]
+            assert InventoryProduct.objects.get(pk=product.pk).description == "committed-after-export"
+            assert {model._meta.label: model.objects.count() for model in omitted} == source_counts
+            assert DeploymentDatabaseIdentity.objects.get(pk=1).database_uuid == source_identity.database_uuid
+            with temporary_database("full_stage3") as (using, name):
+                restore_dump(extracted / "database.dump", name)
+                assert schema_counts(using, omitted) == {model._meta.label: 0 for model in omitted}
+                with pytest.raises(BackupBuildError, match="identity is unavailable"):
+                    capture_source_identity(connections[using].connection)
+                assert InventoryProduct.objects.using(using).values().get(pk=product.pk) == expected_product
+                assert EvidencePhoto.objects.using(using).get(pk=photo.pk).object_key == private_key
+                target = establish_restored_database_identity(run_id=uuid.uuid4(), artifact_sha256="b" * 64,
+                                                              capture_id=uuid.uuid4(), using=using)
+                assert target.database_uuid != source_identity.database_uuid
+                database = connections[using]
+                with transaction.atomic(using=using):
+                    captured = full_restore_identity.capture_target_identity(database.connection)
+                marker = write_marker(tmp_path, captured, state=ready_state)
+                marker_bytes = marker.read_bytes()
+                monkeypatch.setattr("apps.backup.host_marker._assert_trusted_file", lambda _path: None)
+                # Real clean restore removes the target singleton via schema replacement;
+                # it cannot import the omitted source identity or purge authority.
+                clean_restore(extracted / "database.dump", name)
+                with pytest.raises(DatabaseIdentityError):
+                    full_restore_identity.verify_target_identity(database.connection, captured)
+                # An available but different physical target fact refuses without insertion.
+                changed = deepcopy(captured)
+                changed["identity"]["oid"] += 1
+                spoof_dir = tmp_path / "spoofed-physical-target"
+                spoof_dir.mkdir()
+                spoof_marker = write_marker(spoof_dir, changed, state=ready_state)
+                with pytest.raises(DatabaseIdentityError), transaction.atomic(using=using):
+                    full_restore_identity.restore_target_identity(database.connection, {"full_target_identity": changed}, spoof_marker)
+                assert raw_row(database.connection) == []
+                # Run the actual fixed maintenance bootstrap: identity, role guards,
+                # and grants all execute on its real connection before an injected
+                # final grant failure. Identity and role creation must both roll back.
+                from io import StringIO
+                from django.db import connection
+                bootstrap = load_bootstrap()
+                runtime_role = "stage3_bootstrap_" + uuid.uuid4().hex
+                real_grants = bootstrap.apply_grant_state
+                grants_applied = []
+    
+                def failed_grants(cursor, target, state):
+                    real_grants(cursor, target, state)
+                    assert full_restore_identity._read_row(cursor.connection) == captured["row"]
+                    grants_applied.append(True)
+                    raise RuntimeError("simulated final grant failure")
+    
+                with monkeypatch.context() as patch:
+                    patch.setenv("SPACEWORKS_RESTORE_IDENTITY", "1")
+                    patch.delenv("SPACEWORKS_GRANT_DATABASE_NAME", raising=False)
+                    patch.setenv("SPACEWORKS_HOST_MARKER_WRITE_PATH", str(marker))
+                    patch.setattr(bootstrap.sys, "stdin", StringIO(json.dumps({"full_target_identity": captured})))
+                    patch.setattr(bootstrap, "apply_grant_state", failed_grants)
+                    with pytest.raises(RuntimeError, match="Role/grant reprovisioning failed"):
+                        bootstrap._grant_only(database.connection.dsn, f"[REDACTED_SYNTHETIC_CREDENTIAL_URL]")
+>               assert grants_applied == [True]
+E               assert [] == [True]
+E                 
+E                 Right contains one more item: True
+E                 Use -v to get more diff
+
+tests/backup/test_signed_full_roundtrip.py:175: AssertionError
+______ test_real_signed_full_capture_and_restore_use_exact_runtime_login _______
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_signed_full_capture_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff83da1970>
+settings = <pytest_django.fixtures.Settings object at 0xffff83da1e50>
+allow_projection_databases = None
+
+    def test_real_signed_full_capture_and_restore_use_exact_runtime_login(
+        tmp_path, monkeypatch, settings, allow_projection_databases,
+    ):
+        # Seed domain and operational rows using the owner before any source reads.
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space(superadmin_access_enabled=True)
+        product = InventoryProduct.objects.create(
+            makerspace=ordinary, name="Runtime login full capture", description="source remains unchanged",
+            total_quantity=3, available_quantity=3,
+        )
+        receipt()
+        privileged_restored_orphan_receipt()
+        row = archive()
+        expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+        expected_identity = DeploymentDatabaseIdentity.objects.values().get(pk=1)
+        exact_labels = {
+            "backup.DeploymentDatabaseIdentity", "makerspaces.PurgeReceipt", "makerspaces.ModulePurgeReceipt",
+        }
+        assert OMITTED_OPERATIONAL_MODELS == exact_labels
+        omitted = [apps.get_model(label) for label in sorted(exact_labels)]
+        expected_operational = {
+            model._meta.label: list(model.objects.order_by("pk").values()) for model in omitted
+        }
+        assert all(expected_operational.values())
+    
+        build = None
+        # Keep identities, decrypted secrets and extracted payloads in one workspace
+        # that disappears on success and on every assertion/restore failure.
+        with tempfile.TemporaryDirectory(prefix="runtime-full-", dir=tmp_path) as workspace:
+            workspace = Path(workspace)
+            try:
+                identity, recipient = age_keypair(workspace)
+                settings.BACKUP_AGE_RECIPIENT = recipient
+                monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+                monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+                # Only provenance metadata is synthetic; no source or byte seams.
+                monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+                monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+                # Do not let ambient libpq service settings override the test login.
+                for name in ("PGSERVICE", "PGSERVICEFILE", "PGOPTIONS"):
+                    monkeypatch.delenv(name, raising=False)
+    
+                with isolated_runtime_login() as runtime_role:
+>                   database_name, server = source_facts_with_denied_control(runtime_role)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                   Failed: DID NOT RAISE InsufficientPrivilege
+
+tests/backup/test_signed_full_runtime_role_exact.py:83: Failed
+___ test_extracted_bytes_changed_after_tar_validation_refuse[manifest.json] ____
+
+raw = b'changed after validation', label = 'manifest'
+
+    def _decode_json(raw, label):
+        def unique_object(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError
+                value[key] = item
+            return value
+    
+        try:
+>           return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/backup/import_preflight_bundle.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/json/__init__.py:359: in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0xffff89bc25a0>
+s = 'changed after validation', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+/usr/local/lib/python3.12/json/decoder.py:356: JSONDecodeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_extracted_bytes_changed_a4')
+name = 'manifest.json'
+
+    @pytest.mark.parametrize("name", [*PAYLOADS, "manifest.json"])
+    def test_extracted_bytes_changed_after_tar_validation_refuse(tmp_path, name):
+        fixture = make_full_fixture(tmp_path)
+        verify(fixture)
+        (fixture.root / name).write_bytes(b"changed after validation")
+        with pytest.raises(BackupBuildError):
+>           verify_full_root(fixture.root, fixture.manifest)
+
+tests/backup/test_signed_full_bundle.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/full_bundle.py:93: in verify_full_root
+    if _canonical_json(read_json_file(root / "manifest.json", "manifest")) != _canonical_json(manifest):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/backup/import_preflight_bundle.py:255: in read_json_file
+    return _decode_json(Path(path).read_bytes(), label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+raw = b'changed after validation', label = 'manifest'
+
+    def _decode_json(raw, label):
+        def unique_object(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError
+                value[key] = item
+            return value
+    
+        try:
+            return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object)
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+>           raise ImportPreflightError(
+                "component_policy", f"the {label} JSON is invalid."
+            ) from exc
+E           apps.backup.import_preflight.ImportPreflightError: Import preflight refused [component_policy]: the manifest JSON is invalid.
+
+apps/backup/import_preflight_bundle.py:274: ImportPreflightError
+__________ test_actual_b1_signature_cannot_authenticate_full_payload ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_actual_b1_signature_canno0')
+
+    def test_actual_b1_signature_cannot_authenticate_full_payload(tmp_path):
+        manifest = make_full_fixture(tmp_path).manifest
+>       b1 = make_import_fixture(tmp_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/backup/test_signed_full_manifest.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/backup/import_preflight_test_support.py:130: in make_import_fixture
+    manifest = outer_manifest.build_outer_manifest(
+apps/backup/outer_manifest.py:147: in build_outer_manifest
+    validate_unsigned_manifest(manifest, protocol_version=PROTOCOL_VERSION)
+apps/backup/outer_manifest_validation.py:132: in validate_unsigned_manifest
+    validate_reservation_manifest(manifest, components)
+apps/backup/outer_reservation_validation.py:37: in validate_reservation_manifest
+    _validate_commitments(commitments, slice_ids)
+apps/backup/outer_reservation_validation.py:79: in _validate_commitments
+    rules = {item.identity: item for item in load_unique_rules()}
+                                             ^^^^^^^^^^^^^^^^^^^
+apps/backup/reservation_catalog.py:82: in load_unique_rules
+    with connection.cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/base/base.py:296: RuntimeError
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/backup/test_signed_full_capture.py::test_run_cohort_is_servable_only_and_facts_are_frozen
+FAILED tests/backup/test_signed_full_capture.py::test_run_cannot_include_archived_retained_space_or_missing_holder
+FAILED tests/backup/test_signed_full_capture.py::test_cached_run_relation_cannot_replace_persisted_binding
+FAILED tests/backup/test_signed_full_control.py::test_rehydrate_restores_available_metadata_and_second_export_is_valid
+FAILED tests/backup/test_signed_full_least_privilege.py::test_source_identity_uses_uuid_under_nocreatedb_nosuperuser_without_pg_monitor
+FAILED tests/backup/test_signed_full_promotion.py::test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[delete]
+FAILED tests/backup/test_signed_full_promotion.py::test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[purging]
+FAILED tests/backup/test_signed_full_promotion.py::test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-flags]
+FAILED tests/backup/test_signed_full_promotion.py::test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-bool-int]
+FAILED tests/backup/test_signed_full_promotion.py::test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[archive-run-binding]
+FAILED tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]
+FAILED tests/backup/test_signed_full_roundtrip.py::test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]
+FAILED tests/backup/test_signed_full_runtime_role_exact.py::test_real_signed_full_capture_and_restore_use_exact_runtime_login
+FAILED tests/backup/test_signed_full_bundle.py::test_extracted_bytes_changed_after_tar_validation_refuse[manifest.json]
+FAILED tests/backup/test_signed_full_manifest.py::test_actual_b1_signature_cannot_authenticate_full_payload
+15 failed, 209 passed, 1 warning in 129.14s (0:02:09)

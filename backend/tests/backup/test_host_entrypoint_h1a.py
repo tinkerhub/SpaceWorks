@@ -10,6 +10,7 @@ from scripts import spaceworks_entrypoint as entrypoint
 
 EXPECTED = {
     MarkerState.NORMAL: set(ProcessRole),
+    MarkerState.RESTORE_BLOCKED: {ProcessRole.MANAGEMENT},
     MarkerState.CANDIDATE_PREPARATION: {ProcessRole.MIGRATE},
     MarkerState.CANDIDATE_HEALTH: {ProcessRole.BACKEND},
     MarkerState.QUARANTINED_AFTER_CUTOVER: {ProcessRole.BACKEND},

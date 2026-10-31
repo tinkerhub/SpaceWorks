@@ -1,0 +1,8 @@
+Implemented only the six allowed files:
+
+- `useStaffSession.ts`, `StaffApp.tsx`, `LoginPanel.tsx`: pending chooser loading, synchronous callback invalidation, token-first installation, and ownership-guarded session notices.
+- `ChangePasswordForm.tsx`: narrowly catches installation failure, clears passwords, and reports “Password updated; sign in again.”
+- `MemberAuthPanel.tsx`: guarded social completion with local error reporting and exact-action cleanup.
+- `OrganizationInvitationRedeemPage.tsx`: clears password only for typed installation failure while preserving redemption state.
+
+All remain under 300 lines. Depends on root’s `SessionInstallError` export. No tests/builds run, shared modules or tests edited, or staging/commit/push performed.

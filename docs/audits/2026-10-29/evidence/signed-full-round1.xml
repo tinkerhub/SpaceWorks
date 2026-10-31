@@ -1,0 +1,1349 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="224" time="129.104" timestamp="2026-10-29T19:54:45.584060+00:00" hostname="da44f0667b65"><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_full_cannot_downgrade_to_extracted_legacy[legacy-header]" time="0.639" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_full_cannot_downgrade_to_extracted_legacy[remove-signature]" time="0.019" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_full_cannot_downgrade_to_extracted_legacy[remove-protocol]" time="0.018" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_full_cannot_downgrade_to_extracted_legacy[protocol]" time="0.018" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_historical_unsigned_legacy_remains_recognized[1]" time="0.015" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_historical_unsigned_legacy_remains_recognized[2]" time="0.016" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_historical_unsigned_legacy_remains_recognized[3]" time="0.014" /><testcase classname="tests.backup.test_signed_full_admission" name="test_registered_b1_signature_identity_cannot_be_relabelled_as_unsigned_legacy" time="0.102" /><testcase classname="tests.backup.test_signed_full_admission" name="test_raw_import_without_authenticated_bundle_cannot_upload_or_register" time="0.269" /><testcase classname="tests.backup.test_signed_full_admission" name="test_authenticated_installed_full_import_records_intent_and_import_audit" time="0.281" /><testcase classname="tests.backup.test_signed_full_admission" name="test_raw_import_repeats_installed_settings_admission_before_upload" time="0.263" /><testcase classname="tests.backup.test_signed_full_admission" name="test_b1_shipped_commands_raw_import_and_restore_request_refuse_early[False]" time="0.323" /><testcase classname="tests.backup.test_signed_full_admission" name="test_b1_shipped_commands_raw_import_and_restore_request_refuse_early[True]" time="0.343" /><testcase classname="tests.backup.test_signed_full_admission" name="test_import_command_requires_active_eligible_superadmin_before_upload[missing]" time="0.080" /><testcase classname="tests.backup.test_signed_full_admission" name="test_import_command_requires_active_eligible_superadmin_before_upload[member]" time="0.305" /><testcase classname="tests.backup.test_signed_full_admission" name="test_import_command_requires_active_eligible_superadmin_before_upload[inactive]" time="0.446" /><testcase classname="tests.backup.test_signed_full_admission" name="test_import_command_requires_active_eligible_superadmin_before_upload[suspended]" time="0.338" /><testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[0]" time="1.566" /><testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[1]" time="1.664" /><testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[3]" time="1.452" /><testcase classname="tests.backup.test_signed_full_capture" name="test_archived_retained_space_still_needs_consent_and_selects_actual_compound" time="1.541" /><testcase classname="tests.backup.test_signed_full_capture" name="test_missing_or_divergent_activation_refuses_instead_of_falling_back[missing]" time="1.295" /><testcase classname="tests.backup.test_signed_full_capture" name="test_missing_or_divergent_activation_refuses_instead_of_falling_back[divergent]" time="1.748" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_cohort_is_servable_only_and_facts_are_frozen" time="1.497"><failure message="django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89a91850&gt;
+sql = 'UPDATE "backup_backuprun" SET "holder" = %s, "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (UUID('e12fe9a1-980a-4af9-9273-6b7a02db8ada'), &lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89a93c50&gt;, UUID('8d0475fa-180c-404b-b347-cc5b9770220f'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89a91850&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_cohort_is_servable_on0')
+
+    def test_run_cohort_is_servable_only_and_facts_are_frozen(tmp_path):
+        ordinary = space()
+        archived = space(archived_at=timezone.now())
+        run = run_for({str(ordinary.pk): True})
+        row = archive(run=run)
+        value = freeze_full(row, tmp_path / "capture")
+        before = value.promotion_snapshot()
+        assert [item["makerspace_id"] for item in before["retained"]] == [ordinary.pk, archived.pk]
+        assert before["servable_run_cohort"] == {str(ordinary.pk): True}
+        assert before["run"] == {"id": str(run.pk), "holder": str(run.holder),
+                                  "status": "running", "flag_snapshot": {str(ordinary.pk): True}}
+&gt;       BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4(), flag_snapshot={})
+
+tests/backup/test_signed_full_capture.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89a91850&gt;
+sql = 'UPDATE "backup_backuprun" SET "holder" = %s, "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (UUID('e12fe9a1-980a-4af9-9273-6b7a02db8ada'), &lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89a93c50&gt;, UUID('8d0475fa-180c-404b-b347-cc5b9770220f'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89a91850&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags0]" time="1.344" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags1]" time="1.284" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags2]" time="1.350" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags3]" time="1.255" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags4]" time="1.244" /><testcase classname="tests.backup.test_signed_full_capture" name="test_run_cannot_include_archived_retained_space_or_missing_holder" time="1.269"><failure message="django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebb290&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s, "holder" = NULL WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb620&gt;, UUID('306fd935-e787-43f5-95c4-4af9cc42c4af'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebb290&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_run_cannot_include_archiv0')
+
+    def test_run_cannot_include_archived_retained_space_or_missing_holder(tmp_path):
+        ordinary, archived = space(), space(archived_at=timezone.now())
+        run = run_for({str(ordinary.pk): True, str(archived.pk): True})
+        row = archive(run=run)
+        with pytest.raises(BackupBuildError):
+            run_facts(row, {str(ordinary.pk): True})
+&gt;       BackupRun.objects.filter(pk=run.pk).update(flag_snapshot={str(ordinary.pk): True}, holder=None)
+
+tests/backup/test_signed_full_capture.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebb290&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s, "holder" = NULL WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb620&gt;, UUID('306fd935-e787-43f5-95c4-4af9cc42c4af'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebb290&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_capture" name="test_cached_run_relation_cannot_replace_persisted_binding" time="1.380"><failure message="django.db.utils.InternalError: immutable backup archive backup_run cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89e8e390&gt;
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('6a817690-4d80-4603-b0fe-12c3ccb6a670'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89e8e390&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cached_run_relation_canno0')
+
+    def test_cached_run_relation_cannot_replace_persisted_binding(tmp_path):
+        ordinary = space()
+        run = run_for({str(ordinary.pk): True})
+        row = archive(run=run)
+&gt;       BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+
+tests/backup/test_signed_full_capture.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89e8e390&gt;
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('6a817690-4d80-4603-b0fe-12c3ccb6a670'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89e8e390&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_capture" name="test_capture_refuses_late_selection_and_mutated_source_references" time="1.318" /><testcase classname="tests.backup.test_signed_full_concurrency" name="test_share_population_fence_blocks_insert_until_publication_commit" time="1.352" /><testcase classname="tests.backup.test_signed_full_concurrency" name="test_insertion_committed_on_other_connection_before_fence_refuses" time="1.532" /><testcase classname="tests.backup.test_signed_full_concurrency" name="test_real_failure_service_waits_for_run_lock_until_publish_commits" time="1.770" /><testcase classname="tests.backup.test_signed_full_concurrency" name="test_failure_lock_acquired_first_blocks_promotion_then_refuses" time="1.371" /><testcase classname="tests.backup.test_signed_full_control" name="test_large_report_has_separate_private_fsynced_bounded_identity_companion" time="1.337" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[id]" time="1.500" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[manifest]" time="1.339" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[sha]" time="1.701" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[size]" time="1.271" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[bool-size]" time="1.357" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[key]" time="1.229" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[dates]" time="1.118" /><testcase classname="tests.backup.test_signed_full_control" name="test_selected_archive_control_facts_refuse_tamper[missing]" time="1.306" /><testcase classname="tests.backup.test_signed_full_control" name="test_rehydrate_restores_available_metadata_and_second_export_is_valid" time="1.222"><failure message="django.db.utils.InternalError: immutable backup archive expiry cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 21 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebac30&gt;
+sql = 'UPDATE "backup_backuparchive" SET "status" = %s, "manifest" = %s, "archive_sha256" = %s, "size_bytes" = %s, "completed_at" = NULL, "expires_at" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = ('running', &lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb590&gt;, '', 0, UUID('2889c8cf-43ff-4d13-a010-4da658e33b85'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebac30&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive expiry cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 21 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_rehydrate_restores_availa0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff89e8d670&gt;
+
+    def test_rehydrate_restores_available_metadata_and_second_export_is_valid(tmp_path, monkeypatch):
+        fixture, archive, restore = selected_restore(tmp_path)
+        output = restore_control_records.export_control_record(restore.pk, tmp_path / "control.json")
+        expected = capture_archive_record(archive)
+        # Real source snapshot is before archive completion; simulate exactly its row.
+&gt;       BackupArchive.objects.filter(pk=archive.pk).update(status="running", manifest={}, archive_sha256="",
+                                                         size_bytes=0, completed_at=None, expires_at=None)
+
+tests/backup/test_signed_full_control.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebac30&gt;
+sql = 'UPDATE "backup_backuparchive" SET "status" = %s, "manifest" = %s, "archive_sha256" = %s, "size_bytes" = %s, "completed_at" = NULL, "expires_at" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = ('running', &lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89ebb590&gt;, '', 0, UUID('2889c8cf-43ff-4d13-a010-4da658e33b85'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89ebac30&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive expiry cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 21 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_control" name="test_rehydrate_refuses_changed_input_before_database_rows_or_recovery_state[different-valid-manifest]" time="1.222" /><testcase classname="tests.backup.test_signed_full_control" name="test_rehydrate_refuses_changed_input_before_database_rows_or_recovery_state[selected-id]" time="1.192" /><testcase classname="tests.backup.test_signed_full_least_privilege" name="test_source_identity_uses_uuid_under_nocreatedb_nosuperuser_without_pg_monitor" time="1.137"><failure message="Failed: DID NOT RAISE InsufficientPrivilege">def test_source_identity_uses_uuid_under_nocreatedb_nosuperuser_without_pg_monitor():
+        expected = DeploymentDatabaseIdentity.load()
+        role = "stage3_runtime_" + uuid.uuid4().hex
+        identifier = sql.Identifier(role)
+        with connection.cursor() as cursor:
+            cursor.execute(sql.SQL("CREATE ROLE {} NOLOGIN NOCREATEDB NOSUPERUSER NOINHERIT").format(identifier))
+            cursor.execute(sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(identifier))
+            cursor.execute(sql.SQL("GRANT SELECT ON backup_deploymentdatabaseidentity TO {}").format(identifier))
+        raw = None
+        try:
+            raw = psycopg2.connect(**connection.get_connection_params())
+            with raw:
+                with raw.cursor() as cursor:
+                    cursor.execute(sql.SQL("SET ROLE {}").format(identifier))
+                    cursor.execute("SELECT rolcreatedb, rolsuper, pg_has_role(current_user, 'pg_monitor', 'MEMBER') "
+                                   "FROM pg_roles WHERE rolname=current_user")
+                    assert cursor.fetchone() == (False, False, False)
+                    cursor.execute("SAVEPOINT expected_permission_denial")
+&gt;                   with pytest.raises(psycopg2.errors.InsufficientPrivilege):
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                   Failed: DID NOT RAISE InsufficientPrivilege
+
+tests/backup/test_signed_full_least_privilege.py:35: Failed</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[insert]" time="1.498" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[delete]" time="1.398"><failure message="django.db.models.deletion.ProtectedError: (&quot;Cannot delete some instances of model 'Makerspace' because they are referenced through protected foreign keys: 'PiiMakerspaceWriteFence.makerspace'.&quot;, {&lt;PiiMakerspaceWriteFence: PiiMakerspaceWriteFence object (1149)&gt;})">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_1')
+change = 'delete'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+&gt;           ordinary.delete()
+
+tests/backup/test_signed_full_promotion.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1299: in delete
+    collector.collect([self], keep_parents=keep_parents)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.models.deletion.Collector object at 0xffff89a91400&gt;
+objs = [&lt;Makerspace: Stage3 full&gt;], source = None, nullable = False
+collect_related = True, source_attr = None, reverse_dependency = False
+keep_parents = False, fail_on_restricted = True
+
+    def collect(
+        self,
+        objs,
+        source=None,
+        nullable=False,
+        collect_related=True,
+        source_attr=None,
+        reverse_dependency=False,
+        keep_parents=False,
+        fail_on_restricted=True,
+    ):
+        """
+        Add 'objs' to the collection of objects to be deleted as well as all
+        parent instances. 'objs' must be a homogeneous iterable collection of
+        model instances (e.g. a QuerySet). If 'collect_related' is True,
+        related objects will be handled by their respective on_delete handler.
+    
+        If the call is the result of a cascade, 'source' should be the model
+        that caused it and 'nullable' should be set to True, if the relation
+        can be null.
+    
+        If 'reverse_dependency' is True, 'source' will be deleted before the
+        current model, rather than after. (Needed for cascading to parent
+        models, the one case in which the cascade follows the forwards
+        direction of an FK rather than the reverse direction.)
+    
+        If 'keep_parents' is True, data of parent model's will be not deleted.
+    
+        If 'fail_on_restricted' is False, error won't be raised even if it's
+        prohibited to delete such objects due to RESTRICT, that defers
+        restricted object checking in recursive calls where the top-level call
+        may need to collect more objects to determine whether restricted ones
+        can be deleted.
+        """
+        if self.can_fast_delete(objs):
+            self.fast_deletes.append(objs)
+            return
+        new_objs = self.add(
+            objs, source, nullable, reverse_dependency=reverse_dependency
+        )
+        if not new_objs:
+            return
+    
+        model = new_objs[0].__class__
+    
+        if not keep_parents:
+            # Recursively collect concrete model's parent models, but not their
+            # related objects. These will be found by meta.get_fields()
+            concrete_model = model._meta.concrete_model
+            for ptr in concrete_model._meta.parents.values():
+                if ptr:
+                    parent_objs = [getattr(obj, ptr.name) for obj in new_objs]
+                    self.collect(
+                        parent_objs,
+                        source=model,
+                        source_attr=ptr.remote_field.related_name,
+                        collect_related=False,
+                        reverse_dependency=True,
+                        fail_on_restricted=False,
+                    )
+        if not collect_related:
+            return
+    
+        model_fast_deletes = defaultdict(list)
+        protected_objects = defaultdict(list)
+        for related in get_candidate_relations_to_delete(model._meta):
+            # Preserve parent reverse relationships if keep_parents=True.
+            if (
+                keep_parents
+                and related.model._meta.concrete_model in model._meta.all_parents
+            ):
+                continue
+            field = related.field
+            on_delete = field.remote_field.on_delete
+            if on_delete == DO_NOTHING:
+                continue
+            related_model = related.related_model
+            if self.can_fast_delete(related_model, from_field=field):
+                model_fast_deletes[related_model].append(field)
+                continue
+            batches = self.get_del_batches(new_objs, [field])
+            for batch in batches:
+                sub_objs = self.related_objects(related_model, [field], batch)
+                # Non-referenced fields can be deferred if no signal receivers
+                # are connected for the related model as they'll never be
+                # exposed to the user. Skip field deferring when some
+                # relationships are select_related as interactions between both
+                # features are hard to get right. This should only happen in
+                # the rare cases where .related_objects is overridden anyway.
+                if not (
+                    sub_objs.query.select_related
+                    or self._has_signal_listeners(related_model)
+                ):
+                    referenced_fields = set(
+                        chain.from_iterable(
+                            (rf.attname for rf in rel.field.foreign_related_fields)
+                            for rel in get_candidate_relations_to_delete(
+                                related_model._meta
+                            )
+                        )
+                    )
+                    sub_objs = sub_objs.only(*tuple(referenced_fields))
+                if getattr(on_delete, "lazy_sub_objs", False) or sub_objs:
+                    try:
+                        on_delete(self, field, sub_objs, self.using)
+                    except ProtectedError as error:
+                        key = "'%s.%s'" % (field.model.__name__, field.name)
+                        protected_objects[key] += error.protected_objects
+        if protected_objects:
+&gt;           raise ProtectedError(
+                "Cannot delete some instances of model %r because they are "
+                "referenced through protected foreign keys: %s."
+                % (
+                    model.__name__,
+                    ", ".join(protected_objects),
+                ),
+                set(chain.from_iterable(protected_objects.values())),
+            )
+E           django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Makerspace' because they are referenced through protected foreign keys: 'PiiMakerspaceWriteFence.makerspace'.", {&lt;PiiMakerspaceWriteFence: PiiMakerspaceWriteFence object (1149)&gt;})
+
+/usr/local/lib/python3.12/site-packages/django/db/models/deletion.py:354: ProtectedError</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[access]" time="1.269" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[activation]" time="1.626" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[archived]" time="1.348" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[lifecycle]" time="1.354" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[purging]" time="1.267"><failure message="django.db.utils.IntegrityError: new row for relation &quot;makerspaces_makerspace&quot; violates check constraint &quot;makerspace_purge_requires_archive&quot;&#10;[+1 more line; full report in element text]">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c288c0&gt;
+sql = 'UPDATE "makerspaces_makerspace" SET "purge_started_at" = %s WHERE "makerspaces_makerspace"."id" = %s'
+params = (datetime.datetime(2026, 10, 29, 19, 55, 43, 92182, tzinfo=datetime.timezone.utc), 5561)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c288c0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.CheckViolation: new row for relation "makerspaces_makerspace" violates check constraint "makerspace_purge_requires_archive"
+E               DETAIL:  Failing row contains (5561, Stage3 full, full-e902a02935714972902a468577ed3342, , t, , 2026-10-29 19:55:42.967218+00, 2026-10-29 19:55:42.967222+00, null, [], pk_LewFG5qViPoCZTefBndSSjfbeXUJ6bEU, , , 587, , , t, , R8HT, {"support_url": "", "display_name": "", "support_email": ""}, ["asset_units", "bookings", "bulk_import", "containers", "discor..., {"mode": "light", "logo_url": "", "accent_color": "#16a34a", "pr..., 7, f, t, null, null, null, f, , , t, f, , token_only, 0.00, dv_oGmcrCWNAi8K7ctm4P5Eb4ZxilNYYs9kEvTuibTikXBsxWrm, null, pending, null, {}, 0, f, , , [], request, f, ["inventory.self_checkout", "payments.enabled", "mobile.push", "..., f, null, null, 25, 0.00, , f, active, null, disabled, null, , , , SF, 2026-10-29 19:55:43.092182+00).
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_6')
+change = 'purging'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+&gt;           type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+
+tests/backup/test_signed_full_promotion.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c288c0&gt;
+sql = 'UPDATE "makerspaces_makerspace" SET "purge_started_at" = %s WHERE "makerspaces_makerspace"."id" = %s'
+params = (datetime.datetime(2026, 10, 29, 19, 55, 43, 92182, tzinfo=datetime.timezone.utc), 5561)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c288c0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: new row for relation "makerspaces_makerspace" violates check constraint "makerspace_purge_requires_archive"
+E               DETAIL:  Failing row contains (5561, Stage3 full, full-e902a02935714972902a468577ed3342, , t, , 2026-10-29 19:55:42.967218+00, 2026-10-29 19:55:42.967222+00, null, [], pk_LewFG5qViPoCZTefBndSSjfbeXUJ6bEU, , , 587, , , t, , R8HT, {"support_url": "", "display_name": "", "support_email": ""}, ["asset_units", "bookings", "bulk_import", "containers", "discor..., {"mode": "light", "logo_url": "", "accent_color": "#16a34a", "pr..., 7, f, t, null, null, null, f, , , t, f, , token_only, 0.00, dv_oGmcrCWNAi8K7ctm4P5Eb4ZxilNYYs9kEvTuibTikXBsxWrm, null, pending, null, {}, 0, f, , , [], request, f, ["inventory.self_checkout", "payments.enabled", "mobile.push", "..., f, null, null, 25, 0.00, , f, active, null, disabled, null, , , , SF, 2026-10-29 19:55:43.092182+00).
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-holder]" time="1.425" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-failed]" time="1.435" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-flags]" time="1.302"><failure message="django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89b049e0&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89b055e0&gt;, UUID('b544449b-43a9-4b4c-93a8-ada5ae0b7ce5'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89b049e0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_9')
+change = 'run-flags'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+            BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+        else:
+&gt;           BackupRun.objects.filter(pk=run.pk).update(
+                flag_snapshot={str(ordinary.pk): 1} if change == "run-bool-int" else {},
+            )
+
+tests/backup/test_signed_full_promotion.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89b049e0&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89b055e0&gt;, UUID('b544449b-43a9-4b4c-93a8-ada5ae0b7ce5'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89b049e0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-bool-int]" time="1.578"><failure message="django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89aaf2c0&gt;, UUID('96667861-58c3-4f30-80dc-66ec9c964b65'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_10')
+change = 'run-bool-int'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+            BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+        else:
+&gt;           BackupRun.objects.filter(pk=run.pk).update(
+                flag_snapshot={str(ordinary.pk): 1} if change == "run-bool-int" else {},
+            )
+
+tests/backup/test_signed_full_promotion.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0&gt;
+sql = 'UPDATE "backup_backuprun" SET "flag_snapshot" = %s WHERE "backup_backuprun"."id" = %s'
+params = (&lt;django.db.backends.postgresql.psycopg_any.Jsonb object at 0xffff89aaf2c0&gt;, UUID('96667861-58c3-4f30-80dc-66ec9c964b65'))
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89aaeba0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup run flag_snapshot cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_run_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[archive-run-binding]" time="1.660"><failure message="django.db.utils.InternalError: immutable backup archive backup_run cannot be updated&#10;CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20&gt;
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('8ca1ea3e-0157-4823-85dd-de9d2673f76f'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.RaiseException: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_full_publication_refuses_11')
+change = 'archive-run-binding'
+
+    @pytest.mark.parametrize("change", [
+        "insert", "delete", "access", "activation", "archived", "lifecycle", "purging",
+        "run-holder", "run-failed", "run-flags", "run-bool-int", "archive-run-binding",
+    ])
+    def test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift(tmp_path, change):
+        prior = timezone.now()
+        settings = PlatformBackupSettings.load()
+        settings.last_success_at = prior
+        settings.save(update_fields=("last_success_at",))
+        ordinary, row, ledger, _build, run = prepared(tmp_path, scheduled=True)
+        if change == "insert":
+            space()
+        elif change == "delete":
+            ordinary.delete()
+        elif change == "access":
+            type(ordinary).objects.filter(pk=ordinary.pk).update(superadmin_access_enabled=False)
+        elif change == "activation":
+            B1ActivationState.objects.filter(makerspace=ordinary).update(state="off_pending")
+        elif change in {"archived", "lifecycle", "purging"}:
+            fields = {"archived": {"archived_at": timezone.now()},
+                      "lifecycle": {"lifecycle_state": "importing"},
+                      "purging": {"purge_started_at": timezone.now()}}[change]
+            type(ordinary).objects.filter(pk=ordinary.pk).update(**fields)
+        elif change == "run-holder":
+            BackupRun.objects.filter(pk=run.pk).update(holder=uuid.uuid4())
+        elif change == "run-failed":
+            BackupRun.objects.filter(pk=run.pk).update(status="failed")
+        elif change == "archive-run-binding":
+&gt;           BackupArchive.objects.filter(pk=row.pk).update(backup_run=None)
+
+tests/backup/test_signed_full_promotion.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1300: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:2111: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20&gt;
+sql = 'UPDATE "backup_backuparchive" SET "backup_run_id" = NULL WHERE "backup_backuparchive"."id" = %s'
+params = (UUID('8ca1ea3e-0157-4823-85dd-de9d2673f76f'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff89c2ad20&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.InternalError: immutable backup archive backup_run cannot be updated
+E               CONTEXT:  PL/pgSQL function backup_archive_freeze_fields_guard() line 5 at RAISE
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: InternalError</failure></testcase><testcase classname="tests.backup.test_signed_full_promotion" name="test_signed_manifest_cannot_replace_independent_source_freeze" time="1.453" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_first_publication_independently_compares_signed_source_to_capture" time="1.319" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_full_promotes_with_one_component_and_no_fabricated_partition_proof" time="1.317" /><testcase classname="tests.backup.test_signed_full_promotion" name="test_available_repromotion_is_idempotent_after_scheduled_run_complete" time="1.297" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_returns_distinct_path_only_after_complete_validation" time="1.987" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_refuses_before_stage_audit_and_recovery_state[legacy-header]" time="1.405" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_refuses_before_stage_audit_and_recovery_state[signature]" time="1.335" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_refuses_before_stage_audit_and_recovery_state[root-bytes]" time="1.228" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_refuses_before_stage_audit_and_recovery_state[tar-bytes]" time="1.327" /><testcase classname="tests.backup.test_signed_full_restore_preflight" name="test_full_preflight_refuses_before_stage_audit_and_recovery_state[installed-secret]" time="1.349" /><testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]" time="14.981"><failure message="assert [] == [True]&#10;  &#10;  Right contains one more item: True&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_full_artifact_operat0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff89e729c0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff89e73d40&gt;
+allow_projection_databases = None, ready_state = 'normal'
+
+    @pytest.mark.parametrize("ready_state", ["normal", "acknowledged-normal"])
+    def test_real_full_artifact_operational_omission_target_identity_and_live_bytes(
+        tmp_path, monkeypatch, settings, allow_projection_databases, ready_state,
+    ):
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space()
+        actor = User.objects.create_superuser(username="full-roundtrip", password="unused")
+        prefix = f"stage3-full-{uuid.uuid4().hex}"
+        private_key, public_key = f"{prefix}/issue.jpg", f"{prefix}/tool.png"
+        product = InventoryProduct.objects.create(makerspace=ordinary, name="Full roundtrip tool",
+                                                   description="snapshot-original", total_quantity=3,
+                                                   available_quantity=3, image_key=public_key)
+        photo = EvidencePhoto.objects.create(makerspace=ordinary, evidence_type="issue",
+                                              object_key=private_key, uploaded_by=actor)
+        purge, module_purge = receipt(), privileged_restored_orphan_receipt()
+        omitted = [apps.get_model(label) for label in sorted(OMITTED_OPERATIONAL_MODELS)]
+        source_counts = {model._meta.label: model.objects.count() for model in omitted}
+        assert all(source_counts.values())
+        identity, recipient = age_keypair(tmp_path)
+        settings.BACKUP_AGE_RECIPIENT = recipient
+        monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+        monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+        monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+        expected_continuity = {name: os.environ.get(name, "") for name in archive_payload.CONTINUITY_KEYS}
+        monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+        # The archive builder uses its imported payload function, which reads this seam.
+        s3 = storage.client()
+        objects = [(settings.AWS_STORAGE_BUCKET_NAME, private_key, b"live-private-issue-bytes"),
+                   (settings.PUBLIC_IMAGE_BUCKET, public_key, b"live-public-image-bytes")]
+        build = None
+        try:
+            expires = timezone.now().replace(microsecond=0) + timedelta(days=1)
+            for bucket, key, payload in objects:
+                s3.put_object(Bucket=bucket, Key=key, Body=payload, ContentType="application/octet-stream", Expires=expires)
+            expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+            real_dump, snapshots = archive_payload._pg_dump, []
+    
+            def observed_dump(destination, snapshot_id, **kwargs):
+                assert kwargs == {"exclude_operational": True}
+                snapshots.append(snapshot_id)
+                # Commit after exported snapshot, before actual pg_dump. Its bytes
+                # must contain the old row although source now has the new one.
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    pool.submit(independent_job, lambda: InventoryProduct.objects.filter(pk=product.pk).update(
+                        description="committed-after-export",
+                    )).result(timeout=10)
+                return real_dump(destination, snapshot_id, **kwargs)
+    
+            monkeypatch.setattr(archive_payload, "_pg_dump", observed_dump)
+            build = archive_builder.build_archive(archive())
+            assert len(snapshots) == 1
+            assert build.manifest["format"] == FULL_FORMAT
+            assert build.manifest["omitted_operational_models"] == sorted(OMITTED_OPERATIONAL_MODELS)
+            assert str(source_identity.database_uuid) == build.manifest["source_capture"]["server_identity"]["database_uuid"]
+            plain, extracted = tmp_path / "decrypted.tar", tmp_path / "decrypted"
+            decrypt(build, identity, plain)
+            extracted.mkdir()
+            # First authenticate tar, then extract only the regular, declared payload.
+            original = Path(build.tempdir.name) / "bundle"
+            verify_full_bundle(plain, build.manifest, original / "manifest.json", original / "keys/env.json")
+            with tarfile.open(plain) as bundle:
+                bundle.extractall(extracted, filter="data")
+            verify_full_root(extracted, build.manifest)
+            assert json.loads((extracted / "keys/env.json").read_bytes()) == expected_continuity
+            for bucket, key, payload in objects:
+                kind = "private" if bucket == settings.AWS_STORAGE_BUCKET_NAME else "public_image"
+                assert (extracted / "objects" / kind / key).read_bytes() == payload
+                fact = next(item for item in build.manifest["storage"]["objects"]
+                            if item["key"] == key and item["bucket_kind"] == kind)
+                assert fact["headers"]["Expires"] == str(expires)
+            assert sha((extracted / "database.dump").read_bytes()) == build.manifest["source_capture"]["dump_sha256"]
+            assert InventoryProduct.objects.get(pk=product.pk).description == "committed-after-export"
+            assert {model._meta.label: model.objects.count() for model in omitted} == source_counts
+            assert DeploymentDatabaseIdentity.objects.get(pk=1).database_uuid == source_identity.database_uuid
+            with temporary_database("full_stage3") as (using, name):
+                restore_dump(extracted / "database.dump", name)
+                assert schema_counts(using, omitted) == {model._meta.label: 0 for model in omitted}
+                with pytest.raises(BackupBuildError, match="identity is unavailable"):
+                    capture_source_identity(connections[using].connection)
+                assert InventoryProduct.objects.using(using).values().get(pk=product.pk) == expected_product
+                assert EvidencePhoto.objects.using(using).get(pk=photo.pk).object_key == private_key
+                target = establish_restored_database_identity(run_id=uuid.uuid4(), artifact_sha256="b" * 64,
+                                                              capture_id=uuid.uuid4(), using=using)
+                assert target.database_uuid != source_identity.database_uuid
+                database = connections[using]
+                with transaction.atomic(using=using):
+                    captured = full_restore_identity.capture_target_identity(database.connection)
+                marker = write_marker(tmp_path, captured, state=ready_state)
+                marker_bytes = marker.read_bytes()
+                monkeypatch.setattr("apps.backup.host_marker._assert_trusted_file", lambda _path: None)
+                # Real clean restore removes the target singleton via schema replacement;
+                # it cannot import the omitted source identity or purge authority.
+                clean_restore(extracted / "database.dump", name)
+                with pytest.raises(DatabaseIdentityError):
+                    full_restore_identity.verify_target_identity(database.connection, captured)
+                # An available but different physical target fact refuses without insertion.
+                changed = deepcopy(captured)
+                changed["identity"]["oid"] += 1
+                spoof_dir = tmp_path / "spoofed-physical-target"
+                spoof_dir.mkdir()
+                spoof_marker = write_marker(spoof_dir, changed, state=ready_state)
+                with pytest.raises(DatabaseIdentityError), transaction.atomic(using=using):
+                    full_restore_identity.restore_target_identity(database.connection, {"full_target_identity": changed}, spoof_marker)
+                assert raw_row(database.connection) == []
+                # Run the actual fixed maintenance bootstrap: identity, role guards,
+                # and grants all execute on its real connection before an injected
+                # final grant failure. Identity and role creation must both roll back.
+                from io import StringIO
+                from django.db import connection
+                bootstrap = load_bootstrap()
+                runtime_role = "stage3_bootstrap_" + uuid.uuid4().hex
+                real_grants = bootstrap.apply_grant_state
+                grants_applied = []
+    
+                def failed_grants(cursor, target, state):
+                    real_grants(cursor, target, state)
+                    assert full_restore_identity._read_row(cursor.connection) == captured["row"]
+                    grants_applied.append(True)
+                    raise RuntimeError("simulated final grant failure")
+    
+                with monkeypatch.context() as patch:
+                    patch.setenv("SPACEWORKS_RESTORE_IDENTITY", "1")
+                    patch.delenv("SPACEWORKS_GRANT_DATABASE_NAME", raising=False)
+                    patch.setenv("SPACEWORKS_HOST_MARKER_WRITE_PATH", str(marker))
+                    patch.setattr(bootstrap.sys, "stdin", StringIO(json.dumps({"full_target_identity": captured})))
+                    patch.setattr(bootstrap, "apply_grant_state", failed_grants)
+                    with pytest.raises(RuntimeError, match="Role/grant reprovisioning failed"):
+                        bootstrap._grant_only(database.connection.dsn, f"[REDACTED_SYNTHETIC_CREDENTIAL_URL]")
+&gt;               assert grants_applied == [True]
+E               assert [] == [True]
+E                 
+E                 Right contains one more item: True
+E                 Use -v to get more diff
+
+tests/backup/test_signed_full_roundtrip.py:175: AssertionError</failure></testcase><testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]" time="11.691"><failure message="assert [] == [True]&#10;  &#10;  Right contains one more item: True&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_full_artifact_operat1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff89e73bc0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff89e8f080&gt;
+allow_projection_databases = None, ready_state = 'acknowledged-normal'
+
+    @pytest.mark.parametrize("ready_state", ["normal", "acknowledged-normal"])
+    def test_real_full_artifact_operational_omission_target_identity_and_live_bytes(
+        tmp_path, monkeypatch, settings, allow_projection_databases, ready_state,
+    ):
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space()
+        actor = User.objects.create_superuser(username="full-roundtrip", password="unused")
+        prefix = f"stage3-full-{uuid.uuid4().hex}"
+        private_key, public_key = f"{prefix}/issue.jpg", f"{prefix}/tool.png"
+        product = InventoryProduct.objects.create(makerspace=ordinary, name="Full roundtrip tool",
+                                                   description="snapshot-original", total_quantity=3,
+                                                   available_quantity=3, image_key=public_key)
+        photo = EvidencePhoto.objects.create(makerspace=ordinary, evidence_type="issue",
+                                              object_key=private_key, uploaded_by=actor)
+        purge, module_purge = receipt(), privileged_restored_orphan_receipt()
+        omitted = [apps.get_model(label) for label in sorted(OMITTED_OPERATIONAL_MODELS)]
+        source_counts = {model._meta.label: model.objects.count() for model in omitted}
+        assert all(source_counts.values())
+        identity, recipient = age_keypair(tmp_path)
+        settings.BACKUP_AGE_RECIPIENT = recipient
+        monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+        monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+        monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+        expected_continuity = {name: os.environ.get(name, "") for name in archive_payload.CONTINUITY_KEYS}
+        monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+        # The archive builder uses its imported payload function, which reads this seam.
+        s3 = storage.client()
+        objects = [(settings.AWS_STORAGE_BUCKET_NAME, private_key, b"live-private-issue-bytes"),
+                   (settings.PUBLIC_IMAGE_BUCKET, public_key, b"live-public-image-bytes")]
+        build = None
+        try:
+            expires = timezone.now().replace(microsecond=0) + timedelta(days=1)
+            for bucket, key, payload in objects:
+                s3.put_object(Bucket=bucket, Key=key, Body=payload, ContentType="application/octet-stream", Expires=expires)
+            expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+            real_dump, snapshots = archive_payload._pg_dump, []
+    
+            def observed_dump(destination, snapshot_id, **kwargs):
+                assert kwargs == {"exclude_operational": True}
+                snapshots.append(snapshot_id)
+                # Commit after exported snapshot, before actual pg_dump. Its bytes
+                # must contain the old row although source now has the new one.
+                with ThreadPoolExecutor(max_workers=1) as pool:
+                    pool.submit(independent_job, lambda: InventoryProduct.objects.filter(pk=product.pk).update(
+                        description="committed-after-export",
+                    )).result(timeout=10)
+                return real_dump(destination, snapshot_id, **kwargs)
+    
+            monkeypatch.setattr(archive_payload, "_pg_dump", observed_dump)
+            build = archive_builder.build_archive(archive())
+            assert len(snapshots) == 1
+            assert build.manifest["format"] == FULL_FORMAT
+            assert build.manifest["omitted_operational_models"] == sorted(OMITTED_OPERATIONAL_MODELS)
+            assert str(source_identity.database_uuid) == build.manifest["source_capture"]["server_identity"]["database_uuid"]
+            plain, extracted = tmp_path / "decrypted.tar", tmp_path / "decrypted"
+            decrypt(build, identity, plain)
+            extracted.mkdir()
+            # First authenticate tar, then extract only the regular, declared payload.
+            original = Path(build.tempdir.name) / "bundle"
+            verify_full_bundle(plain, build.manifest, original / "manifest.json", original / "keys/env.json")
+            with tarfile.open(plain) as bundle:
+                bundle.extractall(extracted, filter="data")
+            verify_full_root(extracted, build.manifest)
+            assert json.loads((extracted / "keys/env.json").read_bytes()) == expected_continuity
+            for bucket, key, payload in objects:
+                kind = "private" if bucket == settings.AWS_STORAGE_BUCKET_NAME else "public_image"
+                assert (extracted / "objects" / kind / key).read_bytes() == payload
+                fact = next(item for item in build.manifest["storage"]["objects"]
+                            if item["key"] == key and item["bucket_kind"] == kind)
+                assert fact["headers"]["Expires"] == str(expires)
+            assert sha((extracted / "database.dump").read_bytes()) == build.manifest["source_capture"]["dump_sha256"]
+            assert InventoryProduct.objects.get(pk=product.pk).description == "committed-after-export"
+            assert {model._meta.label: model.objects.count() for model in omitted} == source_counts
+            assert DeploymentDatabaseIdentity.objects.get(pk=1).database_uuid == source_identity.database_uuid
+            with temporary_database("full_stage3") as (using, name):
+                restore_dump(extracted / "database.dump", name)
+                assert schema_counts(using, omitted) == {model._meta.label: 0 for model in omitted}
+                with pytest.raises(BackupBuildError, match="identity is unavailable"):
+                    capture_source_identity(connections[using].connection)
+                assert InventoryProduct.objects.using(using).values().get(pk=product.pk) == expected_product
+                assert EvidencePhoto.objects.using(using).get(pk=photo.pk).object_key == private_key
+                target = establish_restored_database_identity(run_id=uuid.uuid4(), artifact_sha256="b" * 64,
+                                                              capture_id=uuid.uuid4(), using=using)
+                assert target.database_uuid != source_identity.database_uuid
+                database = connections[using]
+                with transaction.atomic(using=using):
+                    captured = full_restore_identity.capture_target_identity(database.connection)
+                marker = write_marker(tmp_path, captured, state=ready_state)
+                marker_bytes = marker.read_bytes()
+                monkeypatch.setattr("apps.backup.host_marker._assert_trusted_file", lambda _path: None)
+                # Real clean restore removes the target singleton via schema replacement;
+                # it cannot import the omitted source identity or purge authority.
+                clean_restore(extracted / "database.dump", name)
+                with pytest.raises(DatabaseIdentityError):
+                    full_restore_identity.verify_target_identity(database.connection, captured)
+                # An available but different physical target fact refuses without insertion.
+                changed = deepcopy(captured)
+                changed["identity"]["oid"] += 1
+                spoof_dir = tmp_path / "spoofed-physical-target"
+                spoof_dir.mkdir()
+                spoof_marker = write_marker(spoof_dir, changed, state=ready_state)
+                with pytest.raises(DatabaseIdentityError), transaction.atomic(using=using):
+                    full_restore_identity.restore_target_identity(database.connection, {"full_target_identity": changed}, spoof_marker)
+                assert raw_row(database.connection) == []
+                # Run the actual fixed maintenance bootstrap: identity, role guards,
+                # and grants all execute on its real connection before an injected
+                # final grant failure. Identity and role creation must both roll back.
+                from io import StringIO
+                from django.db import connection
+                bootstrap = load_bootstrap()
+                runtime_role = "stage3_bootstrap_" + uuid.uuid4().hex
+                real_grants = bootstrap.apply_grant_state
+                grants_applied = []
+    
+                def failed_grants(cursor, target, state):
+                    real_grants(cursor, target, state)
+                    assert full_restore_identity._read_row(cursor.connection) == captured["row"]
+                    grants_applied.append(True)
+                    raise RuntimeError("simulated final grant failure")
+    
+                with monkeypatch.context() as patch:
+                    patch.setenv("SPACEWORKS_RESTORE_IDENTITY", "1")
+                    patch.delenv("SPACEWORKS_GRANT_DATABASE_NAME", raising=False)
+                    patch.setenv("SPACEWORKS_HOST_MARKER_WRITE_PATH", str(marker))
+                    patch.setattr(bootstrap.sys, "stdin", StringIO(json.dumps({"full_target_identity": captured})))
+                    patch.setattr(bootstrap, "apply_grant_state", failed_grants)
+                    with pytest.raises(RuntimeError, match="Role/grant reprovisioning failed"):
+                        bootstrap._grant_only(database.connection.dsn, f"[REDACTED_SYNTHETIC_CREDENTIAL_URL]")
+&gt;               assert grants_applied == [True]
+E               assert [] == [True]
+E                 
+E                 Right contains one more item: True
+E                 Use -v to get more diff
+
+tests/backup/test_signed_full_roundtrip.py:175: AssertionError</failure></testcase><testcase classname="tests.backup.test_signed_full_upload" name="test_full_upload_reads_both_objects_before_publication_and_retains_custody" time="1.479" /><testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[upload]" time="1.540" /><testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[get-staging]" time="1.344" /><testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[create-final]" time="1.323" /><testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[get-final]" time="1.771" /><testcase classname="tests.backup.test_signed_full_upload" name="test_conditional_final_race_reconciles_existing_verified_bytes_without_replacing" time="2.486" /><testcase classname="tests.backup.test_signed_full_upload" name="test_final_readback_retry_and_later_cleanup_keep_published_recipients" time="1.617" /><testcase classname="tests.backup.test_signed_full_upload" name="test_corrupt_racing_final_cannot_be_published" time="1.350" /><testcase classname="tests.backup.test_signed_full_upload" name="test_failed_run_during_reconciliation_is_tombstoned_and_prior_success_preserved" time="1.925" /><testcase classname="tests.backup.test_signed_full_runtime_role_exact" name="test_real_signed_full_capture_and_restore_use_exact_runtime_login" time="1.417"><failure message="Failed: DID NOT RAISE InsufficientPrivilege">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_real_signed_full_capture_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff83da1970&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff83da1e50&gt;
+allow_projection_databases = None
+
+    def test_real_signed_full_capture_and_restore_use_exact_runtime_login(
+        tmp_path, monkeypatch, settings, allow_projection_databases,
+    ):
+        # Seed domain and operational rows using the owner before any source reads.
+        source_identity = DeploymentDatabaseIdentity.load()
+        ordinary = space(superadmin_access_enabled=True)
+        product = InventoryProduct.objects.create(
+            makerspace=ordinary, name="Runtime login full capture", description="source remains unchanged",
+            total_quantity=3, available_quantity=3,
+        )
+        receipt()
+        privileged_restored_orphan_receipt()
+        row = archive()
+        expected_product = InventoryProduct.objects.values().get(pk=product.pk)
+        expected_identity = DeploymentDatabaseIdentity.objects.values().get(pk=1)
+        exact_labels = {
+            "backup.DeploymentDatabaseIdentity", "makerspaces.PurgeReceipt", "makerspaces.ModulePurgeReceipt",
+        }
+        assert OMITTED_OPERATIONAL_MODELS == exact_labels
+        omitted = [apps.get_model(label) for label in sorted(exact_labels)]
+        expected_operational = {
+            model._meta.label: list(model.objects.order_by("pk").values()) for model in omitted
+        }
+        assert all(expected_operational.values())
+    
+        build = None
+        # Keep identities, decrypted secrets and extracted payloads in one workspace
+        # that disappears on success and on every assertion/restore failure.
+        with tempfile.TemporaryDirectory(prefix="runtime-full-", dir=tmp_path) as workspace:
+            workspace = Path(workspace)
+            try:
+                identity, recipient = age_keypair(workspace)
+                settings.BACKUP_AGE_RECIPIENT = recipient
+                monkeypatch.setenv("SECRET_KEY", settings.SECRET_KEY)
+                monkeypatch.setenv("AUDIT_MAC_MASTER_KEY", settings.AUDIT_MAC_MASTER_KEY)
+                # Only provenance metadata is synthetic; no source or byte seams.
+                monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", OCI)
+                monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+                # Do not let ambient libpq service settings override the test login.
+                for name in ("PGSERVICE", "PGSERVICEFILE", "PGOPTIONS"):
+                    monkeypatch.delenv(name, raising=False)
+    
+                with isolated_runtime_login() as runtime_role:
+&gt;                   database_name, server = source_facts_with_denied_control(runtime_role)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                   Failed: DID NOT RAISE InsufficientPrivilege
+
+tests/backup/test_signed_full_runtime_role_exact.py:83: Failed</failure></testcase><testcase classname="tests.backup.test_signed_full_bootstrap" name="test_unknown_identity_mode_or_nonfixed_dispatch_refuses_before_connect[unknown-1]" time="0.009" /><testcase classname="tests.backup.test_signed_full_bootstrap" name="test_unknown_identity_mode_or_nonfixed_dispatch_refuses_before_connect[true-1]" time="0.006" /><testcase classname="tests.backup.test_signed_full_bootstrap" name="test_unknown_identity_mode_or_nonfixed_dispatch_refuses_before_connect[1-]" time="0.004" /><testcase classname="tests.backup.test_signed_full_bootstrap" name="test_unknown_identity_mode_or_nonfixed_dispatch_refuses_before_connect[1-0]" time="0.005" /><testcase classname="tests.backup.test_signed_full_bootstrap" name="test_identity_restore_cannot_select_an_alternate_database" time="0.006" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_complete_real_tar_and_extracted_root_are_admitted" time="0.014" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[tamper-database.dump]" time="0.017" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[tamper-keys/env.json]" time="0.012" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[tamper-objects/private/evidence/issue.jpg]" time="0.008" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[tamper-objects/public_image/inventory/tool.png]" time="0.012" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[missing-database.dump]" time="0.013" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[missing-keys/env.json]" time="0.011" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[missing-objects/private/evidence/issue.jpg]" time="0.012" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_every_payload_class_tamper_or_omission_refuses[missing-objects/public_image/inventory/tool.png]" time="0.008" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[unexpected]" time="0.009" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[../outside]" time="0.023" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[/absolute]" time="0.019" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[objects/private/../escape]" time="0.018" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[objects//private/alias]" time="0.017" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[objects/private/./alias]" time="0.021" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[objects\\private\\alias]" time="0.019" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[Database.dump]" time="0.015" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[./database.dump]" time="0.015" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_extra_alias_duplicate_traversal_and_case_refuse[database.dump]" time="0.023" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[2]" time="0.017" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[1]" time="0.014" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[6]" time="0.011" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[3]" time="0.010" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[4]" time="0.015" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_tar_links_special_files_and_undeclared_directories_refuse[5]" time="0.012" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_bytes_changed_after_tar_validation_refuse[database.dump]" time="0.018" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_bytes_changed_after_tar_validation_refuse[keys/env.json]" time="0.043" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_bytes_changed_after_tar_validation_refuse[objects/private/evidence/issue.jpg]" time="0.009" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_bytes_changed_after_tar_validation_refuse[objects/public_image/inventory/tool.png]" time="0.010" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_bytes_changed_after_tar_validation_refuse[manifest.json]" time="0.009"><failure message="apps.backup.import_preflight.ImportPreflightError: Import preflight refused [component_policy]: the manifest JSON is invalid.">raw = b'changed after validation', label = 'manifest'
+
+    def _decode_json(raw, label):
+        def unique_object(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError
+                value[key] = item
+            return value
+    
+        try:
+&gt;           return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/backup/import_preflight_bundle.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/json/__init__.py:359: in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;json.decoder.JSONDecoder object at 0xffff89bc25a0&gt;
+s = 'changed after validation', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+&gt;           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+/usr/local/lib/python3.12/json/decoder.py:356: JSONDecodeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_extracted_bytes_changed_a4')
+name = 'manifest.json'
+
+    @pytest.mark.parametrize("name", [*PAYLOADS, "manifest.json"])
+    def test_extracted_bytes_changed_after_tar_validation_refuse(tmp_path, name):
+        fixture = make_full_fixture(tmp_path)
+        verify(fixture)
+        (fixture.root / name).write_bytes(b"changed after validation")
+        with pytest.raises(BackupBuildError):
+&gt;           verify_full_root(fixture.root, fixture.manifest)
+
+tests/backup/test_signed_full_bundle.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/full_bundle.py:93: in verify_full_root
+    if _canonical_json(read_json_file(root / "manifest.json", "manifest")) != _canonical_json(manifest):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/backup/import_preflight_bundle.py:255: in read_json_file
+    return _decode_json(Path(path).read_bytes(), label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+raw = b'changed after validation', label = 'manifest'
+
+    def _decode_json(raw, label):
+        def unique_object(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError
+                value[key] = item
+            return value
+    
+        try:
+            return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object)
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+&gt;           raise ImportPreflightError(
+                "component_policy", f"the {label} JSON is invalid."
+            ) from exc
+E           apps.backup.import_preflight.ImportPreflightError: Import preflight refused [component_policy]: the manifest JSON is invalid.
+
+apps/backup/import_preflight_bundle.py:274: ImportPreflightError</failure></testcase><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_unlisted_entries_and_links_refuse[file]" time="0.009" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_unlisted_entries_and_links_refuse[directory]" time="0.008" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_unlisted_entries_and_links_refuse[symlink]" time="0.006" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_unlisted_entries_and_links_refuse[fifo]" time="0.008" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_same_json_different_continuity_bytes_refuse" time="0.009" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_duplicate_continuity_json_keys_refuse_even_if_signed_bytes_agree" time="0.009" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_extracted_hardlinked_payload_refuses_even_when_bytes_match" time="0.007" /><testcase classname="tests.backup.test_signed_full_bundle" name="test_expired_evidence_is_a_signed_no_byte_tombstone" time="0.010" /><testcase classname="tests.backup.test_signed_full_capability" name="test_marker_v2_requires_explicit_full_claim" time="0.004" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[v1]" time="0.004" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[bool-version]" time="0.003" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[missing]" time="0.003" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[empty]" time="0.004" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[unknown]" time="0.004" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[mixed]" time="0.003" /><testcase classname="tests.backup.test_signed_full_capability" name="test_old_or_malformed_full_claim_refuses_before_capture[string]" time="0.003" /><testcase classname="tests.backup.test_signed_full_capability" name="test_fixed_identity_bootstrap_import_closure_does_not_load_django_settings" time="0.309" /><testcase classname="tests.backup.test_signed_full_host" name="test_import_refusal_precedes_env_services_intent_and_grants" time="0.304" /><testcase classname="tests.backup.test_signed_full_host" name="test_import_success_checks_prospective_before_env_then_installed_before_supervisor" time="0.566" /><testcase classname="tests.backup.test_signed_full_host" name="test_full_supervisor_bootstraps_identity_before_any_postreplacement_management" time="1.535" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[preflight-ok]" time="0.623" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[unknown]" time="0.628" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[compound-coordinator-ready]" time="0.596" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[missing]" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[format]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[bool-oid]" time="0.005" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[bool-id]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[uuid]" time="0.005" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[lineage]" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[timestamp]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[extra]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[endpoint]" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[system]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_target_identity_record_requires_exact_typed_target_facts[row-uuid]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_private_input_accepts_only_bounded_identity_projection_and_unique_keys" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_nonready_marker_refuses_before_any_database_effect[candidate-preparation]" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_nonready_marker_refuses_before_any_database_effect[candidate-health]" time="0.004" /><testcase classname="tests.backup.test_signed_full_identity" name="test_nonready_marker_refuses_before_any_database_effect[quarantined-after-cutover]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_unbound_intent_marker_cannot_authorize_target_identity_insertion" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_root_marker_mismatch_refuses_before_any_database_effect[uuid]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_root_marker_mismatch_refuses_before_any_database_effect[oid]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_root_marker_mismatch_refuses_before_any_database_effect[name]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_root_marker_mismatch_refuses_before_any_database_effect[host]" time="0.003" /><testcase classname="tests.backup.test_signed_full_identity" name="test_root_marker_mismatch_refuses_before_any_database_effect[tls]" time="0.005" /><testcase classname="tests.backup.test_signed_full_identity" name="test_optional_system_corroboration_availability_may_differ_but_actual_values_may_not" time="0.003" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_real_ed25519_full_signature_and_exact_operational_registry" time="0.008" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_b1_domain_cannot_authenticate_full_even_with_same_host_key" time="0.008" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_actual_b1_signature_cannot_authenticate_full_payload" time="0.008"><failure message="RuntimeError: Database access not allowed, use the &quot;django_db&quot; mark, or the &quot;db&quot; or &quot;transactional_db&quot; fixtures to enable it.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_actual_b1_signature_canno0')
+
+    def test_actual_b1_signature_cannot_authenticate_full_payload(tmp_path):
+        manifest = make_full_fixture(tmp_path).manifest
+&gt;       b1 = make_import_fixture(tmp_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/backup/test_signed_full_manifest.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/backup/import_preflight_test_support.py:130: in make_import_fixture
+    manifest = outer_manifest.build_outer_manifest(
+apps/backup/outer_manifest.py:147: in build_outer_manifest
+    validate_unsigned_manifest(manifest, protocol_version=PROTOCOL_VERSION)
+apps/backup/outer_manifest_validation.py:132: in validate_unsigned_manifest
+    validate_reservation_manifest(manifest, components)
+apps/backup/outer_reservation_validation.py:37: in validate_reservation_manifest
+    _validate_commitments(commitments, slice_ids)
+apps/backup/outer_reservation_validation.py:79: in _validate_commitments
+    rules = {item.identity: item for item in load_unique_rules()}
+                                             ^^^^^^^^^^^^^^^^^^^
+apps/backup/reservation_catalog.py:82: in load_unique_rules
+    with connection.cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+&gt;       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/base/base.py:296: RuntimeError</failure></testcase><testcase classname="tests.backup.test_signed_full_manifest" name="test_external_host_key_cannot_be_replaced_by_archived_self_trust" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signature_shape_algorithm_and_bytes_refuse[algorithm-rsa]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signature_shape_algorithm_and_bytes_refuse[value-not base64]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signature_shape_algorithm_and_bytes_refuse[value-AA==]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signature_shape_algorithm_and_bytes_refuse[signer_fingerprint-0000000000000000000000000000000000000000000000000000000000000000]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signature_shape_algorithm_and_bytes_refuse[unknown-injected]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[archive_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[capture_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[backup_run_id]" time="0.008" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[contents]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[source_capture]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[settings]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[omitted_operational_models]" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_missing_signed_fields_refuse[archive_signature]" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_boolean_uuid_identifiers_refuse_even_with_valid_signature[artifact_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_boolean_uuid_identifiers_refuse_even_with_valid_signature[archive_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_boolean_uuid_identifiers_refuse_even_with_valid_signature[capture_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_boolean_uuid_identifiers_refuse_even_with_valid_signature[backup_run_id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[source_partition_proof]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[reservation_manifest]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[source_projection_catalog]" time="0.008" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[object_ledgers]" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[not_restored_seeds]" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[verification_public_key]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_b1_only_or_unknown_claims_refuse[unknown]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[bool-id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[bool-size]" time="0.007" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[bool-pg]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[bool-port]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[bool-object-owner]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[main-bool-size]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[dump-digest]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[operational-empty]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[operational-extra]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[noncanonical-id]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[source-version]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[source-database]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_signed_structural_inconsistency_refuses[wrong-case-path]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_every_content_ledger_member_is_signed[0]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_every_content_ledger_member_is_signed[1]" time="0.008" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_every_content_ledger_member_is_signed[2]" time="0.006" /><testcase classname="tests.backup.test_signed_full_manifest" name="test_every_content_ledger_member_is_signed[3]" time="0.006" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_prospective_continuity_is_read_only_and_installed_values_must_agree" time="0.014" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_noncontinuity_security_values_remain_target_owned[API_CLIENT_AUTH_REQUIRED-changed-target-policy]" time="0.009" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_noncontinuity_security_values_remain_target_owned[CHECKIN_API_URL-https://other-roster.invalid]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_noncontinuity_security_values_remain_target_owned[AUDIT_ATTESTATION_HTTP_BEARER_TOKEN-target-owned-different]" time="0.007" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_noncontinuity_security_values_remain_target_owned[EVENT_STATION_PIN_PEPPER-target-owned-different]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_noncontinuity_security_values_remain_target_owned[SPACEWORKS_OCI_DIGEST-sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_full_signature_build_pg_and_storage_refuse_without_mutation[signature]" time="0.007" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_full_signature_build_pg_and_storage_refuse_without_mutation[build]" time="0.009" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_full_signature_build_pg_and_storage_refuse_without_mutation[pg-target]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_full_signature_build_pg_and_storage_refuse_without_mutation[pg-client]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_full_signature_build_pg_and_storage_refuse_without_mutation[storage]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_signed_continuity_requires_exact_names_and_single_line_strings[extra-trust-key]" time="0.009" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_signed_continuity_requires_exact_names_and_single_line_strings[missing]" time="0.009" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_signed_continuity_requires_exact_names_and_single_line_strings[bool]" time="0.008" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_signed_continuity_requires_exact_names_and_single_line_strings[newline]" time="0.009" /><testcase classname="tests.backup.test_signed_full_preflight" name="test_signed_continuity_requires_exact_names_and_single_line_strings[nul]" time="0.018" /></testsuite></testsuites>

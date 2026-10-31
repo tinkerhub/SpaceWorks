@@ -1,0 +1,11 @@
+{
+  "status": "Stage1 readonly APPROVED exit0; explicit parent full-frontend source-write hold still active; no source/test edit",
+  "diagnosis": "Same retained host parent, unkeyed TypedCodeForm moves child index2 to1 on async camera rejection, resetting local draft",
+  "bounded_fix": "Same explicit key on both existing TypedCodeForm elements only",
+  "source_baseline": {
+    "path": "frontend/src/components/ui/QrScanner.tsx",
+    "lines": 290,
+    "sha256": "cc590607b988968c0283f61c0571b73503b878e49d027402bc4b32037eee0f5c"
+  },
+  "runtime": "No app/test runtime by child; no attribution to previous stocktake failure"
+}

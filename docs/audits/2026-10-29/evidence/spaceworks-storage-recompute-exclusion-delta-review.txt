@@ -1,0 +1,21 @@
+**APPROVED — Stage 1 delta only.** The same-connection SQL bridge closes the identified lock-loss/check→SET gap and fits the existing architecture.
+
+The protection comes from retaining **one uninterrupted transaction on one backend** through acquisition, verification, `UPDATE`, and commit. If that backend dies, its uncommitted update cannot survive independently of its advisory lock. PostgreSQL releases transaction advisory locks when the transaction ends. [PostgreSQL locking documentation](https://www.postgresql.org/docs/16/explicit-locking.html#ADVISORY-LOCKS)
+
+Carry this concrete design into Stage 2:
+
+1. **Acquire and register ownership.** Apply exclusive-only nesting, atomic, and autocommit refusal before the retained-owner fast path. Set context ownership only after actual acquisition. Preserve shared defaults and existing migration-exclusive APIs.
+
+2. **Read under exclusion.** Reload the makerspace **after acquisition**: the instance selected beforehand can contain stale logo/cover keys after a producer drains. Run fresh recovery, servability, source, purge-intent, and module-purge checks before scanning and before final writing. Keep ORM/provider reads outside application transactions holding row locks.
+
+3. **Verify and write on the retained connection.** A private runtime helper must require the matching active exclusive owner and verify original PID, advisory namespace/key, `ExclusiveLock`, `objsubid=2`, and `granted`. Never reconnect, reacquire, reset, or adopt another connection following continuity failure. The command’s `_commit` then executes constant SQL with bound total/tenant ID on that exact connection.
+
+4. **Commit exactly once.** Require exactly one affected row; otherwise roll back and refuse success. Include the existing recovery singleton’s `NORMAL` condition in the final SQL, failing closed if missing. Call `commit()` on the retained connection before reporting success. Perform no further domain writes under the expired ownership context. Failure cleanup attempts rollback and always closes. Lost commit acknowledgement means **outcome uncertain; fresh rescan required**, never “counter unchanged.”
+
+This requires no new database permissions: [the existing factory](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/gate_locks.py:144) uses default Django connection credentials, and [runtime grants](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/database_grants.py:145) permit table updates. The current `QuerySet.update()` already bypasses model save hooks/signals; this bridge preserves that behavior and the command’s existing absence of `AuditLog` writes.
+
+Extend the command-specific [`_methods` guard](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/source_gate_module_guards.py:94) to require literal `exclusive=True` and cover the actual `_commit` path. Do not register class methods in the general top-level fan-out registry.
+
+The proposed real-PostgreSQL test matrix remains required, particularly backend loss **after verification but before SET**, write-PID equality, both producer orderings, and queued migration progress. Recovery predicates do not replace actual host-restore writer quiescence.
+
+No edits, application runtime checks, or tests performed. Other dirty audit files were outside this review.

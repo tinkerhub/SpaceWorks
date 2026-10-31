@@ -1,0 +1,70 @@
+{
+  "status": "all11files independently read; runtime pending root. WarrantyAdmin is receiving separately approved host-race closure, so actual-native-form fixture admission may need a bounded correction after that source freezes.",
+  "cases": "161 cases /29 functions; no runtime executed by child",
+  "files": [
+    {
+      "path": "backend/tests/document_safety/__init__.py",
+      "sha256": "8394b2b72c1c9acc00919c22bc0b02bb8e9098451c829455352f295d3e6d7e17",
+      "lines": 1
+    },
+    {
+      "path": "backend/tests/document_safety/helpers.py",
+      "sha256": "5aebe945b2ef5c3dfb9342de4fb4fa4458f524d1853728e43f11b48bbcbe3794",
+      "lines": 215
+    },
+    {
+      "path": "backend/tests/document_safety/pg_helpers.py",
+      "sha256": "ddfa49fafb3a4da3357f22cf0d03efaf71137b53d197cacf6359c2328eeb1af2",
+      "lines": 138
+    },
+    {
+      "path": "backend/tests/document_safety/test_concurrency.py",
+      "sha256": "dc3c87f3343e6b63a0a95df8821b1d808e7d4c39b024e4da3696ea74cadc0445",
+      "lines": 130
+    },
+    {
+      "path": "backend/tests/document_safety/test_exclusion.py",
+      "sha256": "4b2ea5f0f0ea99f6d84cc8f2dd5d7affba8162cde7e12fcfc711245bdef4793e",
+      "lines": 56
+    },
+    {
+      "path": "backend/tests/document_safety/test_guards.py",
+      "sha256": "26b7dc6534d8f2b6d925bb61dc2ae3c8e0c5098df7ece7ba2dfbcce1d983f228",
+      "lines": 114
+    },
+    {
+      "path": "backend/tests/document_safety/test_module_concurrency.py",
+      "sha256": "38f69898ac4f73ee835b169a34bc0cffec91eead6ccb8e2c882cbaec3f6b5f0f",
+      "lines": 103
+    },
+    {
+      "path": "backend/tests/document_safety/test_procurement.py",
+      "sha256": "ea55c42705c0b312954d5b3bf6f08a80d0b11dca5aa785313bf164319bb07dae",
+      "lines": 173
+    },
+    {
+      "path": "backend/tests/document_safety/test_quota.py",
+      "sha256": "434185494455de8b5a5b27aeafab46ba7d94a2c4fc1b5572058c943df22a0197",
+      "lines": 182
+    },
+    {
+      "path": "backend/tests/document_safety/test_transfer_concurrency.py",
+      "sha256": "c907890f3a0e86a29c470bfb3ffecbaeb6b84ae7cd5e5ddeb955de06de721053",
+      "lines": 156
+    },
+    {
+      "path": "backend/tests/document_safety/test_warranty.py",
+      "sha256": "1e8b64b4cfdffd4435a18724a421324570abbbbbca4d0039a0a9ed56b0e69687",
+      "lines": 104
+    }
+  ],
+  "runtime_observation": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/documents-qr-native-round1.xml",
+    "junit_sha256": "249fb5e3be71a4d018600c029b3e754fbe626abdc756b64712eefeb3e83dceb7",
+    "group": "document_safety",
+    "group_cases": 161,
+    "group_failures": 0,
+    "aggregate_result": "Broader317run304passed13failed; these group modules allpassed. Overall group not yetgreen; no countsum into whole suite."
+  }
+}

@@ -2,6 +2,7 @@ from django.db import transaction
 
 from apps.audit import services as audit
 from apps.payments import stripe_client
+from apps.payments.amounts import validate_payment_amount
 from apps.payments.connect import refresh_connected_account
 from apps.payments.models import (
     MakerspacePaymentSettings,
@@ -41,8 +42,11 @@ def create_mobile_intent(payment_id, *, actor):
             raise PaymentRailConflict(
                 'The payment already uses the Checkout payment rail.'
             )
+        if payment.provider != Payment.Provider.STRIPE:
+            raise stripe_client.PaymentsUnavailable('Mobile payments require Stripe.')
+        validate_payment_amount(payment)
         source = source_for_payment(payment)
-        if source is None or not source.publishable_key:
+        if source is None or source.vendor != 'stripe' or not source.publishable_key:
             raise stripe_client.PaymentsUnavailable(
                 'Mobile payments are not configured.'
             )
@@ -117,8 +121,8 @@ def _validate_connect_source(payment, merchant):
 
 def _intent_params(payment):
     params = {
-        'amount': int(payment.amount * 100),
-        'currency': payment.currency,
+        'amount': validate_payment_amount(payment),
+        'currency': payment.currency.lower(),
         'automatic_payment_methods': {'enabled': True},
         'metadata': {
             'payment_id': str(payment.pk),

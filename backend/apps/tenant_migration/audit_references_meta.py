@@ -23,6 +23,19 @@ S = AuditReferenceDisposition.SOURCE_LOCAL_SNAPSHOT
 # name no PK map because they are provider identifiers, omitted-model identifiers, or
 # polymorphic references whose live binding must not be asserted.
 AUDIT_META_REFERENCES = {
+    # Documents are physically removable. Even an "added" event can outlive its
+    # row, so these historical IDs must never bind to an unrelated target PK.
+    **_reference(
+        S, "machines.MachineDocument",
+        ("machine.document_added", "document_id"),
+        ("machine.document_removed", "document_id"),
+    ),
+    # Deployment-local retained cleanup authority never travels with a tenant.
+    **_reference(S, "makerspaces.ModulePurgeReceipt",
+                 ("makerspace.module_purge_started", "receipt_id"),
+                 ("makerspace.module_purged", "receipt_id"),
+                 ("makerspace.module_purge_receipt_checked", "receipt_id")),
+    **_reference(S, "makerspaces.PurgeReceipt", ("makerspace.purge_receipt_checked", "receipt_id")),
     **_reference(R, "apiclients.ApiKeyRequest", ("api_client.created", "api_key_request_id")),
     **_reference(R, "apiclients.ApiClient", ("api_key_request.approved", "api_client_id")),
     **_reference(
@@ -45,6 +58,7 @@ AUDIT_META_REFERENCES = {
     **_reference(
         R, "boxes.Box", ("box.assigned", "box_id"),
         ("box.scanned", "box_id"), ("request.issued", "box_id"),
+        ("request.cancelled", "previous_box_id"),
     ),
     **_reference(
         R, "evidence.EvidencePhoto", ("evidence.attached", "evidence_id"),

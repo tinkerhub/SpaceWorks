@@ -1,0 +1,2126 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/machineService src/features/inventory/PublicRequestReferenceOwnership.test.tsx src/features/printing
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [31m❯[39m src/features/machineService/PublicMachineServicePage.test.tsx [2m([22m[2m20 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[33m 4319[2mms[22m[39m
+[31m     [31m×[31m selects types by id and submits a successful generic proposal with a private tracker[39m[33m 341[2mms[22m[39m
+[31m     [31m×[31m honors Machines type preselection and the /print wrapper defaults to the printer[39m[33m 1035[2mms[22m[39m
+[31m     [31m×[31m shows an unavailable preselection without silently choosing a different type[39m[32m 137[2mms[22m[39m
+[31m     [31m×[31m resets printer fields, files and submission errors when the selected type changes[39m[33m 1025[2mms[22m[39m
+[31m     [31m×[31m disables the type selector while uploading and submitting[39m[33m 1042[2mms[22m[39m
+     [32m✓[39m waits for the refresh-cookie probe before showing sign-in or enabling a form[32m 118[2mms[22m[39m
+     [32m✓[39m renders generic in_progress status and keeps old printer token links working[32m 94[2mms[22m[39m
+[31m     [31m×[31m reports status errors without losing the request form[39m[32m 48[2mms[22m[39m
+     [32m✓[39m recovers status through Retry status after a temporary failure: Error: Network unavailable[32m 82[2mms[22m[39m
+     [32m✓[39m recovers status through Retry status after a temporary failure: StructuredApiError: Status temporarily unavailable[32m 122[2mms[22m[39m
+     [32m✓[39m does not poll after a terminal token error (403)[32m 66[2mms[22m[39m
+     [32m✓[39m does not poll after a terminal token error (404)[32m 36[2mms[22m[39m
+     [32m✓[39m never fetches or polls status with moduleoff[32m 8[2mms[22m[39m
+     [32m✓[39m never fetches or polls status with no-token[32m 23[2mms[22m[39m
+     [32m✓[39m shows the loading catalog state without a submission form[32m 11[2mms[22m[39m
+     [32m✓[39m shows the empty catalog state without a submission form[32m 23[2mms[22m[39m
+     [32m✓[39m shows the error catalog state without a submission form[32m 19[2mms[22m[39m
+     [32m✓[39m shows the moduleoff catalog state without a submission form[32m 11[2mms[22m[39m
+     [32m✓[39m surfaces a catalog fetch failure with a retry action[32m 25[2mms[22m[39m
+     [32m✓[39m filters cached printer types when printing is disabled[32m 50[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestForm.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1319[2mms[22m[39m
+     [33m[2m✓[22m[39m uploads model and screenshot in order, pins every later call and submits the returned file ids [33m 346[2mms[22m[39m
+ [31m❯[39m src/features/machineService/PublicServiceVisitOwnership.test.tsx [2m([22m[2m8 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 1821[2mms[22m[39m
+     [33m[2m✓[22m[39m resets canonical check-in, private draft/files and lookup results before paint on A→B→A [33m 672[2mms[22m[39m
+     [32m✓[39m keeps check-in typing mounted while changing a confirmed person clears private details[32m 207[2mms[22m[39m
+     [32m✓[39m preserves a current draft across stable catalog object refreshes but resets on a type round trip[32m 300[2mms[22m[39m
+[31m     [31m×[31m creates fresh visits for changed request policy and real auth epochs[39m[32m 47[2mms[22m[39m
+     [32m✓[39m treats defaultPrinter changes as visits even when the selected catalog id stays the same[32m 138[2mms[22m[39m
+[31m     [31m×[31m releases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B[39m[32m 59[2mms[22m[39m
+[31m     [31m×[31m keeps unpublished types and off modules gated, including cached printer types[39m[32m 174[2mms[22m[39m
+     [32m✓[39m retains a successful token/banner after internal field reset and finish; old completion cannot replace B[32m 223[2mms[22m[39m
+ [31m❯[39m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx [2m([22m[2m6 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 2746[2mms[22m[39m
+     [33m[2m✓[22m[39m gates the form and sends identity with every presign and submission [33m 411[2mms[22m[39m
+     [32m✓[39m uses the same checked-in identity for generic attachments and the shared typed POST[32m 137[2mms[22m[39m
+     [32m✓[39m keeps generic input disabled while check-in is pending or unreadable[32m 88[2mms[22m[39m
+[31m     [31m×[31m leaves the existing form and request body unchanged for other policies[39m[33m 1021[2mms[22m[39m
+     [32m✓[39m asks a signed-out visitor to sign in instead of showing the form[32m 57[2mms[22m[39m
+[31m     [31m×[31m lets quantity be cleared while typing, clamps it, and resets the form after submitting[39m[33m 1030[2mms[22m[39m
+ [31m❯[39m src/features/machineService/ServiceStatusOwnership.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 364[2mms[22m[39m
+     [32m✓[39m uses an explicit encoded URL capability ahead of a saved token[32m 156[2mms[22m[39m
+     [32m✓[39m keeps legacy printer fallback and migrates it to the current same-browser storage key[32m 36[2mms[22m[39m
+     [32m✓[39m masks completion before paint on A→B→A and fences stale success/retry/storage publication[32m 59[2mms[22m[39m
+     [32m✓[39m clears a person's ephemeral completion without erasing the saved capability or reviving old callbacks[32m 24[2mms[22m[39m
+     [32m✓[39m keeps the changed URL visit current despite old completion and retry closures[32m 36[2mms[22m[39m
+     [32m✓[39m masks an auth visit's banner before paint while preserving capability compatibility across actors[32m 27[2mms[22m[39m
+[31m     [31m×[31m prevents queued success/persistence and retry work from publishing after unmount[39m[32m 25[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceSubmissionContracts.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 907[2mms[22m[39m
+     [33m[2m✓[22m[39m captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue [33m 354[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestOwnership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 533[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestReferenceOwnership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 571[2mms[22m[39m
+ [32m✓[39m src/features/printing/PublicPrintRequestForm.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 181[2mms[22m[39m
+ [32m✓[39m src/features/machineService/publicApi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/features/printing/publicApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 12 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mselects types by id and submits a successful generic proposal with a private tracker
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m111:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m title src/features/machineService/PublicMachineServicePage.test.tsx:[2m42:63[22m[39m
+    [90m 40|[39m   fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"option"[39m[33m,[39m { name }))[33m;[39m
+    [90m 41|[39m }
+    [90m 42|[39m function title(value = "Enclosure") { fireEvent.change(screen.getByLab…
+    [90m   |[39m                                                               [31m^[39m
+    [90m 43|[39m function submit() { fireEvent.click(screen.getByRole("button", { name:…
+    [90m 44|[39m
+[90m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m73:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mhonors Machines type preselection and the /print wrapper defaults to the printer
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^description/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m87:25[22m[39m
+    [90m 85|[39m   it("honors Machines type preselection and the /print wrapper default…
+    [90m 86|[39m     [35mconst[39m first [33m=[39m [34mrenderPage[39m([32m"/m/forge/machine-service?type=11"[39m)[33m;[39m
+    [90m 87|[39m     expect(await screen.findByLabelText(/^description/i)).toBeVisible(…
+    [90m   |[39m                         [31m^[39m
+    [90m 88|[39m     expect(screen.getByRole("combobox", { name: "Machine type" })).toH…
+    [90m 89|[39m     first[33m.[39m[34munmount[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mshows an unavailable preselection without silently choosing a different type
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m111:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m103:19[22m[39m
+    [90m101|[39m     expect(screen.queryByLabelText(/^title$/i)).not.toBeInTheDocument(…
+    [90m102|[39m     [35mawait[39m [34mchoose[39m([32m"Laser cutter"[39m)[33m;[39m
+    [90m103|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/^title$/i[39m))[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m104|[39m   })[33m;[39m
+    [90m105|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mresets printer fields, files and submission errors when the selected type changes
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m109:18[22m[39m
+    [90m107|[39m     submitServiceRequest.mockRejectedValue(new Error("Printer capacity…
+    [90m108|[39m     [34mrenderPage[39m([32m"/m/forge/machine-service?type=22"[39m)[33m;[39m
+    [90m109|[39m     [35mawait[39m screen[33m.[39m[34mfindByLabelText[39m([36m/^title$/i[39m)[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m110|[39m     [34mtitle[39m()[33m;[39m
+    [90m111|[39m     fireEvent.change(screen.getByLabelText(/slicer settings/i), { targ…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mdisables the type selector while uploading and submitting
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m131:18[22m[39m
+    [90m129|[39m     submitServiceRequest[33m.[39m[34mmockReturnValue[39m(request[33m.[39mpromise)[33m;[39m
+    [90m130|[39m     [34mrenderPage[39m([32m"/m/forge/machine-service?type=11"[39m)[33m;[39m
+    [90m131|[39m     [35mawait[39m screen[33m.[39m[34mfindByLabelText[39m([36m/^title$/i[39m)[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m132|[39m     [34mtitle[39m()[33m;[39m
+    [90m133|[39m     fireEvent.change(screen.getByLabelText(/^attachments/i), { target:…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicMachineServicePage.test.tsx[2m > [22mpublic machine service page[2m > [22mreports status errors without losing the request form
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inse...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m111:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicMachineServicePage.test.tsx:[2m169:19[22m[39m
+    [90m167|[39m     [34mrenderPage[39m([32m"/m/forge/machine-service?type=11&token=missing"[39m)[33m;[39m
+    [90m168|[39m     expect(await screen.findByText("Request token was not found")).toB…
+    [90m169|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([36m/^title$/i[39m))[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m170|[39m   })[33m;[39m
+    [90m171|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicServiceVisitOwnership.test.tsx[2m > [22mactual shared service page semantic visits[2m > [22mcreates fresh visits for changed request policy and real auth epochs
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toHaveValue()[22m
+
+Expected the element to have value:
+[32m[31m
+Received:
+[31m  Private A project[31m[39m
+[36m [2m❯[22m src/features/machineService/PublicServiceVisitOwnership.test.tsx:[2m101:44[22m[39m
+    [90m 99|[39m     bootstrap[33m.[39mmakerspace[33m.[39mrequest_access [33m=[39m [32m"checked_in"[39m[33m;[39m
+    [90m100|[39m     act(() => view.client.setQueryData(["tenant-bootstrap", "a"], boot…
+    [90m101|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([32m"Title"[39m))[33m.[39m[34mtoHaveValue[39m([32m""[39m)[33m;[39m
+    [90m   |[39m                                            [31m^[39m
+    [90m102|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([32m"Title"[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m103|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"private.pdf"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicServiceVisitOwnership.test.tsx[2m > [22mactual shared service page semantic visits[2m > [22mreleases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <input
+  class="block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"
+  id="_r_6v_"
+  maxlength="200"
+  required=""
+  type="text"
+  value="Private A project"
+/> instead[31m[39m
+[36m [2m❯[22m src/features/machineService/PublicServiceVisitOwnership.test.tsx:[2m132:50[22m[39m
+    [90m130|[39m     expect(screen.getByRole("combobox", { name: "Machine type" })).toB…
+    [90m131|[39m     act(() => view.client.setQueryData(["public-service-types", "a"], …
+    [90m132|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByLabelText[39m([32m"Title"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m133|[39m     expect(screen.getByRole("combobox", { name: "Machine type" })).toB…
+    [90m134|[39m     choose("Machine type", "3D Printer"); title("B still pending"); su…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/PublicServiceVisitOwnership.test.tsx[2m > [22mactual shared service page semantic visits[2m > [22mkeeps unpublished types and off modules gated, including cached printer types
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: No service types available. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab a home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/a"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab a[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 sca...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/machineService/PublicServiceVisitOwnership.test.tsx:[2m169:19[22m[39m
+    [90m167|[39m     bootstrap[33m.[39mmodules [33m=[39m [[32m"machines"[39m][33m;[39m
+    [90m168|[39m     act(() => view.client.setQueryData(["tenant-bootstrap", "a"], { ..…
+    [90m169|[39m     expect(screen.getByText("No service types available")).toBeVisible…
+    [90m   |[39m                   [31m^[39m
+    [90m170|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByLabelText[39m([32m"Title"[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m171|[39m     expect(screen.queryByRole("complementary", { name: "Service reques…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/machineService/ServiceStatusOwnership.test.tsx[2m > [22mservice tracker capabilities and ephemeral visit ownership[2m > [22mprevents queued success/persistence and retry work from publishing after unmount
+[31m[1mAssertionError[22m: expected 'queued-a' to be 'mounted-token' // Object.is equality[39m
+
+Expected: [32m"mounted-token"[39m
+Received: [31m"queued-a"[39m
+
+[36m [2m❯[22m src/features/machineService/ServiceStatusOwnership.test.tsx:[2m172:65[22m[39m
+    [90m170|[39m     act(() => { old.onSuccess("queued-a"); view.navigate("/m/b/service…
+    [90m171|[39m     [35mawait[39m screen[33m.[39m[34mfindByText[39m([32m"Status b-url"[39m)[33m;[39m
+    [90m172|[39m     expect(localStorage.getItem("tinkerspace.serviceStatus.a")).toBe("…
+    [90m   |[39m                                                                 [31m^[39m
+    [90m173|[39m     expect(localStorage.getItem("tinkerspace.serviceStatus.b")).toBe("…
+    [90m174|[39m     [35mconst[39m b [33m=[39m [34mlatest[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx[2m > [22mchecked-in public print requests[2m > [22mleaves the existing form and request body unchanged for other policies
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+ ...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+ ...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx:[2m234:32[22m[39m
+    [90m232|[39m     [34mrenderPage[39m()[33m;[39m
+    [90m233|[39m     expect(screen.queryByLabelText(/your name/i)).not.toBeInTheDocumen…
+    [90m234|[39m     [35mconst[39m title [33m=[39m [35mawait[39m screen[33m.[39m[34mfindByLabelText[39m([36m/^title$/i[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m235|[39m     [34mexpect[39m(title)[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m236|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx[2m > [22mchecked-in public print requests[2m > [22mlets quantity be cleared while typing, clamps it, and resets the form after submitting
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+ ...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Forge home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/forge"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mForge[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machines"[39m
+              [36m>[39m
+                [0mMachines[0m
+              [36m</a>[39m
+            [36m</li>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/forge/machine-service"[39m
+              [36m>[39m
+                [0mService requests[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+ ...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx:[2m257:32[22m[39m
+    [90m255|[39m   it("lets quantity be cleared while typing, clamps it, and resets the…
+    [90m256|[39m     [34mrenderPage[39m()[33m;[39m
+    [90m257|[39m     [35mconst[39m title [33m=[39m [35mawait[39m screen[33m.[39m[34mfindByLabelText[39m([36m/^title$/i[39m)[33m;[39m
+    [90m   |[39m                                [31m^[39m
+    [90m258|[39m     [35mconst[39m quantity [33m=[39m screen[33m.[39m[34mgetByLabelText[39m([36m/^quantity$/i[39m)[33m;[39m
+    [90m259|[39m     fireEvent[33m.[39m[34mchange[39m(title[33m,[39m { target[33m:[39m { value[33m:[39m [32m"Bracket"[39m } })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[31m12 failed[39m[22m[2m | [22m[1m[32m66 passed[39m[22m[90m (78)[39m
+[2m   Start at [22m 20:22:37
+[2m   Duration [22m 28.93s[2m (transform 1.43s, setup 1.90s, import 4.59s, tests 12.78s, environment 8.25s)[22m
+

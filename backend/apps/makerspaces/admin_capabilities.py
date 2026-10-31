@@ -108,13 +108,53 @@ class MakerspaceAdminForm(ImageMakerspaceAdminForm):
             modules, features = validate_capabilities(modules, features)
         except Exception as exc:
             raise forms.ValidationError(exc.messages) from exc
+        added_modules = set(modules) - set(self.capability_before["modules"])
+        if self.instance.pk and added_modules:
+            from apps.makerspaces.models import ModulePurgeReceipt
+
+            if ModulePurgeReceipt.objects.filter(
+                source_makerspace_id=self.instance.pk,
+                module_key__in=added_modules,
+                invalidated_at__isnull=True,
+                graph_purged_at__isnull=True,
+            ).exists():
+                raise forms.ValidationError(
+                    "Finish the module purge intent before reinstalling this module."
+                )
         self.instance.enabled_modules = modules
         self.instance.enabled_features = features
         return values
 
 
 class MakerspaceCapabilityAdminMixin:
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        from apps.tenant_migration.gate_runtime import boundary_tenant_write
+        from apps.makerspaces.module_purge_state import validate_maker_id
+
+        if request.method == "POST" and object_id is not None:
+            raw = str(object_id)
+            if not (0 < len(raw) <= 10 and raw.isascii() and raw.isdecimal() and raw[0] != "0"):
+                from django.http import HttpResponseBadRequest
+
+                return HttpResponseBadRequest("A bounded makerspace ID is required.")
+            maker_id = int(raw)
+            validate_maker_id(maker_id)
+            # Enter before ModelAdmin opens its form transaction or saves a row.
+            with boundary_tenant_write(maker_id):
+                return super().changeform_view(request, object_id, form_url, extra_context)
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
     def save_model(self, request, obj, form, change):
+        if change:
+            from apps.tenant_migration.gate_runtime import assert_boundary_held
+            from apps.makerspaces.models import Makerspace
+            from apps.makerspaces.module_purge_state import enabling_modules
+
+            # A direct save_model invocation cannot borrow the normal form's
+            # authority. No fresh shared connection is acquired after row locks.
+            assert_boundary_held(obj.pk)
+            locked = Makerspace.objects.select_for_update().get(pk=obj.pk)
+            enabling_modules(locked, obj.enabled_modules)
         super().save_model(request, obj, form, change)
         before = getattr(form, "capability_before", {"modules": [], "features": []})
         after = {

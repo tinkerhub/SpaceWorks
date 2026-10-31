@@ -47,10 +47,9 @@ def test_truncated_and_garbage_bytes_are_invalid():
 
 
 def test_public_image_sniff_reports_a_bomb_as_invalid(monkeypatch, settings):
-    body = Mock()
-    body.read.return_value = _png_with_dimensions(100_000, 100_000)
+    body = BytesIO(_png_with_dimensions(100_000, 100_000))
     client = Mock()
-    client.get_object.return_value = {"Body": body}
+    client.get_object.return_value = {"Body": body, "ContentType": "image/png"}
     monkeypatch.setattr(public_image_sniff, "_client", lambda: client)
 
     assert public_image_sniff.sniff_is_valid_image("items/1/bomb.png") is False

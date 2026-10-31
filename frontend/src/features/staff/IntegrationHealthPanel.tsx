@@ -8,6 +8,7 @@ import { staffRequest } from "../../lib/api";
 import { moduleEnabled } from "../../lib/modules";
 import type { Makerspace } from "./panels/shared";
 import { staffTabPath } from "./staffTabs";
+import { ChatDestinationRows, type ChatDestinationsHealth } from "./IntegrationHealthDestinations";
 
 type HealthStatus = "ok" | "warn" | "error" | "unknown";
 
@@ -42,6 +43,7 @@ type IntegrationHealth = {
     last_sent_at?: string | null;
     last_failure?: { at: string; detail: string } | null;
   };
+  chat_destinations?: ChatDestinationsHealth;
   worker: SectionHealth & {
     broker_configured?: boolean;
     eager?: boolean;
@@ -69,7 +71,11 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
   const telegramOn = moduleEnabled(makerspace.enabled_modules, "telegram");
   const emailOn = moduleEnabled(makerspace.enabled_modules, "email");
   const printingOn = moduleEnabled(makerspace.enabled_modules, "printing");
-  const description = healthDescription(emailOn, telegramOn);
+  const otherChatOn = ["slack", "mattermost", "discord"]
+    .some((channel) => moduleEnabled(makerspace.enabled_modules, channel));
+  const description = otherChatOn
+    ? `${emailOn ? "Email, chat" : "Chat"} destinations and background worker status. Refreshes every minute.`
+    : healthDescription(emailOn, telegramOn);
 
   return (
     <Card as="section" aria-labelledby="integration-health-title">
@@ -133,6 +139,7 @@ export function IntegrationHealthPanel({ makerspace, singleTenantLocked = false 
                   ) : null}
                 </HealthRow>
               ) : null}
+              <ChatDestinationRows section={data.chat_destinations} enabledModules={makerspace.enabled_modules} relativeTime={relativeTime} />
               <HealthRow title="Worker" section={data.worker}>
                 <span className={data.worker.stale ? "text-danger-fg" : undefined}>
                   Broker: {data.worker.broker_configured ? "Configured" : "Eager only"} · Eager: {data.worker.eager ? "On" : "Off"} ·

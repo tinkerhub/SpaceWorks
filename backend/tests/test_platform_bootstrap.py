@@ -12,6 +12,7 @@ from tests.return_helpers import make_member, make_product, make_space, make_use
 pytestmark = pytest.mark.django_db
 
 
+@override_settings(PLATFORM_STAFF_ORIGINS=[])
 def test_bootstrap_resolves_public_code_without_private_fields():
     makerspace = make_space("platform-a")
     makerspace.enabled_modules = ["public_inventory", "request_workflow"]

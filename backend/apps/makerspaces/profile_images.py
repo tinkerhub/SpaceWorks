@@ -7,7 +7,10 @@ blanks the other.
 """
 
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
+from apps.object_storage_lifecycle import storage_lifecycle
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from apps.makerspaces.guards import require_module
+from apps.makerspaces.member_activity_service import active_membership
 
 from apps.audit import services as audit
 from apps.inventory import public_image_storage
@@ -17,18 +20,13 @@ IMAGE_KIND = "member"
 
 
 def _swap(
-    makerspace, holder, field, object_key, *, profile, profile_id=None, project_id=None,
+    makerspace, holder, field, object_key, *, profile, profile_id=None, project_id=None, size_bytes=0, guard=None,
 ):
-    # HEADed before any lock is taken: an S3 round trip while a row lock is held turns a
-    # slow bucket into lock contention.
-    new_size = public_image_storage.object_size(object_key) if object_key else 0
-    # `member` is the ONE image kind with two holder tables -- an avatar on the profile
-    # and an image on each of its projects -- so a row lock on the holder alone cannot
-    # serialize a profile's claim against its own project's. Locking the PROFILE does,
-    # because every member-kind key belongs to exactly one profile. A tenant-wide lock
-    # would also work and is deliberately not taken: it would serialize every image
-    # upload in the space against every other, including on self-host where
-    # `limits.add_storage` takes no makerspace lock at all today.
+    guard.verify(makerspace.pk)
+    membership = active_membership(profile.membership.user, makerspace.pk)
+    if membership is None or membership.pk != profile.membership_id:
+        raise PermissionDenied()
+    require_module(makerspace.pk, "membership")
     profile = type(profile).objects.select_for_update().get(pk=profile.pk)
     # Re-read under a row lock inside the caller's transaction. The holder was fetched
     # before it, so two overlapping replacements would both see the same `old_key`:
@@ -47,42 +45,58 @@ def _swap(
     ):
         raise ValidationError({"object_key": "This image is already in use."})
     if object_key:
-        limits.add_storage(makerspace, new_size or 0)
+        limits.add_storage(makerspace, size_bytes)
     if old_key:
-        public_image_storage.release_public_image_on_commit(makerspace, old_key)
+        public_image_storage.release_public_image_on_commit(makerspace, old_key, guard=guard)
     setattr(holder, field, object_key)
     holder.save(update_fields=[field, "updated_at"])
     return holder
 
 
-@transaction.atomic
-def set_avatar(profile, object_key):
-    membership = profile.membership
-    result = _swap(
-        membership.makerspace,
-        profile,
-        "avatar_key",
-        object_key,
-        profile=profile,
-        profile_id=profile.pk,
-    )
-    _audit_image(membership, "avatar", None, object_key)
-    return result
+def set_avatar(profile, object_key, *, size_bytes=None, guard=None):
+    with storage_lifecycle(profile.membership.makerspace_id, guard=guard) as owned:
+        if object_key and size_bytes is None:
+            result = public_image_storage.finalize_upload(object_key)
+            if result.status != "ok":
+                raise ValidationError({"object_key": public_image_storage.finalize_error_message(result)})
+            size_bytes = result.size
+        owned.verify()
+        with transaction.atomic():
+            membership = profile.membership
+            result = _swap(
+                membership.makerspace,
+                profile,
+                "avatar_key",
+                object_key,
+                profile=profile,
+                size_bytes=size_bytes, guard=owned,
+                profile_id=profile.pk,
+            )
+            _audit_image(membership, "avatar", None, object_key)
+            return result
 
 
-@transaction.atomic
-def set_project_image(profile, project, object_key):
-    membership = profile.membership
-    result = _swap(
-        membership.makerspace,
-        project,
-        "image_key",
-        object_key,
-        profile=profile,
-        project_id=project.pk,
-    )
-    _audit_image(membership, "project", project.pk, object_key)
-    return result
+def set_project_image(profile, project, object_key, *, size_bytes=None, guard=None):
+    with storage_lifecycle(profile.membership.makerspace_id, guard=guard) as owned:
+        if object_key and size_bytes is None:
+            result = public_image_storage.finalize_upload(object_key)
+            if result.status != "ok":
+                raise ValidationError({"object_key": public_image_storage.finalize_error_message(result)})
+            size_bytes = result.size
+        owned.verify()
+        with transaction.atomic():
+            membership = profile.membership
+            result = _swap(
+                membership.makerspace,
+                project,
+                "image_key",
+                object_key,
+                profile=profile,
+                size_bytes=size_bytes, guard=owned,
+                project_id=project.pk,
+            )
+            _audit_image(membership, "project", project.pk, object_key)
+            return result
 
 
 def _audit_image(membership, kind, project_id, object_key):
@@ -101,11 +115,11 @@ def _audit_image(membership, kind, project_id, object_key):
     )
 
 
-def clear_project_image(profile, project):
+def clear_project_image(profile, project, *, guard=None):
     """Release a project's image without deleting the row.
 
     Called from the project-replace path as well as the explicit clear, so a project the
     member removed does not strand its object in the bucket with nothing left to name it.
     """
     if project.image_key:
-        set_project_image(profile, project, "")
+        set_project_image(profile, project, "", guard=guard)

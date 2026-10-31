@@ -1,0 +1,21 @@
+**APPROVE — Stage1 EVID-S07 addendum only.** No mandatory correction.
+
+In `retention_policy.py`, use explicit Django ordering:
+
+```python
+.order_by(
+    F("object_retention_state__updated_at").asc(nulls_first=True),
+    "created_at",
+    "pk",
+)
+```
+
+Import `F` alongside the existing ORM expressions.
+
+The code confirms `_claim` and `_release` refresh state `updated_at` after actual attempts. This ordering moves permanent failures behind untouched candidates and rotates existing attempted states by oldest timestamp. The one-to-one relation preserves candidate cardinality; eligibility filters and preview totals remain unchanged.
+
+Keep the specified S02 policy/PROMOTING/lease fences, S03 quota proof, bounded summaries, and partial-failure EXPIRING fence untouched.
+
+The proposed root-owned Stage3 proof is appropriate: cover final-key failure and staging-key failure after final deletion, second-sweep progress, truthful counts, and no expiry audit or quota credit for failed photos. Also verify ordering among existing retry states and stable ties without rewriting photo metadata.
+
+Read-only review completed; no edits, tests, builds, migrations, or provider calls. This is not Stage4 or full-ledger approval.

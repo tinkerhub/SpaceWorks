@@ -1,12 +1,10 @@
-import { useMemo, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
-import { Card, useToast } from "../../components/ui";
+import { Card } from "../../components/ui";
+import { getSessionGeneration } from "../../lib/apiSession";
 import type { RequestCartItem } from "../../types/inventory";
-import { BorrowRequestCard } from "./BorrowRequestCard";
-import { submitPublicRequest, type CheckinMatch } from "./api";
-import { CheckinIdentityStep } from "./CheckinIdentityStep";
-import { invalidatePublicInventory } from "../staff/queryInvalidation";
+import { PublicBorrowCompletion, PublicBorrowRequest, type BorrowCompletion } from "./PublicBorrowRequest";
+import { useAuthActionOwner } from "../auth/useAuthActionOwner";
 import { PublicRequestHeader, type DeskIdentity } from "./PublicRequestHeader";
 import { useCheckinProvider } from "./useCheckinProvider";
 import { usePublicSession } from "./usePublicSession";
@@ -16,7 +14,7 @@ import { RequestDeskTabs, type ActiveTab } from "./RequestDeskTabs";
 type PublicRequestPanelProps = {
   items: RequestCartItem[];
   makerspaceSlug: string;
-  onClear: () => void;
+  onClear: (admitted?: RequestCartItem[]) => void;
   disabled?: boolean;
   // The makerspace's policy, not the caller's state. Present only when the space opted
   // into account-less borrow requests.
@@ -34,234 +32,69 @@ type PublicRequestPanelProps = {
   requestStatusHref?: string;
 };
 
-// The header is required for account-less submissions, and it is what makes a retry
-// idempotent: the same key with the same payload returns the original request. Held for
-// the lifetime of one composed request and rotated only after a successful submit, so a
-// network retry of the SAME attempt cannot create a second request.
-function newIdempotencyKey() {
-  const cryptoRef = globalThis.crypto;
-  if (cryptoRef && typeof cryptoRef.randomUUID === "function") {
-    return cryptoRef.randomUUID();
-  }
-  return `req-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+export function PublicRequestPanel(props: PublicRequestPanelProps) {
+  const session = usePublicSession(props.makerspaceSlug, props.requestAccess !== "checked_in" && !props.disabled);
+  // The public selection is outside this boundary and may survive same-Maker sign-in.
+  const scope = JSON.stringify([props.makerspaceSlug, getSessionGeneration(), props.requestAccess,
+    props.membershipOn, props.disabled]);
+  return <PublicRequestDesk key={scope} {...props} session={session} />;
 }
 
-export function PublicRequestPanel({
-  items,
-  makerspaceSlug,
-  onClear,
-  disabled = false,
-  requestAccess,
-  membershipOn = false,
-  selfCheckout = false,
-  memberAccountsOn = true,
-  memberAreaHref,
-  requestStatusHref,
-}: PublicRequestPanelProps) {
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
+function PublicRequestDesk({
+  items, makerspaceSlug, onClear, disabled = false, requestAccess, membershipOn = false,
+  selfCheckout = false, memberAccountsOn = true, memberAreaHref, requestStatusHref, session,
+}: PublicRequestPanelProps & { session: ReturnType<typeof usePublicSession> }) {
+  const completionOwner = useAuthActionOwner(makerspaceSlug);
+  const [completion, setCompletion] = useState<(BorrowCompletion & { context: typeof completionOwner.context }) | null>(null);
+  const [draftVisit, setDraftVisit] = useState(0);
+  const visibleCompletion = completion?.context === completionOwner.context ? completion : null;
+  const clearCompletion = () => { if (completionOwner.isContextCurrent()) setCompletion(null); };
   const [selectedTab, setActiveTab] = useState<ActiveTab>("borrow");
-  // Self-checkout off the roster runs `require_active_member_presence`, which no caller
-  // can satisfy with `membership` off -- so the tab is offered only where it can work.
   const scanAvailable = selfCheckout && (requestAccess === "checked_in" || membershipOn);
-  const activeTab: ActiveTab = scanAvailable ? selectedTab : "borrow";
-  const [requestedFor, setRequestedFor] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [contactName, setContactName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [website, setWebsite] = useState("");
-  const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(null);
-  // Remounts the identity step so the previous person's typed name and matches go too.
-  const [checkinStepKey, setCheckinStepKey] = useState(0);
-  const [publicToken, setPublicToken] = useState("");
-  const idempotencyKey = useRef(newIdempotencyKey());
-  // Without the probe a reloaded member would be classified as anonymous and their request
-  // filed against the SHARED anonymous principal, which every per-person view excludes. On
-  // `checked_in` the roster is the identity for everyone, so there is nothing to probe.
-  const { authenticated, settled: sessionSettled } = usePublicSession(
-    makerspaceSlug,
-    requestAccess !== "checked_in" && !disabled,
-  );
-  // Policy AND caller state. `tenantPublicRequest` still attaches Authorization when a
-  // token is in memory, and the backend then takes the AUTHENTICATED branch and ignores
-  // these contact fields -- so asking for them would promise something the stored request
-  // does not honour. Until the probe settles we assume a member: claiming "no account
-  // needed" and then discovering a session would be the worse way round.
-  const accountLess =
-    requestAccess === "anyone" && sessionSettled && !authenticated;
-  // Mirrors `RequestSubmitView`: the roster on `checked_in` for everyone (a signed-in
-  // account, staff included, is not a bypass), contact details on `anyone` without a
-  // session, otherwise the caller's own account (membership, waiver and presence only
-  // with `membership` on).
+  const activeTab = scanAvailable ? selectedTab : "borrow";
+  const { authenticated, settled: sessionSettled } = session;
   const checkedIn = requestAccess === "checked_in";
-  const checkinProvider = useCheckinProvider(makerspaceSlug);
-  // The `accounts` and `members` policies with nobody signed in: the backend can only 401,
-  // so the desk says where to sign in -- or, with no member accounts, that there is nowhere.
+  const accountLess = requestAccess === "anyone" && sessionSettled && !authenticated;
   const signedOut = !requestAccess && sessionSettled && !authenticated;
-  const borrowIdentity: DeskIdentity = checkedIn
-    ? "checkin"
-    : accountLess
-      ? "contact"
-      : signedOut && !memberAccountsOn
-        ? "desk"
-        : signedOut && !membershipOn
-          ? "signin"
-          : requestAccess || !membershipOn
-            ? "account"
-            : "member";
-  const totalItems = useMemo(
-    () => items.reduce((total, item) => total + item.quantity, 0),
-    [items],
-  );
-
-  const submitMutation = useMutation({
-    mutationFn: () =>
-      submitPublicRequest(
-        makerspaceSlug,
-        {
-          requested_for: requestedFor.trim(),
-          items: items.map((item) => ({
-            product_id: item.productId,
-            quantity: item.quantity,
-          })),
-          website,
-          ...(accountLess
-            ? {
-                contact_name: contactName.trim(),
-                contact_email: contactEmail.trim(),
-                contact_phone: contactPhone.trim(),
-              }
-            : {}),
-          // No contact fields on this policy: identity is the roster match.
-          ...(checkedIn && confirmedCheckin
-            ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
-            : {}),
-        },
-        accountLess || checkedIn ? idempotencyKey.current : undefined,
-      ),
-    // The previous banner and token must not survive into the next attempt: if this one
-    // fails, showing the error beside a stale token invites the requester to save the
-    // wrong reference -- and it is their only route back to the request.
-    onMutate: () => {
-      setSubmitted(false);
-      setPublicToken("");
-    },
-    onSuccess: (response) => {
-      invalidatePublicInventory(queryClient, makerspaceSlug);
-      // Kept before the form is cleared: this token is the account-less requester's only
-      // way back to the request.
-      setPublicToken(response?.public_token ?? "");
-      setSubmitted(true);
-      onClear();
-      setContactName("");
-      setContactEmail("");
-      setContactPhone("");
-      setRequestedFor("");
-      setWebsite("");
-      // A kiosk serves a queue of people: the next one must not inherit this identity.
-      setConfirmedCheckin(null);
-      setCheckinStepKey((key) => key + 1);
-      // Only after the server accepted it: reusing the key for the NEXT request would
-      // return this one back instead of creating anything.
-      idempotencyKey.current = newIdempotencyKey();
-      showToast("Request submitted", { tone: "success" });
-    },
-    onError: () => showToast("Your request was not submitted", { tone: "error" }),
-  });
-
-  const contactReady =
-    !accountLess ||
-    (contactName.trim().length > 0 && contactEmail.trim().length > 0);
-  // On the checked-in policy the confirmed roster entry IS the identity, so submitting
-  // without one would post a request the backend can only refuse.
-  const identityReady = !checkedIn || confirmedCheckin !== null;
-  // While the probe is unresolved `accountLess` is still false, so `contactReady` is
-  // vacuously true and the button would go live before the contact fields exist. On a
-  // slow refresh a visitor could submit a member-shaped body and take a 400.
-  const policyResolved = checkedIn || sessionSettled;
-  const canSubmit =
-    !signedOut &&
-    requestedFor.trim().length > 0 &&
-    items.length > 0 &&
-    contactReady &&
-    identityReady &&
-    policyResolved &&
-    !submitMutation.isPending;
+  const checkinProvider = useCheckinProvider(makerspaceSlug);
+  const borrowIdentity: DeskIdentity = checkedIn ? "checkin" : accountLess ? "contact"
+    : signedOut && !memberAccountsOn ? "desk" : signedOut && !membershipOn ? "signin"
+      : requestAccess || !membershipOn ? "account" : "member";
 
   return (
-    <aside className="space-y-4 md:sticky md:top-20 md:flex md:max-h-[calc(100dvh-6rem)] md:flex-col md:overflow-hidden">
+    <aside className="min-w-0 space-y-4">
       {disabled ? (
         <Card>
           <p className="text-body-ui text-ink-muted">Requests</p>
           <h2 className="mt-1 text-h4 text-ink">Unavailable</h2>
-          <p className="mt-2 text-body-ui text-ink-secondary">
-            This makerspace is publishing inventory without public requests.
-          </p>
+          <p className="mt-2 text-body-ui text-ink-secondary">This makerspace is publishing inventory without public requests.</p>
         </Card>
       ) : (
         <>
-          <PublicRequestHeader
-            appearsIn={checkinProvider.appearsIn}
-            tab={activeTab}
-            identity={activeTab === "scan" ? (requestAccess === "checked_in" ? "checkin" : "member") : borrowIdentity}
-            requestAccess={requestAccess}
-            // A signed-in caller is only known NOT to be a member here once the probe
-            // settles; until then the borrow desk must not tell staff they are outsiders.
-            authenticated={authenticated}
-            signInHref={signedOut && memberAccountsOn ? memberAreaHref : undefined}
-          />
-
+          <PublicRequestHeader appearsIn={checkinProvider.appearsIn} tab={activeTab}
+            identity={activeTab === "scan" ? (checkedIn ? "checkin" : "member") : borrowIdentity}
+            requestAccess={requestAccess} authenticated={authenticated}
+            signInHref={signedOut && memberAccountsOn ? memberAreaHref : undefined} />
           {scanAvailable ? <RequestDeskTabs activeTab={activeTab} onChange={setActiveTab} /> : null}
-
-          <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
+          <div className="min-w-0">
             {activeTab === "borrow" ? (
-              <div
-                id="public-request-borrow-panel"
-              >
-                {checkedIn ? (
-                  <div className="mb-4">
-                    <CheckinIdentityStep
-                      key={checkinStepKey}
-                      makerspaceSlug={makerspaceSlug}
-                      confirmed={confirmedCheckin}
-                      onConfirm={setConfirmedCheckin}
-                      disabled={submitMutation.isPending}
-                    />
-                  </div>
-                ) : null}
-                <BorrowRequestCard
-                  canSubmit={canSubmit}
-                  items={items}
-                  requestedFor={requestedFor}
-                  submitError={submitMutation.error?.message}
-                  submitPending={submitMutation.isPending}
-                  submitted={submitted}
-                  totalItems={totalItems}
-                  onClear={onClear}
-                  onRequestedForChange={setRequestedFor}
-                  onSubmit={() => submitMutation.mutate()}
-                  identity={borrowIdentity}
-                  contactName={contactName}
-                  contactEmail={contactEmail}
-                  contactPhone={contactPhone}
-                  onContactNameChange={setContactName}
-                  onContactEmailChange={setContactEmail}
-                  onContactPhoneChange={setContactPhone}
-                  website={website}
-                  onWebsiteChange={setWebsite}
-                  publicToken={publicToken}
-                  statusHref={requestStatusHref}
-                />
+              <div id="public-request-borrow-panel">
+                <PublicBorrowRequest key={draftVisit} slug={makerspaceSlug} items={items} identity={borrowIdentity}
+                  checkedIn={checkedIn} accountLess={accountLess} ready={!signedOut && (checkedIn || sessionSettled)}
+                  onClear={onClear} onNewDraft={clearCompletion}
+                  onComplete={(response, tokenOnly, persistence) => {
+                    if (completionOwner.isContextCurrent()) setCompletion({ response, tokenOnly, persistence, context: completionOwner.context });
+                  }} />
+                {visibleCompletion ? <PublicBorrowCompletion completion={visibleCompletion} statusHref={requestStatusHref}
+                  onStart={() => {
+                    if (!completionOwner.isContextCurrent()) return;
+                    clearCompletion(); setDraftVisit((current) => current + 1);
+                  }} /> : null}
               </div>
             ) : null}
-
             {activeTab === "scan" ? (
               <div id="public-request-scan-panel">
-                <PublicToolScanPanel
-                  makerspaceSlug={makerspaceSlug}
-                  requiresCheckin={requestAccess === "checked_in"}
-                />
+                <PublicToolScanPanel makerspaceSlug={makerspaceSlug} requiresCheckin={checkedIn} />
               </div>
             ) : null}
           </div>

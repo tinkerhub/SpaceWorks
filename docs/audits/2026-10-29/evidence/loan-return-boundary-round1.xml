@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="70" time="33.136" timestamp="2026-10-29T19:57:34.929110+00:00" hostname="e188375ceca7"><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_api_refuses_real_loan_before_promotion[public]" time="3.077" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_api_refuses_real_loan_before_promotion[direct]" time="0.362" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_service_also_refuses_real_loan[public]" time="0.725" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_service_also_refuses_real_loan[direct]" time="0.422" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_keeps_permission_and_tenant_boundary[member-403]" time="0.246" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_keeps_permission_and_tenant_boundary[foreign-manager-404]" time="0.404" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_does_not_trust_cached_absent_loan" time="0.229" /><testcase classname="tests.test_loan_return_boundary" name="test_reviewed_return_rechecks_association_after_real_promotion" time="0.302" /><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_refuses_historical_reviewed_resolution[legacy-damaged]" time="0.378"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5592, product, 1250) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace9070&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5592, 'd3911fe4b89343489b4ff6a8f975685a', QrCode.TargetType.PRODUCT, 1250, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace9070&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5592, product, 1250) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9acb7da0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9acb76e0&gt;
+outcome = 'damaged'
+
+    @pytest.mark.parametrize("outcome", ["damaged", "missing"], ids=["legacy-damaged", "legacy-lost"])
+    def test_public_return_refuses_historical_reviewed_resolution(monkeypatch, settings, outcome):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace9070&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5592, 'd3911fe4b89343489b4ff6a8f975685a', QrCode.TargetType.PRODUCT, 1250, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace9070&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5592, product, 1250) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_refuses_historical_reviewed_resolution[legacy-lost]" time="0.157"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5593, product, 1251) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac8df10&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5593, '5947244a73d44d508e35c017c03aed07', QrCode.TargetType.PRODUCT, 1251, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac8df10&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5593, product, 1251) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac6c470&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac6da00&gt;
+outcome = 'missing'
+
+    @pytest.mark.parametrize("outcome", ["damaged", "missing"], ids=["legacy-damaged", "legacy-lost"])
+    def test_public_return_refuses_historical_reviewed_resolution(monkeypatch, settings, outcome):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac8df10&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5593, '5947244a73d44d508e35c017c03aed07', QrCode.TargetType.PRODUCT, 1251, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac8df10&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5593, product, 1251) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_service_refuses_inconsistent_backing_ledger[status-only]" time="0.198"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5594, product, 1252) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9f5eb170&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5594, '44ebad8e84c84a7b8e7b0932213969f1', QrCode.TargetType.PRODUCT, 1252, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9f5eb170&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5594, product, 1252) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac6d280&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac6c0e0&gt;
+variant = 'status-only'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only", "needs-fix-only", "accepted-mismatch"])
+    def test_public_return_service_refuses_inconsistent_backing_ledger(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9f5eb170&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5594, '44ebad8e84c84a7b8e7b0932213969f1', QrCode.TargetType.PRODUCT, 1252, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9f5eb170&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5594, product, 1252) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_service_refuses_inconsistent_backing_ledger[returned-only]" time="0.206"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5595, product, 1253) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac6d8b0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5595, '4e3641101cea4c7296e5f1fbf53042b3', QrCode.TargetType.PRODUCT, 1253, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac6d8b0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5595, product, 1253) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac8ecc0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac8eb70&gt;
+variant = 'returned-only'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only", "needs-fix-only", "accepted-mismatch"])
+    def test_public_return_service_refuses_inconsistent_backing_ledger(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac6d8b0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5595, '4e3641101cea4c7296e5f1fbf53042b3', QrCode.TargetType.PRODUCT, 1253, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ac6d8b0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5595, product, 1253) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_service_refuses_inconsistent_backing_ledger[needs-fix-only]" time="0.195"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5596, product, 1254) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca6ab0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5596, 'eac6aa99c9d8450faf621cba57f904c0', QrCode.TargetType.PRODUCT, 1254, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca6ab0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5596, product, 1254) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac43020&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac8d010&gt;
+variant = 'needs-fix-only'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only", "needs-fix-only", "accepted-mismatch"])
+    def test_public_return_service_refuses_inconsistent_backing_ledger(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca6ab0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5596, 'eac6aa99c9d8450faf621cba57f904c0', QrCode.TargetType.PRODUCT, 1254, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca6ab0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5596, product, 1254) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_service_refuses_inconsistent_backing_ledger[accepted-mismatch]" time="0.157"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5597, product, 1255) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9accd3a0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5597, '24febbe17bbc4c5d9bddd85c1a842430', QrCode.TargetType.PRODUCT, 1255, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9accd3a0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5597, product, 1255) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac8e7e0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac8d280&gt;
+variant = 'accepted-mismatch'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only", "needs-fix-only", "accepted-mismatch"])
+    def test_public_return_service_refuses_inconsistent_backing_ledger(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9accd3a0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5597, '24febbe17bbc4c5d9bddd85c1a842430', QrCode.TargetType.PRODUCT, 1255, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9accd3a0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5597, product, 1255) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_rechecks_ledger_after_real_promotion[status-only]" time="0.201"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5598, product, 1256) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca7680&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5598, '1f2d8f878b25477da2640a7ef8df8be9', QrCode.TargetType.PRODUCT, 1256, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca7680&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5598, product, 1256) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9ac6e300&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9accc5c0&gt;
+variant = 'status-only'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only"])
+    def test_public_return_rechecks_ledger_after_real_promotion(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca7680&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5598, '1f2d8f878b25477da2640a7ef8df8be9', QrCode.TargetType.PRODUCT, 1256, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9aca7680&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5598, product, 1256) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_public_return_rechecks_ledger_after_real_promotion[returned-only]" time="0.168"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5599, product, 1257) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace54c0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5599, 'da18b5f947d64003b7365b819ca158a3', QrCode.TargetType.PRODUCT, 1257, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace54c0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5599, product, 1257) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9acd67e0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ac6c3e0&gt;
+variant = 'returned-only'
+
+    @pytest.mark.parametrize("variant", ["status-only", "returned-only"])
+    def test_public_return_rechecks_ledger_after_real_promotion(monkeypatch, settings, variant):
+&gt;       lab, bad, qr, other, other_qr = _two_public_loans(monkeypatch, settings)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_public_return_ledger_integrity.py:29: in _two_public_loans
+    other, other_qrs = checkout_public(lab, borrower=other_user)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace54c0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5599, 'da18b5f947d64003b7365b819ca158a3', QrCode.TargetType.PRODUCT, 1257, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ace54c0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5599, product, 1257) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_canonical_secondary_qr_returns_whole_batch_exactly_once[normal]" time="0.062"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5600, product, 1258) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab06090&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5600, 'e63ec24e0f754280b677ac45566ecc0d', QrCode.TargetType.PRODUCT, 1258, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab06090&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5600, product, 1258) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9acd5430&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9aca6a50&gt;
+report_problem = False
+
+    @pytest.mark.parametrize("report_problem", [False, True], ids=["normal", "problem-report"])
+    def test_canonical_secondary_qr_returns_whole_batch_exactly_once(monkeypatch, settings, report_problem):
+        lab = make_boundary_lab(monkeypatch, settings)
+&gt;       loan, qrs = checkout_public(lab, count=2)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab06090&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5600, 'e63ec24e0f754280b677ac45566ecc0d', QrCode.TargetType.PRODUCT, 1258, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab06090&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5600, product, 1258) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_public_return_ledger_integrity" name="test_canonical_secondary_qr_returns_whole_batch_exactly_once[problem-report]" time="0.071"><failure message="django.db.utils.IntegrityError: duplicate key value violates unique constraint &quot;uniq_active_qr_per_target&quot;&#10;DETAIL:  Key (makerspace_id, target_type, target_id)=(5601, product, 1259) already exists.">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab076b0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5601, 'cc2558cdbee84a1ca44054e5425388d0', QrCode.TargetType.PRODUCT, 1259, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab076b0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5601, product, 1259) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff9acd5be0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff9ace67e0&gt;
+report_problem = True
+
+    @pytest.mark.parametrize("report_problem", [False, True], ids=["normal", "problem-report"])
+    def test_canonical_secondary_qr_returns_whole_batch_exactly_once(monkeypatch, settings, report_problem):
+        lab = make_boundary_lab(monkeypatch, settings)
+&gt;       loan, qrs = checkout_public(lab, count=2)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_public_return_ledger_integrity.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/loan_return_boundary_helpers.py:45: in checkout_public
+    qrs = [make_qr(lab.space, lab.product) for _ in range(count)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_public_self_checkout.py:37: in make_qr
+    return QrCode.objects.create(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:669: in create
+    obj.save(force_insert=True, using=self.db)
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:874: in save
+    self.save_base(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:966: in save_base
+    updated = self._save_table(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/base.py:1220: in _do_insert
+    return manager._insert(
+/usr/local/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:1918: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1925: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab076b0&gt;
+sql = 'INSERT INTO "boxes_qrcode" ("makerspace_id", "payload", "target_type", "target_id", "status", "created_by_id", "revoked_at", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING "boxes_qrcode"."id"'
+params = (5601, 'cc2558cdbee84a1ca44054e5425388d0', QrCode.TargetType.PRODUCT, 1259, QrCode.Status.ACTIVE, None, ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffff9ab076b0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.IntegrityError: duplicate key value violates unique constraint "uniq_active_qr_per_target"
+E               DETAIL:  Key (makerspace_id, target_type, target_id)=(5601, product, 1259) already exists.
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: IntegrityError</failure></testcase><testcase classname="tests.test_inventory_lending_reconciliation" name="test_public_and_staff_counts_follow_reviewed_lifecycle[containerless-quantity]" time="2.840" /><testcase classname="tests.test_inventory_lending_reconciliation" name="test_public_and_staff_counts_follow_reviewed_lifecycle[containerless-individual]" time="3.393" /><testcase classname="tests.test_inventory_lending_reconciliation" name="test_public_and_staff_counts_follow_reviewed_lifecycle[assigned-container-quantity]" time="2.793" /><testcase classname="tests.test_inventory_lending_reconciliation" name="test_public_and_staff_counts_follow_reviewed_lifecycle[assigned-container-individual]" time="3.248" /><testcase classname="tests.test_admin_direct_loans" name="test_admin_direct_manual_handout_and_return_logs_product" time="0.321" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_requires_selected_member" time="0.101" /><testcase classname="tests.test_admin_direct_loans" name="test_admin_direct_handout_allows_non_self_checkout_product" time="0.328" /><testcase classname="tests.test_admin_direct_loans" name="test_admin_direct_qr_handout_allows_non_public_non_self_checkout_product" time="0.205" /><testcase classname="tests.test_admin_direct_loans" name="test_suspended_admin_cannot_issue_direct_loan" time="0.113" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_originless_list_uses_membership_fallback" time="0.193" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_rejects_different_staff_origin_for_scoped_views" time="0.242" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_hides_cross_tenant_and_missing_loan_ids" time="0.229" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_requires_evidence_id" time="0.169" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_blank_notes" time="0.203" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_issue_evidence" time="0.294" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_other_makerspace_evidence" time="0.203" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_not_uploaded_evidence" time="0.197" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_already_returned_loan" time="0.351" /><testcase classname="tests.test_admin_direct_loans" name="test_every_qr_in_multi_qr_direct_loan_is_tracked" time="0.579" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_requires_matching_qr_for_qr_loan" time="0.480" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_requires_container_qr_when_container_has_active_qr" time="0.433" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_rejects_duplicate_qr_payload" time="0.154" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_rejects_product_qr_for_individual_tracked_product" time="0.166" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_accepts_asset_qr_for_individual_tracked_product" time="0.188" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_rejects_box_qr_fallback_for_individual_tracked_product" time="0.180" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_rejects_inactive_container" time="0.151" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_loan_duplicate_active_container_returns_409" time="0.253" /><testcase classname="tests.test_admin_direct_loans" name="test_handout_role_can_create_direct_loan" time="0.171" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_self_checkout_loan" time="0.160" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_reused_evidence_across_loans" time="0.413" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_evidence_used_by_reviewed_return" time="0.236" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_damaged_routes_to_buckets_and_accountability" time="0.264" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_partial_resolution" time="0.286" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_individual_asset_outcomes_flip_status_without_double_count" time="0.323" /><testcase classname="tests.test_admin_direct_loans" name="test_direct_return_rejects_duplicate_item_resolutions" time="0.195" /><testcase classname="tests.test_public_self_checkout_multi" name="test_two_separately_tagged_qrs_checkout_as_one_public_loan" time="0.135" /><testcase classname="tests.test_public_self_checkout_multi" name="test_returning_by_second_qr_closes_the_same_public_loan" time="0.215" /><testcase classname="tests.test_public_self_checkout_multi" name="test_batch_with_already_checked_out_qr_is_atomic" time="0.167" /><testcase classname="tests.test_public_self_checkout_multi" name="test_original_single_payload_checkout_still_issues_one_request" time="0.114" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_requires_tool_opt_in" time="0.104" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_requires_public_self_checkout_flags" time="0.127" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_requires_issue_evidence" time="0.076" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_rejects_product_qr_for_individual_tracked_product" time="0.124" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_accepts_asset_qr_for_individual_tracked_product" time="0.133" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_rejects_box_qr_fallback_for_individual_tracked_product" time="0.123" /><testcase classname="tests.test_public_self_checkout" name="test_public_checkout_and_return_move_inventory_and_record_scans" time="0.178" /><testcase classname="tests.test_public_self_checkout" name="test_public_box_checkout_return_restores_all_items" time="0.261" /><testcase classname="tests.test_public_self_checkout" name="test_public_return_requires_same_verified_user" time="0.595" /><testcase classname="tests.test_public_self_checkout" name="test_public_self_checkout_evidence_upload_url_is_audited" time="0.189" /><testcase classname="tests.test_public_self_checkout" name="test_public_return_report_problem_creates_report_and_keeps_stock_available" time="0.270" /><testcase classname="tests.test_public_self_checkout" name="test_public_return_without_report_creates_no_problem_report" time="0.261" /><testcase classname="tests.test_public_self_checkout" name="test_public_return_report_problem_requires_note" time="0.197" /></testsuite></testsuites>

@@ -78,9 +78,9 @@ def test_database_commitment_trigger_uses_the_reproduced_uuid_rule(
             "commitments": [reservation_commitment(salt, framed)],
         }],
     }
-    operation_id, state_component_id = persist_restore_state({
-        "component_ids": [str(component_id)]
-    })
+    operation_id, state_component_id = persist_restore_state(
+        fact, kind=B1ReservationEntry.Kind.COMMITMENT, reservation_salt=salt,
+    )
     assert state_component_id == component_id
     install_reservation_entry(
         operation_id=operation_id,

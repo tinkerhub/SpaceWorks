@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import logging
+import re
 import uuid
 
 import boto3
@@ -10,7 +11,7 @@ from rest_framework.exceptions import ValidationError
 
 from apps.evidence.image_validation import image_mime_from_bytes
 from apps.evidence.storage import StorageUnavailable
-from apps.object_storage import delete_all_versions
+from apps.object_storage import delete_accepted_object_versions
 
 
 logger = logging.getLogger(__name__)
@@ -51,20 +52,21 @@ def _public_client():
     return _s3_client(settings.AWS_S3_PUBLIC_ENDPOINT_URL)
 
 
-def warranty_object_key(makerspace_id, ext):
+def warranty_object_key(makerspace_id, warranty_id, ext):
     safe_ext = str(ext).lower().lstrip(".")
-    return f"warranty/{makerspace_id}/{uuid.uuid4().hex}.{safe_ext}"
+    return f"warranty/{makerspace_id}/{warranty_id}/documents/{uuid.uuid4().hex}.{safe_ext}"
 
 
 def staging_key(final_key):
     return f"staging/{final_key}"
 
 
-def assert_warranty_object_key_for_makerspace(object_key, makerspace_id):
-    if not str(object_key).startswith(f"warranty/{makerspace_id}/"):
-        raise ValidationError(
-            {"object_key": "Warranty document key does not belong to this makerspace."}
-        )
+def assert_warranty_object_key_for_makerspace(object_key, makerspace_id, warranty_id):
+    prefix = f"warranty/{makerspace_id}/{warranty_id}/documents/"
+    if not re.fullmatch(re.escape(prefix) + r"[0-9a-f]{32}\.[a-z0-9]+", str(object_key)):
+        raise ValidationError({
+            "object_key": "Warranty document key is not bound to this resource. Request a fresh upload URL."
+        })
 
 
 def ext_for(content_type, filename):
@@ -97,7 +99,7 @@ def presigned_upload(object_key, content_type):
             return {"url": url, "method": "PUT", "headers": {"Content-Type": content_type}}
         return _public_client().generate_presigned_post(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
+            Key=staging_key(object_key),
             Fields={"Content-Type": content_type},
             Conditions=[
                 {"Content-Type": content_type},
@@ -109,13 +111,17 @@ def presigned_upload(object_key, content_type):
         raise StorageUnavailable from exc
 
 
-def delete_object(object_key):
+def delete_object(object_key, *, report_versions=False):
+    """Default boolean API; opt in to frozen DATA IDs or None on failure."""
     try:
-        delete_all_versions(
-            _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key
+        versions = delete_accepted_object_versions(
+            _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key,
+            report_data_versions=report_versions,
         )
     except (BotoCoreError, ClientError):
         logger.exception("Failed to delete warranty document %s.", object_key)
+        return None if report_versions else False
+    return versions if report_versions else True
 
 
 def copy_object(source_key, dest_key):
@@ -147,27 +153,15 @@ def object_size(object_key):
 
 
 def finalize_upload(object_key, max_bytes):
-    if settings.STORAGE_PRESIGN_METHOD != "put":
-        return object_size(object_key)
+    from apps.object_publication import InvalidObjectSize
 
-    final_size = object_size(object_key)
-    if final_size is not None:
+    try:
+        result = _publish_upload(object_key, max_bytes)
+    except InvalidObjectSize as exc:
+        return exc.size
+    if result is not None:
         delete_object(staging_key(object_key))
-        return final_size
-
-    upload_staging_key = staging_key(object_key)
-    size = object_size(upload_staging_key)
-    if size is None:
-        return None
-    if not (1 <= size <= max_bytes):
-        return size
-
-    copy_object(upload_staging_key, object_key)
-    delete_object(upload_staging_key)
-    final_size = object_size(object_key)
-    if final_size is None or not (1 <= final_size <= max_bytes):
-        delete_object(object_key)
-    return final_size
+    return result.size if result is not None else None
 
 
 def presigned_get_url(object_key):
@@ -181,32 +175,56 @@ def presigned_get_url(object_key):
         raise StorageUnavailable from exc
 
 
-def validate_warranty_object(object_key):
-    size = object_size(object_key)
-    if size is None:
-        raise ValidationError({"object_key": "Warranty document was not found."})
-    if size == 0:
-        raise ValidationError({"object_key": "Warranty document is empty."})
-    if size > settings.WARRANTY_DOC_MAX_BYTES:
-        raise ValidationError({"object_key": "Warranty document exceeds the size limit."})
-
-    try:
-        response = _client().get_object(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
-        )
-        data = response["Body"].read(settings.WARRANTY_DOC_MAX_BYTES)
-    except (BotoCoreError, ClientError, OSError) as exc:
-        raise StorageUnavailable from exc
-
+def _validate_snapshot(object_key, observed):
+    size, data = observed.size, observed.data()
+    stored_content_type = observed.content_type
     content_type = PDF_CONTENT_TYPE if data.startswith(b"%PDF-") else None
     if content_type is None:
         image_type = image_mime_from_bytes(data)
         if image_type and image_type.startswith("image/"):
             content_type = image_type
-    if content_type not in set(settings.WARRANTY_DOC_ALLOWED_MIME):
+    extension = str(object_key).rsplit(".", 1)[-1].lower()
+    if extension not in ALLOWED_EXTENSIONS_BY_MIME.get(content_type, set()) or content_type != stored_content_type or content_type not in set(settings.WARRANTY_DOC_ALLOWED_MIME):
         raise ValidationError(
             {"object_key": "Warranty document is not a valid PDF or image."},
             code="invalid_document",
         )
     return WarrantyObjectValidationResult(size=size, content_type=content_type)
+
+
+def validate_warranty_object(object_key):
+    from apps.object_publication import InvalidObjectSize, validate_existing
+
+    try:
+        result = validate_existing(
+            _client(), settings.AWS_STORAGE_BUCKET_NAME, object_key,
+            settings.WARRANTY_DOC_MAX_BYTES, lambda observed: _validate_snapshot(object_key, observed),
+        )
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Warranty document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Warranty document was not found."})
+    return result
+
+
+def prepare_upload(object_key, max_bytes=None):
+    from apps.object_publication import InvalidObjectSize
+
+    try:
+        result = _publish_upload(object_key, max_bytes or settings.WARRANTY_DOC_MAX_BYTES)
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Warranty document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Warranty document was not found."})
+    delete_object(staging_key(object_key))
+    return result
+
+
+def _publish_upload(object_key, max_bytes):
+    from apps.object_publication import publish
+
+    return publish(
+        _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key,
+        staging_key=staging_key(object_key), max_bytes=max_bytes or settings.WARRANTY_DOC_MAX_BYTES,
+        validator=lambda observed: _validate_snapshot(object_key, observed),
+    )

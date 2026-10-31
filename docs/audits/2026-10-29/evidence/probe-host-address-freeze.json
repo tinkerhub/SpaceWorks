@@ -1,0 +1,36 @@
+{
+  "status": "source-and-tests-frozen-runtime-unverified",
+  "source": {
+    "path": "backend/scripts/restore_database_probe.py",
+    "sha256": "a53b6588c953fcf770e765c38bd60cf0ff9000861dfe8f43969b30d48262120c",
+    "lines": 60
+  },
+  "delta": "One SQL expression inet_server_addr()::text -> host(inet_server_addr()); unchanged JSON fields, port/TLS, paired identities/row/system and strict target physical/container/marker checks.",
+  "wrapper25": "Unchanged; script is existing64source/59copy path only. Parent refreshes exactly its recorded digest after test proof.",
+  "private_inputs": [
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/probe_target_identity.py",
+      "sha256": "77ab13bc93933770af5bf108414fba06f91e03c562617aa1b572c700c5605122"
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/bootstrap_operator.py",
+      "sha256": "992920c63dcd557281779ec44533bb5e541bc7b36e1a93dfe4f9376b47097153"
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/run_topology.sh",
+      "sha256": "67746c7537b3d33e7482b28271eadd3c28d05665f32f009e9cad216c1fe8deba"
+    }
+  ],
+  "diagnostic_effects": "Actual target_identity() after actual configuration/inventory admission under existingrootlock and shipped full25guard. Creates/removes one fixed SELECT-only maintenanceoneoff, may stop only trackedoneoff onfailure; dbexecindependentSELECT. No restore/control/quiesce/grants/state change. Requires new baked image; hostsourcecopy alone cannot replace /app/scripts probe.",
+  "retry_order": "Private bootstrap now invokes diagnostic before seed/archiveproducer, so any further topology mismatch stops before newbackup work. Existing inspection-only probe unchanged. Prior private bootstrap/topology bytes preserved in *.before-host-address.* files.",
+  "tests": [
+    {
+      "path": "backend/tests/backup/test_restore_probe_host_address.py",
+      "sha256": "209e1131dfc3bd3ec292e8407293ea9e7a790b775700181b2606b6b32d1da6d1",
+      "lines": 176
+    }
+  ],
+  "parent_command": "cd /repo/backend && python -m pytest -q --create-db tests/backup/test_restore_probe_host_address.py tests/backup/test_recovery_redis_admission.py",
+  "runtime_requirements": "Linux UID0, isolated PG16 owner with testDB creation/active test_* TCP connection, Django test settings/validtestencryptionkeys/wholecheckout; no actualDocker/provider/broker needed for testcases. Synthetic admission controls are explicitly labelled.",
+  "static_denominator": "10newcases from source parametrization (3realPG,7synthetic); no collection/runtime by child. Existing redisadmission file guards unchanged and parent should rerun it."
+}

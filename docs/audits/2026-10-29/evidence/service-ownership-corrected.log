@@ -1,0 +1,29 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/machineService src/features/inventory/PublicRequestReferenceOwnership.test.tsx src/features/printing
+
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/machineService/PublicMachineServicePage.test.tsx (20 tests) 1697ms
+     ✓ selects types by id and submits a successful generic proposal with a private tracker  451ms
+ ✓ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx (6 tests) 852ms
+     ✓ gates the form and sends identity with every presign and submission  403ms
+ ✓ src/features/machineService/PublicServiceVisitOwnership.test.tsx (8 tests) 2144ms
+     ✓ resets canonical check-in, private draft/files and lookup results before paint on A→B→A  637ms
+     ✓ preserves a current draft across stable catalog object refreshes but resets on a type round trip  355ms
+ ✓ src/features/machineService/ServiceStatusOwnership.test.tsx (7 tests) 351ms
+ ✓ src/features/machineService/ServiceRequestForm.test.tsx (11 tests) 1030ms
+ ✓ src/features/machineService/ServiceSubmissionContracts.test.tsx (10 tests) 938ms
+     ✓ captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue  376ms
+ ✓ src/features/inventory/PublicRequestReferenceOwnership.test.tsx (4 tests) 602ms
+ ✓ src/features/machineService/ServiceRequestOwnership.test.tsx (6 tests) 713ms
+ ✓ src/features/printing/PublicPrintRequestForm.test.tsx (1 test) 191ms
+ ✓ src/features/printing/publicApi.test.ts (2 tests) 6ms
+ ✓ src/features/machineService/publicApi.test.ts (3 tests) 18ms
+
+ Test Files  11 passed (11)
+      Tests  78 passed (78)
+   Start at  20:25:11
+   Duration  23.49s (transform 861ms, setup 1.78s, import 3.93s, tests 8.54s, environment 7.92s)
+

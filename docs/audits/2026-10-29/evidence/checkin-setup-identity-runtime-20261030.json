@@ -1,0 +1,109 @@
+{
+  "format": "spaceworks-checkin-setup-identity-runtime-v1",
+  "status": "cross-platform-focused-pass",
+  "scope": "Guided checked-in setup asks only for staff username/password credentials; portable cleanup of the retired updates tombstone.",
+  "source_files": [
+    {
+      "path": "setup.sh",
+      "lines": 274,
+      "sha256": "7266e981689f8d5293c07477feee23959b24d76b5b40a4064d362d750e57022e"
+    },
+    {
+      "path": "scripts/request-access-selection.sh",
+      "lines": 185,
+      "sha256": "97e994cedfadefe9595167ec2afc4792ea414b9df94a57baf0f233f8689f2fd5"
+    },
+    {
+      "path": "scripts/retire-update-tombstone.sh",
+      "lines": 32,
+      "sha256": "419d97374101a72f1b330566e06a4fccab9ac7f37285d92d97448bef7c997a3f"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "backend/tests/test_setup_identity_selection.py",
+      "sha256": "d3f45f153bc4630bcc30f291105bf2d9a7442607718a010f66f4452a384becea",
+      "lines": 246
+    },
+    {
+      "path": "backend/tests/test_deploy_host_scripts.py",
+      "sha256": "d3fddc70d76298b014dc81f25e37fd5a138912c8417d7aadab7c976afd8b5131",
+      "lines": 202
+    }
+  ],
+  "snapshot": {
+    "file_count": 4676,
+    "source_manifest_sha256": "f36418cea334d29a34f2cfaa169cdfc06007b1303e16da06694b88481df12307",
+    "private_env_files_excluded": true
+  },
+  "results": [
+    {
+      "platform": "native macOS with BSD sed",
+      "cases": 101,
+      "passed": 101,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 5.52,
+      "xml_sha256": "d845969683ee6dedfc51387810a6c87da7e95ccfa3afce1978d6bb5a7cb0f46a",
+      "collected_ids_sha256": "b1efa59be944f89a2d6fab257172b1612178d79f78df82c8e6c63fa84d2a5a5f"
+    },
+    {
+      "platform": "network-disabled Linux container with GNU sed",
+      "cases": 101,
+      "passed": 101,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 2.46,
+      "xml_sha256": "8e778601f1f10616c3dad710747ad728562859ae182e78be91800f3762daf584",
+      "collected_ids_sha256": "b1efa59be944f89a2d6fab257172b1612178d79f78df82c8e6c63fa84d2a5a5f"
+    }
+  ],
+  "controls": {
+    "new_identity_cases_per_platform": 60,
+    "new_portable_tombstone_cases_per_platform": 5,
+    "original_checkin_cases_per_platform": 17,
+    "original_installer_contract_cases_per_platform": 13,
+    "original_deployment_host_cases_per_platform": 6,
+    "checked_in_exactly_two_silent_identity_reads": true,
+    "checked_in_stale_email_and_google_id_cleared": true,
+    "typed_password_never_emitted": true,
+    "blank_password_generation_and_existing_one_time_delivery_retained": true,
+    "other_modes_identity_google_block_byte_identical_after_extraction": true,
+    "other_modes_48_compatibility_combinations": true,
+    "existing_env_branch_introduces_no_identity_changes": true,
+    "valid_checkin_choice_flows_through_real_roster_selection": true,
+    "provider_configuration_stays_guarded_by_nonempty_google_id": true,
+    "portable_cleanup_preserves_unrelated_keys_comments_and_literals": true,
+    "portable_cleanup_atomically_replaces_with_mode_0600_and_is_idempotent": true,
+    "no_staff_authentication_permissions_or_two_factor_changes": true
+  },
+  "earlier_native_failure": {
+    "cases": 96,
+    "passed": 95,
+    "failed": 1,
+    "cause": "Unchanged tombstone helper used GNU-only BRE extensions; native BSD sed retained the old exported assignment.",
+    "raw_xml_sha256": "862a16f37f5d4a13db77029889366e621095761222379dae6eb1dc0a2322ad3c",
+    "retained": true,
+    "corrected_by": "Portable equivalent ERE deletion; original failing case and five added variants pass on both systems."
+  },
+  "gates": {
+    "identity_stage1": "approved",
+    "identity_stage2": "two existing shell files",
+    "identity_stage3": "separate test author",
+    "portable_stage1": "approved",
+    "portable_stage2": "one sed line only",
+    "portable_stage3": "separate test author",
+    "root_independent_source_review": "approved exact three host-copy entries",
+    "stage4": "owned by root; not performed here"
+  },
+  "limits": {
+    "no_full_suite_rerun": true,
+    "no_database_or_redis_access": true,
+    "no_docker_socket": true,
+    "no_actual_installation_or_network_access": true,
+    "no_new_skips_or_xfails": true,
+    "no_password_values_reversible_encodings_or_private_paths_published": true
+  }
+}

@@ -4,6 +4,12 @@ This guide is for makerspace organisers who are **not** software developers. It 
 running Space Works on a computer at your space, step by step. You don't need to understand
 the code — just follow along.
 
+For a new installation, start with the official
+[SpaceWorks-Labs project](https://github.com/SpaceWorks-Labs/SpaceWorks) and follow its current guide.
+The installer links below point there. This repository contains TinkerHub's customized edition;
+its operators should follow the [edition and release compatibility notes](self-hosting.md) before
+using its images or host scripts.
+
 You'll need about **30 minutes** and one **always-on computer** (any spare PC, a Mini-PC, or an
 Intel NUC) that stays on and connected to your network.
 
@@ -37,14 +43,14 @@ Docker Desktop installation on Windows/macOS:
 On Linux, paste:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/SpaceWorks-Labs/SpaceWorks/main/install.sh | bash
 ```
 
 It installs into `/opt/spaceworks` by default. To choose another directory, export it for the `bash`
 side of the pipe:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/install.sh | SPACEWORKS_DIR="$HOME/SpaceWorks" bash
+curl -fsSL https://raw.githubusercontent.com/SpaceWorks-Labs/SpaceWorks/main/install.sh | SPACEWORKS_DIR="$HOME/SpaceWorks" bash
 ```
 
 On Windows, run either form from your WSL2 terminal. The installer downloads the newest **tagged GitHub release**

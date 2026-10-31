@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="source-setup-cold-cache-two-retry" tests="2" failures="0" errors="0" skipped="0" time="2.946">
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start" time="2.202" />
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_source_setup_clears_stale_identity_before_records_and_raw_build_start" time="0.669" />
+  </testsuite>
+</testsuites>

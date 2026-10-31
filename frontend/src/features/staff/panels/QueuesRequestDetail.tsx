@@ -23,6 +23,7 @@ const REQUEST_STATUS: Record<string, { label: string; tone: StatusTone }> = {
   partially_returned: { label: "Partly returned", tone: "warning" },
   returned: { label: "Returned", tone: "success" },
   rejected: { label: "Rejected", tone: "danger" },
+  cancelled: { label: "Cancelled", tone: "neutral" },
   closed_with_issue: { label: "Closed with issue", tone: "danger" },
 };
 
@@ -102,6 +103,13 @@ export function RequestDetailDrawer({ row, canViewAudit, onClose }: { row: Hardw
             </DetailRow>
             {row.status === "rejected" && row.rejection_reason ? (
               <DetailRow label="Rejected because"><span className="text-danger-fg">{row.rejection_reason}</span></DetailRow>
+            ) : null}
+            {row.status === "cancelled" ? (
+              <>
+                {row.cancellation_reason ? <DetailRow label="Cancelled because">{row.cancellation_reason}</DetailRow> : null}
+                {row.closed_by ? <DetailRow label="Cancelled by">{formatActor(row.closed_by)}</DetailRow> : null}
+                {row.closed_at ? <DetailRow label="Cancelled at">{formatWhen(row.closed_at)}</DetailRow> : null}
+              </>
             ) : null}
           </dl>
           <section className="grid gap-3">

@@ -1,0 +1,76 @@
+{
+  "count": 14,
+  "no_new_skip_or_xfail_added": true,
+  "rows": [
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[discord]",
+      "message": "discord: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: discord: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[email]",
+      "message": "email: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: email: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[mattermost]",
+      "message": "mattermost: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: mattermost: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[member_accounts]",
+      "message": "member_accounts: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: member_accounts: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[mobile]",
+      "message": "mobile: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: mobile: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[payments]",
+      "message": "payments: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: payments: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_works_with_only_its_dependencies[slack]",
+      "message": "slack: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: slack: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[discord]",
+      "message": "discord: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: discord: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[email]",
+      "message": "email: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: email: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[mattermost]",
+      "message": "mattermost: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: mattermost: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[member_accounts]",
+      "message": "member_accounts: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: member_accounts: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[mobile]",
+      "message": "mobile: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: mobile: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[payments]",
+      "message": "payments: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: payments: no cheap verified primary-surface probe yet"
+    },
+    {
+      "nodeid": "tests/modules/test_module_contract_matrix.py::test_optional_module_primary_surface_refuses_when_only_its_key_is_absent[slack]",
+      "message": "slack: no cheap verified primary-surface probe yet",
+      "text": "/repo/backend/tests/modules/test_module_contract_matrix.py:168: slack: no cheap verified primary-surface probe yet"
+    }
+  ]
+}

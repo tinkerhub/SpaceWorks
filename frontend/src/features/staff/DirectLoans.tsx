@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
-import { Button, Card, CardHeader, ErrorText, Field, Pagination, Textarea, useToast } from "../../components/ui";
-import { staffRequest } from "../../lib/api";
+import { Button, Card, CardHeader, ErrorText, Field, Pagination, Textarea } from "../../components/ui";
+import { getSessionGeneration } from "../../lib/apiSession";
+import { useDirectLoanMutation } from "./useDirectLoanMutation";
 import { usePaginatedQuery } from "../../lib/usePaginatedQuery";
 import { DirectLoanBorrower } from "./DirectLoanBorrower";
 import { DirectLoanItems } from "./DirectLoanItems";
@@ -21,14 +21,13 @@ import {
 import { MemberClaimCodes } from "./MemberClaimCodes";
 import { moduleEnabled } from "../../lib/modules";
 import { EvidenceUpload } from "./panels/EvidenceUpload";
-import { errorText, Panel, type Makerspace, useStaffGet } from "./panels/shared";
-import { invalidateContainerViews, invalidateInventoryViews } from "./queryInvalidation";
-
-type ReturnLoanPayload = { loanId: number; evidenceId: number; notes: string; qrPayload: string; resolutions: DirectLoanResolution[] };
+import { Panel, type Makerspace, useStaffGet } from "./panels/shared";
 
 export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
+  return <DirectLoanVisit key={`${makerspace.id}:${getSessionGeneration()}`} makerspace={makerspace} />;
+}
+
+function DirectLoanVisit({ makerspace }: { makerspace: Makerspace }) {
   const [borrowerId, setBorrowerId] = useState("");
   const [lineRows, setLineRows] = useState<LineDraft[]>([FIRST_LINE]);
   const [scanned, setScanned] = useState<ScannedPayload[]>([]);
@@ -38,6 +37,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
   const [issueRemark, setIssueRemark] = useState(DEFAULT_ISSUE_REMARK);
   // Bumped to remount the photo upload and item picker (clearing their local state).
   const [formKey, setFormKey] = useState(0);
+  const [returnVisit, setReturnVisit] = useState(0);
   const [returningLoan, setReturningLoan] = useState<DirectLoan | null>(null);
   const [returnEvidenceId, setReturnEvidenceId] = useState<number | null>(null);
   const [returnNotes, setReturnNotes] = useState("");
@@ -58,12 +58,6 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
     setReturnNotes("");
     setReturnQrPayload("");
   };
-  useEffect(() => {
-    setBorrowerId("");
-    resetIssueForm();
-    resetReturnState();
-  }, [makerspace.id]);
-
   const products = useStaffGet<{ results: ProductOption[] }>(["inventory-all", makerspace.id], `/admin/makerspace/${makerspace.id}/inventory?page_size=1000`);
   // Fetch ALL containers (distinct cache key from the shared ["containers"] entry so a
   // truncated first page can't leak in): the dropdown + the scan membership check both
@@ -91,67 +85,38 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
   });
   const hasIssueContent = validManualLines.length > 0 || scanned.length > 0 || pastedQrPayloads.length > 0 || Boolean(containerId);
 
-  // A handout or return moves stock, containers, the ledger and (for damaged/missing
-  // units) accountability and the fix shelf, so every one of those views refreshes.
-  const refreshAfterLoanChange = () => {
-    queryClient.invalidateQueries({ queryKey: ["direct-loans", makerspace.id] });
-    queryClient.invalidateQueries({ queryKey: ["accountability", makerspace.id] });
-    queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspace.id] });
-    // The Requests tab's active-loans queue and the dashboard's loan tiles count these too.
-    queryClient.invalidateQueries({ queryKey: ["active", makerspace.id] });
-    queryClient.invalidateQueries({ queryKey: ["dashboard", makerspace.id] });
-    invalidateInventoryViews(queryClient, makerspace.id, makerspace.slug);
-    invalidateContainerViews(queryClient, makerspace.id);
+  const issue = useDirectLoanMutation(`issue:${makerspace.id}:${formKey}`, makerspace, "Handout issued.", "Could not issue the handout.", resetIssueForm);
+  const returnLoan = useDirectLoanMutation(`return:${makerspace.id}:${returningLoan?.id}:${returnVisit}`, makerspace, "Return recorded.", "Could not record the return.", resetReturnState);
+  const submitIssue = () => {
+    if (!canIssue || !issue.editable()) return;
+    issue.submit(`/admin/makerspace/${makerspace.id}/direct-loans`, {
+      borrower_id: Number(borrowerId), evidence_id: issueEvidenceId, remark: issueRemark.trim(),
+      container_id: containerId ? Number(containerId) : null,
+      qr_payloads: Array.from(new Set([...scanned.map((item) => item.payload), ...pastedQrPayloads])),
+      items: validManualLines.map((line) => ({ product_id: Number(line.productId), quantity: Number(line.quantity) })),
+    });
   };
-  const issue = useMutation({
-    mutationFn: () =>
-      staffRequest(`/admin/makerspace/${makerspace.id}/direct-loans`, {
-        method: "POST",
-        body: JSON.stringify({
-          borrower_id: Number(borrowerId),
-          evidence_id: issueEvidenceId as number,
-          remark: issueRemark.trim(),
-          container_id: containerId ? Number(containerId) : null,
-          qr_payloads: Array.from(new Set([...scanned.map((item) => item.payload), ...pastedQrPayloads])),
-          items: validManualLines.map((line) => ({ product_id: Number(line.productId), quantity: Number(line.quantity) })),
-        }),
-      }),
-    onSuccess: () => {
-      refreshAfterLoanChange();
-      resetIssueForm();
-      showToast("Handout issued.", { tone: "success" });
-    },
-    onError: (failure) => showToast(errorText(failure, "Could not issue the handout."), { tone: "error" }),
-  });
-  const returnLoan = useMutation({
-    mutationFn: ({ loanId, evidenceId, notes, qrPayload, resolutions }: ReturnLoanPayload) =>
-      staffRequest(`/admin/direct-loans/${loanId}/return`, {
-        method: "POST",
-        body: JSON.stringify({ evidence_id: evidenceId, notes, qr_payload: qrPayload.trim(), resolutions }),
-      }),
-    onSuccess: () => {
-      refreshAfterLoanChange();
-      resetReturnState();
-      showToast("Return recorded.", { tone: "success" });
-    },
-    onError: (failure) => showToast(errorText(failure, "Could not record the return."), { tone: "error" }),
-  });
   const canIssue = Boolean(borrowerId) && hasIssueContent && issueEvidenceId !== null && !issue.isPending;
 
   const openReturnModal = (loan: DirectLoan) => {
-    returnLoan.reset();
+    if (!returnLoan.editable()) return;
+    returnLoan.cancel();
+    setReturnVisit((value) => value + 1);
     resetReturnState();
     setReturningLoan(loan);
   };
   const closeReturnModal = () => {
-    if (returnLoan.isPending) return;
-    returnLoan.reset();
+    if (!returnLoan.editable()) return;
+    returnLoan.cancel();
+    setReturnVisit((value) => value + 1);
     resetReturnState();
   };
   const submitReturn = (resolutions: DirectLoanResolution[]) => {
-    if (!returningLoan || returnEvidenceId === null || !returnNotes.trim()) return;
+    if (!returnLoan.editable() || !returningLoan || returnEvidenceId === null || !returnNotes.trim()) return;
     if (returningLoan.return_scan_required && !returnQrPayload.trim()) return;
-    returnLoan.mutate({ loanId: returningLoan.id, evidenceId: returnEvidenceId, notes: returnNotes.trim(), qrPayload: returnQrPayload, resolutions });
+    returnLoan.submit(`/admin/direct-loans/${returningLoan.id}/return`, {
+      evidence_id: returnEvidenceId, notes: returnNotes.trim(), qr_payload: returnQrPayload.trim(), resolutions,
+    });
   };
   // Waivers and the member wording belong to `membership`; claim codes redeem into a member
   // sign-in, so they need `member_accounts`. Neither may show on a space without them.
@@ -169,33 +134,38 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
         <Card as="section" padding="lg" className="grid gap-6">
           <CardHeader className="mb-0" title="New handout" description={`Every handout needs ${membershipOn ? "a member" : "a borrower"}, what's going out and an issue photo.`} />
           <DirectLoanBorrower
+            key={formKey}
+            disabled={issue.isPending}
+            canEdit={issue.editable}
             makerspaceId={makerspace.id}
             members={memberOptions}
             loading={members.isLoading}
             error={members.error}
             borrowerId={borrowerId}
-            onBorrowerChange={setBorrowerId}
+            onBorrowerChange={(id) => { if (issue.editable()) setBorrowerId(id); }}
             membershipOn={membershipOn}
           />
           <DirectLoanItems
             key={formKey}
+            disabled={issue.isPending}
+            canEdit={issue.editable}
             products={activeProducts}
             productsLoading={products.isLoading}
             containers={containersOn ? containerOptions : null}
             containersLoading={containers.isLoading}
             containerId={containerId}
-            onContainerChange={setContainerId}
+            onContainerChange={(id) => { if (issue.editable()) setContainerId(id); }}
             lines={lineRows}
-            setLines={setLineRows}
+            setLines={(value) => { if (issue.editable()) setLineRows(value); }}
             scanned={scanned}
-            setScanned={setScanned}
+            setScanned={(value) => { if (issue.editable()) setScanned(value); }}
             qrPayloads={qrPayloads}
-            onQrPayloadsChange={setQrPayloads}
+            onQrPayloadsChange={(value) => { if (issue.editable()) setQrPayloads(value); }}
           />
           <div className="grid gap-4 md:grid-cols-2">
-            <EvidenceUpload key={formKey} makerspaceId={makerspace.id} evidenceType="issue" label="Issue photo" disabled={issue.isPending} onUploaded={setIssueEvidenceId} />
+            <EvidenceUpload key={formKey} makerspaceId={makerspace.id} evidenceType="issue" label="Issue photo" disabled={issue.isPending} onUploaded={(id) => { if (issue.editable()) setIssueEvidenceId(id); }} />
             <Field label="Issue remark">
-              <Textarea rows={3} value={issueRemark} onChange={(event) => setIssueRemark(event.target.value)} />
+              <Textarea rows={3} value={issueRemark} disabled={issue.isPending} onChange={(event) => { if (issue.editable()) setIssueRemark(event.target.value); }} />
             </Field>
           </div>
           <ErrorText message={issue.error?.message} />
@@ -205,7 +175,7 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
             <p className="text-body-ui text-ink-muted" aria-live="polite">
               {missing.length ? `Before issuing: ${missing.join(", ")}.` : "Ready to issue."}
             </p>
-            <Button variant="primary" disabled={!canIssue} loading={issue.isPending} loadingLabel="Issuing…" onClick={() => issue.mutate()}>
+            <Button variant="primary" disabled={!canIssue} loading={issue.isPending} loadingLabel="Issuing…" onClick={submitIssue}>
               Issue direct handout
             </Button>
           </div>
@@ -217,6 +187,8 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
         </div>
       </div>
       <DirectLoanReturnModal
+        key={returnVisit}
+        canEdit={returnLoan.editable}
         loan={returningLoan}
         makerspaceId={makerspace.id}
         evidenceId={returnEvidenceId}
@@ -224,9 +196,9 @@ export function DirectLoans({ makerspace }: { makerspace: Makerspace }) {
         qrPayload={returnQrPayload}
         pending={returnLoan.isPending}
         error={returnLoan.error?.message ?? ""}
-        onEvidenceUploaded={setReturnEvidenceId}
-        onNotesChange={setReturnNotes}
-        onQrPayloadChange={setReturnQrPayload}
+        onEvidenceUploaded={(id) => { if (returnLoan.editable()) setReturnEvidenceId(id); }}
+        onNotesChange={(value) => { if (returnLoan.editable()) setReturnNotes(value); }}
+        onQrPayloadChange={(value) => { if (returnLoan.editable()) setReturnQrPayload(value); }}
         onCancel={closeReturnModal}
         onSubmit={submitReturn}
       />

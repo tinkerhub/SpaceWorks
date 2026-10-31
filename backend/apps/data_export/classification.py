@@ -30,7 +30,7 @@ EXPORTED_MODEL_FIELDS = {
     "evidence.EvidencePhoto": "id makerspace evidence_type object_key content_type size_bytes uploaded_by created_at",
     "evidence.EvidenceObjectRetentionState": "id evidence status claim_token claimed_at object_expired_at expired_size_bytes last_error updated_at",
     "evidence.EvidenceRetentionPolicy": "id makerspace object_retention_days updated_at",
-    "hardware_requests.HardwareRequest": "id makerspace requester requester_username requester_name requester_contact_email requester_contact_phone requester_contact_verified checkin_identity checkin_project_name checkin_purpose checkin_verified_at anonymous_idempotency_key_fingerprint anonymous_payload_fingerprint status requested_for rejection_reason accepted_by accepted_at assigned_box issued_by issued_at return_due_at return_reminder_sent_at issue_evidence issue_remark closed_by closed_at public_token created_at updated_at",
+    "hardware_requests.HardwareRequest": "id makerspace requester requester_username requester_name requester_contact_email requester_contact_phone requester_contact_verified checkin_identity checkin_project_name checkin_purpose checkin_verified_at anonymous_idempotency_key_fingerprint anonymous_payload_fingerprint status requested_for rejection_reason cancellation_reason accepted_by accepted_at assigned_box issued_by issued_at return_due_at return_reminder_sent_at issue_evidence issue_remark closed_by closed_at public_token created_at updated_at",
     "hardware_requests.HardwareRequestItem": "id request product requested_quantity accepted_quantity issued_quantity returned_quantity damaged_quantity missing_quantity needs_fix_quantity",
     "hardware_requests.HardwareRequestItemAsset": "id request_item asset outcome issued_at returned_at return_event",
     "hardware_requests.PublicProblemReport": "id makerspace loan request requester note outcome triage_note created_at resolved_at resolved_by",
@@ -74,7 +74,7 @@ EXPORTED_MODEL_FIELDS = {
     "maintenance.MaintenanceLog": "id machine performed_by performed_at summary cost parts_note created_at",
     "maintenance.MaintenanceLogDocument": "id log object_key size_bytes uploaded_by created_at",
     "maintenance.MaintenanceSchedule": "id machine description interval_days next_due is_active created_by created_at updated_at",
-    "makerspaces.Makerspace": "id name slug public_code item_code_prefix public_request_mode checkin_space_id checkin_api_url checkin_required_purpose checkin_provider_name anonymous_requester location map_url geofence_latitude geofence_longitude geofence_radius_m geofence_enabled public_inventory_enabled public_stats_enabled public_stats_show_holder_names public_print_status_lookup_policy membership_policy membership_dues_amount referrals_enabled filament_low_stock_threshold_grams superadmin_access_enabled staff_notifications_enabled booking_requester_notifications_enabled logo_key cover_image_key frontend_domain frontend_domain_status domain_verification_token domain_verified_at frontend_domain_changed_at hidden_from_central_directory public_api_key cors_allowed_origins enabled_modules enabled_features resource_limit_overrides storage_bytes_used theme_config branding_config telegram_group_chat_id telegram_bot_token smtp_host smtp_port smtp_username smtp_password smtp_use_tls smtp_use_ssl smtp_from_email slack_webhook_url mattermost_webhook_url discord_webhook_url default_loan_days presence_preset_minutes created_by archived_at archived_by lifecycle_state created_at updated_at",
+    "makerspaces.Makerspace": "id name slug public_code item_code_prefix public_request_mode checkin_space_id checkin_api_url checkin_required_purpose checkin_provider_name anonymous_requester location map_url geofence_latitude geofence_longitude geofence_radius_m geofence_enabled public_inventory_enabled public_stats_enabled public_stats_show_holder_names public_print_status_lookup_policy membership_policy membership_dues_amount referrals_enabled filament_low_stock_threshold_grams superadmin_access_enabled staff_notifications_enabled booking_requester_notifications_enabled logo_key cover_image_key frontend_domain frontend_domain_status domain_verification_token domain_verified_at frontend_domain_changed_at hidden_from_central_directory public_api_key cors_allowed_origins enabled_modules enabled_features resource_limit_overrides storage_bytes_used theme_config branding_config telegram_group_chat_id telegram_bot_token smtp_host smtp_port smtp_username smtp_password smtp_use_tls smtp_use_ssl smtp_from_email slack_webhook_url mattermost_webhook_url discord_webhook_url default_loan_days presence_preset_minutes created_by archived_at archived_by purge_started_at lifecycle_state created_at updated_at",
     "makerspaces.MakerspaceMembership": "id makerspace user role assigned_role receives_notifications can_refer can_verify verified_at verified_by status activated_at activated_by revoked_at revoked_by revocation_reason waiver_accepted_at waiver_version_accepted accepted_waiver witnessed_waiver witnessed_waiver_version witnessed_at witnessed_by witnessed_actor_snapshot verified_actor_snapshot activated_actor_snapshot revoked_actor_snapshot created_at",
     "makerspaces.MakerspaceRole": "id makerspace name slug granted_actions legacy_role is_default is_protected created_at updated_at",
     "makerspaces.MakerspaceWaiver": "id makerspace body version is_active created_by created_at superseded_at",
@@ -113,6 +113,8 @@ GLOBAL_MODELS = {
 }
 
 OMITTED_MODELS = {
+    "makerspaces.ModulePurgeReceipt": "Source-local raw tenant/module deletion authority; omitted in every fidelity, no User/actor/Maker FK edges. Never portable.",
+    "makerspaces.PurgeReceipt": "Deployment-local identifier-only purge authority; never exported. No User edges.",
     "events.EventCheckInStationCredential": (
         "Live event-station authentication authority; a restored tenant must rotate a new PIN."
     ),
@@ -162,8 +164,8 @@ OMITTED_MODELS = {
     "encryption.PiiMakerspaceWriteFence": "Deployment coordination state.",
     "encryption.SearchKeyGeneration": "Deployment-local cryptographic state.",
     "evidence.EvidenceUploadFinalization": (
-        "Upload promotion coordination state; the evidence row and its object carry "
-        "everything that outlives one upload."
+        "Deployment-local upload promotion and quota-accounting coordination. "
+        "Portable evidence, objects and audit history remain; imported charge proof is inert."
     ),
     "integrations.DailyEmailCounter": "Delivery telemetry.",
     "integrations.DailyNotificationCounter": "Delivery telemetry.",

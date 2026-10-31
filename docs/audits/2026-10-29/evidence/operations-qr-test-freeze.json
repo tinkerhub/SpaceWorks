@@ -1,0 +1,38 @@
+{
+  "status": "Source/test hashes match the bytes included in root central focused passing run; final whole-suite/review/QA still pending.",
+  "cases": "55 cases / 16 functions; existing portable snapshot caller migration preserves all proof assertions",
+  "files": [
+    {
+      "path": "backend/tests/operations/qr_safety_helpers.py",
+      "sha256": "1c1cb5529c6a1cfae4f92aef6d0ed1a42967c8fb5b82fbeae3a2932a886ce188",
+      "lines": 123
+    },
+    {
+      "path": "backend/tests/operations/test_qr_input_safety.py",
+      "sha256": "14798b9ebe1a5e2b6e90debf644aa66cd46cf2cd949bf1649ee22d32309c2b5b",
+      "lines": 144
+    },
+    {
+      "path": "backend/tests/operations/test_qr_audit_safety.py",
+      "sha256": "dbf7683789a7973d7206c55b22c5b71d43e940310424f3ab494e64c05b53a5eb",
+      "lines": 174
+    },
+    {
+      "path": "backend/tests/operations/test_qr_print_module_safety.py",
+      "sha256": "149d82d7c929b8154503f3c335ac8f0aad1ded8d436978677cd478b8963009f6",
+      "lines": 216
+    },
+    {
+      "path": "backend/tests/data_export/test_portable_reference_provenance.py",
+      "sha256": "4d8685094b25e15521997adeafd84f7c6e180c4a9d15b30298fca73d88de0f3a",
+      "lines": 232
+    }
+  ],
+  "runtime_result": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/qr-evidence-focused-round2.xml",
+    "junit_sha256": "f965bf5f0e7d71e86c64e99884d7b957ed292e25334bf7f802c348062e341d44",
+    "group_result": "127 passed in 63.57 seconds; overlapping focused group, do not sum as new independent coverage",
+    "root_log": "/tmp/spaceworks-qr-evidence-focused-round2.log"
+  }
+}

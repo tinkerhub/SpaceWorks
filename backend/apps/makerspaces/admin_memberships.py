@@ -1,3 +1,4 @@
+from apps.object_storage_admin import StorageDocumentDeleteAdminMixin
 from django.contrib import admin, messages
 from rest_framework.exceptions import APIException
 from unfold.admin import ModelAdmin
@@ -93,7 +94,12 @@ class MembershipRequestAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
 
 @admin.register(MemberProfile)
-class MemberProfileAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class MemberProfileAdmin(StorageDocumentDeleteAdminMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+    storage_makerspace_path = "membership__makerspace_id"
+
+    def storage_deleted_keys(self, obj):
+        return (obj.avatar_key, *obj.projects.values_list("image_key", flat=True))
+
     """Read-only. A profile is the member's own writing, editable only by them.
 
     A superadmin needs to be able to SEE one — to answer a report about its content —
@@ -113,7 +119,12 @@ class MemberProfileAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
 
 
 @admin.register(MemberProject)
-class MemberProjectAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class MemberProjectAdmin(StorageDocumentDeleteAdminMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+    storage_makerspace_path = "profile__membership__makerspace_id"
+
+    def storage_deleted_keys(self, obj):
+        return (obj.image_key,)
+
     list_display = ("title", "profile", "position", "updated_at")
     readonly_fields = tuple(field.name for field in MemberProject._meta.fields)
 

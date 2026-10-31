@@ -1,0 +1,1414 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="29" skipped="0" tests="159" time="5.709" timestamp="2026-10-30T00:20:37.498893+00:00" hostname="cd627b2601c3"><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[None]" time="0.013" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[ ]" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[bad]" time="0.003" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[12345678-1234-4ABC-8ABC-123456789ABC]" time="0.003" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[{12345678-1234-4abc-8abc-123456789abc}]" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[1234567812344abc8abc123456789abc]" time="0.005" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_only_canonical_uuid_or_blank_generation_is_accepted[1]" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_generation_changes_default_publication_retry_and_beat_routing" time="0.178" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_source_continuity_cannot_adopt_a_task_generation" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_actual_optional_uuid_parser_forwards_canonical_typed_uuid[None]" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_actual_optional_uuid_parser_forwards_canonical_typed_uuid[{4511B438-1234-4C35-89AB-0123456789AB}]" time="0.004" /><testcase classname="tests.backup.test_recovery_queue_and_command" name="test_invalid_restore_uuid_is_rejected_by_parser_before_validator" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_genuine_producer_pax_and_sparse_looking_path_values_are_legal" time="0.019" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[x path=hello\n]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[99 path=hello\n]" time="0.006" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[0 path=x\n]" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[12 path=bad!]" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[7 aaaa\n]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[24 GNU.sparse.map=0,999\n]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[23 SCHILY.realsize=999\n]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_malformed_or_sparse_pax_is_refused_before_metadata_write[26 SCHILY.filetype=sparse\n]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_nested_and_global_pax_are_refused" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_oversized_physical_pax_header_refuses_before_allocating_its_payload" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[2]" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[1]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[6]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[3]" time="0.003" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[4]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_links_special_and_old_gnu_sparse_never_extract[S]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_unsafe_or_duplicate_paths_are_refused[../escape]" time="0.014" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_unsafe_or_duplicate_paths_are_refused[/absolute]" time="0.010" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_unsafe_or_duplicate_paths_are_refused[a/../escape]" time="0.008" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_unsafe_or_duplicate_paths_are_refused[a//b]" time="0.010" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_unsafe_or_duplicate_paths_are_refused[manifest.json]" time="0.012" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_file_and_ancestor_conflict_is_a_typed_screening_refusal[file-first]" time="0.008" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_file_and_ancestor_conflict_is_a_typed_screening_refusal[child-first]" time="0.009" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_file_and_ancestor_conflict_is_a_typed_screening_refusal[directory-child-first]" time="0.007" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_explicit_directory_and_implied_parent_remain_valid[False]" time="0.014" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_explicit_directory_and_implied_parent_remain_valid[True]" time="0.014" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_compressed_outer_tar_is_refused[w:gz]" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_compressed_outer_tar_is_refused[w:bz2]" time="0.005" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_compressed_outer_tar_is_refused[w:xz]" time="0.069" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_negative_and_out_of_file_extents_fail_before_read[-1]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_negative_and_out_of_file_extents_fail_before_read[4096]" time="0.004" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_real_serialized_metadata_boundary_with_sparse_disk_file[0-manifest.json-67108864]" time="1.160" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_real_serialized_metadata_boundary_with_sparse_disk_file[0-keys/env.json-1048576]" time="0.017" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_real_serialized_metadata_boundary_with_sparse_disk_file[1-manifest.json-67108864]" time="0.007" /><testcase classname="tests.backup.test_recovery_tar_screen" name="test_real_serialized_metadata_boundary_with_sparse_disk_file[1-keys/env.json-1048576]" time="0.005" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_shared_0666_lock_permits_block_then_backend_only_quarantine_and_ack" time="0.075" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[missing-phase]" time="0.019" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[order]" time="0.015" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[config]" time="0.014" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[target]" time="0.013" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[operation]" time="0.014" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[pointer]" time="0.015" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_incomplete_or_misbound_root_proof_never_releases_writers[unfinished]" time="0.014" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_blocked_marker_cannot_be_unbound_or_anonymous[missing-op]" time="0.006" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_blocked_marker_cannot_be_unbound_or_anonymous[intent]" time="0.008" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_blocked_marker_cannot_be_unbound_or_anonymous[missing-db]" time="0.007" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_acknowledgement_requires_exact_fresh_recovered_principal_facts[active]" time="0.022" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_acknowledgement_requires_exact_fresh_recovered_principal_facts[stage]" time="0.021" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_acknowledgement_requires_exact_fresh_recovered_principal_facts[principal]" time="0.017" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_acknowledgement_requires_exact_fresh_recovered_principal_facts[text]" time="0.016" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_acknowledgement_requires_exact_fresh_recovered_principal_facts[naive-time]" time="0.018" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_terminal_launch_failure_reblocks_exact_operation_and_retains_history[False]" time="0.032" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_terminal_launch_failure_reblocks_exact_operation_and_retains_history[True]" time="0.027" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_actual_lock_inode_trust_is_checked_again_at_marker_transition[hardlink]" time="0.012" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_actual_lock_inode_trust_is_checked_again_at_marker_transition[symlink]" time="0.010" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_actual_lock_inode_trust_is_checked_again_at_marker_transition[replacement]" time="0.008" /><testcase classname="tests.backup.test_recovery_marker_authority" name="test_actual_lock_inode_trust_is_checked_again_at_marker_transition[foreign-owner]" time="0.008" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_main_keeps_one_real_lock_across_admission_import_and_terminal[restore]" time="0.151" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_main_keeps_one_real_lock_across_admission_import_and_terminal[import]" time="0.110" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_main_keeps_one_real_lock_across_admission_import_and_terminal[resume-host]" time="0.040" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_main_keeps_one_real_lock_across_admission_import_and_terminal[recover-superadmin]" time="0.053" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_real_transport_closes_even_explicitly_inheritable_child_fds" time="0.079" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_actual_nobody_child_cannot_claim_root_operation_lock" time="0.112" /><testcase classname="tests.backup.test_recovery_controller_lock" name="test_controller_compound_protection_refuses_before_any_admission_or_input_effect" time="0.027" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_sha256-None]" time="0.020" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_sha256-]" time="0.018" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]" time="0.010" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[restore_id-4511b438-1234-4c35-89ab-000000000000]" time="0.010" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_scope-makerspace]" time="0.012" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_format-unknown]" time="0.012" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_protocol_version-wrong]" time="0.010" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_partial-True]" time="0.013" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_partial-0]" time="0.015" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[archive_id-4511B438-1234-4C35-89AB-0123456789AB]" time="0.011" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[requested_by-True]" time="0.018" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_identity_must_admit_before_export_decrypt_or_parse[kind-unknown]" time="0.012" /><testcase classname="tests.backup.test_recovery_input_order" name="test_changed_persisted_outer_digest_refuses_before_decryption[False]" time="0.020" /><testcase classname="tests.backup.test_recovery_input_order" name="test_changed_persisted_outer_digest_refuses_before_decryption[True]" time="0.017" /><testcase classname="tests.backup.test_recovery_input_order" name="test_registered_forged_metadata_refuses_before_static_preflight_or_extraction" time="0.030" /><testcase classname="tests.backup.test_recovery_input_order" name="test_real_signature_and_complete_tar_ledger_precede_full_extraction[signature]" time="0.045" /><testcase classname="tests.backup.test_recovery_input_order" name="test_real_signature_and_complete_tar_ledger_precede_full_extraction[dump-ledger]" time="0.030" /><testcase classname="tests.backup.test_recovery_input_order" name="test_real_signature_and_complete_tar_ledger_precede_full_extraction[pinned-key]" time="0.029" /><testcase classname="tests.backup.test_recovery_input_order" name="test_strict_rollback_uses_real_installed_keys_and_never_prospective" time="0.033" /><testcase classname="tests.backup.test_recovery_input_order" name="test_valid_real_signed_rollback_reaches_complete_extraction" time="0.056" /><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[stop:backend,worker,beat]" time="0.033"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r0')
+failure = 'stop:backend,worker,beat'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r0/ops/private/inplace-synthetic", "public": "...t_block_failure_r0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[installed-preflight]" time="0.034"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r1')
+failure = 'installed-preflight'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r1/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r1/ops/private/inplace-synthetic", "public": "...t_block_failure_r1/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r1/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:stage]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r2')
+failure = 'control:stage'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r2/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r2/ops/private/inplace-synthetic", "public": "...t_block_failure_r2/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r2/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[sql-restore]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r3')
+failure = 'sql-restore'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r3/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r3/ops/private/inplace-synthetic", "public": "...t_block_failure_r3/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r3/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[grants]" time="0.022"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r4')
+failure = 'grants'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r4/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r4/ops/private/inplace-synthetic", "public": "...t_block_failure_r4/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r4/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:rehydrate]" time="0.021"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r5')
+failure = 'control:rehydrate'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r5/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r5/ops/private/inplace-synthetic", "public": "...t_block_failure_r5/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r5/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:verify-source-objects]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r6')
+failure = 'control:verify-source-objects'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r6/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r6/ops/private/inplace-synthetic", "public": "...t_block_failure_r6/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r6/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:restore-objects]" time="0.026"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r7')
+failure = 'control:restore-objects'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r7/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r7/ops/private/inplace-synthetic", "public": "...t_block_failure_r7/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r7/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:verify-restored-objects]" time="0.023"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r8')
+failure = 'control:verify-restored-objects'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r8/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r8/ops/private/inplace-synthetic", "public": "...t_block_failure_r8/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r8/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:validate]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r9')
+failure = 'control:validate'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r9/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r9/ops/private/inplace-synthetic", "public": "...t_block_failure_r9/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r9/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[control:quarantine]" time="0.039"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r10')
+failure = 'control:quarantine'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r10/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r10/ops/private/inplace-synthetic", "public": ...block_failure_r10/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r10/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers[start:backend]" time="0.028"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r11')
+failure = 'start:backend'
+
+    @pytest.mark.parametrize("failure", ["stop:backend,worker,beat", "installed-preflight", "control:stage",
+        "sql-restore", "grants", "control:rehydrate", "control:verify-source-objects",
+        "control:restore-objects", "control:verify-restored-objects", "control:validate",
+        "control:quarantine", "start:backend"])
+    def test_each_post_block_failure_retains_private_copies_current_env_and_stops_writers(tmp_path, failure):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.t.failure = failure
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r11/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r11/ops/private/inplace-synthetic", "public": ...block_failure_r11/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_post_block_failure_r11/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_success_stops_old_writers_before_env_then_static_checks_before_sql_and_source_closure_before_copies" time="0.033"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_success_stops_old_writers0')
+
+    def test_success_stops_old_writers_before_env_then_static_checks_before_sql_and_source_closure_before_copies(tmp_path):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_success_stops_old_writers0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_success_stops_old_writers0/ops/private/inplace-synthetic", "public": "...stops_old_writers0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_success_stops_old_writers0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_cancel_at_sql_is_retained_like_other_post_effect_failure" time="0.035"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cancel_at_sql_is_retained0')
+
+    def test_cancel_at_sql_is_retained_like_other_post_effect_failure(tmp_path):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            original_sql = op.t.sql
+            def cancel(command, **kwargs):
+                if command.startswith("pg_restore"):
+                    raise KeyboardInterrupt
+                return original_sql(command, **kwargs)
+            op.t.sql = cancel
+            with pytest.raises(KeyboardInterrupt):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_cancel_at_sql_is_retained0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_cancel_at_sql_is_retained0/ops/private/inplace-synthetic", "public": "...t_sql_is_retained0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_cancel_at_sql_is_retained0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_explicit_preeffect_abort_restarts_writers_only_with_exact_old_state[None]" time="0.027" /><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_explicit_preeffect_abort_restarts_writers_only_with_exact_old_state[environment]" time="0.026" /><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_explicit_preeffect_abort_restarts_writers_only_with_exact_old_state[marker]" time="0.033" /><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_explicit_preeffect_abort_restarts_writers_only_with_exact_old_state[proof]" time="0.026" /><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_private_journal_ledger_or_marker_write_interruption_never_releases_writers[journal-seal]" time="0.047"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff858396d0&gt;
+fault = 'journal-seal'
+
+    @pytest.mark.parametrize("fault", ["journal-seal", "sql-ledger", "block-marker-fsync", "terminal-marker-fsync"])
+    def test_private_journal_ledger_or_marker_write_interruption_never_releases_writers(tmp_path, monkeypatch, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            if fault == "journal-seal":
+                from apps.backup import host_restore_lifecycle as lifecycle
+                original = lifecycle.seal_file
+                def seal(source, target, **kwargs):
+                    if source.name == "swap-journal.jsonl":
+                        raise OSError("synthetic journal fsync interruption")
+                    return original(source, target, **kwargs)
+                monkeypatch.setattr(lifecycle, "seal_file", seal)
+            elif fault == "sql-ledger":
+                original = op.ledger.finish
+                def finish(begun, detail=None):
+                    if begun["phase"] == "inplace-sql-restored":
+                        raise OSError("synthetic root ledger interruption")
+                    return original(begun, detail)
+                monkeypatch.setattr(op.ledger, "finish", finish)
+            else:
+                def interrupted(stage):
+                    state = read_marker(rig.marker).state if rig.marker.exists() else None
+                    wanted = MarkerState.RESTORE_BLOCKED if fault == "block-marker-fsync" else MarkerState.QUARANTINED_AFTER_CUTOVER
+                    if stage == "after_replace" and state == wanted:
+                        raise OSError("synthetic marker directory fsync interruption")
+                op.marker.transition.crash_hook = interrupted
+            with pytest.raises(OSError, match="synthetic"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or0/ops/private/inplace-synthetic", "public": "...journal_ledger_or0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_private_journal_ledger_or_marker_write_interruption_never_releases_writers[sql-ledger]" time="0.034"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff85838470&gt;
+fault = 'sql-ledger'
+
+    @pytest.mark.parametrize("fault", ["journal-seal", "sql-ledger", "block-marker-fsync", "terminal-marker-fsync"])
+    def test_private_journal_ledger_or_marker_write_interruption_never_releases_writers(tmp_path, monkeypatch, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            if fault == "journal-seal":
+                from apps.backup import host_restore_lifecycle as lifecycle
+                original = lifecycle.seal_file
+                def seal(source, target, **kwargs):
+                    if source.name == "swap-journal.jsonl":
+                        raise OSError("synthetic journal fsync interruption")
+                    return original(source, target, **kwargs)
+                monkeypatch.setattr(lifecycle, "seal_file", seal)
+            elif fault == "sql-ledger":
+                original = op.ledger.finish
+                def finish(begun, detail=None):
+                    if begun["phase"] == "inplace-sql-restored":
+                        raise OSError("synthetic root ledger interruption")
+                    return original(begun, detail)
+                monkeypatch.setattr(op.ledger, "finish", finish)
+            else:
+                def interrupted(stage):
+                    state = read_marker(rig.marker).state if rig.marker.exists() else None
+                    wanted = MarkerState.RESTORE_BLOCKED if fault == "block-marker-fsync" else MarkerState.QUARANTINED_AFTER_CUTOVER
+                    if stage == "after_replace" and state == wanted:
+                        raise OSError("synthetic marker directory fsync interruption")
+                op.marker.transition.crash_hook = interrupted
+            with pytest.raises(OSError, match="synthetic"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or1/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or1/ops/private/inplace-synthetic", "public": "...journal_ledger_or1/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or1/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_private_journal_ledger_or_marker_write_interruption_never_releases_writers[block-marker-fsync]" time="0.031"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff858545c0&gt;
+fault = 'block-marker-fsync'
+
+    @pytest.mark.parametrize("fault", ["journal-seal", "sql-ledger", "block-marker-fsync", "terminal-marker-fsync"])
+    def test_private_journal_ledger_or_marker_write_interruption_never_releases_writers(tmp_path, monkeypatch, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            if fault == "journal-seal":
+                from apps.backup import host_restore_lifecycle as lifecycle
+                original = lifecycle.seal_file
+                def seal(source, target, **kwargs):
+                    if source.name == "swap-journal.jsonl":
+                        raise OSError("synthetic journal fsync interruption")
+                    return original(source, target, **kwargs)
+                monkeypatch.setattr(lifecycle, "seal_file", seal)
+            elif fault == "sql-ledger":
+                original = op.ledger.finish
+                def finish(begun, detail=None):
+                    if begun["phase"] == "inplace-sql-restored":
+                        raise OSError("synthetic root ledger interruption")
+                    return original(begun, detail)
+                monkeypatch.setattr(op.ledger, "finish", finish)
+            else:
+                def interrupted(stage):
+                    state = read_marker(rig.marker).state if rig.marker.exists() else None
+                    wanted = MarkerState.RESTORE_BLOCKED if fault == "block-marker-fsync" else MarkerState.QUARANTINED_AFTER_CUTOVER
+                    if stage == "after_replace" and state == wanted:
+                        raise OSError("synthetic marker directory fsync interruption")
+                op.marker.transition.crash_hook = interrupted
+            with pytest.raises(OSError, match="synthetic"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or2/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or2/ops/private/inplace-synthetic", "public": "...journal_ledger_or2/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or2/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_lifecycle_synthetic" name="test_private_journal_ledger_or_marker_write_interruption_never_releases_writers[terminal-marker-fsync]" time="0.030"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff8583b710&gt;
+fault = 'terminal-marker-fsync'
+
+    @pytest.mark.parametrize("fault", ["journal-seal", "sql-ledger", "block-marker-fsync", "terminal-marker-fsync"])
+    def test_private_journal_ledger_or_marker_write_interruption_never_releases_writers(tmp_path, monkeypatch, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            if fault == "journal-seal":
+                from apps.backup import host_restore_lifecycle as lifecycle
+                original = lifecycle.seal_file
+                def seal(source, target, **kwargs):
+                    if source.name == "swap-journal.jsonl":
+                        raise OSError("synthetic journal fsync interruption")
+                    return original(source, target, **kwargs)
+                monkeypatch.setattr(lifecycle, "seal_file", seal)
+            elif fault == "sql-ledger":
+                original = op.ledger.finish
+                def finish(begun, detail=None):
+                    if begun["phase"] == "inplace-sql-restored":
+                        raise OSError("synthetic root ledger interruption")
+                    return original(begun, detail)
+                monkeypatch.setattr(op.ledger, "finish", finish)
+            else:
+                def interrupted(stage):
+                    state = read_marker(rig.marker).state if rig.marker.exists() else None
+                    wanted = MarkerState.RESTORE_BLOCKED if fault == "block-marker-fsync" else MarkerState.QUARANTINED_AFTER_CUTOVER
+                    if stage == "after_replace" and state == wanted:
+                        raise OSError("synthetic marker directory fsync interruption")
+                op.marker.transition.crash_hook = interrupted
+            with pytest.raises(OSError, match="synthetic"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_lifecycle_synthetic.py:146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or3/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or3/ops/private/inplace-synthetic", "public": "...journal_ledger_or3/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_private_journal_ledger_or3/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_configuration_crashes" name="test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal[before-env]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff858398b0&gt;
+boundary = 'before-env'
+
+    @pytest.mark.parametrize("boundary", ["before-env", "after-env", "before-record", "after-record"])
+    def test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal(tmp_path, monkeypatch, boundary):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            from apps.backup import host_restore_files as files, host_restore_configuration as config
+    
+            env_write, record_write = files.install_environment, config.write_topology_record
+            def environment(path, contents):
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert json.loads((op.i.private / "configuration.json").read_bytes())["phase"] == "replacing-environment"
+                if boundary == "before-env":
+                    raise OSError("synthetic interrupted rename")
+                env_write(path, contents)
+                if boundary == "after-env":
+                    raise OSError("synthetic interrupted fsync")
+            def record(path, facts):
+                assert op.t.static_env.read_bytes() == (op.i.private / "environment.new").read_bytes()
+                if boundary == "before-record":
+                    raise OSError("synthetic interrupted topology rename")
+                record_write(path, facts)
+                if boundary == "after-record":
+                    raise OSError("synthetic interrupted record fsync")
+            monkeypatch.setattr(files, "install_environment", environment)
+            monkeypatch.setattr(config, "write_topology_record", record)
+            with pytest.raises(OSError, match="synthetic interrupted"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_configuration_crashes.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur0/ops/private/inplace-synthetic", "public": "...errupted_configur0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_configuration_crashes" name="test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal[after-env]" time="0.028"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff85896120&gt;
+boundary = 'after-env'
+
+    @pytest.mark.parametrize("boundary", ["before-env", "after-env", "before-record", "after-record"])
+    def test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal(tmp_path, monkeypatch, boundary):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            from apps.backup import host_restore_files as files, host_restore_configuration as config
+    
+            env_write, record_write = files.install_environment, config.write_topology_record
+            def environment(path, contents):
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert json.loads((op.i.private / "configuration.json").read_bytes())["phase"] == "replacing-environment"
+                if boundary == "before-env":
+                    raise OSError("synthetic interrupted rename")
+                env_write(path, contents)
+                if boundary == "after-env":
+                    raise OSError("synthetic interrupted fsync")
+            def record(path, facts):
+                assert op.t.static_env.read_bytes() == (op.i.private / "environment.new").read_bytes()
+                if boundary == "before-record":
+                    raise OSError("synthetic interrupted topology rename")
+                record_write(path, facts)
+                if boundary == "after-record":
+                    raise OSError("synthetic interrupted record fsync")
+            monkeypatch.setattr(files, "install_environment", environment)
+            monkeypatch.setattr(config, "write_topology_record", record)
+            with pytest.raises(OSError, match="synthetic interrupted"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_configuration_crashes.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur1/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur1/ops/private/inplace-synthetic", "public": "...errupted_configur1/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur1/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_configuration_crashes" name="test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal[before-record]" time="0.030"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff85895bb0&gt;
+boundary = 'before-record'
+
+    @pytest.mark.parametrize("boundary", ["before-env", "after-env", "before-record", "after-record"])
+    def test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal(tmp_path, monkeypatch, boundary):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            from apps.backup import host_restore_files as files, host_restore_configuration as config
+    
+            env_write, record_write = files.install_environment, config.write_topology_record
+            def environment(path, contents):
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert json.loads((op.i.private / "configuration.json").read_bytes())["phase"] == "replacing-environment"
+                if boundary == "before-env":
+                    raise OSError("synthetic interrupted rename")
+                env_write(path, contents)
+                if boundary == "after-env":
+                    raise OSError("synthetic interrupted fsync")
+            def record(path, facts):
+                assert op.t.static_env.read_bytes() == (op.i.private / "environment.new").read_bytes()
+                if boundary == "before-record":
+                    raise OSError("synthetic interrupted topology rename")
+                record_write(path, facts)
+                if boundary == "after-record":
+                    raise OSError("synthetic interrupted record fsync")
+            monkeypatch.setattr(files, "install_environment", environment)
+            monkeypatch.setattr(config, "write_topology_record", record)
+            with pytest.raises(OSError, match="synthetic interrupted"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_configuration_crashes.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur2/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur2/ops/private/inplace-synthetic", "public": "...errupted_configur2/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur2/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_configuration_crashes" name="test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal[after-record]" time="0.029"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff858959d0&gt;
+boundary = 'after-record'
+
+    @pytest.mark.parametrize("boundary", ["before-env", "after-env", "before-record", "after-record"])
+    def test_each_interrupted_configuration_pair_remains_blocked_without_key_reversal(tmp_path, monkeypatch, boundary):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            from apps.backup import host_restore_files as files, host_restore_configuration as config
+    
+            env_write, record_write = files.install_environment, config.write_topology_record
+            def environment(path, contents):
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert json.loads((op.i.private / "configuration.json").read_bytes())["phase"] == "replacing-environment"
+                if boundary == "before-env":
+                    raise OSError("synthetic interrupted rename")
+                env_write(path, contents)
+                if boundary == "after-env":
+                    raise OSError("synthetic interrupted fsync")
+            def record(path, facts):
+                assert op.t.static_env.read_bytes() == (op.i.private / "environment.new").read_bytes()
+                if boundary == "before-record":
+                    raise OSError("synthetic interrupted topology rename")
+                record_write(path, facts)
+                if boundary == "after-record":
+                    raise OSError("synthetic interrupted record fsync")
+            monkeypatch.setattr(files, "install_environment", environment)
+            monkeypatch.setattr(config, "write_topology_record", record)
+            with pytest.raises(OSError, match="synthetic interrupted"):
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_configuration_crashes.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur3/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur3/ops/private/inplace-synthetic", "public": "...errupted_configur3/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_each_interrupted_configur3/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_configuration_crashes" name="test_unrecorded_env_or_compose_drift_is_never_blessed" time="0.022" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_bundled_redis_real_shape_admitted_and_receipt_rebinds_fresh_transport" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[image]" time="0.012" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[declared]" time="0.013" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[extra-image-volume]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[bind]" time="0.016" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[readonly]" time="0.014" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[name]" time="0.019" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[uppercase]" time="0.015" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[volume-name]" time="0.012" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[driver]" time="0.010" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[scope]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[options]" time="0.013" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[backing]" time="0.013" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[extra-mount]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_implicit_redis_refuses_any_unadmitted_shape[replacement]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[candidate]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[oneoff]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[duplicate]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[command]" time="0.012" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[env]" time="0.013" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[mount]" time="0.014" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_actual_project_writer_inventory_must_equal_trusted_configuration[image]" time="0.013" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unsupported_configuration_is_refused_before_runtime_effects[pointer]" time="0.012" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unsupported_configuration_is_refused_before_runtime_effects[generation]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unsupported_configuration_is_refused_before_runtime_effects[worker-command]" time="0.011" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unsupported_configuration_is_refused_before_runtime_effects[required-mount]" time="0.012" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unsupported_configuration_is_refused_before_runtime_effects[external]" time="0.010" /><testcase classname="tests.backup.test_recovery_redis_admission" name="test_unexplained_sql_sessions_and_transport_identity_disagreement_refuse" time="0.013" /><testcase classname="tests.backup.test_recovery_resume_synthetic" name="test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers[None]" time="0.028"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr0')
+fault = None
+
+    @pytest.mark.parametrize("fault", [None, "unacknowledged", "replacement-volume", "startup"])
+    def test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers(tmp_path, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_resume_synthetic.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr0/ops/private/inplace-synthetic", "public": "...ansport_reuses_pr0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_resume_synthetic" name="test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers[unacknowledged]" time="0.031"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr1')
+fault = 'unacknowledged'
+
+    @pytest.mark.parametrize("fault", [None, "unacknowledged", "replacement-volume", "startup"])
+    def test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers(tmp_path, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_resume_synthetic.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr1/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr1/ops/private/inplace-synthetic", "public": "...ansport_reuses_pr1/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr1/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_resume_synthetic" name="test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers[replacement-volume]" time="0.032"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr2')
+fault = 'replacement-volume'
+
+    @pytest.mark.parametrize("fault", [None, "unacknowledged", "replacement-volume", "startup"])
+    def test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers(tmp_path, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_resume_synthetic.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr2/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr2/ops/private/inplace-synthetic", "public": "...ansport_reuses_pr2/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr2/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_resume_synthetic" name="test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers[startup]" time="0.028"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr3')
+fault = 'startup'
+
+    @pytest.mark.parametrize("fault", [None, "unacknowledged", "replacement-volume", "startup"])
+    def test_fresh_transport_reuses_private_volume_identity_and_exact_ack_before_writers(tmp_path, fault):
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_resume_synthetic.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr3/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr3/ops/private/inplace-synthetic", "public": "...ansport_reuses_pr3/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_fresh_transport_reuses_pr3/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_resume_synthetic" name="test_recover_principal_fixed_child_also_closes_inheritable_authority_fds" time="0.030"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_recover_principal_fixed_c0')
+
+    def test_recover_principal_fixed_child_also_closes_inheritable_authority_fds(tmp_path):
+        import json
+        import os
+        import sys
+        from apps.backup.host_restore_resume import recover_principal
+    
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+&gt;           op.restore("proceed")
+
+tests/backup/test_recovery_resume_synthetic.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_recover_principal_fixed_c0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_recover_principal_fixed_c0/ops/private/inplace-synthetic", "public": "...principal_fixed_c0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_recover_principal_fixed_c0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_installed_preflight" name="test_new_installed_keys_must_pass_real_strict_preflight_before_sql[False]" time="0.037"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff85894290&gt;
+wrong_installed_key = False
+
+    @pytest.mark.parametrize("wrong_installed_key", [False, True])
+    def test_new_installed_keys_must_pass_real_strict_preflight_before_sql(tmp_path, monkeypatch, wrong_installed_key):
+        fixture = make_full_fixture(tmp_path)
+        configure_target(monkeypatch, fixture)
+        monkeypatch.setenv("SECRET_KEY", "OLD-target-key")
+        monkeypatch.setattr("tests.backup.recovery_transport_support.DIGEST", OCI)
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.i.manifest = fixture.manifest
+            op.i.continuity = fixture.secrets
+            op.i.prospective = "separately-authenticated-prospective-input"
+            shutil.copytree(fixture.root, op.i.private / "bundle", dirs_exist_ok=True)
+            def strict(_digest, **kwargs):
+                assert not kwargs.get("prospective")
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert b"fixture-continuity-SECRET_KEY" in op.t.static_env.read_bytes()
+                op.t.hit("real-strict-preflight")
+                # Model only the one-shot management process environment. No signature,
+                # delegation, settings policy or target-compatibility check is replaced.
+                with monkeypatch.context() as environment:
+                    for key, value in op.t.config["services"]["backend"]["environment"].items():
+                        environment.setenv(key, value)
+                    if wrong_installed_key:
+                        environment.setenv("SECRET_KEY", "WRONG-one-shot-key")
+                    validate_import_preflight(**fixture.kwargs(), require_host_support=True)
+            op.i.preflight = strict
+            if wrong_installed_key:
+                with pytest.raises(ImportPreflightError, match="settings_policy"):
+                    op.restore("proceed")
+                op.retain_failure()
+                assert "sql-restore" not in op.t.events
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+            else:
+&gt;               op.restore("proceed")
+
+tests/backup/test_recovery_installed_preflight.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p0/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p0/ops/private/inplace-synthetic", "public": "...alled_keys_must_p0/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p0/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase><testcase classname="tests.backup.test_recovery_installed_preflight" name="test_new_installed_keys_must_pass_real_strict_preflight_before_sql[True]" time="0.036"><failure message="apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff85890710&gt;
+wrong_installed_key = True
+
+    @pytest.mark.parametrize("wrong_installed_key", [False, True])
+    def test_new_installed_keys_must_pass_real_strict_preflight_before_sql(tmp_path, monkeypatch, wrong_installed_key):
+        fixture = make_full_fixture(tmp_path)
+        configure_target(monkeypatch, fixture)
+        monkeypatch.setenv("SECRET_KEY", "OLD-target-key")
+        monkeypatch.setattr("tests.backup.recovery_transport_support.DIGEST", OCI)
+        with marker_rig(tmp_path) as rig:
+            op = operation(rig, tmp_path)
+            op.i.manifest = fixture.manifest
+            op.i.continuity = fixture.secrets
+            op.i.prospective = "separately-authenticated-prospective-input"
+            shutil.copytree(fixture.root, op.i.private / "bundle", dirs_exist_ok=True)
+            def strict(_digest, **kwargs):
+                assert not kwargs.get("prospective")
+                assert not op.t.running &amp; {"backend", "worker", "beat"}
+                assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+                assert b"fixture-continuity-SECRET_KEY" in op.t.static_env.read_bytes()
+                op.t.hit("real-strict-preflight")
+                # Model only the one-shot management process environment. No signature,
+                # delegation, settings policy or target-compatibility check is replaced.
+                with monkeypatch.context() as environment:
+                    for key, value in op.t.config["services"]["backend"]["environment"].items():
+                        environment.setenv(key, value)
+                    if wrong_installed_key:
+                        environment.setenv("SECRET_KEY", "WRONG-one-shot-key")
+                    validate_import_preflight(**fixture.kwargs(), require_host_support=True)
+            op.i.preflight = strict
+            if wrong_installed_key:
+                with pytest.raises(ImportPreflightError, match="settings_policy"):
+&gt;                   op.restore("proceed")
+
+tests/backup/test_recovery_installed_preflight.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/backup/host_restore_lifecycle.py:147: in restore
+    private_json(t.ops / "private" / f"inplace-index-{self.id}.json", index)
+apps/backup/host_restore_transport.py:26: in private_json
+    write_private_file_fsynced(path, json.dumps(value, sort_keys=True) + "\n")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p1/ops/private/inplace-index-4511b438-1234-4c35-89ab-0123456789ab.json')
+data = '{"private": "/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p1/ops/private/inplace-synthetic", "public": "...alled_keys_must_p1/public-input", "work": "/tmp/pytest-of-root/pytest-0/test_new_installed_keys_must_p1/work-input"}\n'
+mode = 384, require_root_owned = True
+
+    def write_private_file_fsynced(
+        path, data, *, mode=0o600, require_root_owned=True
+    ):
+        if not isinstance(data, (str, bytes)) or mode &amp; 0o077:
+            raise MarkerError("Private host file payload or mode is invalid.")
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        parent_stat = target.parent.stat(follow_symlinks=False)
+        if require_root_owned and (
+            os.geteuid() != 0
+            or not stat.S_ISDIR(parent_stat.st_mode)
+            or parent_stat.st_uid != 0
+            or parent_stat.st_mode &amp; 0o077
+        ):
+&gt;           raise MarkerError("Private host file parent is not root-owned and private.")
+E           apps.backup.host_marker.MarkerError: Private host file parent is not root-owned and private.
+
+apps/backup/host_private_file.py:34: MarkerError</failure></testcase></testsuite></testsuites>

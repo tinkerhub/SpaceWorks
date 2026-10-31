@@ -1,13 +1,18 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { QrCode } from "lucide-react";
 
 import QrScanner from "../../../components/ui/QrScanner";
 import { Button, Chip, Dropdown, Field, Input } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { useAuthActionOwner } from "../../auth/useAuthActionOwner";
+import { useHardwareQrVisit } from "../useHardwareQrVisit";
 import { qrResolveErrorText } from "../evidenceUi";
 
-export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value: string; onChange: (code: string) => void; makerspaceId: number; pending: boolean }) {
+// Existing return forms inherit the queue action fence without changing their DTO or controls.
+export const QueueFormEditContext = createContext<() => boolean>(() => true);
+
+export function BoxCodeField({ value, onChange, makerspaceId, pending, canEdit }: { value: string; onChange: (code: string) => void; makerspaceId: number; pending: boolean; canEdit?: () => boolean }) {
   const [containers, setContainers] = useState<ContainerOption[]>([]);
   const [loadError, setLoadError] = useState(false);
   const [scanned, setScanned] = useState<{ code: string; label: string } | null>(null);
@@ -15,15 +20,23 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
   const [scanError, setScanError] = useState("");
   const [manualOpen, setManualOpen] = useState(false);
 
+  const formEditable = useContext(QueueFormEditContext);
+  const readOwner = useAuthActionOwner(makerspaceId);
+  const qr = useHardwareQrVisit(String(makerspaceId), () => !pending && (canEdit ?? formEditable)());
+  const cameraVisit = qr.cameraVisit;
+  const closeScanner = () => { if (qr.canEdit() && qr.cameraCurrent(cameraVisit)) { qr.closeCamera(); setScanOpen(false); } };
+
   useEffect(() => {
     let cancelled = false;
+    const load = readOwner.capture();
+    if (!load) return;
     setLoadError(false);
     staffRequest<{ results: ContainerOption[] }>(`/admin/makerspace/${makerspaceId}/containers?page_size=1000`)
       .then((res) => {
-        if (!cancelled) setContainers((res.results ?? []).filter((c) => c.is_active !== false && c.code));
+        if (!cancelled && readOwner.isCurrent(load)) setContainers((res.results ?? []).filter((c) => c.is_active !== false && c.code));
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!cancelled && readOwner.isCurrent(load)) {
           setContainers([]);
           setLoadError(true);
         }
@@ -31,12 +44,14 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
     return () => {
       cancelled = true;
     };
-  }, [makerspaceId]);
+  }, [makerspaceId, readOwner.context]);
 
   const listed = containers.find((container) => container.code === value);
   const displayLabel = listed?.label ?? (scanned && scanned.code === value ? scanned.label : "");
 
-  const handleScan = async (payload: string) => {
+  const handleScan = async (payload: string, camera: number) => {
+    const scan = qr.captureSingleCamera(camera);
+    if (!scan) return;
     setScanOpen(false);
     const clean = payload.trim();
     if (!clean) return;
@@ -45,6 +60,7 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
         method: "POST",
         body: JSON.stringify({ payload: clean }),
       });
+      if (!qr.current(scan)) return;
       if (res.target.type === "box" && res.target.code) {
         onChange(res.target.code);
         setScanned({ code: res.target.code, label: res.target.label ?? "" });
@@ -53,6 +69,7 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
         setScanError("That QR isn't a box or container. Scan the container's label.");
       }
     } catch (error) {
+      if (!qr.current(scan)) return;
       setScanError(qrResolveErrorText(error, "Could not read that QR. Try again, or pick the container from the list."));
     }
   };
@@ -66,24 +83,24 @@ export function BoxCodeField({ value, onChange, makerspaceId, pending }: { value
             <span className={value ? "min-w-0 truncate font-semibold text-ink" : "min-w-0 truncate text-ink-muted"}>{value ? displayLabel || value : "No container selected"}</span>
             {value ? <Chip tone="success" size="sm">Selected</Chip> : null}
           </div>
-          <Button startIcon={<QrCode />} disabled={pending} onClick={() => setScanOpen(true)}>Scan</Button>
+          <Button startIcon={<QrCode />} disabled={pending} onClick={() => { if (qr.canEdit()) { qr.openCamera(); setScanOpen(true); } }}>Scan</Button>
         </div>
       </div>
       {containers.length ? (
         <Field label="Available container">
-          <Dropdown value={listed ? value : ""} disabled={pending} onChange={(event) => event.target.value && onChange(event.target.value)}>
+          <Dropdown value={listed ? value : ""} disabled={pending} onChange={(event) => { if (!qr.canEdit()) return; qr.closeCamera(); setScanOpen(false); if (event.target.value) onChange(event.target.value); }}>
             <option value="" disabled>Choose an available container…</option>
             {containers.map((container) => <option key={container.id} value={container.code ?? ""}>{container.label}</option>)}
           </Dropdown>
         </Field>
       ) : null}
       {loadError ? <p className="text-caption text-ink-muted">Couldn't load the container list. Scan the box or enter its code.</p> : null}
-      <Button variant="quiet" size="sm" className="justify-self-start" disabled={pending} onClick={() => setManualOpen((open) => !open)}>
+      <Button variant="quiet" size="sm" className="justify-self-start" disabled={pending} onClick={() => { if (qr.canEdit()) setManualOpen((open) => !open); }}>
         {manualOpen ? "Hide manual code entry" : "Enter code manually"}
       </Button>
-      {manualOpen ? <Field label="Container code"><Input className="font-mono" value={value} disabled={pending} onChange={(event) => onChange(event.target.value)} /></Field> : null}
+      {manualOpen ? <Field label="Container code"><Input className="font-mono" value={value} disabled={pending} onChange={(event) => { if (qr.canEdit()) { qr.closeCamera(); setScanOpen(false); onChange(event.target.value); } }} /></Field> : null}
       {scanError ? <p role="alert" className="text-caption text-danger-fg">{scanError}</p> : null}
-      {scanOpen ? <QrScanner onScan={handleScan} onClose={() => setScanOpen(false)} /> : null}
+      {scanOpen ? <QrScanner onScan={(payload) => handleScan(payload, cameraVisit)} onClose={closeScanner} /> : null}
     </div>
   );
 }

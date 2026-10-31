@@ -1,0 +1,34 @@
+Wrote **68 new parameterized cases**. Execution remains with root.
+
+New files:
+
+- `backend/tests/evidence/safety_retention_helpers.py`
+- `backend/tests/evidence/safety_pg_helpers.py`
+- `backend/tests/evidence/test_claim_policy_safety.py`
+- `backend/tests/evidence/test_claim_policy_races.py`
+- `backend/tests/evidence/test_charge_provenance_safety.py`
+- `backend/tests/evidence/test_promotion_retention_race.py`
+- `backend/tests/evidence/test_retention_fair_progress.py`
+
+Allowed existing edits:
+
+- `backend/tests/checkout_lock_fixture_helpers.py`: canonical identity seeding only.
+- `backend/tests/evidence/test_object_retention.py`: explicitly unproved historical charges receive zero credit.
+
+Root commands, from `backend/` with the configured test environment:
+
+```bash
+python -m pytest -q tests/evidence/test_claim_policy_safety.py tests/evidence/test_claim_policy_races.py
+python -m pytest -q tests/evidence/test_charge_provenance_safety.py
+python -m pytest -q tests/evidence/test_promotion_retention_race.py
+python -m pytest -q tests/evidence/test_retention_fair_progress.py
+python -m pytest -q tests/evidence/test_object_retention.py
+```
+
+AST and whitespace checks are clean; new files are ≤233 lines. All ten frozen production-source hashes match.
+
+All runtime cases remain pending. The metadata consistency test makes no full-host-restore claim. No production, documentation, ledger, gate, command, schema, migration or commit changes.
+
+Ordered nine-file handoff manifest SHA-256:
+
+`89849c451e7f14736968dd1ee9276a0ceb29f72db57ee019c07a59dd69d0fd98`

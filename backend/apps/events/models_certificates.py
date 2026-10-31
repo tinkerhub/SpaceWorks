@@ -104,15 +104,19 @@ class EventAttendanceCertificate(ScopedPiiModelMixin, models.Model):
             ):
                 raise ValidationError("Certificate issuance snapshots are immutable.")
             allowed = {
-                self.Status.PENDING: {self.Status.RENDERING},
-                self.Status.FAILED: {self.Status.RENDERING},
-                self.Status.RENDERING: {self.Status.ACTIVE, self.Status.FAILED},
+                self.Status.PENDING: {self.Status.RENDERING, self.Status.REVOKED},
+                self.Status.FAILED: {self.Status.RENDERING, self.Status.REVOKED},
+                self.Status.RENDERING: {self.Status.ACTIVE, self.Status.FAILED, self.Status.REVOKED},
                 self.Status.ACTIVE: {self.Status.REVOKED},
                 self.Status.REVOKED: set(),
             }
             if self.status != original.status and self.status not in allowed[original.status]:
                 raise ValidationError({"status": "Invalid certificate transition."})
-            if original.status == self.Status.ACTIVE:
+            if (
+                original.status == self.Status.ACTIVE
+                or original.rendered_at is not None
+                or original.size_bytes is not None
+            ):
                 frozen = ("size_bytes", "sha256", "rendered_at")
                 if any(getattr(self, field) != getattr(original, field) for field in frozen):
                     raise ValidationError("An active certificate artifact is immutable.")

@@ -1,0 +1,393 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 3,
+  "observed_lexical_owner_count": 30,
+  "owner_census_method": "Stdlib AST enumeration of module and recursive named classes/functions; each mapping written individually from actual source read.",
+  "selected_hashes_rechecked": true,
+  "blanket_approval": false,
+  "runtime_validation": "Not performed by child. New77 parent tests and existing29 native tests authored/frozen; root execution pending.",
+  "files": [
+    {
+      "path": "backend/apps/boxes/admin_forms.py",
+      "file_sha256": "504f94285124a5e4c80a72710178b1d2c4a1a2a237e93e9687067c85c155c5e6",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 55,
+          "purpose": "Bind native Box forms to the actual requesting actor.",
+          "runtime_boundary": "Django admin form construction; delegates policy/serialization to shared Box admission.",
+          "disposition": "Retain imports and request-local form state.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "BoxAdminForm",
+          "line_start": 9,
+          "line_end": 55,
+          "purpose": "Validate native Box parent/identity after shared Maker exclusion.",
+          "runtime_boundary": "ModelForm for native add/change; runtime dispatch retains source admission and transaction.",
+          "disposition": "Race fix inspected; root PostgreSQL execution pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "BoxAdminForm.Meta",
+          "line_start": 10,
+          "line_end": 12,
+          "purpose": "Keep standard Box model validation and field construction.",
+          "runtime_boundary": "Django ModelForm metadata; native readonly exclusions remain ModelAdmin-owned.",
+          "disposition": "Retain model and all-field declaration.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "BoxAdminForm.__init__",
+          "line_start": 14,
+          "line_end": 16,
+          "purpose": "Attach the actual request actor to this form instance.",
+          "runtime_boundary": "Request-local constructor, no mutable global actor state.",
+          "disposition": "Retain actor keyword binding.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "BoxAdminForm.clean",
+          "line_start": 18,
+          "line_end": 55,
+          "purpose": "Admit fresh native policy and reload target/parent after Maker wait.",
+          "runtime_boundary": "Runs inside actual native change transaction; shared Maker lock excludes parent Collector.",
+          "disposition": "Refuse disappeared target before Model.save can insert; preserve omitted-parent fresh SET_NULL; root tests pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/boxes/admin_lifecycle.py",
+      "file_sha256": "febfc57a34b0cb3cb895d26d1a009039ab74014411dbf0aaa6c5a63993eeada6",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 59,
+          "purpose": "Wrap native Box writes and Collectors with source/Maker ownership.",
+          "runtime_boundary": "Django ModelAdmin transaction/dispatch extension, no providers.",
+          "disposition": "Retain explicit imports and existing source-boundary helper.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "BoxLifecycleMixin",
+          "line_start": 16,
+          "line_end": 59,
+          "purpose": "Serialize native Box form/deletion paths against parent writers.",
+          "runtime_boundary": "Placed before canonical Audit and Superuser admin mixins.",
+          "disposition": "Retain source-before-Maker protocol; root tests pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "BoxLifecycleMixin.changeform_view",
+          "line_start": 17,
+          "line_end": 34,
+          "purpose": "Admit initial Box tenant before Django opens its change transaction.",
+          "runtime_boundary": "POST only; validates alternate lookup fields; GET delegates unchanged.",
+          "disposition": "Retain actual commit span and scoped initial target lookup.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "BoxLifecycleMixin.delete_model",
+          "line_start": 36,
+          "line_end": 42,
+          "purpose": "Lock Maker and reload surviving scoped Box before actual deletion.",
+          "runtime_boundary": "Called within Django native single-delete atomic; source boundary precedes Maker.",
+          "disposition": "Collector observes newly committed children; missing target refuses without canonical delete audit.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "BoxLifecycleMixin.delete_queryset",
+          "line_start": 44,
+          "line_end": 53,
+          "purpose": "Acquire all selected source scopes then sorted Maker locks before bulk Collector.",
+          "runtime_boundary": "Native bulk delete effective queryset; outer atomic retains locks before shared canonical audit helper.",
+          "disposition": "Audit/delete only surviving selected rows; historical native LogEntry attempts remain outside helper.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "BoxLifecycleMixin._admit_box_delete",
+          "line_start": 55,
+          "line_end": 59,
+          "purpose": "Reuse fresh native Box admission and map policy refusal for Django.",
+          "runtime_boundary": "Invoked only after retained source ownership, before Collector/domain writes.",
+          "disposition": "Retain explicit native policy and Django PermissionDenied conversion.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/views_containers.py",
+      "file_sha256": "d35661ca20418b732011dedfb3bb3a32e710e73a6b9d0ba2138878ab434aab74",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 267,
+          "purpose": "Expose scoped container read/write HTTP boundaries and serializers.",
+          "runtime_boundary": "DRF staff endpoints; canonical RBAC/module/source helpers provide admission.",
+          "disposition": "Retain existing routes and response contracts.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerPagination",
+          "line_start": 14,
+          "line_end": 18,
+          "purpose": "Allow bounded larger container pages for physical-selection clients.",
+          "runtime_boundary": "DRF list pagination, max1000.",
+          "disposition": "Retain explicit bounded opt-in page size.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "_with_active_box_qr",
+          "line_start": 35,
+          "line_end": 42,
+          "purpose": "Annotate each Box with its own active QR id.",
+          "runtime_boundary": "Unexecuted ORM query builder; tenant+type+id scoped correlated subquery.",
+          "disposition": "Retain deterministic first active id without per-row lookup.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "_fresh_parent",
+          "line_start": 45,
+          "line_end": 51,
+          "purpose": "Reject cached parent that disappeared or belongs to a different Maker.",
+          "runtime_boundary": "Called under Maker serialization before serializer persistence.",
+          "disposition": "Typed field error instead of FK failure; root races pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "_duplicate_label_as_400",
+          "line_start": 55,
+          "line_end": 62,
+          "purpose": "Map conflicting container label persistence to existing field error.",
+          "runtime_boundary": "Nested savepoint protects outer transaction after IntegrityError.",
+          "disposition": "Retain existing savepoint and error contract; other input validation precedes writes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView",
+          "line_start": 69,
+          "line_end": 106,
+          "purpose": "List and create containers in an authorized Maker.",
+          "runtime_boundary": "DRF list/create staff surface with explicit pagination/schema.",
+          "disposition": "Retain scope; fresh-parent creation correction pending runtime.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerListCreateView.get_queryset",
+          "line_start": 74,
+          "line_end": 78,
+          "purpose": "Scope list by URL Maker and VIEW_INVENTORY.",
+          "runtime_boundary": "Read endpoint checks containers module and action before data access.",
+          "disposition": "Retain explicit module/action admission and active-QR annotation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView.create",
+          "line_start": 80,
+          "line_end": 83,
+          "purpose": "Check module before payload validation.",
+          "runtime_boundary": "HTTP creation ordering; delegates canonical serializer path.",
+          "disposition": "Retain module-first refusal semantics.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView.perform_create",
+          "line_start": 85,
+          "line_end": 106,
+          "purpose": "Serialize create with source and Maker module lock; fresh parent and atomic QR/audit.",
+          "runtime_boundary": "Boundary Source N before Maker UPDATE, serializer save and QR creation in one transaction.",
+          "disposition": "Fresh-parent race fix inspected; root execution pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerDetailView",
+          "line_start": 121,
+          "line_end": 156,
+          "purpose": "Retrieve or sparsely update an authorized container.",
+          "runtime_boundary": "Staff DRF retrieve/PATCH only; makerspace immutable in serializer.",
+          "disposition": "Retain query/action boundary and update refresh.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerDetailView.get_queryset",
+          "line_start": 126,
+          "line_end": 128,
+          "purpose": "Use MANAGE_QR for writes and VIEW_INVENTORY for reads.",
+          "runtime_boundary": "RBAC scope_by_action over Box, no free tenant fallback.",
+          "disposition": "Retain method-specific action scope.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView.get_object",
+          "line_start": 130,
+          "line_end": 133,
+          "purpose": "Apply containers module to the scoped fetched Box.",
+          "runtime_boundary": "DRF object lookup before response/serializer use.",
+          "disposition": "Retain per-object module guard.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView.perform_update",
+          "line_start": 135,
+          "line_end": 156,
+          "purpose": "Reload scoped Box and supplied parent after Maker wait before sparse save/audit.",
+          "runtime_boundary": "Retained source then Maker UPDATE; instance replaced before mutation.",
+          "disposition": "Preserve concurrent SET_NULL for omitted parent and refuse disappearing target; runtime pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerMoveView",
+          "line_start": 159,
+          "line_end": 196,
+          "purpose": "Expose container parent/metadata move as one audited staff operation.",
+          "runtime_boundary": "APIView with explicit input/error schema and active staff permission.",
+          "disposition": "Retain contract; fresh-object correction pending runtime.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerMoveView.post",
+          "line_start": 173,
+          "line_end": 196,
+          "purpose": "Reload target after Maker exclusion and resolve explicit parent in same Maker.",
+          "runtime_boundary": "Source before Maker UPDATE; full_clean then save/audit atomic.",
+          "disposition": "Omitted parent uses fresh row, explicit missing parent404; runtime pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": [
+            "BOX-PARENT-RACE"
+          ]
+        },
+        {
+          "owner": "ContainerContentsView",
+          "line_start": 199,
+          "line_end": 224,
+          "purpose": "Expose staff-only current container contents.",
+          "runtime_boundary": "APIView read endpoint; GenericObject response boundary.",
+          "disposition": "Retain existing module/action checks in handler.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerContentsView.get",
+          "line_start": 204,
+          "line_end": 224,
+          "purpose": "Read scoped Box, children, current products and units.",
+          "runtime_boundary": "VIEW_INVENTORY+module before contents; staff counts/locations remain staff-only.",
+          "disposition": "Retain tenant-bound reverse relations and nonarchived-product filter.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerHistoryView",
+          "line_start": 227,
+          "line_end": 267,
+          "purpose": "Expose staff-only immutable scan history projection.",
+          "runtime_boundary": "APIView read endpoint; GenericObject schema.",
+          "disposition": "Retain read-only scope and bounded history.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerHistoryView.get",
+          "line_start": 232,
+          "line_end": 267,
+          "purpose": "Merge Box and generalized QR scan histories for one scoped Maker/Box.",
+          "runtime_boundary": "VIEW_INVENTORY+module; each source limited100 then merged/relimited.",
+          "disposition": "Retain explicit Maker/target filters and latest-first output.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Actual complete source read after approved parent Box Stage2; exact lexical span above.",
+          "findings": []
+        }
+      ]
+    }
+  ],
+  "denominator": "Exactly3 current files/30 lexical owners in this follow-up. No approval inferred for any other file, imported owner or runtime path. services/admin QR group still changing and excluded."
+}

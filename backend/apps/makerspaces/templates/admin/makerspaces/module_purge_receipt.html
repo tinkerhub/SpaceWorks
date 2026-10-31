@@ -1,0 +1,20 @@
+{% extends "admin/change_form.html" %}
+{% block content %}
+  {{ block.super }}
+  {% if original.graph_purged_at %}
+    <p>Module graph removed. Storage last verified at {{ original.last_verified_at|default:"unconfirmed" }}.
+       Late-upload cleanup remains available and never repeats the original refund.</p>
+  {% else %}
+    <p>Module graph retained; cleanup is unfinished. The module must remain uninstalled.
+       Original storage charges remain until graph deletion and settlement complete together.</p>
+  {% endif %}
+  <p>This source-local receipt and its locators are retained indefinitely.</p>
+  {% if original.invalidated_at %}
+    <p>This receipt was permanently invalidated ({{ original.invalidation_reason }}).</p>
+  {% else %}
+    <form method="post" action="{{ cleanup_url }}">
+      {% csrf_token %}
+      <button type="submit">Verify storage and retry cleanup</button>
+    </form>
+  {% endif %}
+{% endblock %}

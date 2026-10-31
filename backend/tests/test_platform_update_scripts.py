@@ -103,13 +103,23 @@ def _run_update(tmp_path, current, args=(), failure="", layer="", pinned=""):
     )
     _write_executable(
         scripts / "setup-host-orchestration.sh",
-        'install_producer_capability() { printf "%s|producer-proof\\n" "$HOST_CONFIG_IMAGE" >> "$FAKE_COMPOSE_CALLS"; }\n',
+        'install_producer_capability() { printf "%s|producer-proof\\n" "$HOST_CONFIG_IMAGE" >> "$FAKE_COMPOSE_CALLS"; }\n'
+        # This fixture does not exercise image identity; the independent host tests do.
+        'refresh_old_image_identity_and_only_trusted_records() { return 0; }\n',
     )
     if current is not None:
         (tmp_path / ".spaceworks-version").write_text(current + "\n", encoding="utf-8")
     _write_executable(
         scripts / "spaceworks-compose.sh",
-        '#!/bin/sh\nprintf "%s|%s\\n" "$MAKERSPACE_IMAGE_TAG" "$*" >> "$FAKE_COMPOSE_CALLS"\n'
+        '#!/bin/sh\nprintf "%s\\0" "$@" >> "$FAKE_COMPOSE_RAW_CALLS"\n'
+        'printf "\\n" >> "$FAKE_COMPOSE_RAW_CALLS"\n'
+        # Keep legacy exact logs while retaining untouched argv in a separate file.
+        # Only project the adjacent startup pair; all other commands/flags stay intact.
+        'if [ "${1:-}" = bundled ] && [ "${2:-}" = up ] && [ "${3:-}" = -d ] '
+        '&& [ "${4:-}" = --pull ] && [ "${5:-}" = never ]; then\n'
+        '  shift 5; set -- bundled up -d "$@"\n'
+        'fi\n'
+        'printf "%s|%s\\n" "$MAKERSPACE_IMAGE_TAG" "$*" >> "$FAKE_COMPOSE_CALLS"\n'
         'case "$FAKE_FAILURE:$*" in\n'
         '  backup:*pg_dump*) exit 1 ;;\n'
         '  deploy:"bundled up -d") [ "$MAKERSPACE_IMAGE_TAG" != "$FAKE_LATEST_VERSION" ] ;;\n'
@@ -134,6 +144,7 @@ def _run_update(tmp_path, current, args=(), failure="", layer="", pinned=""):
             "SPACEWORKS_OPS_HOST_DIR": f"{shell_root}/ops",
             "SPACEWORKS_COMPOSE_LAYER": layer,
             "FAKE_COMPOSE_CALLS": f"{shell_root}/compose-calls.txt",
+            "FAKE_COMPOSE_RAW_CALLS": f"{shell_root}/compose-raw-argv.bin",
             "FAKE_LATEST_VERSION": LATEST_VERSION,
             "FAKE_FAILURE": failure,
             "SPACEWORKS_PINNED_RELEASE": pinned,

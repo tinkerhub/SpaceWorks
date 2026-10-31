@@ -1,0 +1,18 @@
+{
+  "status": "current-local-browser-rendering-verified",
+  "backend_restarted_from_current_checkout": true,
+  "existing_preview_secrets_preserved": true,
+  "staff_page": "http://localhost:55000/m/showcase-lab/admin/requests",
+  "staff_result": "Existing synthetic admin session restored; pending and accepted request tables loaded after refresh.",
+  "public_page": "http://localhost:55000/m/showcase-checkin",
+  "public_result": "Borrow with check-in; No account needed; typed name input and request-purpose form; no member-account/login/verification/2FA prompt.",
+  "screenshot": "final-checkin-account-free-preview.jpg",
+  "screenshot_sha256": "62ef88ff4d49a162300fe2b6abde5604b973df34fb3a21619935aaec77bf32b7",
+  "staff_authority_sha256": "9a98797917bc2e69f363eb751912774c556ed4ce5c71d1d0e0509e91fbbc9102",
+  "limits": [
+    "Synthetic local data only; no request was submitted and no physical equipment moved.",
+    "Demo upstream roster deliberately unconfigured: browser rendering is not roster-identity verification.",
+    "Host-run developer preview lacks installed host marker; strict /health/readiness/ correctly returned503. Actual installed-host readiness/recovery is proved separately by the isolated seventh drill.",
+    "Current UI check does not certify production deployment or external provider configuration."
+  ]
+}

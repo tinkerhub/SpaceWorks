@@ -1,0 +1,62 @@
+{
+  "lanes": {
+    "fast": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-round3-20261030/recovery-fast.xml",
+      "sha256": "38d996de3af9081a475d769d8d63eea5b2c888721612f977be98c34fe23ab898",
+      "cases": 159,
+      "failures": [],
+      "skipped": []
+    },
+    "db": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-round2-20261030/recovery-db.xml",
+      "sha256": "7a0adb32d1d3e4b8abb4c6309d2a68c457425cc43e5b7c88101cb1e46f7bcc0c",
+      "cases": 42,
+      "failures": [],
+      "skipped": []
+    },
+    "private": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-20261030/recovery-private.xml",
+      "sha256": "e64f6884668e732f1698c202d98bc2d32bce9631aecaaf6ee43d4c16214ae949",
+      "cases": 6,
+      "failures": [],
+      "skipped": []
+    },
+    "installed": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-round2-20261030/recovery-installed.xml",
+      "sha256": "7d06639c9e48ff9327468acd1cc0c1ac047492438acca1674e39d0b2a9519491",
+      "cases": 28,
+      "failures": [],
+      "skipped": []
+    },
+    "compat": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-round2-20261030/recovery-compat.xml",
+      "sha256": "b9551a446695acde6f78351f4a5881cfbef728ee18181e402af5b26644f164bc",
+      "cases": 6,
+      "failures": [],
+      "skipped": []
+    },
+    "paths": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-20261030/recovery-paths.xml",
+      "sha256": "9e08d44a6587110c21e81113de4ca9e87584f3aff8d9c5f879f2f65935ce5941",
+      "cases": 7,
+      "failures": [],
+      "skipped": []
+    },
+    "s3": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-20261030/recovery-s3.xml",
+      "sha256": "ead6c650e665816b280499f189d6ba35abe42691c01aa8a30711158e86a48256",
+      "cases": 3,
+      "failures": [],
+      "skipped": []
+    },
+    "live": {
+      "path": "docs/audits/2026-10-29/evidence/recovery-runtime-round2-20261030/recovery-live.xml",
+      "sha256": "83dc8a0a5533b8d22168f23bca7f9acf15c3d7a752880626beaa177ddb7e5f6f",
+      "cases": 1,
+      "failures": [],
+      "skipped": []
+    }
+  },
+  "unique_cases": 252,
+  "status": "all eight assigned lanes passed across explicitly bound snapshots; whole backend/actual host drill pending"
+}

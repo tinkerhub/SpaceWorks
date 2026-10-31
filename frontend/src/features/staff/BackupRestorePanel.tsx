@@ -59,7 +59,10 @@ export function BackupRestorePanel({ makerspaceId, isSuperadmin, singleTenantLoc
   });
   const startRestore = useMutation({
     mutationFn: ({ archive, kind }: { archive: string; kind: "rollback_in_place" | "disaster" }) => requestRestore(archive, kind),
-    onSuccess: () => { client.invalidateQueries({ queryKey: ["restore-operations"] }); showToast("Restore started", { tone: "success" }); },
+    onSuccess: (restore) => {
+      client.invalidateQueries({ queryKey: ["restore-operations"] });
+      showToast(`Restore intent recorded. ${supervisorInstruction(restore.id)}`, { tone: "success" });
+    },
     onError: failed("Couldn't start the restore"),
   });
   const decision = useMutation({
@@ -91,13 +94,13 @@ export function BackupRestorePanel({ makerspaceId, isSuperadmin, singleTenantLoc
           <Card as="section" aria-label="Deployment backup and restore">
             <CardHeader
               title="Deployment backup and restore"
-              description="Full archives of every makerspace and the platform itself."
-              action={<Button variant="secondary" loading={createDeployment.isPending} loadingLabel="Requesting…" onClick={() => createDeployment.mutate()}>Create full deployment archive</Button>}
+              description="Signed full archives when every retained makerspace permits platform access; otherwise B1 compound archives. This host cannot restore B1 archives."
+              action={<Button variant="secondary" loading={createDeployment.isPending} loadingLabel="Requesting…" onClick={() => createDeployment.mutate()}>Create deployment archive</Button>}
             />
             <ArchiveDisclosure deployment />
             <SettingsRow title="Daily archive" description={`Last successful archive: ${formatDate(settings.data?.last_success_at)}`}>
               <div className="flex items-center justify-between gap-4">
-                <label htmlFor="automatic-backups" className="text-body-ui text-ink">Create a full deployment archive each day</label>
+                <label htmlFor="automatic-backups" className="text-body-ui text-ink">Create a deployment archive each day</label>
                 <Switch
                   id="automatic-backups"
                   checked={settings.data?.automatic_backups_enabled ?? false}
@@ -129,6 +132,9 @@ export function BackupRestorePanel({ makerspaceId, isSuperadmin, singleTenantLoc
                 restorePending={startRestore.isPending}
                 onRestore={(archive, kind) => startRestore.mutateAsync({ archive, kind }).catch(() => undefined)}
               />
+              {activeRestore?.stage === "requested" ? (
+                <Callout tone="warning">Restore intent recorded. {supervisorInstruction(activeRestore.id)}</Callout>
+              ) : null}
               {restoreDetail.data ? (
                 <BackupRestoreDecision
                   operation={restoreDetail.data}
@@ -154,4 +160,10 @@ function ArchiveDisclosure({ deployment }: { deployment: boolean }) {
 
 function pollArchives(query: { state: { data?: BackupArchive[] } }) {
   return query.state.data?.some((row) => row.status === "pending" || row.status === "running" || row.status === "promoting") ? 2000 : false;
+}
+
+function supervisorInstruction(id: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    ? `Run scripts/restore.sh ${id} on the privileged deployment host.`
+    : "Ask the privileged deployment host operator to run this intent.";
 }

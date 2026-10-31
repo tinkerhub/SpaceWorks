@@ -1,0 +1,16 @@
+{
+  "status": "actual-isolated-drill-failed-before-restore",
+  "phase": "actual Celery backup final publication",
+  "production_touched": false,
+  "restore_sql_executed": false,
+  "snapshot_source_files": 2019,
+  "recovery_source_hashes_matched": 60,
+  "custom_oci_digest": "sha256:7cb74f7fae3dc04c924b08c636634ef51981c3f9033a6202422990623b4558bf",
+  "original_registry_attempt": "Docker Desktop published Mac loopback was not reachable from the VM daemon. A VM-local loopback registry worked without daemon configuration changes.",
+  "failure": "SDK checksum handling called seek on the non-seekable botocore StreamingBody passed to put_object in storage_promotion.create_final_from_staging.",
+  "error_type": "io.UnsupportedOperation: seek",
+  "response_status": "failed",
+  "side_effect_limits": "Only isolated synthetic seed data and archive attempt. Driver did not submit a restore request; no SQL restore/object restore/quarantine/resume proof exists.",
+  "resource_handling": "Run-owned beat and worker stopped after inspecting failure; database, objects, authority volume and private diagnostics retained. No global queue purge or production cleanup.",
+  "next": "Correct bounded seekable publication with default SDK checksum/create-only/size-hash invariants, test actual SDK and disposable S3, rebuild genuine artifact then repeat actual drill."
+}

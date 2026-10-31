@@ -7,6 +7,8 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from apps.audit import services as audit
 from apps.evidence.storage import StorageUnavailable
 from apps.inventory import public_image_storage
+from apps.inventory.admin_image_lifecycle import AdminImageLifecycleMixin
+from apps.makerspaces import limits
 from apps.makerspaces.models import Makerspace
 
 
@@ -44,7 +46,13 @@ class MakerspaceAdminForm(forms.ModelForm):
         return cleaned
 
 
-class MakerspaceImageAdminMixin:
+class MakerspaceImageAdminMixin(AdminImageLifecycleMixin):
+    def get_readonly_fields(self, request, obj=None):
+        return (*super().get_readonly_fields(request, obj), *("logo_key", "cover_image_key"))
+
+    def storage_image_specs(self):
+        return (("logo_upload", "makerspace"), ("cover_upload", "makerspace"))
+
     @admin.display(description="Logo preview")
     def logo_preview(self, obj):
         return self._image_preview(obj.logo_key if obj else "")
@@ -80,22 +88,12 @@ class MakerspaceImageAdminMixin:
             upload = form.cleaned_data.get(f"{name}_upload")
             if not upload:
                 continue
-            key = public_image_storage.build_object_key(
-                "makerspace",
-                obj.id,
-                form.cleaned_data[f"_{name}_ext"],
-            )
-            try:
-                public_image_storage.put_bytes(key, upload.read(), upload.content_type)
-            except StorageUnavailable:
-                # Raising from save_model() would 500 (Django admin does not turn it
-                # into a form error). Skip this image, keep other edits, warn the user.
-                self.message_user(
-                    request,
-                    f"Public image storage is unavailable; the {name} was not saved.",
-                    level=messages.ERROR,
-                )
+            prepared = getattr(request, "_prepared_storage_images", {}).get(f"{name}_upload")
+            if prepared is None:
                 continue
+            key, size = prepared
+            request._storage_guard.verify(obj.pk)
+            limits.add_storage(obj, size)
             setattr(obj, field, key)
             uploads.append((name, field, key))
         return uploads
@@ -114,7 +112,7 @@ class MakerspaceImageAdminMixin:
         for name, field, key in uploads:
             old_key = old_logo if field == "logo_key" else old_cover
             if old_key and old_key != key:
-                public_image_storage.delete_public_image_on_commit(obj, old_key)
+                public_image_storage.release_public_image_on_commit(obj, old_key, guard=request._storage_guard)
             audit.record(
                 request.user,
                 f"makerspace.{name if name == 'logo' else 'cover'}_attached",
@@ -125,7 +123,7 @@ class MakerspaceImageAdminMixin:
     def _finish_image_clears(self, request, obj, clears):
         for name, old_key in clears:
             if old_key:
-                public_image_storage.delete_public_image_on_commit(obj, old_key)
+                public_image_storage.release_public_image_on_commit(obj, old_key, guard=request._storage_guard)
             audit.record(
                 request.user,
                 f"makerspace.{name if name == 'logo' else 'cover'}_cleared",

@@ -183,8 +183,8 @@ def test_managed_makerspace_email_daily_cap_blocks_delivery(mailoutbox):
     second = _dispatch(makerspace, subject="Second")
 
     assert first.status == EmailLog.Status.SENT
-    assert second.status == EmailLog.Status.FAILED
-    assert "daily" in second.error.lower() and "limit" in second.error.lower()
+    assert second.status == EmailLog.Status.SKIPPED
+    assert second.error == "daily_email_limit_reached"
     assert len(mailoutbox) == 1
     counter = DailyEmailCounter.objects.get(makerspace=makerspace)
     assert counter.count == 1
@@ -259,19 +259,22 @@ def test_self_host_storage_accounting_is_a_noop():
     assert makerspace.storage_bytes_used == 7
 
 
-def test_recompute_storage_sums_authoritative_evidence_sizes(monkeypatch):
-    # The command HEADs every object. CI has no MinIO, so the real call raised
-    # StorageUnavailable and the command (correctly) left usage unchanged at 999;
-    # this only passed against the Docker stack. Answer "not found", exactly what an
-    # empty bucket returns, so the recorded size_bytes fallback is what is under test.
-    monkeypatch.setattr("apps.evidence.storage.object_size", lambda key: None)
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("observed", [False, True])
+def test_recompute_storage_sums_authoritative_evidence_sizes(monkeypatch, observed):
+    # Legacy declarations alone prove no debit. Actual observed bytes still count.
+    sizes = {}
+    monkeypatch.setattr("apps.evidence.storage.object_size", lambda key: sizes.get(key))
     makerspace = make_space("limits-storage-recompute")
     uploader = make_user("limits-storage-uploader", access_status="active")
     for index, size in enumerate((40, 60)):
+        key = f"evidence/{makerspace.id}/quota-{index}.jpg"
+        if observed:
+            sizes[key] = 17 + index * 6
         EvidencePhoto.objects.create(
             makerspace=makerspace,
             evidence_type=EvidencePhoto.EvidenceType.ISSUE,
-            object_key=f"evidence/{makerspace.id}/quota-{index}.jpg",
+            object_key=key,
             content_type="image/jpeg",
             size_bytes=size,
             uploaded_by=uploader,
@@ -281,7 +284,7 @@ def test_recompute_storage_sums_authoritative_evidence_sizes(monkeypatch):
     call_command("recompute_storage", makerspace.slug, stdout=StringIO())
 
     makerspace.refresh_from_db()
-    assert makerspace.storage_bytes_used == 100
+    assert makerspace.storage_bytes_used == (40 if observed else 0)
 
 
 @override_settings(PLATFORM_DOMAIN_SUFFIX=".space-works.tech", INFRA_HOSTS={"testserver"})

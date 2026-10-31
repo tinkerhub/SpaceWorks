@@ -1,0 +1,23 @@
+{
+  "format": "spaceworks-independent-source-review-v1",
+  "finding": "review4-P2-migration-helper-fingerprint",
+  "status": "source-reviewed-runtime-pending",
+  "reviewed_paths": {
+    "backend/apps/backup/producer_capability.py": "2d7488c938ab5fc6bbbe8cd55ed6c7320cc4e6bd017415e523a7e04216641994",
+    "backend/apps/backup/migration_fingerprint.py": "c7234b307420e08cc50826184ef19b5a4a8b034142c2fe765213bf47ed3862d2"
+  },
+  "independent_parent_read": true,
+  "scope": [
+    "Stable producer-capability re-export; no output schema or refusal-reason change",
+    "Deterministic length-framed inventory of migration-package source and data including imported SQL helpers",
+    "No migration imports or configured Django settings required by helper",
+    "Reject nonregular/symlink selected inputs and read identity drift; compiler caches excluded"
+  ],
+  "limits": [
+    "This is source review, not runtime or whole-repository approval",
+    "Trusted installed image is assumed immutable; no filesystem-wide atomic snapshot against concurrent tree mutations is claimed",
+    "Old capability records require explicit trusted installer refresh, not automatic approval"
+  ],
+  "runtime_pending": true,
+  "production_approval": false
+}

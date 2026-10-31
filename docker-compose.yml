@@ -53,20 +53,18 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME:-evidence}
+      PUBLIC_IMAGE_BUCKET: ${PUBLIC_IMAGE_BUCKET:-public-images}
+    volumes:
+      - ./deploy/init-object-buckets.sh:/usr/local/bin/init-object-buckets.sh:ro
     # MinIO already echoes the requesting Origin in its default CORS response (verified:
     # OPTIONS preflight returns Access-Control-Allow-Origin for http://localhost), so no
     # explicit `mc cors set` is needed for local dev. It was also failing on this mc release
     # (`cors set` expects S3 XML, not the JSON we wrote -> "decoding xml: EOF", exit 1).
-    entrypoint: |
-      /bin/sh -c '
-      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
-      mc mb --ignore-existing local/evidence;
-      mc version enable local/evidence;
-      mc anonymous set none local/evidence;
-      mc mb --ignore-existing local/public-images;
-      mc version enable local/public-images;
-      mc anonymous set download local/public-images;
-      '
+    entrypoint: /bin/sh -c 'exec /bin/sh /usr/local/bin/init-object-buckets.sh'
 
   redis:
     image: redis:7-alpine
@@ -87,6 +85,8 @@ services:
       context: ./backend
     container_name: spaceworks-backend
     environment: &backend-env
+      SPACEWORKS_OCI_DIGEST: ${SPACEWORKS_OCI_DIGEST:-}
+      SPACEWORKS_TASK_GENERATION: ${SPACEWORKS_TASK_GENERATION:-}
       SECRET_KEY: ${SECRET_KEY:-dev-insecure-change-me}
       DEBUG: ${DEBUG:-False}
       # Deployment-wide app tombstones (app labels, see `suggest_tombstones`). Every
@@ -139,6 +139,17 @@ services:
       HMAC_MAX_CLOCK_SKEW_SECONDS: ${HMAC_MAX_CLOCK_SKEW_SECONDS:-300}
       APICLIENT_REQUIRE_NONCE: ${APICLIENT_REQUIRE_NONCE:-False}
       HMAC_PROTECTED_PATH_PREFIXES: ${HMAC_PROTECTED_PATH_PREFIXES:-/api/public/,/api/v1/public/}
+      API_CLIENT_AUTH_REQUIRED: ${API_CLIENT_AUTH_REQUIRED:-False}
+      PII_ENCRYPTION_ENABLED: ${PII_ENCRYPTION_ENABLED:-False}
+      PII_ENCRYPTION_DUAL_READ: ${PII_ENCRYPTION_DUAL_READ:-True}
+      PII_KEY_BROKER: ${PII_KEY_BROKER:-local}
+      PII_MASTER_KEY: ${PII_MASTER_KEY:-}
+      PII_MASTER_KEY_PREVIOUS: ${PII_MASTER_KEY_PREVIOUS:-}
+      PII_SEARCH_HASH_KEY: ${PII_SEARCH_HASH_KEY:-}
+      PII_DEK_CACHE_TTL_SECONDS: ${PII_DEK_CACHE_TTL_SECONDS:-300}
+      PII_AWS_KMS_KEY_ID: ${PII_AWS_KMS_KEY_ID:-}
+      PII_AWS_KMS_REGION: ${PII_AWS_KMS_REGION:-}
+      PII_AWS_KMS_ENDPOINT_URL: ${PII_AWS_KMS_ENDPOINT_URL:-}
       CRON_SECRET: ${CRON_SECRET:-}
       EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
       EMAIL_HOST: ${EMAIL_HOST:-}
@@ -167,7 +178,7 @@ services:
       CHECKIN_REQUIRED_PURPOSE: ${CHECKIN_REQUIRED_PURPOSE:-Working on a project}
       CHECKIN_MAX_RESPONSE_BYTES: ${CHECKIN_MAX_RESPONSE_BYTES:-1048576}
       CHECKIN_MAX_ROWS: ${CHECKIN_MAX_ROWS:-2000}
-    command: ["--role", "backend", "sh", "-c", "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+    command: ["--role", "backend", "sh", "-c", "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/', timeout=3).read()\""]
       interval: 10s

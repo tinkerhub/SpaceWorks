@@ -1,0 +1,147 @@
+{
+  "status": "PASS: final-review P2 complete published-provider currency compatibility fixed; full payments regression567passed with no failures/errors/skips.",
+  "review_finding": {
+    "priority": "P2",
+    "problem": "The narrow minimum-charge allowlist rejected valid configured SAR/BDT currencies, preventing intended Payment creation/checkout.",
+    "configured_currency_contract": "Makerspace default currency remains snapshotted into Payment; settings format validation and financial snapshots unchanged."
+  },
+  "runtime": {
+    "selected_directory": "tests/payments",
+    "selected_cases": 567,
+    "passed": 567,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 478.34,
+    "driver_seconds": 488.72,
+    "collection_runtime_ids_exact": true,
+    "duplicates": 0,
+    "new_cases": 351,
+    "existing_compatibility_cases": 216,
+    "new_cases_by_module": {
+      "test_configured_currency_charge_flow": 12,
+      "test_provider_currency_native_snapshots": 6,
+      "test_provider_currency_catalogue": 333
+    },
+    "independent_catalogue_provider_code_pairs": 267,
+    "primary_port": 55432,
+    "cache_database": 10,
+    "broker_database": 11,
+    "daemon_socket_mounted": false,
+    "vendor_dns_loopback": [
+      "api.stripe.com",
+      "connect.stripe.com",
+      "api.razorpay.com"
+    ],
+    "actual_vendor_payment_actions": false
+  },
+  "coverage": {
+    "complete_published_map": "Stripe139 and Razorpay128; exact independent pre-patch primary-fact oracle, including all zero/special/three-decimal/provider-only differences.",
+    "sar_bdt": "Both provider settings APIs accept uppercase defaults; actual machine workflow/pricing creates correct Payment; settings switches before first checkout and after saved link preserve currency/amount/provider snapshots. Real adapters/wrappers execute against external SDK/HTTP mocks; exact units, currency casing, idempotency/reference and one create verified.",
+    "native": "SAR/BDT Stripe intent creation sends exact units then retrieves existing intent with unchanged snapshot.",
+    "connect_kwd": "Real Connect account-refresh path; KWD1.23 charge1230,5000bps fee620. Legacy fee615 denied before account/checkout/native create/retrieve; entire stored rows unchanged.",
+    "historic_controls": "Existing full payment suite covers ordinary defaults, JPY/KRW/ISK/UGX, terminal/offline settlement, webhooks and payment locking; no historical data rewrite or duplicate provider action."
+  },
+  "data_policy": {
+    "stripe_codes": 139,
+    "razorpay_codes": 128,
+    "union_codes": 147,
+    "no_universal_iso_or_two_decimal_fallback": true,
+    "three_decimal_scale": 1000,
+    "ledger_major_decimal_places": 2,
+    "three_decimal_fee_quantum": 10,
+    "fee_quantum_scope": "Local two-major-decimal ledger policy; not asserted as a universal Stripe API rule. Razorpay separately documents trailing zero for payment-link amounts.",
+    "merchant_country_availability": "Still determined by the provider/account; published catalogue does not certify every account can charge every listed currency."
+  },
+  "primary_reference": {
+    "file": "payment-provider-currency-reference-20261030.json",
+    "sha256": "48acb8b2580d5e1a0a4b0e998fa452d9aa8a8bfe08b9a7351ca167f41c8663e2",
+    "independent_root_check": "payment-provider-map-independent-check.json",
+    "test_oracle_exact_pre_patch_facts": true,
+    "urls": [
+      "https://docs.stripe.com/currencies",
+      "https://support.stripe.com/questions/which-payments-methods-and-products-are-available-in-the-uae",
+      "https://razorpay.com/docs/payments/international-payments/",
+      "https://razorpay.com/docs/api/payments/payment-links/create-standard/"
+    ]
+  },
+  "owned_files_exact_tested_capture": {
+    "backend/apps/payments/amounts.py": {
+      "sha256": "83349dbb4397ac58e302c404e9663beeccc7d92fcc37f8bb948a067eb02f3c75",
+      "lines": 73
+    },
+    "backend/apps/payments/currency_rules.py": {
+      "sha256": "9680966afb1c121928f429b873ecf9516f992a81345baae7d2322332b9247490",
+      "lines": 63
+    },
+    "docs/self-hosting.md": {
+      "sha256": "b01f5944b2a563c30085adce2fd6c15a0a9d440903baf317de8dbd51e679f3b6",
+      "lines": 1070
+    },
+    "docs/SOURCE-MAP.md": {
+      "sha256": "1373b7ce61d97adecf9b6f070cf0e528935a2c9ce635ee54981c4b0aa7766ea7",
+      "lines": 372
+    },
+    "backend/tests/payments/fixtures/provider_currency_reference_20261030.json": {
+      "sha256": "a45c83faf795d9b929df432a6ebd272bec73f968cffc699cedfff5886d48f8d3",
+      "lines": 281
+    },
+    "backend/tests/payments/test_provider_currency_catalogue.py": {
+      "sha256": "1aaf544301df000034efe41c0addc815625da3e07909b31586a191f0a083f166",
+      "lines": 118
+    },
+    "backend/tests/payments/test_configured_currency_charge_flow.py": {
+      "sha256": "cb729dd5f2be398119016dedae1dbd13dcb27194d0a51f6a0dcda8af5641a460",
+      "lines": 160
+    },
+    "backend/tests/payments/provider_currency_flow_helpers.py": {
+      "sha256": "3897301054a2cbee0bc48e918eea2a0b5d99ac2da4cf37fc6767232ab345ba31",
+      "lines": 93
+    },
+    "backend/tests/payments/test_provider_currency_native_snapshots.py": {
+      "sha256": "5bd11c25796e02d63a39c8a1f97877226717e14274b555a5abf5e39c052a3f04",
+      "lines": 150
+    },
+    "backend/tests/payments/test_currency_unit_fix_amounts.py": {
+      "sha256": "d9647ce37630560bcbef74f7c83227ce6fecc9a6212b94e78ee4dc3fb95220b5",
+      "lines": 110
+    },
+    "backend/tests/payments/test_currency_unit_fix_checkout.py": {
+      "sha256": "ad92ce486b1b08da41e97b37ef7277dc7fac0bb9cf0169891e5dc2a06375f9ad",
+      "lines": 175
+    },
+    "backend/tests/payments/test_currency_unit_fix_native_offline.py": {
+      "sha256": "1184135c54717e6784e844882980776966f2388edba3321168eabfedf646397b",
+      "lines": 133
+    }
+  },
+  "unchanged_financial_services_models_and_adapters": {
+    "backend/apps/payments/services.py": "72b3d610503d05dd94402531de9ba35760527c13d96057c9a0dd19d230482a22",
+    "backend/apps/payments/services_mobile.py": "d5e87766db692c2b584a0a883809aa7ba9b1efa8f9635b4542feeede64e30e69",
+    "backend/apps/payments/models_settings.py": "761d9e7a9c709ac517e7b4ce7dd17bb3f505206d02c5c8492dde793b24972c9e",
+    "backend/apps/payments/offline_payments.py": "f3f6d118a825e1eafdf013801211e3e3863fb763855ba5123bcc6a346703a0ab",
+    "backend/apps/payments/providers/stripe.py": "36a64d16f1bbce63f30e23b1d055ae2a4fcbb7ebc25dc6238177557fd38bbbc6",
+    "backend/apps/payments/providers/razorpay.py": "8a2d278851eedae9d188388eab8a06d3440ebcbf46e0f35168fa3731367effc5"
+  },
+  "unchanged_executable_math_and_snapshot_function_AST": [
+    "application_fee_amount",
+    "normalize_major_amount",
+    "to_minor_units",
+    "validate_payment_amount"
+  ],
+  "source_capture": {
+    "files": 4738,
+    "inventory_sha256": "a98a992fdf0f5a9ff4788fb19da729198d6482731516375b1c917694eaab0582",
+    "frozen_inputs_sha256": "391188a8c80a0ff696e610896437e44d3ecb210eea7d8417a3820a5d5420d9b5",
+    "source_input_private_env_bytes_modes_verified_before_after": true
+  },
+  "junit": {
+    "file": "payment-currency-catalogue-current-round1.xml",
+    "sha256": "d62cbb849da5fed548c6f3d948c210ba53181ad334ed9af05e6cb7640011c01d",
+    "private_raw_sha256": "08a2bc4c83e98a16cb7d0538c29b1e68d5f3c502d0f138658d67ca25707b1da1",
+    "diagnostic_elements_removed": 0,
+    "retained": "Every case outcome and timing; diagnostic properties/output removed from public copy."
+  },
+  "recovery_scope": "Later application-only currency correction/addition after successful actual seventh restore. Shared recovery65/guard25/runtime-copy59 freezes not changed by this work; restore owner records exact captured-file delta and new-module addition separately. No eighth restore or changed baked-image claim.",
+  "remaining_gates": "Root repeats mandatory background independent review, then final owner QA. No staging, commits, pushes, deployment or final review performed by this agent."
+}

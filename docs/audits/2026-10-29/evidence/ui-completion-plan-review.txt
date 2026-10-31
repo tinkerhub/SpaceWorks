@@ -1,0 +1,12 @@
+APPROVED. The bounded plan matches the source; no blockers.
+
+Implementation guardrails:
+
+- Block chooser calls both while intent is pending and before a rerender commits. The synchronous sequence in [useStaffSession.ts:119](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/useStaffSession.ts:119) can reject retained callbacks. Pending null intent must render loading.
+- Keep the password catch strictly around installation. TanStack also routes exceptions from `onSuccess` into `onError`, so avoid labeling downstream callback errors as installation failures.
+- Member social completion needs its own current-action catch/finally: beginning the host action invalidates the provider’s earlier intent, making provider-owned error reporting unreliable.
+- Invitation installation exceptions already reach the mutation’s `onError`. Clear the password for typed installation failures while preserving redemption success, member identity, and cached data. Preserve the existing restore lifecycle.
+- Capture logout lifetime **after** `clearLocalSession`, which increments it. Inspect the logout settlement separately from offline cleanup. Invalidate warning ownership when a newer login starts, before token installation; wire hook-owned notices through `StaffApp` into `LoginPanel`.
+- Regression tests should explicitly hold route acknowledgement, verify same-render chooser rejection, exercise installation failure and retry, and settle old logout failures during a newer pending login. Existing invitation tests already assert committed routes; adjust only demonstrated harness assumptions.
+
+Read-only review completed. No files changed or tests run. Node 20 validation and final QA remain with the primary workflow.

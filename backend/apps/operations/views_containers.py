@@ -23,6 +23,7 @@ from apps.audit import services as audit
 from apps.boxes.models import Box, BoxScan, QrCode, QrScanEvent
 from apps.boxes.serializers import BoxSerializer
 from apps.makerspaces.guards import require_module, require_module_locked
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
 from apps.operations.serializers import (
     ContainerContentsSerializer,
     ContainerHistorySerializer,
@@ -39,6 +40,15 @@ def _with_active_box_qr(queryset):
         status=QrCode.Status.ACTIVE,
     ).order_by("id").values("id")[:1]
     return queryset.annotate(_active_qr_code_id=Subquery(active_qr))
+
+
+def _fresh_parent(parent, makerspace_id):
+    if parent is None:
+        return None
+    fresh = Box.objects.filter(pk=parent.pk, makerspace_id=makerspace_id).first()
+    if fresh is None:
+        raise ValidationError({"parent": "Select an existing parent in this makerspace."})
+    return fresh
 
 
 @contextmanager
@@ -75,13 +85,15 @@ class ContainerListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         makerspace_id = self.kwargs["makerspace_id"]
         require_action(self.request.user, rbac.Action.MANAGE_QR, makerspace_id)
-        parent = serializer.validated_data.get("parent")
-        if parent and parent.makerspace_id != makerspace_id:
-            raise ValidationError({"parent": "Parent belongs to a different makerspace."})
-        with transaction.atomic():
+        with boundary_tenant_write(makerspace_id), transaction.atomic():
             # Re-checked under the makerspace lock: a concurrent uninstall must not
             # leave a container (and its QR) behind for a module that is now off.
             require_module_locked(makerspace_id, "containers")
+            require_action(self.request.user, rbac.Action.MANAGE_QR, makerspace_id)
+            if "parent" in serializer.validated_data:
+                serializer.validated_data["parent"] = _fresh_parent(
+                    serializer.validated_data["parent"], makerspace_id,
+                )
             with _duplicate_label_as_400():
                 box = serializer.save(makerspace_id=makerspace_id)
             QrCode.objects.get_or_create(
@@ -122,11 +134,14 @@ class ContainerDetailView(generics.RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         box = serializer.instance
-        parent = serializer.validated_data.get("parent")
-        if parent and parent.makerspace_id != box.makerspace_id:
-            raise ValidationError({"parent": "Parent belongs to a different makerspace."})
-        with transaction.atomic():
+        with boundary_tenant_write(box.makerspace_id), transaction.atomic():
             require_module_locked(box.makerspace_id, "containers")
+            box = get_object_or_404(self.get_queryset(), pk=box.pk, makerspace_id=box.makerspace_id)
+            serializer.instance = box
+            if "parent" in serializer.validated_data:
+                serializer.validated_data["parent"] = _fresh_parent(
+                    serializer.validated_data["parent"], box.makerspace_id,
+                )
             for field, value in serializer.validated_data.items():
                 setattr(box, field, value)
             box.full_clean()  # parent cycles; a Django ValidationError maps to a typed 400
@@ -161,10 +176,14 @@ class ContainerMoveView(APIView):
         serializer = ContainerMoveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        with transaction.atomic():
+        with boundary_tenant_write(box.makerspace_id), transaction.atomic():
             # Makerspace row first (the module_install lock), so an uninstall that
             # committed after the check above cannot be raced by this move.
             require_module_locked(box.makerspace_id, "containers")
+            box = get_object_or_404(
+                rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, Box.objects.all()),
+                pk=pk, makerspace_id=box.makerspace_id,
+            )
             if "parent_id" in data:
                 box.parent = None if data["parent_id"] is None else get_object_or_404(Box, pk=data["parent_id"], makerspace=box.makerspace)
             for field in ("label", "location", "description", "is_active"):

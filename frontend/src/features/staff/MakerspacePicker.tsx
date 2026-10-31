@@ -15,12 +15,20 @@ import type { Makerspace } from "./StaffPanels";
 export function MakerspacePicker({
   makerspaces,
   loading,
+  error = false,
+  unavailable = false,
+  globalAdmin = true,
+  onRetry,
   username,
   onSelect,
   onSignOut,
 }: {
   makerspaces: Makerspace[];
   loading: boolean;
+  error?: boolean;
+  unavailable?: boolean;
+  globalAdmin?: boolean;
+  onRetry?: () => void;
   username: string;
   onSelect: (id: number) => void;
   onSignOut: () => void;
@@ -39,16 +47,28 @@ export function MakerspacePicker({
       </header>
       <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-3xl flex-1 px-4 pb-12 pt-6 sm:px-6">
         <PageHeader
-          kicker="Super Admin"
-          title="Choose a makerspace to operate"
-          description={`Signed in as ${username}. Pick a makerspace to manage its operations.`}
+          kicker={globalAdmin ? "Super Admin" : "Staff console"}
+          title={unavailable ? "Makerspace unavailable" : "Choose a makerspace to operate"}
+          description={`Signed in as ${username}. Choose a makerspace available to this account from this site.`}
         />
+        {unavailable ? (
+          <Callout tone="warning" className="mt-6">
+            This makerspace is unavailable to this account from this site. Choose an allowed makerspace below or sign out.
+          </Callout>
+        ) : null}
         <div className="mt-8">
           {loading ? (
             <div className="flex justify-center py-10"><Loader label="Loading makerspaces" /></div>
+          ) : error ? (
+            <Callout tone="warning">
+              <p>Could not check makerspace access. Retry to load the spaces available to this account from this site.</p>
+              <Button variant="secondary" className="mt-3" onClick={onRetry}>Retry</Button>
+            </Callout>
           ) : !makerspaces.length ? (
-            <Callout tone="warning">No makerspaces exist yet. Create one from the Django control plane.</Callout>
+            <Callout tone="warning">No makerspaces available to this account from this site.</Callout>
           ) : (
+            <>
+            <p className="mb-4 text-body-ui text-ink-muted">Only makerspaces allowed for this account and site are listed.</p>
             <ul className="grid gap-3 sm:grid-cols-2">
               {makerspaces.map((makerspace) => (
                 <li key={makerspace.id} className="min-w-0">
@@ -74,6 +94,7 @@ export function MakerspacePicker({
                 </li>
               ))}
             </ul>
+            </>
           )}
         </div>
       </main>

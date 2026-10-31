@@ -16,7 +16,7 @@ from apps.inventory.public_image_metadata import (
     public_url,
 )
 from apps.inventory.public_image_sniff import sniff_is_valid_image
-from apps.object_storage import delete_all_versions
+from apps.object_storage import delete_accepted_object_versions
 
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def _public_client():
 
 
 def build_object_key(kind, makerspace_id, ext):
-    if kind not in {"event", "items", "machine", "makerspace", "member", "printers"}:
+    if kind not in {"event", "event-series", "items", "machine", "makerspace", "member", "printers"}:
         raise ValueError("Invalid public image kind.")
     return f"{kind}/{makerspace_id}/{uuid.uuid4().hex}{ext}"
 
@@ -70,7 +70,7 @@ def delete_object(object_key):
     if not object_key:
         return True
     try:
-        delete_all_versions(
+        delete_accepted_object_versions(
             _client(), bucket=settings.PUBLIC_IMAGE_BUCKET, key=object_key
         )
     except (BotoCoreError, ClientError):
@@ -79,57 +79,41 @@ def delete_object(object_key):
     return True
 
 
-def release_public_image(makerspace, object_key, storage=None):
-    """Delete a public image object and free its quota only if the delete succeeded.
+def release_public_image(makerspace, object_key, storage=None, *, guard=None):
+    import sys
+    from apps.inventory.public_image_release import release_public_image as implementation
 
-    The HEAD must precede the delete -- the size is unobtainable once the object is gone
-    -- but the quota must be released only once the delete reported success. Freeing on a
-    silent failure is the direction that permanently grants free storage, which is why
-    every step is best-effort and a failure frees nothing.
-
-    `storage` overrides the module the two calls resolve against. `apps.bookings.storage`
-    wraps this with its own implementations, and its service layer takes `storage` as an
-    injected dependency, so binding these to this module unconditionally would quietly
-    step around that seam.
-    """
-    from apps.makerspaces import limits
-
-    sizer = storage.object_size if storage is not None else object_size
-    deleter = storage.delete_object if storage is not None else delete_object
-
-    size = None
-    try:
-        size = sizer(object_key)
-    except Exception:
-        logger.exception("Failed to size public image object before release: %s", object_key)
-    try:
-        deleted = deleter(object_key)
-    except Exception:
-        logger.exception("Failed to delete public image object during release: %s", object_key)
-        return
-    # Strict: only an affirmative True frees the quota. A deleter that reports nothing
-    # cannot confirm anything, and treating silence as success is how a counter drifts
-    # downward into permanently free storage.
-    if not deleted or size is None:
-        return
-    try:
-        limits.free_storage(makerspace, size)
-    except Exception:
-        logger.exception("Failed to free public image storage quota: %s", object_key)
+    if guard is None:
+        raise StorageUnavailable
+    return implementation(makerspace, object_key, storage or sys.modules[__name__], guard=guard)
 
 
-def release_public_image_on_commit(makerspace, object_key, storage=None):
-    """Schedule release_public_image for after the current transaction commits."""
+def release_public_image_on_commit(makerspace, object_key, storage=None, *, guard=None):
     from apps.inventory.tenant_object_callbacks import release_public_image
+    from apps.makerspaces.purge_cleanup import owns_cleanup
 
-    transaction.on_commit(lambda: release_public_image(makerspace, object_key, storage))
+    if owns_cleanup(makerspace.pk):
+        return
+    if guard is None:
+        # An uncoordinated detach must leave conservative orphan accounting; it
+        # must never delete a key another lifecycle can already have reattached.
+        logger.error("public_image_cleanup_missing_guard", extra={"makerspace_id": makerspace.pk})
+        return
+    guard.verify(makerspace.pk)
+    transaction.on_commit(lambda: release_public_image(makerspace, object_key, storage, guard=guard))
 
 
-def delete_public_image_on_commit(makerspace, object_key):
-    """Defer a public-image delete to after commit, without touching the quota."""
+def delete_public_image_on_commit(makerspace, object_key, *, guard=None):
     from apps.inventory.tenant_object_callbacks import delete_public_image
+    from apps.makerspaces.purge_cleanup import owns_cleanup
 
-    transaction.on_commit(lambda: delete_public_image(makerspace.pk, object_key))
+    if owns_cleanup(makerspace.pk):
+        return
+    if guard is None:
+        logger.error("public_image_cleanup_missing_guard", extra={"makerspace_id": makerspace.pk})
+        return
+    guard.verify(makerspace.pk)
+    transaction.on_commit(lambda: delete_public_image(makerspace.pk, object_key, guard=guard))
 
 
 def put_bytes(object_key, data, content_type):
@@ -229,6 +213,8 @@ def _finalize_result(object_key, size):
 
 
 def finalize_error_message(result):
+    if result.status == "invalid":
+        return "Uploaded file is not a valid image."
     if result.status == "missing":
         return "Uploaded image was not found in storage."
     if result.status == "empty":
@@ -236,7 +222,7 @@ def finalize_error_message(result):
     if result.status == "too_large":
         max_mb = settings.PUBLIC_IMAGE_MAX_BYTES // (1024 * 1024)
         return f"Uploaded image exceeds the {max_mb} MB limit."
-    return ""
+    return "Uploaded file is not a valid image."
 
 
 def presigned_upload(object_key, content_type):
@@ -259,7 +245,7 @@ def presigned_upload(object_key, content_type):
             }
         return _public_client().generate_presigned_post(
             Bucket=settings.PUBLIC_IMAGE_BUCKET,
-            Key=object_key,
+            Key=staging_key(object_key),
             Fields={"Content-Type": content_type},
             Conditions=[
                 {"Content-Type": content_type},
@@ -272,25 +258,7 @@ def presigned_upload(object_key, content_type):
 
 
 def finalize_upload(object_key):
-    max_bytes = settings.PUBLIC_IMAGE_MAX_BYTES
-    if settings.STORAGE_PRESIGN_METHOD != "put":
-        return _finalize_result(object_key, object_size_after_upload(object_key))
+    import sys
+    from apps.inventory.public_image_publication import finalize
 
-    final_size = object_size(object_key)
-    if final_size is not None:
-        delete_object(staging_key(object_key))
-        return _finalize_result(object_key, final_size)
-
-    upload_staging_key = staging_key(object_key)
-    size = object_size(upload_staging_key)
-    if size is None:
-        return _finalize_result(object_key, None)
-    if not (1 <= size <= max_bytes):
-        return _finalize_result(object_key, size)
-
-    copy_object(upload_staging_key, object_key)
-    delete_object(upload_staging_key)
-    final_size = object_size(object_key)
-    if final_size is None or not (1 <= final_size <= max_bytes):
-        delete_object(object_key)
-    return _finalize_result(object_key, final_size)
+    return finalize(sys.modules[__name__], object_key)

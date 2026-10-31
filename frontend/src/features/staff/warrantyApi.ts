@@ -1,3 +1,4 @@
+import { admitUpload, uploadBytes, type UploadGuard } from "../../lib/uploadProtocol";
 import { staffRequest } from "../../lib/api";
 
 export type WarrantyStatus = "unknown" | "active" | "expiring_soon" | "expired";
@@ -77,7 +78,8 @@ export function saveWarranty(hostKind: WarrantyHostKind, hostId: number, payload
   });
 }
 
-export async function uploadWarrantyDocument(warrantyId: number, file: File) {
+export async function uploadWarrantyDocument(warrantyId: number, file: File, guard: UploadGuard = admitUpload()) {
+  guard.assertCurrent();
   const presigned = await staffRequest<WarrantyPresignResponse>(
     `/admin/warranty/${warrantyId}/documents/presign`,
     {
@@ -89,30 +91,18 @@ export async function uploadWarrantyDocument(warrantyId: number, file: File) {
     },
   );
 
-  if (presigned.upload.method === "PUT") {
-    const res = await fetch(presigned.upload.url, {
-      method: "PUT",
-      body: file,
-      headers: presigned.upload.headers,
-    });
-    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
-  } else {
-    const formData = new FormData();
-    Object.entries(presigned.upload.fields ?? {}).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    formData.append("file", file);
-    const res = await fetch(presigned.upload.url, { method: "POST", body: formData });
-    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
-  }
+  await uploadBytes(file, presigned.upload, guard);
+  guard.assertCurrent();
 
-  return staffRequest<WarrantyDocument>(`/admin/warranty/${warrantyId}/documents`, {
+  const document = await staffRequest<WarrantyDocument>(`/admin/warranty/${warrantyId}/documents`, {
     method: "POST",
     body: JSON.stringify({
       object_key: presigned.object_key,
       original_filename: file.name,
     }),
   });
+  guard.assertCurrent();
+  return document;
 }
 
 export function getWarrantyDocumentUrl(documentId: number) {

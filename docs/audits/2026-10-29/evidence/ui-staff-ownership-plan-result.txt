@@ -1,0 +1,13 @@
+**APPROVED** for the bounded plan, including the explicit root-scope addendum. Actual-source review supports the stated defects; no further scope expansion is needed.
+
+Implementation must preserve these constraints:
+
+- Capture ownership at admission, before config/presign or TanStack queueing. Carry it across every batch file and check it before each later dispatch and publication.
+- Guard maintenance’s hook-level callbacks too: `useMaintenanceDocumentUrl` currently opens the private URL itself. A caller-only check would be too late.
+- Bind maintenance retry keys to the original machine, log, session, and context visit. Preserve current finalize retries without letting a new actor or resource adopt an old key.
+- Use separate queue/manual owners, immutable click-time payloads, and synchronous edit/admission guards. `finish` releases pending ownership; current results/errors must remain usable afterward.
+- Key only the type page by numeric ID, preserve container-owned service drafts, and synchronize warranty metadata by its actual fields. Camera/file callbacks and object-URL cleanup must retain their originating context.
+
+The four additional evidence caller changes and optional-container hint correction fit the authorized scope. Keep existing upload contracts, DTO semantics, invalidations, exported paths, and the 300-line ceiling.
+
+Stage1 only completed. No edits, tests, builds, runtime/browser actions, staging, or commits performed. No derived docs/audits JSON searched. Source writes remain held by root.

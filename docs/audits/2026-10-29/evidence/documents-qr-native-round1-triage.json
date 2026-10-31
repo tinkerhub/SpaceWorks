@@ -1,0 +1,35 @@
+{
+  "junit": "docs/audits/2026-10-29/evidence/documents-qr-native-round1.xml",
+  "sha256": "249fb5e3be71a4d018600c029b3e754fbe626abdc756b64712eefeb3e83dceb7",
+  "executed_by": "root central runtime",
+  "result": "317 collected:304passed13failed in467.24s per root report. No overall-suite count claim.",
+  "groups": {
+    "qr_native": {
+      "cases": 126,
+      "failed": [
+        "test_closed_source_gate_refuses_real_qr_writes[box]",
+        "test_closed_source_gate_refuses_real_qr_writes[product]",
+        "test_closed_source_gate_refuses_real_qr_writes[asset]",
+        "test_closed_source_gate_refuses_real_qr_writes[scan]",
+        "test_actual_native_add_and_edit_audits_identify_actor_tenant_target_and_field_names[to-buy]",
+        "test_native_noop_save_suppresses_audit_even_if_admin_updates_timestamp[to-buy]",
+        "test_real_native_audit_insert_failure_rolls_back_complete_save[to-buy-add]",
+        "test_real_native_audit_insert_failure_rolls_back_complete_save[to-buy-edit]",
+        "test_native_document_source_gate_precedes_audit_and_mutation[to-buy-add]",
+        "test_native_document_source_gate_precedes_audit_and_mutation[to-buy-edit]",
+        "test_native_document_source_gate_precedes_audit_and_mutation[to-buy-delete]",
+        "test_native_delete_audit_refusal_retains_parent_and_document_without_cleanup[to-buy]",
+        "test_native_audited_parent_delete_preserves_document_cleanup_wrapper[to-buy]"
+      ]
+    },
+    "document_safety": {
+      "cases": 161,
+      "failed": []
+    },
+    "native_warranty": {
+      "cases": 30,
+      "failed": []
+    }
+  },
+  "triage": "Nine native_form helper name collisions root-owned correction; four genuine closed-source QR writes accepted201, strict423 assertions preserved and gated source correction pending."
+}

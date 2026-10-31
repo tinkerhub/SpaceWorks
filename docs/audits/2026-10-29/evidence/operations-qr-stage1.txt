@@ -1,0 +1,23 @@
+**APPROVE** the bounded OPS-S01–S03 plan. All three findings match the current source.
+
+Minimal source scope:
+
+- [serializers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/serializers.py): declare `title=200`, `label_text=255`, and each serial number `=100`. A conservative `name_prefix=154` accommodates the existing-unit format: prefix + space + a 100-character asset tag.
+- [services_qr_assets.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py): bound derived descriptive text, add transactional batch-item audits, and guard printing under the makerspace lock.
+- [views_qr_batches.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py): pass the actor into batch-item creation and audit genuinely new asset QRs.
+
+Implementation requirements:
+
+1. **Lengths:** preserve the complete asset-tag or number suffix; truncate only descriptive text. The generated title can retain `" unit QR labels"` by limiting its product-name portion to 185 characters. Apply suffix-aware formatting to default `_target_label`, omitted/empty-label fallback, and both generation branches. Reject oversized explicit labels and serials without truncation. Validate invalid derived explicit input before mutations.
+
+2. **Audits:** use the `get_or_create` creation flag for AssetQrView; existing QR reprints retain their response and produce no creation event. Add a required actor argument to `add_qr_to_batch` and update its three callers: the API and both generation branches. Compare persisted fields before saving/logging an update; unchanged input produces neither a synthetic update nor its audit. Keep mutation and audit atomic, preserving the aggregate `asset_units.generated` event.
+
+   Literal actions with `target=qr` or `target=item` need no registry expansion: both models are already classified, and generic audit targets derive from that classification. Omit reference-bearing metadata; do not hide new references under scalar-looking keys.
+
+3. **Printing:** inside `atomic()`, call `require_module_locked(batch.makerspace_id, "qr_print_batches")` **before** locking the batch. Retain the locked DRAFT check and existing success audit. The control admin already catches DRF `ValidationError`; no admin edit is needed.
+
+All three files are currently below 300 lines; no helper or oversized-file edit is necessary. Preserve existing authorization, source/tenant gates, quota checks, inventory reconciliation, and lock ordering.
+
+Stage 3 should cover actual API boundaries and rollback, long default names/full tags, empty-label fallback, create/update/no-op audits, idempotent reprints, control-service module refusal, and PostgreSQL module-toggle serialization.
+
+No edits, runtime tests, schema generation, staging, or commits performed. `codex doctor` found configured authentication but reported network reachability failure; central execution, final review, and QA remain with root.

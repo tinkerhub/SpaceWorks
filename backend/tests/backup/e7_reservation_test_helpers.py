@@ -5,11 +5,9 @@ import pytest
 from django.db import DatabaseError, models, transaction
 from django.utils import timezone
 
-from apps.backup.models import (
-    B1ReservationEntry,
-    B1RestoreComponentState,
-    B1RestoreOperationState,
-)
+from apps.backup.models import B1ReservationEntry
+from apps.backup.compound_restore_state import install_manifest_enforcement
+from tests.backup.x07_installation_test_helpers import prepared
 
 
 DIGEST = "d" * 64
@@ -37,9 +35,14 @@ def digest(value):
 def persist_active_reservation(fact, kind, *, makerspace_id=7001):
     """Rehydrate the signed fact/state that must drive database enforcement."""
 
-    operation_id, component_id = persist_restore_state(
-        fact, makerspace_id=makerspace_id
-    )
+    if kind != B1ReservationEntry.Kind.NUMERIC_RANGE:
+        case = prepared([(kind, fact)], makerspace_id=makerspace_id)
+        install_manifest_enforcement(inputs=case.inputs, manifest=case.manifest)
+        return B1ReservationEntry.objects.get(operation_id=case.inputs.run_id)
+    # Numeric-range rows are an older enforcement primitive, not a fact emitted
+    # by the compound producer. Exercise its trigger without claiming a complete
+    # manifest installation or advancing past STATE_REHYDRATED.
+    operation_id, component_id = persist_restore_state(fact, makerspace_id=makerspace_id)
     identity = fact.get("constraint_identity") or fact.get("registry_identity")
     return B1ReservationEntry.objects.create(
         operation_id=operation_id,
@@ -53,41 +56,27 @@ def persist_active_reservation(fact, kind, *, makerspace_id=7001):
     )
 
 
-def persist_restore_state(fact, *, makerspace_id=7001):
-    operation_id = uuid.uuid4()
-    artifact_id = uuid.uuid4()
-    capture_id = uuid.uuid4()
-    component_id = uuid.UUID(str(fact["component_ids"][0]))
-    B1RestoreOperationState.objects.create(
-        operation_id=operation_id,
-        artifact_id=artifact_id,
-        capture_id=capture_id,
-        main_component_id=uuid.uuid4(),
-        outer_ciphertext_sha256=DIGEST,
-        outer_manifest_sha256=DIGEST,
-        source_proof_sha256=DIGEST,
-        sibling_database_name="e7_reservation_sibling",
-        sibling_database_oid=7001,
-        sibling_server_identity="postgresql:e7-test",
-        stage=B1RestoreOperationState.Stage.VERIFIED,
+def persist_restore_state(fact, *, makerspace_id=7001, kind=None, reservation_salt=b"s" * 32):
+    """Stop before installation; all expected facts/components already exist."""
+    if kind is None:
+        kind = {
+            "b1-broad-unique-fence-v1": B1ReservationEntry.Kind.BROAD_FENCE,
+            "b1-relationship-fence-v1": B1ReservationEntry.Kind.RELATIONSHIP_FENCE,
+            "b1-object-namespace-fence-v1": B1ReservationEntry.Kind.OBJECT_NAMESPACE,
+        }.get(fact.get("version"))
+    ids = (
+        [item["component_id"] for item in fact["component_commitments"]]
+        if kind == B1ReservationEntry.Kind.COMMITMENT else fact["component_ids"]
     )
-    for stage in (
-        B1RestoreOperationState.Stage.MAIN_RESTORED,
-        B1RestoreOperationState.Stage.ROLES_RECREATED,
-        B1RestoreOperationState.Stage.STATE_REHYDRATED,
-        B1RestoreOperationState.Stage.ENFORCEMENT_INSTALLED,
-    ):
-        B1RestoreOperationState.objects.filter(pk=operation_id).update(stage=stage)
-    B1RestoreComponentState.objects.create(
-        operation_id=operation_id,
-        artifact_id=artifact_id,
-        capture_id=capture_id,
-        component_id=component_id,
-        makerspace_id_snapshot=makerspace_id,
-        ciphertext_sha256=DIGEST,
-        state=B1RestoreComponentState.State.PENDING,
+    components = [
+        {"component_id": str(value), "makerspace_id": makerspace_id + index,
+         "ciphertext_sha256": DIGEST}
+        for index, value in enumerate(sorted(ids))
+    ]
+    case = prepared(
+        [(kind, fact)] if kind else [], components=components, salt=reservation_salt,
     )
-    return operation_id, component_id
+    return case.inputs.run_id, uuid.UUID(str(ids[0]))
 
 
 def assert_database_rejects(write):

@@ -91,7 +91,7 @@ export function ReturnRequestModal({ row, open, pending, error, onClose, onSubmi
             </figure>
           ) : null}
           {issueError ? <p className="text-caption text-warning-fg" role="status">{issueError}</p> : null}
-          <EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={setEvidenceId} />
+          <EvidenceUpload resourceContext={row?.id} makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={setEvidenceId} />
         </div>
         {hasAssignedContainer && row?.assigned_box_label ? <p className="text-caption text-ink-muted">Assigned container: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
         {hasAssignedContainer ? <BoxCodeField value={boxCode} onChange={setBoxCode} makerspaceId={makerspaceId} pending={pending} /> : null}

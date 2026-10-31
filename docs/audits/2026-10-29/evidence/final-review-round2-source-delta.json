@@ -1,0 +1,16 @@
+{
+  "status": "only-reviewed-currency-implementation-delta-between-review-rounds",
+  "changed_application_paths": [
+    "backend/apps/payments/amounts.py",
+    "backend/apps/payments/currency_rules.py"
+  ],
+  "before": {
+    "backend/apps/payments/amounts.py": "e7184185e81f8e8926d01996f074f6082a1e5583fbe56dd8d6a13ae4537d3b4a",
+    "backend/apps/payments/currency_rules.py": null
+  },
+  "after": {
+    "backend/apps/payments/amounts.py": "83349dbb4397ac58e302c404e9663beeccc7d92fcc37f8bb948a067eb02f3c75",
+    "backend/apps/payments/currency_rules.py": "9680966afb1c121928f429b873ecf9516f992a81345baae7d2322332b9247490"
+  },
+  "limits": "Test/documentation/evidence files changed separately; mandatory second whole uncommitted review is running, not yet passed."
+}

@@ -60,7 +60,11 @@ def test_allowed_edges_are_audited_and_notified_after_commit(monkeypatch):
     notices = []
     callbacks = []
     monkeypatch.setattr("apps.machines.service_workflow_helpers.notify_service_status", lambda row, event: notices.append(event))
-    monkeypatch.setattr("apps.machines.service_workflow_helpers.transaction.on_commit", callbacks.append)
+    def capture(callback, **kwargs):
+        assert kwargs == {"robust": True}
+        callbacks.append(callback)
+
+    monkeypatch.setattr("apps.machines.service_workflow_helpers.transaction.on_commit", capture)
     with transaction.atomic():
         row = request(space, actor=actor)
         assert notices == []

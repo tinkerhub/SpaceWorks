@@ -1,0 +1,57 @@
+{
+  "reviewer": "/root/audit_backend_finish",
+  "scope": "INV-S01/INV-S02/INV-S03 bounded source and Stage3 tests; root owns runtime verification",
+  "runtime_status": "Root: backend 11 pass / 4 concurrency proof-helper failures (PG statement truncation), helper corrected awaiting central rerun; frontend 9 pass.",
+  "files": [
+    {
+      "path": "backend/apps/inventory/availability_requests.py",
+      "sha256": "8d271f99cac912c6b86a9bc5cb09d35af740929ba406c0cce7fd532fdf40a72e",
+      "lines": 256
+    },
+    {
+      "path": "backend/apps/admin_api/views_assets.py",
+      "sha256": "3ddae5c527a61565fb62240505af817ebb19298bfa30dbbdfb9befe73fb13e7d",
+      "lines": 194
+    },
+    {
+      "path": "frontend/src/features/staff/panels/NeedsFixShelf.tsx",
+      "sha256": "d288637080f6b477820939ae8d86514df4163678aecac74db8818ab1c0d50c81",
+      "lines": 161
+    },
+    {
+      "path": "backend/tests/test_individual_fix_boundaries.py",
+      "sha256": "caf52c3d2dc3fa19b98d9152097eeb3aac697cb660d371bec18ec8eb108c8c87",
+      "lines": 132
+    },
+    {
+      "path": "backend/tests/test_individual_fix_lifecycle.py",
+      "sha256": "ceec8a0af44666f72463f1dd440abe95bebb3a978a15d87392919b4f19cb3326",
+      "lines": 131
+    },
+    {
+      "path": "backend/tests/test_asset_fix_concurrency.py",
+      "sha256": "c5069983d16f4563257ecca2dada97033f708e0aab6eaf3d9d0d54db01a6aa16",
+      "lines": 198
+    },
+    {
+      "path": "backend/tests/asset_fix_concurrency_helpers.py",
+      "sha256": "dae24e6055bffc8f612bf9efbc5ce3f7072b9bcff7a86b0e60ddafb6247a6d78",
+      "lines": 139
+    },
+    {
+      "path": "frontend/src/features/staff/panels/NeedsFixShelf.units.test.tsx",
+      "sha256": "f85ca56d9653c356b59bdf5cd0b321da2fa576369ec0883eded484de68d599a0",
+      "lines": 99
+    },
+    {
+      "path": "frontend/src/features/staff/panels/NeedsFixShelf.quantity.test.tsx",
+      "sha256": "6e202f4c5c6e3f4cfff56619bac542f4a52b57fa4dc8ae6a63cc7d09e185c137",
+      "lines": 119
+    },
+    {
+      "path": "frontend/src/test/needsFixShelfHarness.tsx",
+      "sha256": "a16ceb9190e796be8667ebdaddc7e13093c123d86f36f6e1808e766d124f4cbb",
+      "lines": 115
+    }
+  ]
+}

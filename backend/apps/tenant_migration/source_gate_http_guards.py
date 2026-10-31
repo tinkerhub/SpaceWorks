@@ -20,6 +20,17 @@ def validate_authenticated_http_boundary(apps_dir, error_class):
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 _validate_function_view(node, module, error_class)
     if Path(apps_dir).resolve() == APPS_DIR:
+        from .source_gate_api_owned_http_guards import validate_api_owned_http_boundaries
+
+        validate_api_owned_http_boundaries(apps_dir, error_class)
+        from .source_gate_owned_http_guards import validate_service_owned_http_boundaries
+        from .source_gate_service_guards import validate_service_writer_boundaries
+
+        validate_service_owned_http_boundaries(apps_dir, error_class)
+        validate_service_writer_boundaries(apps_dir, error_class)
+        from .source_gate_import_guards import validate_import_publication_boundaries
+
+        validate_import_publication_boundaries(apps_dir, error_class)
         settings_path = APPS_DIR.parent / "config" / "settings.py"
         expected = "apps.accounts.authentication.SpaceWorksJWTAuthentication"
         if expected not in settings_path.read_text(encoding="utf-8-sig"):

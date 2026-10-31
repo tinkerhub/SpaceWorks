@@ -34,6 +34,9 @@ logger = logging.getLogger(__name__)
 
 def request_tenant_dump_capture(actor, makerspace):
     """Freeze request-time custody under Part A's serialization boundary."""
+    from apps.makerspaces.purge_intent import assert_capture_allowed
+
+    assert_capture_allowed([makerspace.pk])
     validate_catalog()
     rejected = None
     capture = None
@@ -134,6 +137,9 @@ def capture_tenant_dump_source(capture_id, *, sleep=None, storage_modes=None):
             capture.requested_by,
             **gate_kwargs,
         ) as lease:
+            from apps.makerspaces.purge_intent import assert_capture_allowed
+
+            assert_capture_allowed([capture.makerspace_id])
             with connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT transaction_timestamp(), current_setting('server_version_num')"

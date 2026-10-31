@@ -92,6 +92,8 @@ class ReturnRequestView(APIView):
         tags=["Admin requests"],
         summary="Return issued request items",
         description=(
+            "Only reviewed requests may be returned here. Public self-checkout and "
+            "staff direct loans must use their respective tool/direct loan return flows. "
             "Return photo evidence, a remark and item outcomes are always required. "
             "For a loan with an assigned container, box_code must match that container. "
             "For a loan without one, omit box_code or send an empty string; "

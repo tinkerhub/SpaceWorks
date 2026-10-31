@@ -1,6 +1,5 @@
 """Preflight routing for legacy and compound deployment restore paths."""
 
-import json
 import os
 from pathlib import Path
 import shutil
@@ -21,6 +20,10 @@ from apps.backup.import_preflight import (
     validate_import_preflight,
 )
 from apps.backup.models import BackupArchive, RestoreOperation
+from apps.backup.errors import BackupBuildError
+from apps.backup.full_format import FULL_FORMAT, COMPOUND_UNSUPPORTED
+from apps.backup.full_bundle import verify_full_root
+from apps.backup.manifest_dispatch import registered_manifest_kind
 from apps.backup.restore_services import set_stage
 
 
@@ -43,6 +46,7 @@ def run_restore_preflight(
     continuity_secrets,
     build_info,
     check_setting_policies,
+    prospective_record=None,
 ):
     restore = RestoreOperation.objects.select_related("archive").get(pk=restore_id)
     archive = restore.archive
@@ -56,9 +60,17 @@ def run_restore_preflight(
             "The selected archive is not a completed age-encrypted deployment backup."
         )
     try:
-        manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        from apps.backup.import_preflight_bundle import read_json_file
+
+        manifest = read_json_file(manifest_path, "manifest")
+    except (OSError, ImportPreflightError) as exc:
         raise CommandError("The authenticated archive manifest is unreadable.") from exc
+    try:
+        kind = registered_manifest_kind(archive.manifest, manifest)
+    except (BackupBuildError, TypeError, ValueError) as exc:
+        raise CommandError(str(exc)) from exc
+    if kind == "compound":
+        raise CommandError(COMPOUND_UNSUPPORTED)
     format_name = manifest.get("format")
     partial = manifest.get("partial")
     if (
@@ -67,23 +79,31 @@ def run_restore_preflight(
     ):
         partial = False
     if (
-        format_name not in SUPPORTED_ARCHIVE_FORMATS
+        format_name not in SUPPORTED_ARCHIVE_FORMATS | {FULL_FORMAT}
         or manifest.get("scope") != BackupArchive.Scope.DEPLOYMENT
         or manifest.get("archive_id") != str(archive.pk)
         or manifest.get("age_encrypted") is not True
-        or type(partial) is not bool
+        or partial is not False
     ):
         raise CommandError(
             "The authenticated archive manifest does not match the restore intent."
         )
-    if partial:
-        return _compound_handoff(
-            archive,
-            manifest,
-            encrypted_file=encrypted_file,
-            decrypted_bundle=decrypted_bundle,
-            manifest_path=manifest_path,
-            continuity_secrets=continuity_secrets,
+    if kind == "full":
+        _validate_full(
+            archive, manifest, manifest_path=manifest_path, bundle_path=bundle_path,
+            encrypted_file=encrypted_file, decrypted_bundle=decrypted_bundle,
+            continuity_secrets=continuity_secrets, prospective_record=prospective_record,
+            restore_id=restore_id,
+        )
+    environment = None
+    if prospective_record:
+        if kind != "full":
+            raise CommandError("Prospective compatibility requires signed-full admission.")
+        from apps.backup.restore_prospective import prospective_environment
+
+        environment = prospective_environment(
+            prospective_record, manifest=manifest, archive_sha256=archive.archive_sha256,
+            continuity_file=continuity_secrets, restore_id=restore_id,
         )
     _validate_legacy(
         restore,
@@ -91,48 +111,52 @@ def run_restore_preflight(
         bundle_path=bundle_path,
         current_oci_digest=current_oci_digest,
         build_info=build_info,
-        check_setting_policies=check_setting_policies,
+        check_setting_policies=check_setting_policies, environment=environment,
     )
     if restore.stage == RestoreOperation.Stage.CLAIMED:
         set_stage(restore_id, RestoreOperation.Stage.PREFLIGHT)
-    return "preflight-ok"
+    return "full-preflight-ok" if kind == "full" else "preflight-ok"
 
 
-def _compound_handoff(
+def _validate_full(
     archive, manifest, *, encrypted_file, decrypted_bundle, manifest_path,
-    continuity_secrets,
+    continuity_secrets, bundle_path, prospective_record=None, restore_id=None,
 ):
-    if not all((encrypted_file, decrypted_bundle, continuity_secrets)):
-        raise CommandError(
-            "The scripts/restore.sh legacy path cannot hand off this compound archive: "
-            "encrypted artifact, decrypted bundle, and continuity-secret inputs are required."
-        )
+    if not all((encrypted_file, decrypted_bundle, continuity_secrets, bundle_path)):
+        raise CommandError("Signed full restore requires encrypted, tar, extracted and continuity inputs.")
     try:
         result = validate_import_preflight(
-            encrypted_file=encrypted_file,
-            bundle=decrypted_bundle,
-            manifest_file=manifest_path,
-            continuity_secrets_file=continuity_secrets,
+            encrypted_file=encrypted_file, bundle=decrypted_bundle,
+            manifest_file=manifest_path, continuity_secrets_file=continuity_secrets,
             expected_sha256=archive.archive_sha256 or None,
+            require_host_support=True, prospective_record=prospective_record, restore_id=restore_id,
         )
-    except ImportPreflightError as exc:
+        if result.manifest != manifest:
+            raise BackupBuildError("The full restore received a different manifest.")
+        verify_full_root(bundle_path, manifest)
+    except (ImportPreflightError, BackupBuildError) as exc:
         raise CommandError(str(exc)) from exc
-    if result.manifest != manifest:
-        raise CommandError("The compound coordinator received a different manifest.")
-    return "compound-coordinator-ready"
 
 
 def _validate_legacy(
     restore, manifest, *, bundle_path, current_oci_digest, build_info,
-    check_setting_policies,
+    check_setting_policies, environment=None,
 ):
+    from apps.backup.restore_manifest_facts import (
+        RestoreManifestFactsError, validate_restore_object_facts,
+    )
+
+    try:
+        validate_restore_object_facts(manifest, bundle_path)
+    except RestoreManifestFactsError as exc:
+        raise CommandError(str(exc)) from exc
     if bundle_path:
         try:
             verify_content_ledger(
                 bundle_path,
                 manifest.get("contents"),
                 require_ledger=manifest.get("format") in {
-                    "spaceworks-phase5a-v2", "spaceworks-phase5a-v3",
+                    "spaceworks-phase5a-v2", "spaceworks-phase5a-v3", FULL_FORMAT,
                 },
             )
         except ArchiveDigestError as exc:
@@ -163,9 +187,13 @@ def _validate_legacy(
         raise CommandError("Archive and running image build identities do not match.")
     archived_oci = manifest.get("oci_digest") or ""
     current_oci = current_oci_digest or os.environ.get("SPACEWORKS_OCI_DIGEST", "")
+    current_oci = current_oci.rsplit("@", 1)[-1]
     if archived_oci and current_oci and archived_oci != current_oci:
         raise CommandError("Archive and running OCI digests do not match.")
-    check_setting_policies(manifest.get("settings", {}))
+    if environment is None:
+        check_setting_policies(manifest.get("settings", {}))
+    else:
+        check_setting_policies(manifest.get("settings", {}), environment=environment)
     for bucket in (settings.AWS_STORAGE_BUCKET_NAME, settings.PUBLIC_IMAGE_BUCKET):
         try:
             storage.client().head_bucket(Bucket=bucket)

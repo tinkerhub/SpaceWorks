@@ -87,10 +87,9 @@ class EmailLog(ScopedPiiModelMixin, models.Model):
         SENDING = "sending", "Sending"
         SENT = "sent", "Sent"
         FAILED = "failed", "Failed"
-        # Terminal and deliberate: the `email` module is off for this makerspace, so the
-        # message was never attempted. Distinct from FAILED because nothing went wrong
-        # and there is nothing to retry -- `retry_email_log` refuses it, and callers
-        # reading `.status` must not report it as a delivery.
+        # Terminal policy refusal (module disabled or daily quota exhausted): this
+        # logical send must never be retried, even after a new day's quota opens.
+        # Transport failures use FAILED and retain their existing quota reservation.
         SKIPPED = "skipped", "Skipped"
 
     makerspace = models.ForeignKey(
@@ -180,4 +179,3 @@ class EmailNotificationMute(models.Model):
 
     def __str__(self):
         return f"{self.makerspace}:{self.target}:{self.stream}/{self.event} muted"
-

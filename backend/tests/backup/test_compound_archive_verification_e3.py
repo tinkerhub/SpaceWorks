@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 import subprocess
-import uuid
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -10,11 +9,10 @@ from django.contrib.auth.models import Group
 from apps.backup import archive_builder, compound_archive, compound_slice_build
 from apps.backup.main_projection_registry import table_rules
 from apps.backup.main_projection_verification import build_expected_ledger
-from apps.backup.models import MakerspaceArchiveCustodyState
 from apps.backup.postgres_client import client_binary
 from apps.backup.recipient_selection import BackupBuildError
-from apps.backup.recipients import fingerprint_for
 from apps.backup.source_sequence_reservations import sequence_facts
+from apps.backup.source_capture_facts import source_capture_facts_from_capture
 from apps.inventory.models import InventoryProduct
 from apps.makerspaces.models import Makerspace
 from tests.backup import test_compound_archive_e3 as e3
@@ -82,21 +80,13 @@ def test_readable_main_dump_holds_no_sovereign_plaintext(
 def test_missing_slice_fails_before_main_exclusion_or_outer_encryption(
     monkeypatch, settings
 ):
-    sovereign = e3._sovereign()
+    e3._sovereign()
     commands = e3._prepare(monkeypatch, settings)
 
-    def omit_slice(self, **_kwargs):
-        self.frozen_slices = (compound_archive.FrozenSlice(
-            makerspace_id=sovereign.pk,
-            slice_id=str(uuid.uuid4()),
-            public_recipients=(e3.TENANT_ONE, e3.TENANT_TWO),
-            recipient_fingerprints=(
-                fingerprint_for(e3.TENANT_ONE), fingerprint_for(e3.TENANT_TWO)
-            ),
-            custody_state=MakerspaceArchiveCustodyState.State.HEALTHY,
-        ),)
-        self.expected_main_ledger = {}
-        self.source_catalog_digest = "a" * 64
+    def omit_slice(self, *, object_plan, **_kwargs):
+        # Retain the real prepared snapshot inputs, omitting only slice emission.
+        self.object_plan = object_plan
+        self._source_capture_facts = source_capture_facts_from_capture(self)
 
     monkeypatch.setattr(
         compound_archive.CompoundCapture, "capture_from_snapshot", omit_slice

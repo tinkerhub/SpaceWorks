@@ -1,0 +1,1839 @@
+
+> test
+> vitest run --maxWorkers=1 staffUploadProtocol.ownership imageUploadConfig.ownership ImageUploader.ownership WarrantySection.ownership StaffAttachmentBatches.ownership panels/machine panels/MachinesPanel panels/Queues panels/EvidenceUpload.ownership panels/HandoverEvidence.ownership panels/ProcurementPanel.test DirectLoans.test evidenceUi.test
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [32m✓[39m src/features/staff/panels/QueuesHandoverModals.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1447[2mms[22m[39m
+ [32m✓[39m src/features/staff/StaffAttachmentBatches.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1569[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 1198[2mms[22m[39m
+ [32m✓[39m src/features/staff/ImageUploader.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 984[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/EvidenceUpload.ownership.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 634[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServiceConsoleContracts.ownership.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[33m 1912[2mms[22m[39m
+     [33m[2m✓[22m[39m accept preserves immutable job/action identity and quantity/grams contract [33m 314[2mms[22m[39m
+ [31m❯[39m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx [2m([22m[2m8 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1595[2mms[22m[39m
+     [33m[2m✓[22m[39m paused queue/manual keep click-time bodies, synchronous edit/duplicate guards, and independent owners [33m 375[2mms[22m[39m
+     [32m✓[39m paused queue dispatch never sends the old job ID using a new actor[32m 154[2mms[22m[39m
+     [32m✓[39m current failure remains visible after finish, retry works, and successful queue/manual reset only their own drafts[32m 162[2mms[22m[39m
+     [32m✓[39m paused queue/manual keep click-time bodies, synchronous edit/duplicate guards, and independent owners[32m 248[2mms[22m[39m
+     [32m✓[39m paused queue dispatch never sends the old job ID using a new actor[32m 202[2mms[22m[39m
+     [32m✓[39m current failure remains visible after finish, retry works, and successful queue/manual reset only their own drafts[32m 162[2mms[22m[39m
+[31m   [31m×[31m already-dispatched A queue success/finally cannot clear B or unlock B pending action[39m[32m 148[2mms[22m[39m
+[31m   [31m×[31m already-dispatched A queue error/finally cannot clear B or unlock B pending action[39m[32m 142[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/maintenanceHooks.ownership.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 622[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MaintenanceDocuments.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 649[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.workflows.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1664[2mms[22m[39m
+     [33m[2m✓[22m[39m creates consumables from a type page with that type scope [33m 360[2mms[22m[39m
+     [33m[2m✓[22m[39m offers shared pools plus only the selected machine's bound pool [33m 690[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachineTypesPanel.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1038[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects blank and case-insensitive duplicate entries before creation [33m 474[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesIssueFlow.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 923[2mms[22m[39m
+     [33m[2m✓[22m[39m skips assignment when no container is chosen (selected then cleared: false) [33m 319[2mms[22m[39m
+     [33m[2m✓[22m[39m locks a successful container assignment and preserves photo, scans and remark for issue retry [33m 307[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolCreateForm.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 665[2mms[22m[39m
+     [33m[2m✓[22m[39m selects a named tile and submits its most recent pool hex separately [33m 359[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 478[2mms[22m[39m
+ [32m✓[39m src/features/staff/WarrantySection.ownership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 439[2mms[22m[39m
+ [31m❯[39m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx [2m([22m[2m7 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 4228[2mms[22m[39m
+[31m   [31m×[31m raw upload cannot finalize under the new resource or clear its selected file/type[39m[33m 1402[2mms[22m[39m
+[31m   [31m×[31m raw upload cannot finalize under the new actor or clear its selected file/type[39m[33m 1315[2mms[22m[39m
+   [32m✓[39m held private URL never opens after resource[32m 92[2mms[22m[39m
+   [32m✓[39m held private URL never opens after unmount[32m 49[2mms[22m[39m
+[31m   [31m×[31m current upload retries, snapshots type, refreshes documents, views and deletes actual document ID[39m[33m 1117[2mms[22m[39m
+   [32m✓[39m stale delete settlement cannot dismiss the new resource's confirmation[32m 153[2mms[22m[39m
+   [32m✓[39m blocks same-tick duplicate submits and type/file edits while raw bytes are pending[32m 99[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/manualPrice.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 532[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffUploadProtocol.ownership.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 464[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.ownership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2262[2mms[22m[39m
+   [33m[2m✓[22m[39m direct type A→B→A navigation preserves container service drafts and resets consumable fields and mutation error [33m 1417[2mms[22m[39m
+   [33m[2m✓[22m[39m type-local pending state resets while old A settlement cannot clear B or erase preserved A drafts [33m 844[2mms[22m[39m
+ [32m✓[39m src/features/staff/DirectLoans.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 696[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/BuiltinTypeRow.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 609[2mms[22m[39m
+     [33m[2m✓[22m[39m lets a space manager change a built-in for this makerspace only, sending only what differs [33m 342[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/OverviewTab.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 583[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a status draft through unrelated refreshes and blocks both details click and submit [33m 386[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/HandoverConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 405[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterServiceConsole.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 481[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineCreateForm.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 250[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/HandoverEvidence.ownership.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 479[2mms[22m[39m
+ [32m✓[39m src/features/staff/imageUploadConfig.ownership.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineDrawer.consumables.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes type stock alongside the local ledger without creating a second stock balance [32m 300[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterQueueAuthority.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 391[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 151[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 296[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsoleInvalidation.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 271[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineTypeConsumables.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PublicPrinterQueueSetup.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 176[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServicePaymentGating.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m src/features/staff/evidenceUi.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/ProcurementPanel.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/typeConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx[2m > [22mraw upload cannot finalize under the new resource or clear its selected file/type
+[31m[1mAssertionError[22m[39m: expected false to be true // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m""[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</h3>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mManuals and standard operating procedures, stored privately.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"grid gap-2"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"flex flex-wrap items-center gap-3 rounded-lg border border-line bg-canvas p-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-file-text size-5 shrink-0 text-ink-muted"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M10 9H8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 13H8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 17H8"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"min-w-0 flex-1"[39m
+            [36m>[39m
+              [36m<strong[39m
+                [33mclass[39m=[32m"block truncate text-body-ui font-semibold text-ink"[39m
+              [36m>[39m
+                [0mexisting.pdf[0m
+              [36m</strong>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"flex flex-wrap items-center gap-x-2 text-caption text-ink-muted"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2 py-0.5 text-xs bg-fill text-ink-secondary"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 truncate"[39m
+                  [36m>[39m
+                    [0mManual[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+                [0m12 B[0m
+                [0m · [0m
+                [36m<time[39m
+                  [33mdatetime[39m=[32m"2026-01-02T00:00:00Z"[39m
+                  [33mtitle[39m=[32m"Jan 2, 2026, 12:00 AM"[39m
+                [36m>[39m
+                  [0mJan 2, 2026[0m
+                [36m</time>[39m
+              [36m</span>[39m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mView[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-danger-fg underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mDelete…[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"min-w-0"[39m
+              [33mfor[39m=[32m"_r_0_"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-label text-ink"[39m
+              [36m>[39m
+                [0mFile[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maccept[39m=[32m".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"[39m
+              [33maria-describedby[39m=[32m"_r_0_-description"[39m
+              [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle py-2"[39m
+              [33mid[39m=[32m"_r_0_"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"file"[39m
+            [36m/>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+              [33mid[39m=[32m"_r_0_-description"[39m
+            [36m>[39m
+              [0mPDF, image or CAD file.[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"min-w-0"[39m
+              [33mfor[39m=[32m"_r_1_"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-label text-ink"[39m
+              [36m>[39m
+                [0mDocument type[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<select[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"sr-only"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtabindex[39m=[32m"-1"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"manual"[39m
+              [36m/>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"sop"[39m
+              [36m/>[39m
+            [36m</select>[39m
+            [36m<button[39m
+              [33maria-autocomplete[39m=[32m"none"[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33maria-required[39m=[32m"true"[39m
+              [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+              [33mdata-state[39m=[32m"closed"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33mid[39m=[32m"_r_1_"[39m
+              [33mrole[39m=[32m"combobox"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"min-w-0 truncate"[39m
+              [36m>[39m
+                [0mSOP[0m
+              [36m</span>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<select[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+              [33mtabindex[39m=[32m"-1"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mselected[39m=[32m""[39m
+                [33mvalue[39m=[32m"manual"[39m
+              [36m>[39m
+                [0mManual[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"sop"[39m
+              [36m>[39m
+                [0mSOP[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end sm:col-span-2"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mUpload[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"pointer-events-none fixed inset-x-0 bottom-0 z-[140] flex flex-col items-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-start sm:p-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"assertive"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m/>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx:[2m32:82[22m[39m
+    [90m 30|[39m   [34mchooseFile[39m([32m"File"[39m)[33m;[39m [34mselectSop[39m()[33m;[39m
+    [90m 31|[39m   fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Upload"[39m }))[33m;[39m
+    [90m 32|[39m   await waitFor(() => expect(net.calls.some((call) => call.path === st…
+    [90m   |[39m                                                                                  [31m^[39m
+    [90m 33|[39m   [35mif[39m (change [33m===[39m [32m"actor"[39m) [34mlogin[39m([32m"B"[39m)[33m;[39m
+    [90m 34|[39m   view.rerender(<DocumentsTab machineId={change === "resource" ? 2 : 1…
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx[2m > [22mraw upload cannot finalize under the new actor or clear its selected file/type
+[31m[1mAssertionError[22m[39m: expected false to be true // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m""[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mDocuments[0m
+            [36m</h3>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mManuals and standard operating procedures, stored privately.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<ul[39m
+          [33mclass[39m=[32m"grid gap-2"[39m
+        [36m>[39m
+          [36m<li[39m
+            [33mclass[39m=[32m"flex flex-wrap items-center gap-3 rounded-lg border border-line bg-canvas p-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-file-text size-5 shrink-0 text-ink-muted"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M10 9H8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 13H8"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M16 17H8"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"min-w-0 flex-1"[39m
+            [36m>[39m
+              [36m<strong[39m
+                [33mclass[39m=[32m"block truncate text-body-ui font-semibold text-ink"[39m
+              [36m>[39m
+                [0mexisting.pdf[0m
+              [36m</strong>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"flex flex-wrap items-center gap-x-2 text-caption text-ink-muted"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2 py-0.5 text-xs bg-fill text-ink-secondary"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 truncate"[39m
+                  [36m>[39m
+                    [0mManual[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+                [0m12 B[0m
+                [0m · [0m
+                [36m<time[39m
+                  [33mdatetime[39m=[32m"2026-01-02T00:00:00Z"[39m
+                  [33mtitle[39m=[32m"Jan 2, 2026, 12:00 AM"[39m
+                [36m>[39m
+                  [0mJan 2, 2026[0m
+                [36m</time>[39m
+              [36m</span>[39m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mView[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-danger-fg underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mDelete…[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"min-w-0"[39m
+              [33mfor[39m=[32m"_r_c_"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-label text-ink"[39m
+              [36m>[39m
+                [0mFile[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maccept[39m=[32m".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"[39m
+              [33maria-describedby[39m=[32m"_r_c_-description"[39m
+              [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle py-2"[39m
+              [33mid[39m=[32m"_r_c_"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"file"[39m
+            [36m/>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+              [33mid[39m=[32m"_r_c_-description"[39m
+            [36m>[39m
+              [0mPDF, image or CAD file.[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"min-w-0"[39m
+              [33mfor[39m=[32m"_r_d_"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-label text-ink"[39m
+              [36m>[39m
+                [0mDocument type[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<select[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"sr-only"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtabindex[39m=[32m"-1"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"manual"[39m
+              [36m/>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"sop"[39m
+              [36m/>[39m
+            [36m</select>[39m
+            [36m<button[39m
+              [33maria-autocomplete[39m=[32m"none"[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33maria-required[39m=[32m"true"[39m
+              [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+              [33mdata-state[39m=[32m"closed"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33mid[39m=[32m"_r_d_"[39m
+              [33mrole[39m=[32m"combobox"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"min-w-0 truncate"[39m
+              [36m>[39m
+                [0mSOP[0m
+              [36m</span>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<select[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+              [33mtabindex[39m=[32m"-1"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mselected[39m=[32m""[39m
+                [33mvalue[39m=[32m"manual"[39m
+              [36m>[39m
+                [0mManual[0m
+              [36m</option>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"sop"[39m
+              [36m>[39m
+                [0mSOP[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end sm:col-span-2"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [0mUpload[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"pointer-events-none fixed inset-x-0 bottom-0 z-[140] flex flex-col items-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-start sm:p-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"assertive"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m/>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx:[2m32:82[22m[39m
+    [90m 30|[39m   [34mchooseFile[39m([32m"File"[39m)[33m;[39m [34mselectSop[39m()[33m;[39m
+    [90m 31|[39m   fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Upload"[39m }))[33m;[39m
+    [90m 32|[39m   await waitFor(() => expect(net.calls.some((call) => call.path === st…
+    [90m   |[39m                                                                                  [31m^[39m
+    [90m 33|[39m   [35mif[39m (change [33m===[39m [32m"actor"[39m) [34mlogin[39m([32m"B"[39m)[33m;[39m
+    [90m 34|[39m   view.rerender(<DocumentsTab machineId={change === "resource" ? 2 : 1…
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx[2m > [22mcurrent upload retries, snapshots type, refreshes documents, views and deletes actual document ID
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Storage upload failed (503). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"grid gap-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-h4 text-ink"[39m
+          [36m>[39m
+            [0mDocuments[0m
+          [36m</h3>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+          [36m>[39m
+            [0mManuals and standard operating procedures, stored privately.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<ul[39m
+        [33mclass[39m=[32m"grid gap-2"[39m
+      [36m>[39m
+        [36m<li[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-3 rounded-lg border border-line bg-canvas p-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-file-text size-5 shrink-0 text-ink-muted"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M10 9H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 13H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 17H8"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"min-w-0 flex-1"[39m
+          [36m>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"block truncate text-body-ui font-semibold text-ink"[39m
+            [36m>[39m
+              [0mexisting.pdf[0m
+            [36m</strong>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex flex-wrap items-center gap-x-2 text-caption text-ink-muted"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2 py-0.5 text-xs bg-fill text-ink-secondary"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 truncate"[39m
+                [36m>[39m
+                  [0mManual[0m
+                [36m</span>[39m
+              [36m</span>[39m
+              [0m12 B[0m
+              [0m · [0m
+              [36m<time[39m
+                [33mdatetime[39m=[32m"2026-01-02T00:00:00Z"[39m
+                [33mtitle[39m=[32m"Jan 2, 2026, 12:00 AM"[39m
+              [36m>[39m
+                [0mJan 2, 2026[0m
+              [36m</time>[39m
+            [36m</span>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mView[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-danger-fg underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mDelete…[0m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</li>[39m
+      [36m</ul>[39m
+      [36m<form[39m
+        [33mclass[39m=[32m"grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+            [33mfor[39m=[32m"_r_1g_"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-label text-ink"[39m
+            [36m>[39m
+              [0mFile[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maccept[39m=[32m".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"[39m
+            [33maria-describedby[39m=[32m"_r_1g_-description"[39m
+            [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle py-2"[39m
+            [33mid[39m=[32m"_r_1g_"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtype[39m=[32m"file"[39m
+          [36m/>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+            [33mid[39m=[32m"_r_1g_-description"[39m
+          [36m>[39m
+            [0mPDF, image or CAD file.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+            [33mfor[39m=[32m"_r_1h_"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-label text-ink"[39m
+            [36m>[39m
+              [0mDocument type[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<select[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"manual"[39m
+            [36m/>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"sop"[39m
+            [36m/>[39m
+          [36m</select>[39m
+          [36m<button[39m
+            [33maria-autocomplete[39m=[32m"none"[39m
+            [33maria-expanded[39m=[32m"false"[39m
+            [33maria-required[39m=[32m"true"[39m
+            [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+            [33mdir[39m=[32m"ltr"[39m
+            [33mid[39m=[32m"_r_1h_"[39m
+            [33mrole[39m=[32m"combobox"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"min-w-0 truncate"[39m
+            [36m>[39m
+              [0mSOP[0m
+            [36m</span>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m6 9 6 6 6-6"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<select[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mselected[39m=[32m""[39m
+              [33mvalue[39m=[32m"manual"[39m
+            [36m>[39m
+              [0mManual[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"sop"[39m
+            [36m>[39m
+              [0mSOP[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-end sm:col-span-2"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mUpload[0m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+    [36m</section>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"pointer-events-none fixed inset-x-0 bottom-0 z-[140] flex flex-col items-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-start sm:p-6"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"assertive"[39m
+        [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m/>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33mclass[39m=[32m"grid gap-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-h4 text-ink"[39m
+          [36m>[39m
+            [0mDocuments[0m
+          [36m</h3>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+          [36m>[39m
+            [0mManuals and standard operating procedures, stored privately.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<ul[39m
+        [33mclass[39m=[32m"grid gap-2"[39m
+      [36m>[39m
+        [36m<li[39m
+          [33mclass[39m=[32m"flex flex-wrap items-center gap-3 rounded-lg border border-line bg-canvas p-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-file-text size-5 shrink-0 text-ink-muted"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M10 9H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 13H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 17H8"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"min-w-0 flex-1"[39m
+          [36m>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"block truncate text-body-ui font-semibold text-ink"[39m
+            [36m>[39m
+              [0mexisting.pdf[0m
+            [36m</strong>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"flex flex-wrap items-center gap-x-2 text-caption text-ink-muted"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2 py-0.5 text-xs bg-fill text-ink-secondary"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 truncate"[39m
+                [36m>[39m
+                  [0mManual[0m
+                [36m</span>[39m
+              [36m</span>[39m
+              [0m12 B[0m
+              [0m · [0m
+              [36m<time[39m
+                [33mdatetime[39m=[32m"2026-01-02T00:00:00Z"[39m
+                [33mtitle[39m=[32m"Jan 2, 2026, 12:00 AM"[39m
+              [36m>[39m
+                [0mJan 2, 2026[0m
+              [36m</time>[39m
+            [36m</span>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mView[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-danger-fg underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mDelete…[0m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</li>[39m
+      [36m</ul>[39m
+      [36m<form[39m
+        [33mclass[39m=[32m"grid gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-[minmax(0,1fr)_10rem] items-start"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+            [33mfor[39m=[32m"_r_1g_"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-label text-ink"[39m
+            [36m>[39m
+              [0mFile[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<input[39m
+            [33maccept[39m=[32m".pdf,.jpg,.jpeg,.png,.webp,.stl,.3mf,.step,.stp,.obj,.amf,.ply,.gcode,.gco,.iges,.igs,.dxf"[39m
+            [33maria-describedby[39m=[32m"_r_1g_-description"[39m
+            [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle py-2"[39m
+            [33mid[39m=[32m"_r_1g_"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtype[39m=[32m"file"[39m
+          [36m/>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+            [33mid[39m=[32m"_r_1g_-description"[39m
+          [36m>[39m
+            [0mPDF, image or CAD file.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+            [33mfor[39m=[32m"_r_1h_"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-label text-ink"[39m
+            [36m>[39m
+              [0mDocument type[0m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<select[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"sr-only"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"manual"[39m
+            [36m/>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"sop"[39m
+            [36m/>[39m
+          [36m</select>[39m
+          [36m<button[39m
+            [33maria-autocomplete[39m=[32m"none"[39m
+            [33maria-expanded[39m=[32m"false"[39m
+            [33maria-required[39m=[32m"true"[39m
+            [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+            [33mdata-state[39m=[32m"closed"[39m
+            [33mdir[39m=[32m"ltr"[39m
+            [33mid[39m=[32m"_r_1h_"[39m
+            [33mrole[39m=[32m"combobox"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"min-w-0 truncate"[39m
+            [36m>[39m
+              [0mSOP[0m
+            [36m</span>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m6 9 6 6 6-6"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<select[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mselected[39m=[32m""[39m
+              [33mvalue[39m=[32m"manual"[39m
+            [36m>[39m
+              [0mManual[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"sop"[39m
+            [36m>[39m
+              [0mSOP[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-end sm:col-span-2"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [0mUpload[0m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+    [36m</section>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"pointer-events-none fixed inset-x-0 bottom-0 z-[140] flex flex-col items-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-start sm:p-6"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m/>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"assertive"[39m
+        [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m/>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx:[2m66:16[22m[39m
+    [90m 64|[39m   [34mchooseFile[39m([32m"File"[39m)[33m;[39m [34mselectSop[39m()[33m;[39m
+    [90m 65|[39m   fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Upload"[39m }))[33m;[39m
+    [90m 66|[39m   [35mawait[39m screen[33m.[39m[34mfindByText[39m([32m"Storage upload failed (503)"[39m)[33m;[39m
+    [90m   |[39m                [31m^[39m
+    [90m 67|[39m   fail [33m=[39m [35mfalse[39m[33m;[39m
+    [90m 68|[39m   fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Upload"[39m }))[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx[2m > [22malready-dispatched A queue success/finally cannot clear B or unlock B pending action
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Mark as failed"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Service queue":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-h4 text-ink"[39m
+  [36m/>[39m
+
+  Name "Manual usage":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-h4 text-ink"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "Loading service queue":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Loading service queue"[39m
+    [33mclass[39m=[32m"grid gap-2"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"contents"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Manual usage machine":
+  [36m<button[39m
+    [33maria-autocomplete[39m=[32m"none"[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Manual usage machine"[39m
+    [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mid[39m=[32m"_r_40_"[39m
+    [33mrole[39m=[32m"combobox"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Manual usage outcome":
+  [36m<button[39m
+    [33maria-autocomplete[39m=[32m"none"[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Manual usage outcome"[39m
+    [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mid[39m=[32m"_r_44_"[39m
+    [33mrole[39m=[32m"combobox"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  spinbutton:
+
+  Name "Manual usage minutes":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage minutes"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_42_"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"17"[39m
+  [36m/>[39m
+
+  Name "Manual usage quantity":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage quantity"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_43_"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"any"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"2.25"[39m
+  [36m/>[39m
+
+  Name "Percent complete":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Percent complete"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_46_"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"40"[39m
+  [36m/>[39m
+
+  Name "Manual usage price":
+  [36m<input[39m
+    [33maria-describedby[39m=[32m"_r_48_-description"[39m
+    [33maria-label[39m=[32m"Manual usage price"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_48_"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mplaceholder[39m=[32m"Auto"[39m
+    [33mstep[39m=[32m"0.01"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"12.50"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Failure reason":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Failure reason"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_47_"[39m
+    [33mvalue[39m=[32m"Jam"[39m
+  [36m/>[39m
+
+  Name "Manual usage note":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage note"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_49_"[39m
+    [33mvalue[39m=[32m"Click-time note"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Log usage":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid gap-8"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mService queue[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mThis type is metered in count. This type does not use consumable pools.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Loading service queue"[39m
+          [33mclass[39m=[32m"grid gap-2"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"animate-pulse rounded-md bg-emphasis motion-reduce:animate-none h-24 w-full"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"animate-pulse rounded-md bg-emphasis motion-reduce:animate-none h-24 w-full"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mManual usage[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mLog a run that happened outside the queue.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid gap-4"[39m
+        [36m>[39m
+          [36m<form[39m
+            [33mclass[39m=[32m"grid items-start gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-4"[39m
+          [36m>[39m
+            [36m<fieldset[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"min-w-0"[39m
+                  [33mfor[39m=[32m"_r_40_"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-label text-ink"[39m
+                  [36m>[39m
+                    [0mMachine[0m
+                  [36m</span>[39m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mdisabled[39m=[32m""[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"11"[39m
+                  [36m/>[39m
+                [36m</select>[39m
+                [36m<button[39m
+                  [33maria-autocomplete[39m=[32m"none"[39m
+                  [33maria-expanded[39m=[32m"false"[39m
+                  [33maria-label[39m=[32m"Manual usage machine"[39m
+                  [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+                  [33mdata-state[39m=[32m"closed"[39m
+                  [33mdir[39m=[32m"ltr"[39m
+                  [33mid[39m=[32m"_r_40_"[39m
+                  [33mrole[39m=[32m"combobox"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 truncate"[39m
+                  [36m>[39m
+                    [0mMachine 11[0m
+                  [36m</span>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</button>[39m
+                [36m<select[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mdisabled[39m=[32m""[39m
+                    [33mvalue[39m=[32m"__sw_empty__"[39m
+                  [36m>[39m
+                    [0mChoose a machine[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"11"[39m
+                  [36m>[39m
+                    [0mMachine 11[0m
+                  [36m</option>[39m
+       ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx:[2m124:26[22m[39m
+    [90m122|[39m   view.rerender(<ServiceConsoleHarness typeId={3} replacement={next} /…
+    [90m123|[39m   [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m([34mobservedDraft[39m()[33m.[39maction[33m?.[39mid)[33m.[39m[34mtoBe[39m([34m5[39m))[33m;[39m
+    [90m124|[39m   fireEvent.click(screen.getByRole("button", { name: "Mark as failed" …
+    [90m   |[39m                          [31m^[39m
+    [90m125|[39m   [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(writes)[33m.[39m[34mtoBe[39m([34m2[39m))[33m;[39m
+    [90m126|[39m   await release(responseA, outcome === "success" ? json({ id: 4 }) : j…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx[2m > [22malready-dispatched A queue error/finally cannot clear B or unlock B pending action
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Mark as failed"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Service queue":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-h4 text-ink"[39m
+  [36m/>[39m
+
+  Name "Manual usage":
+  [36m<h2[39m
+    [33mclass[39m=[32m"text-h4 text-ink"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "Loading service queue":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Loading service queue"[39m
+    [33mclass[39m=[32m"grid gap-2"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"contents"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Manual usage machine":
+  [36m<button[39m
+    [33maria-autocomplete[39m=[32m"none"[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Manual usage machine"[39m
+    [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mid[39m=[32m"_r_4i_"[39m
+    [33mrole[39m=[32m"combobox"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Manual usage outcome":
+  [36m<button[39m
+    [33maria-autocomplete[39m=[32m"none"[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"Manual usage outcome"[39m
+    [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mid[39m=[32m"_r_4m_"[39m
+    [33mrole[39m=[32m"combobox"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  spinbutton:
+
+  Name "Manual usage minutes":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage minutes"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4k_"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"17"[39m
+  [36m/>[39m
+
+  Name "Manual usage quantity":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage quantity"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4l_"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"any"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"2.25"[39m
+  [36m/>[39m
+
+  Name "Percent complete":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Percent complete"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4o_"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"40"[39m
+  [36m/>[39m
+
+  Name "Manual usage price":
+  [36m<input[39m
+    [33maria-describedby[39m=[32m"_r_4q_-description"[39m
+    [33maria-label[39m=[32m"Manual usage price"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4q_"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mplaceholder[39m=[32m"Auto"[39m
+    [33mstep[39m=[32m"0.01"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"12.50"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Failure reason":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Failure reason"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4p_"[39m
+    [33mvalue[39m=[32m"Jam"[39m
+  [36m/>[39m
+
+  Name "Manual usage note":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Manual usage note"[39m
+    [33mclass[39m=[32m"block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"[39m
+    [33mid[39m=[32m"_r_4r_"[39m
+    [33mvalue[39m=[32m"Click-time note"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Log usage":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"grid gap-8"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mService queue[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mThis type is metered in count. This type does not use consumable pools.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Loading service queue"[39m
+          [33mclass[39m=[32m"grid gap-2"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"animate-pulse rounded-md bg-emphasis motion-reduce:animate-none h-24 w-full"[39m
+          [36m/>[39m
+          [36m<div[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"animate-pulse rounded-md bg-emphasis motion-reduce:animate-none h-24 w-full"[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"grid gap-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-wrap items-end justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-h4 text-ink"[39m
+            [36m>[39m
+              [0mManual usage[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0mLog a run that happened outside the queue.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid gap-4"[39m
+        [36m>[39m
+          [36m<form[39m
+            [33mclass[39m=[32m"grid items-start gap-3 rounded-lg border border-line bg-subtle p-4 sm:grid-cols-2 md:grid-cols-4"[39m
+          [36m>[39m
+            [36m<fieldset[39m
+              [33mclass[39m=[32m"contents"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"min-w-0"[39m
+                  [33mfor[39m=[32m"_r_4i_"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-label text-ink"[39m
+                  [36m>[39m
+                    [0mMachine[0m
+                  [36m</span>[39m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mdisabled[39m=[32m""[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"11"[39m
+                  [36m/>[39m
+                [36m</select>[39m
+                [36m<button[39m
+                  [33maria-autocomplete[39m=[32m"none"[39m
+                  [33maria-expanded[39m=[32m"false"[39m
+                  [33maria-label[39m=[32m"Manual usage machine"[39m
+                  [33mclass[39m=[32m"min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg flex items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted"[39m
+                  [33mdata-state[39m=[32m"closed"[39m
+                  [33mdir[39m=[32m"ltr"[39m
+                  [33mid[39m=[32m"_r_4i_"[39m
+                  [33mrole[39m=[32m"combobox"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 truncate"[39m
+                  [36m>[39m
+                    [0mMachine 11[0m
+                  [36m</span>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-chevron-down size-[18px] shrink-0 text-ink-muted"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</button>[39m
+                [36m<select[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mstyle[39m=[32m"position: absolute; border: 0px; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; word-wrap: normal;"[39m
+                  [33mtabindex[39m=[32m"-1"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mdisabled[39m=[32m""[39m
+                    [33mvalue[39m=[32m"__sw_empty__"[39m
+                  [36m>[39m
+                    [0mChoose a machine[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mselected[39m=[32m""[39m
+                    [33mvalue[39m=[32m"11"[39m
+                  [36m>[39m
+                    [0mMachine 11[0m
+                  [36m</option>[39m
+       ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx:[2m124:26[22m[39m
+    [90m122|[39m   view.rerender(<ServiceConsoleHarness typeId={3} replacement={next} /…
+    [90m123|[39m   [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m([34mobservedDraft[39m()[33m.[39maction[33m?.[39mid)[33m.[39m[34mtoBe[39m([34m5[39m))[33m;[39m
+    [90m124|[39m   fireEvent.click(screen.getByRole("button", { name: "Mark as failed" …
+    [90m   |[39m                          [31m^[39m
+    [90m125|[39m   [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(writes)[33m.[39m[34mtoBe[39m([34m2[39m))[33m;[39m
+    [90m126|[39m   await release(responseA, outcome === "success" ? json({ id: 4 }) : j…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m36 passed[39m[22m[90m (38)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m242 passed[39m[22m[90m (247)[39m
+[2m   Start at [22m 21:04:08
+[2m   Duration [22m 81.85s[2m (transform 2.13s, setup 5.98s, import 14.58s, tests 29.16s, environment 27.05s)[22m
+

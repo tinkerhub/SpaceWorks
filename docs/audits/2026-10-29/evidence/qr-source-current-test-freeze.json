@@ -1,0 +1,93 @@
+{
+  "format": "qr-source-current-test-freeze-v2",
+  "predecessor": "docs/audits/2026-10-29/evidence/qr-source-test-freeze.json",
+  "predecessor_sha256": "3f20fd6c67bbe034d932b2b990c60a015127c63894ec09d7c0eabd38c79ccc8d",
+  "files": [
+    {
+      "path": "backend/tests/qr_source_safety/__init__.py",
+      "sha256": "809c9bb5b15284ab5f6def6749f3655caef58af0b16a64fd72f2b112932329f4",
+      "lines": 1
+    },
+    {
+      "path": "backend/tests/qr_source_safety/http_helpers.py",
+      "sha256": "6ecad6755ce56a2d93c4ee46b144eea65b2995f02b6226aefcdd29b7d040d4a9",
+      "lines": 134
+    },
+    {
+      "path": "backend/tests/qr_source_safety/pg_helpers.py",
+      "sha256": "2c202de00e98b2efa49ce0d6c900654359aad9cc927610a5d2b1aa0885f1b575",
+      "lines": 66
+    },
+    {
+      "path": "backend/tests/qr_source_safety/race_helpers.py",
+      "sha256": "543f861f6a8af797914d0f887cd2cd87124e711c01c30a69e8389b6570bb63ab",
+      "lines": 28
+    },
+    {
+      "path": "backend/tests/qr_source_safety/state_helpers.py",
+      "sha256": "cb27d7c3cc849c210afcbc615786ffc93a9ecf16e6fae7458e29d820415f4f87",
+      "lines": 50
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_audit_rollback_closure.py",
+      "sha256": "8122ff57fd3877869b88a597f236b3b6d70a159ae1777e9f5bb98ed9c8c51514",
+      "lines": 23
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_fresh_qr_waits.py",
+      "sha256": "764b6b3c467fc98b28f49588fc81a94c172576d4f4da5a306326399cc753ca19",
+      "lines": 66
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_fresh_target_waits.py",
+      "sha256": "84018953aff5026923d87493c80f8544c54638dd4aab46dd19ea6a145a563128",
+      "lines": 100
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+      "sha256": "be3541eb4e369658fe54d1a2c92b0cc6f7769f6922189b51b175ffbf6271db43",
+      "lines": 233
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "sha256": "fe5afc2fc9fe98474b764bd38b1c19f2033b0af812ffb23ced6feb841eb953ca",
+      "lines": 145
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_native_effective_selection.py",
+      "sha256": "2fffa9c4db3ca64e16e014b51e0eeb08ccb8688900a3f98626de257190d81503",
+      "lines": 68
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_openapi_contract.py",
+      "sha256": "4755522d7cec8f5bbb8f27bb61cb033287466473826c3bb51411efad1cdf58c0",
+      "lines": 41
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "sha256": "d93957b11c27170de4beec18fbaaecaf0b8064ade6111bf5ce630e2aa8badfb6",
+      "lines": 80
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "sha256": "5573a9b1c08671484d0d3223d707878e221db62a0f238b5366cec278183d1a38",
+      "lines": 153
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_scope_before_gate.py",
+      "sha256": "a91f5c8c6707db5e688bf77b859e83c1a09e47058cac5a4583cc4ee8141483fe",
+      "lines": 48
+    },
+    {
+      "path": "backend/tests/qr_source_safety/test_source_lock_lifetime.py",
+      "sha256": "813567ab44b1aae9c8ee15dbf8a8753ac805cdc8cc9fff400a6aeff06155c604",
+      "lines": 98
+    }
+  ],
+  "static_case_count": 273,
+  "test_function_count": 39,
+  "count_method": "Prior16-file AST parameter census273; generation module keeps19 cases by nine coherent negatives plus one actual3-session canonical hide serialization replacing the single impossible lock inversion. No collection or execution by child.",
+  "fixture_correction": "docs/audits/2026-10-29/evidence/qr-generation-fixture-correction.json",
+  "independent_review": "Entire corrected233-line generation file read; actual canonical activation/custody helpers and existing test_activation_e6 recipient fixture inspected. Actual Source N before canonical Maker custody; Controller Product / Gen Maker->Product / Hider Maker wait edges measured before release; no deadlock suppression/xfail/permission relaxation.",
+  "runtime_status": "Ready root targeted generation19 or entiremain273; no all-pass claim. Original399 snapshot still371PASS28FAIL. Global QR HTTP source-ownership27 failures remain separate Stage1 read-only."
+}

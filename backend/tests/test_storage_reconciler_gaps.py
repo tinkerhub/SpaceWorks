@@ -51,6 +51,7 @@ def make_document(makerspace, *, size, index):
     )
 
 
+@pytest.mark.django_db(transaction=True)
 def test_recompute_storage_counts_maintenance_documents(monkeypatch):
     """They are charged on upload and collected by both purges, but were absent here --
     so the authoritative reconciler wrote a total that omitted every one of them."""
@@ -58,7 +59,7 @@ def test_recompute_storage_counts_maintenance_documents(monkeypatch):
     make_document(makerspace, size=40, index=0)
     make_document(makerspace, size=60, index=1)
     # No object exists in storage under these keys, so the HEAD returns None and the
-    # recorded `size_bytes` is the fallback -- the same contract as evidence rows.
+    # recorded `size_bytes` is the maintenance document fallback.
     monkeypatch.setattr(
         "apps.maintenance.storage.object_size", lambda key: None
     )

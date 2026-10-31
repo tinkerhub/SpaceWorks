@@ -1,0 +1,831 @@
+{
+  "scope": "Accepted hardware request cancellation frontend integration and affected compatibility; isolated Node20 leaf HTTP fixtures, no live hardware operation",
+  "status": "ALL_119_SELECTED_CASE_IDS_RESOLVED_INITIAL_118_PLUS_AFFECTED_3_RETRY",
+  "new_behavioral_cases": 35,
+  "existing_compatibility_cases": 84,
+  "runtime": {
+    "node": "20.20.2",
+    "vitest": "4.1.12",
+    "platform": "linux-arm64",
+    "workers": 1,
+    "network": "none",
+    "source_and_locked_dependencies_read_only": true,
+    "cache_tmpfs_only": true,
+    "per_test_deadlines_unchanged": true,
+    "backend_database_used": false,
+    "typescript_or_build_run": false
+  },
+  "initial_launcher": {
+    "exit_code": 125,
+    "tests_started": false,
+    "reason": "Readonly frontend mount lacked a precreated node_modules child mountpoint. Corrected runner mount layout only; original log/result retained privately."
+  },
+  "initial_complete_selection": {
+    "exit_code": 1,
+    "seconds": 64.391,
+    "selected_test_files": 19,
+    "source_files": 773,
+    "source_manifest_sha256": "43a09779ee72edd4f1e29e07b80610bef9b40045df1c6dd55c892f96ec8a5034",
+    "snapshot_source_unchanged": true,
+    "checkout_captured_sources_still_match": true,
+    "cases": 119,
+    "passed": 118,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "e2fda5eab64d74b9ba073bcbd199f71a6161897d99e10a2dc9ba336b2e0398bd"
+  },
+  "initial_failing_case": {
+    "classname": "src/features/staff/panels/Queues.cancelHistory.test.tsx",
+    "name": "successful cancellation refreshes origin queues, history, dashboard, stock, public catalogue and containers",
+    "failure": "Unobserved synthetic other-tenant cache entry was garbage-collected by the existing shared gcTime:0 harness, so isInvalidated was undefined rather than false."
+  },
+  "fixture_correction": {
+    "path": "frontend/src/features/staff/panels/Queues.cancelHistory.test.tsx",
+    "change": "Retain only seeded inactive other-tenant cache entries with setQueryDefaults(key,{gcTime:Infinity}) before setQueryData. All original invalidation and data assertions, shared gcTime:0 harness, app source and deadlines remain unchanged.",
+    "old_sha256": "18b965b8a677513293a2ef6cfa16b4dcd075758d28fb981f63f4fcc9f03f7ed7",
+    "new_sha256": "9851358333fb4e5e379744807610bc38bc86c3f1a2016f23619323ad9d8adaaf",
+    "root_independently_read": true
+  },
+  "final_affected_file_retry": {
+    "exit_code": 0,
+    "seconds": 5.107,
+    "selected_test_files": 1,
+    "source_files": 773,
+    "source_manifest_sha256": "c6affaeb289e116bb3e422952bdf515a6d926bdb37df3e11bd4d53f60551decd",
+    "snapshot_source_unchanged": true,
+    "checkout_captured_sources_still_match": true,
+    "cases": 3,
+    "passed": 3,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "590efaf645ccec4d7b4ea3385802a4cfa68a48cf6eba05bca95afdec89058687"
+  },
+  "exact_case_resolution": {
+    "selected_unique_ids": 119,
+    "resolved_unique_ids": 119,
+    "missing_ids": 0,
+    "new_ids_in_retry": 0,
+    "retry_repeats_two_initial_passes": true,
+    "not_a_fresh_119_case_all_green_run": true,
+    "cases": [
+      {
+        "classname": "src/components/ui/StatusStepper.test.tsx",
+        "name": "cancelled is a neutral terminal status with no collection or request progression",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/ui/StatusStepper.test.tsx",
+        "name": "moving from an approved request to cancellation replaces the progress steps",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > clears the draft immediately on token removal and only sends a newly visible typed reference",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > immediately replaces an edited reference when the URL token changes, before paint",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > keeps current loading/404/retry behavior and does not display an obsolete maker response",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > resets maker-private unsent drafts on A\u2192B\u2192A and sends B's exact visible lookup with B credentials",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > looks up a typed reference and says when nothing matches",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > looks up the token from the link and shows the status",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > separates a failed lookup from a missing request",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > shows generic Cancelled status without staff details or an action even if extra fields arrive",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffTabContent.test.tsx",
+        "name": "StaffTabContent > keeps payouts in the description when platform hosting shows the payouts panel",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffTabContent.test.tsx",
+        "name": "StaffTabContent > mentions payouts on Platform settings only when the payouts panel renders",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffTabContent.test.tsx",
+        "name": "StaffTabContent > scopes the audit log to the active makerspace",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "ISSUE alone authorizes the active list but keeps its Return control hidden",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "RETURN alone never fetches or renders the ISSUE-only active list",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "accept-only membership gets Accept and Set due but no Reject or Cancel",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "authorized handover retains Issue and Return while review and cancellation stay hidden",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "reject-only custom membership reaches Requests and forwards cancellation through the real workspace chain",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "superadmin receives cancellation, issue, return and due controls through the same wiring",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/StaffWorkspace.cancelAccess.test.tsx",
+        "name": "the guest surface withholds cancellation even when reject permission is supplied",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "console scope > has no organization-analytics page: the stale route lands on the dashboard",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "console scope > has no organizations page: the stale route lands on the dashboard",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "console scope > has no organized-events page: the stale route lands on the dashboard",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > drops navigation groups whose every tab belongs to a switched-off module",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the bookings route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the bulk-import route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the containers route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the events route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the handover route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the machines route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the payments route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the qr-tools route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the reports route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the stocktake route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the to-buy route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > refuses the transfers route",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > renders only core dashboard tiles",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > serves a gated tab once its module is on",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/consoleModuleGating.test.tsx",
+        "name": "staff console with only the core modules > treats a notifications bookmark as stale and lands on the dashboard",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/HandoverEvidence.ownership.test.tsx",
+        "name": "actual unkeyed issue dialog reuse fences a held presign and requires B's own photo",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/HandoverEvidence.ownership.test.tsx",
+        "name": "unkeyed return dialog rejects late A raw error without clearing B photo or return rules",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/HandoverEvidence.ownership.test.tsx",
+        "name": "unkeyed return dialog rejects late A raw success without clearing B photo or return rules",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/InventoryRoleAlignment.test.tsx",
+        "name": "Inventory honours canEditInventory > gives a view-only role a read-only panel",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/InventoryRoleAlignment.test.tsx",
+        "name": "Inventory honours canEditInventory > keeps every control for an inventory editor",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/InventoryRoleAlignment.test.tsx",
+        "name": "Inventory honours canEditInventory > shows To Buy only when procurement is on",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/InventoryRoleAlignment.test.tsx",
+        "name": "request queues on the handover surface > gives a handover role Active loans with Return and no Set due",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/InventoryRoleAlignment.test.tsx",
+        "name": "request queues on the handover surface > hides Active loans from a return-only handover role without issue authority",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "409 retains the reason and server error; only an explicit retry sends again",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "Go back sends no request and reopening starts an empty draft",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "pending freezes edits, buttons, Escape and backdrop close, including duplicate submits in one tick",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "posts the trimmed reason to the selected request: '500 characters'",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "posts the trimmed reason to the selected request: 'one trimmed character'",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "refuses invalid cancellation reason: 'Reason is required.' (+0 characters)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "refuses invalid cancellation reason: 'Reason is required.' (4 characters)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelForm.test.tsx",
+        "name": "refuses invalid cancellation reason: 'Reason must be 500 characters or fewe\u2026' (501 characters)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelHistory.test.tsx",
+        "name": "history detail shows staff cancellation reason, actor and time with a neutral terminal status",
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelHistory.test.tsx",
+        "name": "only accepted wholly unissued rows offer Cancel, including defensive handling of unexpected queue rows",
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelHistory.test.tsx",
+        "name": "successful cancellation refreshes origin queues, history, dashboard, stock, public catalogue and containers",
+        "initial": "FAILED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "late 'error' after 'guest' change cannot publish, clear or unlock the new cancellation",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "late 'error' after 'permission' change cannot publish, clear or unlock the new cancellation",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "late 'success' after 'guest' change cannot publish, clear or unlock the new cancellation",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "late 'success' after 'permission' change cannot publish, clear or unlock the new cancellation",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "offline cancellation freezes the submitted reason until admission and sends only its original JSON",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "queued cancellation cannot dispatch after actor departure, even if authority returns",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "queued cancellation cannot dispatch after guest departure, even if authority returns",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "queued cancellation cannot dispatch after makerspace departure, even if authority returns",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "queued cancellation cannot dispatch after permission departure, even if authority returns",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.cancelOwnership.test.tsx",
+        "name": "queued cancellation cannot dispatch after unmount departure, even if authority returns",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.handoverContracts.test.tsx",
+        "name": "an existing assigned container still requires its code and issue evidence",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.handoverContracts.test.tsx",
+        "name": "assigned container, photo, scans and remark survive failed issue; explicit retry issues once without reassignment",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.handoverContracts.test.tsx",
+        "name": "current reviewed return preserves photo, remark, matching-container and per-unit outcome requirements",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.handoverContracts.test.tsx",
+        "name": "held list populated during a failed assignment re-enables with options without another GET",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.qrOwnership.test.tsx",
+        "name": "closed native scanner callbacks cannot dispatch in a later opening or row visit",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.qrOwnership.test.tsx",
+        "name": "exact unit count and photo remain required when no container is selected",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.qrOwnership.test.tsx",
+        "name": "held A resolution cannot publish into A-again with the same product and line ID",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.qrOwnership.test.tsx",
+        "name": "held A resolution cannot publish into B with the same product and line ID",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/Queues.qrOwnership.test.tsx",
+        "name": "ordinary same-row refetch preserves the current draft, uploaded photo and concurrent unit scans",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > cannot opt out of an assigned container even when its label is empty",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > does not leak the selected code after the optional container is toggled off",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > issues without a container only after uploading the mandatory photo",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > keeps the individual scan requirement on the containerless path",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > names the container step in its own words",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > requires a code when staff opt into a container",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "AssignIssueModal > takes an asset code typed by a handheld scanner like a camera scan",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "ReturnRequestModal > asks for the loan's container instead of sending a blank box code",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "ReturnRequestModal > hides the container for a containerless return but requires photo and remark before submitting outcomes",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "ReturnRequestModal > still requires a container code when the assigned container has an empty label",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesHandoverModals.test.tsx",
+        "name": "ReturnRequestModal > submits exact individual outcomes without a container, leaving pending units on loan",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesIssueFlow.test.tsx",
+        "name": "Queues issue flow with the real handover form > locks a successful container assignment and preserves photo, scans and remark for issue retry",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesIssueFlow.test.tsx",
+        "name": "Queues issue flow with the real handover form > skips assignment when no container is chosen (selected then cleared: false)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesIssueFlow.test.tsx",
+        "name": "Queues issue flow with the real handover form > skips assignment when no container is chosen (selected then cleared: true)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesList.test.tsx",
+        "name": "RequestList > shows a table with the row's actions on wider screens",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/QueuesList.test.tsx",
+        "name": "RequestList > shows one card per request on phones, with its actions under it and no table",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.cancelOwnership.test.tsx",
+        "name": "cancel row identity fences old error without a parent remount",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.cancelOwnership.test.tsx",
+        "name": "cancel row identity fences old success without a parent remount",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.cancelOwnership.test.tsx",
+        "name": "queued cancellation belongs to one request visit, including A \u2192 B \u2192 A without remounting",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "'accept' captures the entire body before pause and blocks same-tick duplicate admission",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "'cancel' captures the entire body before pause and blocks same-tick duplicate admission",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "'reject' captures the entire body before pause and blocks same-tick duplicate admission",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "'return' captures the entire body before pause and blocks same-tick duplicate admission",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "'return-due' captures the entire body before pause and blocks same-tick duplicate admission",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "assign and issue both serialize their click-time bodies before the first stage pauses",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "committed assignment after actor departure refreshes only origin containers and never issues or undoes",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "committed assignment after visit departure refreshes only origin containers and never issues or undoes",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "current failure remains visible after lock release and explicit retry succeeds",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "old error and finally cannot clear, toast or release B's pending action",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "old success and finally cannot clear, toast or release B's pending action",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "paused dispatch is denied after same-maker actor departure",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "paused dispatch is denied after same-maker unmount departure",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+        "name": "paused dispatch is denied after same-maker visit departure",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Machines tab follows machines.access.can_see_machines > is offered to a manage_printing-only role (the 3D printer type's managing action)",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Machines tab follows machines.access.can_see_machines > is withheld from roles holding neither action",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Notifications tab follows notifications.views._makerspace_for_manager > is offered to view_inventory, manage_printing and manage_makerspace holders",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Notifications tab follows notifications.views._makerspace_for_manager > is withheld from roles the inbox refuses",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Reports tab follows the report catalog's VIEW_INVENTORY / VIEW_AUDIT scoping > is offered to view_inventory or view_audit holders and superadmins",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "Reports tab follows the report catalog's VIEW_INVENTORY / VIEW_AUDIT scoping > is withheld from machine and printing roles, which would land on a 404",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "inventory edit capability > separates viewing inventory from editing it",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "request queue capabilities > gives a reviewer every queue action",
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/staff/staffRoleAlignment.test.ts",
+        "name": "request queue capabilities > lets a handover role return loans without re-dating them",
+        "initial": "PASSED",
+        "retry": null
+      }
+    ]
+  },
+  "application_source_sha256": {
+    "frontend/src/features/staff/staffAccess.ts": "c549bf7aa41be655179fd3363b22ca2d34e7776cafa22cd954c4754693982f18",
+    "frontend/src/features/staff/StaffWorkspace.tsx": "6d27e50733c5cb1aa398d2d8413454a927c126f623ac92f95d6a69882e302beb",
+    "frontend/src/features/staff/StaffTabContent.tsx": "2b5b1a6fdf9e5e18ebe088543cf6d12922992c78b8992cb130d49eb89423759c",
+    "frontend/src/features/staff/panels/RequestsPanel.tsx": "e6e746d88ee455a7aa3e45b8a3780230b8e9c0f808ab8a0b30bc4b67177e9fa9",
+    "frontend/src/features/staff/panels/Queues.tsx": "645499b6d8b199a5f38987e4faa5de3dffae40d99e8c9a0e8956c4175a3c9b55",
+    "frontend/src/features/staff/panels/QueuesSections.tsx": "209973ea58baa2ef2749417f2b43aa4e6974de6e7fb7d81011633d090b94a1cf",
+    "frontend/src/features/staff/panels/useQueueActions.ts": "dc453f218caff9328506b046e1fe9f00d22f612be8549cfcc2b83308e1c53c2f",
+    "frontend/src/features/staff/panels/QueuesInvalidation.ts": "48dc1e9e563448d10ca7055cd5c30a42761e4176413ff5d497380dadea3b156f",
+    "frontend/src/features/staff/panels/QueuesRequestDetail.tsx": "949411a6e8069d370661c81414ef5baa27294b04bc3a735f0602a7230d6b986f",
+    "frontend/src/components/ui/StatusStepper.tsx": "82d072c954280b9ef32dbb63d514ae1288a70044e40399ba48963c96aff19a6b",
+    "frontend/src/features/inventory/PublicRequestStatusPage.tsx": "95491871451392c41026bde73ba851c6c6dcecbf6823b1edf917bd56f0e89065",
+    "frontend/src/features/staff/panels/QueuesCancelModal.tsx": "a771575d2ef7dadcdb405b228dbf35d65c7cfca378c7531843d900a4fbd701fd"
+  },
+  "selected_final_test_sha256": {
+    "frontend/src/components/ui/StatusStepper.test.tsx": "7bfaadfb5aff6cfa47d06fc3e438bc8cb9c608ba44a837ff77d3fb349d0f0457",
+    "frontend/src/features/inventory/PublicRequestReferenceOwnership.test.tsx": "d7fbc5bffa95e0ac0c5a44c2a57244532db56a04a2794db2473041b6e1e67c2c",
+    "frontend/src/features/inventory/PublicRequestStatusPage.test.tsx": "1faba8a0e7467f7bde5ec6169718af0ec05124586e5300d9c03000792d6fe774",
+    "frontend/src/features/staff/StaffTabContent.test.tsx": "f00c0e707c7067a40f4f2774c4449a76c0d2f88e1b684aadd6235d949d1a22f8",
+    "frontend/src/features/staff/StaffWorkspace.cancelAccess.test.tsx": "75369f44805db86d5b2f1f698da752e45748ac67dbd96b5bb4c81d893ef27241",
+    "frontend/src/features/staff/consoleModuleGating.test.tsx": "7978a062bf326997c7a1e75985eaa4eb5403749f1878816ad9507c0960d71470",
+    "frontend/src/features/staff/panels/HandoverEvidence.ownership.test.tsx": "3a2d84bbf5103bda90c6eee76ab3375e6a6ccc849376a05b01dc4c5167284cf5",
+    "frontend/src/features/staff/panels/InventoryRoleAlignment.test.tsx": "b396818ef03c698eed8ddaf2926c8e482d795beea650a8e2a672068a192ede07",
+    "frontend/src/features/staff/panels/Queues.cancelForm.test.tsx": "0fd1a9fe227d1dc8eca0bb60c565a4b1ca79ef4f0510e40790cd98076b492c96",
+    "frontend/src/features/staff/panels/Queues.cancelHistory.test.tsx": "9851358333fb4e5e379744807610bc38bc86c3f1a2016f23619323ad9d8adaaf",
+    "frontend/src/features/staff/panels/Queues.cancelOwnership.test.tsx": "833b8e69b369527cceccabca2f4be91e7c275e25bed962400473c77af1409041",
+    "frontend/src/features/staff/panels/Queues.handoverContracts.test.tsx": "b1c65d02bc87758920936cd429f0450af92d20bd9cdf0fe5ff0882f070b31eae",
+    "frontend/src/features/staff/panels/Queues.qrOwnership.test.tsx": "315b7c145129f6ce9e8ae6d1049082762ea215301a42618c06b22703f1e7e9c1",
+    "frontend/src/features/staff/panels/QueuesHandoverModals.test.tsx": "c0b85a113a08848d8a10b4383fb9293e322538614db9ec16b8eca52140aa21da",
+    "frontend/src/features/staff/panels/QueuesIssueFlow.test.tsx": "398bcccefb370dcec5822199f85b83fcecbddb6ece7824c05bd97cc2cd4c6f72",
+    "frontend/src/features/staff/panels/QueuesList.test.tsx": "cc08d918f6c7ec923df05a7d3940402f768985267de5ad4693acc72345286ae0",
+    "frontend/src/features/staff/panels/useQueueActions.cancelOwnership.test.tsx": "a9828f6d7706c02060a16542a2c4dbde2993ca0ef3415a93e395d5a048e4ffb2",
+    "frontend/src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx": "3f1d3df9ea9a905458dd61ab6c08b8544f551c1ff58cf2a4ad79757c65d1c4d4",
+    "frontend/src/features/staff/staffRoleAlignment.test.ts": "b06af357666ea4e9953cf7c06efd26294519d9ac38891f70eae3e34a569637b0"
+  },
+  "test_author": "Separate fresh pinned Codex CLI gpt-6.1-sol/high Stage3 after root Stage2 source approval; root read authored tests before runtime.",
+  "boundaries": [
+    "UI tests exercise real workspace permission wiring, components, shared ownership and transport with leaf HTTP responses; backend DB reservation release, permission enforcement and issue/cancel serialization require separate backend proof.",
+    "No production request was accepted, issued or cancelled; no production settings changed.",
+    "These two frozen frontend frames precede the separate My requests/session-observer feature. A final complete frontend run on all combined stable source remains required.",
+    "No source assertion was removed, no source skip/xfail added and no timeouts increased. Raw runner logs/XML and exact failed history remain private."
+  ]
+}

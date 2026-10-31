@@ -1,0 +1,15 @@
+Stage 2 implemented in exactly the five allowed files.
+
+| File | Exact functions and callers |
+|---|---|
+| `boxes/services.py` — 95 lines | Generalized helper renamed `box_write_makerspace`; called by `create_box_with_qr`, `BoxAdminForm.clean`, and `_admit_box_delete`. `create_box_with_qr` remains called by `BoxAdmin.save_model` and unchanged `CreateBoxQrView.post`. |
+| `boxes/admin_forms.py` — 55 lines | `BoxAdminForm.clean`: native admission, fresh target/parent validation, disappearance refusal. Called through Django form validation. |
+| `boxes/admin.py` — 291 lines | `BoxAdmin.save_model` passes `native=True`; `BoxLifecycleMixin` precedes `AdminAuditMixin`. |
+| New `boxes/admin_lifecycle.py` — 59 lines | `changeform_view`, `delete_model`, `delete_queryset` wrap Django’s native paths. Both delete methods call `_admit_box_delete`. |
+| `operations/views_containers.py` — 267 lines | `ContainerListCreateView.perform_create` and `ContainerDetailView.perform_update` call new `_fresh_parent`. `ContainerMoveView.post` reloads target/explicit parent. Called through existing DRF dispatch/hooks. |
+
+Source admission precedes Maker locking; native policy reads a fresh User after waiting. Existing native edit/delete gain no module guard. Omitted API parents come from fresh rows.
+
+Static AST, diff/whitespace, call-site, and line-limit checks passed. Shared `config/admin_audit.py` is byte-identical to entry; unrelated admin, read-only, and revocation ASTs are unchanged. Django’s protected-history/`SET_NULL` collector and native LogEntry attempt boundary remain intact.
+
+No tests, application runtime, builds, staging, or commits performed. PostgreSQL concurrency verification remains with root central.

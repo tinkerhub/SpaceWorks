@@ -13,12 +13,17 @@ mutate `HardwareRequest.status` directly.
 """
 
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from apps.encryption.crypto import PiiUnavailable
+from apps.encryption.write_fence import PiiWriteFenced
 from apps.hardware_requests.admin_workflow import WORKFLOW_EXCEPTIONS
+from apps.hardware_requests.cancellation_workflow import cancel_request
 from apps.hardware_requests.models import HardwareRequest
 from apps.hardware_requests.request_workflow import accept_request, reject_request
 from config.admin_source_gate import admin_tenant_write, gate_refusals
@@ -79,11 +84,23 @@ class RequestReviewAdminMixin:
                 "items": list(obj.items.all()),
                 "opts": self.model._meta,
                 "is_pending": obj.status == HardwareRequest.Status.PENDING_APPROVAL,
+                "is_accepted": obj.status == HardwareRequest.Status.ACCEPTED,
             },
         )
 
     def _apply_review(self, request, obj):
         changelist = reverse("admin:hardware_requests_hardwarerequest_changelist")
+        if "cancel" in request.POST:
+            if request.POST.get("confirm_cancel") != "yes":
+                self.message_user(request, "Confirm cancellation before continuing.", level=messages.ERROR)
+                return redirect(request.path)
+            try:
+                cancel_request(request.user, obj, request.POST.get("cancellation_reason", ""))
+            except (*WORKFLOW_EXCEPTIONS, PiiWriteFenced, PiiUnavailable, PermissionDenied) as exc:
+                self.message_user(request, f"{obj.pk}: {exc}", level=messages.ERROR)
+                return redirect(request.path)
+            self.message_user(request, f"Cancelled hardware request #{obj.pk}.", level=messages.SUCCESS)
+            return redirect(changelist)
         if "reject" in request.POST:
             reason = request.POST.get("reason", "").strip()
             if not reason:

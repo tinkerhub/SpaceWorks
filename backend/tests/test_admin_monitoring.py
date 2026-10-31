@@ -11,7 +11,9 @@ from apps.accounts.models import User
 from apps.boxes.models import QrCode
 from apps.evidence.models import EvidencePhoto
 from apps.inventory.models import InventoryAsset
+from apps.makerspaces.module_install import install_module
 from apps.operations.models import QrPrintBatch
+from apps.operations.services_qr_assets import add_qr_to_batch
 from tests.return_helpers import make_product, make_space, make_user
 
 pytestmark = pytest.mark.django_db
@@ -66,11 +68,18 @@ def s3_public_origin_or_skip():
 def test_qr_print_batch_download_zip_action_streams_one_selected_batch():
     user = make_superadmin("admin-monitoring-zip-one")
     makerspace = make_space("admin-monitoring-zip-one")
+    install_module(makerspace, "qr_print_batches", actor=user)
     batch = QrPrintBatch.objects.create(
         makerspace=makerspace,
-        title="Empty batch",
+        title="Printable batch",
         created_by=user,
     )
+    product = make_product(makerspace, name="Printable monitoring drill")
+    qr_code = QrCode.objects.create(
+        makerspace=makerspace, target_type=QrCode.TargetType.PRODUCT,
+        target_id=product.pk, created_by=user,
+    )
+    add_qr_to_batch(user, batch, qr_code)
     client = admin_client(user)
 
     response = post_admin_action(

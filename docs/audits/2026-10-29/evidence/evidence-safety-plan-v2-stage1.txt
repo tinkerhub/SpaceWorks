@@ -1,0 +1,14 @@
+**MANDATORY CHANGE: correct S03’s full-restore guarantee.** S02/S04/S05 and the remaining bounded quota design are sound.
+
+The database UUID establishes deployment affinity; it does **not** establish a new accounting epoch after every restore. Signed full restore captures the target identity in [restore_control_records.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/restore_control_records.py:42) and reinstalls that same identity in [full_restore_identity.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/full_restore_identity.py:234). Full dumps retain finalization journals, audit markers, and counters. Consequently, an in-place restore can preserve every proposed proof check despite omitting the archived identity row.
+
+Before approval, revise the plan to explicitly permit valid same-deployment proof restored with its counter snapshot, and test that case separately from foreign-database restore, which must credit zero. If **every** full restore must invalidate old proof, the parent needs a separately coordinated restore-invalidation design; this UUID alone cannot provide it. Preserve the existing host identity fences.
+
+The remaining identity and export findings support the proposal:
+
+- **Identity dependency:** backup remains installed and is not separable. Migration 0021 seeds the immutable singleton. `load()` normally performs an ordinary read; it adds no provider I/O or row-lock inversion. Resolve it per operation before the actual debit, without process-wide caching or invoking host identity/capture machinery.
+- **Portable path:** declare exactly `("evidence.storage_charged", "accounting_database_id")` as source-local. The provenance writer namespaces it as `source:…`; semantic import preserves that value while remapping the EvidencePhoto target. Exact local UUID comparison therefore rejects it—even when the target remaps successfully.
+- **Custom tenant dump:** semantic audit metadata travels as an inert snapshot, while finalization journals and the database identity are omitted. Target identity establishment supplies a different UUID. Test this path separately; it does not use portable metadata namespacing.
+- **Quota:** atomic actual debit + fresh journal version + scoped marker is sufficient for this bounded correction. Legacy flags remain unproven. Recompute must retain proven journal bytes until terminal expiry while preserving HEAD-error refusal. Whole-counter reconciliation concurrency remains an explicit limitation.
+
+No edits, tests, builds, migrations, or provider calls performed. Parent-owned reports and frozen tests were untouched.

@@ -22,6 +22,7 @@ USER_PROJECTIONS = {
 }
 
 ALWAYS_OMITTED = {
+    ("makerspaces.Makerspace", "purge_started_at"): "Irreversible source-local purge intent.",
     ("apiclients.ApiClient", "client_id"): "A rebuild issues a fresh client identifier.",
     ("apiclients.ApiClient", "secret_encrypted"): "API client credential.",
     ("apiclients.ApiClient", "previous_secret_encrypted"): (

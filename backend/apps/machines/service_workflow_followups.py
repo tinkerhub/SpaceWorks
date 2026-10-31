@@ -3,12 +3,15 @@
 from django.db import transaction
 from django.utils import timezone
 
+from apps.makerspaces import limits
+from apps.makerspaces.guards import require_module_locked
 from apps.machines.models import MachineServiceRequest
 from apps.machines.service_errors import ServiceInvalidTransition
 from apps.machines.service_workflow_helpers import (
     _assert_request_write_allowed,
     _audit_transition,
     _locked_request,
+    _notify_after_commit,
     _require_module,
 )
 
@@ -34,9 +37,15 @@ def create_reprint(service_request, actor):
     """Create an accepted child request that retains the original attachment root."""
     with transaction.atomic():
         _assert_request_write_allowed(service_request)
+        makerspace_id = MachineServiceRequest.objects.values_list(
+            "makerspace_id", flat=True,
+        ).get(pk=service_request.pk)
+        makerspace = require_module_locked(makerspace_id, "machine_service", no_key=True)
         original = _locked_request(service_request)
         if original.status not in {MachineServiceRequest.Status.FAILED, MachineServiceRequest.Status.COMPLETED, MachineServiceRequest.Status.COLLECTED}:
             raise ServiceInvalidTransition("Only terminal service requests can be reprinted.")
+        limits.check_quota(makerspace, "machine_service_open", adding=1, no_key=True)
+        limits.check_quota(makerspace, "machine_service_submit", adding=1, no_key=True)
         root = original.reprint_of or original
         child = MachineServiceRequest.objects.create(
             bucket=original.bucket, queue=original.queue, makerspace=original.makerspace, requester=original.requester, member=original.member,
@@ -48,4 +57,5 @@ def create_reprint(service_request, actor):
             reprint_of=root,
         )
         _audit_transition(actor, child, "reprint_created", extra={"reprint_of_id": root.pk})
+        _notify_after_commit(child, "reprinted")
         return child

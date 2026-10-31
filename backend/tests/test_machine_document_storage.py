@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from apps.machines import storage
 from apps.maker_file_formats import ALLOWED_EXTENSIONS_BY_MIME
+from tests.atomic_publication.store import Store
 
 
 def image_bytes(image_format):
@@ -146,8 +147,11 @@ def test_validate_machine_object_rejects_missing_empty_and_oversize(
     monkeypatch, settings, size
 ):
     settings.MACHINE_DOC_MAX_BYTES = 1024
-    monkeypatch.setattr(storage, "object_size", lambda key: size)
-    monkeypatch.setattr(storage, "_client", lambda: pytest.fail("object must not be read"))
+    store = Store()
+    key = "machines/1/file.stl"
+    if size is not None:
+        store.seed(key, b"x" * size, "model/stl")
+    monkeypatch.setattr(storage, "_client", lambda: store)
     with pytest.raises(ValidationError):
         storage.validate_machine_object("machines/1/file.stl")
 

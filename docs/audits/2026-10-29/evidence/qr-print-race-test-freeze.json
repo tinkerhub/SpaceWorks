@@ -1,0 +1,758 @@
+{
+  "format": "spaceworks-qr-print-race-test-freeze-v1",
+  "created_utc": "2026-10-30T02:20:24.275415+00:00",
+  "stage": "Stage 3 TESTS ONLY; author-only; root alone executes runtime",
+  "ownership": "backend/tests/qr_print_race_safety",
+  "files": {
+    "backend/tests/qr_print_race_safety/__init__.py": {
+      "sha256": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+      "lines": 1,
+      "functions": [],
+      "test_functions": [],
+      "static_cases": 0
+    },
+    "backend/tests/qr_print_race_safety/helpers.py": {
+      "sha256": "1dd5377265817b3232288c06b2c9443a7884c727c18c2008b2da8ef597523b47",
+      "lines": 204,
+      "functions": [
+        {
+          "name": "lab",
+          "line": 22,
+          "end_line": 38,
+          "sha256": "3578d5de7cd3fb063bd79f3792e7dba87dd985f2a6c1d8da918d5b6375fe14b6",
+          "author_pre_correction_sha256": "f9835cabe7bcb45ce9e1b9db0c9eb259802da05ee114a0e3185457d85dedf039"
+        },
+        {
+          "name": "prepare",
+          "line": 41,
+          "end_line": 52,
+          "sha256": "6f083c5e347c43aec3264489e280b0ce6f00f1653828cd4a8e31237a9c692cb3",
+          "author_pre_correction_sha256": "6f083c5e347c43aec3264489e280b0ce6f00f1653828cd4a8e31237a9c692cb3"
+        },
+        {
+          "name": "add_http",
+          "line": 55,
+          "end_line": 59,
+          "sha256": "69b4ef9cce6eaf7b8a2903055599b4da43ac161f10c1bc962e87ae735242c971",
+          "author_pre_correction_sha256": "69b4ef9cce6eaf7b8a2903055599b4da43ac161f10c1bc962e87ae735242c971"
+        },
+        {
+          "name": "move_http",
+          "line": 62,
+          "end_line": 69,
+          "sha256": "59d1df4b6ddf33413f0d406e40b33f02790ec5666010c3f5a3e61611551685c4",
+          "author_pre_correction_sha256": "59d1df4b6ddf33413f0d406e40b33f02790ec5666010c3f5a3e61611551685c4"
+        },
+        {
+          "name": "frozen",
+          "line": 72,
+          "end_line": 79,
+          "sha256": "167bb80930eee3c2001434e9feba690a4caef6eea667bc5473e964fcc6710ddc",
+          "author_pre_correction_sha256": "167bb80930eee3c2001434e9feba690a4caef6eea667bc5473e964fcc6710ddc"
+        },
+        {
+          "name": "state",
+          "line": 82,
+          "end_line": 85,
+          "sha256": "c598f869a52ec9f78e6c9dc69fc073f6fcf41f48dbc10f0aae4eab6cc39bf798",
+          "author_pre_correction_sha256": "c598f869a52ec9f78e6c9dc69fc073f6fcf41f48dbc10f0aae4eab6cc39bf798"
+        },
+        {
+          "name": "row",
+          "line": 88,
+          "end_line": 89,
+          "sha256": "9be8efea2876279d45ac9da6c420cb08e53d173e681f4f73ad1378f5b12b5712",
+          "author_pre_correction_sha256": "9be8efea2876279d45ac9da6c420cb08e53d173e681f4f73ad1378f5b12b5712"
+        },
+        {
+          "name": "events",
+          "line": 92,
+          "end_line": 93,
+          "sha256": "be1939f8ebba04a8ed757b9a1021e13ea5123177ccdf24209843a113c53ff9f4",
+          "author_pre_correction_sha256": "be1939f8ebba04a8ed757b9a1021e13ea5123177ccdf24209843a113c53ff9f4"
+        },
+        {
+          "name": "assert_event",
+          "line": 96,
+          "end_line": 101,
+          "sha256": "9d79fababb77154b697bcf828304af419149862366cea70282b263b53cb27858",
+          "author_pre_correction_sha256": "9d79fababb77154b697bcf828304af419149862366cea70282b263b53cb27858"
+        },
+        {
+          "name": "assert_item",
+          "line": 104,
+          "end_line": 112,
+          "sha256": "cd2ec66da2ae18c67661af5cfaa83ac9a234090516ae5170dc201b9d1fd766da",
+          "author_pre_correction_sha256": "cd2ec66da2ae18c67661af5cfaa83ac9a234090516ae5170dc201b9d1fd766da"
+        },
+        {
+          "name": "assert_moved",
+          "line": 115,
+          "end_line": 131,
+          "sha256": "77e866e33dc7a25927f671cdd35e61ca6507df81fbefc8007862abcf987a92a3",
+          "author_pre_correction_sha256": "77e866e33dc7a25927f671cdd35e61ca6507df81fbefc8007862abcf987a92a3"
+        },
+        {
+          "name": "qr_lock",
+          "line": 134,
+          "end_line": 135,
+          "sha256": "f9f55ddb93dc9dbd1a1603cf8c8e2e358813f7185635b3b2fca0a33fadf60695",
+          "author_pre_correction_sha256": "f9f55ddb93dc9dbd1a1603cf8c8e2e358813f7185635b3b2fca0a33fadf60695"
+        },
+        {
+          "name": "item_write",
+          "line": 138,
+          "end_line": 143,
+          "sha256": "92cd60fe952b6c0dabb132f24df12e1afedcc4677ebb26850f42eace91dae4d2",
+          "author_pre_correction_sha256": "92cd60fe952b6c0dabb132f24df12e1afedcc4677ebb26850f42eace91dae4d2"
+        },
+        {
+          "name": "audit_insert",
+          "line": 146,
+          "end_line": 147,
+          "sha256": "8d67fbfd18a7bb891160100a99569f35621589f55cf9f2cfb76ac310f40d5066",
+          "author_pre_correction_sha256": "8d67fbfd18a7bb891160100a99569f35621589f55cf9f2cfb76ac310f40d5066"
+        },
+        {
+          "name": "assert_no_writes",
+          "line": 150,
+          "end_line": 154,
+          "sha256": "e6130b2b0410f71b01e8b34d332da3741fbdbdc5aeefab4ed2b1c9062aa1a2cf",
+          "author_pre_correction_sha256": "e6130b2b0410f71b01e8b34d332da3741fbdbdc5aeefab4ed2b1c9062aa1a2cf"
+        },
+        {
+          "name": "assert_qr_scope",
+          "line": 157,
+          "end_line": 161,
+          "sha256": "8ae471c426754e90b06a287ccd1f6bde6a01bd764e5d9a226982da6448f9dc0a",
+          "author_pre_correction_sha256": "8ae471c426754e90b06a287ccd1f6bde6a01bd764e5d9a226982da6448f9dc0a"
+        },
+        {
+          "name": "assert_order",
+          "line": 164,
+          "end_line": 188,
+          "sha256": "c1a069aea1c3739d707c7ba8dfab5428783652e60b4ba437a51eb438634246d5",
+          "author_pre_correction_sha256": "c1a069aea1c3739d707c7ba8dfab5428783652e60b4ba437a51eb438634246d5"
+        },
+        {
+          "name": "evidence",
+          "line": 191,
+          "end_line": 196,
+          "sha256": "8ce37d34b16c497a058131e0cc1d055040f7de0eacc944438e61674d6788f2be",
+          "author_pre_correction_sha256": "8ce37d34b16c497a058131e0cc1d055040f7de0eacc944438e61674d6788f2be"
+        },
+        {
+          "name": "record_protocol",
+          "line": 199,
+          "end_line": 204,
+          "sha256": "2f7e435fbff1d22548f637eb05b3e1b8abb893bae593244c93cbe4ac9c1fe9cd",
+          "author_pre_correction_sha256": "2f7e435fbff1d22548f637eb05b3e1b8abb893bae593244c93cbe4ac9c1fe9cd"
+        }
+      ],
+      "test_functions": [],
+      "static_cases": 0,
+      "supersedes_pre_verification_sha256": "0061900c8286d81a157dc0c7a2e982bb86aa94b5c4c81aa69c2382b7ed30e991",
+      "function_hash_convention": "Current AST function source lines including trailing newline, excluding decorators; original author hashes explicitly historical."
+    },
+    "backend/tests/qr_print_race_safety/source_helpers.py": {
+      "sha256": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+      "lines": 64,
+      "functions": [
+        {
+          "name": "source_select",
+          "line": 10,
+          "end_line": 12,
+          "sha256": "c6b183426ba5cd8078998cc7760c98c6e629e0e6d2c0bd0f8cea03411ef3a0ca"
+        },
+        {
+          "name": "locks",
+          "line": 15,
+          "end_line": 22,
+          "sha256": "b145f4b87d07ba877b84193e03793cb0de318eb72084ac935b4da0cd162cbeb1"
+        },
+        {
+          "name": "assert_shared",
+          "line": 25,
+          "end_line": 26,
+          "sha256": "3d64e08949269cb2bcb439d2b19fd64b4fe522e7d2030b5efca7d5eeb35bc407"
+        },
+        {
+          "name": "exclusive",
+          "line": 29,
+          "end_line": 45,
+          "sha256": "1562b4817bf990603c78c6090f27f600d9591b5a04867bf638b21a4a823c4fc9"
+        },
+        {
+          "name": "try_exclusive",
+          "line": 48,
+          "end_line": 55,
+          "sha256": "f77d7a9863cfc23bf77b320cef498d288e38c867c6c91789d14d527831cfe740"
+        },
+        {
+          "name": "atomic_request",
+          "line": 58,
+          "end_line": 64,
+          "sha256": "bb6d94d3436f9dd5027b051985af032463d8936f8481834998600314344bf81c"
+        },
+        {
+          "name": "atomic_request.call",
+          "line": 59,
+          "end_line": 63,
+          "sha256": "77ce2e17f08c8dec88aa62726d8f86168a55e92b841cbd297351d9b3b86fb6a1"
+        }
+      ],
+      "test_functions": [],
+      "static_cases": 0
+    },
+    "backend/tests/qr_print_race_safety/test_item_contract.py": {
+      "sha256": "ab8e23d7801217e3353b6c3a3848534925adc2299a4445121fb48f91074c1774",
+      "lines": 134,
+      "functions": [
+        {
+          "name": "test_actual_http_label_sort_and_revoked_qr_positive_controls",
+          "line": 16,
+          "end_line": 38,
+          "sha256": "6c7d8f5e3abce5b4bb8593e51349a1d573180486f1f1c2e877ab66da44606184"
+        },
+        {
+          "name": "test_changed_readd_updates_same_full_row_and_records_one_actual_actor_event",
+          "line": 41,
+          "end_line": 64,
+          "sha256": "b3c155f1a35ed9743de3925bb9a26deb4c922fe58dc82e1011efac5438b0d75b"
+        },
+        {
+          "name": "test_unchanged_readd_emits_no_audit_and_no_update",
+          "line": 67,
+          "end_line": 81,
+          "sha256": "cf062a7eb9a67fe8ab0b0cccdc69bd53a771dc043ef8d59696f8b5aa159c9b09"
+        },
+        {
+          "name": "test_actual_serializer_rejects_overlong_label_and_negative_sort_without_writes",
+          "line": 84,
+          "end_line": 101,
+          "sha256": "1ce9cafb947645a52f45c819c4384d552dc51043f2db6d5a198acf0ee33cca27"
+        },
+        {
+          "name": "test_generation_http_preserves_explicit_serial_and_prefix_limits",
+          "line": 104,
+          "end_line": 134,
+          "sha256": "5ec3493c9510c4ea867a86baec418fabc0fd05ebae747f6da019a44f29cf7276"
+        }
+      ],
+      "test_functions": [
+        "test_actual_http_label_sort_and_revoked_qr_positive_controls",
+        "test_changed_readd_updates_same_full_row_and_records_one_actual_actor_event",
+        "test_unchanged_readd_emits_no_audit_and_no_update",
+        "test_actual_serializer_rejects_overlong_label_and_negative_sort_without_writes",
+        "test_generation_http_preserves_explicit_serial_and_prefix_limits"
+      ],
+      "static_cases": 34
+    },
+    "backend/tests/qr_print_race_safety/test_refusals.py": {
+      "sha256": "bb730046b9e6c3e868985fe3e3c2f1160cd174620be7ec12b20e082a8a2521cf",
+      "lines": 106,
+      "functions": [
+        {
+          "name": "test_module_disable_commits_while_item_waits_then_returns_typed_400",
+          "line": 22,
+          "end_line": 48,
+          "sha256": "a3bfbe031520f125a0b713e314a4ba6072822ad5e56e02802db5d91271487918"
+        },
+        {
+          "name": "test_genuine_quiesced_global_middleware_refuses_valid_http_before_item_writes",
+          "line": 51,
+          "end_line": 70,
+          "sha256": "eb35f4a2b7462a0dd91227abc43018c5d2711b1f703df2b79fbc052df1b42a63"
+        },
+        {
+          "name": "test_real_audit_insert_then_refusal_rolls_back_entire_item_and_audit_rows",
+          "line": 73,
+          "end_line": 89,
+          "sha256": "b978e52e03e32a84b0957ae3d2cbf075b54a628cdf56387de61acdb77e38c300"
+        },
+        {
+          "name": "test_initial_foreign_service_input_stays_400_and_http_lookup_stays_404",
+          "line": 92,
+          "end_line": 106,
+          "sha256": "b677485ed1cd9f73f968ed092a9b8ad8a4b86651ee99e8a73ff31a77067e8a3e"
+        }
+      ],
+      "test_functions": [
+        "test_module_disable_commits_while_item_waits_then_returns_typed_400",
+        "test_genuine_quiesced_global_middleware_refuses_valid_http_before_item_writes",
+        "test_real_audit_insert_then_refusal_rolls_back_entire_item_and_audit_rows",
+        "test_initial_foreign_service_input_stays_400_and_http_lookup_stays_404"
+      ],
+      "static_cases": 12
+    },
+    "backend/tests/qr_print_race_safety/test_source_boundary.py": {
+      "sha256": "abc39cdbd91376700e2e6ce072bcd49f85859f72d7c4741aa6244c234a6dcd69",
+      "lines": 76,
+      "functions": [
+        {
+          "name": "test_real_source_exclusive_blocks_actual_http_before_maker_qr_or_item",
+          "line": 19,
+          "end_line": 37,
+          "sha256": "aae99b8fcb3b344c7ce80fc1ef77eca625186d29abd171e3a2baf98dcf66fb92"
+        },
+        {
+          "name": "test_source_shared_survives_actual_audit_insert_http_return_and_outer_commit",
+          "line": 40,
+          "end_line": 76,
+          "sha256": "0d667e5ae0ec74bd7c79ec20d63465e1faa07d508dc8158fc5e1727ddf664641"
+        },
+        {
+          "name": "test_source_shared_survives_actual_audit_insert_http_return_and_outer_commit.outer",
+          "line": 46,
+          "end_line": 52,
+          "sha256": "9dce00e94207203d66b99f52b6cc9c827a18ff7611476cd8560562e847074e86"
+        }
+      ],
+      "test_functions": [
+        "test_real_source_exclusive_blocks_actual_http_before_maker_qr_or_item",
+        "test_source_shared_survives_actual_audit_insert_http_return_and_outer_commit"
+      ],
+      "static_cases": 4
+    },
+    "backend/tests/qr_print_race_safety/test_transfer_races.py": {
+      "sha256": "320fef26ea8c0a96f3fc2009a0c2d1045bbfa073cf16ba59cfeffbfa71bb0b05",
+      "lines": 96,
+      "functions": [
+        {
+          "name": "test_transfer_first_rechecks_cached_a_qr_before_any_item_mutation",
+          "line": 18,
+          "end_line": 71,
+          "sha256": "bb23581e059442be19d38d7dfc040cf0eab6916d25ddd28b9e895db6ab859415"
+        },
+        {
+          "name": "test_item_first_records_coherent_snapshot_then_allows_legitimate_move",
+          "line": 74,
+          "end_line": 96,
+          "sha256": "8c9b42630d4e19141bfd74c7dc00695560cf0d0c26a71108751c5b4ba2b4a323"
+        }
+      ],
+      "test_functions": [
+        "test_transfer_first_rechecks_cached_a_qr_before_any_item_mutation",
+        "test_item_first_records_coherent_snapshot_then_allows_legitimate_move"
+      ],
+      "static_cases": 10
+    }
+  },
+  "static_case_products": [
+    {
+      "node": "backend/tests/qr_print_race_safety/test_item_contract.py::test_actual_http_label_sort_and_revoked_qr_positive_controls",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "status",
+          "length": 2,
+          "values_source": [
+            "'active'",
+            "'revoked'"
+          ]
+        },
+        {
+          "parameters": "label",
+          "length": 3,
+          "values_source": [
+            "None",
+            "''",
+            "'M' * 255"
+          ]
+        }
+      ],
+      "product": 12
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_item_contract.py::test_changed_readd_updates_same_full_row_and_records_one_actual_actor_event",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "change",
+          "length": 3,
+          "values_source": [
+            "{'label_text': 'Changed'}",
+            "{'sort_order': 9}",
+            "{'label_text': 'Changed', 'sort_order': 9}"
+          ]
+        }
+      ],
+      "product": 6
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_item_contract.py::test_unchanged_readd_emits_no_audit_and_no_update",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "explicit_sort",
+          "length": 2,
+          "values_source": [
+            "False",
+            "True"
+          ]
+        }
+      ],
+      "product": 4
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_item_contract.py::test_actual_serializer_rejects_overlong_label_and_negative_sort_without_writes",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "length": 2,
+          "values_source": [
+            "False",
+            "True"
+          ]
+        },
+        {
+          "parameters": "data,field,code",
+          "length": 2,
+          "values_source": [
+            "({'label_text': 'L' * 256}, 'label_text', 'max_length')",
+            "({'sort_order': -1}, 'sort_order', 'min_value')"
+          ]
+        }
+      ],
+      "product": 8
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_item_contract.py::test_generation_http_preserves_explicit_serial_and_prefix_limits",
+      "factors": [
+        {
+          "parameters": "field,limit",
+          "length": 2,
+          "values_source": [
+            "('serial_numbers', 100)",
+            "('name_prefix', 154)"
+          ]
+        },
+        {
+          "parameters": "extra",
+          "length": 2,
+          "values_source": [
+            "0",
+            "1"
+          ]
+        }
+      ],
+      "product": 4
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_refusals.py::test_module_disable_commits_while_item_waits_then_returns_typed_400",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        }
+      ],
+      "product": 2
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_refusals.py::test_genuine_quiesced_global_middleware_refuses_valid_http_before_item_writes",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "length": 2,
+          "values_source": [
+            "False",
+            "True"
+          ]
+        }
+      ],
+      "product": 4
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_refusals.py::test_real_audit_insert_then_refusal_rolls_back_entire_item_and_audit_rows",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "length": 2,
+          "values_source": [
+            "False",
+            "True"
+          ]
+        }
+      ],
+      "product": 4
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_refusals.py::test_initial_foreign_service_input_stays_400_and_http_lookup_stays_404",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        }
+      ],
+      "product": 2
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_source_boundary.py::test_real_source_exclusive_blocks_actual_http_before_maker_qr_or_item",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        }
+      ],
+      "product": 2
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_source_boundary.py::test_source_shared_survives_actual_audit_insert_http_return_and_outer_commit",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        }
+      ],
+      "product": 2
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_transfer_races.py::test_transfer_first_rechecks_cached_a_qr_before_any_item_mutation",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        },
+        {
+          "parameters": "wait",
+          "length": 2,
+          "values_source": [
+            "'maker'",
+            "'qr'"
+          ]
+        },
+        {
+          "parameters": "existing",
+          "length": 2,
+          "values_source": [
+            "False",
+            "True"
+          ]
+        }
+      ],
+      "product": 8
+    },
+    {
+      "node": "backend/tests/qr_print_race_safety/test_transfer_races.py::test_item_first_records_coherent_snapshot_then_allows_legitimate_move",
+      "factors": [
+        {
+          "parameters": "kind",
+          "length": 2,
+          "values_source": [
+            "'product'",
+            "'asset'"
+          ]
+        }
+      ],
+      "product": 2
+    }
+  ],
+  "static_case_count": 60,
+  "test_function_count": 13,
+  "observed_source_hashes": {
+    "backend/apps/operations/services_qr_assets.py": {
+      "before_authoring": "c3b4742ea7485b20e6c3146e680e7a7d138e4dd925e8e685f97192b767109d1e",
+      "at_freeze": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+      "unchanged": false
+    },
+    "backend/apps/operations/views_qr_batches.py": {
+      "before_authoring": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2",
+      "at_freeze": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2",
+      "unchanged": true
+    },
+    "backend/apps/boxes/rebind.py": {
+      "before_authoring": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "at_freeze": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "unchanged": true
+    },
+    "backend/apps/boxes/asset_rebind.py": {
+      "before_authoring": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "at_freeze": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "unchanged": true
+    },
+    "backend/apps/boxes/qr_admission.py": {
+      "before_authoring": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "at_freeze": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "before_authoring": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "at_freeze": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "before_authoring": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "at_freeze": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/middleware.py": {
+      "before_authoring": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78",
+      "at_freeze": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78",
+      "unchanged": true
+    },
+    "backend/apps/operations/serializers.py": {
+      "before_authoring": "0e81d5174d1506c70c70450eb726ea4b329b930ad75e2a3620155ca07724c647",
+      "at_freeze": "3089d98e5503989ad0560d4d69460c44bcc84661fe515e7f5c542518c1c281c9",
+      "unchanged": false
+    },
+    "backend/tests/qr_target_safety_helpers.py": {
+      "before_authoring": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+      "at_freeze": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+      "unchanged": true
+    },
+    "backend/tests/box_parent_safety/pg_helpers.py": {
+      "before_authoring": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "at_freeze": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "unchanged": true
+    },
+    "backend/tests/tenant_migration/source_gate_helpers.py": {
+      "before_authoring": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332",
+      "at_freeze": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332",
+      "unchanged": true
+    }
+  },
+  "concurrent_change_observed": {
+    "files": [
+      "backend/apps/operations/services_qr_assets.py",
+      "backend/apps/operations/serializers.py"
+    ],
+    "owner": "Other concurrent writers; this author edited no production sources",
+    "independent_read": {
+      "backend/apps/operations/serializers.py": "QrPrintBatchItemSerializer.get_qr_code now returns None across makerspaces; separate UI owner; not asserted here.",
+      "backend/apps/operations/services_qr_assets.py": "After fresh maker-scoped QR lock, add_qr_to_batch now refreshes actor via current_qr_actor and checks MANAGE_QR. Ownership-before-derivation and no-late-Source-N persist. Existing valid-role test controls remain applicable."
+    }
+  },
+  "owner_functions": {
+    "backend/apps/operations/services_qr_assets.py::add_qr_to_batch": {
+      "name": "add_qr_to_batch",
+      "line": 32,
+      "end_line": 75,
+      "sha256": "bffee508af69aa91800c51547042b6dd78235c4d7babaa2b190a0ef95a2b597d"
+    },
+    "backend/apps/operations/views_qr_batches.py::QrPrintBatchItemView.post": {
+      "name": "QrPrintBatchItemView.post",
+      "line": 92,
+      "end_line": 111,
+      "sha256": "684cec74ba370bced2441cc320c40e257e2a905d118435e3a477595cb4adafca"
+    }
+  },
+  "stage_inputs": {
+    "/tmp/spaceworks-print-qr-target-race-stage1.txt": "b491a3ab14751c6edef8b800ffbce044b3603e0084c57b99c4a8a5d12722cc5d",
+    "/tmp/spaceworks-print-qr-target-race-stage2.txt": "b3f73b466dd0902dacd476bb898dca5cac72a449448cff63fd073c2a7cdf1142"
+  },
+  "coverage": [
+    "Actual HTTP item-add versus canonical HTTP cross-maker PRODUCT rebind and ASSET move: both winner orders; transfer-first Maker/QR waits with new/existing items.",
+    "Full captured SQL/PIDs tied to pg_blocking_pids actual wait edges; exact Maker FOR NO KEY UPDATE before QR SELECT FOR UPDATE by original A maker and pk, before item INSERT/UPDATE and actual Audit INSERT.",
+    "Canonical mover commits while real Maker NK remains held, including API-held NK while API waits on QR; no lock upgrade or FK incompatibility workaround.",
+    "Transfer-first typed404 preserves entire committed post-move state, existing item rows and print-item events: no orphan/create/update/false actor or maker.",
+    "Item-first coherent A target snapshot/default label and actual actor created event; authorized later move remains legal and full historical item row/audit remains unchanged.",
+    "Raw dedicated Source N exclusive blocks actual HTTP before Maker/QR/item; actual outer SQL transaction proves same backend shared ownership through real Audit INSERT, HTTP return and caller commit; no late Source N.",
+    "Canonical module uninstall wins actual Maker wait; typed module400 with no item/audit writes.",
+    "Genuine QUIESCED global middleware423 for new/existing items, with actual successful host/role/module HTTP positive control.",
+    "Real audit INSERT followed by raised RuntimeError rolls back complete new/updated item and audit rows, leaving QR unchanged.",
+    "Changed label/sort readd updates same full row and emits exactly one actual-actor event; unchanged omitted/explicit sort readd emits no audit/UPDATE.",
+    "Active/revoked eligibility; default/blank/explicit255 labels; label256/negative-sort400; actual generation HTTP accepts serial100/prefix154 and refuses +1.",
+    "Initially foreign shared-service QR remains400, foreign HTTP lookup404, subsequently moved cached A QR404."
+  ],
+  "exact_root_command": "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest tests/qr_print_race_safety -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-print-race.xml\n'",
+  "commands_for_root_only": [
+    "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest tests/qr_print_race_safety -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-print-race.xml\n'"
+  ],
+  "runtime": {
+    "status": "READY_ROOT_ONLY; independently reviewed60 static cases; separate16-case fresh-policy extension still authoring",
+    "collected": false,
+    "executed": false,
+    "django_imported_by_author": false,
+    "builds": false,
+    "tests_passed": null,
+    "junit_path_after_root_execution": "/tmp/spaceworks-qr-print-race.xml"
+  },
+  "tradeoffs": [
+    "Static AST products are not pytest collection or passing-runtime evidence. Root runs one PostgreSQL pytest process with owner credentials and an ephemeral encryption key.",
+    "Source tests wrap actual HTTP in an existing outer SQL atomic. Autocommit middleware can own N on a dedicated raw backend; no Worker-PID assumption is made for that path. The exclusive N holder is independently connected through raw psycopg2.",
+    "Frozen Worker pauses only after real SQL execution. Event/deadline waits are failed-observation watchdogs, not lock evidence; no sleeps, database timeouts, pg_stat_activity truncation or replacement source guards.",
+    "Historical FK references and snapshots stay legal after an authorized move. No perpetual maker-equality or live B nested serialization assertions. Separate UI owner owns nullable read projection.",
+    "No imports from changing qr_source_safety or qr_asset_race_safety. Reuses stable qr_target_safety_helpers, box_parent_safety.pg_helpers and canonical source_gate_helpers.",
+    "Module disable uses the canonical uninstall service; serial/prefix limit controls use actual HTTP/serializers. No production lock, helper, billing, tree or quantity changes."
+  ],
+  "author_validation": [
+    "stdlib ast.parse only; no application/Django imports",
+    "static decorator-list case products",
+    "file/function SHA256",
+    "line ceiling and whitespace",
+    "unfrozen helper import exclusion",
+    "stable dependencies and HTTP owner unchanged; concurrent shared-service actor recheck and separate serializer projection reread and recorded"
+  ],
+  "source_issues_found_in_bounded_scope": [],
+  "doctor": "Auth configured; runtime endpoint DNS/reachability failure observed in restricted environment. No nested gate invoked for already authorized Stage 3 author task.",
+  "source_edits": [],
+  "staged": false,
+  "committed": false,
+  "independent_review": "audit_backend_finish independently fully read all seven authored files. Real canonical product/asset moves, Maker NK/QR/source ownership, full SQL/PID waits, history preservation, audit rollback and label/sort/revoked controls inspected. No runtime performed.",
+  "fixture_verification_correction": "Enable opt-in asset_units and qr_print_batches on both actual fixture makerspaces before require_module positives; space() only seeds core. No production guard disabled or assertion weakened;60 static cases unchanged."
+}

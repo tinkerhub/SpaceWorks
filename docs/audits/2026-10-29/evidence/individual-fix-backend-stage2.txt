@@ -1,0 +1,10 @@
+Implemented only the two authorized files:
+
+- [availability_requests.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/inventory/availability_requests.py:149): all three aggregate fix helpers reject `INDIVIDUAL` immediately after the product lock, using `InsufficientStock` with per-unit guidance.
+- [views_assets.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/admin_api/views_assets.py:23): POST shares eligibility validation before and after locking. PATCH and POST use `no_key=True` and `of=("self",)`. Added accurate OpenAPI 400/403/404 descriptions.
+
+Verified callers and lock ordering by source inspection. Existing PATCH checks, quantity math, `issue_items`, `return_items`, and generic asset movements remain unchanged.
+
+Diff: **51 insertions, 18 deletions**. Files: **255 and 194 lines**. `git diff --check` passed.
+
+No tests, runtime, generation, migrations, staging, or commits performed. Future concurrency tests must observe waiting on the asset itself, per the approved clarification.

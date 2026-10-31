@@ -1,0 +1,52 @@
+{
+  "status": "prepared-not-executed",
+  "syntax_only": true,
+  "private_inputs": [
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/README.txt",
+      "sha256": "4d9291b5baf0514a0a273a6ee821de922472fbbf3cd39178de043923e522f92a",
+      "lines": 55
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/bootstrap_operator.py",
+      "sha256": "37ccfb16cc2c215591d800511c3cb1dd1b6046d547fb8cc87db99a8a71efbeaa",
+      "lines": 91
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/feasibility.sh",
+      "sha256": "39ecc3302c976e0d331c5d5a3dc6e3410b17c8ab213b9abd90a40c110e24a823",
+      "lines": 63
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/prepare_snapshot.py",
+      "sha256": "a9a8ca6403d043deb5ebaf181030ea9b1fa0e249e3b97ebb9e9bc52cefece1d2",
+      "lines": 45
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/run_topology.sh",
+      "sha256": "d37b93b9a7f1c7c567f5aa5f19cfb69afb2aaa6508070a69b920687285b03d1b",
+      "lines": 69
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/workflow_operator.py",
+      "sha256": "36c502e1670d15cdfaa55ec161547a96f8a896aabf900225c0124aaa0ab3c297",
+      "lines": 176
+    }
+  ],
+  "runtime": "UNVERIFIED",
+  "no_production_actions": true,
+  "commands": [
+    "/tmp/spaceworks-actual-host-drill/feasibility.sh",
+    "/tmp/spaceworks-actual-host-drill/run_topology.sh REPO PRINTED_RUN_DIRECTORY"
+  ],
+  "limits": [
+    "same-host-only",
+    "live-broker-generation-proof-separate",
+    "different-key-cross-target-not-yet",
+    "no-adverse-post-effect-injection",
+    "no-official-release-attestation"
+  ],
+  "host_context_correction": "Host default or desktop-linux local Unix context accepted without switching; actual host/operator daemon IDs must match; operator uses default local socket.",
+  "feasibility_evidence": "docs/audits/2026-10-29/evidence/restore-actual-host-feasibility.json",
+  "feasibility_status": "actual-pass-by-parent-only"
+}

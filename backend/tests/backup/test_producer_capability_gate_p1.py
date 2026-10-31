@@ -9,6 +9,8 @@ import uuid
 import pytest
 from django.utils import timezone
 
+from apps.backup.compound_protocol import PROTOCOL_VERSION
+
 from apps.backup import archive_builder, host_marker, producer_capability, storage
 from apps.backup.host_marker import MarkerError
 from apps.backup.models import BackupArchive, BackupArtifactLedger
@@ -66,8 +68,8 @@ def _apply_refusal(case, installation, monkeypatch):
     elif case == "protocol_range":
         _rewrite(installation, lambda value: value.update({
             "compound_protocol": {
-                "minimum": "spaceworks-lane-e-b1-v2",
-                "maximum": "spaceworks-lane-e-b1-v3",
+                "minimum": "spaceworks-lane-e-b1-v3",
+                "maximum": "spaceworks-lane-e-b1-v4",
             }
         }))
     elif case == "signing_fingerprint":
@@ -160,7 +162,7 @@ def test_matching_versions_cannot_override_real_hash_mismatch(
 ):
     installation = installed_producer_capability
     assert installation["payload"]["version"] == producer_capability.MARKER_VERSION
-    assert installation["payload"]["compound_protocol"]["minimum"].endswith("v1")
+    assert installation["payload"]["compound_protocol"]["minimum"] == PROTOCOL_VERSION
     (installation["scripts"] / "host-capability.py").write_bytes(b"older bytes\n")
 
     with pytest.raises(

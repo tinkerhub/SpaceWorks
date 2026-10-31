@@ -1,0 +1,55 @@
+{
+  "status": "actual local synthetic browser views verified; not workflow execution proof",
+  "version": "0.9.0",
+  "images": 76,
+  "old72_images_unchanged": true,
+  "added": [
+    {
+      "file": "mobile-my-requests-dark.jpg",
+      "bytes": 35404,
+      "sha256": "d6105d3afd37ffc6a3cf7c951878466c44980264fdd80286b5aa10c59828d478"
+    },
+    {
+      "file": "public-member-requests.jpg",
+      "bytes": 107781,
+      "sha256": "de8b0bc618d396ff80ff59e4e99afe868a95accb923b7134b1b1b38981319105"
+    },
+    {
+      "file": "public-my-requests.jpg",
+      "bytes": 50463,
+      "sha256": "7624ca8b4b87a9aff27429475b6a18e6310ab670fc51267a6cfb81090cb60bd7"
+    },
+    {
+      "file": "staff-request-cancellation.jpg",
+      "bytes": 61586,
+      "sha256": "1ad84d7e6ea1b92c804889340811e3647f1d729e204e8c2038e6f6ec45e7c466"
+    }
+  ],
+  "gallery_manifest_sha256": "07a44f498bab66945a06bbfbc7213146c15da6e3c1570abfad3382e6dd35b59f",
+  "no_metadata": [
+    "JPEG APP1",
+    "JPEG APP13",
+    "JPEG COM"
+  ],
+  "ui_observations": [
+    "Accounts-off My requests at1280px and320px dark; no horizontal overflow or sign-in prerequisite.",
+    "Member Requests tab available without active makerspace membership; both exact-account histories returned empty correctly for the synthetic staff-only actor.",
+    "Cancellation reason dialog opened and closed without submitting; synthetic accepted request was not mutated."
+  ],
+  "preview_migrations": {
+    "exit_code": 0,
+    "seconds": 8.083,
+    "applied": [
+      "hardware_requests.0026_request_cancellation",
+      "encryption.0009_request_cancellation_pii_fence",
+      "integrations.0025_machine_service_notification_feature"
+    ],
+    "environment_values_preserved": 77
+  },
+  "preview_refresh": "Original local QA server restarted on127.0.0.1:58000 with -B and same77 process environment values; frontend55000 retained.",
+  "limits": [
+    "No production account, roster, database, equipment or external provider was changed.",
+    "Empty account history screenshot does not prove every lifecycle; HTTP/UI regression evidence is separate.",
+    "Strict installed-host readiness remains separate from this development preview."
+  ]
+}

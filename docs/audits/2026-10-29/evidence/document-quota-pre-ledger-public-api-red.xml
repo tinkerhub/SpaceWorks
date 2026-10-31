@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="document-quota-pre-ledger-public-api-red" tests="3" failures="3" errors="0" skipped="0">
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[receipt]" time="6.925">
+    <failure message="Historical assertion failure; exact case and resolution recorded in document-quota-final-runtime.json" type="AssertionError" />
+  </testcase>
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[asset]" time="3.447">
+    <failure message="Historical assertion failure; exact case and resolution recorded in document-quota-final-runtime.json" type="AssertionError" />
+  </testcase>
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[machine]" time="2.989">
+    <failure message="Historical assertion failure; exact case and resolution recorded in document-quota-final-runtime.json" type="AssertionError" />
+  </testcase>
+</testsuite>

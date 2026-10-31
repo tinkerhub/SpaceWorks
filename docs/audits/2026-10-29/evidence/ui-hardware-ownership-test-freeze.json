@@ -1,0 +1,73 @@
+{
+  "format": "spaceworks-ui-hardware-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "cases_static_expansion": 67,
+  "test_files": 9,
+  "helpers": 1,
+  "runtime_status": "Root verified 341/341 tests across 50 files in 113.47 seconds; chained npx tsc -b and npm run build exited 0. Whole-frontend and release verification remain separate.",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/panels/Queues.qrOwnership.test.tsx",
+      "cases": 5,
+      "lines": 107,
+      "sha256": "08ae61cba72dc52a0e5978d118b2c844c0fb7eefc0da16a5156921668a7c7e45"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/BoxCodeField.hardwareOwnership.test.tsx",
+      "cases": 8,
+      "lines": 107,
+      "sha256": "18803f0a58459705fb0daefc61333abcb4cbd6e7bbb071551c58fe4ac4233101"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx",
+      "cases": 13,
+      "lines": 150,
+      "sha256": "2ab84d6990e7f17509814dd499b17d85fcbe62d42d242a1023b0c30f9c2126c3"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/Queues.handoverContracts.test.tsx",
+      "cases": 4,
+      "lines": 113,
+      "sha256": "3d80f6ea61e21fba8ed595d13d5e4cc1efb6fc4e4086ef5246f2ee0feb55c3cf"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoans.hardwareOwnership.test.tsx",
+      "cases": 11,
+      "lines": 190,
+      "sha256": "a496b273e0e5bb40a20df0fb1d38cdb9e297bf28def3f197ca0e575c0f1c8053"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanItems.hardwareOwnership.test.tsx",
+      "cases": 6,
+      "lines": 102,
+      "sha256": "276644b4cabdd62e5bd5400c015ae1bd70d94b3a55cc13e55643fcb5b8d0b684"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx",
+      "cases": 7,
+      "lines": 146,
+      "sha256": "cebe10bcb867d816766afc912d4575aabcb49087c246b5d9464ebc14fb597651"
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanBorrower.hardwareOwnership.test.tsx",
+      "cases": 5,
+      "lines": 100,
+      "sha256": "00ddf94df503de7b11df29094b2a6b2043fc2d7f5c49ca425530a5fb92cc0c5b"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx",
+      "cases": 8,
+      "lines": 137,
+      "sha256": "92897446c0e6901194bde5234bbf0d133eeca5ebf428a907987356c0ead8d6de"
+    },
+    {
+      "path": "frontend/src/test/hardwareOwnershipHarness.tsx",
+      "cases": 0,
+      "lines": 152,
+      "sha256": "60a23ebe1ec702bf63355793e8fe2998f3668f7c4d826ba7b0069a12f75a695b"
+    }
+  ],
+  "fixture_adapter": "WalkInMemberForm.hardwareOwnership two standalone happy/POST-retry cases mount a real canonical roster observer; all prior eight case assertions retained. See final roster Stage3 handoff.",
+  "runtime_log": "docs/audits/2026-10-29/evidence/ui-staff-hardware-corrected-runtime.log",
+  "fixture_correction": "Initial combined run: 338 pass, 3 fixture assertion failures. Two container-list assertions now distinguish visible combobox label from duplicate native option text while retaining exact option checks. One failed-create draft assertion expects native type=email whitespace normalization; name/phone preservation remains exact. No source or ownership assertion was weakened."
+}

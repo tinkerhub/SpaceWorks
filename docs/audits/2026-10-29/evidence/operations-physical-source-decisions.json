@@ -1,0 +1,2455 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving-model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 21,
+  "observed_lexical_owner_count": 227,
+  "blanket_approval": false,
+  "runtime_validation": "No tests, builds, migrations or application imports executed by this reviewer. Parent central runtime is separate.",
+  "owner_census_method": "AST identifies exact named owners/ranges only after full actual source reading. Purpose and findings follow individually reviewed definitions/callers; no folder approval.",
+  "files": [
+    {
+      "path": "backend/apps/operations/services_qr_assets.py",
+      "file_sha256": "bc0e8167da4577443ccd2fd17ce7fc74d56b1ed2e7b2fc529043ec1d63505977",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 153,
+          "purpose": "QR label, unit-generation and printed-transition services declarations and imports.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_target_label",
+          "line_start": 16,
+          "line_end": 22,
+          "purpose": "Resolve a label from the QR target model.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "add_qr_to_batch",
+          "line_start": 25,
+          "line_end": 51,
+          "purpose": "Create or update one tenant-matched batch item; preserve explicit sort order.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01, OPS-S02 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01",
+            "OPS-S02"
+          ]
+        },
+        {
+          "owner": "_create_asset_qr",
+          "line_start": 54,
+          "line_end": 62,
+          "purpose": "Reuse or create the active QR for one asset.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_assets_missing_active_qr",
+          "line_start": 65,
+          "line_end": 76,
+          "purpose": "Lock existing units without active QR in stable creation order.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "generate_assets_with_qr",
+          "line_start": 79,
+          "line_end": 137,
+          "purpose": "Check module locks and conversion authority, reuse unlabelled units, create remaining units under quota, reconcile quantities and audit.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "mark_batch_printed",
+          "line_start": 140,
+          "line_end": 153,
+          "purpose": "Lock a draft batch and stamp printed time with audit.",
+          "runtime_boundary": "Atomic callers and module locks protect generation; QR audit and length corrections remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S03 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S03"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_shared.py",
+      "file_sha256": "eb38f7e52f7d1bc1cc6b08e6ad3adce2feb164640aad23e2d53d74229fb27312",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 9,
+          "purpose": "Scoped operations lookup declarations and imports.",
+          "runtime_boundary": "Identifier lookup is tenant-qualified.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_container",
+          "line_start": 6,
+          "line_end": 9,
+          "purpose": "Resolve an optional container only in its declared makerspace.",
+          "runtime_boundary": "Identifier lookup is tenant-qualified.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_stocktake.py",
+      "file_sha256": "43c3d6763ac97aa5889e37a86a90fed355958e68e752fd642f9ad6854fe4591b",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 24,
+          "purpose": "Explicit stocktake re-export surface declarations and imports.",
+          "runtime_boundary": "Import barrel; no independent mutation.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_stocktake_helpers.py",
+      "file_sha256": "ac7f740e7ca89c50f2c5d40dada8ef3f8d984cc8880286f294f7c1f5f0f60b83",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 206,
+          "purpose": "Stocktake validation and inventory adapters declarations and imports.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_product_expected",
+          "line_start": 12,
+          "line_end": 19,
+          "purpose": "Select the current quantity bucket corresponding to a count condition.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_asset_bucket",
+          "line_start": 22,
+          "line_end": 27,
+          "purpose": "Map stocktakeable unit statuses to ledger buckets.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_asset_new_status",
+          "line_start": 30,
+          "line_end": 37,
+          "purpose": "Map count zero to lost and positive count to the selected physical condition.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_line_scope",
+          "line_start": 40,
+          "line_end": 54,
+          "purpose": "Recheck item, asset/product relationship and container tenancy before applying.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_line_container",
+          "line_start": 57,
+          "line_end": 63,
+          "purpose": "Require the exact session container for container-scoped counts.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_item_container",
+          "line_start": 66,
+          "line_end": 73,
+          "purpose": "Require counted physical items to belong to the selected exact container.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_reject_duplicate_line",
+          "line_start": 76,
+          "line_end": 85,
+          "purpose": "Reject a repeated asset or product/condition/container count.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_line_fresh",
+          "line_start": 88,
+          "line_end": 101,
+          "purpose": "Reload and lock current physical stock, reject counts whose expected bucket changed.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_product_count",
+          "line_start": 104,
+          "line_end": 108,
+          "purpose": "Refuse aggregate stocktake counts for individually tracked products.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_asset_count",
+          "line_start": 111,
+          "line_end": 117,
+          "purpose": "Require unit count zero/one and a stocktakeable status.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_ledger_entries_for_line",
+          "line_start": 120,
+          "line_end": 135,
+          "purpose": "Refuse unknown conditions and build only real variance entries.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_asset_ledger_entries",
+          "line_start": 138,
+          "line_end": 157,
+          "purpose": "Lock and move a unit condition, retaining paired old/new bucket entries.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_create_ledger_entry",
+          "line_start": 160,
+          "line_end": 173,
+          "purpose": "Persist the exact session/line/item/bucket adjustment.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_apply_ledger_entries",
+          "line_start": 176,
+          "line_end": 189,
+          "purpose": "Lock each product and delegate all bucket math to inventory availability; map negative stock refusal.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_record_adjustment",
+          "line_start": 192,
+          "line_end": 206,
+          "purpose": "Record the applied physical count deltas once per changed line.",
+          "runtime_boundary": "Internal callers hold the makerspace/session transaction; product/asset locks and inventory-owned arithmetic protect applying counts.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_stocktake_workflow.py",
+      "file_sha256": "dc9da277decbbf5d5dde5810c1e46ace483189bd462e887ad3471c9118461ab0",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 181,
+          "purpose": "Shared stocktake lifecycle declarations and imports.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_locked_session",
+          "line_start": 32,
+          "line_end": 40,
+          "purpose": "Lock the makerspace module before the session.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "create_stocktake",
+          "line_start": 43,
+          "line_end": 54,
+          "purpose": "Resolve tenant container and create an audited session under module lock.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_scan_target",
+          "line_start": 57,
+          "line_end": 84,
+          "purpose": "Resolve only an active QR visible through VIEW_INVENTORY and require session tenancy.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "add_stocktake_line",
+          "line_start": 87,
+          "line_end": 129,
+          "purpose": "Serialize session writes; validate item/count/container and duplicate constraints before adding an audited line.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "complete_stocktake",
+          "line_start": 132,
+          "line_end": 149,
+          "purpose": "Require COUNTING and record the real completer before notification.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "approve_stocktake",
+          "line_start": 152,
+          "line_end": 163,
+          "purpose": "Require a completed session and independent reviewer under lock.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "apply_stocktake_adjustments",
+          "line_start": 166,
+          "line_end": 181,
+          "purpose": "Require approved independent-review authority; revalidate each count then atomically apply ledgers, adjustments and final audit.",
+          "runtime_boundary": "API and control-plane callers share the same module/session locks, fresh line checks, reviewer authorization and audit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/stocktake_authority.py",
+      "file_sha256": "501f2520c28c207b07336644c9f62fe4ec02c524725a67fb720510e9d4c90d88",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 38,
+          "purpose": "Four-eyes stocktake authorization declarations and imports.",
+          "runtime_boundary": "Review authority uses action scope and hidden-space semantics, not a legacy role ceiling.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "can_review_stocktake",
+          "line_start": 9,
+          "line_end": 22,
+          "purpose": "Require MANAGE_MAKERSPACE, exempt only visible global superadmins, otherwise require a different recorded completer.",
+          "runtime_boundary": "Review authority uses action scope and hidden-space semantics, not a legacy role ceiling.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "require_stocktake_reviewer",
+          "line_start": 25,
+          "line_end": 30,
+          "purpose": "Raise typed permission refusal when the central reviewer rule fails.",
+          "runtime_boundary": "Review authority uses action scope and hidden-space semantics, not a legacy role ceiling.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_global_superadmin_in",
+          "line_start": 33,
+          "line_end": 38,
+          "purpose": "Exclude hard-hidden spaces from global superadmin exception.",
+          "runtime_boundary": "Review authority uses action scope and hidden-space semantics, not a legacy role ceiling.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_transfer_splits.py",
+      "file_sha256": "ef61ed48ca06e98c13b2fb1fcb8f1f5b71629052aeb482fecd36528b17b560a4",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 80,
+          "purpose": "Quantity relocation adapters declarations and imports.",
+          "runtime_boundary": "Caller holds ordered makerspace locks and source product lock; quantity changes delegate to inventory.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "move_quantity_stock",
+          "line_start": 7,
+          "line_end": 34,
+          "purpose": "Refuse individual aggregate moves; relocate a fully free row or split/merge available stock.",
+          "runtime_boundary": "Caller holds ordered makerspace locks and source product lock; quantity changes delegate to inventory.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_can_move_source_row",
+          "line_start": 37,
+          "line_end": 47,
+          "purpose": "Allow whole-row relocation only when all stock is available and no destination exists.",
+          "runtime_boundary": "Caller holds ordered makerspace locks and source product lock; quantity changes delegate to inventory.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_destination_product",
+          "line_start": 50,
+          "line_end": 62,
+          "purpose": "Lock the local matching quantity product with the same category and destination container.",
+          "runtime_boundary": "Caller holds ordered makerspace locks and source product lock; quantity changes delegate to inventory.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_create_destination_product",
+          "line_start": 65,
+          "line_end": 80,
+          "purpose": "Create an empty destination with public listing and self-checkout disabled.",
+          "runtime_boundary": "Caller holds ordered makerspace locks and source product lock; quantity changes delegate to inventory.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services_transfers.py",
+      "file_sha256": "c0daea16c1a9a1e00c10ea86c036cb94cfb4cb6995da0e0ffa6bec57a51fb5ce",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 251,
+          "purpose": "Atomic physical stock transfer declarations and imports.",
+          "runtime_boundary": "Both tenant module rows are locked in id order; source/destination and unit loan eligibility are checked inside that transaction.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "apply_stock_transfer",
+          "line_start": 29,
+          "line_end": 74,
+          "purpose": "Lock both module scopes, resolve containers, apply all lines atomically and audit both ends of a cross-tenant transfer.",
+          "runtime_boundary": "Both tenant module rows are locked in id order; source/destination and unit loan eligibility are checked inside that transaction.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_apply_intra_makerspace_line",
+          "line_start": 77,
+          "line_end": 136,
+          "purpose": "Reload and lock source item, enforce source container and unit status/loan constraints, delegate stock movement, record transfer/adjustment.",
+          "runtime_boundary": "Both tenant module rows are locked in id order; source/destination and unit loan eligibility are checked inside that transaction.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_apply_cross_makerspace_line",
+          "line_start": 139,
+          "line_end": 227,
+          "purpose": "Refuse unit moves, match category by destination-local slug, create private quantity stock and delegate arithmetic with paired adjustments.",
+          "runtime_boundary": "Both tenant module rows are locked in id order; source/destination and unit loan eligibility are checked inside that transaction.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_assert_asset_transferable",
+          "line_start": 230,
+          "line_end": 251,
+          "purpose": "Reject workflow-owned issued/reserved states and actual open loan/request links.",
+          "runtime_boundary": "Both tenant module rows are locked in id order; source/destination and unit loan eligibility are checked inside that transaction.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/views_stocktake.py",
+      "file_sha256": "49f790a1c74ada0361dbacda502d31129733014bb197fc7edae4851985de604c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 147,
+          "purpose": "Staff stocktake HTTP admission declarations and imports.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeListCreateView",
+          "line_start": 37,
+          "line_end": 56,
+          "purpose": "Declare StocktakeListCreateView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeListCreateView.get_serializer_class",
+          "line_start": 40,
+          "line_end": 41,
+          "purpose": "Choose create input only for POST.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeListCreateView.get_queryset",
+          "line_start": 43,
+          "line_end": 47,
+          "purpose": "Require enabled module and VIEW_INVENTORY for the requested tenant.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeListCreateView.create",
+          "line_start": 49,
+          "line_end": 56,
+          "purpose": "Validate EDIT_INVENTORY and typed create input before the shared service.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeDetailView",
+          "line_start": 62,
+          "line_end": 72,
+          "purpose": "Declare StocktakeDetailView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeDetailView.get_queryset",
+          "line_start": 66,
+          "line_end": 67,
+          "purpose": "Require enabled module and VIEW_INVENTORY for the requested tenant.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeDetailView.get_object",
+          "line_start": 69,
+          "line_end": 72,
+          "purpose": "Check module after scoped object lookup.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountLineView",
+          "line_start": 75,
+          "line_end": 85,
+          "purpose": "Declare StocktakeCountLineView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountLineView.post",
+          "line_start": 80,
+          "line_end": 85,
+          "purpose": "Resolve EDIT_INVENTORY scope then validate line input and call add_stocktake_line.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeResolveScanView",
+          "line_start": 88,
+          "line_end": 98,
+          "purpose": "Declare StocktakeResolveScanView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeResolveScanView.post",
+          "line_start": 93,
+          "line_end": 98,
+          "purpose": "Resolve edit scope and validate scan before shared QR resolution.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCompleteView",
+          "line_start": 101,
+          "line_end": 108,
+          "purpose": "Declare StocktakeCompleteView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCompleteView.post",
+          "line_start": 106,
+          "line_end": 108,
+          "purpose": "Resolve edit scope and delegate completion.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeApproveView",
+          "line_start": 122,
+          "line_end": 130,
+          "purpose": "Declare StocktakeApproveView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeApproveView.post",
+          "line_start": 127,
+          "line_end": 130,
+          "purpose": "Resolve visible stocktake then delegate central reviewer authority.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeApplyAdjustmentsView",
+          "line_start": 133,
+          "line_end": 141,
+          "purpose": "Declare StocktakeApplyAdjustmentsView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeApplyAdjustmentsView.post",
+          "line_start": 138,
+          "line_end": 141,
+          "purpose": "Resolve visible stocktake then delegate central reviewer/apply authority.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_stocktake_for_action",
+          "line_start": 144,
+          "line_end": 147,
+          "purpose": "Perform action-scoped lookup and module check.",
+          "runtime_boundary": "IsActiveStaff and action-scoped lookups precede shared workflow services; reviewer authority remains in locked services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/views_transfers.py",
+      "file_sha256": "a97053876e86f02b6fedc88b2632d3c501226730532719ba7181512c9c553713",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 97,
+          "purpose": "Staff stock transfer HTTP admission declarations and imports.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferListCreateView",
+          "line_start": 30,
+          "line_end": 65,
+          "purpose": "Declare StockTransferListCreateView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferListCreateView.get_serializer_class",
+          "line_start": 33,
+          "line_end": 34,
+          "purpose": "Select typed create input only on POST.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferListCreateView.get_queryset",
+          "line_start": 36,
+          "line_end": 40,
+          "purpose": "Require requested tenant inventory visibility and enabled transfer module; list both ends.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferListCreateView.create",
+          "line_start": 42,
+          "line_end": 65,
+          "purpose": "Validate payload and distinguish local edit authority from both-end TRANSFER_STOCK authority.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferDetailView",
+          "line_start": 71,
+          "line_end": 97,
+          "purpose": "Declare StockTransferDetailView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferDetailView.get_queryset",
+          "line_start": 75,
+          "line_end": 82,
+          "purpose": "Scope retained transfer rows to either authorized tenant end.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferDetailView.get_object",
+          "line_start": 84,
+          "line_end": 97,
+          "purpose": "Require an enabled module at at least one visible end before exposing transfer details.",
+          "runtime_boundary": "Read scope includes either legitimate transfer end; create checks both cross-tenant authorities before service writes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/serializers_stocktake.py",
+      "file_sha256": "6432d74ef9f2b28d44ff4b9d6025085cdde982d7d0fd0e2fd64a6485b08eaf94",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 93,
+          "purpose": "Typed stocktake transport contracts declarations and imports.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCreateSerializer",
+          "line_start": 7,
+          "line_end": 9,
+          "purpose": "Declare StocktakeCreateSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInputSerializer",
+          "line_start": 12,
+          "line_end": 23,
+          "purpose": "Declare StocktakeLineInputSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInputSerializer.validate",
+          "line_start": 20,
+          "line_end": 23,
+          "purpose": "Require exactly one product or asset identifier.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeScanInputSerializer",
+          "line_start": 26,
+          "line_end": 27,
+          "purpose": "Declare StocktakeScanInputSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeScanResultSerializer",
+          "line_start": 30,
+          "line_end": 40,
+          "purpose": "Declare StocktakeScanResultSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineSerializer",
+          "line_start": 43,
+          "line_end": 56,
+          "purpose": "Declare StocktakeLineSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineSerializer.Meta",
+          "line_start": 44,
+          "line_end": 56,
+          "purpose": "Declare StocktakeLineSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSerializer",
+          "line_start": 59,
+          "line_end": 93,
+          "purpose": "Declare StocktakeSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSerializer.Meta",
+          "line_start": 66,
+          "line_end": 83,
+          "purpose": "Declare StocktakeSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSerializer.get_can_approve",
+          "line_start": 85,
+          "line_end": 86,
+          "purpose": "Expose reviewer eligibility only for completed sessions.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSerializer.get_can_apply",
+          "line_start": 88,
+          "line_end": 89,
+          "purpose": "Expose reviewer eligibility only for approved sessions.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSerializer._can_review",
+          "line_start": 91,
+          "line_end": 93,
+          "purpose": "Use the actual request actor and shared reviewer rule.",
+          "runtime_boundary": "Declaration-only response fields do not establish authorization; views/services enforce tenant and workflow policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/views_qr_batches.py",
+      "file_sha256": "1b7ea3276259c2936a4157e1cb7152abc033d6f6ca7303003ea2cef6bcf6e4c1",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 180,
+          "purpose": "Staff QR generation and print-batch HTTP admission declarations and imports.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchListCreateView",
+          "line_start": 45,
+          "line_end": 67,
+          "purpose": "Declare QrPrintBatchListCreateView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchListCreateView.get_serializer_class",
+          "line_start": 48,
+          "line_end": 49,
+          "purpose": "Select create input only for POST.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchListCreateView.get_queryset",
+          "line_start": 51,
+          "line_end": 55,
+          "purpose": "Limit batches to the authorized tenant/action.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchListCreateView.create",
+          "line_start": 57,
+          "line_end": 67,
+          "purpose": "Validate batch input then create and audit under module lock.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "QrPrintBatchDetailView",
+          "line_start": 73,
+          "line_end": 83,
+          "purpose": "Declare QrPrintBatchDetailView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchDetailView.get_queryset",
+          "line_start": 77,
+          "line_end": 78,
+          "purpose": "Limit batches to the authorized tenant/action.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchDetailView.get_object",
+          "line_start": 80,
+          "line_end": 83,
+          "purpose": "Check print module after scoped detail lookup.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemView",
+          "line_start": 86,
+          "line_end": 107,
+          "purpose": "Declare QrPrintBatchItemView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemView.post",
+          "line_start": 91,
+          "line_end": 107,
+          "purpose": "Resolve same-tenant inventory QR and validate item input before adding it under module lock.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01, OPS-S02 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01",
+            "OPS-S02"
+          ]
+        },
+        {
+          "owner": "QrPrintBatchDownloadView",
+          "line_start": 110,
+          "line_end": 126,
+          "purpose": "Declare QrPrintBatchDownloadView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchDownloadView.get",
+          "line_start": 120,
+          "line_end": 126,
+          "purpose": "Require scoped MANAGE_QR and module before returning a ZIP.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetGenerateView",
+          "line_start": 129,
+          "line_end": 160,
+          "purpose": "Declare AssetGenerateView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetGenerateView.post",
+          "line_start": 145,
+          "line_end": 160,
+          "purpose": "Resolve scoped product and module, validate generation input and delegate the quota/reconciliation service.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "AssetQrView",
+          "line_start": 163,
+          "line_end": 180,
+          "purpose": "Declare AssetQrView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetQrView.post",
+          "line_start": 168,
+          "line_end": 180,
+          "purpose": "Resolve scoped asset and module then reuse/create its active QR under module lock.",
+          "runtime_boundary": "Active staff, scoped action lookups and modules are checked; two mutation audit gaps and input-boundary failures remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S02 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S02"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/serializers.py",
+      "file_sha256": "dfeb3f9a528b5898d1e8cc9dca8a761cfee392e96bc9c7dcb0d51e7b95ea4151",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 224,
+          "purpose": "Operations request/response contracts declarations and imports.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerContentsSerializer",
+          "line_start": 32,
+          "line_end": 36,
+          "purpose": "Declare ContainerContentsSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerScanHistoryItemSerializer",
+          "line_start": 39,
+          "line_end": 44,
+          "purpose": "Declare ContainerScanHistoryItemSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerHistorySerializer",
+          "line_start": 47,
+          "line_end": 49,
+          "purpose": "Declare ContainerHistorySerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AnalyticsSummarySerializer",
+          "line_start": 52,
+          "line_end": 59,
+          "purpose": "Declare AnalyticsSummarySerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ReportRowsSerializer",
+          "line_start": 62,
+          "line_end": 63,
+          "purpose": "Declare ReportRowsSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "LedgerUnitSerializer",
+          "line_start": 66,
+          "line_end": 68,
+          "purpose": "Declare LedgerUnitSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "LedgerRowSerializer",
+          "line_start": 71,
+          "line_end": 87,
+          "purpose": "Declare LedgerRowSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "LedgerResponseSerializer",
+          "line_start": 90,
+          "line_end": 94,
+          "purpose": "Declare LedgerResponseSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetGenerateItemSerializer",
+          "line_start": 97,
+          "line_end": 100,
+          "purpose": "Declare AssetGenerateItemSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetGenerateResultSerializer",
+          "line_start": 103,
+          "line_end": 105,
+          "purpose": "Declare AssetGenerateResultSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemResultSerializer",
+          "line_start": 108,
+          "line_end": 109,
+          "purpose": "Declare QrPrintBatchItemResultSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInputSerializer",
+          "line_start": 112,
+          "line_end": 123,
+          "purpose": "Declare StockTransferLineInputSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInputSerializer.validate",
+          "line_start": 120,
+          "line_end": 123,
+          "purpose": "Require exactly one product or asset with a positive integer transfer quantity.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferCreateSerializer",
+          "line_start": 126,
+          "line_end": 131,
+          "purpose": "Declare StockTransferCreateSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineSerializer",
+          "line_start": 134,
+          "line_end": 137,
+          "purpose": "Declare StockTransferLineSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineSerializer.Meta",
+          "line_start": 135,
+          "line_end": 137,
+          "purpose": "Declare StockTransferLineSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferSerializer",
+          "line_start": 140,
+          "line_end": 158,
+          "purpose": "Declare StockTransferSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferSerializer.Meta",
+          "line_start": 143,
+          "line_end": 158,
+          "purpose": "Declare StockTransferSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentSerializer",
+          "line_start": 161,
+          "line_end": 177,
+          "purpose": "Declare InventoryAdjustmentSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentSerializer.Meta",
+          "line_start": 162,
+          "line_end": 177,
+          "purpose": "Declare InventoryAdjustmentSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerMoveSerializer",
+          "line_start": 180,
+          "line_end": 185,
+          "purpose": "Declare ContainerMoveSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "AssetGenerateSerializer",
+          "line_start": 188,
+          "line_end": 193,
+          "purpose": "Declare AssetGenerateSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "QrPrintBatchSerializer",
+          "line_start": 196,
+          "line_end": 199,
+          "purpose": "Declare QrPrintBatchSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchSerializer.Meta",
+          "line_start": 197,
+          "line_end": 199,
+          "purpose": "Declare QrPrintBatchSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemSerializer",
+          "line_start": 202,
+          "line_end": 207,
+          "purpose": "Declare QrPrintBatchItemSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemSerializer.Meta",
+          "line_start": 205,
+          "line_end": 207,
+          "purpose": "Declare QrPrintBatchItemSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchDetailSerializer",
+          "line_start": 210,
+          "line_end": 214,
+          "purpose": "Declare QrPrintBatchDetailSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchDetailSerializer.Meta",
+          "line_start": 213,
+          "line_end": 214,
+          "purpose": "Declare QrPrintBatchDetailSerializer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchCreateSerializer",
+          "line_start": 217,
+          "line_end": 218,
+          "purpose": "Declare QrPrintBatchCreateSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        },
+        {
+          "owner": "QrPrintBatchItemCreateSerializer",
+          "line_start": 221,
+          "line_end": 224,
+          "purpose": "Declare QrPrintBatchItemCreateSerializer typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Field declarations are separate from scoped admission and shared services; QR varchar input bounds remain open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S01 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S01"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/models.py",
+      "file_sha256": "49f8caeca468be65456e6a2cd7b7575502cf81f0cb34cc6c499ec0d476609c7c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 205,
+          "purpose": "Operations persistence and consistency constraints declarations and imports.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransfer",
+          "line_start": 18,
+          "line_end": 40,
+          "purpose": "Declare StockTransfer ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransfer.Status",
+          "line_start": 19,
+          "line_end": 21,
+          "purpose": "Declare StockTransfer.Status field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransfer.Meta",
+          "line_start": 34,
+          "line_end": 40,
+          "purpose": "Declare StockTransfer.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLine",
+          "line_start": 43,
+          "line_end": 54,
+          "purpose": "Declare StockTransferLine ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLine.clean",
+          "line_start": 52,
+          "line_end": 54,
+          "purpose": "Require exactly one product or asset on a transfer line.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSession",
+          "line_start": 57,
+          "line_end": 85,
+          "purpose": "Declare StocktakeSession ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSession.Status",
+          "line_start": 58,
+          "line_end": 64,
+          "purpose": "Declare StocktakeSession.Status field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSession.Meta",
+          "line_start": 79,
+          "line_end": 85,
+          "purpose": "Declare StocktakeSession.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLine",
+          "line_start": 88,
+          "line_end": 122,
+          "purpose": "Declare StocktakeLine ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLine.Condition",
+          "line_start": 89,
+          "line_end": 93,
+          "purpose": "Declare StocktakeLine.Condition field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLine.clean",
+          "line_start": 105,
+          "line_end": 107,
+          "purpose": "Require exactly one product or asset on a count line.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLine.Meta",
+          "line_start": 109,
+          "line_end": 122,
+          "purpose": "Declare StocktakeLine.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustment",
+          "line_start": 125,
+          "line_end": 136,
+          "purpose": "Declare InventoryAdjustment ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLedgerEntry",
+          "line_start": 139,
+          "line_end": 168,
+          "purpose": "Declare StocktakeLedgerEntry ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLedgerEntry.Bucket",
+          "line_start": 140,
+          "line_end": 143,
+          "purpose": "Declare StocktakeLedgerEntry.Bucket field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLedgerEntry.Meta",
+          "line_start": 158,
+          "line_end": 168,
+          "purpose": "Declare StocktakeLedgerEntry.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatch",
+          "line_start": 171,
+          "line_end": 190,
+          "purpose": "Declare QrPrintBatch ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatch.Status",
+          "line_start": 172,
+          "line_end": 175,
+          "purpose": "Declare QrPrintBatch.Status field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatch.Meta",
+          "line_start": 184,
+          "line_end": 190,
+          "purpose": "Declare QrPrintBatch.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItem",
+          "line_start": 193,
+          "line_end": 205,
+          "purpose": "Declare QrPrintBatchItem ORM fields/relationships and constraints.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItem.Meta",
+          "line_start": 201,
+          "line_end": 205,
+          "purpose": "Declare QrPrintBatchItem.Meta field choices, serializer fields, ordering, indexes or integrity constraints as shown in this exact block.",
+          "runtime_boundary": "Tenant/physical references and uniqueness constraints support shared workflow writes; model declarations do not authorize direct callers.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/admin_stocktake.py",
+      "file_sha256": "94e3989616ad9d742ed756b3d43bb75f571eb024e6357c4f941345115d255f38",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 154,
+          "purpose": "Control-plane stocktake workflow admission declarations and imports.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInline",
+          "line_start": 21,
+          "line_end": 45,
+          "purpose": "Declare StocktakeLineInline typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInline.has_add_permission",
+          "line_start": 38,
+          "line_end": 39,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInline.has_change_permission",
+          "line_start": 41,
+          "line_end": 42,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeLineInline.has_delete_permission",
+          "line_start": 44,
+          "line_end": 45,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin",
+          "line_start": 49,
+          "line_end": 154,
+          "purpose": "Declare StocktakeSessionAdmin typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.get_readonly_fields",
+          "line_start": 56,
+          "line_end": 60,
+          "purpose": "Prevent direct edits to tenancy and lifecycle authority fields.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.has_add_permission",
+          "line_start": 62,
+          "line_end": 65,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.has_delete_permission",
+          "line_start": 67,
+          "line_end": 69,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.get_urls",
+          "line_start": 71,
+          "line_end": 78,
+          "purpose": "Register the staff-protected custom count view.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.complete_selected",
+          "line_start": 81,
+          "line_end": 82,
+          "purpose": "Delegate each selected session to completion service.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.approve_selected",
+          "line_start": 85,
+          "line_end": 86,
+          "purpose": "Delegate each selected session to reviewer service.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.apply_adjustments_selected",
+          "line_start": 89,
+          "line_end": 90,
+          "purpose": "Delegate each selected session to apply service.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin._run_stocktake_action",
+          "line_start": 92,
+          "line_end": 103,
+          "purpose": "Surface typed service refusals and count actual successes.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeSessionAdmin.count_line_view",
+          "line_start": 105,
+          "line_end": 154,
+          "purpose": "Resolve visible session, require module/counting state, validate tenant-bound form and hold source gate around shared line service.",
+          "runtime_boundary": "Superuser-only scoped admin delegates lifecycle and custom count writes to the same services; history is read-only.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/admin_forms.py",
+      "file_sha256": "259d3823684138847c43ce5caab87d7077748b0e197ab7eac0541e0d6bb479ac",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 146,
+          "purpose": "Control-plane physical-stock form boundaries declarations and imports.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "visible_makerspaces",
+          "line_start": 14,
+          "line_end": 17,
+          "purpose": "Return servable spaces excluding superadmin-hidden ids.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdminForm",
+          "line_start": 20,
+          "line_end": 98,
+          "purpose": "Declare StockTransferAdminForm typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdminForm.__init__",
+          "line_start": 33,
+          "line_end": 50,
+          "purpose": "Populate visible tenant containers and unarchived products.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdminForm.clean",
+          "line_start": 52,
+          "line_end": 77,
+          "purpose": "Validate enabled source/destination modules, item/container tenancy and unsupported cross-space individual moves.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdminForm.service_payload",
+          "line_start": 79,
+          "line_end": 90,
+          "purpose": "Construct only validated service identifiers and positive quantity.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdminForm._require_visible_enabled",
+          "line_start": 92,
+          "line_end": 98,
+          "purpose": "Recheck visibility and module state, translating typed refusal.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountAdminForm",
+          "line_start": 101,
+          "line_end": 146,
+          "purpose": "Declare StocktakeCountAdminForm typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountAdminForm.__init__",
+          "line_start": 109,
+          "line_end": 122,
+          "purpose": "Limit all selectable physical items to the session tenant.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountAdminForm.clean",
+          "line_start": 124,
+          "line_end": 131,
+          "purpose": "Validate form data through the same stocktake input serializer.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StocktakeCountAdminForm.service_payload",
+          "line_start": 133,
+          "line_end": 146,
+          "purpose": "Serialize validated optional product/asset/container choices and notes.",
+          "runtime_boundary": "Visible makerspace choices exclude hard-hidden or unservable tenants; typed forms delegate to the shared services.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/qr_zip.py",
+      "file_sha256": "1dc54dbbedd8fb57381bc487e5f42ba0fd01338a8edf9c8d787aa0e2921a4efd",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 19,
+          "purpose": "QR ZIP rendering declarations and imports.",
+          "runtime_boundary": "Only authorized callers provide batches; archive names are generated without path separators and label SVG escapes text.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "build_batch_zip",
+          "line_start": 7,
+          "line_end": 14,
+          "purpose": "Render tenant batch QR items into deterministic numbered SVG entries.",
+          "runtime_boundary": "Only authorized callers provide batches; archive names are generated without path separators and label SVG escapes text.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_sanitize_label",
+          "line_start": 17,
+          "line_end": 19,
+          "purpose": "Restrict filename stem to alphanumeric, underscore or hyphen, retaining nonempty fallback.",
+          "runtime_boundary": "Only authorized callers provide batches; archive names are generated without path separators and label SVG escapes text.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/admin.py",
+      "file_sha256": "9233d46fa17d1f9156d6a6ffb32acafa554dfb5417b65d0bcda1fb2238f77dee",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 187,
+          "purpose": "Control-plane operations admission declarations and imports.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInline",
+          "line_start": 27,
+          "line_end": 42,
+          "purpose": "Declare StockTransferLineInline typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInline.has_add_permission",
+          "line_start": 35,
+          "line_end": 36,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInline.has_change_permission",
+          "line_start": 38,
+          "line_end": 39,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferLineInline.has_delete_permission",
+          "line_start": 41,
+          "line_end": 42,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin",
+          "line_start": 46,
+          "line_end": 117,
+          "purpose": "Declare StockTransferAdmin typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin.get_urls",
+          "line_start": 66,
+          "line_end": 73,
+          "purpose": "Register the protected custom transfer creation view.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin.has_add_permission",
+          "line_start": 75,
+          "line_end": 76,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin.has_change_permission",
+          "line_start": 78,
+          "line_end": 79,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin.has_delete_permission",
+          "line_start": 81,
+          "line_end": 82,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "StockTransferAdmin.add_transfer_view",
+          "line_start": 84,
+          "line_end": 117,
+          "purpose": "Validate scoped transfer form, hold both tenant source boundaries and call the shared atomic transfer service.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentAdmin",
+          "line_start": 121,
+          "line_end": 135,
+          "purpose": "Declare InventoryAdjustmentAdmin typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentAdmin.has_add_permission",
+          "line_start": 127,
+          "line_end": 128,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentAdmin.has_change_permission",
+          "line_start": 130,
+          "line_end": 132,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAdjustmentAdmin.has_delete_permission",
+          "line_start": 134,
+          "line_end": 135,
+          "purpose": "Refuse direct mutation/deletion of workflow-owned or historic records.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemInline",
+          "line_start": 138,
+          "line_end": 147,
+          "purpose": "Declare QrPrintBatchItemInline typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchItemInline.has_add_permission",
+          "line_start": 146,
+          "line_end": 147,
+          "purpose": "Allow custom transfer add only for active superuser; otherwise refuse direct creation of workflow/history rows.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchAdmin",
+          "line_start": 151,
+          "line_end": 187,
+          "purpose": "Declare QrPrintBatchAdmin typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchAdmin.get_readonly_fields",
+          "line_start": 159,
+          "line_end": 162,
+          "purpose": "Make existing batch tenancy immutable in the admin form.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "QrPrintBatchAdmin.mark_printed_selected",
+          "line_start": 165,
+          "line_end": 176,
+          "purpose": "Call the shared printed transition and report typed refusals.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct OPS-S03 before release; no runtime proof claimed.",
+          "findings": [
+            "OPS-S03"
+          ]
+        },
+        {
+          "owner": "QrPrintBatchAdmin.download_zip_selected",
+          "line_start": 179,
+          "line_end": 187,
+          "purpose": "Require exactly one visible batch and return its generated ZIP.",
+          "runtime_boundary": "Superuser-only visible tenants and source gate protect mutations; transfer and stocktake history cannot be edited directly. Printed transition module gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/views_containers.py",
+      "file_sha256": "879d1b92854bb141671d91f484d9cc85ec70c6900c4cf42ae81dd094e46138ee",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 248,
+          "purpose": "Staff container HTTP admission declarations and imports.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerPagination",
+          "line_start": 14,
+          "line_end": 18,
+          "purpose": "Declare ContainerPagination typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_with_active_box_qr",
+          "line_start": 34,
+          "line_end": 41,
+          "purpose": "Annotate the active QR belonging to each container tenant/id.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "_duplicate_label_as_400",
+          "line_start": 45,
+          "line_end": 52,
+          "purpose": "Use a savepoint and translate duplicate-label integrity failures.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView",
+          "line_start": 59,
+          "line_end": 94,
+          "purpose": "Declare ContainerListCreateView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView.get_queryset",
+          "line_start": 64,
+          "line_end": 68,
+          "purpose": "Require tenant inventory view scope or per-object action scope.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView.create",
+          "line_start": 70,
+          "line_end": 73,
+          "purpose": "Check enabled container module before payload validation.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerListCreateView.perform_create",
+          "line_start": 75,
+          "line_end": 94,
+          "purpose": "Validate parent tenancy, lock module, create container+QR and audit atomically.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView",
+          "line_start": 109,
+          "line_end": 141,
+          "purpose": "Declare ContainerDetailView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView.get_queryset",
+          "line_start": 114,
+          "line_end": 116,
+          "purpose": "Require tenant inventory view scope or per-object action scope.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView.get_object",
+          "line_start": 118,
+          "line_end": 121,
+          "purpose": "Require module after scoped lookup.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerDetailView.perform_update",
+          "line_start": 123,
+          "line_end": 141,
+          "purpose": "Validate same-tenant parent, recheck module and model cycle constraints, then save and audit.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerMoveView",
+          "line_start": 144,
+          "line_end": 177,
+          "purpose": "Declare ContainerMoveView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerMoveView.post",
+          "line_start": 158,
+          "line_end": 177,
+          "purpose": "Resolve MANAGE_QR scope; lock module, resolve parent in tenant, full_clean and audit move.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerContentsView",
+          "line_start": 180,
+          "line_end": 205,
+          "purpose": "Declare ContainerContentsView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerContentsView.get",
+          "line_start": 185,
+          "line_end": 205,
+          "purpose": "Resolve staff inventory scope and return exact same-container items/children.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerHistoryView",
+          "line_start": 208,
+          "line_end": 248,
+          "purpose": "Declare ContainerHistoryView typed fields, base permission/method configuration or read-only admin policy.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        },
+        {
+          "owner": "ContainerHistoryView.get",
+          "line_start": 213,
+          "line_end": 248,
+          "purpose": "Resolve inventory scope then merge only tenant-qualified matching QR/container scans, capped to100.",
+          "runtime_boundary": "Scoped role/action lookups, module locks and parent validation protect containers; read endpoints expose only staff-authorized contents/history.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/urls.py",
+      "file_sha256": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 60,
+          "purpose": "Explicit operations route mapping declarations and imports.",
+          "runtime_boundary": "Maps named API routes to their concrete view owners; does not create authorization itself.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/operations/services.py",
+      "file_sha256": "8546fb5ff88077018d45560bc055a37de27f7dc94d0f97a771ec7715004395ee",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 36,
+          "purpose": "Explicit operations service barrel declarations and imports.",
+          "runtime_boundary": "Maintains stable imports without independent state changes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain the behavior within the stated caller/permission/transaction boundary; this does not approve imported or unread owners.",
+          "findings": []
+        }
+      ]
+    }
+  ]
+}

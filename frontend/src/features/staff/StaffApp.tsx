@@ -1,5 +1,5 @@
 import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
-import { Loader } from "../../components/ui";
+import { Button, EmptyState, Loader } from "../../components/ui";
 import { ChangePasswordGate } from "./ChangePasswordGate";
 import { LoginPanel } from "./LoginPanel";
 import { MakerspacePicker } from "./MakerspacePicker";
@@ -7,6 +7,7 @@ import { StaffAccessDenied } from "./StaffAccessDenied";
 import { StaffWorkspace } from "./StaffWorkspace";
 import { RecoveryQuarantinePanel } from "./RecoveryQuarantinePanel";
 import { useStaffSession } from "./useStaffSession";
+import { hasOperationalOverride, isGlobalStaffAdmin } from "./staffSelection";
 
 // Route-level wait: the mark and a loader centred on the page, with the reason in words.
 function StaffLoading({ message }: { message: string }) {
@@ -31,8 +32,9 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     recovery,
     refreshAuthUser,
     restoring,
-    routeMakerspace,
-    routeMakerspaceSlug,
+    retryMakerspaces,
+    selection,
+    sessionNotice,
     selected,
     setTab,
     setUser,
@@ -50,6 +52,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     return (
       <LoginPanel
         error={login.error?.message}
+        notice={sessionNotice}
         guestOnly={guestOnly}
         isPending={login.isPending}
         onSubmit={login.mutate}
@@ -73,7 +76,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     );
   }
 
-  const isSuperadmin = user.is_superuser || user.role === "superadmin";
+  const isSuperadmin = isGlobalStaffAdmin(user);
 
   if (isSuperadmin && recovery.data?.mode === "quarantined") {
     return (
@@ -87,14 +90,11 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     );
   }
 
-  if (singleTenantLocked && makerspaces.isLoading) {
+  if (selection.kind === "loading") {
     return <StaffLoading message="Checking makerspace access…" />;
   }
 
-  const hasSingleTenantAccess =
-    !singleTenantLocked || Boolean(activeMakerspace);
-
-  if (!hasSingleTenantAccess) {
+  if (singleTenantLocked && selection.kind === "unavailable") {
     return (
       <StaffAccessDenied
         makerspaceName={tenant.bootstrap?.makerspace.name}
@@ -103,35 +103,30 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     );
   }
 
-  if (!singleTenantLocked && routeMakerspaceSlug && makerspaces.isLoading) {
-    return <StaffLoading message="Opening makerspace…" />;
-  }
-
-  if (!singleTenantLocked && routeMakerspace && routeMakerspace.id !== selected) {
-    return <StaffLoading message="Opening makerspace…" />;
-  }
-
-  if (!singleTenantLocked && selected !== null && makerspaces.isLoading) {
-    return <StaffLoading message="Restoring makerspace…" />;
-  }
-
-  if (!singleTenantLocked && isSuperadmin && selected !== null && !activeMakerspace) {
+  if (singleTenantLocked && selection.kind === "error") {
     return (
-      <MakerspacePicker
-        makerspaces={makerspaces.data ?? []}
-        loading={makerspaces.isLoading}
-        username={user.username}
-        onSelect={chooseMakerspace}
-        onSignOut={signOut}
-      />
+      <main className="grid min-h-dvh place-items-center bg-subtle px-4 text-ink">
+        <EmptyState
+          title="Could not check makerspace access"
+          description="Retry to check whether this account can operate this site's makerspace."
+          action={<div className="flex flex-wrap justify-center gap-2">
+            <Button variant="primary" onClick={retryMakerspaces}>Retry</Button>
+            <Button variant="secondary" onClick={signOut}>Sign out</Button>
+          </div>}
+        />
+      </main>
     );
   }
 
-  if (!singleTenantLocked && isSuperadmin && selected === null) {
+  if (selection.kind !== "selected") {
     return (
       <MakerspacePicker
         makerspaces={makerspaces.data ?? []}
-        loading={makerspaces.isLoading}
+        loading={false}
+        error={selection.kind === "error"}
+        unavailable={selection.kind === "unavailable"}
+        globalAdmin={isSuperadmin}
+        onRetry={retryMakerspaces}
         username={user.username}
         onSelect={chooseMakerspace}
         onSignOut={signOut}
@@ -142,15 +137,16 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
   const activeMembership = user.makerspaces.find((item) => item.id === selected);
   const activeActions = activeMembership?.actions ?? [];
   const makerspaceList = makerspaces.data ?? [];
+  const operationalSuperadmin = hasOperationalOverride(user, activeMakerspace);
 
   return (
     <StaffWorkspace
       activeMakerspace={activeMakerspace}
       actions={activeActions}
-      canConfigureMachineTypes={activeMembership?.can_configure_machine_types ?? isSuperadmin}
+      canConfigureMachineTypes={activeMembership?.can_configure_machine_types ?? operationalSuperadmin}
       isMachineOnly={activeMembership?.is_machine_only ?? false}
       guestOnly={guestOnly}
-      isSuperadmin={isSuperadmin}
+      isSuperadmin={operationalSuperadmin}
       makerspaces={makerspaceList}
       onAuthRefresh={refreshAuthUser}
       selected={selected}

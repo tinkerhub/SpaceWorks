@@ -1,0 +1,1193 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving-model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 13,
+  "observed_lexical_owner_count": 108,
+  "blanket_approval": false,
+  "runtime_validation": "No tests, builds, migrations or application imports run by this reviewer. Parent central runtime separate.",
+  "owner_census_method": "AST identifies named owner identities and ranges after actual full source reading. Explicit purpose/boundary/findings follow individually read definitions and contexts.",
+  "files": [
+    {
+      "path": "backend/apps/warranty/__init__.py",
+      "file_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 2,
+          "purpose": "Explicit app/route declarations declarations/imports.",
+          "runtime_boundary": "Import or named URL mapping only; concrete handlers own authorization.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/access.py",
+      "file_sha256": "09a3974b2a636d61ea0499950f63c87fc8c1f422e55bb7b7f56c86adb24d034c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 78,
+          "purpose": "Warranty host/document authority declarations/imports.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_asset_host",
+          "line_start": 13,
+          "line_end": 21,
+          "purpose": "Resolve visible or edit-authorized asset tenant.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_machine_host",
+          "line_start": 25,
+          "line_end": 32,
+          "purpose": "Resolve machine by maker visibility for later machine-specific action enforcement.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_warranty",
+          "line_start": 35,
+          "line_end": 44,
+          "purpose": "Resolve visible or inventory-authorized warranty tenant.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_document",
+          "line_start": 47,
+          "line_end": 61,
+          "purpose": "Resolve document transitively by warranty tenant; caller enforce applies actual host action.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "action_and_module_for_warranty",
+          "line_start": 64,
+          "line_end": 67,
+          "purpose": "Map legacy host branch to inventory or printing action/module.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "enforce",
+          "line_start": 70,
+          "line_end": 78,
+          "purpose": "Require scoped machine management+machines module, or inventory host action+staff module.",
+          "runtime_boundary": "Visibility lookup is followed by actual inventory edit or machine-specific management action and module.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/admin.py",
+      "file_sha256": "de42742662b078d0f27ff58231efb120473a7fa6d0be4fd334adf7803a26289d",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 71,
+          "purpose": "Warranty native control plane declarations/imports.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyAdmin",
+          "line_start": 10,
+          "line_end": 40,
+          "purpose": "Declare WarrantyAdmin typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct WARR-S03 before release; actual runtime remains pending.",
+          "findings": [
+            "WARR-S03"
+          ]
+        },
+        {
+          "owner": "WarrantyAdmin.host",
+          "line_start": 35,
+          "line_end": 40,
+          "purpose": "Render actual host label.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentAdmin",
+          "line_start": 43,
+          "line_end": 62,
+          "purpose": "Declare WarrantyDocumentAdmin typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentAdmin.has_add_permission",
+          "line_start": 58,
+          "line_end": 59,
+          "purpose": "Refuse raw document creation.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentAdmin.has_change_permission",
+          "line_start": 61,
+          "line_end": 62,
+          "purpose": "Refuse raw document metadata changes.",
+          "runtime_boundary": "Document raw creation/changes refused; existing host/tenant retargeting remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/apps.py",
+      "file_sha256": "6281a24e5bf74cfae0642d9ff3acc4a3803bb053fabd64a08482f911178d5162",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 15,
+          "purpose": "Warranty retention registration declarations/imports.",
+          "runtime_boundary": "Tombstoning hides runtime screens but preserves physical-object cleanup receiver.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyConfig",
+          "line_start": 4,
+          "line_end": 15,
+          "purpose": "Declare WarrantyConfig typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Tombstoning hides runtime screens but preserves physical-object cleanup receiver.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyConfig.ready",
+          "line_start": 8,
+          "line_end": 15,
+          "purpose": "Register app separability and retained deletion signal.",
+          "runtime_boundary": "Tombstoning hides runtime screens but preserves physical-object cleanup receiver.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/models.py",
+      "file_sha256": "8606abbe5130bf909c216d731155d6efe1dba6f3b8b4bb4b707feac4b7500f5b",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 84,
+          "purpose": "Warranty host/document persistence declarations/imports.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "Warranty",
+          "line_start": 6,
+          "line_end": 61,
+          "purpose": "Declare Warranty ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "Warranty.Meta",
+          "line_start": 34,
+          "line_end": 43,
+          "purpose": "Declare Warranty.Meta ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "Warranty.clean",
+          "line_start": 45,
+          "line_end": 53,
+          "purpose": "Reject asset or machine whose tenant differs from warranty.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "Warranty.__str__",
+          "line_start": 55,
+          "line_end": 61,
+          "purpose": "Render actual host/document descriptive label.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocument",
+          "line_start": 64,
+          "line_end": 84,
+          "purpose": "Declare WarrantyDocument ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocument.__str__",
+          "line_start": 83,
+          "line_end": 84,
+          "purpose": "Render actual host/document descriptive label.",
+          "runtime_boundary": "Exactly-one-host DB constraint and model tenant consistency protect associations; caller must preserve host immutability.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/serializers.py",
+      "file_sha256": "33617ef0995ca50638c4ab59f67191bc406c66e2a7ced5fa831e95750e2439d7",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 134,
+          "purpose": "Typed warranty API/report contracts declarations/imports.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentSerializer",
+          "line_start": 8,
+          "line_end": 18,
+          "purpose": "Declare WarrantyDocumentSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentSerializer.Meta",
+          "line_start": 9,
+          "line_end": 18,
+          "purpose": "Declare WarrantyDocumentSerializer.Meta typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer",
+          "line_start": 21,
+          "line_end": 87,
+          "purpose": "Declare WarrantySerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.Meta",
+          "line_start": 33,
+          "line_end": 52,
+          "purpose": "Declare WarrantySerializer.Meta typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_host_kind",
+          "line_start": 54,
+          "line_end": 59,
+          "purpose": "Return actual host category.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_host_id",
+          "line_start": 61,
+          "line_end": 62,
+          "purpose": "Return actual machine or asset primary key.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_host_label",
+          "line_start": 64,
+          "line_end": 69,
+          "purpose": "Return actual machine name or unit tag.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_asset_id",
+          "line_start": 71,
+          "line_end": 72,
+          "purpose": "Return optional asset identifier.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_asset_tag",
+          "line_start": 74,
+          "line_end": 75,
+          "purpose": "Return unit tag only for actual asset host.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_serial_number",
+          "line_start": 77,
+          "line_end": 78,
+          "purpose": "Return optional host asset serial.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_machine_id",
+          "line_start": 80,
+          "line_end": 81,
+          "purpose": "Return optional machine identifier.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_machine_name",
+          "line_start": 83,
+          "line_end": 84,
+          "purpose": "Return machine label only for machine host.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantySerializer.get_status",
+          "line_start": 86,
+          "line_end": 87,
+          "purpose": "Calculate warranty status from current local date.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyUpsertSerializer",
+          "line_start": 90,
+          "line_end": 94,
+          "purpose": "Declare WarrantyUpsertSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentPresignSerializer",
+          "line_start": 97,
+          "line_end": 99,
+          "purpose": "Declare WarrantyDocumentPresignSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentFinalizeSerializer",
+          "line_start": 102,
+          "line_end": 104,
+          "purpose": "Declare WarrantyDocumentFinalizeSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentUploadResponseSerializer",
+          "line_start": 107,
+          "line_end": 109,
+          "purpose": "Declare WarrantyDocumentUploadResponseSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentUrlSerializer",
+          "line_start": 112,
+          "line_end": 113,
+          "purpose": "Declare WarrantyDocumentUrlSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyReportRowSerializer",
+          "line_start": 116,
+          "line_end": 125,
+          "purpose": "Declare WarrantyReportRowSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyReportQuerySerializer",
+          "line_start": 128,
+          "line_end": 134,
+          "purpose": "Declare WarrantyReportQuerySerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Document metadata is read-only and declared input lengths/date types are bounded; caller enforces host scope.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/signals.py",
+      "file_sha256": "d4e4d70a089056b1a0dc191447cf15935cceec047c3e2e808000cf9b314c2f37",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 34,
+          "purpose": "Private warranty object deletion declarations/imports.",
+          "runtime_boundary": "Only pre-owned storage/source boundary can detach documents; postcommit recheck prevents deleting referenced keys. No speculative legacy credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_warranty_document_object",
+          "line_start": 12,
+          "line_end": 34,
+          "purpose": "Reject unguarded detach except authoritative purge; retain immutable key for cleanup.",
+          "runtime_boundary": "Only pre-owned storage/source boundary can detach documents; postcommit recheck prevents deleting referenced keys. No speculative legacy credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_warranty_document_object.delete_after_commit",
+          "line_start": 28,
+          "line_end": 32,
+          "purpose": "Reuse guard, check current private-key references then delete all object versions.",
+          "runtime_boundary": "Only pre-owned storage/source boundary can detach documents; postcommit recheck prevents deleting referenced keys. No speculative legacy credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/status.py",
+      "file_sha256": "fff37cbc7a6e728f8a362e3fc320e29cfa88e063be471c23766420670556434d",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 27,
+          "purpose": "Warranty date status declarations/imports.",
+          "runtime_boundary": "Pure date comparison with explicit unknown/expired/soon/active outcomes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "warranty_status",
+          "line_start": 19,
+          "line_end": 27,
+          "purpose": "Use current day and inclusive30-day soon boundary; no expiry date is unknown.",
+          "runtime_boundary": "Pure date comparison with explicit unknown/expired/soon/active outcomes.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/storage.py",
+      "file_sha256": "1aeda0dfa6a90e9749259a7a961dc553fa24dfa8b6b3a9a5ba67620e51b40f8a",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 228,
+          "purpose": "Warranty private provider boundary declarations/imports.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyObjectValidationResult",
+          "line_start": 28,
+          "line_end": 30,
+          "purpose": "Declare WarrantyObjectValidationResult typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_s3_client",
+          "line_start": 33,
+          "line_end": 44,
+          "purpose": "Build configured S3 client using backend/browser endpoint argument.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_client",
+          "line_start": 47,
+          "line_end": 48,
+          "purpose": "Select backend-facing storage endpoint.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_public_client",
+          "line_start": 51,
+          "line_end": 52,
+          "purpose": "Select browser-facing signing endpoint.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "warranty_object_key",
+          "line_start": 55,
+          "line_end": 57,
+          "purpose": "Mint tenant/warranty-bound UUID document key.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "staging_key",
+          "line_start": 60,
+          "line_end": 61,
+          "purpose": "Derive separate client-writable staging key.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "assert_warranty_object_key_for_makerspace",
+          "line_start": 64,
+          "line_end": 69,
+          "purpose": "Require exact tenant/warranty UUID key prefix.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ext_for",
+          "line_start": 72,
+          "line_end": 84,
+          "purpose": "Match configured allowed MIME and safe filename extension; reject mismatches.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "presigned_upload",
+          "line_start": 87,
+          "line_end": 111,
+          "purpose": "Sign staging only with MIME binding and POST size range; translate SDK failures.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_object",
+          "line_start": 114,
+          "line_end": 122,
+          "purpose": "Delete all accepted object versions; log and return failure truthfully.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "copy_object",
+          "line_start": 125,
+          "line_end": 133,
+          "purpose": "Translate provider copy failures; runtime publication uses create-once adapter instead.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "object_size",
+          "line_start": 136,
+          "line_end": 150,
+          "purpose": "Return HEAD bytes, missing None, distinguish denied/transport error.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_upload",
+          "line_start": 153,
+          "line_end": 162,
+          "purpose": "Legacy publication adapter preserves size/missing result and deletes staging after success.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "presigned_get_url",
+          "line_start": 165,
+          "line_end": 173,
+          "purpose": "Mint short-lived private read URL; translate provider failure.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_snapshot",
+          "line_start": 176,
+          "line_end": 190,
+          "purpose": "Validate actual bounded snapshot bytes against MIME, extension and configured allowed types.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "validate_warranty_object",
+          "line_start": 193,
+          "line_end": 205,
+          "purpose": "Validate existing final bytes and return typed missing/size errors.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "prepare_upload",
+          "line_start": 208,
+          "line_end": 218,
+          "purpose": "Publish and validate winner, enforce max size, delete staging only after success.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_publish_upload",
+          "line_start": 221,
+          "line_end": 228,
+          "purpose": "Delegate to create-once publication with domain snapshot validator.",
+          "runtime_boundary": "Exact warranty/tenant keys, staging-only presigns and actual byte/type/extension validation precede create-once final publication.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/urls.py",
+      "file_sha256": "867c12581f7aafa4aa63107c2850c8e0316274181b325d80ba6ae9fd841d07b1",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 58,
+          "purpose": "Explicit app/route declarations declarations/imports.",
+          "runtime_boundary": "Import or named URL mapping only; concrete handlers own authorization.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/views.py",
+      "file_sha256": "c02b2002c4b614a246016cfa7f699282267bf433f6a503c52d726dcfc4563e33",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 178,
+          "purpose": "Warranty metadata HTTP admission declarations/imports.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "AssetWarrantyView",
+          "line_start": 26,
+          "line_end": 71,
+          "purpose": "Declare AssetWarrantyView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "AssetWarrantyView._asset",
+          "line_start": 29,
+          "line_end": 33,
+          "purpose": "Resolve actual asset and require edit_inventory/staff module.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "AssetWarrantyView.get",
+          "line_start": 40,
+          "line_end": 45,
+          "purpose": "Return admitted host warranty or null without mutation.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "AssetWarrantyView.put",
+          "line_start": 57,
+          "line_end": 71,
+          "purpose": "Validate sparse metadata, invoke current upsert then record audit after helper transaction.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct WARR-S02 before release; actual runtime remains pending.",
+          "findings": [
+            "WARR-S02"
+          ]
+        },
+        {
+          "owner": "MachineWarrantyView",
+          "line_start": 74,
+          "line_end": 120,
+          "purpose": "Declare MachineWarrantyView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MachineWarrantyView._machine",
+          "line_start": 77,
+          "line_end": 82,
+          "purpose": "Resolve actual machine and require machine-specific manage authority/machines module.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MachineWarrantyView.get",
+          "line_start": 89,
+          "line_end": 94,
+          "purpose": "Return admitted host warranty or null without mutation.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MachineWarrantyView.put",
+          "line_start": 106,
+          "line_end": 120,
+          "purpose": "Validate sparse metadata, invoke current upsert then record audit after helper transaction.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct WARR-S02 before release; actual runtime remains pending.",
+          "findings": [
+            "WARR-S02"
+          ]
+        },
+        {
+          "owner": "_asset_warranty",
+          "line_start": 123,
+          "line_end": 124,
+          "purpose": "Resolve warranty for exact asset host.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_machine_warranty",
+          "line_start": 128,
+          "line_end": 129,
+          "purpose": "Resolve warranty for exact machine host.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_host_warranty",
+          "line_start": 132,
+          "line_end": 138,
+          "purpose": "Fetch exact host with document/host context.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_reload_warranty",
+          "line_start": 141,
+          "line_end": 146,
+          "purpose": "Reload saved record and document list for response.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_upsert_warranty",
+          "line_start": 150,
+          "line_end": 172,
+          "purpose": "Require one host, get/create warranty, full_clean tenant invariants and save submitted fields; existing row not locked and full save may overwrite omitted changes.",
+          "runtime_boundary": "Active staff and concrete host action/module checks precede typed sparse upsert; update concurrency/audit atomicity remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct WARR-S02 before release; actual runtime remains pending.",
+          "findings": [
+            "WARR-S02"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/views_documents.py",
+      "file_sha256": "15b23d9683b6395590b0a03b8b8ec05f679106155e51897a9b06f35b124a69f5",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 191,
+          "purpose": "Warranty private-document HTTP admission declarations/imports.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentPresignView",
+          "line_start": 31,
+          "line_end": 60,
+          "purpose": "Declare WarrantyDocumentPresignView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentPresignView.post",
+          "line_start": 45,
+          "line_end": 60,
+          "purpose": "Validate MIME/filename and sign fresh tenant/warranty staging key, map storage error.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentCreateView",
+          "line_start": 63,
+          "line_end": 136,
+          "purpose": "Declare WarrantyDocumentCreateView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentCreateView.get",
+          "line_start": 71,
+          "line_end": 75,
+          "purpose": "List documents only after actual host authority enforcement.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentCreateView.post",
+          "line_start": 88,
+          "line_end": 136,
+          "purpose": "Serialize publication with storage/source guard, validate actual bytes, recheck parent and private ownership before metadata/audit; no finite quota debit.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "finding-open",
+          "disposition": "Correct DOC-S01 before release; actual runtime remains pending.",
+          "findings": [
+            "DOC-S01"
+          ]
+        },
+        {
+          "owner": "WarrantyDocumentUrlView",
+          "line_start": 139,
+          "line_end": 158,
+          "purpose": "Declare WarrantyDocumentUrlView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentUrlView.get",
+          "line_start": 151,
+          "line_end": 158,
+          "purpose": "Resolve document and actual host authority before signing private read URL.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentDeleteView",
+          "line_start": 161,
+          "line_end": 191,
+          "purpose": "Declare WarrantyDocumentDeleteView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "WarrantyDocumentDeleteView.delete",
+          "line_start": 169,
+          "line_end": 191,
+          "purpose": "Recheck document/host under row lock, audit and attach explicit cleanup ownership before deletion.",
+          "runtime_boundary": "Active staff and concrete host authority gate provider calls; storage guard protects publication/detachment. Actual upload quota admission missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/warranty/views_report.py",
+      "file_sha256": "6007a1074ef1f8a742a222ee833ecf5e5e70e51bab4921a816be6576b980266b",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 254,
+          "purpose": "Scoped paginated warranty report declarations/imports.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MakerspaceWarrantyReportView",
+          "line_start": 42,
+          "line_end": 110,
+          "purpose": "Declare MakerspaceWarrantyReportView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MakerspaceWarrantyReportView.get",
+          "line_start": 69,
+          "line_end": 110,
+          "purpose": "Admit visible servable tenant, require hardware or machine action, validate query, count filtered host sets then construct paginated response.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_asset_hosts",
+          "line_start": 113,
+          "line_end": 126,
+          "purpose": "Require inventory edit and staff module, apply action scope, exact tenant and stable tag order.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_machine_hosts",
+          "line_start": 130,
+          "line_end": 138,
+          "purpose": "Require machines module and manageable machine queryset, exact tenant and stable name order.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_apply_host_filters",
+          "line_start": 141,
+          "line_end": 149,
+          "purpose": "Annotate document count and apply validated missing-doc/date/status filters.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_filter_by_status",
+          "line_start": 152,
+          "line_end": 165,
+          "purpose": "Apply same inclusive expiry thresholds as pure warranty_status.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_page_number",
+          "line_start": 168,
+          "line_end": 182,
+          "purpose": "Validate positive/last page and reject out-of-range pages, including empty result sets.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_page_link",
+          "line_start": 185,
+          "line_end": 188,
+          "purpose": "Create next/previous only when enabled.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_page_rows",
+          "line_start": 191,
+          "line_end": 210,
+          "purpose": "Slice ordered host querysets to page size without loading whole table.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_asset_row",
+          "line_start": 213,
+          "line_end": 219,
+          "purpose": "Build admitted asset report row.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_machine_row",
+          "line_start": 223,
+          "line_end": 229,
+          "purpose": "Build admitted machine report row.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_host_warranty",
+          "line_start": 232,
+          "line_end": 236,
+          "purpose": "Treat absent reverse one-to-one as no warranty.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_base_row",
+          "line_start": 239,
+          "line_end": 254,
+          "purpose": "Build explicit unknown row or actual warranty dates/vendor/status/document count.",
+          "runtime_boundary": "Inventory/machine host authority and enabled modules are applied separately before counts, filtering and stable page assembly.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    }
+  ]
+}

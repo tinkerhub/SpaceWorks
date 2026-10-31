@@ -1,0 +1,22 @@
+Added **12 tests in the five requested new files**:
+
+- [ChangePasswordForm.installation.test.tsx](frontend/src/features/account/ChangePasswordForm.installation.test.tsx) — truthful installation-failure message, all secrets cleared, unchanged token/epoch, repaired retry completes.
+- [MemberAuthPanel.installation.test.tsx](frontend/src/features/members/MemberAuthPanel.installation.test.tsx) — visible social installation failure after host-intent invalidation; current provider retry; password retry remains pending until transport completes.
+- [OrganizationInvitationRedeemPage.installation.test.tsx](frontend/src/features/organizations/OrganizationInvitationRedeemPage.installation.test.tsx) — staff installation failure preserves redemption, member identity and private cache, then retry clears/navigates once; initial member installation failure clears the secret, prevents redemption and permits retry.
+- [staffSession.completion.test.tsx](frontend/src/features/staff/staffSession.completion.test.tsx) — current logout warning reaches real LoginPanel; same-act password submission suppresses the old warning before token installation; late logout failure preserves the new session/cache/selection.
+- [staffSelection.acknowledgement.test.tsx](frontend/src/features/staff/staffSelection.acknowledgement.test.tsx) — held `/admin` acknowledgement masks operational UI and picker; retained and pending chooser callbacks are rejected until acknowledgement, then the fresh callback works.
+
+All files are under 150 lines. No extra helper, production edits, existing-test/harness edits, test execution, builds, staging, or commits.
+
+Required root fixture remains missing: `frontend/src/test/accessTokens.ts` exporting `accessToken(label, overrides?)`. The existing staff harness JWT migration is also root-owned. `SessionInstallError` is present.
+
+After the final freeze, run from `frontend` with Node 20:
+
+```sh
+npx vitest run \
+  src/features/account/ChangePasswordForm.installation.test.tsx \
+  src/features/members/MemberAuthPanel.installation.test.tsx \
+  src/features/organizations/OrganizationInvitationRedeemPage.installation.test.tsx \
+  src/features/staff/staffSession.completion.test.tsx \
+  src/features/staff/staffSelection.acknowledgement.test.tsx
+```

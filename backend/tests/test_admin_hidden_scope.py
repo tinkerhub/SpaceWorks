@@ -4,6 +4,7 @@ import pytest
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -12,11 +13,14 @@ from apps.accounts.models import User
 from apps.makerspaces import lifecycle
 from apps.inventory.models import InventoryProduct
 from apps.makerspaces.models import Makerspace, MakerspaceMembership
+from apps.makerspaces.models_module_purge_receipt import ModulePurgeReceipt
 from apps.encryption.models import PiiGlobalWriteFence, PiiMakerspaceWriteFence
 from config.admin_access import GLOBAL_ADMIN_MODELS
 from config.admin_access import NESTED_MAKERSPACE_LOOKUPS
 
 pytestmark = pytest.mark.django_db
+
+IDENTIFIER_SCOPE_LOOKUPS = {ModulePurgeReceipt: "source_makerspace_id"}
 
 
 def test_pii_write_fence_scope_decisions_are_explicit():
@@ -72,6 +76,18 @@ def test_every_registered_admin_resolves_a_makerspace_decision():
             else None
         )
         paths = _makerspace_lookup_paths(model)
+
+        if model in IDENTIFIER_SCOPE_LOOKUPS:
+            field_name = IDENTIFIER_SCOPE_LOOKUPS[model]
+            assert not paths, model_key
+            assert model_key not in GLOBAL_ADMIN_MODELS, model_key
+            assert lookup == field_name, model_key
+            field = model._meta.get_field(field_name)
+            assert isinstance(field, models.PositiveBigIntegerField), model_key
+            assert field.concrete and not field.is_relation, model_key
+            assert field.name == field.attname == field.column == field_name, model_key
+            assert not field.null and not field.editable, model_key
+            continue
 
         if model_key in GLOBAL_ADMIN_MODELS:
             if lookup is not None:

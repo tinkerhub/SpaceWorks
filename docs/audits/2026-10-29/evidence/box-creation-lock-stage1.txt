@@ -1,0 +1,11 @@
+**APPROVE** — change only [services.py:22](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/services.py:22) to `select_for_update(no_key=True)`.
+
+The weaker lock safely preserves the required exclusion: `FOR NO KEY UPDATE` conflicts with other creators’ same lock and module uninstall’s `FOR UPDATE`, while permitting ordinary Makerspace FK `KEY SHARE` checks. This matches [PostgreSQL’s lock semantics](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS).
+
+The concrete native-delete cycle is credible: deletion holds the parent Box row, creation holds Makerspace and waits on its parent FK, and deletion’s deferred audit FK waits on Makerspace. Allowing that FK check removes this specific cycle.
+
+The fresh full Makerspace instance, outer-transaction lock lifetime, Box→QR→audit atomicity, module/RBAC checks, and parent/database constraints remain intact. Existing orphan-QR target rejection remains unchanged.
+
+Stage 3 should exercise actual concurrent native parent deletion versus child creation, prove `FOR NO KEY UPDATE` SQL, and require completion without deadlock. Legitimate 404, form conflict, or parent `PROTECT` outcomes are acceptable. Separate parent-locking work remains pending.
+
+No edits, tests, or application/database runtime performed.

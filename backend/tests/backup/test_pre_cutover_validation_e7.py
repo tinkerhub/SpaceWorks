@@ -18,6 +18,7 @@ from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.reservation_catalog import load_unique_rules
 from apps.backup.reservation_registry import component_canonicalizer_identities
 from apps.backup.source_partition_proof import verify_source_partition_proof
+from apps.backup.source_capture_facts import source_capture_facts_from_capture
 from apps.hardware_requests.models import HardwareRequest
 from apps.ed25519 import encode_key, generate_keypair
 from tests.backup.e7_partition_test_helpers import (
@@ -109,13 +110,6 @@ def test_canonical_detached_proof_signature_and_fingerprint_precede_pointer_writ
         "frozen_population_ownership_digest",
     ),
 )
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SPEC BUG: target proof binding omits the signed source database/server, "
-        "frozen dump, and frozen-population ownership facts"
-    ),
-)
 def test_target_has_independent_selected_artifact_binding_for_source_facts(
     monkeypatch, tmp_path, binding
 ):
@@ -134,6 +128,14 @@ def test_target_has_independent_selected_artifact_binding_for_source_facts(
         archive_id=archive_id,
         changed_source_fact=binding,
     )
+    assert verify_outer_manifest(manifest) is True
+    assert verify_outer_manifest(donor) is True
+    assert verify_source_partition_proof(donor["source_partition_proof"]) is True
+    assert manifest["artifact_id"] == donor["artifact_id"]
+    assert manifest["capture_id"] == donor["capture_id"]
+    assert manifest["main_component"] == donor["main_component"]
+    assert manifest["slice_components"] == donor["slice_components"]
+    assert manifest["source_capture"][binding] != donor["source_capture"][binding]
     manifest["source_partition_proof"] = donor["source_partition_proof"]
 
     with pytest.raises(BackupBuildError):
@@ -145,7 +147,7 @@ def _verifier_manifest(
 ):
     archive = SimpleNamespace(pk=archive_id)
     capture, reconstruction = source_verifier_case(
-        root, capture_id=capture_id, archive=archive
+        root, capture_id=capture_id, archive=archive, freeze_source_facts=False,
     )
     if changed_source_fact == "frozen_population_ownership_digest":
         capture.frozen_population = ("different-frozen-population",)
@@ -155,7 +157,12 @@ def _verifier_manifest(
             "source_server_identity": "postgresql:160010:different-server",
             "frozen_dump_sha256": digest("different-frozen-dump"),
         }
-        setattr(capture, changed_source_fact, replacements[changed_source_fact])
+        field = (
+            "source_dump_sha256"
+            if changed_source_fact == "frozen_dump_sha256" else changed_source_fact
+        )
+        setattr(capture, field, replacements[changed_source_fact])
+    capture.source_capture_facts = source_capture_facts_from_capture(capture)
     monkeypatch.setattr(
         source_verifier, "_verify_main_non_occupancy", lambda _capture: None
     )

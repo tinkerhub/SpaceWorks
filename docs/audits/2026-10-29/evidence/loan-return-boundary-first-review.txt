@@ -1,0 +1,18 @@
+**BLOCKED — one ordering correction is required.**
+
+The proposed reviewed-return guard is sound. However, placing the canonical integrity check only in `_return_request_items` cannot satisfy the plan’s rejection-before-promotion/charge requirement: [`return_tool`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/self_checkout_workflow.py:170) finalizes evidence before entering the transaction, then charges storage before calling that helper.
+
+Make the `self_checkout_workflow.py` change mandatory:
+
+- Add a read-only integrity precheck before evidence finalization.
+- Revalidate the backing request and locked items inside the existing return transaction, before charging storage or changing quantities.
+- Keep object-store finalization outside the transaction holding domain locks.
+- Distinguish test expectations: pre-existing inconsistency must prevent finalization; inconsistency discovered by the locked recheck must prevent settlement, but promotion may already have occurred. The same distinction applies to the stale-instance reviewed-return test.
+
+Compatibility corrections to make explicit:
+
+- Public self-checkout returns resolve the entire loan, including when a secondary QR is scanned; this is asserted by [`test_returning_second_qr_resolves_entire_batch_loan`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_public_multi_tool_checkout.py:74). Reject inconsistent public backing state rather than introducing partial settlement.
+- Preserve reviewed partial returns, covered by [`test_return_outcomes.py`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_return_outcomes.py:171), and leave direct returns on their existing `remaining_quantity`/full-resolution path.
+- Preserve public problem reporting: it currently returns stock to available while creating a separate problem report ([existing test](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_public_self_checkout.py:460)).
+
+No edits or tests performed.

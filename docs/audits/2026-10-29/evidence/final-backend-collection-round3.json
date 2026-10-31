@@ -1,0 +1,16 @@
+{
+  "status": "collected-only-not-runtime",
+  "full": 11695,
+  "partitions": {
+    "core": 8244,
+    "backup-tm": 3412,
+    "security39": 39
+  },
+  "historical_host_guard_cases_in_core": {
+    "tests/test_host_orchestration_surface_h1a.py": 26,
+    "tests/test_host_update_boundary.py": 3
+  },
+  "partition_union_exact": true,
+  "partition_intersections_empty": true,
+  "new_skips_or_xfails_added": false
+}

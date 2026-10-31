@@ -1,0 +1,15 @@
+**APPROVED** for the bounded Stage 1 plan. Actual source confirms the reported defects, and the correction can stay within the allowed files without changing the owner hook, API contracts, or printing helpers.
+
+Implementation constraints:
+
+- **Use semantic visit boundaries.** Maker, auth epoch, request policy and `defaultPrinter` must invalidate the page visit; selected type and canonical check-in identity must invalidate private form state. Avoid keying by catalog object identity, which would discard drafts on ordinary refreshes. Keep the check-in input stable while typing.
+- **Guard every upload boundary.** In [ServiceRequestForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/machineService/ServiceRequestForm.tsx:45), check action ownership before presign, before storage upload, after storage upload, and before final submission. Retain serial uploads, queue pinning and captured payload values.
+- **Own pending state and cleanup separately.** Suppressing stale `onSettled` alone could leave the selector locked after a form disappears. Parent admission must belong to the exact current form/action; its removal must release that admission without allowing old cleanup to unlock a newer submission.
+- **Mask tracker state before effects run.** [ServiceStatusPanel.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/machineService/ServiceStatusPanel.tsx:12) currently tags state only by slug. Guard callbacks, persistence effects and displayed ephemeral completion by the current visit. Preserve a newly accepted token through internal draft reset.
+- **Key the borrow draft by exact context.** [PublicRequestStatusPage.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/inventory/PublicRequestStatusPage.tsx:30) should initialize its editable draft within `JSON.stringify([makerspaceSlug, urlToken])`, including token removal.
+
+No policy decision is needed if existing URL capability lookup and same-browser saved-token fallback remain intact. Clearing or account-binding persisted tokens on person/auth changes would require a separate decision; clearing the ephemeral “Request submitted” banner does not.
+
+The proposed Stage 3 coverage addresses the missing ownership cases. Existing service tests cover happy paths and queue behavior but largely mock API/session functions, so they do not establish those guarantees.
+
+Read-only review completed. No edits, tests, builds, or runtime services.

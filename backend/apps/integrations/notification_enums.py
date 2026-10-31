@@ -17,6 +17,7 @@ from django.db import models
 class NotificationFeature(models.TextChoices):
     HARDWARE_REQUESTS = "hardware_requests", "Hardware requests"
     PRINTING = "printing", "Printing"
+    MACHINE_SERVICE = "machine_service", "Machine services"
     EVENTS = "events", "Events"
     BOOKINGS = "bookings", "Bookings"
     MAINTENANCE = "maintenance", "Maintenance"

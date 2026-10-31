@@ -1,0 +1,22 @@
+Authored **35 cases** across five new suites, plus one harness. All files are under 300 lines.
+
+| New file | Cases |
+|---|---:|
+| [ServiceRequestOwnership.test.tsx](frontend/src/features/machineService/ServiceRequestOwnership.test.tsx) | 6 |
+| [ServiceSubmissionContracts.test.tsx](frontend/src/features/machineService/ServiceSubmissionContracts.test.tsx) | 10 |
+| [PublicServiceVisitOwnership.test.tsx](frontend/src/features/machineService/PublicServiceVisitOwnership.test.tsx) | 8 |
+| [ServiceStatusOwnership.test.tsx](frontend/src/features/machineService/ServiceStatusOwnership.test.tsx) | 7 |
+| [PublicRequestReferenceOwnership.test.tsx](frontend/src/features/inventory/PublicRequestReferenceOwnership.test.tsx) | 4 |
+| [serviceOwnershipHarness.tsx](frontend/src/test/serviceOwnershipHarness.tsx) | — |
+
+Only these new files were authored. No production or existing-test edits, runtime, tests, builds, staging, or commits.
+
+Root’s Node 20 command, from the repository root:
+
+```sh
+docker run --rm -v "$PWD/frontend:/app" \
+  -v spaceworks-node20-test-deps:/app/node_modules -w /app node:20 \
+  sh -c 'npm ci && npx tsc -b && npm test -- src/features/machineService/*Ownership.test.tsx src/features/machineService/ServiceSubmissionContracts.test.tsx src/features/inventory/PublicRequestReferenceOwnership.test.tsx'
+```
+
+Residual: execution and type-check results remain unknown. No production gap was confirmed through static inspection.

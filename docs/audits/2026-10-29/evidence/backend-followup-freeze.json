@@ -1,0 +1,17 @@
+{
+  "status": "runtime_pending",
+  "files": {
+    "backend/apps/backup/rollback_cleanup.py": "b73a5a8acc1287671b1108195fb134c388ae3e71cbeebf11640485cd41729a7c",
+    "backend/apps/backup/rollback_cleanup_outcomes.py": "e212ee0e4610d949f82b3a258fa78cca427f5d591f4464fc8a29bb3f45838e39",
+    "backend/apps/backup/rollback_cleanup_progress.py": "590d5083528279c5087c3442f78bdaca46bbfddccfeaa6cf55b04f4898b8aff7",
+    "backend/apps/tenant_migration/authority_guards.py": "7b482254a523d6761c3ba4e13848b36297df094eaf3721c413d970a1abc6754f",
+    "backend/tests/backup/test_rollback_cleanup_progress.py": "6830e306eb2788ff9a3d12a7952e920029bb91d566a7c8bcff1b665825e0cfa5",
+    "backend/tests/backup/test_rollback_cleanup_fairness.py": "193660e4000d788d911184527a52d4b8fa738b3c342a6d98b6bed2e14e64c933",
+    "backend/tests/backup/rollback_cleanup_progress_helpers.py": "b1d67c939d3128da7cdca62f4b4328b61d5421a6f6e1c0965ea3b0f34ad8de6f",
+    "backend/tests/tenant_migration/x13_source_helpers.py": "24b5b426d875268e68151ae18bf513930d5810e4986b8638176d094c7a59a7f7",
+    "backend/tests/tenant_migration/x13_boundary_mutations.py": "a2d757defe492ee121d85d06829e9854190db848c8a19b9729b53f34cc1d5395",
+    "backend/tests/tenant_migration/test_x13_builder_boundaries.py": "2837fa5119278691beccad597796265ff1c23c737bd51a3aef6eaeff901a0c2e",
+    "backend/tests/tenant_migration/test_x12_derivation_source_binding.py": "dcd8377f124bbc740f2837b4f3c4e04934de89a09d8f3ef75a012fb0d033c7c5"
+  },
+  "note": "Bounded handoff snapshot; final primary-agent source freeze supersedes it."
+}

@@ -2,82 +2,14 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Camera, ImageIcon } from "lucide-react";
 
 import { Button, CameraCapture, useToast } from "../../components/ui";
-import { publicV1Request, staffRequest } from "../../lib/api";
+import { staffRequest } from "../../lib/api";
 
-type PresignResponse = {
-  object_key: string;
-  url: string;
-  fields?: Record<string, string>;
-  method?: string;
-  headers?: Record<string, string>;
-};
+import { useAuthActionOwner } from "../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../lib/apiSession";
+import { admitUpload } from "../../lib/uploadProtocol";
+import { uploadPublicImage } from "./imageUploadApi";
+export { uploadPublicImage } from "./imageUploadApi";
 
-type PublicConfigResponse = {
-  public_image_max_bytes: number;
-};
-
-let publicImageMaxBytesPromise: Promise<number> | null = null;
-
-async function getPublicImageMaxBytes() {
-  if (!publicImageMaxBytesPromise) {
-    publicImageMaxBytesPromise = publicV1Request<PublicConfigResponse>("/config").then(
-      (config) => {
-        const cap = Number(config.public_image_max_bytes);
-        if (!Number.isFinite(cap) || cap <= 0) {
-          throw new Error("Image upload limit is unavailable.");
-        }
-        return cap;
-      },
-    );
-  }
-  return publicImageMaxBytesPromise;
-}
-
-async function rejectOversizePublicImage(file: File) {
-  const cap = await getPublicImageMaxBytes();
-  if (file.size > cap) {
-    throw new Error(`Image too large (max ${Math.round(cap / 1048576)} MB).`);
-  }
-}
-
-export async function uploadPublicImage(
-  endpoint: string,
-  file: File,
-  // Extra fields carried on BOTH the presign and the attach — the member profile
-  // endpoints use one triple for the avatar and for each project image, discriminated
-  // by `project_id`, and the attach needs it as much as the presign does.
-  extraBody: Record<string, unknown> = {},
-) {
-  await rejectOversizePublicImage(file);
-  const presigned = await staffRequest<PresignResponse>(endpoint, {
-    method: "POST",
-    body: JSON.stringify({
-      content_type: file.type || "application/octet-stream",
-      filename: file.name,
-      ...extraBody,
-    }),
-  });
-
-  if (presigned.method === "PUT") {
-    const res = await fetch(presigned.url, {
-      method: "PUT",
-      body: file,
-      headers: presigned.headers,
-    });
-    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
-  } else {
-    const formData = new FormData();
-    Object.entries(presigned.fields ?? {}).forEach(([k, v]) => formData.append(k, v));
-    formData.append("file", file);
-    const res = await fetch(presigned.url, { method: "POST", body: formData });
-    if (!res.ok) throw new Error(`Storage upload failed (${res.status})`);
-  }
-
-  await staffRequest(endpoint, {
-    method: "PUT",
-    body: JSON.stringify({ object_key: presigned.object_key, ...extraBody }),
-  });
-}
 type ImageUploaderProps = {
   /** Admin endpoint base, e.g. `/admin/inventory/12/image` or `/admin/makerspace/3/logo`. */
   endpoint: string;
@@ -103,7 +35,12 @@ type ImageUploaderProps = {
  * (POST multipart or PUT), then PUT { object_key } to finalize+attach. The
  * storage upload itself is an unauthenticated direct-to-bucket request.
  */
-export function ImageUploader({
+export function ImageUploader(props: ImageUploaderProps) {
+  const scope = JSON.stringify([props.endpoint, props.clearQuery ?? "", props.extraBody ?? {}, getSessionGeneration()]);
+  return <OwnedImageUploader key={scope} {...props} scope={scope} />;
+}
+
+function OwnedImageUploader({
   endpoint,
   currentUrl,
   label,
@@ -113,7 +50,11 @@ export function ImageUploader({
   shape = "square",
   extraBody,
   clearQuery = "",
-}: ImageUploaderProps) {
+  scope,
+}: ImageUploaderProps & { scope: string }) {
+  const owner = useAuthActionOwner(scope);
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
   const inputId = useId();
   const objectUrlRef = useRef<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -123,7 +64,8 @@ export function ImageUploader({
   const { showToast } = useToast();
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
   const [error, setError] = useState("");
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState<symbol | null>(null);
+  const cameraVisit = useRef<symbol | null>(null);
   const [cameraSupported] = useState(
     () => typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia,
   );
@@ -152,29 +94,42 @@ export function ImageUploader({
   const busy = disabled || status === "uploading";
 
   async function handleFile(file: File) {
+    if (disabledRef.current || !owner.isIntentCurrent()) return;
+    const action = owner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => owner.isCurrent(action));
     setStatus("uploading");
     setError("");
     try {
-      await uploadPublicImage(endpoint, file, extraBody);
+      await uploadPublicImage(endpoint, file, extraBody, guard);
+      guard.assertCurrent();
       setStatus("idle");
       setLocalPreview(file);
       showToast(`${label} updated`, { tone: "success" });
       onChanged();
     } catch (err) {
+      if (!owner.isCurrent(action)) return;
       setStatus("error");
       const message = err instanceof Error ? err.message : "Upload failed.";
       setError(message);
       showToast(message, { tone: "error" });
     } finally {
-      if (inputRef.current) inputRef.current.value = "";
+      if (owner.isCurrent(action) && inputRef.current) inputRef.current.value = "";
+      owner.finish(action);
     }
   }
 
   async function clearImage() {
+    if (disabledRef.current || !owner.isIntentCurrent()) return;
+    const action = owner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => owner.isCurrent(action));
     setStatus("uploading");
     setError("");
     try {
+      guard.assertCurrent();
       await staffRequest(`${endpoint}${clearQuery}`, { method: "DELETE" });
+      guard.assertCurrent();
       setStatus("idle");
       if (objectUrlRef.current) {
         URL.revokeObjectURL(objectUrlRef.current);
@@ -184,11 +139,31 @@ export function ImageUploader({
       showToast(`${label} removed`, { tone: "success" });
       onChanged();
     } catch (err) {
+      if (!owner.isCurrent(action)) return;
       setStatus("error");
       const message = err instanceof Error ? err.message : "Could not remove image.";
       setError(message);
       showToast(message, { tone: "error" });
+    } finally {
+      owner.finish(action);
     }
+  }
+
+  function openCamera() {
+    if (disabledRef.current || !owner.isIntentCurrent() || owner.isPending()) return;
+    const visit = Symbol();
+    cameraVisit.current = visit;
+    setCameraOpen(visit);
+  }
+  function closeCamera() {
+    if (!owner.isContextCurrent() || cameraVisit.current !== cameraOpen) return;
+    cameraVisit.current = null;
+    setCameraOpen(null);
+  }
+  function captureCamera(file: File) {
+    if (disabledRef.current || !cameraOpen || cameraVisit.current !== cameraOpen || !owner.isIntentCurrent()) return;
+    closeCamera();
+    void handleFile(file);
   }
 
   return (
@@ -223,12 +198,12 @@ export function ImageUploader({
               className="block min-w-0 max-w-full flex-[1_1_15rem] text-sm text-ink-muted file:mr-3 file:min-h-9 pointer-coarse:file:min-h-11 file:cursor-pointer file:rounded-full file:border file:border-line-strong file:bg-canvas file:px-3.5 file:py-1.5 file:text-sm file:font-semibold file:text-ink hover:file:bg-subtle disabled:file:cursor-not-allowed disabled:file:text-ink-muted"
             />
             {cameraSupported ? (
-              <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label} photo`} disabled={busy} onClick={() => setCameraOpen(true)}>
+              <Button size="sm" startIcon={<Camera />} aria-label={`Take ${label} photo`} disabled={busy} onClick={openCamera}>
                 Camera
               </Button>
             ) : null}
           </div>
-          <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label} />
+          <CameraCapture open={cameraOpen !== null} onClose={closeCamera} onCapture={captureCamera} label={label} />
           <p className="text-caption text-ink-muted">JPEG, PNG or WebP.</p>
           {preview ? (
             <div>

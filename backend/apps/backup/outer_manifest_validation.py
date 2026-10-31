@@ -4,6 +4,7 @@ import uuid
 
 from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.outer_reservation_validation import validate_reservation_manifest
+from apps.backup.source_capture_facts import source_capture_facts_from_mapping
 
 
 def component_id(capture_id, kind, makerspace_id=None):
@@ -13,9 +14,18 @@ def component_id(capture_id, kind, makerspace_id=None):
 
 
 def validate_unsigned_manifest(manifest, *, protocol_version):
+    if (
+        isinstance(manifest, dict)
+        and manifest.get("protocol_version") == "spaceworks-lane-e-b1-v1"
+    ):
+        raise BackupBuildError(
+            "The old compound v1 source-binding version is unsupported; create a new "
+            "v2 backup and refresh the installed producer and restore capabilities."
+        )
     try:
         if manifest["protocol_version"] != protocol_version:
             raise ValueError
+        source_capture_facts_from_mapping(manifest["source_capture"])
         capture_id = uuid.UUID(str(manifest["capture_id"]))
         uuid.UUID(str(manifest["artifact_id"]))
         if "backup_run_id" in manifest:

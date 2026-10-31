@@ -1,20 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { publicV1Request } from "../../lib/api";
 import { AuthLayout } from "../../components/chrome/AuthLayout";
-import { Button, ErrorText, Field, Input, PasswordInput, buttonClasses } from "../../components/ui";
+import { Button, Callout, ErrorText, Field, Input, PasswordInput, buttonClasses } from "../../components/ui";
 import { SocialSignInButtons } from "../auth/SocialSignInButtons";
 import type { SocialLoginResult } from "../auth/socialSdk";
 
 export function LoginPanel({
   error,
+  notice,
   guestOnly,
   isPending,
   onSubmit,
   onSocialSuccess,
 }: {
   error?: string;
+  notice?: string;
   guestOnly: boolean;
   isPending: boolean;
   onSubmit: (payload: { username: string; password: string }) => void;
@@ -26,6 +28,7 @@ export function LoginPanel({
   // Present in the config only when password sign-in has been switched off, so an
   // absent key — and a failed request — mean it is available.
   const [passwordLogin, setPasswordLogin] = useState(true);
+  const providerOwnershipScope = useMemo(() => ({}), [onSocialSuccess]);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +88,7 @@ export function LoginPanel({
             </Field>
           </>
         ) : null}
+        {notice ? <Callout tone="warning" role="alert">{notice}</Callout> : null}
         <ErrorText message={error} />
         {passwordLogin ? (
           <Button variant="primary" type="submit" fullWidth loading={isPending} loadingLabel="Signing in…">
@@ -97,7 +101,12 @@ export function LoginPanel({
           </Link>
         ) : null}
         {onSocialSuccess ? (
-          <SocialSignInButtons surface="staff" onSuccess={onSocialSuccess} />
+          <SocialSignInButtons
+            surface="staff"
+            onSuccess={onSocialSuccess}
+            ownershipScope={providerOwnershipScope}
+            disabled={isPending}
+          />
         ) : null}
       </form>
     </AuthLayout>

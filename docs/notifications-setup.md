@@ -49,8 +49,14 @@ becomes unreadable and must be entered again. Alerts and mail are delivered by t
 | `rejected` | Telegram's own reason is shown after the message |
 
 Telegram is **outbound only**: alerts carry no accept/reject buttons, and decisions are made in the
-console. By default it sends hardware-request and booking alerts; turn others on per feature under
-**Settings → Notifications → Notification channels**.
+console. By default it sends hardware-request, booking, printing and generic machine-service alerts
+when configured; control each feature under **Settings → Notifications → Notification channels**.
+
+**Upgrade note: machine Telegram alerts default to on.** Printing's Telegram default changes from
+off to on, and the new **Machine services** feature starts with Telegram on and every other channel
+off. An explicit off preference always wins, including an existing printing preference. No preference
+rows are backfilled or overwritten. A send still requires the relevant feature and channel modules,
+configured credentials and an eligible active destination; room scopes and quotas still apply.
 
 **More than one group.** Under **Settings → Notifications → Rooms → Add a room**, pick Telegram and
 enter that group's **Telegram chat ID**. Rooms reuse the makerspace's bot (add the same bot to each
@@ -113,6 +119,25 @@ Under **Settings → Notifications**:
   people, all members or the person the message is about. Empty means the default.
 - **Rooms** splits chat alerts across groups (above).
 - **Advanced email mutes** silences individual email events.
+
+Hardware lifecycle events are submitted, accepted, rejected, cancelled, issued, partially returned,
+returned and closed with an issue. They also create staff inbox notifications when the
+`notifications` module is installed. Return reminders keep their existing separate delivery path.
+
+Machine-service lifecycle events are submitted, accepted, rejected, started, completed, failed,
+collected and reprinted. Non-printer jobs use **Machine services** (`machine_service` module), with generic staff
+text and machine/type room scoping, including type-scoped queues before machine assignment. Printer
+jobs use **Printing**, preserving its existing emails, templates and mutes; a printer event does not
+also send a generic Machine services alert. Each path keeps its existing staff inbox notification.
+Generic Machine services creates no new email stream or requester emails. Native push is off by
+default; when enabled, its staff recipients are selected by `manage_machines` and subject scope.
+Machine services initially uses that action-based recipient default, without the per-event recipient
+picker. Staff inbox data is not part of borrower status or account histories.
+
+**Staff email notifications** controls staff email recipients (and the existing staff push recipient
+selector); it does not turn Telegram or other room alerts off. Use **Notification channels** and
+**Rooms** for chat delivery controls. Delivery is best effort after a successful transaction commits;
+this does not add a durable outbox or an exactly-once delivery guarantee.
 
 **Settings → Integrations → Integration health** shows, for each channel and room, whether a
 credential is stored, when it last delivered and its last error. A revoked token or webhook shows up

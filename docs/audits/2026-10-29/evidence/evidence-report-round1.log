@@ -1,0 +1,48 @@
+..F...................                                                   [100%]
+=================================== FAILURES ===================================
+______ test_failed_staging_delete_is_expiring_until_real_retry_completes _______
+
+report_lab = <tests.evidence.report_object_expiry_helpers.ReportLab object at 0xffff8e4f1760>
+
+    def test_failed_staging_delete_is_expiring_until_real_retry_completes(report_lab):
+        lab = report_lab
+        photo = lab.photo(size=29)
+        staged = storage.staging_key(photo.object_key)
+        lab.store.fail_deletes.add(staged)
+        metadata = metadata_snapshot(lab.space)
+    
+        failed = lab.sweep()
+    
+        assert failed["photos_failed"] == 1 and failed["photos_expired"] == 0
+        state = EvidenceObjectRetentionState.objects.get(evidence=photo)
+        assert state.status == EvidenceObjectRetentionState.Status.EXPIRING
+        assert state.object_expired_at is None
+>       assert state.claim_token is None and state.claimed_at is not None
+E       assert (None is None and None is not None)
+E        +  where None = <EvidenceObjectRetentionState: EvidenceObjectRetentionState object (6)>.claim_token
+E        +  and   None = <EvidenceObjectRetentionState: EvidenceObjectRetentionState object (6)>.claimed_at
+
+tests/evidence/test_report_object_expiry_scopes.py:67: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  apps.evidence.services_retention:services_retention.py:143 evidence_object_expiry_failed
+Traceback (most recent call last):
+  File "/workspace/backend/apps/evidence/services_retention.py", line 116, in _sweep_makerspace
+    "staging": storage.delete_object_strict(staged_key),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/backend/tests/evidence/report_object_expiry_helpers.py", line 55, in delete
+    raise storage.StorageUnavailable("provider fixture failure")
+apps.evidence.storage.StorageUnavailable: provider fixture failure
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+tests/operations/test_report_coverage_rollups.py::test_catalog_omits_disabled_source_without_reading_its_rows
+tests/operations/test_report_coverage_rollups.py::test_reports_module_controls_catalog_read_and_export_on_both_sides
+  /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/evidence/test_report_object_expiry_scopes.py::test_failed_staging_delete_is_expiring_until_real_retry_completes
+1 failed, 21 passed, 3 warnings in 11.28s

@@ -1,0 +1,10 @@
+APPROVED for the bounded add-on.
+
+- All frozen source hashes match the current files. `scripts/restore.sh` declares exactly 25 dependencies, identical to `recovery-source-freeze.json`.
+- The [pinned updater’s copy list](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/install-host-bundle.sh:10) omits those dependencies. The checker plus exact file installation is a complete bounded correction; no wildcard, whole-backend copy, release-workflow change, or new trust scheme is needed.
+- Keep both preflight points, deliberate modes/root ownership, existing backups and runtime entries, and the pre-import ancestry/file checks. Apply `-I -B` to the guard and every helper execution.
+- Preserve the historical freeze and capture the changed wrapper/installers/checker in a separate add-on freeze. Installed-layout proof remains a subsequent gate.
+
+**Operator-owned layouts remain unsupported for restore/import, including when invoked with `sudo`.** [Fresh installation explicitly returns ownership to the non-root operator](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/install.sh:295), while restore requires protected root-owned Linux code/ancestry and a root-private `.env`. Packaging does not convert that layout. Operator documentation must state this prerequisite; automatic conversion remains outside scope.
+
+Approval covers implementation of this plan, not deployment readiness. No edits, tests, credentials, or runtime operations were performed.

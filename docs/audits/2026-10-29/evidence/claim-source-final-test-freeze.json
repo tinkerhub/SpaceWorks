@@ -1,0 +1,1453 @@
+{
+  "at_utc": "2026-10-30T05:17:32.764649+00:00",
+  "existing_http_nonpermitted_files_unchanged": true,
+  "existing_http_static_products": 473,
+  "existing_http_unchanged_control_functions": [
+    {
+      "name": "test_actual_native_last_used_update_and_qr_audit_stay_under_same_p",
+      "sha256": "cdcc5656d7acfe149a82a12ecae1a956a27972369ce42afa19430360a19dd242"
+    },
+    {
+      "name": "test_valid_claim_policy_still_refuses_403_without_presence_cleanup_under_p",
+      "sha256": "35051fd848a6caa9243a0126c63b6295da407a7e0f5d333e0ae693e22fff4dfb"
+    }
+  ],
+  "files": {
+    "backend/tests/claim_source_safety/__init__.py": {
+      "functions": [],
+      "lines": 1,
+      "sha256": "3499c80623e8119895fd403e0023ec638e51882ba862cca50bb81a69e5f52ea5"
+    },
+    "backend/tests/claim_source_safety/callers.py": {
+      "functions": [
+        {
+          "definition_line": 16,
+          "end_line": 18,
+          "line": 16,
+          "name": "native_call",
+          "sha256": "386de8fcee8fb50ece6ee8ba5ba337a77fd5d94c314afc467f089b31fde79c61"
+        },
+        {
+          "definition_line": 21,
+          "end_line": 48,
+          "line": 21,
+          "name": "oidc_call",
+          "sha256": "4d17ad3f6546a9548d943412e62d037a905c26e0d792439fec0b5ab2d0edaf03"
+        },
+        {
+          "definition_line": 51,
+          "end_line": 58,
+          "line": 51,
+          "name": "prepare",
+          "sha256": "8111c704be6cb2980e66400406daaa2a0dae1ee97ec800d9cad7df73093977cd"
+        },
+        {
+          "definition_line": 61,
+          "end_line": 85,
+          "line": 61,
+          "name": "assert_retry",
+          "sha256": "20ca400b91b63b29a3a4d1b327ed53ed8697a2b9b35dc24fc6e95301e97bf108"
+        },
+        {
+          "definition_line": 43,
+          "end_line": 46,
+          "line": 43,
+          "name": "call",
+          "sha256": "83d2ca4f7c6b54bf055eb58490e64b7bf6a39bff284955351a3b39a138b4ea38"
+        }
+      ],
+      "lines": 85,
+      "sha256": "f86c2c6aa8e45af7718d495cac8a0c1db49876ea998b9e6cd36671a247ccc1cc"
+    },
+    "backend/tests/claim_source_safety/conftest.py": {
+      "functions": [
+        {
+          "definition_line": 31,
+          "end_line": 35,
+          "line": 31,
+          "name": "membership",
+          "sha256": "53344015b370e7c73917ec15349b7b4558b69ecc3717f8ed5a71036f0f4855ff"
+        },
+        {
+          "definition_line": 38,
+          "end_line": 53,
+          "line": 38,
+          "name": "physical_claim",
+          "sha256": "7d8db666974824f6bd673e691270eb47ba5103a8e4d4d165f879d948b34768c5"
+        },
+        {
+          "definition_line": 57,
+          "end_line": 98,
+          "line": 56,
+          "name": "claim_lab",
+          "sha256": "1273ac96d0a5a80a0f000392c355905583f9ecf6582bd100a7f6ce5c6c98a3fb"
+        }
+      ],
+      "lines": 98,
+      "sha256": "13e139cfe04bf548e7b456c19fb16dce6177012477763a1652a5328cc220a00e"
+    },
+    "backend/tests/claim_source_safety/observations.py": {
+      "functions": [
+        {
+          "definition_line": 16,
+          "end_line": 17,
+          "line": 16,
+          "name": "row_lock",
+          "sha256": "a9a01e1b227285d72c2405f4eb6497dd2768a51f479905feb3d6bb037ee243e7"
+        },
+        {
+          "definition_line": 20,
+          "end_line": 22,
+          "line": 20,
+          "name": "source_statement",
+          "sha256": "bb8012f743119fa328cdb1ed2faa425fcf189555379756ea4f2a159fdc0fec7e"
+        },
+        {
+          "definition_line": 25,
+          "end_line": 28,
+          "line": 25,
+          "name": "exclusive_n",
+          "sha256": "6ec652591a02f8d03ec66d1f78bca4bdb58195755c95e5fe348e948a86023cdd"
+        },
+        {
+          "definition_line": 135,
+          "end_line": 154,
+          "line": 135,
+          "name": "wait_raw_n",
+          "sha256": "97964e9b9fce6390112887c195408fa7775ad355f903621869535fcbf057b1d0"
+        },
+        {
+          "definition_line": 32,
+          "end_line": 37,
+          "line": 32,
+          "name": "__init__",
+          "sha256": "b02d6371d8fa1305a5b9d8dd673c1c89c664640eb75ac98d81fa201b4d6ca9cf"
+        },
+        {
+          "definition_line": 39,
+          "end_line": 63,
+          "line": 39,
+          "name": "observe",
+          "sha256": "1595d43708fba674896aca514f561a64a60cdc4e9df597ded1cf93b8fcfcc524"
+        },
+        {
+          "definition_line": 65,
+          "end_line": 74,
+          "line": 65,
+          "name": "queued",
+          "sha256": "52f4ee67aa417181e30fc75ba9f24d977fb931c72c70fde57c33582d8b8d55d3"
+        },
+        {
+          "definition_line": 76,
+          "end_line": 79,
+          "line": 76,
+          "name": "released",
+          "sha256": "b4ab0254c8c7ed285aca00dc7e5db5d52df391da8823d017f77c74b83f07c745"
+        },
+        {
+          "definition_line": 83,
+          "end_line": 84,
+          "line": 83,
+          "name": "__init__",
+          "sha256": "4fdf2ebe1b72414a13781d03dde5f839e58a7ab7e1b13ee7665996597f072e32"
+        },
+        {
+          "definition_line": 86,
+          "end_line": 88,
+          "line": 86,
+          "name": "stop",
+          "sha256": "b55685fcfd6daef055402ae55907a18097413d4ec759ef8b3291962369b4729e"
+        },
+        {
+          "definition_line": 90,
+          "end_line": 92,
+          "line": 90,
+          "name": "wait",
+          "sha256": "1cb09b0c7e4d3a5a4dcd9e038ea35e4e461cbd46c8941f7697a146e615968ec3"
+        },
+        {
+          "definition_line": 97,
+          "end_line": 99,
+          "line": 97,
+          "name": "__init__",
+          "sha256": "e878daba5f86db8d5f092dbf7c5c5cf0319b1f7a62507de8b56f6caf5d98d0a8"
+        },
+        {
+          "definition_line": 101,
+          "end_line": 116,
+          "line": 101,
+          "name": "capture",
+          "sha256": "c73a16f65ecb70d6461f8a10bf394dd24c75cca28c76e5928ca5e67b00078df2"
+        },
+        {
+          "definition_line": 118,
+          "end_line": 122,
+          "line": 118,
+          "name": "run",
+          "sha256": "2be52a654a31aa91d1b47c25b92798dd1ee07ffee8b64bc42eef61f07490db8d"
+        },
+        {
+          "definition_line": 124,
+          "end_line": 126,
+          "line": 124,
+          "name": "release_all",
+          "sha256": "1cce6c8ff44409bf1478546c9a5eb9fe67da3956ce1c3256399ba462c8e4e15b"
+        },
+        {
+          "definition_line": 128,
+          "end_line": 129,
+          "line": 128,
+          "name": "__enter__",
+          "sha256": "5a571a5f1a9d6bfbd712e78ad2044c539f573df484340d1f1d7493afa025b2f5"
+        },
+        {
+          "definition_line": 131,
+          "end_line": 132,
+          "line": 131,
+          "name": "__exit__",
+          "sha256": "1585b46577fc39fe9112e3d90eb9abeae18a42c905791ad81383f27778f4a6db"
+        },
+        {
+          "definition_line": 119,
+          "end_line": 121,
+          "line": 119,
+          "name": "observed",
+          "sha256": "fc2a9a270955ef9b661544cf9a8181aeb833e9c5b824ef24cbc47d0f1547ffbf"
+        }
+      ],
+      "lines": 154,
+      "sha256": "4a69bca51fce929e3352bc8208a5b204ba3ecf9a838a67713599be77db1dc4fc"
+    },
+    "backend/tests/claim_source_safety/opaque.py": {
+      "functions": [
+        {
+          "definition_line": 8,
+          "end_line": 19,
+          "line": 8,
+          "name": "opaque",
+          "sha256": "99cb91151e9d14eed95a2d48a80a5010e2926ada369fc63bfc7b94f21af1fa52"
+        }
+      ],
+      "lines": 19,
+      "sha256": "cbf5de7609b318ddd10c9c9fcb85bf6814a86dd3f5ecb155d9a1b061577e09fe"
+    },
+    "backend/tests/claim_source_safety/state.py": {
+      "functions": [
+        {
+          "definition_line": 14,
+          "end_line": 15,
+          "line": 14,
+          "name": "domain",
+          "sha256": "5cf29834b3174953a3c4efb7833d7760a3db5acca0b3e662e231295afeb26584"
+        },
+        {
+          "definition_line": 18,
+          "end_line": 24,
+          "line": 18,
+          "name": "tenant_and_transition_audits",
+          "sha256": "79ade9a2378d42847ced18f8c3e22edc83ac5cada63a229beba4af9e25f551a1"
+        },
+        {
+          "definition_line": 27,
+          "end_line": 32,
+          "line": 27,
+          "name": "frozen",
+          "sha256": "254342af85b9086e97ac37493b716c23e0ef8fb6b501e2b51911bd703ae8abe8"
+        }
+      ],
+      "lines": 32,
+      "sha256": "eae7ae4411a478904b49a8eb24ea0e8ebc8c55983ebcc15ba098f7e0ab980b00"
+    },
+    "backend/tests/claim_source_safety/test_issue_ordering.py": {
+      "functions": [
+        {
+          "definition_line": 18,
+          "end_line": 20,
+          "line": 18,
+          "name": "target_user_lock",
+          "sha256": "b69ed15cf8cf730500772a9efb750a93ede5c972e9badd90b43237f4deed030b"
+        },
+        {
+          "definition_line": 23,
+          "end_line": 25,
+          "line": 23,
+          "name": "target_membership_lock",
+          "sha256": "b4ec6678a043d92d2e964991e781329a0a411d9a7ef40b2b51e79f879cdc1311"
+        },
+        {
+          "definition_line": 28,
+          "end_line": 36,
+          "line": 28,
+          "name": "issuer",
+          "sha256": "2d579aa4e46621df9947cecc6bd7a62564bd783f1c6449f613f17131fdf1f459"
+        },
+        {
+          "definition_line": 39,
+          "end_line": 65,
+          "line": 39,
+          "name": "test_actual_issue_membership_winner_precedes_oidc_user_lock_without_deadlock",
+          "sha256": "6a45e4ac2427c46fbe59a5fce0e662029c1a0dfbf206598561165019cf58455b"
+        },
+        {
+          "definition_line": 68,
+          "end_line": 100,
+          "line": 68,
+          "name": "test_native_user_winner_claim_hook_locks_only_self_while_issuer_holds_membership",
+          "sha256": "73c3fe1f35a4f3de3c836422e10a28913b0ceab9d7e8f2c753cd9011f0d1d31b"
+        },
+        {
+          "definition_line": 74,
+          "end_line": 79,
+          "line": 74,
+          "name": "issue_loser",
+          "sha256": "ca8a464a8bbc3b8bd32b2927734206854245e06ea3ff756b18a24639bce5c9cd"
+        }
+      ],
+      "lines": 100,
+      "sha256": "ba37a1b4ba3ec5233e4a9d56406d022da213a50f779096080b1c95885b4fdfb3"
+    },
+    "backend/tests/claim_source_safety/test_legacy_cleanup.py": {
+      "functions": [
+        {
+          "definition_line": 26,
+          "end_line": 28,
+          "line": 26,
+          "name": "invalid_response",
+          "sha256": "abafe2f013fbb1622fc0804e7c9d8032a50e1b8baf6e3f60e105201564af975f"
+        },
+        {
+          "definition_line": 33,
+          "end_line": 45,
+          "line": 31,
+          "name": "test_legacy_fault_cleanup_defers_401_without_any_auth_domain_or_audit_write",
+          "sha256": "49e70b38928329b6a5c9d705480bf44487c67b136b5c17acecb1985a4349c873"
+        },
+        {
+          "definition_line": 49,
+          "end_line": 70,
+          "line": 48,
+          "name": "test_cancel_actual_legacy_cleanup_n_wait_defers_401_without_dml",
+          "sha256": "7eb98ed68463be3459c3fc1dad051acfe2731b0981c398f66e925c6ea6402013"
+        },
+        {
+          "definition_line": 73,
+          "end_line": 103,
+          "line": 73,
+          "name": "test_legacy_cleanup_uses_database_owner_not_forged_token_or_request_tenant",
+          "sha256": "d2125868a99b37bae9208253bc8acdd578fff9087c5c2c82ab883d903df43bc0"
+        },
+        {
+          "definition_line": 106,
+          "end_line": 146,
+          "line": 106,
+          "name": "test_legacy_fault_claim_provenance_changed_during_claim_row_wait_defers_without_foreign_write",
+          "sha256": "dbbda7dcb31b32571fb5404a69bb4d0d3569262325a05bda595366e0de2ddfb6"
+        },
+        {
+          "definition_line": 116,
+          "end_line": 121,
+          "line": 116,
+          "name": "fault_winner",
+          "sha256": "2027e500362dae73f9015385c1068a1db3874b3ff9d44e74017ef9d38eac0de3"
+        },
+        {
+          "definition_line": 123,
+          "end_line": 124,
+          "line": 123,
+          "name": "claim_lock",
+          "sha256": "ec9459bcb758d959337370ab7e6e6ded16b230da66bb309420e49be264e77001"
+        }
+      ],
+      "lines": 146,
+      "sha256": "37ca8e3c44e57309043794b2bbe7bd6f8abc68471731cce15b6765051142e433"
+    },
+    "backend/tests/claim_source_safety/test_oidc_origin.py": {
+      "functions": [
+        {
+          "definition_line": 16,
+          "end_line": 20,
+          "line": 16,
+          "name": "dedicated_origin",
+          "sha256": "6e9a3e41390f4e327a171a70ac414e9eab5d7d90caff8f835db9a28c334c4b27"
+        },
+        {
+          "definition_line": 24,
+          "end_line": 55,
+          "line": 23,
+          "name": "test_real_dedicated_origin_raw_prehold_can_transition_unchanged_single_maker",
+          "sha256": "f857ea0162bda6c68ff0ce63561ff2319c55e27a4bf44a28479ef4accb013db8"
+        },
+        {
+          "definition_line": 58,
+          "end_line": 76,
+          "line": 58,
+          "name": "test_dedicated_higher_origin_with_new_lower_target_scope_returns_friendly_retry",
+          "sha256": "ffd2985c9f6186646119d9e128ccc2b91237b26dd03ffbbcb0ccf71313665260"
+        }
+      ],
+      "lines": 76,
+      "sha256": "ee02df38c270cfcfdae788a01a2a85fefa0fd969582c45bf9936933804ec6185"
+    },
+    "backend/tests/claim_source_safety/test_oidc_precedence.py": {
+      "functions": [
+        {
+          "definition_line": 18,
+          "end_line": 40,
+          "line": 13,
+          "name": "test_invalid_full_identity_preflight_precedes_foreign_frozen_n",
+          "sha256": "eefbb889fd483f4f1b3bca8b0cd7bf1814003a532297e87d5844951835566d94"
+        }
+      ],
+      "lines": 40,
+      "sha256": "630c40f2859b57a71089e5c5d894da412503748cf0d2a31da70ad1ec0ec5d18b"
+    },
+    "backend/tests/claim_source_safety/test_opaque.py": {
+      "functions": [
+        {
+          "definition_line": 12,
+          "end_line": 23,
+          "line": 11,
+          "name": "test_opaque_other_owned_tenant_refuses_without_any_domain_mutation",
+          "sha256": "949ebb0df1ed593dde3c542bf8869ce299df4a629f534a57937364270d7f8f64"
+        }
+      ],
+      "lines": 23,
+      "sha256": "a5803f603a48a3d74e1d5febdd2e13df74b9d450e645e5a74a4820559c990fd0"
+    },
+    "backend/tests/claim_source_safety/test_raw_boundaries.py": {
+      "functions": [
+        {
+          "definition_line": 21,
+          "end_line": 61,
+          "line": 21,
+          "name": "test_raw_same_key_reuses_original_reference_despite_queued_exclusive",
+          "sha256": "b6fc8329523c50c1274c3fa1012f42b3487733c8bbe277c6685a04a454695f0a"
+        },
+        {
+          "definition_line": 64,
+          "end_line": 100,
+          "line": 64,
+          "name": "test_genuinely_new_lower_n_refused_before_any_acquisition_or_identity_row_lock",
+          "sha256": "3becde45a0427f104f1793d5deb70e153da544362e9be4433a05937c2949aee3"
+        },
+        {
+          "definition_line": 104,
+          "end_line": 132,
+          "line": 103,
+          "name": "test_actual_raw_owner_loss_is_strict_unavailable_without_reconnect_or_writes",
+          "sha256": "f14d57beff42300f193f59c7cdd304f2ea5971b90dd600f26569a084d8e96462"
+        },
+        {
+          "definition_line": 135,
+          "end_line": 158,
+          "line": 135,
+          "name": "test_p_key_zero_is_not_tenant_admission",
+          "sha256": "e7980157b8e1bd125f75e0690f4e481c021c3c4ae26ccd4fa234dfaaa7c0174e"
+        },
+        {
+          "definition_line": 161,
+          "end_line": 171,
+          "line": 161,
+          "name": "test_raw_same_key_reuse_still_checks_fresh_quiesced_state",
+          "sha256": "91fb46d787487f7dec1e0047de5775b6f3a46075b906f356cd14a5ebacfa8cc6"
+        },
+        {
+          "definition_line": 175,
+          "end_line": 225,
+          "line": 174,
+          "name": "test_retained_raw_shared_owner_refuses_exclusive_upgrade",
+          "sha256": "1d9361d4d5c150ad140f238acc5967e736d9cc5437fc5e7d760a268ca01bc80b"
+        },
+        {
+          "definition_line": 28,
+          "end_line": 34,
+          "line": 28,
+          "name": "operation",
+          "sha256": "7be52aad0898bcbb6edc0d5ea9da92e80d956719e02b41a75cb8c71ddb71fe48"
+        },
+        {
+          "definition_line": 36,
+          "end_line": 37,
+          "line": 36,
+          "name": "actual_audit",
+          "sha256": "6a4f01413555a3632256d32e462df5993bc0296162c428167f0f8ba250d6e523"
+        },
+        {
+          "definition_line": 73,
+          "end_line": 80,
+          "line": 73,
+          "name": "operation",
+          "sha256": "30c47634a8ef16db363d6221405e4c91dd4c200ade6f0f4b3d554c3856d3cd67"
+        },
+        {
+          "definition_line": 139,
+          "end_line": 143,
+          "line": 139,
+          "name": "operation",
+          "sha256": "809a95d977889f301b950ad5e03afbd9c385aefba37d66902952b4a0299c25b0"
+        }
+      ],
+      "lines": 225,
+      "sha256": "84b8cef36908f8293002f69baacbd9a8169f5b50b508ed3d4ad0fd968bd0fa0e"
+    },
+    "backend/tests/claim_source_safety/test_transitions.py": {
+      "functions": [
+        {
+          "definition_line": 23,
+          "end_line": 61,
+          "line": 23,
+          "name": "assert_closed_lifecycle",
+          "sha256": "66ff7adcee365a97437d7e4850ccc36de629ff28201695015cd0c9573f6ed36e"
+        },
+        {
+          "definition_line": 65,
+          "end_line": 107,
+          "line": 64,
+          "name": "test_open_all_owned_ns_precede_rows_and_retain_original_locks_through_commit",
+          "sha256": "bd801d8eb0f348ff8b82e79d0c0e686eec89ab0ef04c034b630ed433bb25b31c"
+        },
+        {
+          "definition_line": 112,
+          "end_line": 126,
+          "line": 110,
+          "name": "test_one_quiesced_membership_of_any_status_refuses_entire_transition",
+          "sha256": "a8a3252f4224ef61ae27d978f688c7c29c0a26486b090f2f974025d49716146e"
+        },
+        {
+          "definition_line": 130,
+          "end_line": 167,
+          "line": 129,
+          "name": "test_real_audit_insert_failure_rolls_back_complete_transition_under_retained_ns",
+          "sha256": "b0444fb813c724492c7c3a0402e979f1fa6d1e1b91187ba38f74568ac9d9072c"
+        },
+        {
+          "definition_line": 138,
+          "end_line": 144,
+          "line": 138,
+          "name": "fail_insert",
+          "sha256": "db8266673ea6362f1d9f630e53e935f71c8fb96594e625f97a3a80426a8c0652"
+        },
+        {
+          "definition_line": 146,
+          "end_line": 148,
+          "line": 146,
+          "name": "failing_call",
+          "sha256": "c4a46a19fa5c60dca27b9d7d6c0fe4434559064b6a8c139538e5bc99fb66a098"
+        }
+      ],
+      "lines": 167,
+      "sha256": "ea3713cacefe4c7b2de30833b84ff47af4b7263de29466be4b7a51e11650401f"
+    },
+    "backend/tests/claim_source_safety/test_wait_winners.py": {
+      "functions": [
+        {
+          "definition_line": 21,
+          "end_line": 41,
+          "line": 20,
+          "name": "test_sorted_all_status_admission_holds_lower_n_while_waiting_higher_before_rows",
+          "sha256": "9041c7f5e51e36e0a8c5f5f9731d49a452c869b649e6c844b6a584ca0810f3c3"
+        },
+        {
+          "definition_line": 45,
+          "end_line": 75,
+          "line": 44,
+          "name": "test_new_lower_membership_committed_during_n_wait_requires_fresh_retry",
+          "sha256": "e363db36f640e76760e53109f6caa5877c28d4dcb450a8bf735b70080e2b5067"
+        },
+        {
+          "definition_line": 79,
+          "end_line": 99,
+          "line": 78,
+          "name": "test_native_rechecks_real_acting_admin_after_n_wait_before_target_mutation",
+          "sha256": "935e52ee2af4e99ed702e97b2387bf8dbf65555637ef9d24bdd0d3a56a3e196e"
+        },
+        {
+          "definition_line": 103,
+          "end_line": 127,
+          "line": 102,
+          "name": "test_oidc_locked_repeat_refuses_actual_identity_winner_after_n_wait",
+          "sha256": "b1e4f588752252019682e3bad11673baac6644759be23e915db3081cd5f2efd2"
+        },
+        {
+          "definition_line": 131,
+          "end_line": 154,
+          "line": 130,
+          "name": "test_cancel_actual_owned_n_wait_yields_retry_without_reconnect_or_domain_writes",
+          "sha256": "21513e21619b2038d4bdc2bb8730a07b34985971fb0db978e2e7e251cba5c44e"
+        }
+      ],
+      "lines": 154,
+      "sha256": "1adc66f84c69b02032194707e87cd1af9a67ddaa3c2bf63d9e48a4c60aef623e"
+    },
+    "backend/tests/qr_http_ownership_safety/auth_setup.py": {
+      "functions": [
+        {
+          "definition_line": 21,
+          "end_line": 46,
+          "line": 21,
+          "name": "native_session",
+          "sha256": "271669587825d8c59bab67ad076d6ba81f6a4641ab22ca9a2c446678475a2b94"
+        },
+        {
+          "definition_line": 49,
+          "end_line": 50,
+          "line": 49,
+          "name": "authenticate",
+          "sha256": "8d8c101bb3d9d74e63cac9acd207651f3034c652a50b8a489f73560f72e7932a"
+        },
+        {
+          "definition_line": 53,
+          "end_line": 86,
+          "line": 53,
+          "name": "claim_session",
+          "sha256": "0a50cb7c6e83cdf590f2d5cb675946f877726a7f6730f83d4cc05ff89a595223"
+        },
+        {
+          "definition_line": 89,
+          "end_line": 95,
+          "line": 89,
+          "name": "freeze",
+          "sha256": "79125d71153b6c519b318f384e430a18d8201ae966c868828e378d8d29d28bf3"
+        }
+      ],
+      "lines": 98,
+      "sha256": "2f25a6889d0eb0019314abdcb3cd9c580ecb5db80e3a9da564717790aafae1f2"
+    },
+    "backend/tests/qr_http_ownership_safety/p_protocol.py": {
+      "functions": [
+        {
+          "definition_line": 13,
+          "end_line": 84,
+          "line": 13,
+          "name": "full_dispatch",
+          "sha256": "feb202cbf71458c75f2df1ce86fa6cde82c028301ddaf464eb8fd1813bd6320d"
+        },
+        {
+          "definition_line": 87,
+          "end_line": 108,
+          "line": 87,
+          "name": "refused_dispatch",
+          "sha256": "49b27dbc5eb834e88535642d37317abf0c97d266273410734f478f8fd4e219ce"
+        },
+        {
+          "definition_line": 18,
+          "end_line": 24,
+          "line": 18,
+          "name": "cleanup_observation",
+          "sha256": "a99221ab5b06ed749e9d8b809fa0c9cd964c9321b60d499e62a10aac073613cc"
+        },
+        {
+          "definition_line": 26,
+          "end_line": 33,
+          "line": 26,
+          "name": "operation",
+          "sha256": "0fc35425a7cbaee71ebcf5f70f13b954e949ef6481ba9fc61b68125afe1e6714"
+        },
+        {
+          "definition_line": 30,
+          "end_line": 32,
+          "line": 30,
+          "name": "call",
+          "sha256": "8f1dc89af68d4cda0aa179650c54df8bc18695400c100065d57909cfcb691efe"
+        }
+      ],
+      "lines": 108,
+      "sha256": "16146d1acd8ff725227a489fe4091710bc0450c97069a366a256f057f602876d"
+    },
+    "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py": {
+      "functions": [
+        {
+          "definition_line": 20,
+          "end_line": 47,
+          "line": 19,
+          "name": "test_actual_native_last_used_update_and_qr_audit_stay_under_same_p",
+          "sha256": "cdcc5656d7acfe149a82a12ecae1a956a27972369ce42afa19430360a19dd242"
+        },
+        {
+          "definition_line": 52,
+          "end_line": 85,
+          "line": 50,
+          "name": "test_legacy_fault_invalid_claim_cleanup_updates_presence_and_audit_under_p_and_owner_n",
+          "sha256": "d8acbd0742fb9f3665553f398ae3180a49f711e70620a248d906be717cfe7912"
+        },
+        {
+          "definition_line": 89,
+          "end_line": 101,
+          "line": 88,
+          "name": "test_valid_claim_policy_still_refuses_403_without_presence_cleanup_under_p",
+          "sha256": "35051fd848a6caa9243a0126c63b6295da407a7e0f5d333e0ae693e22fff4dfb"
+        }
+      ],
+      "lines": 101,
+      "sha256": "334ed4efe588cb3c303b9dd6d037601095d6ab79e89db1e339c5a2f59c53ddf6"
+    }
+  },
+  "new_file_count": 14,
+  "new_static_case_products": 50,
+  "new_test_functions": 24,
+  "products": [
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_issue_ordering.py",
+      "function": "test_actual_issue_membership_winner_precedes_oidc_user_lock_without_deadlock",
+      "static_products": 1
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_issue_ordering.py",
+      "function": "test_native_user_winner_claim_hook_locks_only_self_while_issuer_holds_membership",
+      "static_products": 1
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "invalid",
+          "values": [
+            "revoked",
+            "expired-row"
+          ]
+        },
+        {
+          "arguments": "gate",
+          "values": [
+            "quiesced",
+            "opaque"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_legacy_cleanup.py",
+      "function": "test_legacy_fault_cleanup_defers_401_without_any_auth_domain_or_audit_write",
+      "static_products": 4
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "invalid",
+          "values": [
+            "revoked",
+            "expired-row"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_legacy_cleanup.py",
+      "function": "test_cancel_actual_legacy_cleanup_n_wait_defers_401_without_dml",
+      "static_products": 2
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_legacy_cleanup.py",
+      "function": "test_legacy_cleanup_uses_database_owner_not_forged_token_or_request_tenant",
+      "static_products": 1
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_legacy_cleanup.py",
+      "function": "test_legacy_fault_claim_provenance_changed_during_claim_row_wait_defers_without_foreign_write",
+      "static_products": 1
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "claim_lab",
+          "values": [
+            1
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_oidc_origin.py",
+      "function": "test_real_dedicated_origin_raw_prehold_can_transition_unchanged_single_maker",
+      "static_products": 1
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_oidc_origin.py",
+      "function": "test_dedicated_higher_origin_with_new_lower_target_scope_returns_friendly_retry",
+      "static_products": 1
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "invalid,code",
+          "values": [
+            [
+              "unverified",
+              "identity_conflict"
+            ],
+            [
+              "wrong-email",
+              "identity_conflict"
+            ],
+            [
+              "foreign-subject",
+              "identity_conflict"
+            ],
+            [
+              "current-provider",
+              "provider_already_linked"
+            ],
+            [
+              "autolink-off",
+              "account_link_required"
+            ]
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_oidc_precedence.py",
+      "function": "test_invalid_full_identity_preflight_precedes_foreign_frozen_n",
+      "static_products": 5
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_opaque.py",
+      "function": "test_opaque_other_owned_tenant_refuses_without_any_domain_mutation",
+      "static_products": 2
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_raw_same_key_reuses_original_reference_despite_queued_exclusive",
+      "static_products": 1
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_genuinely_new_lower_n_refused_before_any_acquisition_or_identity_row_lock",
+      "static_products": 1
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "loss",
+          "values": [
+            "connection",
+            "transaction"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_actual_raw_owner_loss_is_strict_unavailable_without_reconnect_or_writes",
+      "static_products": 2
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_p_key_zero_is_not_tenant_admission",
+      "static_products": 1
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_raw_same_key_reuse_still_checks_fresh_quiesced_state",
+      "static_products": 1
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "key",
+          "values": [
+            0,
+            "actualMaker"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_raw_boundaries.py",
+      "function": "test_retained_raw_shared_owner_refuses_exclusive_upgrade",
+      "static_products": 2
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc",
+            "service"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_transitions.py",
+      "function": "test_open_all_owned_ns_precede_rows_and_retain_original_locks_through_commit",
+      "static_products": 3
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc"
+          ]
+        },
+        {
+          "arguments": "membership_status",
+          "values": [
+            "active",
+            "revoked"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_transitions.py",
+      "function": "test_one_quiesced_membership_of_any_status_refuses_entire_transition",
+      "static_products": 4
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc",
+            "service"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_transitions.py",
+      "function": "test_real_audit_insert_failure_rolls_back_complete_transition_under_retained_ns",
+      "static_products": 3
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_wait_winners.py",
+      "function": "test_sorted_all_status_admission_holds_lower_n_while_waiting_higher_before_rows",
+      "static_products": 2
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_wait_winners.py",
+      "function": "test_new_lower_membership_committed_during_n_wait_requires_fresh_retry",
+      "static_products": 2
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "change",
+          "values": [
+            "deactivated",
+            "demoted",
+            "suspended",
+            "must-change"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_wait_winners.py",
+      "function": "test_native_rechecks_real_acting_admin_after_n_wait_before_target_mutation",
+      "static_products": 4
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "winner",
+          "values": [
+            "target-email",
+            "provider-subject",
+            "membership-revoked"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_wait_winners.py",
+      "function": "test_oidc_locked_repeat_refuses_actual_identity_winner_after_n_wait",
+      "static_products": 3
+    },
+    {
+      "dimensions": [
+        {
+          "arguments": "kind",
+          "values": [
+            "native",
+            "oidc"
+          ]
+        }
+      ],
+      "file": "backend/tests/claim_source_safety/test_wait_winners.py",
+      "function": "test_cancel_actual_owned_n_wait_yields_retry_without_reconnect_or_domain_writes",
+      "static_products": 2
+    }
+  ],
+  "review_notes": [
+    "Original Stage3 writer authored48 products and was interrupted after repeated metadata/diff preparation; no final model response was delivered. Finite code authoring completed and was independently reviewed. Separate tiny Stage3 appended exactly2 actual raw-holder exclusive-upgrade negatives.",
+    "Bounded fixture correction supplies actual HTTP_HOST=testserver plus legitimate INFRA_HOSTS/ALLOWED_HOSTS. Tenant middleware and source/auth guards remain enabled.",
+    "Sixteen old cleanup cases explicitly model inconsistent legacy/fault rows; authoritative-own N is now required before claim lock, actual Presence UPDATE, tenant Audit INSERT and cleanup commit while original P and status/full-row proofs remain.",
+    "Unchanged native telemetry and valid-claim refusal control function bodies retain original decorated-site hashes; all13 other original HTTP suite files unchanged.",
+    "Root reproduced strict actual issue/native deadlock (1pass1failure); separate gated one-line Maker NO KEY UPDATE correction leaves race expectations unchanged.",
+    "Counts are AST-authored static products, not collection or pass claims. Root executes immutable snapshots."
+  ],
+  "reviewer": "/root/audit_backend_finish",
+  "root_command": "python -m pytest -q tests/claim_source_safety tests/qr_http_ownership_safety",
+  "source_inputs": {
+    "backend/apps/accounts/admin_user_control.py": {
+      "lexical_owner_denominator_in_file": 10,
+      "lines": 214,
+      "not_individually_adjudicated_owners": [
+        "ControlUserChangeForm",
+        "ControlUserChangeForm.clean",
+        "UserControlAdminMixin",
+        "UserControlAdminMixin.get_form",
+        "UserControlAdminMixin.save_model",
+        "_change_url",
+        "api_exception_message"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 129,
+          "exact_site_sha256": "b45cf49c863a546908d144842d2c11c3d27ee45aa6ceab5efb1f6f79d45a1b63",
+          "line": 117,
+          "owner": "UserControlAdminMixin.user_change_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 198,
+          "exact_site_sha256": "4a3ce9604b4bbddbf148b42fda160027c894e50fb7d9ad264558c5a362906760",
+          "line": 131,
+          "owner": "UserControlAdminMixin._user_change_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 156,
+          "exact_site_sha256": "b79636258faa97bf0ad57d17e0d50240887cb0d0d90ebcbd59a7207fa4206b24",
+          "line": 154,
+          "owner": "UserControlAdminMixin._user_change_password.write_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+      "sha256": "78489b4b6b4ac7850b4afaeefbd41e01cdb7cc8bb22401a6a8d3e613d7c6a3ff"
+    },
+    "backend/apps/accounts/claim_transition_gate.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 76,
+      "not_individually_adjudicated_owners": [],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 19,
+          "exact_site_sha256": "eeb0638a21b459176b760b6714121d63e05ccd9ed7124f5c07187bf1494b368b",
+          "line": 16,
+          "owner": "ClaimTransitionScopeChanged",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 27,
+          "exact_site_sha256": "3ffa6eb1f8997d593b10fa63af1f2c151c80a270d0ca673b568e556f3e2f40e9",
+          "line": 22,
+          "owner": "_membership_makerspace_ids",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 63,
+          "exact_site_sha256": "be9fdf90c067e7393678d28b7b7ab90669dd1b94514592725064f373c9fac777",
+          "line": 31,
+          "owner": "claim_transition_gate",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 76,
+          "exact_site_sha256": "88ca6a69df421c34f01693d3c4481de84b23a4848e274e10888e02efdf2bcc1e",
+          "line": 66,
+          "owner": "assert_claim_transition_scope",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+      "sha256": "64b9f6a8504fe7d1619da7ebcea3fc432a49475e62f25f1d1deae4f258c93a74"
+    },
+    "backend/apps/accounts/oidc_browser_resolution.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 149,
+      "not_individually_adjudicated_owners": [],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 36,
+          "exact_site_sha256": "cdcdf4ab075fee9853b2d991e50037eb93f13cd9e957582b64166563b4a3b8ba",
+          "line": 27,
+          "owner": "resolve_browser_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 128,
+          "exact_site_sha256": "9a4529b6018e8d90126c33e622748cddf7991e89d80edb71bc965e19697831c7",
+          "line": 39,
+          "owner": "_transition_bound_walk_in",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 110,
+          "exact_site_sha256": "9c0791a3ce27b2e0575007350866ead0603d3383a01290fb77460ff75b0844f7",
+          "line": 93,
+          "owner": "_transition_bound_walk_in.link_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 149,
+          "exact_site_sha256": "4978867d2b9c74373b7c2a0e1fe10d65ecf049118c7396d9fae4870f30a8d745",
+          "line": 131,
+          "owner": "_validate_bound_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+      "sha256": "cbdf7613dff7aef07f74f8ae9c6908de13c1a93d5767f5d58491e30f4dea6339"
+    },
+    "backend/apps/accounts/services_claim.py": {
+      "lexical_owner_denominator_in_file": 16,
+      "lines": 289,
+      "not_individually_adjudicated_owners": [
+        "ClaimCodeError",
+        "ClaimCodeIneligible",
+        "IssuedClaimCode",
+        "_normalized_code",
+        "_digest",
+        "_raw_code",
+        "_locked_target",
+        "_credential_free_walk_in",
+        "issue_claim_code",
+        "active_claim_codes",
+        "revoke_claim_code",
+        "consume_claim_code",
+        "_audit_redemption",
+        "_revoke_locked_claim",
+        "register_transition_revocation"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 273,
+          "exact_site_sha256": "777bc997660d3c108c6ef359c3309a5b282a29e57c6a6463a6fcbc244dac1abd",
+          "line": 266,
+          "owner": "_revoke_transition_claim_state",
+          "purpose": "claim hook locks claim rows only rather than joined membership",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "claim hook locks claim rows only rather than joined membership",
+      "sha256": "f2d09749e57d5f084acab1ed247e80921259f89e8d4f307bfea97be358968368"
+    },
+    "backend/apps/accounts/transition_services.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 86,
+      "not_individually_adjudicated_owners": [
+        "WalkInTransitionError",
+        "register_walk_in_revocation_hook",
+        "unregister_walk_in_revocation_hook"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 86,
+          "exact_site_sha256": "2fd2b76747be89df4c8909c75332ce3861a2c1f22a201b0284e5c8448c635d5c",
+          "line": 49,
+          "owner": "transition_walk_in_to_account",
+          "purpose": "canonical atomic global walk-in conversion under retained source admission",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "canonical atomic global walk-in conversion under retained source admission",
+      "sha256": "744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b"
+    },
+    "backend/apps/accounts/views_oidc_browser.py": {
+      "lexical_owner_denominator_in_file": 6,
+      "lines": 185,
+      "not_individually_adjudicated_owners": [
+        "_error",
+        "OidcBrowserStartView",
+        "OidcBrowserStartView.post",
+        "OidcBrowserCallbackView",
+        "_audit_failure"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 174,
+          "exact_site_sha256": "213d648eacd01329adbabf05f8f111fde3fca3d3cd0b67c34177ee8cee8d0655",
+          "line": 115,
+          "owner": "OidcBrowserCallbackView.post",
+          "purpose": "typed423 callback OpenAPI response contract",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "typed423 callback OpenAPI response contract",
+      "sha256": "625497fa023dfd72e9651bf17b831d8129f23bb7bff1e2dee98d60bdf6fff653"
+    },
+    "backend/apps/makerspaces/staff_authority.py": {
+      "lines": 70,
+      "purpose": "Confirmed real issuer/native deadlock: Maker NO KEY UPDATE retains metadata serialization while allowing deferred audit FK KEY SHARE.",
+      "sha256": "c6ea7cdab5410417e496099859e83c042ecce44ea71eacd8d100886e8fc15646"
+    },
+    "backend/apps/presence/services.py": {
+      "lexical_owner_denominator_in_file": 8,
+      "lines": 239,
+      "not_individually_adjudicated_owners": [
+        "_active_sessions",
+        "start_session",
+        "current_session",
+        "end_session",
+        "end_sessions_for_membership",
+        "_validate_claim_scope"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 204,
+          "exact_site_sha256": "52a9f7d55efb2d9675305fd94bafc733d9d6af4dfd4e22b88c17d904f97d61cb",
+          "line": 144,
+          "owner": "end_sessions_for_claim",
+          "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 231,
+          "exact_site_sha256": "abc4f1aff2bd18c65ab1dd8a34c4cf82f66b05386840b52a3ee9beb25c342b35",
+          "line": 207,
+          "owner": "expire_claim_presence",
+          "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+      "sha256": "161ed10efb97742958023ba7d79a83ba7844896cf746ec06197f068e028c4c77"
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "lexical_owner_denominator_in_file": 25,
+      "lines": 280,
+      "not_individually_adjudicated_owners": [
+        "acquire_shared",
+        "acquire_exclusive",
+        "acquire_unscoped_writer_shared",
+        "acquire_unscoped_writer_exclusive",
+        "try_acquire_exclusive",
+        "_execute_transaction",
+        "_execute",
+        "_BoundarySharedLock",
+        "_new_lock_connection",
+        "exclusive_boundary",
+        "_BoundaryExclusiveLock",
+        "_BoundaryExclusiveLock.__init__",
+        "_BoundaryExclusiveLock.verified_connection",
+        "unscoped_writer_shared_boundary",
+        "shared_transaction"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 72,
+          "exact_site_sha256": "5160c0c35a2b91f8205dee713c5ca78af90d6c512c0e7b12b3d146d6e32affe9",
+          "line": 61,
+          "owner": "shared_boundary",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 79,
+          "exact_site_sha256": "d130eaf1b56ac5155c56824a0efa7d41ddf8cfbe9d63227a275ca63deaaedbc4",
+          "line": 75,
+          "owner": "_retained_shared_lock_keys",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 88,
+          "exact_site_sha256": "643881c2e16de95739ec705e04cf17ef0829e20b04209603f6faec256fad67dd",
+          "line": 82,
+          "owner": "_reuse_shared_boundary",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 99,
+          "exact_site_sha256": "7afe23c71fb621068b1b73df3766d4014ce538f8a523dd74fc3ccdb9398724a3",
+          "line": 94,
+          "owner": "_BoundarySharedLock.__init__",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 129,
+          "exact_site_sha256": "40b4a4be58f23b4288f0603391ec27734335da0a188413b5a37379abfecde56b",
+          "line": 101,
+          "owner": "_BoundarySharedLock.acquire",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 134,
+          "exact_site_sha256": "e3dfaa6918578940451de2e2bb819b193796ce6725a1bfc667b1e3ea0519f239",
+          "line": 131,
+          "owner": "_BoundarySharedLock.verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 155,
+          "exact_site_sha256": "fe5e4bea850a7c44041b92011b38710c6dce82a7b37bd75e5630ea3e83937e1b",
+          "line": 136,
+          "owner": "_BoundarySharedLock._verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 176,
+          "exact_site_sha256": "293bfb9609c5b6bd3ed962931e989eb8f1ac4cd40902612f7aaf10b64a1c85b0",
+          "line": 157,
+          "owner": "_BoundarySharedLock.release",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 233,
+          "exact_site_sha256": "ba776a906a9ffe5f626bc5bb097b5d384e58352337fcffcfcf83a847c6ed4b7d",
+          "line": 218,
+          "owner": "_BoundaryExclusiveLock.acquire",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 260,
+          "exact_site_sha256": "43a714ebb9b98700d5c3c1157d16bc7636770c162c895621076670bec774e3d1",
+          "line": 241,
+          "owner": "_BoundaryExclusiveLock._verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+      "sha256": "6373a633d6673b8297f42d1e52e4a13ed8f2c7bfcdf420e80c8608bf47d786d3"
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "lexical_owner_denominator_in_file": 10,
+      "lines": 217,
+      "not_individually_adjudicated_owners": [
+        "fanout_tenant_write",
+        "_exclusive_boundary_connection",
+        "assert_request_write_allowed",
+        "tenant_write",
+        "source_archive_write",
+        "source_archive_boundary"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 38,
+          "exact_site_sha256": "386dc54a7c575046a052f33007b25703e08d2db4211a606c2c1bf0271d395135",
+          "line": 23,
+          "owner": "assert_write_allowed",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 64,
+          "exact_site_sha256": "088678bf89c45dd40186a6ae2db1ef28cebae319c5b3b6c39dca01e5c9a6f231",
+          "line": 41,
+          "owner": "_assert_gate_state",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 110,
+          "exact_site_sha256": "13cfcb8d7e0cefedf666988d4ef6ac0d4967b4541ce1a75fcf71f597ccfa1125",
+          "line": 68,
+          "owner": "boundary_tenant_write",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 217,
+          "exact_site_sha256": "a1140df22b7964e4e8a3271666c2ee5ee971720dd358b37df76bbf2759ec25a5",
+          "line": 210,
+          "owner": "assert_boundary_held",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+      "sha256": "3cab13fd351ebde0ce5cc147f482a7b3897a9f2097506daba8b607ca0978f269"
+    }
+  },
+  "status": "All authors exited; all14 new files and bounded three old473-file deltas independently read. Root runtime underway; no child runtime."
+}

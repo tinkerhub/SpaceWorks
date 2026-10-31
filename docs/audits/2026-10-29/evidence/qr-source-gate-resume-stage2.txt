@@ -1,0 +1,22 @@
+Stage 2 source implementation is complete on `dev`. Confirmed: the previous Stage 2 stopped **before edits**.
+
+Admission now precedes row locks, retains through commit, and checks fresh ownership and authorization after waits. No Maker locks were added to revoke/rebind.
+
+| File | Lines | Change |
+|---|---:|---|
+| [api_views_qr.py](backend/apps/boxes/api_views_qr.py:91) | 275 | Tool, scan/resolve, revoke and rebind admission |
+| [services.py](backend/apps/boxes/services.py:83) | 107 | Shared revoke |
+| [access.py](backend/apps/boxes/access.py:24) | 34 | Unlocked preflight and tenant-bound target locking |
+| [rebind.py](backend/apps/boxes/rebind.py:17) | 173 | Source/destination preflight and retained admission |
+| [asset_rebind.py](backend/apps/boxes/asset_rebind.py:32) | 264 | Admitted identities and fresh ownership checks |
+| [qr_admission.py](backend/apps/boxes/qr_admission.py:17) | 137 | New local admission helpers |
+| [admin_qr_lifecycle.py](backend/apps/boxes/admin_qr_lifecycle.py:95) | 229 | New native lifecycle wrapper; extracted form |
+| [boxes/admin.py](backend/apps/boxes/admin.py:62) | 222 | Lifecycle → canonical audit → superuser MRO |
+| [services_qr_assets.py](backend/apps/operations/services_qr_assets.py:97) | 188 | Generation admission; keyword-only `native=False` |
+| [inventory/admin.py](backend/apps/inventory/admin.py:158) | 175 | Sole change: native caller passes `native=True` |
+
+API generation’s existing caller remains unchanged.
+
+AST/static verification passed: frozen Box code, Print GET, generation mutation body, and asset warranty/quantity/scan/audit sequence remain unchanged. All files are ≤300 lines. The four strict QUIESCED **423** cases and QR shared helper are untouched. [Static report](/tmp/spaceworks-qr-source-resume-static.txt).
+
+No tests, runtime/Django imports, builds, staging, or commits performed. Runtime verification remains with root; no runtime hold imposed. Existing Django bulk `LogEntry` attempts may survive failed deletion; canonical audit and deletion roll back together.

@@ -1,0 +1,484 @@
+FFFFFFFFFFFFFFF........................                                  [100%]
+=================================== FAILURES ===================================
+______ test_exact_forwarding_and_process_effective_settings[default-base] ______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'base', case = 'default'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'base'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+______ test_exact_forwarding_and_process_effective_settings[default-prod] ______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'prod', case = 'default'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'prod'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_____ test_exact_forwarding_and_process_effective_settings[default-cloud] ______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'cloud', case = 'default'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser..., 'API_CLIENT_AUTH_REQUIRED': 'False', 'API_CLIENT_ENC_KEY': '[REDACTED_DETERMINISTIC_FIXTURE_KEY]', ...}, ...}
+profile = 'cloud'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_______ test_exact_forwarding_and_process_effective_settings[blank-base] _______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'base', case = 'blank'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'base'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_______ test_exact_forwarding_and_process_effective_settings[blank-prod] _______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'prod', case = 'blank'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'prod'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+______ test_exact_forwarding_and_process_effective_settings[blank-cloud] _______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'cloud', case = 'blank'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser..., 'API_CLIENT_AUTH_REQUIRED': 'False', 'API_CLIENT_ENC_KEY': '[REDACTED_DETERMINISTIC_FIXTURE_KEY]', ...}, ...}
+profile = 'cloud'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+____ test_exact_forwarding_and_process_effective_settings[configured-base] _____
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'base', case = 'configured'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'base'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+____ test_exact_forwarding_and_process_effective_settings[configured-prod] _____
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'prod', case = 'configured'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'prod'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+____ test_exact_forwarding_and_process_effective_settings[configured-cloud] ____
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'cloud', case = 'configured'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...', 'API_CLIENT_AUTH_REQUIRED': 'True', 'API_CLIENT_ENC_KEY': '[REDACTED_DETERMINISTIC_FIXTURE_KEY]', ...}, ...}
+profile = 'cloud'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_____ test_exact_forwarding_and_process_effective_settings[off_zero-base] ______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'base', case = 'off_zero'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'base'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_____ test_exact_forwarding_and_process_effective_settings[off_zero-prod] ______
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'prod', case = 'off_zero'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'prod'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_____ test_exact_forwarding_and_process_effective_settings[off_zero-cloud] _____
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'cloud', case = 'off_zero'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser..., 'API_CLIENT_AUTH_REQUIRED': 'False', 'API_CLIENT_ENC_KEY': '[REDACTED_DETERMINISTIC_FIXTURE_KEY]', ...}, ...}
+profile = 'cloud'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+________ test_exact_forwarding_and_process_effective_settings[kms-base] ________
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'base', case = 'kms'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'base'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+________ test_exact_forwarding_and_process_effective_settings[kms-prod] ________
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'prod', case = 'kms'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...: 'security-env-contract_makerspace_manager_pgdata'}, 'minio_data': {'name': 'security-env-contract_minio_data'}}, ...}
+profile = 'prod'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+_______ test_exact_forwarding_and_process_effective_settings[kms-cloud] ________
+
+security_env_runtime = (<function security_env_runtime.<locals>.resolve at 0xffffb6b6e840>, {'PATH': '/usr/lib/postgresql/16/bin:/usr/local/b...ing0', 'DOCKER_CONFIG': '/tmp/pytest-of-root/pytest-0/security-env-forwarding0/docker-config', 'LANG': 'C.UTF-8', ...})
+profile = 'cloud', case = 'kms'
+
+    @pytest.mark.parametrize("profile", PROFILES)
+    @pytest.mark.parametrize("case", CASES)
+    def test_exact_forwarding_and_process_effective_settings(security_env_runtime, profile, case):
+        resolve, runtime_environment = security_env_runtime
+        _, expected = scenario(case)
+        document = resolve(profile, case)
+>       for name, environment in application_environments(document, profile):
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_security_env_forwarding.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+document = {'name': 'security-env-contract', 'networks': {'default': {'name': 'security-env-contract_default', 'ipam': {}}}, 'ser...', 'API_CLIENT_AUTH_REQUIRED': 'True', 'API_CLIENT_ENC_KEY': '[REDACTED_DETERMINISTIC_FIXTURE_KEY]', ...}, ...}
+profile = 'cloud'
+
+    def application_environments(document, profile):
+        roles = CLOUD_ROLES if profile == "cloud" else APP_ROLES
+        services = document.get("services", {})
+        actual_apps = {
+            name for name, service in services.items()
+>           if service.get("command", [])[:1] == ["--role"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_security_env_forwarding.py:33: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[default-base]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[default-prod]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[default-cloud]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[blank-base]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[blank-prod]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[blank-cloud]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[configured-base]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[configured-prod]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[configured-cloud]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[off_zero-base]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[off_zero-prod]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[off_zero-cloud]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[kms-base]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[kms-prod]
+FAILED tests/test_security_env_forwarding.py::test_exact_forwarding_and_process_effective_settings[kms-cloud]
+15 failed, 24 passed in 12.42s

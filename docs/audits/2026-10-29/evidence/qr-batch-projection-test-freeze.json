@@ -1,0 +1,74 @@
+{
+  "format": "spaceworks-qr-batch-projection-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "new_backend_cases_static": 18,
+  "new_frontend_cases_static": 5,
+  "runtime_status": "Root backend30PASS35.65s at historical admin193/source snapshot (18new+3native/snapshotcompat+9OpenAPI); corrected frontend5PASS3.70s with chained TypeScript/session3170 exit0. Later native-inline208 delta still pending.",
+  "files": [
+    {
+      "path": "backend/tests/qr_batch_projection_safety/conftest.py",
+      "lines": 8,
+      "static_cases": 0,
+      "sha256": "bf85fcf2513a32e4c8a4d601b993c9162aeb12e0c0887930521ef66835f22206",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/helpers.py",
+      "lines": 139,
+      "static_cases": 0,
+      "sha256": "b0a94cd21d246bfd5aeb0e15421426f0e15139b6da2808455e3dfc4f46ae9e19",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/test_detail.py",
+      "lines": 66,
+      "static_cases": 6,
+      "sha256": "e4626331b5d972b06bd5fbc2916e76953b011c6897b79b415b7447fab14567a4",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/test_download.py",
+      "lines": 62,
+      "static_cases": 6,
+      "sha256": "c1721d21208653f9f75840185280278b4921f0da9b6ae841335f62be88712dfc",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/test_native_download.py",
+      "lines": 60,
+      "static_cases": 5,
+      "sha256": "b3b1ca7ce57a492f36c798859371041d66dae17a2599b50221e559fd6c0dfad6",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/test_schema.py",
+      "lines": 50,
+      "static_cases": 1,
+      "sha256": "fa5b6ac6d31f3222bf2394beeb4c10d4bfed100f5f4b34385f6581702511a511",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/qr_batch_projection_safety/zip_helpers.py",
+      "lines": 31,
+      "static_cases": 0,
+      "sha256": "7de2dff5eaa1a76abf38def813e9604653cdee35cde4d29ee896879827b87714",
+      "compatibility_fixture_only": false
+    },
+    {
+      "path": "backend/tests/test_admin_monitoring.py",
+      "lines": 196,
+      "static_cases": 0,
+      "sha256": "e247c9fe65f790234b6073cdedc5fc7923d24b2937876e2df340c7f67f42f22a",
+      "compatibility_fixture_only": true
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QrToolsBatch.projection.test.tsx",
+      "lines": 144,
+      "static_cases": 5,
+      "sha256": "2a8ce9fc28855522abf85d6a241803576f8299cacf0265472ea55d1512a26d76",
+      "compatibility_fixture_only": false,
+      "prior_sha256": "064f5811d885821375dac61140f176c4fc35e640e4b1b92e5cb8192c148c672f"
+    }
+  ],
+  "fixture_correction": "Node Response could not consume jsdom Blob.stream in one test. Only synthetic response body changed to string bytes with same ZIP MIME; real mutation/fetch/download/body assertions unchanged."
+}

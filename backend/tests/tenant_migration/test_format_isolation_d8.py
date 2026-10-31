@@ -1,5 +1,6 @@
 import uuid
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from django.utils import timezone
@@ -19,6 +20,7 @@ from apps.tenant_migration import archive_envelope, tenant_dump_envelope
 from apps.tenant_migration.tenant_dump_errors import TenantDumpVerificationError
 from apps.tenant_migration.tenant_dump_lineage import FORMAT
 from apps.tenant_migration.tenant_dump_manifest import _valid_key_inventory
+from tests.backup.full_backup_fixture_helpers import make_full_fixture
 
 
 pytestmark = pytest.mark.django_db
@@ -46,7 +48,7 @@ def test_host_import_rejects_lane_d_before_storage_or_database_mutation(
     uploads = []
     monkeypatch.setattr(storage, "upload_archive", lambda *args: uploads.append(args))
 
-    with pytest.raises(ValidationError, match="Phase 5A full-deployment"):
+    with pytest.raises(ValidationError) as refused:
         import_disaster_archive(
             _superuser(),
             artifact,
@@ -59,9 +61,54 @@ def test_host_import_rejects_lane_d_before_storage_or_database_mutation(
             expected_sha256="0" * 64,
         )
 
+    assert [str(detail) for detail in refused.value.detail] == [
+        "Authenticated full bundle admission is required for import."
+    ]
     assert uploads == []
     assert BackupArchive.objects.count() == 0
     assert RestoreOperation.objects.count() == 0
+
+
+def test_complete_host_inputs_reach_real_lane_d_format_refusal(monkeypatch, tmp_path):
+    fixture = make_full_fixture(tmp_path)
+    # Complete bundle inputs isolate format validation from the earlier missing-input
+    # refusal. A Lane-D tag can never enter the signed-full deployment importer.
+    fixture.manifest["format"] = FORMAT
+    fixture.write()
+    client, upload, delete = Mock(), Mock(), Mock()
+    monkeypatch.setattr(storage, "client", client)
+    monkeypatch.setattr(storage, "upload_archive", upload)
+    monkeypatch.setattr(storage, "delete_archive", delete)
+    actor = _superuser()
+    before = (BackupArchive.objects.count(), RestoreOperation.objects.count(),
+              DeploymentRecoveryState.objects.count())
+
+    with pytest.raises(ValidationError) as refused:
+        import_disaster_archive(
+            actor, fixture.encrypted, fixture.manifest,
+            expected_sha256=fixture.kwargs()["expected_sha256"],
+            bundle=fixture.bundle, manifest_file=fixture.manifest_file,
+            continuity_secrets_file=fixture.secrets_file,
+        )
+
+    assert [str(detail) for detail in refused.value.detail] == [
+        "Import preflight refused [format_unsupported]: Restore refused [format_unsupported]: unknown archive format."
+    ]
+    # Installed-host routing refuses the unknown deployment type first. The
+    # independent static validator must also retain its specific Lane-D refusal.
+    from apps.backup.import_preflight import ImportPreflightError, validate_import_preflight
+
+    with pytest.raises(ImportPreflightError) as static_refusal:
+        validate_import_preflight(**fixture.kwargs(), require_host_support=False)
+    assert static_refusal.value.reason == "format_lane_d"
+    assert str(static_refusal.value) == (
+        "Import preflight refused [format_lane_d]: a Lane D tenant dump is not a deployment archive."
+    )
+    client.assert_not_called()
+    upload.assert_not_called()
+    delete.assert_not_called()
+    assert (BackupArchive.objects.count(), RestoreOperation.objects.count(),
+            DeploymentRecoveryState.objects.count()) == before
 
 
 def test_ordinary_restore_request_rejects_lane_d_before_state_mutation():
@@ -125,7 +172,7 @@ def test_source_broker_wrapped_dek_value_is_not_an_allowed_inventory_field():
     assert _valid_key_inventory(inventory, 7) is False
 
 
-def test_lane_d_outer_manifest_has_a_strict_pre_decryption_allowlist():
+def test_legacy_v1_lane_d_outer_manifest_has_a_strict_pre_decryption_allowlist():
     builder = getattr(tenant_dump_envelope, "build_outer_manifest", None)
     assert callable(builder), "Lane D needs a separately readable outer-manifest builder."
     manifest = builder(
@@ -149,7 +196,7 @@ def test_lane_d_outer_manifest_has_a_strict_pre_decryption_allowlist():
     assert not ({"rows", "object_keys", "user_closure", "deks"} & set(manifest))
 
 
-def test_lane_d_outer_manifest_is_readable_and_bound_to_ciphertext(tmp_path):
+def test_legacy_v1_lane_d_outer_manifest_is_readable_and_bound_to_ciphertext(tmp_path):
     payload = tmp_path / "payload.age"
     payload.write_bytes(b"sealed-ciphertext")
     artifact = tmp_path / "tenant-dump.tar.age"

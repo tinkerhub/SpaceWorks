@@ -2,6 +2,7 @@ from dataclasses import replace
 from types import SimpleNamespace
 import uuid
 
+from apps.backup.compound_protocol import PROTOCOL_VERSION
 from apps.backup.compound_restore_types import CompoundRestoreInputs, CompoundTopologyFacts
 from apps.backup.host_marker import DatabaseIdentity
 from apps.backup.host_supervisor import HostMarkerTransition
@@ -192,7 +193,10 @@ class Artifact:
 
 class Capability:
     def validate(self, **_kwargs):
-        return {"validated": True, "record_sha256": "c" * 64}
+        return {
+            "validated": True, "record_sha256": "c" * 64,
+            "compound_protocol": PROTOCOL_VERSION, "migration_version": "fixture-migrations-v2",
+        }
 
 def invoke(monkeypatch, tmp_path, *, crash=None):
     events = []

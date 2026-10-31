@@ -8,4 +8,4 @@ from .models_import_job import TenantImportJob
 @receiver(post_delete, sender=TenantImportJob)
 def unlink_deleted_import_archive(sender, instance, **kwargs):
     """Remove the staged archive after every committed job-deletion path."""
-    schedule_import_archive_unlink(instance.archive_path, instance.pk)
+    schedule_import_archive_unlink(instance.archive_path, instance.pk, tenant_id=instance.target_makerspace_id)

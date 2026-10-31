@@ -1,0 +1,9 @@
+**CHANGES REQUIRED.** The cursor is warranted: outcome filtering alone leaves starvation behind frozen receipts and closed tenant gates. Keep the existing deletion and settlement logic intact.
+
+1. **Place progress in the shared writable `BACKUP_OPS_DIR`, while retaining the existing host lock.** The proposed lock-directory location is incompatible with production: Compose mounts only `work` and `operation.lock` separately, so a sibling cursor would not be shared between containers. The host parent is also root-owned `0750`, conflicting with current-user/private-directory checks. See [production mounts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/docker-compose.prod.yml:226) and [host permissions](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/setup-host-orchestration.sh:42). Using the existing `work` mount avoids deployment changes and preserves the lock inode. Add coverage for shared persistence across processes and both supported path layouts.
+
+2. **Separate preflight refusal from late persistence failure explicitly.** Invalid/untrusted cursor state must refuse before provider or quota work. A write/replace/directory-fsync failure **after** the sweep cannot promise zero effects: report `retained` with actual cleaned/skipped counts and a typed diagnostic that persistence is unconfirmed. After replacement followed by fsync failure, neither “old cursor unchanged” nor “new cursor durable” is guaranteed. Add fault-injection cases for these late failures, including retry without duplicate quota credit.
+
+Otherwise, the bounded keyset ring, advancement across every examined row, fresh outcome checks, fences, frozen exclusions, and byte-before-quota settlement are appropriate. Fix one expiry cutoff and high-water per call, and apply one combined `limit` across both disjoint ring segments.
+
+No files edited or tests run.

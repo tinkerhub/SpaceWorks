@@ -1,0 +1,277 @@
+
+> test
+> vitest run --run src/features/staff/panels/QrToolsBatch.projection.test.tsx
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [31m❯[39m src/features/staff/panels/QrToolsBatch.projection.test.tsx [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1533[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the exact historical snapshot with no HTTP fetch for a null QR [33m 330[2mms[22m[39m
+[31m     [31m×[31m prints only the allowed image in a partial batch and discloses available download[39m[33m 1109[2mms[22m[39m
+     [32m✓[39m disables an all-null batch, preserves each snapshot and dispatches no image requests[32m 56[2mms[22m[39m
+     [32m✓[39m disables an empty batch and never dispatches a print or download[32m 15[2mms[22m[39m
+     [32m✓[39m keeps the full-owned image and normal Download all control[32m 21[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/staff/panels/QrToolsBatch.projection.test.tsx[2m > [22mBatchLabels batch-local nullable QR projection[2m > [22mprints only the allowed image in a partial batch and discloses available download
+[31m[1mAssertionError[22m[39m: expected "click" to be called 1 times, but got 0 times
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"mb-4 flex flex-wrap items-start justify-between gap-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"font-sans text-title text-ink"[39m
+            [36m>[39m
+              [0mHistorical A batch[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-1 max-w-[70ch] text-body-ui text-ink-muted"[39m
+            [36m>[39m
+              [0m1 printable of 2 QR labels collected[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex max-w-full shrink-0 flex-wrap items-center gap-2"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px]"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"contents"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"inline-flex shrink-0 [&>svg]:size-[18px]"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-download"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 15V3"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m7 10 5 5 5-5"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</span>[39m
+                [0mDownload available (ZIP)[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid gap-3 sm:grid-cols-2 lg:grid-cols-4"[39m
+        [36m>[39m
+          [36m<article[39m
+            [33mclass[39m=[32m"grid gap-2 rounded-lg border border-line bg-canvas p-3 text-center"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid aspect-square place-items-center rounded-md border border-dashed border-line bg-canvas p-2 text-caption text-ink-muted"[39m
+            [36m>[39m
+              [0mQR unavailable[0m
+            [36m</div>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-label text-ink [overflow-wrap:anywhere]"[39m
+            [36m>[39m
+              [0mOriginal A drill &lt;snapshot&gt;[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+            [36m>[39m
+              [0mProduct[0m
+              [0m #[0m
+              [0m41[0m
+            [36m</p>[39m
+          [36m</article>[39m
+          [36m<article[39m
+            [33mclass[39m=[32m"grid gap-2 rounded-lg border border-line bg-canvas p-3 text-center"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"Original A unit label QR"[39m
+              [33mclass[39m=[32m"aspect-square w-full rounded-md border border-line bg-white p-2"[39m
+              [33msrc[39m=[32m"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0Pm93bmVkIGxhYmVsPC90ZXh0Pjwvc3ZnPg=="[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-label text-ink [overflow-wrap:anywhere]"[39m
+            [36m>[39m
+              [0mOriginal A unit label[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-caption text-ink-muted"[39m
+            [36m>[39m
+              [0mAsset[0m
+              [0m #[0m
+              [0m42[0m
+            [36m</p>[39m
+          [36m</article>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"flex items-start gap-2 rounded-lg bg-danger-bg px-3.5 py-2.5 text-sm text-danger-fg"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-circle-alert lucide-alert-circle mt-0.5 size-4 shrink-0"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"10"[39m
+            [36m/>[39m
+            [36m<line[39m
+              [33mx1[39m=[32m"12"[39m
+              [33mx2[39m=[32m"12"[39m
+              [33my1[39m=[32m"8"[39m
+              [33my2[39m=[32m"12"[39m
+            [36m/>[39m
+            [36m<line[39m
+              [33mx1[39m=[32m"12"[39m
+              [33mx2[39m=[32m"12.01"[39m
+              [33my1[39m=[32m"16"[39m
+              [33my2[39m=[32m"16"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"min-w-0"[39m
+          [36m>[39m
+            [0mobject.stream is not a function[0m
+          [36m</span>[39m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"pointer-events-none fixed inset-x-0 bottom-0 z-[140] flex flex-col items-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-start sm:p-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33maria-live[39m=[32m"assertive"[39m
+          [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"sw-toast-in pointer-events-auto flex w-full max-w-[460px] items-center gap-3 rounded-lg bg-inverse py-3 pl-4 pr-2 text-body-ui text-on-inverse shadow-float"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 [&_svg]:size-5"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-circle-x lucide-x-circle text-danger"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m15 9-6 6"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m9 9 6 6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"min-w-0 flex-1"[39m
+            [36m>[39m
+              [0mobject.stream is not a function[0m
+            [36m</p>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Dismiss"[39m
+              [33mclass[39m=[32m"inline-flex size-8 shrink-0 items-center justify-center rounded-full opacity-70 pointer-coarse:size-11 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-x size-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M18 6 6 18"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m6 6 12 12"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[36m [2m❯[22m src/features/staff/panels/QrToolsBatch.projection.test.tsx:[2m80:39[22m[39m
+    [90m 78|[39m     [34mexpect[39m(download)[33m.[39m[34mtoBeEnabled[39m()[33m;[39m
+    [90m 79|[39m     fireEvent[33m.[39m[34mclick[39m(download)[33m;[39m
+    [90m 80|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(click)[33m.[39m[34mtoHaveBeenCalledTimes[39m([34m1[39m))[33m;[39m
+    [90m   |[39m                                       [31m^[39m
+    [90m 81|[39m     expect(click.mock.instances[0]).toHaveAttribute("download", "qr-ba…
+    [90m 82|[39m     expect(click.mock.instances[0]).toHaveAttribute("href", "blob:owne…
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 02:46:56
+[2m   Duration [22m 4.48s[2m (transform 638ms, setup 237ms, import 1.10s, tests 1.53s, environment 1.43s)[22m
+

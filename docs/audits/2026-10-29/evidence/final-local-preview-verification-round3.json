@@ -1,0 +1,25 @@
+{
+  "status": "current-local-browser-rendering-verified",
+  "backend_restarted_from_current_checkout": true,
+  "existing_preview_secrets_preserved": true,
+  "staff_page": "http://localhost:55000/m/showcase-lab/admin/requests",
+  "staff_result": "Existing synthetic admin session restored; pending and accepted request tables loaded after refresh.",
+  "public_page": "http://localhost:55000/m/showcase-checkin",
+  "public_result": "Borrow with check-in; No account needed; typed name input and request-purpose form; no member-account/login/verification/2FA prompt. Correct singular one-item badge.",
+  "screenshot": "final-checkin-account-free-preview-round3-copy.jpg",
+  "screenshot_sha256": "748f6eb04416e7b727d5c2b4045a9701b013d0755f0a84db173537333fd4e767",
+  "staff_authority_sha256": "9a98797917bc2e69f363eb751912774c556ed4ce5c71d1d0e0509e91fbbc9102",
+  "limits": [
+    "Synthetic local data only; no request was submitted and no physical equipment moved.",
+    "Demo upstream roster deliberately unconfigured: browser rendering is not roster-identity verification.",
+    "Host-run developer preview lacks installed host marker; strict /health/readiness/ correctly returned503. Actual installed-host readiness/recovery is proved separately by the isolated seventh drill.",
+    "Current UI check does not certify production deployment or external provider configuration."
+  ],
+  "backend_current_after": "Payment and exact shutdown/admission source correction; preserved original77 environment values",
+  "current_source_sha256": {
+    "backend/apps/payments/amounts.py": "83349dbb4397ac58e302c404e9663beeccc7d92fcc37f8bb948a067eb02f3c75",
+    "backend/apps/payments/currency_rules.py": "9680966afb1c121928f429b873ecf9516f992a81345baae7d2322332b9247490",
+    "backend/apps/backup/host_restore_admission.py": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e"
+  },
+  "trivial_copy_proof": "inventory-badge-copy-closeout.json"
+}

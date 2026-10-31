@@ -1,0 +1,1221 @@
+{
+  "status": "all-171-original-failures-and-errors-have-passing-followup-evidence",
+  "baseline_tests": 11695,
+  "baseline_passed": 11510,
+  "baseline_failed": 158,
+  "baseline_errors": 13,
+  "baseline_skipped": 14,
+  "original_nonpassing_cases_resolved": 171,
+  "missing": 0,
+  "extra": 0,
+  "limits": [
+    "Original full run remains red; evidence combines frozen baseline with current affected-source followups.",
+    "Four explicitly documented stale installed-contract test remaps retain meaningful denial/zero-side-effect checks.",
+    "Focused runs overlap and are not an invented all-green full-suite rerun."
+  ],
+  "cases": [
+    {
+      "original_nodeid": "tests/accounts/test_login_methods_p10.py::test_a_refused_social_registration_is_audited",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_login_methods_p10.py::test_registration_off_still_lets_an_existing_identity_sign_in",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_login_methods_p10.py::test_self_registration_off_also_blocks_social_account_creation",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_apple_first_login_name_is_only_used_for_created_user",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_explicit_link_never_email_matches_and_last_credential_is_protected",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_member_refresh_rejects_public_api_client_origin",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_member_social_login_creates_global_user_and_surface_cookie",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_member_surface_token_cannot_call_staff_api_without_origin",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_nonce_is_single_use_and_origin_bound",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/accounts/test_social_auth.py::test_verified_provider_only_auto_links_verified_local_account",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_digests.py::test_preflight_accepts_v1_manifest_without_content_ledger",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_digests.py::test_preflight_rejects_altered_declared_bundle_file",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v2]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v3]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v3_preflight_refuses_missing_content_ledger",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_security.py::test_import_rejects_missing_expected_digest_before_storage",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_archive_e2.py::test_extracted_deployment_payload_stays_at_archive_root[False]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_archive_verification_e3.py::test_missing_slice_fails_before_main_exclusion_or_outer_encryption",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_restore_handoff_e9b.py::test_compound_backup_control_reaches_validated_coordinator_handoff",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "explicit_contract_remap"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_restore_handoff_e9b.py::test_legacy_path_refusal_names_missing_compound_handoff_inputs",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "explicit_contract_remap"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[backend-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[beat-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[cron-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[management-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[migrate-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[worker-restore-blocked]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_forged_descriptive_status_cannot_bypass_real_capability_denial",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[malformed-record]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[migration]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[missing-record]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[protocol]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[signer]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[writers]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[bad-digest]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[empty-migration]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[false-validation]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-digest]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-migration]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-protocol]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[not-dict]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[typed-migration]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[wrong-protocol]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_restore_order_e10.py::test_restore_grant_helper_uses_privileged_bootstrap_without_django",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_import_backup_script_host.py::test_failing_preflight_precedes_environment_and_service_mutation",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_not_restored_state_e7.py::test_component_state_identity_is_immutable_and_state_is_closed_enum",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_recovery_live_generation.py::test_real_old_queued_unacked_retry_eta_ids_never_execute_on_replacement_rows",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_b1_host_restore_uses_a_non_routable_sibling_until_cutover",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[before-first-reservation]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-declared]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-installed]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-declared]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-installed]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_host_supervisor_reprovisions_grants_before_post_restore_django",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_host_surfaces_e9b.py::test_every_legacy_pg_restore_reprovisions_before_later_django_commands",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "explicit_contract_remap"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_host_surfaces_e9b.py::test_legacy_wrapper_validates_before_claiming_or_pausing",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "explicit_contract_remap"
+    },
+    {
+      "original_nodeid": "tests/backup/test_semantic_reconstruction_e10.py::test_project_reconstructs_with_every_unsealed_slice_before_any_slice_is_sealed",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_signed_full_preflight.py::test_prospective_continuity_is_read_only_and_installed_values_must_agree",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_audit_scope.py::test_executables_and_unknown_files_inside_dated_audit_folder_still_need_review",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_derived.py::test_reviewed_output_exclusion_does_not_exclude_generator_source",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_actual_mjs_imports_meta_env_generator_and_private_output_are_discovered",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_dynamic_js_callee_is_opaque_and_needs_exact_explicit_review",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_heredoc_programs_use_sql_python_or_actual_js_parser[node <<'JS'\\nimport {db} from 'sql';\\ndb.query('DELETE FROM x');\\nJS\\n-raw_sql-sql.db.query]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_heredoc_programs_use_sql_python_or_actual_js_parser[psql <<'SQL'\\nUPDATE x SET a=1;\\nSQL\\n-raw_sql-None]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_heredoc_programs_use_sql_python_or_actual_js_parser[python3 <<'PY'\\nfrom adapter import s3\\ns3.copy_object(Bucket='b', Key='k')\\nPY\\n-object_storage-adapter.s3.copy_object]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_literal_inline_programs_are_scanned_in_actual_language[node -e \"import {db} from 'sql'; db.query('DELETE FROM x')\"\\n-raw_sql-sql.db.query]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_literal_inline_programs_are_scanned_in_actual_language[python3 -c \"from adapter import cursor; cursor.execute('DELETE FROM x')\"\\n-raw_sql-adapter.cursor.execute]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_literal_inline_programs_are_scanned_in_actual_language[sh -c \"psql -c 'DELETE FROM x'\"\\n-raw_sql-psql]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_runtime_container_yaml_commands_are_obligations[Dockerfile.runtime-RUN psql -c 'DELETE FROM x'\\n-container_whole_context_review_required]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_runtime_container_yaml_commands_are_obligations[runtime.yaml-services:\\n  worker:\\n    command: psql -c 'DELETE FROM x'\\n-yaml_whole_context_review_required]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_runtime_container_yaml_commands_are_obligations[runtime.yaml-source2-yaml_whole_context_review_required]",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_shell_branch_has_whole_file_opaque_obligation_and_context_binding",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_foreign.py::test_typescript_recovered_ast_diagnostics_still_refuse",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "error",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_registry.py::test_drafting_reviewed_derived_census_clears_all_approval_fields_without_mutating_input",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/backup/test_source_primitive_scope.py::test_gitignored_new_shell_and_typescript_still_enter_source_scope",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "source-primitive-baseline-resolution.json",
+      "mapping": "exact_parameter_name_unique_module"
+    },
+    {
+      "original_nodeid": "tests/data_export/test_recovery_purge.py::test_existing_fanout_skips_unwritable_tenant_and_continues_other_tenants[not-restored]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/makerspaces/test_request_access.py::test_the_control_capability_matrix_audits_the_forced_policy_change",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_format_isolation_d8.py::test_host_import_rejects_lane_d_before_storage_or_database_mutation",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_import_finalization_recovery.py::test_claim_crash_sweep_waits_for_lease_expiry_and_completes",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_source_gate_guards.py::test_real_application_tree_has_total_source_gate_coverage",
+      "baseline_lane": "backup-tm",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_admin_hidden_scope.py::test_every_registered_admin_resolves_a_makerspace_decision",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_admin_parity_actions.py::test_qr_rebind_admin_rejects_cross_makerspace_non_product_target",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-direct-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-direct-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-public-post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-public-put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[issued-direct]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[issued-public]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[partially_returned-direct]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[partially_returned-public]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_checkout_native_lock_races.py::test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[post]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_checkout_native_lock_races.py::test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[put]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_control_admin_service_guards.py::test_changing_the_domain_in_control_resets_verification",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_control_admin_service_guards.py::test_print_batch_items_are_read_only",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_control_admin_service_guards.py::test_re_pasting_the_same_domain_keeps_it_verified",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_deploy_host_scripts.py::test_staged_bundle_adopts_runtime_files_and_preserves_private_state",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_env_surface_drift.py::test_backup_preflight_policy_covers_the_complete_environment_surface",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_host_orchestration_surface_h1a.py::test_compose_wrapper_unsets_ambient_pointer_and_layers_pointer_last",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_installer_forwarding_contract.py::test_installer_requires_the_request_access_helper_in_the_release",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "backup-residual-baseline-resolution-20261030.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_platform_bootstrap.py::test_bootstrap_resolves_public_code_without_private_fields",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_privileged_script_modes.py::test_no_shipped_script_directly_executes_a_non_executable_sibling",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "privileged-script-real-git-runtime.json",
+      "mapping": "exact_on_actual_git_index"
+    },
+    {
+      "original_nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[install.sh]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "privileged-script-real-git-runtime.json",
+      "mapping": "exact_on_actual_git_index"
+    },
+    {
+      "original_nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/import-backup.sh]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "privileged-script-real-git-runtime.json",
+      "mapping": "exact_on_actual_git_index"
+    },
+    {
+      "original_nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/restore.sh]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "privileged-script-real-git-runtime.json",
+      "mapping": "exact_on_actual_git_index"
+    },
+    {
+      "original_nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/spaceworks-compose.sh]",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "privileged-script-real-git-runtime.json",
+      "mapping": "exact_on_actual_git_index"
+    },
+    {
+      "original_nodeid": "tests/test_put_finalize.py::test_put_evidence_quota_is_charged_once",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    },
+    {
+      "original_nodeid": "tests/test_return_reminder_task.py::test_send_return_reminders_task_runs_service_in_eager_mode",
+      "baseline_lane": "core",
+      "baseline_outcome": "failure",
+      "evidence": "core-current-residual-baseline-coverage.json",
+      "mapping": "exact"
+    }
+  ],
+  "additional_corrections": {
+    "same_actor_deadlock": "same-actor-claim-and-authority-current-runtime.json:78passed after actual40P01 reproduction",
+    "checkin_setup": "checkin-setup-identity-runtime-20261030.json:101passed macOS and101passed Linux on identical source;60newidentity and5portability cases",
+    "payment_currency_review": "payment-currency-catalogue-runtime.json:567passed complete payments selection,139Stripe/128Razorpay exact independently checked maps"
+  },
+  "final_review": "Round1P2 currency correction verified567passed; fresh mandatory round2 running separately after all pytest processes finished. Owner QA remains."
+}

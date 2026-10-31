@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="document-quota-final-primary" tests="31" failures="0" errors="0" skipped="0">
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_upsert_waits_on_host_and_fresh_tenant_404[False-False]" time="16.061" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_upsert_waits_on_host_and_fresh_tenant_404[False-True]" time="8.198" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_upsert_waits_on_host_and_fresh_tenant_404[True-False]" time="5.959" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_upsert_waits_on_host_and_fresh_tenant_404[True-True]" time="14.561" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_document_waits_on_warranty_without_maker_lock_upgrade[False-False]" time="16.925" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_document_waits_on_warranty_without_maker_lock_upgrade[False-True]" time="28.888" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_document_waits_on_warranty_without_maker_lock_upgrade[True-False]" time="13.477" />
+  <testcase classname="tests.document_safety.test_transfer_concurrency" name="test_canonical_asset_move_vs_document_waits_on_warranty_without_maker_lock_upgrade[True-True]" time="7.548" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_presign_is_bound_to_exact_resource_and_targets_staging[machine]" time="10.792" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_presign_is_bound_to_exact_resource_and_targets_staging[warranty]" time="6.272" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_presign_is_bound_to_exact_resource_and_targets_staging[procurement]" time="5.895" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[other-resource-machine]" time="9.106" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[other-resource-warranty]" time="6.402" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[other-resource-procurement]" time="4.943" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[unclaimed-flat-machine]" time="6.440" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[unclaimed-flat-warranty]" time="6.450" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_new_claim_refuses_cross_resource_or_unclaimed_legacy_flat_before_s3[unclaimed-flat-procurement]" time="5.449" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_matching_canonical_legacy_repeat_finalize_is_idempotent_no_io_audit_or_charge[machine]" time="6.954" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_matching_canonical_legacy_repeat_finalize_is_idempotent_no_io_audit_or_charge[warranty]" time="9.276" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_matching_canonical_legacy_repeat_finalize_is_idempotent_no_io_audit_or_charge[procurement]" time="5.539" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_retained_unrelated_private_model_blocks_new_claim_before_s3[machine]" time="6.895" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_retained_unrelated_private_model_blocks_new_claim_before_s3[warranty]" time="5.908" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_retained_unrelated_private_model_blocks_new_claim_before_s3[procurement]" time="6.135" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_legacy_existing_row_signed_get_and_guarded_delete_still_work[machine]" time="10.355" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_legacy_existing_row_signed_get_and_guarded_delete_still_work[warranty]" time="9.481" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_legacy_existing_row_signed_get_and_guarded_delete_still_work[procurement]" time="9.469" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_valid_resource_finalize_uses_real_storage_and_one_canonical_row[machine]" time="4.888" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_valid_resource_finalize_uses_real_storage_and_one_canonical_row[warranty]" time="4.835" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_valid_resource_finalize_uses_real_storage_and_one_canonical_row[procurement]" time="4.069" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_unguarded_parent_cascade_refuses_before_any_object_cleanup[warranty]" time="4.646" />
+  <testcase classname="tests.atomic_publication.test_documents" name="test_unguarded_parent_cascade_refuses_before_any_object_cleanup[procurement]" time="3.205" />
+</testsuite>

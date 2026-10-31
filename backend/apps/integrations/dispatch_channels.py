@@ -4,6 +4,7 @@ import re
 from django.db import transaction
 from django.utils import timezone
 
+from apps.integrations.destinations import refresh_delivery_destination
 from apps.integrations.models import (
     NonEmailNotificationChannel,
     NotificationDeliveryLog,
@@ -124,8 +125,7 @@ def dispatch_channel(
     if channel not in NonEmailNotificationChannel.values:
         raise ValueError(f"Unsupported notification channel: {channel}")
 
-    # Push resolves its recipients at delivery time, so the alert's subject has to travel
-    # on the row or a narrowed recipient rule would match nothing by then.
+    # Delivery rechecks room scopes and push recipients using the queued subject.
     stored_payload = dict(payload or {})
     if scope is not None and hasattr(scope, "as_dict"):
         stored_payload["scope"] = scope.as_dict()
@@ -224,7 +224,7 @@ def _enqueue_notification(log_id):
 
 
 def _deliver_notification(log) -> NotificationDeliveryLog:
-    if log.status == NotificationDeliveryStatus.SENT:
+    if log.status in (NotificationDeliveryStatus.SENT, NotificationDeliveryStatus.SKIPPED):
         return log
 
     # Re-checked here, not only at dispatch: a PENDING row can sit in the Celery queue
@@ -236,13 +236,14 @@ def _deliver_notification(log) -> NotificationDeliveryLog:
         log.save(update_fields=["status", "error", "updated_at"])
         return log
 
-    if log.destination_id is None and log.destination_label:
-        # The room was deleted while this row waited in the queue. Falling through would
-        # send via the makerspace-wide credential, posting a room-scoped alert into the
-        # general channel — so this is terminal instead.
-        log.status = NotificationDeliveryStatus.FAILED
-        log.error = "notification_destination_deleted"
-        log.attempts += 1
+    skip_reason = refresh_delivery_destination(log)
+    if skip_reason:
+        deleted = skip_reason == "notification_destination_deleted"
+        log.status = (
+            NotificationDeliveryStatus.FAILED if deleted else NotificationDeliveryStatus.SKIPPED
+        )
+        log.error = skip_reason
+        log.attempts += int(deleted)
         log.save(update_fields=["status", "error", "attempts", "updated_at"])
         return log
 

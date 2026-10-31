@@ -47,8 +47,10 @@ class DatabaseStateTarget:
             inputs=inputs, manifest=manifest, using=self.using
         )
 
-    def verify_catalog(self, _sibling, inputs, _manifest):
-        return verify_pre_cutover_state(inputs=inputs, using=self.using)
+    def verify_catalog(self, _sibling, inputs, manifest):
+        return verify_pre_cutover_state(
+            inputs=inputs, manifest=manifest, using=self.using
+        )
 
     def prepare_quarantine(self, _sibling, _inputs, _manifest):
         return {"marker_readiness": readiness_declarations(using=self.using)}
@@ -75,6 +77,9 @@ class DatabaseStateTarget:
             "artifact_sha256": inputs.artifact_sha256,
             "capture_id": inputs.capture_id,
         }
+        from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+        invalidate_restored_receipts(using=self.using)
         state = DeploymentRecoveryState.objects.using(self.using).get(pk=1)
         if state.mode == DeploymentRecoveryState.Mode.TARGET_IMPORT:
             set_target_normal(expected_identity=expected, using=self.using)

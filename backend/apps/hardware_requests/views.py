@@ -19,7 +19,7 @@ from apps.hardware_requests.queue_views import (
     PendingRequestsView,
     RequestHistoryView,
 )
-from apps.hardware_requests.review_views import AcceptRequestView, RejectRequestView
+from apps.hardware_requests.review_views import AcceptRequestView, CancelRequestView, RejectRequestView
 from apps.hardware_requests.self_checkout_views import (
     PublicToolCheckoutView,
     PublicToolEvidenceUploadUrlView,
@@ -31,6 +31,7 @@ __all__ = [
     "AcceptRequestView",
     "ActiveLoansView",
     "AssignBoxView",
+    "CancelRequestView",
     "DirectLoanListCreateView",
     "DirectLoanMemberListView",
     "DirectLoanReturnView",

@@ -57,8 +57,10 @@ export function StaffTabContent({
   canChooseToBuyKind,
   canEditInventory,
   canIssueDirectLoan,
+  canIssueRequest = false,
   canReturnRequest,
   canReviewRequests,
+  canCancelRequests = false,
   canCollectServiceRequests,
   canUseToBuy,
   canManageQr,
@@ -84,8 +86,10 @@ export function StaffTabContent({
   canChooseToBuyKind: boolean;
   canEditInventory: boolean;
   canIssueDirectLoan: boolean;
+  canIssueRequest?: boolean;
   canReturnRequest: boolean;
   canReviewRequests: boolean;
+  canCancelRequests?: boolean;
   canCollectServiceRequests: boolean;
   canUseToBuy: boolean;
   canManageQr: boolean;
@@ -123,6 +127,8 @@ export function StaffTabContent({
           canViewAudit={canViewAudit}
           canReturnRequest={canReturnRequest}
           canReviewRequests={canReviewRequests}
+          canIssueRequest={canIssueRequest}
+          canCancelRequests={canCancelRequests}
         />
       ) : null}
       {activeTab === "inventory" ? (
@@ -272,7 +278,7 @@ export function StaffTabContent({
         </Panel>
       ) : null}
       {activeTab === "users" && canManageMakerspace ? (
-        <Users makerspaces={makerspaces} isSuperadmin={isSuperadmin} currentUser={currentUser} onAuthRefresh={onAuthRefresh} />
+        <Users key={makerspaceKey} makerspaces={[activeMakerspace]} isSuperadmin={isSuperadmin} currentUser={currentUser} onAuthRefresh={onAuthRefresh} />
       ) : null}
       {activeTab === "exports" && canManageMakerspace ? (
         <DataExportsPanel key={makerspaceKey} makerspaceId={makerspaceKey} />

@@ -1,0 +1,10 @@
+Changed only [StaffTabContent.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/StaffTabContent.tsx:275), still 290 lines.
+
+```diff
+-        <Users makerspaces={makerspaces} isSuperadmin={isSuperadmin} currentUser={currentUser} onAuthRefresh={onAuthRefresh} />
++        <Users key={makerspaceKey} makerspaces={[activeMakerspace]} isSuperadmin={isSuperadmin} currentUser={currentUser} onAuthRefresh={onAuthRefresh} />
+```
+
+Users now follows the active workspace and remounts when it changes, resetting local state. All other props, panels, lists, keys, and permissions remain unchanged.
+
+No tests/docs edits, builds, tests, staging, or commits. Stage 3 remains separate.

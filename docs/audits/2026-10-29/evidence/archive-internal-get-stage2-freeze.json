@@ -1,0 +1,18 @@
+{
+  "status": "one-source-delta-frozen-stage3-tests-writing",
+  "source": "backend/apps/backup/storage.py",
+  "lines": 256,
+  "before_sha256": "393b133843aff9b40307a5c19d529c03106b29f086c783f834c9ae1d366347b5",
+  "after_sha256": "b1ccfab397f24438cf0f79f79e9e464e52cbcf23302fb0fe1412be15d1c5a420",
+  "all_other_source_bytes_identical_to_baseline": true,
+  "baseline_manifest": {
+    "path": "/tmp/spaceworks-final-backend-snapshot-round3-20261030.json",
+    "sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+    "full_suite_denominator": 11695,
+    "running_baseline_does_not_test_after_sha": true
+  },
+  "actual_refusal_and_get_proof": "docs/audits/2026-10-29/evidence/restore-actual-host-round5-refusal.json",
+  "scope": "Server archive GET uses internal client; browser presigning is untouched. No host25guard or59copy changes. storage.py was not in focused64 source set; parent owns explicit final delta/source-set tracking.",
+  "no_baseline_or_source_manifest_changes": true,
+  "runtime": "No newpytest/collection/provider/build/install performed by Stage2/3 writer; root owns affected validation after current full lanes free."
+}

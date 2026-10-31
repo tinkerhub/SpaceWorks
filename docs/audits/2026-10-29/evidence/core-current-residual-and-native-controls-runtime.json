@@ -1,0 +1,106 @@
+{
+  "status": "PASS: all94 core-owner original failing cases resolved in exact current focused selection; original failed full baseline retained.",
+  "full_baseline": "core-full-baseline-triage.json",
+  "focused": {
+    "cases": 269,
+    "passed": 269,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 179.03,
+    "driver_seconds": 183.73,
+    "collection_and_runtime_ids_exact": true,
+    "duplicate_ids": 0,
+    "owned_original_failure_coverage": 94,
+    "new_security_cases": 8,
+    "files_selected": 23
+  },
+  "frozen_inputs_sha256": "c363b655e2087a5138662ed647fb8c1f2ba056ad4fa0077e50e11d1845175297",
+  "source_capture_inventory_sha256": "babc5676eabac9b15aecffd301afa5f2f65b12b9a4372a756a00821bc93b9ddc",
+  "whole_capture_file_count": 4703,
+  "runtime": {
+    "primary_port": 55432,
+    "cache_db": 10,
+    "broker_db": 11,
+    "daemon_socket_mounted": false,
+    "actual_immutable_linux_image": true,
+    "private_env_unchanged": true,
+    "snapshot_and_input_bytes_modes_verified_before_and_after": true
+  },
+  "independent_review": "All exact Stage2+Stage3 files read; native expected ValidationError/Conflict uses bound form before locked dispatch; native permission403/404 preserved. Receipt snapshot scope remains explicitly asserted and query-protected. Existing real-policy/canonical audits, row histories and locks remain enforced.",
+  "files_current_equal_tested_capture": {
+    "backend/apps/boxes/admin_qr_lifecycle.py": {
+      "sha256": "7f557177cc7eeaa3c45bf43b78887d90f06d3753d43dff76f1a16bb609e5fc3f",
+      "lines": 243
+    },
+    "backend/tests/makerspaces/test_request_access.py": {
+      "sha256": "d86164921b40166a70d7158888e5345592ed4348c562417d622875e3145fdcf4",
+      "lines": 287
+    },
+    "backend/tests/test_control_admin_service_guards.py": {
+      "sha256": "031f50e853db41f472c2704671ec02b3d687b38120654a1e3a165bc6eb2df3fd",
+      "lines": 215
+    },
+    "backend/tests/test_platform_bootstrap.py": {
+      "sha256": "99fdfdeb6f5a3411694fae258859c09fb958d0b418cc9f37b5d73b536c9fac35",
+      "lines": 322
+    },
+    "backend/tests/test_put_finalize.py": {
+      "sha256": "a94d39cc40e45031f92727b7b5f7f146d4e1b22bc2e5c79bb080add01b8e2ac2",
+      "lines": 304
+    },
+    "backend/tests/data_export/test_recovery_purge.py": {
+      "sha256": "9d547ed8cc34c53afdf900f60a749ed984630b09c8d5c806eea4942506743f67",
+      "lines": 212
+    },
+    "backend/tests/test_checkout_native_lock_races.py": {
+      "sha256": "8728a2ceafcff266619846a163988e650b51291143c0f48afd4653d4812dbe72",
+      "lines": 176
+    },
+    "backend/tests/test_admin_hidden_scope.py": {
+      "sha256": "01892ba436a682bd6d4bc445996b371fe20835feb759f0766654b47145fae047",
+      "lines": 318
+    },
+    "backend/tests/test_return_reminder_task.py": {
+      "sha256": "e8aea18ce571ce9a7a00ea9e8e85cb78fcddb978d3a438389d2f1a950c04c0e4",
+      "lines": 16
+    },
+    "backend/tests/test_admin_parity_actions.py": {
+      "sha256": "d2ea03d6c0c6a0e67e0d03064bb15d8b9f6ad3ce0e5fb89572cdeb0eb82fe449",
+      "lines": 270
+    },
+    "backend/tests/test_native_qr_preflight_errors.py": {
+      "sha256": "490cdf28824dfa0727063075037eed6cb80ff1c46f460a2085c674949f2f73f6",
+      "lines": 114
+    },
+    "backend/tests/native_qr_preflight_helpers.py": {
+      "sha256": "efd4c4a3349d39e8b43bfb0faed03ed09ac403f9021e1d7fc51316b688fe291a",
+      "lines": 87
+    },
+    "backend/tests/test_control_capability_boundary.py": {
+      "sha256": "83c7df32da036a1d1426b0364988dfcbcfc272de667753f6a40be6de0e7a19b3",
+      "lines": 86
+    },
+    "backend/tests/makerspaces/test_module_cleanup_admin.py": {
+      "sha256": "9cf2c3f9702ae94d15d3d711faff3e99e9d75c759e0b7bf72c549876251c1ec4",
+      "lines": 194
+    },
+    "backend/tests/accounts/test_social_auth.py": {
+      "sha256": "39b3406fe0d2e7b755ff6000b4f2906ab85ebd85161cdc3af6f7112bceabe020",
+      "lines": 474
+    },
+    "backend/tests/accounts/test_login_methods_p10.py": {
+      "sha256": "4efe9491dbcafa3cff4f97c40c290d77894eac9a8acb1950acaa1a017a29f6c8",
+      "lines": 346
+    },
+    "backend/tests/box_checkout_guard_helpers.py": {
+      "sha256": "59700353588c5de4bbdd75128cf5d88ef337cba34b87dcff0a49ac4a8fb05b43",
+      "lines": 192
+    }
+  },
+  "remaining_original_core_failures_owned_elsewhere": {
+    "restore_completion_agent": 4,
+    "root_actual_git_index_host_lane": 5
+  },
+  "limitations": "This is complete failed full baseline plus strict current-delta resolution, not a new all-green full-suite run. Fourteen preexisting optional-module matrix probe skips remain documented separately. No Stage4/final QA/commit performed here."
+}

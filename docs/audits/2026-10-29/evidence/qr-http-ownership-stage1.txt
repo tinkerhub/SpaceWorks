@@ -1,0 +1,55 @@
+**MANDATORY CONCRETE REVISIONS before Stage 2.** Exact service ownership is the right architecture, but retaining shared P must be a requirement, and API ownership must remain separate from the existing purge declaration.
+
+The recorded XML confirms **399 cases, 371 passed, 28 failed**: the stated 25 scope failures, two reversed-source ordering failures, and one generation deadlock. This review covers the **27 genuine HTTP ownership failures**; the fixture inversion remains separate.
+
+1. **Retain P around the entire delegated API dispatch.** In [middleware.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/middleware.py:31), verify exact API ownership before tenant resolution, then enter the existing `unscoped_writer_shared_boundary()` around `get_response`. Acquire no tenant N there.
+
+   This is necessary because [JWT authentication](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/accounts/authentication.py:109) updates global `DeviceGrant.last_used_at` after native validation but before view permissions. Invalid claim authentication can also invoke `expire_claim_presence`, which locks claim/presence rows and may write presence/audit records. Preserve that existing auth cleanup under P; it is not QR service admission. P supplies drain exclusion, **not permission or persistent tenant-freeze validation**.
+
+   The resulting QR order is **P → authentication and unlocked authorized preflight → sorted tenant N → domain locks → commit**. Source claim already takes exclusive P before N, so this preserves its protocol without changing primitives.
+
+2. **The JWT late guard must recognize the same verified API owner.** Add only an ownership branch to [assert_request_write_allowed](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/gate_runtime.py:133), before authoritative tenant resolution. Revalidate the declaration and require the existing actual P ownership context; missing boundary ownership must fail closed with typed **503**. Do not trust a request flag.
+
+   Leave `authentication.py` unchanged: generation, recovery-principal, session-surface, staff-origin, grant/family and native-selection checks must still execute. `IsActiveStaff`, actual RBAC scope and QR request-scope checks remain prerequisites to QR tenant admission.
+
+3. **Use a separate exact API table in `gate_http_ownership.py`.** Do not append API entries to `SERVICE_OWNED_HTTP_BOUNDARIES`: its existing AST validator specifically expects the three protected purge routes and `purge_boundary`.
+
+   For registered POSTs, verify the actual resolved callback, canonical class and POST implementation, plus the **bindings actually consumed by that implementation**. Checking that an independently imported canonical service is callable is insufficient when a view or barrel still holds another binding. Import failures, missing attributes, wrong callbacks/classes/method implementations, noncallable or substituted bindings must become typed **503**.
+
+   Preserve the existing purge non-atomic/CSRF checks unchanged. DRF callbacks need their own validation; do not apply the purge callback assumptions to them.
+
+The exact declaration scope is below. Every row is **POST only**; paths are the actual included paths.
+
+| Route name | Path | Canonical implementation → retained owner |
+|---|---|---|
+| `qr-boxes` | `/api/v1/admin/qr/boxes` | `boxes.api_views_qr.CreateBoxQrView.post` → `boxes.services.create_box_with_qr` |
+| `qr-tools` | `/api/v1/admin/qr/tools` | `boxes.api_views_qr.CreateToolQrView.post` → `boxes.qr_admission.create_tool_qr` |
+| `qr-scan` | `/api/v1/admin/qr/scan` | `boxes.api_views_qr.QrScanView.post` → `boxes.qr_admission.admitted_qr` |
+| `qr-resolve` | `/api/v1/admin/qr/resolve` | `boxes.api_views_qr.QrResolveView.post` → `boxes.qr_admission.admitted_qr` |
+| `qr-revoke` | `/api/v1/admin/qr/<pk>/revoke` | `boxes.api_views_qr.QrRevokeView.post` → `boxes.services.revoke_qr_code` |
+| `qr-rebind-target` | `/api/v1/admin/qr/<pk>/rebind-target` | `boxes.api_views_qr.QrRebindTargetView.post` → `boxes.rebind.preflight_rebind` / `rebind_qr_target` |
+| `asset-generate` | `/api/v1/admin/products/<pk>/assets/generate` | `operations.views_qr_batches.AssetGenerateView.post` → `operations.services_qr_assets.generate_assets_with_qr`, through the actual `operations.services` barrel |
+| `asset-qr` | `/api/v1/admin/assets/<pk>/qr` | `operations.views_qr_batches.AssetQrView.post` → its bound `boxes.qr_admission.qr_write` |
+
+All module names above begin with `apps.`. Validate the URL-facing `boxes.api_views` and `operations.views` class aliases too. `AssetQrView` performs the mutation itself; do not invent a service binding for it.
+
+`qr-containers` is a distinct alias and **receives no delegation**. `qr-print`, other GETs, print-batch item creation, all other routes and all other methods retain current behavior. Unknown declarations deny delegation and follow the ordinary guard; a declared POST with drift returns 503.
+
+Stage 2 source scope stays limited to:
+
+- `tenant_migration/gate_http_ownership.py`
+- `tenant_migration/middleware.py`
+- `tenant_migration/gate_runtime.py` — ownership branch only
+
+All three are currently below 300 lines. No service, auth, lock primitive, operator/counter, exemption or authority-policy changes are required. Root coordinates final source hashes.
+
+Separate Stage 3 must prove:
+
+- Exact eight-route acceptance; unknown-route and wrong-method non-delegation; callback, POST implementation, import and actual alias-binding drift failures.
+- Real P retention during incidental auth writes, unchanged auth refusals, and no early QR tenant-N acquisition.
+- All 25 scope cases retain strict **403/404**, with **no `SourceMigrationGate` query**.
+- Both reversed-ID cross-maker cases acquire **low N then high N before domain locks**.
+- Actual registered owners retain N through real audit insertion and commit, including an enclosing transaction; identity/policy changes after waits retain existing refusals.
+- Valid frozen mutations remain strict typed **423**, including the four original regressions; purge controls, print-item protection and read behavior remain intact.
+
+No edits, application runtime, Django imports, tests, builds or staging were performed.

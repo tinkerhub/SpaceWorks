@@ -15,6 +15,7 @@ import {
 } from "./staffTabs";
 import type { StaffAuthUser } from "../../lib/api";
 import type { Makerspace } from "./panels/shared";
+import { isGlobalStaffAdmin } from "./staffSelection";
 
 export function StaffWorkspace({
   activeMakerspace,
@@ -48,13 +49,16 @@ export function StaffWorkspace({
   user: StaffAuthUser;
 }) {
   const location = useLocation();
+  const canPickMakerspace = isGlobalStaffAdmin(user) && !singleTenantLocked;
   const {
     allowedTabs,
     canChooseToBuyKind,
     canEditInventory,
     canIssueDirectLoan,
+    canIssueRequest,
     canReturnRequest,
     canReviewRequests,
+    canCancelRequests,
     canCollectServiceRequests,
     canManageMakerspace,
     canManageEvents,
@@ -82,7 +86,7 @@ export function StaffWorkspace({
     ? requestedTab
     : moduleAllowedTabs.includes(defaultTab)
       ? defaultTab
-      : moduleAllowedTabs[0] ?? defaultTab;
+      : moduleAllowedTabs[0] ?? "";
   // Without this the redirect below strips `/admin/machines/12-laser` back to
   // `/admin/machines` on every load, because the two strings differ -- so a per-type deep
   // link could never survive its first render. The rule lives in `keptStaffSubPath` so it
@@ -94,11 +98,9 @@ export function StaffWorkspace({
     staffSubPathFromPath(location.pathname, guestOnly),
   );
   const activeTabPath = activeTab
-    ? staffTabPath(activeTab, guestOnly, activeMakerspace?.slug, singleTenantLocked, keptSubPath)
-    : staffTabPath(defaultTab, guestOnly, activeMakerspace?.slug, singleTenantLocked);
-  // Super Admin is GLOBAL authority and must win over any local membership row: a superuser who
-  // also holds a membership would otherwise be announced as "Member". The deleted sidebar
-  // prioritised it the same way.
+    ? staffTabPath(activeTab, guestOnly, guestOnly ? undefined : activeMakerspace?.slug, singleTenantLocked, keptSubPath)
+    : staffTabPath(defaultTab, guestOnly, guestOnly ? undefined : activeMakerspace?.slug, singleTenantLocked);
+  // Label the authority effective in this space; global chooser access is separate.
   const activeRoleName = isSuperadmin
     ? "Super Admin"
     : user.makerspaces.find((item) => item.id === selected)?.role_name;
@@ -113,7 +115,7 @@ export function StaffWorkspace({
   const normalizeDenied = routeTabDenied && !!routeTab && normalizedDeniedTabs.has(routeTab);
   const workspaceName = activeMakerspace?.name ?? "Inventory Control";
   useDocumentTitle(documentTitle(routeTabDenied ? "Access denied" : TAB_LABELS[activeTab], activeMakerspace?.name));
-  if ((!routeTabDenied || normalizeDenied) && location.pathname !== activeTabPath) {
+  if (activeTab && (!routeTabDenied || normalizeDenied) && location.pathname !== activeTabPath) {
     return <Navigate replace to={activeTabPath} />;
   }
 
@@ -124,7 +126,7 @@ export function StaffWorkspace({
   return (
     <StaffShell
       nav={{
-        activeMakerspaceSlug: activeMakerspace?.slug,
+        activeMakerspaceSlug: guestOnly ? undefined : activeMakerspace?.slug,
         activeTab: routeTabDenied ? "" : activeTab,
         allowedTabs: moduleAllowedTabs,
         guestOnly,
@@ -137,7 +139,7 @@ export function StaffWorkspace({
         makerspaces,
         selected,
         canSwitchMakerspace: !singleTenantLocked && makerspaces.length > 1,
-        canPickMakerspace: isSuperadmin && !singleTenantLocked,
+        canPickMakerspace,
         onPickMakerspace: () => setSelected(null),
         onSelectMakerspace: setSelected,
         onSignOut: signOut,
@@ -156,8 +158,15 @@ export function StaffWorkspace({
         {activeMakerspace ? (
           <Chip size="sm" tone="outline" className="font-mono">{activeMakerspace.public_code ?? activeMakerspace.slug}</Chip>
         ) : null}
+        {canPickMakerspace ? (
+          <Button variant="secondary" size="sm" className="ml-auto hidden md:inline-flex" onClick={() => setSelected(null)}>
+            Switch makerspace
+          </Button>
+        ) : null}
       </div>
-      {routeTabDenied ? (
+      {!activeTab ? (
+        <EmptyState title="No operational access" description="This account has no available staff pages for this makerspace. Choose another makerspace or sign out from your account menu." />
+      ) : routeTabDenied ? (
         <EmptyState
           title="Access denied"
           description="You don't have permission to view this page, or it isn't enabled for this makerspace."
@@ -180,8 +189,10 @@ export function StaffWorkspace({
           canChooseToBuyKind={canChooseToBuyKind}
           canEditInventory={canEditInventory}
           canIssueDirectLoan={canIssueDirectLoan}
+          canIssueRequest={canIssueRequest}
           canReturnRequest={canReturnRequest}
           canReviewRequests={canReviewRequests}
+          canCancelRequests={canCancelRequests}
           canCollectServiceRequests={canCollectServiceRequests}
           canUseToBuy={canUseToBuy}
           canManageQr={canManageQr}

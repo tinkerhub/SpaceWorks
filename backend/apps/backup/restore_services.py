@@ -9,7 +9,9 @@ from rest_framework.exceptions import ValidationError
 
 from apps.audit import services as audit
 from apps.backup.custody import validate_deployment_custody
-from apps.backup.digests import SUPPORTED_ARCHIVE_FORMATS
+from apps.backup.errors import BackupBuildError
+from apps.backup.full_format import COMPOUND_UNSUPPORTED
+from apps.backup.manifest_dispatch import manifest_kind, verify_signed_manifest
 from apps.backup.models import BackupArchive, DeploymentRecoveryState, RestoreOperation
 
 logger = logging.getLogger(__name__)
@@ -45,14 +47,16 @@ def request_restore(actor, archive, kind):
     if archive.scope != BackupArchive.Scope.DEPLOYMENT:
         raise ValidationError("Only full-deployment archives can be restored by Phase 5A.")
     manifest = archive.manifest
-    if (
-        not isinstance(manifest, dict)
-        or manifest.get("format") not in SUPPORTED_ARCHIVE_FORMATS
-    ):
-        raise ValidationError(
-            "Restore refused [format_unsupported]: "
-            "the deployment archive format is unsupported."
-        )
+    try:
+        kind_of_manifest = manifest_kind(manifest)
+        if kind_of_manifest == "compound":
+            raise ValidationError(COMPOUND_UNSUPPORTED)
+        if kind_of_manifest == "full":
+            verify_signed_manifest(manifest)
+            if manifest["archive_id"] != str(archive.pk):
+                raise ValidationError("The signed manifest does not match the registered archive.")
+    except BackupBuildError as exc:
+        raise ValidationError(str(exc)) from exc
     if (
         archive.status != BackupArchive.Status.AVAILABLE
         or archive.expires_at is None
@@ -102,14 +106,8 @@ def prepare_restore_resume(restore_id, error=""):
     }:
         return False
     if restore.stage == RestoreOperation.Stage.QUIESCED:
-        restore.stage = RestoreOperation.Stage.PREFLIGHT
-        restore.decision = RestoreOperation.Decision.PENDING
-        restore.restore_diff = {}
-        restore.decision_deadline_at = None
-        state = _locked_state()
-        state.mode = DeploymentRecoveryState.Mode.NORMAL
-        state.active_restore = None
-        state.save(update_fields=("mode", "active_restore", "updated_at"))
+        # A failed controller cannot replace an explicit durable operator abort.
+        return False
     restore.error_detail = str(error)[:500]
     restore.supervisor_heartbeat_at = timezone.now()
     restore.save()
@@ -158,6 +156,9 @@ def set_stage(restore_id, stage, *, error=""):
     restore.save()
     if returning_to_normal:
         state = _locked_state()
+        from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+        invalidate_restored_receipts()
         state.mode = DeploymentRecoveryState.Mode.NORMAL
         state.active_restore = None
         state.save(update_fields=("mode", "active_restore", "updated_at"))
@@ -240,3 +241,21 @@ def _abort_locked(restore, state, reason):
 def _locked_state():
     DeploymentRecoveryState.objects.get_or_create(pk=1)
     return DeploymentRecoveryState.objects.select_for_update().get(pk=1)
+
+
+@transaction.atomic
+def expire_restore_decision(restore_id):
+    """The one automatic abort is before effects, under the same decision locks."""
+    restore = RestoreOperation.objects.select_for_update().get(pk=restore_id)
+    state = _locked_state()
+    if (restore.stage != RestoreOperation.Stage.QUIESCED
+            or state.mode != DeploymentRecoveryState.Mode.QUIESCED
+            or state.active_restore_id != restore.pk
+            or restore.decision != RestoreOperation.Decision.PENDING
+            or not restore.decision_deadline_at
+            or restore.decision_deadline_at > timezone.now()):
+        raise ValidationError("A decision timeout cannot abort this restore state.")
+    _abort_locked(restore, state, "The bounded decision window expired.")
+    audit.record(restore.requested_by, "backup.restore_decision_expired", target=restore,
+                 meta={"destructive_effect": False})
+    return restore

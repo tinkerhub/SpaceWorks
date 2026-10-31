@@ -1,0 +1,502 @@
+{
+  "at_utc": "2026-10-30T05:24:22.638935+00:00",
+  "coverage_note": "Exactly31 listed lexical sites are adjudicated here across ten frozen source files. Original57 unadjudicated legacy owners remain unchanged; the tenth file additionally lists its untouched dataclass without adjudication. No blanket folder/file approval.",
+  "examined_lexical_sites": 31,
+  "files": {
+    "backend/apps/accounts/admin_user_control.py": {
+      "lexical_owner_denominator_in_file": 10,
+      "lines": 214,
+      "not_individually_adjudicated_owners": [
+        "ControlUserChangeForm",
+        "ControlUserChangeForm.clean",
+        "UserControlAdminMixin",
+        "UserControlAdminMixin.get_form",
+        "UserControlAdminMixin.save_model",
+        "_change_url",
+        "api_exception_message"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 129,
+          "exact_site_sha256": "b45cf49c863a546908d144842d2c11c3d27ee45aa6ceab5efb1f6f79d45a1b63",
+          "line": 117,
+          "owner": "UserControlAdminMixin.user_change_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 198,
+          "exact_site_sha256": "4a3ce9604b4bbddbf148b42fda160027c894e50fb7d9ad264558c5a362906760",
+          "line": 131,
+          "owner": "UserControlAdminMixin._user_change_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 156,
+          "exact_site_sha256": "b79636258faa97bf0ad57d17e0d50240887cb0d0d90ebcbd59a7207fa4206b24",
+          "line": 154,
+          "owner": "UserControlAdminMixin._user_change_password.write_password",
+          "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "native password fresh acting-superadmin policy after source wait; readable typed refusal",
+      "sha256": "78489b4b6b4ac7850b4afaeefbd41e01cdb7cc8bb22401a6a8d3e613d7c6a3ff"
+    },
+    "backend/apps/accounts/claim_transition_gate.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 76,
+      "not_individually_adjudicated_owners": [],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 19,
+          "exact_site_sha256": "eeb0638a21b459176b760b6714121d63e05ccd9ed7124f5c07187bf1494b368b",
+          "line": 16,
+          "owner": "ClaimTransitionScopeChanged",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 27,
+          "exact_site_sha256": "3ffa6eb1f8997d593b10fa63af1f2c151c80a270d0ca673b568e556f3e2f40e9",
+          "line": 22,
+          "owner": "_membership_makerspace_ids",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 63,
+          "exact_site_sha256": "be9fdf90c067e7393678d28b7b7ab90669dd1b94514592725064f373c9fac777",
+          "line": 31,
+          "owner": "claim_transition_gate",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 76,
+          "exact_site_sha256": "88ca6a69df421c34f01693d3c4481de84b23a4848e274e10888e02efdf2bcc1e",
+          "line": 66,
+          "owner": "assert_claim_transition_scope",
+          "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "pin actual membership tenant set; sorted admission; refuse scope growth and lower new keys",
+      "sha256": "64b9f6a8504fe7d1619da7ebcea3fc432a49475e62f25f1d1deae4f258c93a74"
+    },
+    "backend/apps/accounts/oidc_browser_resolution.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 149,
+      "not_individually_adjudicated_owners": [],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 36,
+          "exact_site_sha256": "cdcdf4ab075fee9853b2d991e50037eb93f13cd9e957582b64166563b4a3b8ba",
+          "line": 27,
+          "owner": "resolve_browser_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 128,
+          "exact_site_sha256": "9a4529b6018e8d90126c33e622748cddf7991e89d80edb71bc965e19697831c7",
+          "line": 39,
+          "owner": "_transition_bound_walk_in",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 110,
+          "exact_site_sha256": "9c0791a3ce27b2e0575007350866ead0603d3383a01290fb77460ff75b0844f7",
+          "line": 93,
+          "owner": "_transition_bound_walk_in.link_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 149,
+          "exact_site_sha256": "4978867d2b9c74373b7c2a0e1fe10d65ecf049118c7396d9fae4870f30a8d745",
+          "line": 131,
+          "owner": "_validate_bound_identity",
+          "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "OIDC unlocked identity preflight, ordered locked repeat and outer commit retention",
+      "sha256": "cbdf7613dff7aef07f74f8ae9c6908de13c1a93d5767f5d58491e30f4dea6339"
+    },
+    "backend/apps/accounts/services_claim.py": {
+      "lexical_owner_denominator_in_file": 16,
+      "lines": 289,
+      "not_individually_adjudicated_owners": [
+        "ClaimCodeError",
+        "ClaimCodeIneligible",
+        "IssuedClaimCode",
+        "_normalized_code",
+        "_digest",
+        "_raw_code",
+        "_locked_target",
+        "_credential_free_walk_in",
+        "issue_claim_code",
+        "active_claim_codes",
+        "revoke_claim_code",
+        "consume_claim_code",
+        "_audit_redemption",
+        "_revoke_locked_claim",
+        "register_transition_revocation"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 273,
+          "exact_site_sha256": "777bc997660d3c108c6ef359c3309a5b282a29e57c6a6463a6fcbc244dac1abd",
+          "line": 266,
+          "owner": "_revoke_transition_claim_state",
+          "purpose": "claim hook locks claim rows only rather than joined membership",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "claim hook locks claim rows only rather than joined membership",
+      "sha256": "f2d09749e57d5f084acab1ed247e80921259f89e8d4f307bfea97be358968368"
+    },
+    "backend/apps/accounts/transition_services.py": {
+      "lexical_owner_denominator_in_file": 4,
+      "lines": 86,
+      "not_individually_adjudicated_owners": [
+        "WalkInTransitionError",
+        "register_walk_in_revocation_hook",
+        "unregister_walk_in_revocation_hook"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 86,
+          "exact_site_sha256": "2fd2b76747be89df4c8909c75332ce3861a2c1f22a201b0284e5c8448c635d5c",
+          "line": 49,
+          "owner": "transition_walk_in_to_account",
+          "purpose": "canonical atomic global walk-in conversion under retained source admission",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "canonical atomic global walk-in conversion under retained source admission",
+      "sha256": "744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b"
+    },
+    "backend/apps/accounts/views_oidc_browser.py": {
+      "lexical_owner_denominator_in_file": 6,
+      "lines": 185,
+      "not_individually_adjudicated_owners": [
+        "_error",
+        "OidcBrowserStartView",
+        "OidcBrowserStartView.post",
+        "OidcBrowserCallbackView",
+        "_audit_failure"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 174,
+          "exact_site_sha256": "213d648eacd01329adbabf05f8f111fde3fca3d3cd0b67c34177ee8cee8d0655",
+          "line": 115,
+          "owner": "OidcBrowserCallbackView.post",
+          "purpose": "typed423 callback OpenAPI response contract",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "typed423 callback OpenAPI response contract",
+      "sha256": "625497fa023dfd72e9651bf17b831d8129f23bb7bff1e2dee98d60bdf6fff653"
+    },
+    "backend/apps/makerspaces/staff_authority.py": {
+      "lexical_owner_denominator_in_file": 2,
+      "lines": 70,
+      "not_individually_adjudicated_owners": [
+        "LockedStaffAuthority"
+      ],
+      "owners": [
+        {
+          "disposition": "Source reviewed; existing staff authority controls16PASS; full current523-case group remains pending.",
+          "end_line": 70,
+          "exact_site_sha256": "b35738b7c44197e1c792a354a29fdcfd96608cac14fe44fa12b16ba60ef1052b",
+          "line": 22,
+          "owner": "lock_and_validate_staff_authority",
+          "purpose": "Keep canonical Maker -> actor User -> membership -> role fresh-policy locking and scoped action decision; remove only unnecessary Maker FK KEY SHARE conflict.",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "Must run inside caller atomic; Maker NO KEY UPDATE; remaining row locks and fresh actor/access/servability/action checks unchanged."
+        }
+      ],
+      "purpose": "Real issuer/native audit-FK deadlock correction: Maker NO KEY UPDATE preserves metadata serialization and all existing authority checks while allowing FK KEY SHARE.",
+      "sha256": "c6ea7cdab5410417e496099859e83c042ecce44ea71eacd8d100886e8fc15646"
+    },
+    "backend/apps/presence/services.py": {
+      "lexical_owner_denominator_in_file": 8,
+      "lines": 239,
+      "not_individually_adjudicated_owners": [
+        "_active_sessions",
+        "start_session",
+        "current_session",
+        "end_session",
+        "end_sessions_for_membership",
+        "_validate_claim_scope"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 204,
+          "exact_site_sha256": "52a9f7d55efb2d9675305fd94bafc733d9d6af4dfd4e22b88c17d904f97d61cb",
+          "line": 144,
+          "owner": "end_sessions_for_claim",
+          "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 231,
+          "exact_site_sha256": "abc4f1aff2bd18c65ab1dd8a34c4cf82f66b05386840b52a3ee9beb25c342b35",
+          "line": 207,
+          "owner": "expire_claim_presence",
+          "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "defensive authoritative-owner cleanup; frozen/unavailable/opaque deferral preserves401",
+      "sha256": "161ed10efb97742958023ba7d79a83ba7844896cf746ec06197f068e028c4c77"
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "lexical_owner_denominator_in_file": 25,
+      "lines": 280,
+      "not_individually_adjudicated_owners": [
+        "acquire_shared",
+        "acquire_exclusive",
+        "acquire_unscoped_writer_shared",
+        "acquire_unscoped_writer_exclusive",
+        "try_acquire_exclusive",
+        "_execute_transaction",
+        "_execute",
+        "_BoundarySharedLock",
+        "_new_lock_connection",
+        "exclusive_boundary",
+        "_BoundaryExclusiveLock",
+        "_BoundaryExclusiveLock.__init__",
+        "_BoundaryExclusiveLock.verified_connection",
+        "unscoped_writer_shared_boundary",
+        "shared_transaction"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 72,
+          "exact_site_sha256": "5160c0c35a2b91f8205dee713c5ca78af90d6c512c0e7b12b3d146d6e32affe9",
+          "line": 61,
+          "owner": "shared_boundary",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 79,
+          "exact_site_sha256": "d130eaf1b56ac5155c56824a0efa7d41ddf8cfbe9d63227a275ca63deaaedbc4",
+          "line": 75,
+          "owner": "_retained_shared_lock_keys",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 88,
+          "exact_site_sha256": "643881c2e16de95739ec705e04cf17ef0829e20b04209603f6faec256fad67dd",
+          "line": 82,
+          "owner": "_reuse_shared_boundary",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 99,
+          "exact_site_sha256": "7afe23c71fb621068b1b73df3766d4014ce538f8a523dd74fc3ccdb9398724a3",
+          "line": 94,
+          "owner": "_BoundarySharedLock.__init__",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 129,
+          "exact_site_sha256": "40b4a4be58f23b4288f0603391ec27734335da0a188413b5a37379abfecde56b",
+          "line": 101,
+          "owner": "_BoundarySharedLock.acquire",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 134,
+          "exact_site_sha256": "e3dfaa6918578940451de2e2bb819b193796ce6725a1bfc667b1e3ea0519f239",
+          "line": 131,
+          "owner": "_BoundarySharedLock.verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 155,
+          "exact_site_sha256": "fe5e4bea850a7c44041b92011b38710c6dce82a7b37bd75e5630ea3e83937e1b",
+          "line": 136,
+          "owner": "_BoundarySharedLock._verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 176,
+          "exact_site_sha256": "293bfb9609c5b6bd3ed962931e989eb8f1ac4cd40902612f7aaf10b64a1c85b0",
+          "line": 157,
+          "owner": "_BoundarySharedLock.release",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 233,
+          "exact_site_sha256": "ba776a906a9ffe5f626bc5bb097b5d384e58352337fcffcfcf83a847c6ed4b7d",
+          "line": 218,
+          "owner": "_BoundaryExclusiveLock.acquire",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 260,
+          "exact_site_sha256": "43a714ebb9b98700d5c3c1157d16bc7636770c162c895621076670bec774e3d1",
+          "line": 241,
+          "owner": "_BoundaryExclusiveLock._verify",
+          "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "retained actual dedicated shared-reference PID/XID/key proof and cleanup lifetime",
+      "sha256": "6373a633d6673b8297f42d1e52e4a13ed8f2c7bfcdf420e80c8608bf47d786d3"
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "lexical_owner_denominator_in_file": 10,
+      "lines": 217,
+      "not_individually_adjudicated_owners": [
+        "fanout_tenant_write",
+        "_exclusive_boundary_connection",
+        "assert_request_write_allowed",
+        "tenant_write",
+        "source_archive_write",
+        "source_archive_boundary"
+      ],
+      "owners": [
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 38,
+          "exact_site_sha256": "386dc54a7c575046a052f33007b25703e08d2db4211a606c2c1bf0271d395135",
+          "line": 23,
+          "owner": "assert_write_allowed",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 64,
+          "exact_site_sha256": "088678bf89c45dd40186a6ae2db1ef28cebae319c5b3b6c39dca01e5c9a6f231",
+          "line": 41,
+          "owner": "_assert_gate_state",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 110,
+          "exact_site_sha256": "13cfcb8d7e0cefedf666988d4ef6ac0d4967b4541ce1a75fcf71f597ccfa1125",
+          "line": 68,
+          "owner": "boundary_tenant_write",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        },
+        {
+          "disposition": "source reviewed; root targeted runtime and full-suite pending",
+          "end_line": 217,
+          "exact_site_sha256": "a1140df22b7964e4e8a3271666c2ee5ee971720dd358b37df76bbf2759ec25a5",
+          "line": 210,
+          "owner": "assert_boundary_held",
+          "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+          "reviewer": "/root/audit_backend_finish",
+          "runtime_boundary": "canonical source admission / adapter or retained lock proof as described per file"
+        }
+      ],
+      "purpose": "fresh gate checks while safely reusing owned raw shared refs; preserve exclusive rules",
+      "sha256": "3cab13fd351ebde0ce5cc147f482a7b3897a9f2097506daba8b607ca0978f269"
+    }
+  },
+  "lexical_site_denominator_in_frozen_files": 89,
+  "new_tenth_file_nonadjudicated_sites": 1,
+  "prior_source_freeze": {
+    "path": "docs/audits/2026-10-29/evidence/claim-source-final-freeze.json",
+    "preserved": true,
+    "sha256": "2440d7fc97bf34a730ec083b82ffaace1558d829cfbdbc93f02ce653191cf049"
+  },
+  "reviewer": "/root/audit_backend_finish",
+  "runtime_evidence": {
+    "claim_and_http_523": {
+      "expected_static_products": 523,
+      "status": "running at root report; full result not yet available"
+    },
+    "staff_authority_controls": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 16
+      },
+      "path": "docs/audits/2026-10-29/evidence/staff-authority-maker-nk-controls-round1.xml",
+      "root_reported_elapsed_seconds": 10.92,
+      "scope": "Existing staff-authority control group only; no overlap sum or complete production-readiness claim.",
+      "sha256": "f457cede373de14a45ea8f7afafcc4210f3e8a086bfdd4018bef7e0ce35cf93e"
+    }
+  },
+  "source_count": 10,
+  "source_status": "All ten source files independently frozen; no source/test edits in this closeout. Staff authority controls passed; complete523-case runtime still pending.",
+  "unchanged_legacy_sites_not_adjudicated_in_original_nine": 57
+}

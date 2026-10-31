@@ -1,8 +1,8 @@
 """Conservative authorization-input drift guard for portable tenant imports.
 
 The mechanical part scans attribute access, ORM lookup names, ``getattr`` field names,
-and ``values_list``/``only`` field strings in the ``accounts/rbac*.py`` implementation
-modules and ``machines/access.py``. It then intersects those names with a reviewed set of
+and ``values_list``/``only`` field strings in the explicitly registered RBAC,
+native-admin, purge and recovery modules. It intersects those names with a reviewed set of
 exported authorization models. The explicit declarations also cover
 authority/disclosure inputs identified by the migration threat model.
 
@@ -30,12 +30,64 @@ class AuthorityRegistryError(AssertionError):
 
 APPS_DIR = Path(project_apps.__file__).resolve().parent
 AUTHORIZATION_SOURCES = (
+    APPS_DIR / "makerspaces" / "models_module_purge_receipt.py",
+    APPS_DIR / "makerspaces" / "module_purge.py",
+    APPS_DIR / "makerspaces" / "module_purge_receipts.py",
+    APPS_DIR / "makerspaces" / "module_purge_receipt_authority.py",
+    APPS_DIR / "makerspaces" / "module_purge_namespaces.py",
+    APPS_DIR / "makerspaces" / "module_purge_graph.py",
+    APPS_DIR / "makerspaces" / "module_purge_sites.py",
+    APPS_DIR / "makerspaces" / "module_purge_accounting.py",
+    APPS_DIR / "makerspaces" / "module_purge_references.py",
+    APPS_DIR / "makerspaces" / "module_purge_state.py",
+    APPS_DIR / "makerspaces" / "module_purge_handoff.py",
+    APPS_DIR / "makerspaces" / "purge_cleanup.py",
+    APPS_DIR / "makerspaces" / "module_install.py",
+    APPS_DIR / "makerspaces" / "admin_capabilities.py",
+    APPS_DIR / "makerspaces" / "admin_module_purge_receipts.py",
+    APPS_DIR / "backup" / "rollback_cleanup.py",
+    APPS_DIR / "backup" / "rollback_cleanup_outcomes.py",
+    APPS_DIR / "backup" / "rollback_cleanup_progress.py",
+    APPS_DIR / "makerspaces" / "purge_intent.py",
+    APPS_DIR / "makerspaces" / "purge_locks.py",
+    APPS_DIR / "makerspaces" / "purge_receipts.py",
+    APPS_DIR / "makerspaces" / "purge_receipt_authority.py",
+    APPS_DIR / "makerspaces" / "purge_receipt_recovery.py",
+    APPS_DIR / "tenant_migration" / "import_boundary.py",
     APPS_DIR / "accounts" / "rbac.py",
     APPS_DIR / "accounts" / "rbac_actions.py",
     APPS_DIR / "accounts" / "rbac_memberships.py",
     APPS_DIR / "accounts" / "rbac_organizations.py",
     APPS_DIR / "accounts" / "rbac_superadmin.py",
+    APPS_DIR / "accounts" / "admin_user_control.py",
+    APPS_DIR / "makerspaces" / "servability.py",
     APPS_DIR / "machines" / "access.py",
+    APPS_DIR / "boxes" / "admin_forms.py",
+    APPS_DIR / "boxes" / "admin_lifecycle.py",
+    APPS_DIR / "boxes" / "qr_admission.py",
+    APPS_DIR / "boxes" / "admin_qr_lifecycle.py",
+    APPS_DIR / "warranty" / "admin_forms.py",
+    APPS_DIR / "procurement" / "admin_forms.py",
+    APPS_DIR / "backup" / "full_capture.py",
+    APPS_DIR / "backup" / "full_population.py",
+    APPS_DIR / "backup" / "full_restore_identity.py",
+    APPS_DIR / "backup" / "task_admission.py",
+    APPS_DIR / "backup" / "inplace_marker.py",
+    APPS_DIR / "backup" / "inplace_recovery_facts.py",
+    APPS_DIR / "backup" / "inplace_readiness.py",
+    APPS_DIR / "backup" / "restore_prospective.py",
+    APPS_DIR / "backup" / "restore_object_apply.py",
+    APPS_DIR / "backup" / "restore_object_proof.py",
+    APPS_DIR / "backup" / "restore_journal_proof.py",
+    APPS_DIR / "backup" / "restore_manifest_facts.py",
+    APPS_DIR / "backup" / "backup_control_proof.py",
+    APPS_DIR / "backup" / "host_restore_transport.py",
+    APPS_DIR / "backup" / "host_restore_admission.py",
+    APPS_DIR / "backup" / "host_restore_configuration.py",
+    APPS_DIR / "backup" / "host_restore_files.py",
+    APPS_DIR / "backup" / "host_restore_prepare.py",
+    APPS_DIR / "backup" / "host_restore_lifecycle.py",
+    APPS_DIR / "backup" / "host_restore_resume.py",
 )
 SCANNED_MODEL_LABELS = frozenset({
     "makerspaces.Makerspace",
@@ -48,6 +100,18 @@ SCANNED_MODEL_LABELS = frozenset({
 
 
 EXPLICIT_AUTHORITY_FIELDS = {
+    ("makerspaces.Makerspace", "created_by"): "Conservative cross-model discovery from native QR's editable creator metadata; preserved provenance confers no makerspace authority.",
+    ("machines.Machine", "created_by"): "Conservative cross-model discovery from native QR's editable creator metadata; preserved provenance confers no machine authority.",
+    ("makerspaces.Makerspace", "public_inventory_enabled"): "Public disclosure switch read by module_install.apply_profile to turn inventory OFF for the minimal profile; preserved source content, not a staff or deletion grant. Target authority projection is unchanged.",
+    ("makerspaces.Makerspace", "public_code"): "Raw public code plus created_at binds module cleanup to its original tenant incarnation; preserved identity is not a portable deletion grant.",
+    ("makerspaces.Makerspace", "slug"): "Purge confirms the current tenant slug; preserved identity is not an imported grant.",
+    ("makerspaces.Makerspace", "name"): "Audit-only purge snapshot; conservative name discovery, ordinary display content confers no authority.",
+    ("makerspaces.MakerspaceRole", "name"): "Conservative cross-model name discovery; display text confers no actions and source role rows are dropped.",
+    ("machines.Machine", "name"): "Conservative cross-model name discovery from the purge audit snapshot; preserved display content, not authority.",
+    ("machines.MachineType", "name"): "Conservative cross-model name discovery from the purge audit snapshot; preserved display content, not authority.",
+    ("machines.MachineType", "slug"): "Conservative cross-model slug discovery from makerspace purge confirmation; this occurrence confers no machine grant.",
+    ("makerspaces.Makerspace", "lifecycle_state"): "Target-owned lifecycle state, omitted at export.",
+    ("makerspaces.Makerspace", "purge_started_at"): "Omitted source-local irreversible purge authority; reconstruct NULL.",
     ("makerspaces.MakerspaceMembership", "makerspace"): "Tenant boundary for membership authority.",
     ("makerspaces.MakerspaceMembership", "user"): "Identity receiving the membership grant.",
     ("makerspaces.MakerspaceMembership", "role"): "Legacy fallback authority is reduced to Member/CUSTOM.",

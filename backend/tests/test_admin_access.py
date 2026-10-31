@@ -10,7 +10,11 @@ from rest_framework.test import APIClient
 from apps.accounts.models import User
 from apps.audit.models import AuditLog
 from apps.makerspaces import lifecycle
-from apps.makerspaces.models import Makerspace, MakerspaceMembership
+from apps.makerspaces.models import Makerspace, MakerspaceMembership, PurgeReceipt
+from apps.makerspaces import purge_storage
+from apps.makerspaces.purge_intent import load_intent
+from django.utils.dateparse import parse_datetime
+from tests.makerspaces.purge_test_support import purge_clock, purge_store
 from apps.operations.models import StockTransfer
 
 pytestmark = pytest.mark.django_db
@@ -98,7 +102,7 @@ def test_non_admin_docs_root_csp_does_not_allow_unsafe_eval():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_superadmin_can_delete_archived_makerspace_from_django_admin(monkeypatch):
+def test_superadmin_can_delete_archived_makerspace_from_django_admin(purge_store, purge_clock):
     superadmin = make_user(
         "admin-delete-archived-superadmin",
         role=User.Role.SUPERADMIN,
@@ -120,7 +124,17 @@ def test_superadmin_can_delete_archived_makerspace_from_django_admin(monkeypatch
         makerspace=makerspace,
     )
     archived = lifecycle.archive(makerspace, superadmin)
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
+    survivor = Makerspace.objects.create(name="Purge survivor", slug="purge-survivor")
+    history = AuditLog.objects.create(actor=superadmin, action="purge.survivor_history", makerspace=survivor)
+    doomed_id = archived.pk
+    bucket = purge_storage.bucket_name("private")
+    key = f"evidence/{doomed_id}/admin-purge.jpg"
+    versions = {
+        purge_store.put(bucket, locator, payload, marker=marker)
+        for locator in (key, f"staging/{key}")
+        for payload, marker in ((b"old", False), (b"new", False), (b"", True))
+    }
+    survivor_version = purge_store.put(bucket, f"evidence/{survivor.pk}/keep.jpg")
 
     client = Client()
     client.force_login(superadmin)
@@ -130,7 +144,7 @@ def test_superadmin_can_delete_archived_makerspace_from_django_admin(monkeypatch
     assert client.get(url).status_code == 403
     assert client.post(url, {"post": "yes"}).status_code == 403
 
-    deleted = client.post(
+    response = client.post(
         reverse("admin:makerspaces_makerspace_changelist"),
         {
             "action": "purge_makerspaces",
@@ -140,5 +154,38 @@ def test_superadmin_can_delete_archived_makerspace_from_django_admin(monkeypatch
         },
     )
 
-    assert deleted.status_code == 302
-    assert not Makerspace.objects.filter(pk=archived.pk).exists()
+    # Legacy changelist POST only renders the dedicated CSRF confirmation form.
+    assert response.status_code == 200
+    confirmed_url = reverse("admin:makerspaces_makerspace_purge_confirmed")
+    assert confirmed_url.encode() in response.content
+    assert b'csrfmiddlewaretoken' in response.content
+    assert Makerspace.objects.filter(pk=doomed_id).exists()
+    assert not PurgeReceipt.objects.filter(source_makerspace_id=doomed_id).exists()
+    assert set(purge_store.objects) == versions | {survivor_version}
+    data = {"makerspace_id": str(doomed_id), f"slug_{doomed_id}": archived.slug}
+    first = client.post(confirmed_url, data)
+    assert first.status_code == 200 and b"Retry after" in first.content
+    archived.refresh_from_db()
+    assert archived.purge_started_at is not None
+    assert set(purge_store.objects) == versions | {survivor_version}
+    assert Makerspace.objects.filter(pk=doomed_id).exists()
+    assert StockTransfer.objects.filter(makerspace_id=doomed_id).exists()
+    assert AuditLog.objects.filter(makerspace_id=doomed_id).exists()
+    purge_clock.now = parse_datetime(load_intent(archived)["not_before"])
+    second = client.post(confirmed_url, data)
+    assert second.status_code == 200 and b"Tenant graph removed" in second.content
+    assert not Makerspace.objects.filter(pk=doomed_id).exists()
+    receipt = PurgeReceipt.objects.get(source_makerspace_id=doomed_id)
+    assert receipt.last_verified_at == purge_clock.now
+    assert receipt.graph_purged_at == purge_clock.now
+    assert {("private", key), ("private", f"staging/{key}")} <= set(map(tuple, receipt.exact_keys))
+    removed = {
+        (call["Bucket"], row["Key"], row["VersionId"])
+        for call in purge_store.deletes for row in call["Delete"]["Objects"]
+    }
+    assert removed == versions
+    assert set(purge_store.objects) == {survivor_version}
+    assert Makerspace.objects.filter(pk=survivor.pk).exists()
+    assert AuditLog.objects.filter(pk=history.pk, makerspace=survivor).exists()
+    assert not StockTransfer.objects.filter(makerspace_id=doomed_id).exists()
+    assert not AuditLog.objects.filter(makerspace_id=doomed_id).exists()

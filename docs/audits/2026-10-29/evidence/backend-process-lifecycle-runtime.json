@@ -1,0 +1,590 @@
+{
+  "cases": [
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "39792cd30a874f27d6e6582cd0e6f50c5b39cdb2294c92a2595a4a4c32b82068",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+      ],
+      "exit_status": 0,
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000"
+        ],
+        "master_parent_pid": 0,
+        "master_pid": 1,
+        "pid1_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 14
+      },
+      "profile": "base",
+      "readiness": true,
+      "shutdown": "normal",
+      "shutdown_seconds": 0.357,
+      "status": "passed",
+      "term_stopped": true,
+      "variant": "exec-master"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "745910ac7d02c2520836a8a550ef003d4ca6d0cf5e0e0323f44be8a8d0b95212",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+      ],
+      "exit_status": 23,
+      "gunicorn_started": false,
+      "profile": "base",
+      "readiness": false,
+      "status": "passed",
+      "variant": "collectstatic-fails"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "f662fc30dc637e4526a0f66b5d90d6ced119e78c0cf9897a9086fc98655482e2",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+      ],
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000"
+        ],
+        "master_parent_pid": 1,
+        "master_pid": 8,
+        "pid1_cmdline": [
+          "sh",
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 15
+      },
+      "profile": "base",
+      "readiness": true,
+      "shutdown": "TERM deadline exceeded; forced cleanup required",
+      "shutdown_seconds": 2.003,
+      "status": "passed",
+      "term_stopped": false,
+      "variant": "legacy-shell"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "4cf58b7d7360d287862b40678f12c687e2c07591113cb9916d99701b2fb95f57",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "exit_status": 0,
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "master_parent_pid": 0,
+        "master_pid": 1,
+        "pid1_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 14
+      },
+      "profile": "prod",
+      "readiness": true,
+      "shutdown": "normal",
+      "shutdown_seconds": 0.553,
+      "status": "passed",
+      "term_stopped": true,
+      "variant": "exec-master"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "2c2db3566b504972757105f4bc24e4ec368409b6f5f56722b3b275d8228c70a1",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "exit_status": 23,
+      "gunicorn_started": false,
+      "profile": "prod",
+      "readiness": false,
+      "status": "passed",
+      "variant": "collectstatic-fails"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "4c13a024a515f82c41ddc685906fb0f1c1396378dd9836a47c924e6c01f02ec2",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "master_parent_pid": 1,
+        "master_pid": 8,
+        "pid1_cmdline": [
+          "sh",
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 16
+      },
+      "profile": "prod",
+      "readiness": true,
+      "shutdown": "TERM deadline exceeded; forced cleanup required",
+      "shutdown_seconds": 2.01,
+      "status": "passed",
+      "term_stopped": false,
+      "variant": "legacy-shell"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "ef875b91a7421af25e10a1e38b26e86646df7d9d41ecd87dd4de0b280023051f",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "exit_status": 0,
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "master_parent_pid": 0,
+        "master_pid": 1,
+        "pid1_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 15
+      },
+      "profile": "cloud",
+      "readiness": true,
+      "shutdown": "normal",
+      "shutdown_seconds": 0.491,
+      "status": "passed",
+      "term_stopped": true,
+      "variant": "exec-master"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "975da5ae509db1c020c9cc3517cd40b5c665ef0a13f36530b580ef698790880b",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "exit_status": 23,
+      "gunicorn_started": false,
+      "profile": "cloud",
+      "readiness": false,
+      "status": "passed",
+      "variant": "collectstatic-fails"
+    },
+    {
+      "actual_command": {
+        "command": [
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "entrypoint": [
+          "sh"
+        ],
+        "init": false,
+        "network": "none",
+        "published_ports": false
+      },
+      "container_id": "784b91ab204bd8ca194ce1c8372eda9752160b5eb902a69330bedc7e9a09cd93",
+      "decoded_compose_command": [
+        "--role",
+        "backend",
+        "sh",
+        "-c",
+        "python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+      ],
+      "process": {
+        "gunicorn_version": "26.2.0",
+        "http_marker": "synthetic-worker-http",
+        "master_cmdline": [
+          "/usr/local/bin/python3.12",
+          "/usr/local/bin/gunicorn",
+          "config.wsgi:application",
+          "--bind",
+          "0.0.0.0:8000",
+          "--workers",
+          "3",
+          "--timeout",
+          "60",
+          "--graceful-timeout",
+          "30",
+          "--max-requests",
+          "1000",
+          "--max-requests-jitter",
+          "100",
+          "--access-logfile",
+          "-",
+          "--error-logfile",
+          "-"
+        ],
+        "master_parent_pid": 1,
+        "master_pid": 7,
+        "pid1_cmdline": [
+          "sh",
+          "-c",
+          "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - --error-logfile -"
+        ],
+        "python": [
+          3,
+          12,
+          16
+        ],
+        "worker_pid": 14
+      },
+      "profile": "cloud",
+      "readiness": true,
+      "shutdown": "TERM deadline exceeded; forced cleanup required",
+      "shutdown_seconds": 2.029,
+      "status": "passed",
+      "term_stopped": false,
+      "variant": "legacy-shell"
+    }
+  ],
+  "cleanup": {
+    "containers": [
+      {
+        "container_id": "39792cd30a874f27d6e6582cd0e6f50c5b39cdb2294c92a2595a4a4c32b82068",
+        "forced": false
+      },
+      {
+        "container_id": "745910ac7d02c2520836a8a550ef003d4ca6d0cf5e0e0323f44be8a8d0b95212",
+        "forced": false
+      },
+      {
+        "container_id": "f662fc30dc637e4526a0f66b5d90d6ced119e78c0cf9897a9086fc98655482e2",
+        "forced": true
+      },
+      {
+        "container_id": "4cf58b7d7360d287862b40678f12c687e2c07591113cb9916d99701b2fb95f57",
+        "forced": false
+      },
+      {
+        "container_id": "2c2db3566b504972757105f4bc24e4ec368409b6f5f56722b3b275d8228c70a1",
+        "forced": false
+      },
+      {
+        "container_id": "4c13a024a515f82c41ddc685906fb0f1c1396378dd9836a47c924e6c01f02ec2",
+        "forced": true
+      },
+      {
+        "container_id": "ef875b91a7421af25e10a1e38b26e86646df7d9d41ecd87dd4de0b280023051f",
+        "forced": false
+      },
+      {
+        "container_id": "975da5ae509db1c020c9cc3517cd40b5c665ef0a13f36530b580ef698790880b",
+        "forced": false
+      },
+      {
+        "container_id": "784b91ab204bd8ca194ce1c8372eda9752160b5eb902a69330bedc7e9a09cd93",
+        "forced": true
+      }
+    ],
+    "status": "passed"
+  },
+  "fixed_input_sha256_after": {
+    "probe/config/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe/config/wsgi.py": "e5eebda8028bf67cd3d40de15c89d2e46f665723ed93d0a0cc41bb40e9932fdd",
+    "probe/manage.py": "e53e609dc4f1f9641f5c9e8fc602e36b80a807bda0cc009cea5986866d2cfe12",
+    "render-docker-config/config.json": "042bab2aad8ab69bf7226ceb4a443f004311772de877d384db420c4da223f9bd",
+    "synthetic.env": "381d41590f3d399c10dd8f0c2070e6876938f3218323c094a0a87d6a6b155d64"
+  },
+  "fixed_input_sha256_before": {
+    "probe/config/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe/config/wsgi.py": "e5eebda8028bf67cd3d40de15c89d2e46f665723ed93d0a0cc41bb40e9932fdd",
+    "probe/manage.py": "e53e609dc4f1f9641f5c9e8fc602e36b80a807bda0cc009cea5986866d2cfe12",
+    "render-docker-config/config.json": "042bab2aad8ab69bf7226ceb4a443f004311772de877d384db420c4da223f9bd",
+    "synthetic.env": "381d41590f3d399c10dd8f0c2070e6876938f3218323c094a0a87d6a6b155d64"
+  },
+  "fixed_inputs_unchanged": true,
+  "image_id": "sha256:e991ff6abf3026a4522b6b8ee11e4fb804c039434b08225145ec3d80de411b6e",
+  "rendered_config_sha256": {
+    "base": "431ff374b34fe783e79c5ab2299e6efc454e87b2537b590b0ccc04cee9f6b7c2",
+    "cloud": "1b1b69431e788b0362bf2a4da3214575af4e4ecf7ddd8e1ad389c05ea989624d",
+    "prod": "277f80d889c9337320be059d820a93ff9bb64c2068fc2bed1c8dfc3c07210e43"
+  },
+  "scope": "synthetic command/process only; no application or restore guarantee",
+  "source_sha256_after": {
+    "backend/Dockerfile": "23cdf83894b2a061d90341bff57368871052f2697ddaad9d56a123c35341f50d",
+    "backend/apps/backup/host_restore_admission.py": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+    "backend/scripts/spaceworks_entrypoint.py": "01fb00b82a49a344c5d15d135c7a5c76d2388a2271d2ea2b4bc74f0d72669ab2",
+    "compose-plugin": "ea920f6cc2973eb3c97e63f65b51db9ef0da4cb2e8cc947df64929ab31b89d56",
+    "docker-compose.cloud.yml": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+    "docker-compose.prod.yml": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+    "docker-compose.yml": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+    "docs/self-hosting.md": "a561347d27612cd4bb0ce9afdff6c09fa2c08bb65ae12c2773ece0c44f11af86",
+    "probe-code/backend_process_inputs.py": "b0575bd70629332fc3149e7c5c14a7339319c42e5bfe08596cb919e33d2eba9f",
+    "probe-code/backend_process_lifecycle.py": "e7e5a0cb2b745438e07b7742aacc0dc44a02e4d4a4558e9183db6caf09d2938e",
+    "probe-code/backend_process_runtime.py": "bdb4b531f3f934d5ffcd71d72a5544b74d39e6b153bdf9bed1b4c5a9ec7401c7"
+  },
+  "source_sha256_before": {
+    "backend/Dockerfile": "23cdf83894b2a061d90341bff57368871052f2697ddaad9d56a123c35341f50d",
+    "backend/apps/backup/host_restore_admission.py": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+    "backend/scripts/spaceworks_entrypoint.py": "01fb00b82a49a344c5d15d135c7a5c76d2388a2271d2ea2b4bc74f0d72669ab2",
+    "compose-plugin": "ea920f6cc2973eb3c97e63f65b51db9ef0da4cb2e8cc947df64929ab31b89d56",
+    "docker-compose.cloud.yml": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+    "docker-compose.prod.yml": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+    "docker-compose.yml": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+    "docs/self-hosting.md": "a561347d27612cd4bb0ce9afdff6c09fa2c08bb65ae12c2773ece0c44f11af86",
+    "probe-code/backend_process_inputs.py": "b0575bd70629332fc3149e7c5c14a7339319c42e5bfe08596cb919e33d2eba9f",
+    "probe-code/backend_process_lifecycle.py": "e7e5a0cb2b745438e07b7742aacc0dc44a02e4d4a4558e9183db6caf09d2938e",
+    "probe-code/backend_process_runtime.py": "bdb4b531f3f934d5ffcd71d72a5544b74d39e6b153bdf9bed1b4c5a9ec7401c7"
+  },
+  "sources_unchanged": true,
+  "status": "passed"
+}

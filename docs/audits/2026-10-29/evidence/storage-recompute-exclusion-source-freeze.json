@@ -1,0 +1,109 @@
+{
+  "stage": "Stage 2 source only",
+  "scope": "bounded independently approved recompute exclusion and same-backend counter commit",
+  "runtime_validation": "not performed; reserved for root/Stage 3",
+  "changed_existing_files": [
+    {
+      "path": "backend/apps/tenant_migration/gate_locks.py",
+      "sha256": "15f887d69327fc62ff347fe99ffafecebeb7dbb6507466a7050486b2da8f0a07",
+      "before_sha256": "09a84b0f5df10150991680e1eee690fb4fbef8e687a12bc69350ceec4977159f",
+      "bytes": 8770,
+      "lines": 244,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/apps/tenant_migration/gate_runtime.py",
+      "sha256": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "before_sha256": "1d9e017d5eb3e56342e0e16dc3bae92bba755f54b5e67b28e78a6b330c1383eb",
+      "bytes": 8380,
+      "lines": 200,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/apps/tenant_migration/source_gate_module_guards.py",
+      "sha256": "01956bb3f42775844d321e79f3df23b61304d12d118c19bf8ed50a57762afd46",
+      "before_sha256": "63903db27136b5a89889f262f0f55d503dbee154218ec8768c850284dafcf818",
+      "bytes": 17712,
+      "lines": 257,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+      "sha256": "7606ddad0c8f59dcba622cad504b9080591f9339408db318cd0164110fc30825",
+      "before_sha256": "ce005d939e85e62adc77a0b6f2f73e2d4d0eebdb4e5d3f6b99eb726b055f7b56",
+      "bytes": 11575,
+      "lines": 213,
+      "static_parse": "passed"
+    },
+    {
+      "path": "docs/self-hosting.md",
+      "sha256": "dd53240d6a3e077e23dc05a1f08de7f4af7103f370d6ac5872d8a67f010bad7b",
+      "before_sha256": "da1c2ab20b270359941b2242e6e5990b414e176971c4c4a1ba65d100013c6482",
+      "bytes": 63040,
+      "lines": 930,
+      "static_parse": "not_applicable"
+    },
+    {
+      "path": "docs/SOURCE-MAP.md",
+      "sha256": "6250b95c4562d8a93f04820f4d41795b9876f8fb67488091920b515b2becb1eb",
+      "before_sha256": "85599008f9389254e70afd64095bafeff172d6ef5d2c99aae580cffcb8013bb5",
+      "bytes": 33822,
+      "lines": 351,
+      "static_parse": "not_applicable"
+    }
+  ],
+  "approved_input_copies": [
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-plan.md",
+      "sha256": "532a75f2042fa2b703fb28339ec562cb50b0cd12c6b19dc56a25f54b8ee37c82",
+      "original_path": "/tmp/spaceworks-storage-recompute-exclusion-plan.md"
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-review.txt",
+      "sha256": "70f477217525bcf5462aece9d5a9252462accbd4a624601ed12e550066bcf0e3",
+      "original_path": "/tmp/spaceworks-storage-recompute-exclusion-review.txt"
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-delta.md",
+      "sha256": "53dc9dd330081e1d2b94df6ed6e618611880b87f7b6f873947386b0c07cc5e63",
+      "original_path": "/tmp/spaceworks-storage-recompute-exclusion-delta.md"
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-delta-review.txt",
+      "sha256": "6c40bf6398028da1507dd8bd85a8310987eabdf9c61c7d150f72b11d0ae7afc2",
+      "original_path": "/tmp/spaceworks-storage-recompute-exclusion-delta-review.txt"
+    }
+  ],
+  "preserved_command_sections": {
+    "_sum_evidence": {
+      "byte_identical": true,
+      "sha256": "8da350c15f9022c5eb6ab8b701eb20ffc352646f50eacde94a42b535d1f6d263"
+    },
+    "_sum": {
+      "byte_identical": true,
+      "sha256": "e1a3173be3530e7cd7dd89e28beaa2fac8213f997e0084418db7479fad704ba7"
+    },
+    "_public_image_keys": {
+      "byte_identical": true,
+      "sha256": "8dd5848adacd92fe031b58c05c9fb1b7a2974cc7287611e382b335068ff2627d"
+    },
+    "category_calculations": {
+      "byte_identical": true,
+      "sha256": "f3c4eb4f5cbc532673676962986a6895bbd884e40e59b88c7474a9f1740c25ff"
+    }
+  },
+  "unmodified_contracts": [
+    "All pre-existing gate_locks.py declarations",
+    "Migration-exclusive APIs and key-0 ordering",
+    "Shared boundary defaults",
+    "General top-level fanout registry/scanner",
+    "Sibling limits bool/source-affinity work",
+    "Existing absence of recompute AuditLog writes"
+  ],
+  "static_checks": {
+    "python_ast_parse": "passed (four changed Python files)",
+    "scoped_git_diff_check": "passed",
+    "python_line_ceiling": 300
+  },
+  "prohibited_actions_performed": []
+}

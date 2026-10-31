@@ -2,6 +2,7 @@ from django.db import transaction
 
 from apps.audit import services as audit
 from apps.integrations.dispatch import _enqueue
+from apps.integrations.email_delivery_policy import email_quota_denied
 from apps.integrations.models import EmailLog
 from apps.integrations.smtp_validation import sending_claim_is_stale
 
@@ -11,7 +12,7 @@ class EmailRetryError(Exception):
 
 
 def retry_email_log(actor, log):
-    # Failed sends are always retriable. A SENDING row is normally an in-flight claim
+    # Transport failures retain their quota reservation. A SENDING row is an in-flight claim
     # (must NOT be retried — that would double-deliver), but a STALE claim means the
     # worker died after claiming and before committing the result, leaving it stuck
     # forever — surface that in the Retry path so it stays recoverable without a DB fix.
@@ -20,6 +21,8 @@ def retry_email_log(actor, log):
     with transaction.atomic():
         assert_mapped_write_allowed(log.makerspace_id)
         locked = EmailLog.objects.select_for_update().get(pk=log.pk)
+        if email_quota_denied(locked):
+            raise EmailRetryError("Emails refused by the daily limit cannot be retried.")
         if locked.status == EmailLog.Status.SENDING and not sending_claim_is_stale(locked):
             raise EmailRetryError("This email is still sending; only stalled sends can be retried.")
         if locked.status not in (EmailLog.Status.FAILED, EmailLog.Status.SENDING):

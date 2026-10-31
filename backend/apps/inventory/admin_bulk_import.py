@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from apps.accounts import rbac
 from apps.admin_api import bulk_import
+from apps.evidence.storage import StorageUnavailable
 from apps.makerspaces.guards import require_module
 from apps.makerspaces.models import Makerspace
 from apps.makerspaces.servability import servable_queryset
@@ -56,6 +57,8 @@ def bulk_import_view(model_admin, request):
                         )
                 except DRFValidationError as exc:
                     form.add_error(None, exc.detail)
+                except StorageUnavailable:
+                    form.add_error(None, "Image storage is unavailable. Please try again.")
                 except gate_refusals() as exc:
                     form.add_error(None, str(exc))
                 if result is None:

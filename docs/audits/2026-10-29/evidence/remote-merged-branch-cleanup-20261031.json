@@ -1,0 +1,24 @@
+{
+  "status": "completed_after_clean_final_review",
+  "repository": "tinkerhub/SpaceWorks",
+  "deleted_branch": "fix",
+  "deleted_tip": "15fbc3658ff8a2422c97df4801df0cacabd0b9c2",
+  "unprotected_at_check": true,
+  "inherited_rulesets_at_check": [],
+  "open_pull_requests_at_check": [],
+  "ancestor_of_origin_main_and_dev": true,
+  "checked_via": "GitHub connector GET and fresh git fetch/merge-base; delete through Git because connector is read-only for branches.",
+  "exact_tip_lease": true,
+  "push_exit_code": 0,
+  "verified_remote_heads_after": {
+    "dev": "90ae2d5e911fcd18a35367d13fa1c2db346e2f0f",
+    "main": "86ac8b5f60b5c3ba5b8f1bed85ddb23cb707b0fb"
+  },
+  "protected_main_dev_tips_unchanged": true,
+  "current_local_branch": "dev",
+  "local_audit_changes_committed_or_pushed": false,
+  "no_local_branch_deleted": true,
+  "checked_at_utc": "2026-10-30T23:39:02.973894+00:00",
+  "completed_at_utc": "2026-10-30T23:39:43.489715+00:00",
+  "owner_QA_pending": true
+}

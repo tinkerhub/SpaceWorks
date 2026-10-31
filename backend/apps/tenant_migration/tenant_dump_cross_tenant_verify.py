@@ -16,6 +16,8 @@ def verify_cross_tenant_projection(using, makerspace_id):
     validate_cross_tenant_registry()
     if apps.get_model("events.EventCollaborator")._base_manager.using(using).exists():
         raise TenantDumpVerificationError("A foreign EventCollaborator survived D6.")
+    if apps.get_model("events.EventSeriesCollaborator")._base_manager.using(using).exists():
+        raise TenantDumpVerificationError("An EventSeriesCollaborator survived D6.")
     Registration = apps.get_model("events.EventRegistration")
     if Registration._base_manager.using(using).filter(
         Q(registered_via_makerspace_id__isnull=False)

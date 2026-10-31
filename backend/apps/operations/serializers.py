@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.operations.serializers_health import (
@@ -187,8 +188,8 @@ class ContainerMoveSerializer(serializers.Serializer):
 
 class AssetGenerateSerializer(serializers.Serializer):
     count = serializers.IntegerField(min_value=1, max_value=200)
-    name_prefix = serializers.CharField(required=False, allow_blank=True)
-    serial_numbers = serializers.ListField(child=serializers.CharField(), required=False)
+    name_prefix = serializers.CharField(max_length=154, required=False, allow_blank=True)
+    serial_numbers = serializers.ListField(child=serializers.CharField(max_length=100), required=False)
     print_batch_id = serializers.IntegerField(required=False, allow_null=True)
     create_print_batch = serializers.BooleanField(default=False)
 
@@ -200,7 +201,13 @@ class QrPrintBatchSerializer(serializers.ModelSerializer):
 
 
 class QrPrintBatchItemSerializer(serializers.ModelSerializer):
-    qr_code = QrCodeSerializer(read_only=True)
+    qr_code = serializers.SerializerMethodField()
+
+    @extend_schema_field(QrCodeSerializer(allow_null=True))
+    def get_qr_code(self, obj):
+        if obj.qr_code.makerspace_id != obj.batch.makerspace_id:
+            return None
+        return QrCodeSerializer(obj.qr_code, context=self.context).data
 
     class Meta:
         model = QrPrintBatchItem
@@ -215,10 +222,10 @@ class QrPrintBatchDetailSerializer(QrPrintBatchSerializer):
 
 
 class QrPrintBatchCreateSerializer(serializers.Serializer):
-    title = serializers.CharField()
+    title = serializers.CharField(max_length=200)
 
 
 class QrPrintBatchItemCreateSerializer(serializers.Serializer):
     qr_code_id = serializers.IntegerField()
-    label_text = serializers.CharField(required=False, allow_blank=True)
+    label_text = serializers.CharField(max_length=255, required=False, allow_blank=True)
     sort_order = serializers.IntegerField(min_value=0, required=False)

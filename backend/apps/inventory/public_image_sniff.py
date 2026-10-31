@@ -22,20 +22,13 @@ def _client():
 
 
 def sniff_is_valid_image(object_key):
+    from apps.inventory.public_image_publication import InvalidImage, validate_snapshot
+    from apps.object_publication import InvalidObjectSize, validate_existing
+
     try:
-        response = _client().get_object(
-            Bucket=settings.PUBLIC_IMAGE_BUCKET,
-            Key=object_key,
-        )
-        data = response["Body"].read(settings.PUBLIC_IMAGE_MAX_BYTES)
-    except ClientError as exc:
-        status = exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
-        code = exc.response.get("Error", {}).get("Code")
-        if status == 404 or code in {"404", "NoSuchKey", "NotFound"}:
-            return False
-        raise StorageUnavailable from exc
-    except (BotoCoreError, OSError) as exc:
-        raise StorageUnavailable from exc
-    if not data:
+        return validate_existing(
+            _client(), settings.PUBLIC_IMAGE_BUCKET, object_key,
+            settings.PUBLIC_IMAGE_MAX_BYTES, validate_snapshot,
+        ) is not None
+    except (InvalidObjectSize, InvalidImage):
         return False
-    return image_mime_from_bytes(data) in settings.PUBLIC_IMAGE_ALLOWED_MIME

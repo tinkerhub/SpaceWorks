@@ -1,0 +1,7 @@
+Changed only `frontend/src/features/staff/LoginPanel.tsx` (+8/−2 lines):
+
+- Added `useMemo` import.
+- Added `providerOwnershipScope`, memoized by `[onSocialSuccess]`.
+- Passed `ownershipScope={providerOwnershipScope}` and `disabled={isPending}` to `SocialSignInButtons`.
+
+Preserved existing warning and caller edits. No tests, checks, staging, or commits performed. Stage3 tests and final owner QA remain pending.

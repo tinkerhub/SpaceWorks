@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="source-setup-cold-cache-current" tests="6" failures="2" errors="0" skipped="0" time="74.275">
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build]" time="3.255" />
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-tls]" time="3.386" />
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-saas]" time="3.715" />
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_infrastructure_pull_failure_stops_source_setup_before_startup" time="1.745" />
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start" time="25.311">
+      <failure type="TimeoutExpired" message="Original unchanged 25-second subprocess watchdog expired; exact same cases passed unchanged on bounded retry" />
+    </testcase>
+    <testcase classname="tests.test_runtime_image_provisioning_setup" name="test_source_setup_clears_stale_identity_before_records_and_raw_build_start" time="26.301">
+      <failure type="TimeoutExpired" message="Original unchanged 25-second subprocess watchdog expired; exact same cases passed unchanged on bounded retry" />
+    </testcase>
+  </testsuite>
+</testsuites>

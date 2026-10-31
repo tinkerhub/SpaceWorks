@@ -48,6 +48,7 @@ def test_profile_get_returns_defaults_without_creating_a_row():
     assert not MemberProfile.objects.filter(membership=membership).exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_profile_put_still_uses_the_write_side_creation_helper():
     space, membership, client = member_and_client()
 
@@ -59,12 +60,13 @@ def test_profile_put_still_uses_the_write_side_creation_helper():
     assert MemberProfile.objects.get(membership=membership).headline == "Lathe learner"
 
 
+@pytest.mark.django_db(transaction=True)
 def test_profile_image_put_and_delete_still_create_and_update_the_row(monkeypatch):
     space, membership, client = member_and_client()
     object_key = f"member/{space.pk}/avatar.png"
     monkeypatch.setattr(
         "apps.inventory.public_image_storage.finalize_upload",
-        lambda _key: SimpleNamespace(status="ok"),
+        lambda _key: SimpleNamespace(status="ok", size=123),
     )
     monkeypatch.setattr(
         "apps.inventory.public_image_storage.sniff_is_valid_image", lambda _key: True
@@ -81,6 +83,7 @@ def test_profile_image_put_and_delete_still_create_and_update_the_row(monkeypatc
     profile = MemberProfile.objects.get(membership=membership)
     assert profile.avatar_key == object_key
 
+    monkeypatch.setattr("apps.inventory.public_image_storage.delete_object", lambda _key: True)
     cleared = client.delete(f"{profile_url(space)}/image")
 
     assert cleared.status_code == 200, cleared.data

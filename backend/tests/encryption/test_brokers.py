@@ -23,7 +23,8 @@ def test_local_broker_is_binary_safe_and_independent_of_api_client_key(monkeypat
         assert broker._fernet().decrypt(token) == payload
 
 
-@pytest.mark.parametrize("bad_key", ["", Fernet.generate_key().decode()])
+@pytest.mark.parametrize("bad_key", ["", Fernet.generate_key().decode()],
+                         ids=["missing-key", "wrong-key"])
 def test_local_broker_rejects_bad_token_and_wrong_key_without_material(bad_key):
     first = Fernet.generate_key().decode()
     with override_settings(PII_MASTER_KEY=first):

@@ -1,6 +1,8 @@
 import re
 from pathlib import Path
 
+from tests.host_operator_boundary_helpers import read_sources, scan_docker_boundary
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
@@ -44,13 +46,7 @@ def test_no_compose_file_hands_a_django_service_the_docker_socket():
 def test_the_web_process_never_shells_out_to_docker():
     """The application may describe an update; only the host script may perform one."""
     docker_call = re.compile(r"""["']docker\b|\bdocker\s+compose\b|docker_client|from\s+docker\b""")
-    offenders, scanned = [], 0
-    for path in (REPO_ROOT / "backend" / "apps").rglob("*.py"):
-        if any(part in {"__pycache__", "migrations"} for part in path.parts):
-            continue
-        scanned += 1
-        if docker_call.search(path.read_text(encoding="utf-8-sig")):
-            offenders.append(str(path.relative_to(REPO_ROOT)))
+    offenders, scanned = scan_docker_boundary(read_sources(REPO_ROOT), docker_call)
 
     assert scanned > 100, f"only scanned {scanned} files -- the walk is not finding apps/"
     assert docker_call.search("subprocess.run(['docker', 'compose', 'up'])"), (

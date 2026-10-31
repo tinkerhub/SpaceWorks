@@ -1,5 +1,7 @@
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from apps.accounts import rbac
@@ -8,6 +10,7 @@ from apps.audit import services as audit
 from apps.boxes.exceptions import Conflict
 from apps.boxes.models import QrCode, QrScanEvent
 from apps.boxes.rebind_results import QrRebindResult
+from apps.boxes.qr_admission import current_qr_actor
 from apps.hardware_requests.models import HardwareRequest, PublicToolLoan
 from apps.hardware_requests.asset_link_models import HardwareRequestItemAsset
 from apps.hardware_requests.self_checkout_workflow import qr_has_active_loan
@@ -26,15 +29,42 @@ OUTSTANDING_REQUEST_STATUSES = (
 )
 
 
+def preflight_asset_move(user, qr, data):
+    from apps.boxes.access import makerspace_for_action
+
+    destination_id = int(data["destination_makerspace_id"])
+    _require_transfer_permission(user, qr.makerspace_id, destination_id)
+    destination = makerspace_for_action(user, rbac.Action.TRANSFER_STOCK, destination_id)
+    require_module(destination, "qr_management")
+    asset = get_object_or_404(InventoryAsset, pk=qr.target_id, makerspace_id=qr.makerspace_id)
+    source_product = get_object_or_404(
+        InventoryProduct, pk=asset.product_id, makerspace_id=qr.makerspace_id,
+    )
+    candidates = _destination_candidate_ids(source_product.name, destination_id, data.get("destination_product_id"))
+    products = list(InventoryProduct.objects.filter(pk__in=candidates, makerspace_id=destination_id))
+    if len(products) != len(candidates):
+        raise ValidationError("destination_product_id must belong to the destination makerspace.")
+    return {"source_makerspace_id": qr.makerspace_id, "destination_makerspace_id": destination_id,
+            "source_product_id": source_product.pk, "candidate_ids": candidates}
+
+
 def move_asset_across_makerspaces(
-    user, qr, dest_makerspace_id, destination_product_id, new_name, request_target_id=None
+    user, qr, dest_makerspace_id, destination_product_id, new_name, request_target_id=None, *, admitted
 ):
     if qr.target_type != QrCode.TargetType.ASSET:
         raise ValidationError("QR code does not target an asset.")
     if request_target_id is not None and int(request_target_id) != qr.target_id:
         raise ValidationError("target_id must match the scanned asset.")
 
-    asset = InventoryAsset.objects.select_for_update().get(pk=qr.target_id)
+    if (qr.makerspace_id != admitted["source_makerspace_id"]
+            or int(dest_makerspace_id) != admitted["destination_makerspace_id"]):
+        raise Conflict("Asset move no longer matches admitted makerspaces.")
+    asset = get_object_or_404(
+        InventoryAsset.objects.select_for_update(), pk=qr.target_id,
+        makerspace_id=admitted["source_makerspace_id"],
+        product_id=admitted["source_product_id"],
+    )
+    user = current_qr_actor(user)
     source_makerspace_id = qr.makerspace_id
     _require_transfer_permission(user, source_makerspace_id, dest_makerspace_id)
     if int(dest_makerspace_id) == source_makerspace_id:
@@ -44,18 +74,28 @@ def move_asset_across_makerspaces(
     _guard_asset_is_movable(asset, qr)
 
     source_product_id = asset.product_id
-    candidate_ids = _destination_candidate_ids(
-        asset.product.name,
-        dest_makerspace.id,
-        destination_product_id,
-    )
+    candidate_ids = admitted["candidate_ids"]
     locked_products = {
         product.id: product
         for product in InventoryProduct.objects.select_for_update()
-        .filter(pk__in={source_product_id, *candidate_ids})
+        .filter(
+            Q(pk=source_product_id, makerspace_id=admitted["source_makerspace_id"])
+            | Q(pk__in=candidate_ids, makerspace_id=admitted["destination_makerspace_id"])
+        )
         .order_by("pk")
     }
-    source_product = locked_products[source_product_id]
+    source_product = locked_products.get(source_product_id)
+    if source_product is None or source_product.makerspace_id != admitted["source_makerspace_id"]:
+        raise Conflict("Source product ownership changed while waiting.")
+    if any(pk not in locked_products or locked_products[pk].makerspace_id != dest_makerspace.id
+           for pk in candidate_ids):
+        raise Conflict("Destination product ownership changed while waiting.")
+    user = current_qr_actor(user)
+    _require_transfer_permission(user, source_makerspace_id, dest_makerspace_id)
+    if not rbac.can(user, rbac.Action.MANAGE_QR, source_makerspace_id):
+        raise PermissionDenied()
+    require_module(source_makerspace_id, "qr_management")
+    dest_makerspace = require_module(dest_makerspace_id, "qr_management")
     dest_product = _resolve_destination_product(
         locked_products,
         dest_makerspace,

@@ -5,7 +5,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics, status
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.accounts import rbac
@@ -13,7 +13,7 @@ from apps.accounts.permissions import (
     HasMakerspaceAction,
     StaffAPIView,
 )
-from apps.accounts.models import User
+from apps.admin_api.permissions import IsActiveStaff
 from apps.audit import services as audit
 from apps.evidence.models import EvidenceObjectRetentionState, EvidencePhoto
 from apps.evidence.serializers import (
@@ -37,26 +37,19 @@ from apps.makerspaces.guards import require_module
 logger = logging.getLogger(__name__)
 
 
-class ActiveAuthenticatedPermission(BasePermission):
-    def has_permission(self, request, view):
-        user = getattr(request, "user", None)
-        return bool(
-            getattr(user, "is_authenticated", False)
-            and user.access_status == User.AccessStatus.ACTIVE
-            and not getattr(user, "must_change_password", False)
-        )
-
-
 class EvidenceUploadUrlView(StaffAPIView):
     required_action = rbac.Action.UPLOAD_EVIDENCE
-    permission_classes = [IsAuthenticated, HasMakerspaceAction]
+    permission_classes = [IsAuthenticated, IsActiveStaff, HasMakerspaceAction]
 
     @extend_schema(
         request=EvidenceUrlRequestSerializer,
         responses={
             201: EvidenceUrlResponseSerializer,
             400: OpenApiResponse(description="Invalid evidence upload request."),
-            403: OpenApiResponse(description="Insufficient makerspace permission."),
+            401: OpenApiResponse(description="Authentication is required."),
+            403: OpenApiResponse(description=(
+                "Inactive user, disallowed origin or insufficient makerspace permission."
+            )),
             503: OpenApiResponse(description="Evidence storage is unavailable."),
         },
     )
@@ -118,7 +111,7 @@ class EvidenceUploadUrlView(StaffAPIView):
 
 
 class EvidenceDetailView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated, ActiveAuthenticatedPermission]
+    permission_classes = [IsAuthenticated, IsActiveStaff]
     queryset = EvidencePhoto.objects.all()
     serializer_class = EvidenceGetResponseSerializer
 
@@ -134,6 +127,8 @@ class EvidenceDetailView(generics.RetrieveAPIView):
     @extend_schema(
         responses={
             200: EvidenceGetResponseSerializer,
+            401: OpenApiResponse(description="Authentication is required."),
+            403: OpenApiResponse(description="Inactive user or disallowed origin."),
             404: OpenApiResponse(description="Evidence was not found."),
             409: OpenApiResponse(description="Evidence object has not been uploaded."),
             410: EvidenceExpiredResponseSerializer,

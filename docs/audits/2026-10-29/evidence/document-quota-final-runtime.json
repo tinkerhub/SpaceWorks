@@ -1,0 +1,202 @@
+{
+  "status": "passed",
+  "scope": "Original frozen517-case run plus61 disjoint focused cases against the reviewed final6-overlay frame; no complete517-case rerun against the last refinement is claimed.",
+  "pre_ledger_red": {
+    "cases": 3,
+    "genuine_counter_assertion_failures_after_successful_physical_deletion": 3,
+    "errors": 0,
+    "skips": 0,
+    "public_api_test_sha256": "dbefca80289c38ee756c3726d7054664905675010ec745c27f1b7520f83b4a32",
+    "original4751_files_unchanged_plus_only_public_api_test": true
+  },
+  "original_frozen_execution": [
+    {
+      "lane": "current",
+      "cases": 189,
+      "passed": 186,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "actual_container_exit_code": 1,
+      "actual_xml_sha256": "e506249584314370783ccd808433b356ec9a53c67fb6be168cc9ff4dd6b8b43d",
+      "outer_supervisor_timeout_seconds": 2400,
+      "continued_same_pytest_under_readonly_supervision_max_seconds": 7200,
+      "per_test_deadlines_unchanged": true,
+      "source_and_inputs_unchanged": true
+    },
+    {
+      "lane": "compat",
+      "cases": 328,
+      "passed": 325,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "actual_container_exit_code": 1,
+      "actual_xml_sha256": "cd1ff8af1e6c8c6b9e424f2604cbb4f20aacf2a80b61ee4f4e35b1dba04e2fb7",
+      "outer_supervisor_timeout_seconds": 2400,
+      "continued_same_pytest_under_readonly_supervision_max_seconds": 7200,
+      "per_test_deadlines_unchanged": true,
+      "source_and_inputs_unchanged": true
+    }
+  ],
+  "final_focused_execution": [
+    {
+      "lane": "secondary",
+      "cases": 30,
+      "passed": 30,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "runtime_exit_code": 0,
+      "seconds": 343.535,
+      "database_port": 55433,
+      "cache_database": 12,
+      "broker_database": 14,
+      "strict_frozen_collection_verified": true,
+      "frozen_inputs_sha256": "4a8ec86d6b7459376a0196c9cd99c4d4c8c9962df69fcad4b828b9ef2d6d4dcd",
+      "raw_xml_sha256": "cb6e8f4ce8663e42287010338e7d163131fc68b85729d83f7bf58a3045a7ee0f"
+    },
+    {
+      "lane": "primary",
+      "cases": 31,
+      "passed": 31,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "runtime_exit_code": 0,
+      "seconds": 280.12,
+      "database_port": 55432,
+      "cache_database": 10,
+      "broker_database": 11,
+      "strict_frozen_collection_verified": true,
+      "frozen_inputs_sha256": "c7f590ae44ed7836afed8e8d3a81f513ceaeec73dfe3368f82ac927dd7155676",
+      "raw_xml_sha256": "273d9df58f108814dbfbd1ddc79737aee4a4ebb0b6aa8383daceb9490b52d8d3"
+    }
+  ],
+  "case_accounting": {
+    "original_unique": 517,
+    "original_passed": 511,
+    "original_failed": 6,
+    "final_focused_unique": 61,
+    "focused_overlap": 0,
+    "all_six_original_failures_retested_passed": true,
+    "resolved_unique_case_ids": 517,
+    "errors": 0,
+    "skips": 0
+  },
+  "six_original_failure_resolutions": [
+    {
+      "nodeid": "tests/atomic_publication/test_documents.py::test_valid_resource_finalize_uses_real_storage_and_one_canonical_row[procurement]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Restore production-seeded local identity in finite managed test fixture"
+    },
+    {
+      "nodeid": "tests/atomic_publication/test_documents.py::test_valid_resource_finalize_uses_real_storage_and_one_canonical_row[warranty]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Restore production-seeded local identity in finite managed test fixture"
+    },
+    {
+      "nodeid": "tests/document_quota/test_lifecycle.py::test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[asset]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Install exclusive-storage boundary assertion after stateless presign, before finalization; quota/audit/delete assertions unchanged"
+    },
+    {
+      "nodeid": "tests/document_quota/test_lifecycle.py::test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[machine]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Install exclusive-storage boundary assertion after stateless presign, before finalization; quota/audit/delete assertions unchanged"
+    },
+    {
+      "nodeid": "tests/document_quota/test_lifecycle.py::test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[receipt]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Install exclusive-storage boundary assertion after stateless presign, before finalization; quota/audit/delete assertions unchanged"
+    },
+    {
+      "nodeid": "tests/document_safety/test_transfer_concurrency.py::test_canonical_asset_move_vs_document_waits_on_warranty_without_maker_lock_upgrade[True-True]",
+      "original": "failed",
+      "final_focused": "passed",
+      "resolution": "Preserve original guard503 via proof-specific exception"
+    }
+  ],
+  "source": {
+    "snapshot_inventory_sha256": "b164ec6abcd9baa6c92903d5a37f52e3a1bf00aae815b3257b6870d82a235bb6",
+    "snapshot_files": 4789,
+    "exact_reviewed_overlays": [
+      "backend/apps/document_storage_charge.py",
+      "backend/apps/procurement/views_receipts.py",
+      "backend/apps/warranty/views_documents.py",
+      "backend/tests/atomic_publication/domain.py",
+      "backend/tests/document_quota/helpers.py",
+      "backend/tests/document_quota/test_lifecycle.py"
+    ],
+    "all_other_entries_and_modes_identical": true,
+    "selected_runtime_count": 2029,
+    "selected_runtime_vector_sha256": "d8184d5aa0c3024d9f8a7d66f8f5ba5c2a327620783c755b37b1039ee8655803",
+    "selected_runtime_matches_final_frozen_frame_and_checkout": true,
+    "touched_production_sha256": {
+      "backend/apps/document_storage_charge.py": "61129ae2f851f2792b47188613c74b7584ae696b661cf6bf4142d9db8ea49eec",
+      "backend/apps/document_storage_quota.py": "7ce0b14b12de1f726653907ac2e4686461877f6a881bd47726e45e1b4b62e5fc",
+      "backend/apps/makerspaces/management/commands/recompute_storage.py": "f037327d6277a9b476fe35aede7757fa7e7db31a789bd5e277d38cc778c14b1c",
+      "backend/apps/makerspaces/module_purge_accounting.py": "6524dce675b504fad605daf8b1e6d628ffb06b6ff4c0608c9372408383b2276c",
+      "backend/apps/makerspaces/module_purge_graph.py": "f57ff084a2bb24b581f695fd6224d258356526bc15ff61a941df9ca7f4061110",
+      "backend/apps/makerspaces/module_purge_receipt_authority.py": "eea4434899bd3bb3271e57b7872384d274a3575570a6d902a7335f7d642c1ad0",
+      "backend/apps/makerspaces/module_purge_receipts.py": "10ece16f4d23e0330296fe078a9ef91905558ae077ef74d6854c628ba4b8d353",
+      "backend/apps/makerspaces/module_purge_sites.py": "e8fb9c6fa047f853fe4724efdd5c5d63ff2e220785e9669c9ae96e1cfcf12ac9",
+      "backend/apps/object_storage.py": "eb81a748ab60ef5c4e2f7989ad91dc7546dd2468c97a3bae7a1484dab40ab7dd",
+      "backend/apps/procurement/signals.py": "9a427fbf674a0b5012b221705f5f835894200e3df68da29e6f2f8beffb11e96d",
+      "backend/apps/procurement/storage.py": "2326fb3efb61ca92306dbb5a938b9e20141e426eca9809e40ef30820efcf1a9f",
+      "backend/apps/procurement/views_receipts.py": "66c71de0fe0c420cfbfa3810aa80c2649fdeab3ad3a8e32d071c06383489602f",
+      "backend/apps/tenant_migration/audit_references_meta_source_local.py": "13739a7bf6d46083fd57d0727cd87bc5053c5448a194113005a943fb5285f8fb",
+      "backend/apps/warranty/signals.py": "ef3eaf03b853160bfbbd2708dd6d6191ad351fe284580b8197fd20b68be54d9a",
+      "backend/apps/warranty/storage.py": "cbb911ca41d06b9ae7553009d5625ba24c640c07952daa25930225c6aa553595",
+      "backend/apps/warranty/views_documents.py": "2aa94d171d16ad72fbee351de068e7fd21d51ed691b636b30109d1dcdbe085a4"
+    },
+    "final_production_refinement_paths": [
+      "backend/apps/document_storage_charge.py",
+      "backend/apps/procurement/views_receipts.py",
+      "backend/apps/warranty/views_documents.py"
+    ],
+    "no_models_migrations_new_queue_or_protected_pin_updates": true
+  },
+  "proof_boundaries": {
+    "real_postgresql_and_real_source_storage_exclusion": true,
+    "provider_transport_replaced_by_versioned_doubles": true,
+    "legacy_declared_sizes_never_authorize_credit": true,
+    "ordinary_credit_requires_confirmed_nonempty_data_version_deletion": true,
+    "module_purge_uses_validated_frozen_provenance_and_confirmed_absence": true,
+    "actual_restore7_not_reexecuted_for_this_document_quota_delta": true,
+    "lost_on_commit_callback_is_not_automatically_retried_by_a_new_queue": true,
+    "raw_logs_xml_and_private_env_remain_private": true
+  },
+  "sanitized_xml": [
+    {
+      "file": "document-quota-pre-ledger-public-api-red.xml",
+      "sha256": "72dab116e13f6c869ea0d5181023879dc6433ada10b89ce2f2a3c4e017f3759d",
+      "cases": 3
+    },
+    {
+      "file": "document-quota-original-current-history.xml",
+      "sha256": "e975273fc617af32e146cda6f094c0c9babfa4306689985924e0d7cb050ae722",
+      "cases": 189
+    },
+    {
+      "file": "document-quota-original-compat-history.xml",
+      "sha256": "a4f64232f8098d6ecfea9b576ca1f0216048a3ee8c4663ef9d26c1df50672f11",
+      "cases": 328
+    },
+    {
+      "file": "document-quota-final-secondary.xml",
+      "sha256": "f0924aa25fe0504691364aa8accf0defc832d5c5c03cc5bc96fad9302cd5f474",
+      "cases": 30
+    },
+    {
+      "file": "document-quota-final-primary.xml",
+      "sha256": "c44d256e11d110aee530d897c1f63db9f9f1bdc162f0d08f90c4524922118dba",
+      "cases": 31
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "status": "readonly-fifth-input-admission-diagnostic",
+  "marker_state": "normal",
+  "marker_stage": "bound",
+  "marker_operation": null,
+  "marker_routing": "active",
+  "actual_containers": [
+    {
+      "service": "beat",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    },
+    {
+      "service": "backend",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    },
+    {
+      "service": "worker",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    },
+    {
+      "service": "orchestration-ready",
+      "running": false,
+      "paused": false,
+      "status": "exited",
+      "exit_code": 0
+    },
+    {
+      "service": "migrate",
+      "running": false,
+      "paused": false,
+      "status": "exited",
+      "exit_code": 0
+    },
+    {
+      "service": "orchestration-init",
+      "running": false,
+      "paused": false,
+      "status": "exited",
+      "exit_code": 0
+    },
+    {
+      "service": "createbuckets",
+      "running": false,
+      "paused": false,
+      "status": "exited",
+      "exit_code": 0
+    },
+    {
+      "service": "db",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    },
+    {
+      "service": "redis",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    },
+    {
+      "service": "minio",
+      "running": true,
+      "paused": false,
+      "status": "running",
+      "exit_code": 0
+    }
+  ],
+  "artifacts": [],
+  "describe_command": {
+    "returncode": 0,
+    "stdout_bytes": 425,
+    "stderr_bytes": 332
+  },
+  "describe_safe_fields": {
+    "stage": "requested",
+    "kind": "disaster",
+    "archive_format": "spaceworks-deployment-full-v1",
+    "archive_partial": false
+  },
+  "held_existing_root_host_lock": true,
+  "limits": [
+    "File names/sizes only; no private artifact content read except public host marker",
+    "One exact backup_control describe SELECT-only management oneoff and tracked cleanup",
+    "No RestoreInputs retry/export/decrypt/preflight/API/control mutation/grants/quiesce/restore/unblock"
+  ]
+}

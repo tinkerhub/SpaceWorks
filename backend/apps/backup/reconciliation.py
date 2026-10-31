@@ -1,6 +1,7 @@
 """Idempotent recovery for every remote promotion crash boundary."""
 
 import logging
+from contextlib import ExitStack
 
 from apps.backup import storage
 from apps.backup.artifact_ledger import (
@@ -11,6 +12,7 @@ from apps.backup.artifact_ledger import (
     mark_staging_verified,
 )
 from apps.backup.models import BackupArchive, BackupArtifactLedger
+from apps.backup.operation_lock import OperationLockUnavailable, deployment_operation_lock
 from apps.backup.promotion import promote_verified_artifact
 from apps.backup.services_archive_failures import _fail_archive
 
@@ -19,6 +21,16 @@ logger = logging.getLogger(__name__)
 
 
 def reconcile_artifact_uploads(limit=50):
+    with ExitStack() as stack:
+        try:
+            stack.enter_context(deployment_operation_lock(blocking=False))
+        except OperationLockUnavailable:
+            logger.info("backup_artifact_reconciliation_operation_lock_unavailable")
+            return 0
+        return _reconcile_artifact_uploads_locked(limit)
+
+
+def _reconcile_artifact_uploads_locked(limit):
     ids = list(
         BackupArtifactLedger.objects.filter(
             state__in=(
@@ -84,7 +96,12 @@ def _reconcile_pending(artifact_id):
             expected_sha256=row.outer_sha256,
         )
         mark_staging_verified(row.artifact_id, staging_size, staging_sha256)
-        storage.create_final_from_staging(row.staging_locator, row.final_locator)
+        storage.create_final_from_staging(
+            row.staging_locator,
+            row.final_locator,
+            expected_size=row.expected_size_bytes,
+            expected_sha256=row.outer_sha256,
+        )
         final_size, final_sha256 = storage.stream_verify(
             row.final_locator,
             expected_size=row.expected_size_bytes,

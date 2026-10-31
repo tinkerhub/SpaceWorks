@@ -6,7 +6,7 @@ from apps.machines.models import Machine, MachineServiceRequest, ServiceQueue
 from tests.machines.public_service_helpers import endpoint, post_request, service_lab
 from tests.return_helpers import make_space
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 @pytest.mark.parametrize("printer", [False, True])

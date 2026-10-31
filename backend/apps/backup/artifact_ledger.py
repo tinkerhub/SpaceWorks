@@ -11,7 +11,8 @@ from apps.backup.models import (
     BackupArtifactLedger,
     BackupComponentRecipient,
 )
-from apps.backup.outer_manifest import manifest_digest, verify_outer_manifest
+from apps.backup.outer_manifest import manifest_digest
+from apps.backup.manifest_dispatch import verify_signed_manifest
 from apps.backup.storage_promotion import final_locator, staging_locator
 
 
@@ -24,7 +25,7 @@ def persist_pending(archive, build, size_bytes):
     manifest = build.manifest
     if build.promotion_snapshot is None:
         raise ArtifactLedgerMismatch("A compound artifact has no frozen promotion snapshot.")
-    verify_outer_manifest(manifest)
+    verify_signed_manifest(manifest)
     snapshot = build.promotion_snapshot
     predecessor_id = snapshot.get("predecessor_artifact_id")
     predecessor_success = snapshot.get("predecessor_success_at")

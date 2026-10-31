@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from io import BytesIO
 from unittest.mock import Mock
 
 import pytest
@@ -13,7 +14,7 @@ from tests.return_helpers import authenticated_client, make_member, make_print_m
 from tests.test_procurement import make_inventory_manager, make_space_manager
 from tests.handout_roles import make_handout_member
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def detail_url(item):
@@ -91,7 +92,8 @@ def test_receipt_presign_finalize_list_signed_url_delete(
     assert "object_key" not in listed.data[0]
     assert signed.status_code == 200
     assert signed.data == {"url": "https://signed-receipt"}
-    assert duplicate.status_code == 400
+    assert duplicate.status_code == 201
+    assert duplicate.data["id"] == receipt.id
     assert deleted.status_code == 204
     assert not ToBuyReceipt.objects.filter(pk=receipt.pk).exists()
     delete.assert_called_once_with(object_key)
@@ -144,19 +146,12 @@ def test_receipt_finalize_rejects_foreign_makerspace_key(monkeypatch):
 def test_validate_receipt_object_sniffs_pdf_and_rejects_html(monkeypatch):
     from apps.procurement import storage
 
-    class FakeBody:
-        def __init__(self, data):
-            self.data = data
-
-        def read(self, _size):
-            return self.data
-
     class FakeClient:
         def __init__(self, data):
             self.data = data
 
         def get_object(self, Bucket, Key):
-            return {"Body": FakeBody(self.data)}
+            return {"Body": BytesIO(self.data), "ContentType": "application/pdf"}
 
     monkeypatch.setattr("apps.procurement.storage.object_size", lambda object_key: 123)
     monkeypatch.setattr("apps.procurement.storage._client", lambda: FakeClient(b"%PDF-1.5 receipt"))

@@ -1,0 +1,222 @@
+{
+  "status": "Stage 3 test authoring frozen; root execution pending; no passing-runtime claim",
+  "new_static_cases": 77,
+  "existing_native_audit_static_cases": 29,
+  "combined_static_cases": 106,
+  "count_method": "Manual parameter products cross-checked against stdlib AST function inventory; pytest collection NOT run.",
+  "root_only_command_from_repo_root": "/tmp/spaceworks-backend-test.sh -m pytest -q tests/box_parent_safety tests/test_native_box_audit.py --junitxml=/tmp/spaceworks-box-parent-stage3.xml",
+  "files": [
+    {
+      "path": "backend/tests/box_parent_safety/__init__.py",
+      "sha256": "12faa3eaf777f02cccf1e7b609b09df3f4bbb87854643965bdce9941d5e6e671",
+      "lines": 1,
+      "functions": []
+    },
+    {
+      "path": "backend/tests/box_parent_safety/http_helpers.py",
+      "sha256": "fd068f67dcb7f6e249b5df5c029e7997609b9f85e98420ab4e3574e2c86c7a63",
+      "lines": 106,
+      "functions": [
+        {
+          "function": "lab"
+        },
+        {
+          "function": "box"
+        },
+        {
+          "function": "deletion"
+        },
+        {
+          "function": "writer"
+        },
+        {
+          "function": "success"
+        },
+        {
+          "function": "vanished_parent"
+        },
+        {
+          "function": "audit_ids"
+        },
+        {
+          "function": "audit_delta"
+        },
+        {
+          "function": "assert_deleted"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/box_parent_safety/pg_helpers.py",
+      "sha256": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "lines": 131,
+      "functions": [
+        {
+          "class": "Statement",
+          "methods": []
+        },
+        {
+          "function": "maker_lock"
+        },
+        {
+          "function": "assert_maker_mode"
+        },
+        {
+          "class": "Worker",
+          "methods": [
+            "__init__",
+            "run",
+            "capture",
+            "start",
+            "paused",
+            "finish"
+          ]
+        },
+        {
+          "function": "workers"
+        },
+        {
+          "function": "blocked_by"
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/box_parent_safety/test_fresh_native_policy.py",
+      "sha256": "1b49081959e19d0589b5632bdfd059c44d88e1821951668391faf1ad272b4ef2",
+      "lines": 100,
+      "functions": [
+        {
+          "function": "native_operation"
+        },
+        {
+          "function": "test_native_admission_refuses_fresh_policy_after_real_maker_wait",
+          "static_parameter_cases": 20
+        },
+        {
+          "function": "test_native_creation_requires_module_but_edit_delete_gain_no_module_requirement",
+          "static_parameter_cases": 4
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/box_parent_safety/test_lock_contract.py",
+      "sha256": "eb80b096bc4cb8ee5a9488943fd722d45c706db3b873ee502e0d9bac16fe5838",
+      "lines": 81,
+      "functions": [
+        {
+          "function": "test_native_delete_nk_allows_unrelated_maker_fk_key_share",
+          "static_parameter_cases": 2
+        },
+        {
+          "function": "test_opposite_order_multi_maker_bulk_locks_sorted_and_audits_only_survivors",
+          "static_parameter_cases": 1
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/box_parent_safety/test_parent_races.py",
+      "sha256": "f9c7b290a489c86bf83eef50718a2f4c5780972822cca35c3f80db4b151ba3d0",
+      "lines": 150,
+      "functions": [
+        {
+          "function": "writer_clause"
+        },
+        {
+          "function": "test_parent_delete_serializes_actual_child_writers",
+          "static_parameter_cases": 24
+        },
+        {
+          "function": "test_omitted_parent_uses_committed_collector_set_null",
+          "static_parameter_cases": 6
+        },
+        {
+          "function": "test_target_disappearance_never_resurrects_or_emits_update_audit",
+          "static_parameter_cases": 6
+        },
+        {
+          "function": "test_all_parent_writers_refuse_cross_maker_parent_without_writes",
+          "static_parameter_cases": 6
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/box_parent_safety/test_source_order.py",
+      "sha256": "749291d6fccb58d666395496437305020744db433b361820c3ab5fb46ba25f9e",
+      "lines": 78,
+      "functions": [
+        {
+          "function": "try_exclusive"
+        },
+        {
+          "function": "source_select"
+        },
+        {
+          "function": "test_source_admission_before_maker_is_retained_to_outer_commit",
+          "static_parameter_cases": 8
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_native_box_audit.py",
+      "sha256": "78b5e52030022c8bdbdaed60f6da398a54853e2289377daa78da9092c35adbf2",
+      "lines": 243,
+      "only_adjusted_function": "test_registered_bulk_consumers_resolve_the_shared_helper_without_provider_wrappers",
+      "static_existing_parameter_cases": 29,
+      "change": "BoxLifecycleMixin owns Box delete_queryset; bound super delegates to AdminAuditMixin. Category remains direct AdminAuditMixin owner. All real rollback/protected-history/LogEntry assertions preserved."
+    }
+  ],
+  "observed_parent_sources": [
+    {
+      "path": "backend/apps/boxes/services.py",
+      "sha256": "b4c6a72a21919ef6c8e0929ebf82bbc1292e7ecc402a7dee72b4b9a7192aba5e",
+      "matches_parent_source_freeze": true
+    },
+    {
+      "path": "backend/apps/boxes/admin_forms.py",
+      "sha256": "504f94285124a5e4c80a72710178b1d2c4a1a2a237e93e9687067c85c155c5e6",
+      "matches_parent_source_freeze": true
+    },
+    {
+      "path": "backend/apps/boxes/admin.py",
+      "sha256": "a0a6267caf5e999f5c09126724110835a74958bad230ba8f8cb901151e42eb6b",
+      "matches_parent_source_freeze": true
+    },
+    {
+      "path": "backend/apps/boxes/admin_lifecycle.py",
+      "sha256": "febfc57a34b0cb3cb895d26d1a009039ab74014411dbf0aaa6c5a63993eeada6",
+      "matches_parent_source_freeze": true
+    },
+    {
+      "path": "backend/apps/operations/views_containers.py",
+      "sha256": "d35661ca20418b732011dedfb3bb3a32e710e73a6b9d0ba2138878ab434aab74",
+      "matches_parent_source_freeze": true
+    }
+  ],
+  "shared_helpers_read_only": [
+    {
+      "path": "backend/tests/qr_target_safety_helpers.py",
+      "sha256": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9"
+    },
+    {
+      "path": "backend/tests/native_box_audit_helpers.py",
+      "sha256": "c6d6944bb31d6c2c00117a60e233c6e2078935a41bcc950d7dd262c1dc0f6dc2"
+    }
+  ],
+  "observations_required_by_authored_tests": [
+    "Actual native single/bulk HTTP deletion versus QR API, container API and native child creation, PATCH/native assignment and move; both real PostgreSQL winner orders.",
+    "Thread execute_wrapper retains complete SQL, parameters and backend PID; pg_blocking_pids establishes exact blocking edge. pg_stat_activity.query never used. No lock/provider/workflow patch, sleep-based lock proof, database lock_timeout or statement_timeout.",
+    "Exact FOR NO KEY UPDATE native/QR-service SQL and exact FOR UPDATE container API SQL. Real unrelated Maker FK INSERT commits with SET CONSTRAINTS ALL IMMEDIATE while native NK lock remains held.",
+    "Opposite POST selection order AND opposite native changelist ordering across two Makers; both workers must lock Maker IDs sorted, complete without retry, canonical-audit only surviving selected rows, retain four native deletion-attempt logs.",
+    "Actual Collector SET_NULL SQL precedes DELETE, including child committed after preflight. Sparse omitted-parent PATCH/move/native edit retain fresh NULL. Explicit vanished parents refuse with exact 400/404 or native field errors before write.",
+    "Target disappearance never resurrects a Box or emits false control update audit. After-wait native actor inactive/suspended/non-superuser/forced-password-change and hidden-Maker policy refuse. Creation module remains required; native edit/delete gain none.",
+    "Source N SQL precedes Maker, with no later N admission SQL; actual shared advisory lock excludes exclusive try-lock before Maker and after HTTP return until caller outer commit."
+  ],
+  "limits": [
+    "No pytest collection/execution, Django/application import, runtime, build, staging or commit performed by this author. Only stdlib AST/hash/line checks and source reading.",
+    "Existing four genuine QUIESCED QR defects and their tests are untouched and remain separate open work. This parent suite does not claim QR revocation/rebind/source-gate closure.",
+    "Existing protected-history, Category direct-owner and real audit-INSERT rollback controls remain in the amended native audit module; execution is pending root.",
+    "Existing duplicate/cycle/200-character/orphan-QR/revoked-history tests are preserved, not counted as new coverage or claimed passing. No availability/billing feature assertions introduced.",
+    "Current five source hashes match historical parent freeze; a later authorized QR-only edit may supersede services.py/admin.py hashes while retaining parent classes/functions. Re-run against the actual combined source."
+  ],
+  "independent_review": "audit_backend_finish read every authored test/helper and exact amended MRO assertion; AST/hash checks only. Real PostgreSQL winner/SQL/blocking/outercommit claims remain execution-pending with root. Existing native helper root argument rename was read, not edited."
+}

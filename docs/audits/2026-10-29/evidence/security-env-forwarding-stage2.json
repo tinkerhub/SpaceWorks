@@ -1,0 +1,154 @@
+{
+  "captured_at_utc": "2026-10-29T22:04:11.557Z",
+  "stage": 2,
+  "validation_kind": "static source inspection only",
+  "approved_inputs_sha256": {
+    "docs/audits/2026-10-29/evidence/security-env-forwarding-plan.md": "b0466dfef82033a02a0c8c17e84cdd45872a71768aa53112adfb294c7ecff162",
+    "docs/audits/2026-10-29/evidence/security-env-forwarding-review.txt": "df8fa8eb085d6bb8f2e8d487c657f2ef58b48a5cefabd7c91e0cec6209c043ed"
+  },
+  "edited_source_sha256": {
+    "docker-compose.yml": {
+      "entry_snapshot_sha256": "9947ffd1239c4791423375524de0df924ca3c01115ae28b70bc32c274297b2b2",
+      "handoff_sha256": "2d020f77297db1941e03c91a0646c50118b979e020e9100ce5e380bfb18b6ecc"
+    },
+    "docker-compose.prod.yml": {
+      "entry_snapshot_sha256": "059aacc1522b77925b52aeeb0e525b1b5b0895aa7b2f0c6f80f34ec3efcbde43",
+      "handoff_sha256": "a88a0db72fd5c6222bf6e2105b2659f8d2415f132758d46b2d1054edac62ab75"
+    },
+    "docker-compose.cloud.yml": {
+      "entry_snapshot_sha256": "fe6dfec21bf9867fc7d2a53a6e9b747fb36ceaa2c885acbeabb39f59a110d16b",
+      "handoff_sha256": "d272a6b6ae421cd18b6b5737b039ed5d12d16ac9cf4919c665f57ae4bb40043b"
+    },
+    ".env.example": {
+      "entry_snapshot_sha256": "30a10246a59038323a6fba079d5242b36da3d12145c8d9bd691d119eb16617a6",
+      "handoff_sha256": "2b2349472ec3524b2363f3bdcd937b2de23c5de9eee87a9de94dd447b952f284"
+    },
+    "docs/self-hosting.md": {
+      "entry_snapshot_sha256": "eed7c6f635111793f27d1809e429b64e99319075677450d0e12104b266402151",
+      "handoff_sha256": "1041b0705d9526cfe70be09522b2cbaa5a4800b879fc4db50a99c16ed13550a1"
+    },
+    "docs/scoped-pii-encryption.md": {
+      "entry_snapshot_sha256": "4eb9743ed52cee41eb9eb2481d4fc8da59ac83f0d4d5c57ce0bd21f2af8c7d2b",
+      "handoff_sha256": "2a5e193d6bcc2a7849a494123891e8a6d219b15f1cbbe4be50ed22e658534f1c"
+    }
+  },
+  "reference_source_sha256_at_handoff": {
+    "backend/config/settings.py": "b49349b0708b12816577efb88834ae1b51207ec48a35962c94413ceb505c4e1f",
+    "backend/apps/inventory/middleware.py": "28bd8fef47bcc087fdfb48c54fe707b5b6e2a0ae99a4427f204ec6368c2230bd",
+    "AGENTS.md": "f1a04f4b84a8d6138f78c90900826908563c2129a569a779dc8342aa9e323c60",
+    "CLAUDE.md": "f1a04f4b84a8d6138f78c90900826908563c2129a569a779dc8342aa9e323c60"
+  },
+  "defaults_as_literal_environment_strings": {
+    "PII_ENCRYPTION_ENABLED": "False",
+    "PII_ENCRYPTION_DUAL_READ": "True",
+    "PII_KEY_BROKER": "local",
+    "PII_MASTER_KEY": "",
+    "PII_MASTER_KEY_PREVIOUS": "",
+    "PII_SEARCH_HASH_KEY": "",
+    "PII_DEK_CACHE_TTL_SECONDS": "300",
+    "PII_AWS_KMS_KEY_ID": "",
+    "PII_AWS_KMS_REGION": "",
+    "PII_AWS_KMS_ENDPOINT_URL": "",
+    "HMAC_CLIENT_ID": "",
+    "HMAC_SECRET": "",
+    "HMAC_MAX_CLOCK_SKEW_SECONDS": "300",
+    "APICLIENT_REQUIRE_NONCE": "False",
+    "HMAC_PROTECTED_PATH_PREFIXES": "/api/public/,/api/v1/public/",
+    "API_CLIENT_AUTH_REQUIRED": "False"
+  },
+  "compose_static_inspection": {
+    "docker-compose.yml": {
+      "anchor": "backend-env",
+      "added_settings": [
+        "PII_ENCRYPTION_ENABLED",
+        "PII_ENCRYPTION_DUAL_READ",
+        "PII_KEY_BROKER",
+        "PII_MASTER_KEY",
+        "PII_MASTER_KEY_PREVIOUS",
+        "PII_SEARCH_HASH_KEY",
+        "PII_DEK_CACHE_TTL_SECONDS",
+        "PII_AWS_KMS_KEY_ID",
+        "PII_AWS_KMS_REGION",
+        "PII_AWS_KMS_ENDPOINT_URL",
+        "API_CLIENT_AUTH_REQUIRED"
+      ],
+      "unchanged_existing_settings": [
+        "HMAC_CLIENT_ID",
+        "HMAC_SECRET",
+        "HMAC_MAX_CLOCK_SKEW_SECONDS",
+        "APICLIENT_REQUIRE_NONCE",
+        "HMAC_PROTECTED_PATH_PREFIXES"
+      ],
+      "removing_only_added_entries_restores_entry_snapshot": true,
+      "all_other_compose_bytes_including_bootstrap_and_ready_unchanged": true
+    },
+    "docker-compose.prod.yml": {
+      "anchor": "backend-env",
+      "added_settings": [
+        "PII_ENCRYPTION_ENABLED",
+        "PII_ENCRYPTION_DUAL_READ",
+        "PII_KEY_BROKER",
+        "PII_MASTER_KEY",
+        "PII_MASTER_KEY_PREVIOUS",
+        "PII_SEARCH_HASH_KEY",
+        "PII_DEK_CACHE_TTL_SECONDS",
+        "PII_AWS_KMS_KEY_ID",
+        "PII_AWS_KMS_REGION",
+        "PII_AWS_KMS_ENDPOINT_URL",
+        "HMAC_CLIENT_ID",
+        "HMAC_SECRET",
+        "HMAC_MAX_CLOCK_SKEW_SECONDS",
+        "APICLIENT_REQUIRE_NONCE",
+        "HMAC_PROTECTED_PATH_PREFIXES",
+        "API_CLIENT_AUTH_REQUIRED"
+      ],
+      "unchanged_existing_settings": [],
+      "removing_only_added_entries_restores_entry_snapshot": true,
+      "all_other_compose_bytes_including_bootstrap_and_ready_unchanged": true
+    },
+    "docker-compose.cloud.yml": {
+      "anchor": "app-env",
+      "added_settings": [
+        "PII_ENCRYPTION_ENABLED",
+        "PII_ENCRYPTION_DUAL_READ",
+        "PII_KEY_BROKER",
+        "PII_MASTER_KEY",
+        "PII_MASTER_KEY_PREVIOUS",
+        "PII_SEARCH_HASH_KEY",
+        "PII_DEK_CACHE_TTL_SECONDS",
+        "PII_AWS_KMS_KEY_ID",
+        "PII_AWS_KMS_REGION",
+        "PII_AWS_KMS_ENDPOINT_URL",
+        "HMAC_CLIENT_ID",
+        "HMAC_SECRET",
+        "HMAC_MAX_CLOCK_SKEW_SECONDS",
+        "APICLIENT_REQUIRE_NONCE",
+        "HMAC_PROTECTED_PATH_PREFIXES",
+        "API_CLIENT_AUTH_REQUIRED"
+      ],
+      "unchanged_existing_settings": [],
+      "removing_only_added_entries_restores_entry_snapshot": true,
+      "all_other_compose_bytes_including_bootstrap_and_ready_unchanged": true
+    }
+  },
+  "static_checks": {
+    "settings_and_commented_example_default_literals_match": true,
+    "agents_claude_byte_identical": true,
+    "scoped_git_diff_whitespace_clean": true
+  },
+  "handoff_report_sha256": "e8bd7cc01f25154652f3345794b9733d5d506d8e692281b0b96e24bfdbc8da63",
+  "pending": [
+    "Stage 3 actual Compose resolution and process-effective settings proof",
+    "root-owned schema/build/review/QA",
+    "refresh affected Compose hashes in parent full-backup 60-file freeze without losing old evidence"
+  ],
+  "not_performed": [
+    "tests or collection",
+    "application imports/runtime",
+    "Docker or network",
+    "DB/provider access",
+    "live configuration or deployment",
+    "key generation or rotation",
+    "staging or commits"
+  ]
+}

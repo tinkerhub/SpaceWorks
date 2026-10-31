@@ -1,0 +1,36 @@
+{
+  "status": "source-tests-frozen-scoped41pass-and-actual-candidate-pass",
+  "files": [
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+      "lines": 255
+    },
+    {
+      "path": "scripts/restore.sh",
+      "sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+      "lines": 72
+    }
+  ],
+  "candidate_runtime_proof": "docs/audits/2026-10-29/evidence/restore-actual-oid-candidate-target-proof.json",
+  "candidate_runtime_proof_sha256": "d99d474eb8168d9b1787888a9d4792e0d049a3100fddbdf23d23e14eecd3ff5d",
+  "source_delta": "One SQL oid::bigint cast in independent JSON corroboration + exact matching25guard SHA; all dictionary/system/name/UUID/physical/port/marker checks preserved.",
+  "tests": [
+    {
+      "path": "backend/tests/backup/test_restore_target_oid_json.py",
+      "sha256": "2d7a2be826d01d77c2bbbabfeee03caca7a4b3d81c3745964424584af38b1ca5",
+      "lines": 237
+    }
+  ],
+  "source_manifest": "Parent owns approved64/25/59refresh after runtime test proof. No current source manifest was changed here.",
+  "runtime": {
+    "parent_result": "41 passed in14.40s",
+    "new_real_pg16_oid_cases": 3,
+    "prior_probe_and_redis_controls": 38,
+    "xml": "docs/audits/2026-10-29/evidence/restore-oid-and-probe-controls-round1.xml",
+    "xml_sha256": "39aa20b8af15f2b4d32d57c5f4ce824c120667ff6d590a608455728b1588c22a",
+    "test_sha256": "2d7a2be826d01d77c2bbbabfeee03caca7a4b3d81c3745964424584af38b1ca5",
+    "test_bytes_equal_parent_immutable_runtime_snapshot": true
+  },
+  "current_source_manifest_sha256": "aa3315bd0a22404200bc547d961f909f63586eb48973bc9c63581c83df66c309"
+}

@@ -1,0 +1,62 @@
+{
+  "reviewer": "/root/audit_backend_finish",
+  "scope": "HW002/HW003/BOX-S01 approved v3 plus nested-box addendum",
+  "status": "source independently inspected; separate Stage3 writers active; central runtime pending",
+  "files": [
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_helpers.py",
+      "sha256": "4ecdebd59b5a944d069b61c14cbbf4b4b647e8dcacb3b08de3e753cb9b22829a",
+      "lines": 261
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_workflow.py",
+      "sha256": "c74b44e60cf2302f6bbe2a92a7ec4b2b497968c8cb31d84057ee62d7d1a6e5ac",
+      "lines": 296
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_workflow.py",
+      "sha256": "93a34086c5cfbae88aa1642dcfda9ed41d08631a77ee60b20d7ad26a5807bba3",
+      "lines": 240
+    },
+    {
+      "path": "backend/apps/hardware_requests/handover_workflow.py",
+      "sha256": "0fd29e429bdbc1d8c0b0e8f09dab97d39194aedcee790b40c7e7ab62200a36d5",
+      "lines": 234
+    },
+    {
+      "path": "backend/apps/hardware_requests/problem_report_workflow.py",
+      "sha256": "ff9411222d5f520fe6da4c4b8cda9c624117b7d79804f160eb432768adfc7cf1",
+      "lines": 192
+    },
+    {
+      "path": "backend/apps/makerspaces/guards.py",
+      "sha256": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f",
+      "lines": 86
+    },
+    {
+      "path": "backend/apps/evidence/finalization.py",
+      "sha256": "bd142781ad54a234b291f16f38051c77fbb0fc31d2228154e9f87859a0977189",
+      "lines": 196
+    },
+    {
+      "path": "backend/apps/boxes/api_views_eligibility.py",
+      "sha256": "1253f1f7446572dcb239f533b88554518d8f17ef69f6c9b305a82302637f0a0f",
+      "lines": 109
+    },
+    {
+      "path": "backend/apps/boxes/services.py",
+      "sha256": "a8b226c45ea48711d9b8301027eb0f627c84acd455e3c9530005a22c42466426",
+      "lines": 22
+    },
+    {
+      "path": "backend/apps/boxes/api_views_qr.py",
+      "sha256": "94b274fc53fe82eec7a29e84ef73493732ca93bce99dfc25bfe22766ef9f4569",
+      "lines": 289
+    },
+    {
+      "path": "backend/apps/boxes/contents.py",
+      "sha256": "57f5fc4ccc545293a9fb2db80f3d0baca6ace54315c508639cf8ff77d79d1ca4",
+      "lines": 39
+    }
+  ]
+}

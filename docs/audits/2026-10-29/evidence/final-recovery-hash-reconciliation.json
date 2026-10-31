@@ -1,0 +1,20 @@
+{
+  "status": "all-current-focused-source-maps-match",
+  "manifest_sha256": "4259b27fd000859aa8e9a201a020a09d9bdf6c532b5d530f0955e99f1de050b5",
+  "maps": {
+    "source_files": {
+      "count": 65,
+      "mismatches": []
+    },
+    "guarded_host_dependencies": {
+      "count": 25,
+      "mismatches": []
+    },
+    "pinned_runtime_copy_files": {
+      "count": 59,
+      "mismatches": []
+    }
+  },
+  "after": "266 functional/compatibility checks and nine real process cases passed; exact5source/5copy/1guard refresh published",
+  "limits": "Focused source/hash reconciliation does not replace actual restore image boundary or independently reviewed approvals."
+}

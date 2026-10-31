@@ -83,6 +83,12 @@ def _return_evidence(request, evidence_id):
 
 
 def _require_returnable(locked):
+    if PublicToolLoan.objects.filter(
+        request_id=locked.pk, makerspace_id=locked.makerspace_id
+    ).exists():
+        raise ReturnValidationError(
+            "This loan must be returned through its public tool or direct loan return flow."
+        )
     if locked.status not in {
         HardwareRequest.Status.ISSUED,
         HardwareRequest.Status.PARTIALLY_RETURNED,

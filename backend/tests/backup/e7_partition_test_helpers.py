@@ -10,6 +10,7 @@ from django.utils import timezone
 from apps.backup import outer_manifest
 from apps.backup.digests import sha256_file
 from apps.backup.outer_manifest_validation import component_id
+from apps.backup.source_capture_facts import source_capture_facts_from_capture
 from apps.backup.source_reservations import ReservationCapture
 from tests.backup.e7_manifest_test_facts import bind_source_partition_proof
 
@@ -56,6 +57,7 @@ def signed_manifest(
 def source_verifier_case(
     root, *, capture_id=None, archive=None, rule_overrides=None,
     registry_digest=None, slice_digest=None, fence_digest=None,
+    freeze_source_facts=True,
 ):
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
@@ -118,7 +120,7 @@ def source_verifier_case(
         expected_main_ledger={"catalog": "verified"},
         user_closure_digest=digest("user-closure"),
         frozen_population_ids=(MAKERSPACE_ID,),
-        frozen_population=(),
+        frozen_population=({"makerspace_id": MAKERSPACE_ID, "custody_state": "healthy"},),
         frozen_slices=(frozen,),
         platform_recipients=frozenset({"age1platforme7testrecipient"}),
         slice_entries=[{
@@ -144,6 +146,8 @@ def source_verifier_case(
         component_counts={rule["constraint_identity"]: {slice_id: 2}},
         component_key_digests={rule["constraint_identity"]: {}},
     )
+    if freeze_source_facts:
+        capture.source_capture_facts = source_capture_facts_from_capture(capture)
     return capture, reconstruction
 
 

@@ -1,0 +1,41 @@
+{
+  "existing_test_functions_source_and_ast_verified_unchanged": 33,
+  "files": {
+    "backend/tests/accounts/test_login_methods_p10.py": {
+      "after_sha256": "4efe9491dbcafa3cff4f97c40c290d77894eac9a8acb1950acaa1a017a29f6c8",
+      "before_sha256": "626cb6144a852d117fa691e9dafe8ecdc69b03b15097827532327755c0325092",
+      "current_sha256": "4efe9491dbcafa3cff4f97c40c290d77894eac9a8acb1950acaa1a017a29f6c8"
+    },
+    "backend/tests/accounts/test_social_auth.py": {
+      "after_sha256": "39b3406fe0d2e7b755ff6000b4f2906ab85ebd85161cdc3af6f7112bceabe020",
+      "before_sha256": "cab149542bc6e4055851d4966aa4f4238658decc544477dc1493927157988012",
+      "current_sha256": "39b3406fe0d2e7b755ff6000b4f2906ab85ebd85161cdc3af6f7112bceabe020"
+    },
+    "backend/tests/box_checkout_guard_helpers.py": {
+      "after_sha256": "0ec609b20f836eda529e64b1d1688002f89eb0334ac94481875e3612e3231490",
+      "before_sha256": "289ad4ca3c4872a0b60a9c9393f127a6a8c46f8c3e07b1cea47f76ee90db2700",
+      "current_sha256": "59700353588c5de4bbdd75128cf5d88ef337cba34b87dcff0a49ac4a8fb05b43"
+    }
+  },
+  "functions": {
+    "backend/tests/accounts/test_social_auth.py::register_social_member_origin": {
+      "after_sha256": "ea0040c909fc17a0e3fac98f69b0a3475b3d2517af66f0af526bdd868c6cc517"
+    },
+    "backend/tests/box_checkout_guard_helpers.py::resolve_actions": {
+      "after_sha256": "2608598a16dfa74100459f23b086c5590d302ab621ac99408ecf83481cfbf782",
+      "before_sha256": "edb0035ffd2c2b8a09a6567dfbf0cfb6cfe2c9c5c4d021b70526af61af953a9c",
+      "current_exact_source_segment_sha256": "eab9a152ad4a3165748624b9289886808f0dfd948b6e20243fdcb39b0acd21d9"
+    }
+  },
+  "independent_review": "All three exact edits read. Shared member CORS fixture preserves existing origins and is imported as the same autouse fixture by login-method tests; no PLATFORM_STAFF grants. Scanner helper requires one new canonical qr.scanned audit linked to the exact new scan, with actor/Maker/target/context/id equality and full old audit/domain history preserved.",
+  "independent_verification_correction": "Additionally assert the new scan itself belongs to the QR Maker and compare the full old+new scan snapshot rather than popping QrScanEvent. This tightens the approved full-domain contract; no audit or scan history is excluded.",
+  "reviewed_at_utc": "2026-10-30T06:13:05.737705+00:00",
+  "reviewer": "/root/audit_backend_finish",
+  "runtime": "not run; 72 box / 10 social failures remain unclassified",
+  "runtime_status": "Not run by child. Original10 social and72 scanner failures remain baseline-unclassified until full-run traceback; focused runtime pending root free lane.",
+  "scope": "Three test files only; no app-source, runtime, private environment, build, staging or commit actions.",
+  "unchanged_decorated_test_functions": {
+    "count": 33,
+    "source_and_ast_sha256": "ceecaef294f570da3ed3e3e40a52975db2937962aa8face3db257c93af292122"
+  }
+}

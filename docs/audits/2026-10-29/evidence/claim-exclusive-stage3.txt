@@ -1,0 +1,5 @@
+Appended one function with exactly two cases (`0`, actual maker) in [test_raw_boundaries.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/claim_source_safety/test_raw_boundaries.py:174). File is 225 lines; existing bytes are unchanged.
+
+AST/hash report: [freeze JSON](/tmp/spaceworks-claim-exclusive-test-freeze.json).
+
+No tests, collection, application imports, runtime, build, staging, or commit performed.

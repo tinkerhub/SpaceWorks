@@ -5,6 +5,8 @@ changed fields are recorded -- never field values -- so a credential typed into 
 cannot reach the append-only log.
 """
 
+from django.db import transaction
+
 from apps.audit import services as audit
 
 
@@ -65,6 +67,7 @@ class AdminAuditMixin:
         self._audit_delete(request, obj)
         super().delete_model(request, obj)
 
+    @transaction.atomic
     def delete_queryset(self, request, queryset):
         for obj in queryset:
             self._audit_delete(request, obj)

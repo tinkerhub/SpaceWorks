@@ -1,0 +1,361 @@
+{
+  "phase": "first_complete_run_before_corrective_changes",
+  "production_ready": false,
+  "branch": "dev",
+  "base_commit": "1aadf475",
+  "planned_version": "0.9.0",
+  "frozen_source_sha256": "f6f01d9952f2b643948cf512aa92ec455dfcd26b95dd9b72f01e3621f4f4b674",
+  "frozen_source_files": 3356,
+  "source_drift_during_runs": [],
+  "suites": {
+    "core": {
+      "tests": 6134,
+      "failures": 74,
+      "errors": 0,
+      "skipped_or_expected_failure": 14,
+      "seconds": 3157.525,
+      "exit_code": 1,
+      "junit_sha256": "015b4d317cf866b82c84df4bdaa0e6c1e906a61a9500d75317ce30450e63f050",
+      "failures_detail": [
+        {
+          "test": "tests.accounts.test_claim_read_only::test_every_read_only_policy_executes_without_database_writes[member-directory-detail-GET-directory-detail]",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.accounts.test_claim_read_only::test_every_read_only_policy_executes_without_database_writes[member-directory-detail-HEAD-directory-detail]",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.bookings.test_admin_api::test_duplicate_finalize_loser_preserves_winner_object_and_accounting",
+          "message": "assert 503 == 400\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.checkin.test_machine_service_views::test_checked_in_walk_in_can_submit_a_printer_request",
+          "message": "AssertionError: b'{\"detail\":\"Evidence storage is unavailable.\",\"code\":\"evidence_storage_unavailable\"}'\nassert 503 == 201\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.events.test_collaborative_waiver_durability_p14::test_the_membership_module_purge_keeps_visitor_waiver_evidence",
+          "message": "TypeError: membership_delete() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.events.test_collaborative_waiver_durability_p14::test_membership_module_purge_keeps_cross_tenant_waiver_evidence",
+          "message": "TypeError: membership_delete() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_capacity_below_late_occurrence_occupancy_conflicts_and_rolls_back_everything",
+          "message": "AssertionError: assert (503, 'evidence_storage_unavailable') == (409, 'capacity_conflict')\n  \n  At index 0 diff: 503 != 409\n  \n  Full diff: (-: missing in left side, +: extra in left side)\n    (\n  -     409,\n  ?     ^ ^\n  +     503,\n  ?     ^ ^\n  -     'capacity_conflict',\n  +     'evidence_storage_unavailable',\n    )"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_inherited_capacity_promotes_fifo_once_without_creating_overrides[2-1]",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_inherited_capacity_promotes_fifo_once_without_creating_overrides[0-2]",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_approval_required_occurrences_never_auto_promote_on_unlimited_capacity",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_published_policy_toggle_conflicts_and_rolls_back_template_occurrences_and_audits",
+          "message": "AssertionError: assert (503, 'evidence_storage_unavailable') == (409, 'invalid_transition')\n  \n  At index 0 diff: 503 != 409\n  \n  Full diff: (-: missing in left side, +: extra in left side)\n    (\n  -     409,\n  ?     ^ ^\n  +     503,\n  ?     ^ ^\n  -     'invalid_transition',\n  +     'evidence_storage_unavailable',\n    )"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_draft_policy_toggle_is_inherited_without_becoming_an_override",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.events.test_series_inheritance_invariants::test_explicit_capacity_policy_and_title_overrides_survive_template_updates",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.machines.test_consumable_public_eligibility::test_public_submit_rejects_forged_ids_for_every_ineligible_active_pool",
+          "message": "assert 503 == 400\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.machines.test_consumable_public_eligibility::test_type_catalog_and_typed_submission_share_the_safe_compatible_pool_choices",
+          "message": "assert (503 == 400)\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_a_visible_profile_publishes_no_attendance_until_the_flag_is_set",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_setting_the_flag_publishes_the_list",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_clearing_the_flag_withdraws_the_list_again",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_list_is_newest_first_and_carries_only_id_title_and_start",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_list_is_capped_while_the_count_stays_truthful",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_events_sharing_a_start_time_order_deterministically",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_only_attended_registrations_appear",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_an_email_only_registration_never_attaches_to_a_profile",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_another_members_attendance_never_appears",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_events_p14::test_attendance_in_another_space_never_appears",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_module_off_omits_every_event_key_including_the_new_one",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_serialized_profile_omits_absent_activity_keys_rather_than_nulling_them",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_serialized_profile_exposes_the_flag_and_the_list",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_an_opted_out_profile_serializes_without_the_list_key",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_the_flag_is_writable_through_the_api",
+          "message": "assert 503 in (200, 202)\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_the_consent_change_is_audited_without_any_event_content",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_an_unrelated_profile_save_reports_no_consent_change",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_withdrawing_consent_is_audited_as_a_change",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.makerspaces.test_profile_attended_payload_p14::test_the_directory_listing_carries_no_activity_at_all",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_admin_api::test_admin_bulk_import_preview_and_apply_are_makerspace_scoped",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_apply_creates_missing_category_by_name",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_apply_maps_full_supported_inventory_fields",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_async_file_job_applies_csv_with_mapping",
+          "message": "AssertionError: assert 'failed' == BulkImportJob.Status.COMPLETED\n  \n  - completed\n  + failed"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_async_apply_partially_imports_valid_rows",
+          "message": "AssertionError: assert 'failed' == BulkImportJob.Status.COMPLETED\n  \n  - completed\n  + failed"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_async_job_applies_rows_and_exposes_status",
+          "message": "AssertionError: assert 'failed' == BulkImportJob.Status.COMPLETED\n  \n  - completed\n  + failed"
+        },
+        {
+          "test": "tests.test_admin_api::test_bulk_import_accepts_xlsx_upload",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_admin_control_locks_and_gate::test_makerspace_purge_only_through_the_slug_confirmed_action",
+          "message": "assert 200 == 302\n +  where 200 = <TemplateResponse status_code=200, \"text/html; charset=utf-8\">.status_code"
+        },
+        {
+          "test": "tests.test_inventory_stock_bucket_guards::test_bulk_import_update_does_not_overwrite_existing_quantity_buckets",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_inventory_stock_bucket_guards::test_bulk_import_create_seeds_total_and_available_but_refuses_workflow_buckets",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_managed_limits_enforcement::test_managed_bulk_import_checks_all_new_names_before_writing",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_managed_limits_enforcement::test_managed_makerspace_email_daily_cap_blocks_delivery",
+          "message": "assert EmailLog.Status.SKIPPED == EmailLog.Status.FAILED\n  \n  - failed\n  + skipped"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_profile_image_key_from_another_makerspace_is_refused",
+          "message": "assert 503 == 400\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_member_cannot_edit_another_members_project",
+          "message": "TypeError: save_projects() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_publishing_a_profile_never_publishes_contact_details",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_member_of_another_space_cannot_read_this_directory",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_revoked_member_disappears_from_the_directory",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_uninstalling_membership_closes_the_profile_surfaces_but_keeps_the_data",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_malformed_project_id_does_not_delete_the_avatar",
+          "message": "assert 503 == 400\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_profile_mutations_are_audited_without_copying_the_content",
+          "message": "apps.audit.models.AuditLog.DoesNotExist: AuditLog matching query does not exist."
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_the_github_task_is_inert_without_a_token",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_purging_a_module_releases_the_storage_its_images_held",
+          "message": "TypeError: _delete_public_images_and_free_storage() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_storage_is_not_freed_when_the_object_delete_failed",
+          "message": "TypeError: _delete_public_images_and_free_storage() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_freeing_storage_skips_an_object_that_is_already_gone",
+          "message": "TypeError: _delete_public_images_and_free_storage() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_storage_accounting_never_breaks_a_purge",
+          "message": "TypeError: _delete_public_images_and_free_storage() missing 1 required keyword-only argument: 'guard'"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_github_count_is_never_written_under_a_changed_handle",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_a_github_count_is_stored_when_the_handle_is_unchanged",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_module_program_security_p11::test_the_presign_cap_does_not_block_clearing_an_image",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code\n +    where <Response status_code=503, \"application/json\"> = delete('/api/v1/member/makerspaces/3203/profile/image')\n +      where delete = <rest_framework.test.APIClient object at 0x11e88adb0>.delete"
+        },
+        {
+          "test": "tests.test_procurement::test_received_status_delete_and_export_all_succeed",
+          "message": "assert 503 == 204\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_tracking_mode_changes::test_bulk_update_without_tracking_column_keeps_individual_mode",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.test_tracking_mode_changes::test_bulk_update_tracking_change_on_stocked_product_is_a_row_error",
+          "message": "assert 503 == 200\n +  where 503 = <Response status_code=503, \"application/json\">.status_code"
+        },
+        {
+          "test": "tests.machines.test_public_service_concurrency::test_concurrent_first_typed_posts_create_one_queue_and_two_jobs",
+          "message": "AssertionError: Competing workflow never waited on the first workflow's lock"
+        },
+        {
+          "test": "tests.test_admin_access::test_superadmin_can_delete_archived_makerspace_from_django_admin",
+          "message": "assert 200 == 302\n +  where 200 = <TemplateResponse status_code=200, \"text/html; charset=utf-8\">.status_code"
+        },
+        {
+          "test": "tests.makerspaces.test_tenant_servability_guard::test_every_archived_style_site_participates_in_tenant_servability",
+          "message": "AssertionError: Archived-style tenant exclusions must call the canonical servability policy or be documented as recovery/import exemptions: [('makerspaces/purge_intent.py', 'require_purgeable')]\nassert not {('makerspaces/purge_intent.py', 'require_purgeable')}"
+        },
+        {
+          "test": "tests.test_deploy_host_scripts::test_retire_tombstone_preserves_surviving_tokens_and_cleans_shell",
+          "message": "assert 'updates' not in \"OTHER=value\\n export TOMBSTONED_APPS='payments, updates, mobile'\\n\\nTOMBSTONED_APPS=payments, mobile\\n\"\n  \n  'updates' is contained here:\n    OTHER=value\n     export TOMBSTONED_APPS='payments, updates, mobile'\n  ?                                    +++++++\n    \n    TOMBSTONED_APPS=payments, mobile"
+        },
+        {
+          "test": "tests.test_platform_update_scripts::test_host_version_and_force_decide_whether_to_apply[different-version]",
+          "message": "AssertionError: [Space Works updater] ERROR: Invalid SPACEWORKS_REPOSITORY.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/opt/homebrew/bin/bash', '/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-23/test_host_version_and_force_de0/scripts/update.sh', '--no-module-changes'], returncode=1, stdout='', stderr='[Space Works updater] ERROR: Invalid SPACEWORKS_REPOSITORY.\\n').returncode"
+        },
+        {
+          "test": "tests.test_platform_update_scripts::test_host_version_and_force_decide_whether_to_apply[force-reinstall]",
+          "message": "AssertionError: assert 'updates' not in 'TOMBSTONED_APPS=updates,payments\\n\\nTOMBSTONED_APPS=payments\\n'\n  \n  'updates' is contained here:\n    TOMBSTONED_APPS=updates,payments\n  ?                 +++++++\n    \n    TOMBSTONED_APPS=payments"
+        },
+        {
+          "test": "tests.test_platform_update_scripts::test_host_version_and_force_decide_whether_to_apply[untracked-install]",
+          "message": "AssertionError: assert 'updates' not in 'TOMBSTONED_APPS=updates,payments\\n\\nTOMBSTONED_APPS=payments\\n'\n  \n  'updates' is contained here:\n    TOMBSTONED_APPS=updates,payments\n  ?                 +++++++\n    \n    TOMBSTONED_APPS=payments"
+        },
+        {
+          "test": "tests.test_put_finalize::test_public_image_post_finalize_retries_transient_missing_object",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        },
+        {
+          "test": "tests.test_put_finalize::test_public_image_finalize_uses_size_not_exists",
+          "message": "apps.evidence.storage.StorageUnavailable"
+        }
+      ]
+    },
+    "backup": {
+      "tests": 1631,
+      "failures": 6,
+      "errors": 0,
+      "skipped_or_expected_failure": 29,
+      "seconds": 1878.241,
+      "exit_code": 1,
+      "junit_sha256": "47a9ba1a6887d04cda764460f2bbdc0a62092a02d0fdfc007bd653d31a7b4719",
+      "failures_detail": [
+        {
+          "test": "tests.backup.test_events_programme_deployment_roundtrip::test_deployment_restore_preserves_disabled_archived_graph_and_two_key_request",
+          "message": "TypeError: test_deployment_restore_preserves_disabled_archived_graph_and_two_key_request.<locals>.<lambda>() got an unexpected keyword argument 'guard'"
+        },
+        {
+          "test": "tests.tenant_migration.test_source_gate_locks::test_shared_writer_blocks_exclusive_and_exclusive_refuses_tenant_write",
+          "message": "assert 204 == 503\n +  where 204 = <HttpResponse status_code=204, \"text/html; charset=utf-8\">.status_code"
+        },
+        {
+          "test": "tests.tenant_migration.test_authority_dispositions_d8::test_literal_section_3a_matrix_covers_every_authority_override_exactly_once",
+          "message": "AssertionError: assert {('payments.MakerspacePaymentSettings', 'stripe_publishable_key'), ('integrations.DestinationMachineScope', 'id'), ('payments.Payment', 'via_makerspace'), ('accounts.User', 'role'), ('integrations.NotificationDestination', 'webhook_url'), ('makerspaces.Makerspace', 'mattermost_webhook_url'), ('payments.Payment', 'external_order_id'), ('accounts.User', 'external_checkin_user_id'), ('machines.Machine', 'is_public'), ('makerspaces.MemberProject', 'description'), ('payments.Pa...\n[+811 more lines; full report in element text]"
+        },
+        {
+          "test": "tests.tenant_migration.test_authority_guard::test_complete_authority_registry_is_valid",
+          "message": "apps.tenant_migration.authority_guards.AuthorityRegistryError: exported authorization inputs are undeclared: [('machines.Machine', 'name'), ('machines.MachineType', 'name'), ('machines.MachineType', 'slug'), ('makerspaces.Makerspace', 'name'), ('makerspaces.Makerspace', 'slug'), ('makerspaces.MakerspaceRole', 'name')]"
+        },
+        {
+          "test": "tests.tenant_migration.test_authority_guard::test_mechanically_discovered_authority_inputs_are_explicit",
+          "message": "AssertionError: assert frozenset({('makerspaces.MakerspaceMembership', 'makerspace'), ('machines.Machine', 'is_active'), ('makerspaces.MakerspaceRole', 'slug'), ('machines.MachineType', 'name'), ('makerspaces.Makerspace', 'archived_at'), ('machines.Machine', 'name'), ('makerspaces.MakerspaceRole', 'makerspace'), ('machines.Machine', 'status'), ('machines.MachineType', 'slug'), ('makerspaces.MakerspaceMembership', 'role'), ('makerspaces.MakerspaceMembership', 'assigned_role'), ('makerspaces.Maker...\n[+8 more lines; full report in element text]"
+        },
+        {
+          "test": "tests.tenant_migration.test_target_projection::test_expected_values_cover_the_complete_projection",
+          "message": "AssertionError: assert {('makerspaces.Makerspace', 'checkin_required_purpose'), ('makerspaces.Makerspace', 'domain_verified_at'), ('makerspaces.Makerspace', 'smtp_username'), ('makerspaces.Makerspace', 'enabled_modules'), ('makerspaces.Makerspace', 'resource_limit_overrides'), ('makerspaces.Makerspace', 'frontend_domain_changed_at'), ('makerspaces.Makerspace', 'archived_at'), ('makerspaces.Makerspace', 'smtp_host'), ('makerspaces.Makerspace', 'smtp_port'), ('makerspaces.Makerspace', 'hidden_from...\n[+135 more lines; full report in element text]"
+        }
+      ]
+    }
+  },
+  "outcome_counts": {
+    "total": 7765,
+    "passed": 7642,
+    "failed": 80,
+    "skipped": 14,
+    "expected_failures": 29
+  }
+}

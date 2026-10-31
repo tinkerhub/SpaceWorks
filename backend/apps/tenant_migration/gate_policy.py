@@ -93,7 +93,7 @@ ADMIN_ACTION_EXEMPTIONS = {
         "Tenant archive is expressly excluded from source quiescence."
     ),
     "makerspaces.Makerspace.purge_makerspaces": (
-        "Tenant purge is expressly excluded from source quiescence."
+        "Selection renders only a confirmation form; the dedicated POST route owns exclusive purge locks."
     ),
 }
 
@@ -111,7 +111,7 @@ TASK_EXEMPTIONS = {
     "apps.backup.tasks.run_backup_archive_task": "Deployment/tenant backup control plane.",
     "apps.backup.tasks.scheduled_deployment_backup_task": "Deployment backup control plane.",
     "apps.backup.tasks.purge_expired_backup_archives_task": "Platform backup retention.",
-    "apps.backup.tasks.cleanup_expired_restore_rollbacks_task": "Deployment recovery cleanup.",
+    "apps.backup.tasks.cleanup_expired_restore_rollbacks_task": "Actual rollback_cleanup.cleanup_expired_rollback_objects owns nonblocking operation lock, per-known-Maker source fences and frozen-intent exclusion; source_gate_module_guards pins its callers.",
     "apps.backup.tasks.deliver_archive_custody_alarms_task": (
         "Archive-custody alarm delivery. Writes only its own outbox rows and the "
         "derived custody-state delivery marker -- both deployment control-plane "
@@ -126,13 +126,13 @@ TASK_EXEMPTIONS = {
     "apps.backup.tasks.reconcile_backup_artifacts_task": (
         "Deployment-local backup staging, verification, and artifact ledger recovery."
     ),
-    "apps.tenant_migration.tasks.cleanup_expired_import_jobs_task": "Target-side import retention and recovery.",
-    "apps.tenant_migration.tasks.cleanup_abandoned_import_objects_task": "Target-side import object rollback does not mutate the frozen source.",
+    "apps.tenant_migration.tasks.cleanup_expired_import_jobs_task": "Actual import service owns the unscoped shared publication boundary; validated by source_gate_import_guards.",
+    "apps.tenant_migration.tasks.cleanup_abandoned_import_objects_task": "Actual import service owns the unscoped shared publication boundary; validated by source_gate_import_guards.",
     "apps.tenant_migration.tasks.cleanup_refused_tenant_dump_artifacts_task": (
         "Lane D unpublished-byte cleanup mutates only source-deployment coordination state."
     ),
-    "apps.tenant_migration.tasks.resume_expired_finalizing_import_jobs_task": "Target-side import finalization recovery does not mutate the frozen source.",
-    "apps.tenant_migration.tasks.run_import_job_task": "Target-side tenant materialization does not mutate the frozen source.",
+    "apps.tenant_migration.tasks.resume_expired_finalizing_import_jobs_task": "Actual import service owns the unscoped shared publication boundary; validated by source_gate_import_guards.",
+    "apps.tenant_migration.tasks.run_import_job_task": "Actual import service owns the unscoped shared publication boundary; validated by source_gate_import_guards.",
 }
 
 
@@ -158,7 +158,7 @@ TASK_TENANT_RESOLVERS = {
 # whole scan would let an unrelated tenant delay quiescence.
 TASK_INTERNAL_PARTICIPANTS = {
     "apps.tenant_migration.tasks.run_migration_export_job_task": (
-        "The source export claims and holds source_archive_write for its full lifecycle."
+        "The export claims its source snapshot, then reasserts its exact live lease with source_archive_boundary for publication."
     ),
     "apps.data_export.tasks.purge_expired_exports_task": (
         "Each expired export uses the skip-and-count tenant boundary."
@@ -190,6 +190,8 @@ TASK_INTERNAL_PARTICIPANTS = {
 # Exact function owners for deployment-wide scans that resolve and gate one tenant at
 # a time. The AST guard requires every owner to use the shared skip-and-count boundary.
 FANOUT_GATE_PARTICIPANTS = {
+    "apps.backup.rollback_cleanup._cleanup_restore": "Explicit rollback cleanup skips and counts closed tenant rows under the retained host and unscoped source boundary.",
+    "apps.backup.rollback_cleanup._cleanup_expired": "Expired rollback cleanup skips and counts closed tenant rows under the retained host and unscoped source boundary.",
     "apps.data_export.tasks.purge_expired_exports_task": "Expired export cleanup.",
     "apps.evidence.services_retention.sweep_evidence_retention": (
         "Evidence object expiry."
@@ -211,60 +213,5 @@ LIFECYCLE_EXEMPTIONS = {
 }
 
 
-# Non-view object mutations whose caller supplies the request/task session gate or a
-# service-owned transaction gate. These are participation declarations, not bypasses;
-# the AST guard rejects stale targets.
-OBJECT_MUTATION_PARTICIPANTS = {
-    "apps.admin_api.bulk_import_apply._attach_image": "Runs inside the tenant-resolved admin bulk-import route.",
-    "apps.data_export.services._fail_job": "Called only by the task-resolved run_export_job lifecycle.",
-    "apps.data_export.services._finalize_job": "Called only by the task-resolved run_export_job lifecycle.",
-    "apps.data_export.services.run_export_job": (
-        "The export task resolves and holds the tenant gate for this lifecycle."
-    ),
-    "apps.evidence.finalization.finalize_upload": "Reached only through the already-declared handover, return and direct-loan entry points.",
-    "apps.evidence.services_retention._sweep_makerspace": (
-        "The fan-out service owns one tenant source-gate boundary at a time."
-    ),
-    "apps.events.services_images.remove_image": "Called by the tenant-resolved event image route.",
-    "apps.events.services_images.update_image": "Called by the tenant-resolved event image route.",
-    "apps.events.services_series_images.remove_image": "Called by the tenant-resolved event series image route.",
-    "apps.events.services_series_images.update_image": "Called by the tenant-resolved event series image route.",
-    "apps.events.services.update_event": (
-        "Runs inside the tenant-resolved admin event route's transaction; it can clear "
-        "image_key when an occurrence stops overriding its series template."
-    ),
-    "apps.hardware_requests.direct_loan_returns.validate_evidence_upload": "Runs inside the guarded direct-loan return transaction.",
-    "apps.hardware_requests.handover_workflow.issue_request": "Runs inside the request route's tenant transaction.",
-    "apps.hardware_requests.return_workflow.return_items": "Runs inside the request route's tenant transaction.",
-    "apps.inventory.public_image_attach._delete_upload": "Called only by finalize_product_image below.",
-    "apps.inventory.public_image_attach.finalize_product_image": (
-        "Reached only through the tenant-resolved inventory image route and admin bulk import."
-    ),
-    "apps.machines.public_printer_service.submit_request": "Runs inside the public-slug printer request route.",
-    "apps.machines.public_service_intake.submit_typed_request": (
-        "Runs inside the public-slug machine-service request route's tenant boundary."
-    ),
-    "apps.machines.services.attach_document": "Runs inside the model-resolved machine document route.",
-    "apps.machines.services.remove_document": "Runs inside the model-resolved machine document route.",
-    "apps.machines.services.remove_image": "Runs inside the model-resolved machine image route.",
-    "apps.machines.services.update_image": "Runs inside the model-resolved machine image route.",
-    "apps.maintenance.services_documents.delete_log_document": "Runs inside the model-resolved maintenance document route.",
-    "apps.maintenance.services_documents.finalize_log_document": "Runs inside the model-resolved maintenance document route.",
-    "apps.makerspaces.lifecycle_storage._delete_public_image_keys": "Tenant purge is an express source-gate exclusion.",
-    "apps.makerspaces.profile_images._swap": "Runs inside the authenticated member profile image route.",
-    "apps.tenant_migration.tenant_dump_cleanup.cleanup_refused_tenant_dump_artifacts": (
-        "Deletes only private Lane D coordination artifacts after a refused run."
-    ),
-    "apps.tenant_migration.tenant_dump_publication._delete_unpublished": (
-        "Post-commit cleanup of a refused Lane D coordination artifact."
-    ),
-    "apps.tenant_migration.tenant_dump_publication._discard_failed_registration": (
-        "Fail-closed cleanup of an unpublished Lane D coordination artifact."
-    ),
-    "apps.tenant_migration.tenant_dump_publication.register_unpublished_artifact": (
-        "Offline Lane D sealing writes only a private publication-staging object."
-    ),
-    "apps.tenant_migration.services_export_job.run_migration_export_job": (
-        "The migration export lifecycle owns source_archive_write while uploading."
-    ),
-}
+from .gate_http_ownership import SERVICE_OWNED_HTTP_BOUNDARIES  # noqa: E402,F401
+from .gate_object_policy import OBJECT_MUTATION_PARTICIPANTS  # noqa: E402,F401

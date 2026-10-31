@@ -18,6 +18,7 @@ from apps.accounts.admin_user_control import (
     UserControlAdminMixin,
     api_exception_message as _api_exception_message,
 )
+from apps.accounts.admin_user_image_guards import UserImageDeleteAdminMixin
 from apps.accounts.models import NativeAppRegistration, User
 from apps.accounts.principal_guards import refuse_anonymous_requester_access_mutation
 from apps.admin_api.services_user_access import reset_user_password
@@ -41,7 +42,7 @@ class RestrictAccessForm(forms.Form):
 
 @admin.register(User)
 class UserAdmin(
-    UserControlAdminMixin, StaffMembershipAdminMixin, SuperuserOnlyModelAdmin,
+    UserImageDeleteAdminMixin, UserControlAdminMixin, StaffMembershipAdminMixin, SuperuserOnlyModelAdmin,
     DjangoUserAdmin, ModelAdmin,
 ):
     actions = ["restrict_access", "restore_access", "reset_password_selected"]

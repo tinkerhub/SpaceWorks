@@ -1,0 +1,207 @@
+{
+  "task": "Stage 3 TEST-ONLY generation runtime fixture correction",
+  "recorded_at_utc": "2026-10-30T03:03:19.035752+00:00",
+  "git_head_sha": "1aadf4752b92517349f28cb1cae7543acf38006c",
+  "changed_repository_files": [
+    "backend/tests/qr_source_safety/test_generation_fresh_policy.py"
+  ],
+  "new_repository_helper_modules": [],
+  "target_before_sha256": "d030b95007868f8acaea5363145e73a8ea671e6f809db28b11ca6fb32d7bb1e6",
+  "target_after_sha256": "be3541eb4e369658fe54d1a2c92b0cc6f7769f6922189b51b175ffbf6271db43",
+  "static_check_script_sha256": "7c71c592c13a76595e455a09bfd155665e66de46222cfa78b22be41419fe38e2",
+  "failure_evidence": {
+    "path": "/tmp/spaceworks-qr-source-main-combined-round1.log",
+    "sha256": "ddc728db44560e34f36264d5ac70e5798f25288924b81336a1d39ae21e23c281",
+    "generation_failure": "test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-hidden-maker]",
+    "reported_cycle": "PID 6320 waits on transaction 599057 held by PID 6319; PID 6319 waits on transaction 599058 held by PID 6320",
+    "classification": "Impossible fixture winning history: Controller holds Product, Gen holds Maker UPDATE and waits Product, then Controller tries to UPDATE the same Maker. PostgreSQL correctly detects the fixture-created cycle.",
+    "actual_combined_log_summary": "28 failed, 371 passed, 382 warnings in 687.11s (0:11:27)",
+    "scope_note": "Exactly one generation failure is addressed; the other 27 combined-log failures are outside this file ownership. No new runtime result is claimed."
+  },
+  "case_count_change": {
+    "generation_before": {
+      "functions": 4,
+      "cases": 19
+    },
+    "generation_after": {
+      "functions": 5,
+      "cases": 19
+    },
+    "qr_source_suite_before": {
+      "functions": 38,
+      "cases": 273
+    },
+    "qr_source_suite_after": {
+      "functions": 39,
+      "cases": 273
+    },
+    "negative_before": 10,
+    "negative_after": 9,
+    "replacement_serialization_positive_before": 0,
+    "replacement_serialization_positive_after": 1,
+    "case_delta": 0,
+    "test_function_delta": 1,
+    "preserved_negative_case_ids": [
+      "maker-inactive",
+      "maker-suspended",
+      "maker-non-superuser",
+      "maker-password-rotation",
+      "maker-hidden-maker",
+      "product-inactive",
+      "product-suspended",
+      "product-non-superuser",
+      "product-password-rotation"
+    ],
+    "historical_root_main_snapshot": "The old root/main 273-case snapshot remains historical and was not modified. Current 273 is independently derived statically from parameter syntax; it is not a new collected or passing runtime count."
+  },
+  "canonical_hide_policy": {
+    "service": "apps.backup.activation.set_superadmin_access",
+    "lock_context": "apps.backup.custody.with_makerspace_custody_lock",
+    "source_context": "transaction.atomic() then boundary_tenant_write(home.pk), then custody Maker UPDATE",
+    "existing_prerequisite": "Two verified, non-revoked, non-compromised MakerspaceArchiveRecipient fixture rows, using the established test_activation_e6 row fixture shape",
+    "new_features_required": false,
+    "hider_actor": "lab.actor (existing Space Manager)",
+    "hide_transition": "on -> off_pending with flag false and canonical audit in the same transaction"
+  },
+  "coherent_winning_history_asserted_by_new_test": [
+    "Controller session holds actual Product SELECT FOR UPDATE. Native generation uses the real prepared native admin POST with count 2.",
+    "Generation completes actual Maker SELECT FOR UPDATE on its own PID and then waits on the scoped Product SELECT FOR UPDATE. blocked_by binds complete SQL and parameters to Gen -> Controller using pg_blocking_pids.",
+    "Third Hider session takes supported Source N shared admission in its outer SQL transaction before the canonical custody Maker UPDATE. Full source SQL ordering plus pg_locks ShareLock ownership is asserted.",
+    "Hider waits Maker behind Generation; blocked_by binds full Maker SQL/parameters to Hider -> Gen via pg_blocking_pids. Three distinct session PIDs and both simultaneous edges are asserted.",
+    "Controller COMMIT releases Product. Generation reaches its actual audit INSERT pause after acquiring Product; Hider is still proven blocked by Gen, and Maker is still visible.",
+    "Generation is released and commits. Hider pauses immediately after its actual Maker UPDATE lock acquisition, before the service can change the flag. Generation finishes with 302 and exactly the Generated 2 QR asset(s) for 1 product(s). success message.",
+    "While Hider is paused before mutation, assert Maker visible, exactly two assets and two active asset QR codes, exact total/available quantity 2, and exactly one asset_units.generated audit with root actor, Maker, Product target, and count 2.",
+    "Release Hider. Canonical hide returns successfully with off_pending after commit; assert flag false, activation off_pending, and the exact Space Manager hide audit after the generation audit.",
+    "Call actual generate_assets_with_qr with native=True after hide using original actor/product; assert PermissionDenied and exact persisted-state equality before/after. No hidden-target GET/redirect is accepted as a refusal proof."
+  ],
+  "proof_limitations": "The lock history above describes executable assertions added to the test, not newly observed PostgreSQL behavior. Runtime and collection were explicitly prohibited.",
+  "verification": {
+    "static_only": true,
+    "static_checks_passed": true,
+    "line_count": 233,
+    "existing_function_bodies_unchanged": [
+      "mutate_policy",
+      "test_actual_generation_preserves_module_quota_and_quantity_refusals",
+      "test_api_generation_hidden_maker_explicit_membership_keeps_manage_qr_authority",
+      "test_generation_reuses_missing_qr_before_adding_units_and_updates_quantities",
+      "test_native_generation_refuses_fresh_policy_after_actual_row_wait"
+    ],
+    "frozen_file_hashes_unchanged": {
+      "backend/tests/qr_source_safety/state_helpers.py": "cb27d7c3cc849c210afcbc615786ffc93a9ecf16e6fae7458e29d820415f4f87",
+      "backend/tests/qr_source_safety/test_scope_before_gate.py": "a91f5c8c6707db5e688bf77b859e83c1a09e47058cac5a4583cc4ee8141483fe",
+      "backend/tests/qr_source_safety/test_source_lock_lifetime.py": "813567ab44b1aae9c8ee15dbf8a8753ac805cdc8cc9fff400a6aeff06155c604",
+      "backend/tests/qr_source_safety/test_native_effective_selection.py": "2fffa9c4db3ca64e16e014b51e0eeb08ccb8688900a3f98626de257190d81503",
+      "backend/tests/qr_source_safety/http_helpers.py": "6ecad6755ce56a2d93c4ee46b144eea65b2995f02b6226aefcdd29b7d040d4a9",
+      "backend/tests/qr_source_safety/__init__.py": "809c9bb5b15284ab5f6def6749f3655caef58af0b16a64fd72f2b112932329f4",
+      "backend/tests/qr_source_safety/test_quiesced_http.py": "d93957b11c27170de4beec18fbaaecaf0b8064ade6111bf5ce630e2aa8badfb6",
+      "backend/tests/qr_source_safety/test_audit_rollback_closure.py": "8122ff57fd3877869b88a597f236b3b6d70a159ae1777e9f5bb98ed9c8c51514",
+      "backend/tests/qr_source_safety/test_openapi_contract.py": "4755522d7cec8f5bbb8f27bb61cb033287466473826c3bb51411efad1cdf58c0",
+      "backend/tests/qr_source_safety/test_fresh_target_waits.py": "84018953aff5026923d87493c80f8544c54638dd4aab46dd19ea6a145a563128",
+      "backend/tests/qr_source_safety/test_native_canonical_audit.py": "fe5afc2fc9fe98474b764bd38b1c19f2033b0af812ffb23ced6feb841eb953ca",
+      "backend/tests/qr_source_safety/race_helpers.py": "543f861f6a8af797914d0f887cd2cd87124e711c01c30a69e8389b6570bb63ab",
+      "backend/tests/qr_source_safety/test_fresh_qr_waits.py": "764b6b3c467fc98b28f49588fc81a94c172576d4f4da5a306326399cc753ca19",
+      "backend/tests/qr_source_safety/pg_helpers.py": "2c202de00e98b2efa49ce0d6c900654359aad9cc927610a5d2b1aa0885f1b575",
+      "backend/tests/qr_source_safety/test_resolve_audit.py": "5573a9b1c08671484d0d3223d707878e221db62a0f238b5366cec278183d1a38",
+      "backend/tests/box_parent_safety/pg_helpers.py": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+      "backend/tests/box_parent_safety/test_source_order.py": "749291d6fccb58d666395496437305020744db433b361820c3ab5fb46ba25f9e",
+      "backend/tests/qr_target_safety_helpers.py": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+      "backend/apps/operations/services_qr_assets.py": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+      "backend/apps/boxes/qr_admission.py": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "backend/apps/makerspaces/guards.py": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f",
+      "backend/apps/backup/activation.py": "3100e0b05a41385849d0ad8d63bdf2fa9d0a7c5647fb80190057338f0e360400",
+      "backend/apps/backup/custody.py": "6cf5b678aa3a0fb8e294d9988584ca14a9f399114c79df48319034aa96ab2a32",
+      "backend/apps/tenant_migration/gate_runtime.py": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332"
+    },
+    "module_counts": {
+      "test_audit_rollback_closure.py": {
+        "functions": 1,
+        "cases": 10
+      },
+      "test_fresh_qr_waits.py": {
+        "functions": 2,
+        "cases": 48
+      },
+      "test_fresh_target_waits.py": {
+        "functions": 4,
+        "cases": 22
+      },
+      "test_generation_fresh_policy.py": {
+        "functions": 5,
+        "cases": 19
+      },
+      "test_native_canonical_audit.py": {
+        "functions": 7,
+        "cases": 12
+      },
+      "test_native_effective_selection.py": {
+        "functions": 2,
+        "cases": 6
+      },
+      "test_openapi_contract.py": {
+        "functions": 3,
+        "cases": 9
+      },
+      "test_quiesced_http.py": {
+        "functions": 6,
+        "cases": 48
+      },
+      "test_resolve_audit.py": {
+        "functions": 5,
+        "cases": 21
+      },
+      "test_scope_before_gate.py": {
+        "functions": 1,
+        "cases": 40
+      },
+      "test_source_lock_lifetime.py": {
+        "functions": 3,
+        "cases": 38
+      }
+    },
+    "whitespace_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/tmp/spaceworks-qr-generation-fixture-before.py",
+        "backend/tests/qr_source_safety/test_generation_fresh_policy.py"
+      ],
+      "exit_code": 1,
+      "diagnostics": "",
+      "interpretation": "No whitespace diagnostics; exit 1 is normal for differing files in no-index mode."
+    },
+    "pytest_collection": "not run",
+    "pytest_runtime": "not run",
+    "django_imports": "not performed by any command",
+    "build": "not run",
+    "stage": "not performed",
+    "commit": "not performed",
+    "source_changes": "none",
+    "skip_xfail_or_deadlock_swallow": "none",
+    "lock_proof": "Existing full-SQL Worker capture and pg_blocking_pids; watchdog deadlines are failure guards only, never evidence. No sleep or timeout added as proof."
+  },
+  "commands": [
+    "rg -n 'FAIL|ERROR|deadlock|product-hidden|short test|passed|failed' /tmp/spaceworks-qr-source-main-combined-round1.log",
+    "sed -n '1,205p' /tmp/spaceworks-qr-source-main-combined-round1.log",
+    "cat backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+    "cat backend/tests/box_parent_safety/pg_helpers.py backend/tests/qr_source_safety/pg_helpers.py backend/tests/qr_source_safety/http_helpers.py backend/tests/qr_source_safety/state_helpers.py",
+    "cat backend/apps/operations/services_qr_assets.py",
+    "cat backend/apps/backup/activation.py backend/apps/boxes/qr_admission.py backend/apps/makerspaces/guards.py",
+    "sed -n '100,145p' backend/apps/operations/services_qr_assets.py",
+    "sed -n '120,185p' backend/apps/inventory/admin.py",
+    "cat backend/apps/backup/custody.py && sed -n '1,120p' backend/tests/backup/test_activation_e6.py && cat backend/tests/qr_target_safety_helpers.py && cat backend/apps/tenant_migration/gate_runtime.py",
+    "git rev-parse HEAD",
+    "shasum -a 256 backend/tests/qr_source_safety/test_generation_fresh_policy.py /tmp/spaceworks-qr-source-main-combined-round1.log",
+    "python3 /tmp/spaceworks-qr-generation-static-check.py",
+    "diff -u /tmp/spaceworks-qr-generation-fixture-before.py backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+    "git diff --no-index --check /tmp/spaceworks-qr-generation-fixture-before.py backend/tests/qr_source_safety/test_generation_fresh_policy.py"
+  ],
+  "mutation_tool": "apply_patch, restricted to the single allowed test file",
+  "supporting_static_artifacts": [
+    "/tmp/spaceworks-qr-generation-fixture-before.py",
+    "/tmp/spaceworks-qr-generation-fixture-before-sha.json",
+    "/tmp/spaceworks-qr-generation-static-check.py",
+    "/tmp/spaceworks-qr-generation-static-results.json"
+  ]
+}

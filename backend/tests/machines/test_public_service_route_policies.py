@@ -14,7 +14,7 @@ from tests.accounts.claim_helpers_p7 import redeemed_claim, start_claim_presence
 from tests.machines.public_service_helpers import endpoint, object_io, post_request, service_lab
 from tests.return_helpers import make_space
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def request_for(path, method="GET", body=None):

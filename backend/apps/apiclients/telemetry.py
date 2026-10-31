@@ -1,8 +1,10 @@
 import ipaddress
 import json
 import logging
+import re
 from datetime import UTC, datetime
 from functools import lru_cache
+from uuid import uuid4
 
 import redis
 from django.conf import settings
@@ -18,6 +20,10 @@ BUCKET_TTL_SECONDS = 2 * 24 * 60 * 60
 KEY_PREFIX = "apiclients:usage"
 SIGNED_KIND = "signed"
 BROWSER_KIND = "browser"
+BUCKET_PATTERN = re.compile(
+    rf"{re.escape(KEY_PREFIX)}:(?:{SIGNED_KIND}|{BROWSER_KIND}):([0-9]{{12}})"
+    r"(?::draining(?::[0-9a-f]{32})?)?"
+)
 
 
 @lru_cache(maxsize=4)
@@ -103,28 +109,30 @@ def flush_usage_observations(*, now=None, redis_client=None):
             bucket = _parse_bucket(key)
             if bucket is None or bucket >= current_minute:
                 continue
-            # Detach the bucket before reading it. HGETALL followed by DEL is not atomic:
-            # a request that selected this minute just before the boundary but executed its
-            # HSET between the two would be deleted unseen, and a low-frequency client's
-            # last_seen_at would stay stale. RENAME is atomic, so a late write lands in a
-            # freshly recreated bucket that the next flush picks up.
-            drained_key = f"{key}:draining"
-            try:
-                redis_client.rename(key, drained_key)
-            except redis.ResponseError:
-                # The bucket vanished between the scan and here -- a concurrent flush took
-                # it. Not an error, and not ours to process.
-                continue
-            except Exception:
-                # Anything else is a real Redis problem. Log it: swallowing it silently
-                # would stop all usage telemetry while looking like an idle deployment,
-                # which is exactly the wrong signal for deciding a client is stale.
-                logger.warning(
-                    "api_client_usage_bucket_detach_failed",
-                    extra={"bucket": key},
-                    exc_info=True,
-                )
-                continue
+            # Retry detached buckets in place; concurrent retries are monotonic in DB.
+            drained_key = key
+            if ":draining" not in key:
+                # Detach atomically so late writes recreate the original bucket. Keep
+                # each detached generation immutable, including after a failed flush.
+                # RENAMENX preserves the TTL and cannot overwrite an existing drain.
+                drained_key = f"{key}:draining:{uuid4().hex}"
+                try:
+                    if not redis_client.renamenx(key, drained_key):
+                        continue
+                except Exception as exc:
+                    # Only a missing source is an expected concurrent claim. Other
+                    # Redis failures must remain visible to operators.
+                    if (
+                        isinstance(exc, redis.ResponseError)
+                        and str(exc) == "no such key"
+                    ):
+                        continue
+                    logger.warning(
+                        "api_client_usage_bucket_detach_failed",
+                        extra={"bucket": key},
+                        exc_info=True,
+                    )
+                    continue
             consumed_keys.append(drained_key)
             for raw_client_id, raw_payload in redis_client.hgetall(drained_key).items():
                 client_id = (
@@ -146,11 +154,12 @@ def flush_usage_observations(*, now=None, redis_client=None):
 
 
 def _parse_bucket(key):
+    match = BUCKET_PATTERN.fullmatch(key)
+    if match is None:
+        return None
     try:
-        return datetime.strptime(key.rsplit(":", 1)[1], "%Y%m%d%H%M").replace(
-            tzinfo=UTC
-        )
-    except (IndexError, ValueError):
+        return datetime.strptime(match[1], "%Y%m%d%H%M").replace(tzinfo=UTC)
+    except ValueError:
         return None
 
 
@@ -177,7 +186,7 @@ def _bulk_update_observations(newest):
         return 0
     with transaction.atomic():
         clients = list(
-            ApiClient.objects.select_for_update().filter(client_id__in=client_ids)
+            ApiClient.objects.select_for_update().filter(client_id__in=client_ids).order_by("pk")
         )
         changed = []
         for client in clients:

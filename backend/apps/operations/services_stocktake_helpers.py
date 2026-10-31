@@ -1,7 +1,7 @@
 from rest_framework.exceptions import ValidationError
 
 from apps.inventory import availability
-from apps.inventory.models import InventoryAsset, InventoryProduct
+from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 from apps.operations.models import (
     InventoryAdjustment,
     StocktakeLedgerEntry,
@@ -40,6 +40,8 @@ def _asset_new_status(line):
 def _validate_line_scope(stocktake, line):
     if line.product_id and line.product.makerspace_id != stocktake.makerspace_id:
         raise ValidationError("Stocktake line product belongs to another makerspace.")
+    if line.product_id and not line.asset_id:
+        _validate_product_count(line.product)
     if line.asset_id:
         if line.asset.makerspace_id != stocktake.makerspace_id:
             raise ValidationError("Stocktake line asset belongs to another makerspace.")
@@ -97,6 +99,13 @@ def _validate_line_fresh(line):
         current = _product_expected(product, line.condition)
     if current != line.expected_quantity:
         raise ValidationError("Stocktake line is stale; recount before applying.")
+
+
+def _validate_product_count(product):
+    if product.tracking_mode == TrackingMode.INDIVIDUAL:
+        raise ValidationError(
+            {"product_id": "Individual-tracked products must be counted by asset unit; scan or select an asset."}
+        )
 
 
 def _validate_asset_count(asset, counted_quantity):

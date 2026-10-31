@@ -4,6 +4,8 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.accounts.models import User
 from apps.makerspaces.management.commands.list_modules import resolve_makerspace
 from apps.makerspaces.module_purge import purge_module, purgeable_modules
+from apps.backup.operation_lock import OperationLockUnavailable
+from apps.tenant_migration.gate_errors import SourceMigrationGateError
 
 
 class Command(BaseCommand):
@@ -44,17 +46,36 @@ class Command(BaseCommand):
                 raise CommandError("Confirmation did not match; nothing was purged.")
 
         try:
-            counts = purge_module(makerspace, options["module"], actor)
+            receipt, counts = purge_module(makerspace, options["module"], actor)
         except ValidationError as exc:
-            raise CommandError("; ".join(exc.messages)) from exc
+            pending = self._pending_receipt(makerspace.pk, options["module"])
+            raise CommandError("; ".join(exc.messages) + pending) from exc
+        except (OperationLockUnavailable, SourceMigrationGateError) as exc:
+            pending = self._pending_receipt(makerspace.pk, options["module"])
+            raise CommandError("Module cleanup busy or source-closed." + pending) from exc
+        except Exception as exc:
+            pending = self._pending_receipt(makerspace.pk, options["module"])
+            raise CommandError("Module cleanup completion is unconfirmed." + pending) from exc
 
-        if not counts:
-            self.stdout.write(f"No {options['module']} data was present for {makerspace.slug}.")
-            return
-        summary = ", ".join(f"{name}={value}" for name, value in sorted(counts.items()))
-        self.stdout.write(
-            self.style.SUCCESS(f"Purged {options['module']} for {makerspace.slug}: {summary}")
-        )
+        summary = ", ".join(f"{name}={value}" for name, value in sorted(counts.items())) or "no new graph rows"
+        self.stdout.write(self.style.SUCCESS(
+            f"Module graph removed for {makerspace.slug}: {summary}. "
+            f"Receipt {receipt.pk}; storage last verified {receipt.last_verified_at.isoformat()}. "
+            "Late-upload cleanup remains available. Unknown original sizes and native "
+            "procurement carry no refund; authoritative recompute is available after verified cleanup."
+        ))
+
+    @staticmethod
+    def _pending_receipt(maker_id, module):
+        from apps.makerspaces.models import ModulePurgeReceipt
+
+        row = ModulePurgeReceipt.objects.filter(
+            source_makerspace_id=maker_id, module_key=module, invalidated_at__isnull=True,
+        ).first()
+        if row is None:
+            return " (No module purge intent was committed.)"
+        state = "graph pending; zero refund" if row.graph_purged_at is None else "graph removed; no credit replay"
+        return f" (Receipt {row.pk}: {state}; byte cleanup unconfirmed.)"
 
     def _actor(self, username):
         # The purge is superadmin-only, and the audit entry must name a real actor --

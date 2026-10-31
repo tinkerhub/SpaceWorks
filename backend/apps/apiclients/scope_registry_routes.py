@@ -34,6 +34,8 @@ _WRITE = ("POST",)
 # target mode, tenant-app admission, legacy-v1 admission). Legacy admission is explicit
 # so adding a route cannot silently widen the frozen cutover capability.
 _ROUTE_DEFINITIONS = (
+    ("hardware_requests:own-requests", _READ, PUBLIC_READ_SCOPES, TARGET_TENANT_SLUG, False, False),
+    ("public-own-machine-service-requests", _READ, PUBLIC_READ_SCOPES, TARGET_TENANT_SLUG, False, False),
     ("public-makerspaces", _READ, PUBLIC_READ_SCOPES, TARGET_GLOBAL, True, True),
     ("v1:public-makerspaces", _READ, PUBLIC_READ_SCOPES, TARGET_GLOBAL, True, True),
     ("public-inventory", _READ, PUBLIC_READ_SCOPES, TARGET_TENANT_SLUG, False, True),

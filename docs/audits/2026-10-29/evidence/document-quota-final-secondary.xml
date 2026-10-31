@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="document-quota-final-secondary" tests="30" failures="0" errors="0" skipped="0">
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[identity-receipt]" time="20.311" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[identity-asset]" time="16.049" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[identity-machine]" time="7.019" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[endpoint-receipt]" time="11.209" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[endpoint-asset]" time="11.325" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[endpoint-machine]" time="10.116" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[bucket-receipt]" time="9.305" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[bucket-asset]" time="9.427" />
+  <testcase classname="tests.document_quota.test_admission" name="test_missing_or_invalid_context_is_typed_503_rolls_back_and_retries_without_put[bucket-machine]" time="8.636" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[receipt]" time="11.873" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[asset]" time="7.066" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_real_debit_is_on_added_event_and_delete_releases_original_pk_once[machine]" time="16.925" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[self-host-receipt]" time="14.553" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[self-host-asset]" time="28.984" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[self-host-machine]" time="13.486" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[unlimited-receipt]" time="7.655" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[unlimited-asset]" time="12.070" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[unlimited-machine]" time="7.051" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[add-false-receipt]" time="7.295" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[add-false-asset]" time="9.960" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_no_actual_finite_debit_creates_no_proof_or_refund[add-false-machine]" time="6.617" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_losing_accounting_context_after_real_charge_never_invents_credit[receipt]" time="8.052" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_losing_accounting_context_after_real_charge_never_invents_credit[asset]" time="7.363" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_losing_accounting_context_after_real_charge_never_invents_credit[machine]" time="6.670" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_cross_tenant_delete_cannot_release_local_charge[receipt]" time="8.769" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_cross_tenant_delete_cannot_release_local_charge[asset]" time="7.818" />
+  <testcase classname="tests.document_quota.test_lifecycle" name="test_cross_tenant_delete_cannot_release_local_charge[machine]" time="7.406" />
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[receipt]" time="8.295" />
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[asset]" time="8.567" />
+  <testcase classname="tests.document_safety.test_public_quota_refund_regression" name="test_actual_document_delete_restores_finite_capacity_for_next_cycle[machine]" time="16.005" />
+</testsuite>

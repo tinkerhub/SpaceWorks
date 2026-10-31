@@ -1,0 +1,18 @@
+Implemented both approved plans within exactly ten production files: **+202/−82 lines** against the starting dirty source.
+
+Canonical target lookup, atomic QR/scan auditing, shared native/API box creation, request-bound form admission, batch validation, and print refusal documentation are in place. Procurement/warranty changes are limited to the approved audit mixin additions.
+
+AST parsing and diff whitespace checks passed. Every touched file is ≤300 lines; largest is 289. Revocation and suffix formatting remain byte-identical.
+
+Complete production caller list:
+
+- `qr_target` ← `qr_target_payload`, `_target_label`, `QrPrintBatchItemView.post`
+- `qr_target_payload` ← `QrScanView.post`, `QrResolveView.post`, `QrPrintView.get`, `QrRebindTargetView.post`
+- `_target_label` ← `add_qr_to_batch`
+- `add_qr_to_batch` ← `QrPrintBatchItemView.post`, both loops in `generate_assets_with_qr`
+- `create_box_with_qr` ← `CreateBoxQrView.post`, `BoxAdmin.save_model` on add
+- `box_creation_makerspace` ← `BoxAdminForm.clean` on add, `create_box_with_qr`
+
+The operations barrel still re-exports `_target_label` and `add_qr_to_batch`.
+
+No runtime, tests, builds, schema generation, staging, commits, docs, guards, or command changes. Central runtime verification, final review, and QA remain root-owned.

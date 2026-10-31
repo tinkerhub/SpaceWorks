@@ -95,7 +95,7 @@ def test_readable_outer_manifest_contains_only_non_disclosing_component_facts(tm
     encoded = json.dumps(manifest, sort_keys=True).encode()
 
     assert set(manifest) == {
-        "format", "protocol_version", "artifact_id", "capture_id",
+        "format", "protocol_version", "artifact_id", "capture_id", "source_capture",
         "source_timestamp", "build_identity", "postgres", "makerspace_sets",
         "main_component", "slice_components", "object_ledgers",
         "content_ledgers", "reservation_commitments", "broad_fence_scopes",

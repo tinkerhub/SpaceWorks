@@ -1,3 +1,4 @@
+from apps.object_storage_lifecycle import storage_lifecycle
 """Avatar and project image upload/attach/clear for the caller's own profile.
 
 Mirrors `events.views_admin_image` step for step, including the order of the checks: the
@@ -98,47 +99,39 @@ class MemberProfileImageView(MemberProfileBaseView):
     )
     def put(self, request, makerspace_id):
         membership = self.membership(request, makerspace_id)
-        serializer = ProfileImageAttachRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        object_key = serializer.validated_data["object_key"]
-        profile = profile_services.profile_for(membership)
-        project = self._project(profile, serializer.validated_data.get("project_id"))
+        with storage_lifecycle(membership.makerspace_id) as guard:
+            serializer = ProfileImageAttachRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            object_key = serializer.validated_data["object_key"]
+            profile = profile_services.profile_for(membership)
+            project = self._project(profile, serializer.validated_data.get("project_id"))
 
-        if not object_key.startswith(f"{IMAGE_KIND}/{membership.makerspace_id}/"):
-            raise ValidationError(
-                {"object_key": "Image object key is outside this makerspace."}
-            )
-        if not public_image_storage.is_safe_object_key(object_key):
-            raise ValidationError({"object_key": "Invalid image object key."})
-        if public_image_storage.public_image_key_in_use(
-            membership.makerspace_id,
-            object_key,
-            profile_id=None if project else profile.pk,
-            project_id=project.pk if project else None,
-        ):
-            raise ValidationError({"object_key": "This image is already in use."})
-        try:
-            result = public_image_storage.finalize_upload(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if result.status != "ok":
-            if result.status in {"empty", "too_large"}:
-                _discard(object_key)
-            raise ValidationError(
-                {"object_key": public_image_storage.finalize_error_message(result)}
-            )
-        try:
-            is_valid_image = public_image_storage.sniff_is_valid_image(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if not is_valid_image:
-            _discard(object_key)
-            raise ValidationError({"object_key": "Uploaded file is not a valid image."})
-        if project is not None:
-            profile_images.set_project_image(profile, project, object_key)
-        else:
-            profile_images.set_avatar(profile, object_key)
-        return Response(ProfileReadSerializer(profile_services.read_profile(membership)).data)
+            if not object_key.startswith(f"{IMAGE_KIND}/{membership.makerspace_id}/"):
+                raise ValidationError(
+                    {"object_key": "Image object key is outside this makerspace."}
+                )
+            if not public_image_storage.is_safe_object_key(object_key):
+                raise ValidationError({"object_key": "Invalid image object key."})
+            if public_image_storage.public_image_key_in_use(
+                membership.makerspace_id,
+                object_key,
+                profile_id=None if project else profile.pk,
+                project_id=project.pk if project else None,
+            ):
+                raise ValidationError({"object_key": "This image is already in use."})
+            try:
+                result = public_image_storage.finalize_upload(object_key)
+            except StorageUnavailable:
+                return storage_unavailable_response()
+            if result.status != "ok":
+                raise ValidationError(
+                    {"object_key": public_image_storage.finalize_error_message(result)}
+                )
+            if project is not None:
+                profile_images.set_project_image(profile, project, object_key, size_bytes=result.size, guard=guard)
+            else:
+                profile_images.set_avatar(profile, object_key, size_bytes=result.size, guard=guard)
+            return Response(ProfileReadSerializer(profile_services.read_profile(membership)).data)
 
     @extend_schema(
         tags=["Member profile"],
@@ -151,23 +144,23 @@ class MemberProfileImageView(MemberProfileBaseView):
     )
     def delete(self, request, makerspace_id):
         membership = self.membership(request, makerspace_id)
-        profile = profile_services.profile_for(membership)
-        raw_project_id = request.query_params.get("project_id")
-        project = None
-        if raw_project_id is not None:
-            # A malformed id must NOT degrade to "no project": that branch clears the
-            # avatar, so `?project_id=abc` would destroy a different image than the one
-            # the caller named. Present-but-unparseable is a 400.
-            if not raw_project_id.isdigit():
-                raise ValidationError({"project_id": "Invalid project id."})
-            project = self._project(profile, int(raw_project_id))
-        if project is not None:
-            profile_images.clear_project_image(profile, project)
-        elif profile.avatar_key:
-            profile_images.set_avatar(profile, "")
-        return Response(ProfileReadSerializer(profile_services.read_profile(membership)).data)
+        with storage_lifecycle(membership.makerspace_id) as guard:
+            profile = profile_services.profile_for(membership)
+            raw_project_id = request.query_params.get("project_id")
+            project = None
+            if raw_project_id is not None:
+                # A malformed id must NOT degrade to "no project": that branch clears the
+                # avatar, so `?project_id=abc` would destroy a different image than the one
+                # the caller named. Present-but-unparseable is a 400.
+                if not raw_project_id.isdigit():
+                    raise ValidationError({"project_id": "Invalid project id."})
+                project = self._project(profile, int(raw_project_id))
+            if project is not None:
+                profile_images.clear_project_image(profile, project, guard=guard)
+            elif profile.avatar_key:
+                profile_images.set_avatar(profile, "", guard=guard)
+            return Response(ProfileReadSerializer(profile_services.read_profile(membership)).data)
 
 
 def _discard(object_key):
-    public_image_storage.delete_object(object_key)
     public_image_storage.delete_object(public_image_storage.staging_key(object_key))

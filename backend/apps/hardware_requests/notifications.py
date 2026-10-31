@@ -1,12 +1,18 @@
 import logging
+from urllib.parse import quote
 
 from apps.hardware_requests.display import requester_label
 from apps.hardware_requests.models import HardwareRequest
 from apps.integrations.email_templates import hardware_context, render
 from apps.integrations.notify import EmailDelivery, LifecyclePayload, notify_lifecycle
 from apps.integrations.staff_notifications import staff_emails_for_feature
+from apps.notifications.emit import emit_notification
 
 logger = logging.getLogger(__name__)
+STAFF_LIFECYCLE_EVENTS = frozenset({
+    "submitted", "accepted", "rejected", "cancelled", "issued",
+    "partially_returned", "returned", "closed_with_issue",
+})
 
 
 def notify_request_submitted(request):
@@ -36,6 +42,16 @@ def notify_request_rejected(request):
         requester_key="request_rejected",
         staff_event="rejected",
         text_builder=lambda row: f"Hardware request #{row.pk} has been rejected.",
+    )
+
+
+def notify_request_cancelled(request):
+    return _notify(
+        request,
+        event="cancelled",
+        requester_key="request_cancelled",
+        staff_event="cancelled",
+        text_builder=lambda row: f"Hardware request #{row.pk} has been cancelled.",
     )
 
 
@@ -95,6 +111,20 @@ def _notify(
         },
     )
     request_id = request.pk
+    if event in STAFF_LIFECYCLE_EVENTS:
+        makerspace = request.makerspace
+        tenant_domain = (
+            makerspace.frontend_domain
+            and makerspace.frontend_domain_status == "verified"
+        )
+        prefix = "/admin" if tenant_domain else f"/m/{quote(makerspace.slug, safe='')}/admin"
+        emit_notification(
+            request.makerspace,
+            event=f"request.{event}",
+            title="New hardware request" if event == "submitted" else "Hardware request updated",
+            body=f"Hardware request #{request_id} {event}.",
+            url_path=f"{prefix}/requests",
+        )
 
     def build():
         row = (

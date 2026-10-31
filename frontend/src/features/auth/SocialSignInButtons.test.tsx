@@ -54,6 +54,7 @@ describe("SocialSignInButtons", () => {
         "staff",
         expect.any(Function),
         expect.any(Function),
+        expect.any(Function),
       ),
     );
   });
@@ -111,6 +112,7 @@ describe("SocialSignInButtons", () => {
         "campus",
         "member@example.test",
         "main-space",
+        expect.any(Function),
       ),
     );
   });

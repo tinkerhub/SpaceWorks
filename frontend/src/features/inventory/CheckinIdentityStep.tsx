@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 import { Button, Input, initials } from "../../components/ui";
@@ -11,6 +11,116 @@ type Props = {
   onConfirm: (match: CheckinMatch | null) => void;
   disabled?: boolean;
 };
+
+type Context = { slug: string; generation: number };
+type Lookup = {
+  context: Context;
+  slug: string;
+  name: string;
+  generation: number;
+  lifetime: symbol;
+};
+type View = {
+  context: Context;
+  name: string;
+  matches: CheckinMatch[] | null;
+  error: boolean;
+  pending: boolean;
+};
+const emptyView = (context: Context): View => ({ context, name: "", matches: null, error: false, pending: false });
+
+/** Each lookup belongs to one tenant visit, typed intent and mounted lifetime. */
+function useCheckinLookup(
+  slug: string,
+  disabled: boolean | undefined,
+  onConfirm: (match: CheckinMatch | null) => void,
+) {
+  const contextRef = useRef<Context>({ slug, generation: 0 });
+  const active = useRef<Lookup | null>(null);
+  const lifetime = useRef<symbol | null>(null);
+  if (contextRef.current.slug !== slug) {
+    contextRef.current = { slug, generation: 0 };
+    active.current = null;
+  }
+  const context = contextRef.current;
+  const latest = useRef({ disabled, onConfirm });
+  latest.current = { disabled, onConfirm };
+  const [stored, setView] = useState<View>(() => emptyView(context));
+  // An effect reset would expose the previous tenant's name/results for one render.
+  const view = stored.context === context ? stored : emptyView(context);
+  const generation = context.generation;
+
+  useLayoutEffect(() => {
+    const mountedLifetime = Symbol();
+    lifetime.current = mountedLifetime;
+    setView((current) => current.pending ? { ...current, pending: false } : current);
+    return () => {
+      if (lifetime.current === mountedLifetime) {
+        lifetime.current = null;
+        active.current = null;
+      }
+    };
+  }, []);
+
+  function isCurrent(input: Lookup) {
+    return active.current === input && lifetime.current === input.lifetime &&
+      contextRef.current === input.context && input.context.generation === input.generation;
+  }
+
+  const mutation = useMutation({
+    mutationFn: (input: Lookup) => {
+      if (!isCurrent(input) || latest.current.disabled) throw new Error("Check-in lookup is no longer current.");
+      return lookupCheckin(input.slug, input.name);
+    },
+    onSuccess: (matches, input) => {
+      if (!isCurrent(input) || latest.current.disabled) return;
+      setView((current) => ({ ...current, matches, error: false }));
+      // Examine the full result: eligible namesakes must never be silently preferred.
+      latest.current.onConfirm(matches.length === 1 && matches[0].eligible ? matches[0] : null);
+    },
+    onError: (_error, input) => {
+      if (!isCurrent(input) || latest.current.disabled) return;
+      setView((current) => ({ ...current, error: true }));
+    },
+    onSettled: (_data, _error, input) => {
+      // Disabled blocks acceptance, but must not leave this lookup's input locked.
+      if (!isCurrent(input)) return;
+      active.current = null;
+      setView((current) => current.context === input.context ? { ...current, pending: false } : current);
+    },
+  });
+
+  function canInteract() {
+    return lifetime.current !== null && contextRef.current === context &&
+      context.generation === generation && !latest.current.disabled && !active.current;
+  }
+
+  function edit(name: string) {
+    if (!canInteract()) return;
+    const next = { slug, generation: generation + 1 };
+    contextRef.current = next;
+    setView({ ...emptyView(next), name });
+    latest.current.onConfirm(null);
+  }
+
+  function lookup() {
+    if (!canInteract() || !view.name.trim() || !lifetime.current) return;
+    const input: Lookup = {
+      context, slug, name: view.name.trim(), generation, lifetime: lifetime.current,
+    };
+    active.current = input;
+    setView({ ...view, matches: null, error: false, pending: true });
+    mutation.mutate(input);
+  }
+
+  function select(match: CheckinMatch) {
+    if (canInteract() && match.eligible && view.matches?.includes(match)) {
+      latest.current.onConfirm(match);
+    }
+  }
+
+  return { ...view, edit, lookup, select };
+}
 
 // Why a reason string rather than one generic error: "you are not checked in" is a dead
 // end, but "you are checked in, just not for the required purpose" is fixable in the
@@ -49,20 +159,8 @@ export function CheckinIdentityStep({
   disabled,
 }: Props) {
   const checkin = useCheckinProvider(makerspaceSlug);
-  const [name, setName] = useState("");
-  const [matches, setMatches] = useState<CheckinMatch[] | null>(null);
-
-  const lookup = useMutation({
-    mutationFn: () => lookupCheckin(makerspaceSlug, name.trim()),
-    onSuccess: (result) => {
-      setMatches(result);
-      // Auto-confirm only when the full result has exactly one entry and that entry
-      // is eligible. With two people sharing a display name, filtering first would
-      // silently file the request against the eligible namesake -- the avatar is the
-      // only thing that separates them.
-      onConfirm(result.length === 1 && result[0].eligible ? result[0] : null);
-    },
-  });
+  const lookup = useCheckinLookup(makerspaceSlug, disabled, onConfirm);
+  const { name, matches, pending } = lookup;
 
   if (confirmed) {
     return (
@@ -76,11 +174,8 @@ export function CheckinIdentityStep({
           variant="quiet"
           size="sm"
           className="shrink-0 text-success-fg hover:text-success-fg"
-          disabled={disabled}
-          onClick={() => {
-            onConfirm(null);
-            setMatches(null);
-          }}
+          disabled={disabled || pending}
+          onClick={() => lookup.edit(name)}
         >
           Not you?
         </Button>
@@ -98,27 +193,27 @@ export function CheckinIdentityStep({
           id="checkin-name"
           className="min-w-0 flex-1"
           value={name}
-          disabled={disabled}
-          onChange={(event) => setName(event.target.value)}
+          disabled={disabled || pending}
+          onChange={(event) => lookup.edit(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && name.trim()) {
+            if (event.key === "Enter") {
               event.preventDefault();
-              lookup.mutate();
+              lookup.lookup();
             }
           }}
         />
         <Button
           className="shrink-0"
-          disabled={disabled || !name.trim()}
-          loading={lookup.isPending}
+          disabled={disabled || pending || !name.trim()}
+          loading={pending}
           loadingLabel="Checking…"
-          onClick={() => lookup.mutate()}
+          onClick={lookup.lookup}
         >
           Find me
         </Button>
       </div>
 
-      {lookup.isError ? (
+      {lookup.error ? (
         <p role="alert" className="text-caption text-danger-fg">
           We could not check the check-in list just now. Please try again.
         </p>
@@ -142,7 +237,7 @@ export function CheckinIdentityStep({
                   {match.eligible ? match.project_name : reasonText(match.reason, checkin.purpose, checkin.app)}
                 </p>
               </div>
-              <Button size="sm" className="shrink-0" disabled={!match.eligible} onClick={() => onConfirm(match)}>
+              <Button size="sm" className="shrink-0" disabled={disabled || pending || !match.eligible} onClick={() => lookup.select(match)}>
                 That's me
               </Button>
             </li>

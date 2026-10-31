@@ -1,5 +1,7 @@
 """Catalog, raw digest and identity checks shared by scratch and restored dump."""
 
+from uuid import UUID
+
 from django.apps import apps
 from django.db import connections
 
@@ -56,26 +58,22 @@ def mapped_rows(using, identities):
 
 
 def projected_rows(using, identities):
-    result = {}
-    with no_decrypt_guard():
-        for label, pks in sorted(identities.items()):
-            if not pks:
-                continue
-            model = apps.get_model(label)
-            columns = tuple(field.attname for field in model._meta.concrete_fields)
-            result[label] = tuple(
-                model._base_manager.using(using)
-                .filter(pk__in=pks)
-                .order_by(model._meta.pk.name)
-                .values(*columns)
-            )
-    return result
+    """Read whole tables; an expected-empty table remains part of the universe."""
+    from .tenant_dump_projection_rows import complete_projected_rows
+    return complete_projected_rows(using, identities, {label: len(pks) for label, pks in identities.items()})
 
 
 def verify_projection_database(
     using,
     makerspace_id,
     *,
+    expected_row_counts,
+    expected_cross_tenant_lost_edges,
+    expected_semantic_references,
+    source_expectations,
+    bootstrap_baseline,
+    bootstrap_generated,
+    resolved_pks,
     expected_mapped_digest,
     mapped_identities,
     expected_projected_digest=None,
@@ -97,18 +95,30 @@ def verify_projection_database(
         raise TenantDumpVerificationError(
             "Mapped raw values differ between the immutable image and projection."
         )
-    if expected_projected_digest is not None:
-        rows = projected_rows(using, projected_identities or {})
-        if sum(map(len, rows.values())) != sum(
-            len(values) for values in (projected_identities or {}).values()
-        ):
-            raise TenantDumpVerificationError(
-                "The scratch projection is missing an expected row identity."
-            )
-        if projected_raw_digest(rows) != expected_projected_digest:
-            raise TenantDumpVerificationError(
-                "A sanitized row differs from its reviewed scratch projection."
-            )
+    from .tenant_dump_projection_rows import complete_projected_rows, portable_content_rows, expected_target_identities
+    from .tenant_dump_projection_bootstrap import verify_bootstrap_rows
+    from .tenant_dump_projection_expectations import SourceProjectionExpectations
+    from .tenant_dump_projection_loss import verify_loss_postconditions
+    from .tenant_dump_semantic_expectations import verify_semantic_references
+
+    if (not isinstance(source_expectations, SourceProjectionExpectations)
+            or source_expectations.source_makerspace_id != makerspace_id
+            or str(UUID(str(capture_id))) != source_expectations.capture_id
+            or expected_user_closure_digest != source_expectations.user_closure_sha256
+            or list(expected_semantic_references) != list(source_expectations.expected_semantic_references)
+            or expected_projected_digest is None):
+        raise TenantDumpVerificationError("Database verification requires its independent frozen source expectations.")
+    frozen_identities = expected_target_identities(source_expectations, bootstrap_baseline)
+    if projected_identities != frozen_identities or expected_row_counts != {
+        label: len(pks) for label, pks in frozen_identities.items()
+    }:
+        raise TenantDumpVerificationError("The supplied identity/count expectations differ from frozen source facts.")
+    rows = complete_projected_rows(using, frozen_identities, expected_row_counts)
+    verify_bootstrap_rows(using, bootstrap_baseline, bootstrap_generated)
+    verify_loss_postconditions(using, source_expectations.loss_facts, expected_cross_tenant_lost_edges)
+    verify_semantic_references(rows, expected_semantic_references, resolved_pks=resolved_pks)
+    if projected_raw_digest(portable_content_rows(rows)) != expected_projected_digest:
+        raise TenantDumpVerificationError("A sanitized row differs from its frozen input projection.")
     if (
         expected_sequence_state is not None
         and read_sequence_state(using) != expected_sequence_state

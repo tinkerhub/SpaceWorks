@@ -9,6 +9,7 @@ import pytest
 from django.conf import settings as django_settings
 from django.db.models.query import QuerySet
 from django.test import RequestFactory, override_settings
+from redis.exceptions import ResponseError
 from rest_framework.settings import api_settings
 from rest_framework.test import APIClient
 
@@ -53,8 +54,19 @@ class FakeRedis:
         # Modelled because the flusher relies on it: reading and then deleting a bucket
         # would drop an observation written between the two calls.
         if key not in self.hashes:
-            raise KeyError(key)
+            raise ResponseError("no such key")
         self.hashes[new_key] = self.hashes.pop(key)
+        self.expiries.pop(new_key, None)
+        if key in self.expiries:
+            self.expiries[new_key] = self.expiries.pop(key)
+
+    def renamenx(self, key, new_key):
+        if key not in self.hashes:
+            raise ResponseError("no such key")
+        if new_key in self.hashes:
+            return False
+        self.rename(key, new_key)
+        return True
 
     def hgetall(self, key):
         return dict(self.hashes.get(key, {}))
@@ -62,6 +74,7 @@ class FakeRedis:
     def delete(self, *keys):
         for key in keys:
             self.hashes.pop(key, None)
+            self.expiries.pop(key, None)
 
 
 def _space_and_client(slug, *, client_type="server"):

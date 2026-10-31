@@ -2,6 +2,7 @@
 
 import base64
 import hashlib
+from types import SimpleNamespace
 
 from django.conf import settings
 from django.utils import timezone
@@ -16,6 +17,9 @@ from apps.backup.source_partition_proof import (
     PROOF_VERSION,
     _signature_payload,
     _validate_unsigned,
+)
+from apps.backup.source_capture_facts import (
+    require_source_capture_facts, source_capture_facts_from_capture,
 )
 from apps.backup.source_reservations import ReservationCapture
 from apps.ed25519 import decode_key, fingerprint_public_key, sign_bytes
@@ -39,6 +43,24 @@ def empty_reservation_capture():
 
 
 def bind_source_partition_proof(capture, archive, detailed_manifest, root):
+    # Older manifest fixtures supply a minimal capture. Complete captured inputs
+    # here, before freezing; proof headers are never the expectation oracle.
+    if isinstance(capture, SimpleNamespace):
+        defaults = {
+            "source_database_identity": "e7-fixture-source",
+            "source_server_identity": "postgresql:e7-fixture",
+            "source_dump_sha256": sha256_file(root / "database.dump"),
+            "frozen_population": tuple(
+                {"makerspace_id": value} for value in capture.frozen_population_ids
+            ),
+            "object_plan": SimpleNamespace(references=()),
+        }
+        for name, value in defaults.items():
+            if not hasattr(capture, name):
+                setattr(capture, name, value)
+        if not hasattr(capture, "source_capture_facts"):
+            capture.source_capture_facts = source_capture_facts_from_capture(capture)
+    source_facts = require_source_capture_facts(capture)
     component_ledger = component_ciphertext_ledger(
         capture, detailed_manifest, root
     )
@@ -68,15 +90,9 @@ def bind_source_partition_proof(capture, archive, detailed_manifest, root):
         "protocol_version": PROOF_VERSION,
         "artifact_id": str(archive.pk),
         "capture_id": str(capture.capture_id),
-        "source_database_identity": "e7-fixture-source",
-        "source_server_identity": "postgresql:e7-fixture",
-        "frozen_dump_sha256": (
-            getattr(capture, "source_dump_sha256", "")
-            or sha256_file(root / "database.dump")
-        ),
+        **source_facts.as_dict(),
         "physical_catalog_digest": capture.source_catalog_digest,
         "registry_digest": capture.reservation_capture.registry_digest,
-        "frozen_population_ownership_digest": "9" * 64,
         "readable_main_semantic_digest": digest_json(capture.expected_main_ledger),
         "component_ciphertext_ledger_digest": digest_json(component_ledger),
         "reservation_fence_ledger_digest": digest_json(reservation_ledger),

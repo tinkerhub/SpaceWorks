@@ -82,4 +82,25 @@ describe("public request status lookup", () => {
 
     expect(await screen.findByText("Request status didn't load")).toBeInTheDocument();
   });
+
+  it("shows generic Cancelled status without staff details or an action even if extra fields arrive", async () => {
+    fetchRequestStatus.mockResolvedValue({
+      status: "cancelled", created_at: "2026-10-20T10:00:00Z",
+      items: [{ product_name: "Logic analyzer", requested_quantity: 2 }],
+      // A hostile/over-broad response must not become a staff-detail presentation.
+      cancellation_reason: "Private staff-only cancellation explanation",
+      closed_by: { username: "private-reviewer", role: "Custom reviewer" },
+      closed_at: "2026-10-21T12:34:56Z",
+    });
+    renderPage("/m/forge/request?token=cancelled-token");
+    expect(await screen.findByText("Cancelled")).toBeVisible();
+    expect(screen.getByText("This request has been cancelled.")).toBeVisible();
+    expect(screen.getByText("Logic analyzer")).toBeVisible();
+    expect(fetchRequestStatus).toHaveBeenCalledWith("forge", "cancelled-token");
+    expect(screen.queryByText("Private staff-only cancellation explanation")).not.toBeInTheDocument();
+    expect(screen.queryByText(/private-reviewer|Custom reviewer|Cancelled because|Cancelled by|Cancelled at/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /cancel/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /cancel/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: /reason/i })).not.toBeInTheDocument();
+  });
 });

@@ -1,0 +1,18 @@
+Completed only the bounded Stage 2 repair.
+
+- Maintenance captures ownership synchronously in both mutation entry points, composes supplied guards, and preserves plain result DTOs. Wrappers accept one input argument; per-call callbacks are excluded.
+- Evidence clears the parent ID before paint on semantic-context mount, using the latest callback without resetting on callback identity changes.
+- Both uploaders check the latest disabled state at admission. Already-admitted work retains its existing lifecycle.
+
+Updated source manifest, SHA-256:
+
+| File | Lines | Hash |
+|---|---:|---|
+| `maintenanceApi.ts` | 230 | `81c02256c42066885966be582292dfdb16476ea456a8a8c797fe65f47ab71512` |
+| New `useMaintenanceDocumentTask.ts` | 48 | `0c052928d78278b537552bb3f558c69eeaa5cf475edca4d609e036eb268a064e` |
+| `EvidenceUpload.tsx` | 162 | `6b46cb547e08886cf17fe82abb3c2c55cdfcbe8099f3904a39a2e3ecb7b40fb8` |
+| `ImageUploader.tsx` | 229 | `f4d21f36095780f251a00734b430b3f2eac72f80739b04ce829b955e5a74d628` |
+
+Source inspection and whitespace checks completed. No tests, TSC, builds, runtime actions, staging, commits, or unrelated edits.
+
+Stage 3 remains responsible for paused primitive mutations across actor/resource/unmount changes, plain DTO assertions, evidence reset before paint, callback replacement, and stale disabled file/camera handlers.

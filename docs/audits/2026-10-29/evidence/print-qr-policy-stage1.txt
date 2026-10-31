@@ -1,0 +1,17 @@
+Approved for Stage 1. No mandatory production-code revisions.
+
+In [services_qr_assets.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:38), insert immediately after the scoped QR lock, before `_target_label(qr)`:
+
+```python
+actor = current_qr_actor(actor)
+if not rbac.can(actor, rbac.Action.MANAGE_QR, batch.makerspace_id):
+    raise PermissionDenied()
+```
+
+The helper reloads the User and rejects inactive/suspended actors; `rbac.can` freshly queries membership and assigned-role actions. Reassigning `actor` also preserves the refreshed principal for audit. Imports already exist, and generation retains its existing native/service authorization.
+
+Stage 3 should prove the real PostgreSQL QR wait with `pg_blocking_pids`, then commit each policy withdrawal before releasing the lock. Cover product/asset and new/existing items, requiring HTTP 403, complete persisted-state equality, and no request-side domain/module writes. Permission withdrawal must remove effective `MANAGE_QR` without leaving a legacy or organization grant. Retain positive admission and generation controls.
+
+The delta preserves existing lock order, foreign-input handling, QR eligibility, labels, sorting, audit and no-op behavior.
+
+Read-only review completed; no edits, runtime checks, tests, builds, or staging performed.

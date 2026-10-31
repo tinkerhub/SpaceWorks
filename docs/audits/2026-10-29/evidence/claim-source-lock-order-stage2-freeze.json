@@ -1,0 +1,51 @@
+{
+  "stage": "Stage 2 source-only lock-order correction",
+  "root": "/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks",
+  "approval_evidence": "/tmp/spaceworks-claim-source-lock-order-stage1.txt",
+  "approval_evidence_sha256": "8e7f84e3e499ed89a320fd637b76a35906a9ef8c3cbde5847b7f181302ade971",
+  "files": {
+    "backend/apps/accounts/oidc_browser_resolution.py": {
+      "before_sha256": "9a029eddfeac7793089652c038ccef585eb094a0db2df57d19f27892ed856c0a",
+      "sha256": "cbdf7613dff7aef07f74f8ae9c6908de13c1a93d5767f5d58491e30f4dea6339",
+      "line_count": 149,
+      "ast_parse": "passed",
+      "exact_requested_delta": "passed",
+      "other_functions_unchanged": true
+    },
+    "backend/apps/accounts/services_claim.py": {
+      "before_sha256": "2006ca311d33d0d10c26f53947b48d5c9c63a6a5509a8bf2024f379239cb2491",
+      "sha256": "f2d09749e57d5f084acab1ed247e80921259f89e8d4f307bfea97be358968368",
+      "line_count": 289,
+      "ast_parse": "passed",
+      "exact_requested_delta": "passed",
+      "other_functions_unchanged": true
+    }
+  },
+  "baseline_snapshot": "/tmp/spaceworks-claim-source-lock-order-stage2-before.json",
+  "baseline_file_count": 4613,
+  "observed_changed_files": [
+    "backend/apps/accounts/oidc_browser_resolution.py",
+    "backend/apps/accounts/services_claim.py",
+    "backend/tests/tenant_migration/api_owned_http_source_helpers.py",
+    "backend/tests/tenant_migration/test_api_owned_http_source_contract.py",
+    "docs/audits/2026-10-29/CHANGE-REPORT.md",
+    "docs/audits/2026-10-29/README.md",
+    "docs/audits/2026-10-29/evidence/documentation-closeout-ledger.json",
+    "docs/audits/2026-10-29/evidence/frontend-final-with-qr-projection-corrected.log",
+    "docs/audits/2026-10-29/evidence/qr-scanner-draft-regressions.log"
+  ],
+  "observed_changes_outside_allowed_files": [
+    "backend/tests/tenant_migration/api_owned_http_source_helpers.py",
+    "backend/tests/tenant_migration/test_api_owned_http_source_contract.py",
+    "docs/audits/2026-10-29/CHANGE-REPORT.md",
+    "docs/audits/2026-10-29/README.md",
+    "docs/audits/2026-10-29/evidence/documentation-closeout-ledger.json",
+    "docs/audits/2026-10-29/evidence/frontend-final-with-qr-projection-corrected.log",
+    "docs/audits/2026-10-29/evidence/qr-scanner-draft-regressions.log"
+  ],
+  "all_other_snapshotted_files_byte_identical": false,
+  "validation": "stdlib AST parsing, exact delta comparison, line counts, SHA-256 snapshots only",
+  "application_imports": false,
+  "runtime_or_tests_or_builds_run": false,
+  "staging_or_commits_performed": false
+}

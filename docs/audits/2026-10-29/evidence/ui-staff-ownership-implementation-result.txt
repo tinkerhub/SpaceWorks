@@ -1,0 +1,51 @@
+Stage2 bounded staff ownership implementation handoff
+
+Implemented source only; separate Stage3 remains pending.
+No tests, TSC, builds, app/runtime/browser operations, repository census, staging or commits were run. Existing tests remain untouched.
+No derived docs/audits JSON was searched.
+getSessionGeneration, useAuthActionOwner, machinesApi.ts, StaffTabContent/users, OperationsReportsCoverage, public-service, API-session, backend, schemas and README were not edited by this task.
+
+Changes:
+- One admitted upload guard carries the original generation and optional UI action/resource predicate through config, presign, raw PUT/FormData POST, finalization and batch continuation. Existing public helper exports and default calls remain supported.
+- Config failure or invalid cap clears only its own cached promise, permitting explicit retry.
+- Image/evidence semantic keyed lifetimes and action owners fence native callbacks, parent publication, local previews/errors/pending cleanup; object URLs remain local to their mounted uploader.
+- Machine documents, warranty and procurement capture file/metadata batches and scope upload/view/delete publication to their originating resource. Current partial-success refresh is preserved.
+- Warranty documents moved into a focused domain component; metadata synchronization uses actual purchased/expires/vendor/contact values.
+- Maintenance owns continuous pending through raw bytes, preserves context/generation-bound finalize retry keys, and checks the originating guard inside hook-level URL-opening/invalidation callbacks.
+- Queue and manual operations use independent existing auth action owners, immutable click-time DTOs, synchronous edit/admission checks and guarded settlement. Current errors remain visible after finish; payment/report/fleet/pool invalidations are retained.
+- MachineTypePage has only the numeric-ID key change; outer useServiceDrafts stays in place.
+- Only four evidence caller context props and the optional-container hint were changed in caller files.
+
+Exact changed/new source manifest (line counts include blank/comment lines; SHA-256 over exact file bytes):
+status | lines | SHA-256 | path
+changed | 227 | 045c51431f6f6b2506047cb90e0cbd9ada1760ea48c57c5b6f03c3ad669df4d3 | frontend/src/features/staff/ImageUploader.tsx
+changed | 50 | 516713a21d3528e4928f23820870901e6d7dbc8f491d86a030d625c1d92ec2d2 | frontend/src/features/staff/machineDocumentsApi.ts
+changed | 114 | 229d78081fdf75d07e1a741250537721ccf66bcc0e2c8a80bfb82fa48bf8cf48 | frontend/src/features/staff/warrantyApi.ts
+changed | 167 | 263c0594bd81e35e441b46865eac0b38653e6262d1fd1d878b1b1483ef470b75 | frontend/src/features/staff/WarrantySection.tsx
+changed | 191 | 339386e86e36135ef104e581e29b4c6f4bcc2b9bbd6c0f4e7f59baf0f34c40cf | frontend/src/features/staff/panels/ProcurementReceipts.tsx
+changed | 183 | ac0f3f071b2544c440af2484c3d17dadb848398da3af4f60e3555e36983fbad0 | frontend/src/features/staff/panels/machine/DocumentsTab.tsx
+changed | 218 | 26adb7aa6fb1b2e5d63f689fa6ccfe5cf91860be9641ca71a66fc6fd43670b57 | frontend/src/features/staff/panels/machine/MaintenanceDocuments.tsx
+changed | 238 | 1380ce1573642d4f8a2a6dcca14b76ed423a14f524d4640fd2c9abd46b3ffece | frontend/src/features/staff/panels/machine/maintenanceApi.ts
+changed | 153 | 74faa4f22fd8b61447856659d14c67576ee2ce661f1a6fae5c25228e5de56630 | frontend/src/features/staff/panels/EvidenceUpload.tsx
+changed | 228 | 47b6076a943644870d441f46b8c5448f54bc30881e31bf4e7f228fd08de9e218 | frontend/src/features/staff/panels/MachinesPanel.tsx
+changed | 202 | cbc7fcd785c9921a022ad322a30ace7f0bbfccd3ad37c8709fa4994b6d82d575 | frontend/src/features/staff/panels/machine/ServiceQueue.tsx
+changed | 122 | 05d522af09c953049675ba66884e7a579d9fee7d691362ab9050600b4b5c05a5 | frontend/src/features/staff/panels/machine/ManualUsage.tsx
+changed | 174 | 4363e3ae459eb300f4dde8eca8dd63939973670ca427f889c1a44f29de9fa8ac | frontend/src/features/staff/panels/machine/MachineServiceConsole.tsx
+changed | 208 | 645046439f0386972daf00e6a9bce77670189c65275cdcd66d281b8fe4901c5d | frontend/src/features/staff/panels/machine/PrinterServiceConsole.tsx
+changed | 172 | 62c4156feec11c2f77400c7db3ae261a68e5f84690124f51ee4d27889fc02a9f | frontend/src/features/staff/DirectLoanReturnModal.tsx
+changed | 196 | 626e730e782880a554d49978f67e47da70479e0ba20a07462d5cbd853b178953 | frontend/src/features/staff/panels/QueuesAssignIssueModal.tsx
+changed | 204 | abc0acceb2f2504b3db0d7a2e086a0dbfded9b9dbde238049dd274a8efe5063b | frontend/src/features/staff/panels/QueuesReturnRequestModal.tsx
+changed | 93 | d7fd10a28d0730a5de74d92e046e084b21ceccf5da8322926a13e3831113ea81 | frontend/src/features/staff/handover/IssueDialog.tsx
+new | 37 | 9971db5454988c59054d09feb50dfd182730df56215df429c8b5ac778a6dbc09 | frontend/src/lib/uploadProtocol.ts
+new | 73 | 321d9748a9263b7f35312209ca9671c7d1af5fea8fa407de738193192ee97262 | frontend/src/features/staff/imageUploadApi.ts
+new | 152 | 797326a2a9bd7de31af2aa3230a8a9bac9d3b784559919743b0afc5ad9aebfe6 | frontend/src/features/staff/WarrantyDocuments.tsx
+new | 37 | 798aa2bda30fc2e479806617aeb110752dba1bf1564015270c8d04d4f95e4d20 | frontend/src/features/staff/panels/machine/useServiceOperation.ts
+
+Residual work for separately authorized Stage3:
+- Run root-owned Node20 tests and TSC; no success or typecheck claim is made for these edits.
+- Exercise real canonical transport and real session generation across held config/presign/raw-byte/finalize boundaries, PUT and FormData POST happy controls, oversize handling, failed/invalid config then explicit successful retry.
+- Cover image/machine document/warranty/procurement/maintenance multi-file continuation, partial success, stale actor/resource/unmount settlement, private URL hook callbacks and maintenance finalize retry adoption denial with continuous raw-byte pending.
+- Cover native camera/file callbacks, reused endpoint/resource props, A→B→A visits, object-URL cleanup and guarded parent setters/toasts across the staff evidence and four caller variants.
+- Exercise actual reused machine-type routes while preserving outer per-type drafts; pause actual TanStack queue/manual mutations to verify immutable click-time ID/body, same-tick duplicate/edit rejection, independent operations, stale settlement, current error/retry after finish and existing invalidations.
+- Existing tests are frozen; any later fixture adapters require parent authorization. Stage4 independent review and Stage5 QA have not been performed in this Stage2-only handoff.
+- Already dispatched API writes/storage bytes can finish; this implementation fences subsequent dispatches and publication and does not claim cancellation.

@@ -86,6 +86,7 @@ class HardwareRequestAdmin(
         "status",
         "requested_for",
         "rejection_reason",
+        "cancellation_reason",
         "accepted_by",
         "accepted_at",
         "assigned_box",
@@ -116,7 +117,7 @@ class HardwareRequestAdmin(
 
     @admin.display(description="Review")
     def review_link(self, obj):
-        if obj.status != HardwareRequest.Status.PENDING_APPROVAL:
+        if obj.status not in {HardwareRequest.Status.PENDING_APPROVAL, HardwareRequest.Status.ACCEPTED}:
             return "-"
         url = reverse(
             "admin:hardware_requests_hardwarerequest_review", args=[obj.pk]

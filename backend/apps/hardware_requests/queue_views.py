@@ -7,7 +7,9 @@ from django.conf import settings
 
 from apps.accounts import rbac
 from apps.hardware_requests.models import HardwareRequest
-from apps.hardware_requests.permissions import CanReviewRequest, CanViewHandoverQueue
+from apps.hardware_requests.permissions import (
+    CanReviewRequest, CanViewAcceptedRequestQueue, CanViewHandoverQueue,
+)
 from apps.hardware_requests.serializers import AdminRequestSerializer
 from apps.hardware_requests.view_helpers import (
     ADMIN_LIST_ERROR_RESPONSES,
@@ -66,9 +68,11 @@ class PendingRequestsView(generics.ListAPIView):
     def get_queryset(self):
         makerspace_id = self.kwargs["makerspace_id"]
         require_module(makerspace_id, "request_workflow")
-        _require_action(self.request.user, rbac.Action.ACCEPT_REQUEST, makerspace_id)
+        _require_any_action(
+            self.request.user, makerspace_id, rbac.Action.ACCEPT_REQUEST, rbac.Action.REJECT_REQUEST,
+        )
         return (
-            request_queryset()
+            request_queryset().select_related("closed_by")
             .filter(
                 makerspace_id=makerspace_id,
                 status=HardwareRequest.Status.PENDING_APPROVAL,
@@ -86,7 +90,7 @@ class PendingRequestsView(generics.ListAPIView):
 
 
 class AcceptedRequestsView(generics.ListAPIView):
-    permission_classes = [CanViewHandoverQueue]
+    permission_classes = [CanViewAcceptedRequestQueue]
     serializer_class = AdminRequestSerializer
     filter_backends = [ScopedPiiSearchFilter]
     search_fields = REQUEST_SEARCH_FIELDS
@@ -94,9 +98,11 @@ class AcceptedRequestsView(generics.ListAPIView):
     def get_queryset(self):
         makerspace_id = self.kwargs["makerspace_id"]
         require_module(makerspace_id, handover_surface_module(self.request))
-        _require_action(self.request.user, rbac.Action.ISSUE_REQUEST, makerspace_id)
+        _require_any_action(
+            self.request.user, makerspace_id, rbac.Action.ISSUE_REQUEST, rbac.Action.REJECT_REQUEST,
+        )
         return (
-            request_queryset()
+            request_queryset().select_related("closed_by")
             .filter(
                 makerspace_id=makerspace_id,
                 status=HardwareRequest.Status.ACCEPTED,
@@ -124,7 +130,7 @@ class ActiveLoansView(generics.ListAPIView):
         require_module(makerspace_id, handover_surface_module(self.request))
         _require_action(self.request.user, rbac.Action.ISSUE_REQUEST, makerspace_id)
         return (
-            request_queryset()
+            request_queryset().select_related("closed_by")
             .filter(
                 makerspace_id=makerspace_id,
                 status__in=[
@@ -148,11 +154,8 @@ class ActiveLoansView(generics.ListAPIView):
 
 
 class RequestHistoryView(generics.ListAPIView):
-    # Terminal requests (returned / rejected / closed_with_issue) had no staff surface -
-    # once a loan was returned or a request rejected it vanished from every queue, hiding
-    # the accountability-bearing closed_with_issue loans (damaged/missing units). Gated on
-    # ISSUE_REQUEST (the handover-queue viewers) to match the accepted/active loan views.
-    permission_classes = [CanViewHandoverQueue]
+    # Review-only staff see rejected/cancelled decisions, never returned-loan PII.
+    permission_classes = [CanViewAcceptedRequestQueue]
     serializer_class = AdminRequestSerializer
     filter_backends = [ScopedPiiSearchFilter]
     search_fields = REQUEST_SEARCH_FIELDS
@@ -160,23 +163,26 @@ class RequestHistoryView(generics.ListAPIView):
     def get_queryset(self):
         makerspace_id = self.kwargs["makerspace_id"]
         require_module(makerspace_id, handover_surface_module(self.request))
-        _require_action(self.request.user, rbac.Action.ISSUE_REQUEST, makerspace_id)
+        _require_any_action(
+            self.request.user, makerspace_id, rbac.Action.ISSUE_REQUEST, rbac.Action.REJECT_REQUEST,
+        )
+        statuses = [HardwareRequest.Status.REJECTED, HardwareRequest.Status.CANCELLED]
+        if rbac.can(self.request.user, rbac.Action.ISSUE_REQUEST, makerspace_id):
+            statuses.extend([
+                HardwareRequest.Status.RETURNED, HardwareRequest.Status.CLOSED_WITH_ISSUE,
+            ])
         return (
-            request_queryset()
+            request_queryset().select_related("closed_by")
             .filter(
                 makerspace_id=makerspace_id,
-                status__in=[
-                    HardwareRequest.Status.RETURNED,
-                    HardwareRequest.Status.REJECTED,
-                    HardwareRequest.Status.CLOSED_WITH_ISSUE,
-                ],
+                status__in=statuses,
             )
             .order_by("-updated_at", "-created_at")
         )
 
     @extend_schema(
         tags=["Admin requests"],
-        summary="List terminal request history (returned / rejected / closed with issue)",
+        summary="List terminal requests allowed by issue or review authority",
         responses={200: AdminRequestSerializer(many=True), **ADMIN_LIST_ERROR_RESPONSES},
     )
     def get(self, request, *args, **kwargs):
@@ -185,4 +191,12 @@ class RequestHistoryView(generics.ListAPIView):
 
 def _require_action(user, action, makerspace_id):
     scoped = rbac.scope_by_action(user, action, Makerspace.objects.all(), field="id")
+    get_object_or_404(scoped, pk=makerspace_id)
+
+
+def _require_any_action(user, makerspace_id, *actions):
+    scope = rbac.makerspaces_for_actions(user, *actions)
+    scoped = Makerspace.objects.all()
+    if scope is not rbac.ALL:
+        scoped = scoped.filter(pk__in=scope)
     get_object_or_404(scoped, pk=makerspace_id)

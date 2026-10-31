@@ -584,9 +584,17 @@ scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role manageme
 - **Superadmin only**, and it asks you to type the makerspace slug back before proceeding.
 - **It cannot be undone.** Uninstall is reversible; this is not.
 - **Payment records are kept** — see [`payments`](#payments).
-- Uploaded files are removed after the database work commits, and your storage quota is credited back
-  only for objects the bucket confirmed it deleted, so the counter can never drift below what you are
-  actually storing.
+- **File cleanup happens before row deletion.** A durable module-purge receipt freezes the exact
+  graph, file locators and original quota obligations. If storage cleanup fails, rows and locators stay
+  available for retry; reinstalling is blocked while that intent is pending.
+- Successful cleanup commits graph removal, the original quota credit and its audit record together.
+  Unknown historical charges receive no guessed credit. A conservative overcount can be reconciled
+  after verifying storage.
+- Keep the receipt. An upload already admitted by storage can finish late; an active superadmin can
+  explicitly retry its cleanup in `/control/`. Completed retries grant no second quota credit. Receipts
+  never schedule themselves, cannot be rebound to another tenant or storage origin, and are invalidated
+  by recovery or a subsequent reinstall. A stale frozen graph requires recovery or an explicitly
+  confirmed whole-tenant purge, rather than a force option.
 
 A module absent from `--list` either owns no data of its own or cannot be purged separately, and the
 command tells you which. [`machines`](#machines) is the notable second case.

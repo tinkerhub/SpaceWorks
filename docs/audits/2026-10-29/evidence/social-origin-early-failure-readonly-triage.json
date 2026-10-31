@@ -1,0 +1,82 @@
+{
+  "at_utc": "2026-10-30T05:57:32.364418+00:00",
+  "bounded_followup_after_trace": "If nonce403/social_invalid or missing nonce is confirmed, explicitly register the intended test-owned member origin within these two test modules, preserving rejection of foreign/public-client origins and all status/security assertions. Do not change production origin policy or loosen private runtime environment to conceal an unowned fixture dependency.",
+  "conditions": [
+    {
+      "classification": "fixture origin mismatch likely",
+      "evidence": "Every early failure uses member-web nonce helper default ORIGIN localhost:5173. Neither module explicitly registers that origin in settings. create_social_nonce calls member_origin_is_registered; absent first-party registration it raises SocialNonceRejected and nonce view returns403 social_invalid. Tests then assert200 or index payload[nonce].",
+      "expected_trace": "challenge.status_code expected200 got403, or KeyError nonce from403 response. Confirm only when actual traceback arrives."
+    },
+    {
+      "classification": "testserver Host hypothesis disfavored",
+      "evidence": "Managed suffix is absent and testserver is allowed. Password routes and non-social configuration calls using same default APIClient pass. Dedicated verified staff-Origin cases and device delivery pass; failures cluster only unregistered shared member-Origin."
+    },
+    {
+      "classification": "production logic alternative remains conditional",
+      "evidence": "If actual nonce returned200, inspect consume_social_nonce origin equality/single-use and member account capability before attributing failure to registration fixture. No application behavior was changed or presumed correct from dots alone."
+    }
+  ],
+  "early_failure_nodes": [
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_self_registration_off_also_blocks_social_account_creation",
+      "zero_based_index": 141
+    },
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_a_refused_social_registration_is_audited",
+      "zero_based_index": 142
+    },
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_registration_off_still_lets_an_existing_identity_sign_in",
+      "zero_based_index": 143
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_social_login_creates_global_user_and_surface_cookie",
+      "zero_based_index": 325
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_verified_provider_only_auto_links_verified_local_account",
+      "zero_based_index": 326
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_surface_token_cannot_call_staff_api_without_origin",
+      "zero_based_index": 329
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_nonce_is_single_use_and_origin_bound",
+      "zero_based_index": 330
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_explicit_link_never_email_matches_and_last_credential_is_protected",
+      "zero_based_index": 331
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_refresh_rejects_public_api_client_origin",
+      "zero_based_index": 335
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_apple_first_login_name_is_only_used_for_created_user",
+      "zero_based_index": 336
+    }
+  ],
+  "frozen_source_hashes_verified": {
+    "backend/apps/accounts/social_nonces.py": "2578f2c5d58ac5056e47eb9abac7de977b7856e2a645a02cc468917b3290ab6b",
+    "backend/apps/accounts/views_social.py": "89c9acb0fef3195da9a31f31d3f95e944924d16438aa3b3604719d7ffa6b1370",
+    "backend/apps/makerspaces/cors.py": "d4a9f54fa98bc4aa599af4d3a77c2fe81c78fdd25be8ffa6aa396e3fd06f9761",
+    "backend/apps/makerspaces/middleware.py": "91ae4aa2c2241d278d52a773d245e33ed534519fd73bf64cfeebc7d9530aa3b3",
+    "backend/config/settings.py": "b49349b0708b12816577efb88834ae1b51207ec48a35962c94413ceb505c4e1f",
+    "backend/tests/accounts/test_login_methods_p10.py": "626cb6144a852d117fa691e9dafe8ecdc69b03b15097827532327755c0325092",
+    "backend/tests/accounts/test_social_auth.py": "cab149542bc6e4055851d4966aa4f4238658decc544477dc1493927157988012"
+  },
+  "mode": "Read-only static triage; no imports/tests/runtime/source/test/environment changes. Full run preserved.",
+  "reviewer": "/root/audit_backend_finish",
+  "safe_private_environment_observations": {
+    "core_CORS_override_declared": true,
+    "core_DEBUG_true": true,
+    "core_fixture_origin_5173_in_CORS": false,
+    "core_fixture_origin_5173_in_platform_staff": false,
+    "core_managed_suffix_configured": false,
+    "core_testserver_in_allowed_hosts": true,
+    "private_values_emitted": false
+  },
+  "status": "Likely fixture origin registration mismatch, pending actual completed traceback."
+}

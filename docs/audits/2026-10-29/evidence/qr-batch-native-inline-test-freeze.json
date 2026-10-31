@@ -1,0 +1,13 @@
+{
+  "format": "spaceworks-qr-batch-native-inline-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "cases_static_expansion": 3,
+  "runtime_status": "Root runtime pending; real native detail response projection cases authored",
+  "files": [
+    {
+      "path": "backend/tests/qr_batch_projection_safety/test_native_detail.py",
+      "lines": 126,
+      "sha256": "423227aa6e5d04e4f83f3cff7d5ab40e60c6ce09cf42ead0711ed25fc31a4cdc"
+    }
+  ]
+}

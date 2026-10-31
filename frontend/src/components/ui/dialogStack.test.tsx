@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useState } from "react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Modal } from "./Modal";
@@ -37,6 +37,17 @@ function DialogHarness({
   );
 }
 
+function AlwaysMountedModalHarness() {
+  const [open, setOpen] = useState(false);
+  return <>
+    <button type="button" onClick={() => setOpen(true)}>Open persistent modal</button>
+    <Modal open={open} onClose={() => setOpen(false)} title="Persistent modal">
+      <input aria-label="Initial modal field" />
+      <button type="button">Second modal control</button>
+    </Modal>
+  </>;
+}
+
 beforeEach(() => {
   const track = { stop: vi.fn() };
   const stream = { getTracks: () => [track] } as unknown as MediaStream;
@@ -60,6 +71,27 @@ async function openScanner() {
 }
 
 describe("dialog stack", () => {
+  it("DS01 focuses an always-mounted modal on opening and reopening and restores its exact opener", async () => {
+    render(<StrictMode><AlwaysMountedModalHarness /></StrictMode>);
+    const opener = screen.getByRole("button", { name: "Open persistent modal" });
+    expect(screen.queryByRole("dialog", { name: "Persistent modal" })).toBeNull();
+
+    for (let visit = 0; visit < 2; visit += 1) {
+      opener.focus();
+      fireEvent.click(opener);
+      const dialog = screen.getByRole("dialog", { name: "Persistent modal" });
+      const firstControl = within(dialog).getByRole("textbox", { name: "Initial modal field" });
+      await waitFor(() => expect(document.activeElement).toBe(firstControl));
+      expect(dialog).toHaveAttribute("aria-modal", "true");
+      expect(dialog.parentElement).not.toHaveAttribute("inert");
+      expect(document.querySelectorAll('[aria-modal="true"]')).toHaveLength(1);
+
+      fireEvent.keyDown(document, { key: "Escape" });
+      await waitFor(() => expect(screen.queryByRole("dialog", { name: "Persistent modal" })).toBeNull());
+      expect(document.activeElement).toBe(opener);
+    }
+  });
+
   it("closes only the scanner on Escape and restores its exact opener", async () => {
     render(<DialogHarness />);
     const opener = await openScanner();

@@ -3,10 +3,16 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MachineTypesPanel } from "./MachineTypesPanel";
+import { isolateMachineTestSession } from "./machine/machineConsoleTestUtils";
+
+isolateMachineTestSession();
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
-vi.mock("../../../lib/api", () => ({ staffRequest }));
+vi.mock("../../../lib/api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../../lib/api")>(),
+  staffRequest,
+}));
 
 const customType = {
   id: 4,

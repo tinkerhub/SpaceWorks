@@ -1,0 +1,33 @@
+{
+  "status": "new50 and compatibility121 passed; final suites/review pending",
+  "file": "backend/apps/tenant_migration/gate_locks.py",
+  "sha256": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+  "lines": 245,
+  "historical_freeze_preserved": "storage-recompute-exclusion-source-freeze.json",
+  "first_run": {
+    "passed": 48,
+    "failed": 2,
+    "seconds": 104.45,
+    "junit": "storage-recompute-exclusion-round1.xml"
+  },
+  "correction": "Verify acquisition-time pg_current_xact_id alongside original backend PID and exact advisory lock tuple; no reconnect/reacquire/adoption.",
+  "corrected_run": {
+    "passed": 50,
+    "failed": 0,
+    "seconds": 125.41,
+    "junit": "storage-recompute-exclusion-round2.xml"
+  },
+  "compatibility_run": {
+    "passed": 121,
+    "failed": 0,
+    "seconds": 99.15,
+    "junit": "storage-recompute-compatibility-round2.xml",
+    "initial_result": "119passed/2failed: missing handle preflight static check and stale shell-flock test assumption"
+  },
+  "guard_correction": {
+    "path": "backend/apps/tenant_migration/source_gate_module_guards.py",
+    "sha256": "5d2e721d0da80fe8f6ed64069826713335698bab395965fc7ad253a4fa2aa510",
+    "reason": "Retain existing negative control requiring actual handle-level module-purge preflight/warning disposition."
+  },
+  "test_adapter": "Supervised shell wrapper delegates to actual guarded root Python controller; negative cleanup command injection still rejected."
+}

@@ -1,3 +1,5 @@
+import json
+
 from datetime import timedelta
 from uuid import uuid4
 
@@ -22,35 +24,34 @@ from apps.inventory.models import InventoryProduct
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.models import Makerspace, MakerspaceMembership
 from tests.backup.e7_partition_test_helpers import digest
+from tests.backup.x07_installation_test_helpers import (
+    context, fence, manifest_for, operation_values, trigger_oid,
+)
+from apps.backup.reservation_enforcement import install_reservation_entry
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
-def _operation():
-    operation_id = uuid4()
-    return B1RestoreOperationState.objects.create(
-        operation_id=operation_id,
-        artifact_id=uuid4(),
-        capture_id=uuid4(),
-        main_component_id=uuid4(),
-        outer_ciphertext_sha256=digest(f"outer-{operation_id}"),
-        outer_manifest_sha256=digest(f"manifest-{operation_id}"),
-        source_proof_sha256=digest(f"proof-{operation_id}"),
-        sibling_database_name=f"e7_{operation_id.hex[:20]}",
-        sibling_database_oid=7701,
-        sibling_server_identity="postgresql:160010:not-restored",
-    )
+def _operation(*, makerspace_id=7701, facts=()):
+    component_id = facts[0][1]["component_ids"][0] if facts else str(uuid4())
+    case = context(manifest_for(facts, components=[{
+        "component_id": component_id, "makerspace_id": makerspace_id,
+        "ciphertext_sha256": digest(f"component-{makerspace_id}"),
+    }]))
+    operation = B1RestoreOperationState.objects.create(**operation_values(case))
+    # UUIDField values normalize on reload; compare the immutable DB identities.
+    operation.refresh_from_db()
+    return operation
 
 
 def _component(operation, makerspace_id):
+    expected = json.loads(operation.expected_installation)["components"][0]
+    assert expected["makerspace_id"] == makerspace_id
     return B1RestoreComponentState.objects.create(
-        operation_id=operation.pk,
-        artifact_id=operation.artifact_id,
-        capture_id=operation.capture_id,
-        component_id=uuid4(),
-        makerspace_id_snapshot=makerspace_id,
-        ciphertext_sha256=digest(f"component-{makerspace_id}"),
+        operation_id=operation.pk, artifact_id=operation.artifact_id,
+        capture_id=operation.capture_id, component_id=expected["component_id"],
+        makerspace_id_snapshot=makerspace_id, ciphertext_sha256=expected["ciphertext_sha256"],
         state=B1RestoreComponentState.State.PENDING,
     )
 
@@ -93,9 +94,9 @@ def test_component_state_identity_is_immutable_and_state_is_closed_enum():
 
 
 def test_only_one_non_restored_component_state_exists_per_sovereign_makerspace():
-    first = _operation()
+    first = _operation(makerspace_id=7702)
     _component(first, 7702)
-    second = _operation()
+    second = _operation(makerspace_id=7702)
 
     with pytest.raises(IntegrityError), transaction.atomic():
         _component(second, 7702)
@@ -110,7 +111,7 @@ def test_readable_main_tenant_is_served_while_pending_tenant_fails_closed():
         makerspace=pending,
         role=MakerspaceMembership.Role.SPACE_MANAGER,
     )
-    _component(_operation(), pending.pk)
+    _component(_operation(makerspace_id=pending.pk), pending.pk)
 
     assert get_public_makerspace(ordinary.slug) == ordinary
     assert rbac.can(actor, rbac.Action.VIEW_INVENTORY, ordinary.pk) is True
@@ -122,7 +123,7 @@ def test_readable_main_tenant_is_served_while_pending_tenant_fails_closed():
 def test_celery_worker_cannot_claim_or_apply_work_for_pending_tenant():
     pending = _space("e7-pending-worker")
     actor = _manager(pending, "e7-worker-manager")
-    _component(_operation(), pending.pk)
+    _component(_operation(makerspace_id=pending.pk), pending.pk)
     job = BulkImportJob.objects.create(
         makerspace=pending,
         actor=actor,
@@ -151,7 +152,7 @@ def test_celery_worker_cannot_claim_or_apply_work_for_pending_tenant():
 
 def test_scheduled_return_reminder_skips_pending_tenant(monkeypatch):
     pending = _space("e7-pending-cron")
-    _component(_operation(), pending.pk)
+    _component(_operation(makerspace_id=pending.pk), pending.pk)
     requester = User.objects.create_user(
         username=f"e7-overdue-{uuid4().hex}",
         email="e7-overdue@example.test",
@@ -198,32 +199,15 @@ def test_scheduled_return_reminder_skips_pending_tenant(monkeypatch):
 
 
 def test_pending_identity_is_neither_empty_nor_newly_creatable():
-    operation = _operation()
     pending_id = 9_700_001
+    fact = fence([uuid4()], table="makerspaces_makerspace", label="makerspace-low-entropy-fence")
+    operation = _operation(makerspace_id=pending_id, facts=[("broad_fence", fact)])
     component = _component(operation, pending_id)
-    identity = digest("makerspace-low-entropy-fence")
-    definition = digest("makerspace-insert-definition")
-    B1ReservationEntry.objects.create(
-        operation_id=operation.pk,
-        component_id=component.component_id,
-        registry_identity=identity,
-        kind=B1ReservationEntry.Kind.BROAD_FENCE,
-        definition_sha256=definition,
-        safe_payload={
-            "schema": "public", "table": "makerspaces_makerspace",
-            "operations": ["insert", "update"],
-            "component_ids": [str(component.component_id)],
-            "definition_sha256": definition,
-        },
-        installed_at=timezone.now(),
-        catalog_verified_at=timezone.now(),
+    install_reservation_entry(
+        operation_id=operation.pk, component_id=component.component_id,
+        kind=B1ReservationEntry.Kind.BROAD_FENCE, fact=fact,
     )
-    B1FenceContinuity.objects.create(
-        operation_id=operation.pk,
-        registry_identity=identity,
-        definition_sha256=definition,
-        trigger_oids=[9700001],
-    )
+    assert trigger_oid("makerspaces_makerspace") > 0
     superadmin = User.objects.create_superuser(
         username=f"e7-pending-superadmin-{uuid4().hex}", password="secret"
     )

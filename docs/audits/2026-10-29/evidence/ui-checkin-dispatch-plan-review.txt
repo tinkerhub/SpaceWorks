@@ -1,0 +1,7 @@
+APPROVED.
+
+The guard belongs immediately before `lookupCheckin` in `mutationFn`: throw a local `Error` when `!isCurrent(input) || latest.current.disabled`. Preserve all callback predicates, especially disabled settlement releasing its own pending lock.
+
+The regression must prove the mutation was queued, invalidate it before dispatch, then resume and await settlement before asserting zero transport calls. Include a current happy control and disabled pending cleanup; restore online-manager state if used.
+
+Keep changes within the stated source/test scope and 300-line ceiling. No edits or tests performed.

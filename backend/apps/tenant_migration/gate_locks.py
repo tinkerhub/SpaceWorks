@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from contextvars import ContextVar
 
 import psycopg2
 from django.db import connection, connections, transaction
@@ -11,6 +12,8 @@ from apps.tenant_migration.gate_errors import SourceMigrationGateUnavailable
 # the PII operation setting rather than this namespace.
 SOURCE_GATE_LOCK_NAMESPACE = 734_310
 UNSCOPED_WRITER_LOCK_KEY = 0
+_unscoped_writer_owned = ContextVar("source_unscoped_writer_owned", default=False)
+_retained_shared_locks = ContextVar("source_retained_shared_locks", default=())
 
 
 def acquire_shared(makerspace_id):
@@ -60,9 +63,29 @@ def shared_boundary(makerspace_id):
     lock = _BoundarySharedLock(makerspace_id)
     try:
         lock.acquire()
-        yield lock
+        token = _retained_shared_locks.set(_retained_shared_locks.get() + (lock,))
+        try:
+            yield lock
+        finally:
+            _retained_shared_locks.reset(token)
     finally:
         lock.release()
+
+
+def _retained_shared_lock_keys():
+    """Read actual retained references, refusing even one lost reference."""
+    for lock in _retained_shared_locks.get():
+        lock.verify()
+    return frozenset(lock.makerspace_id for lock in _retained_shared_locks.get())
+
+
+def _reuse_shared_boundary(makerspace_id):
+    """Verify every matching reference; a lost one must never trigger reacquisition."""
+    matches = tuple(lock for lock in _retained_shared_locks.get()
+                    if lock.makerspace_id == int(makerspace_id))
+    for lock in matches:
+        lock.verify()
+    return bool(matches)
 
 
 class _BoundarySharedLock:
@@ -72,10 +95,15 @@ class _BoundarySharedLock:
         self.makerspace_id = int(makerspace_id)
         self.acquired = False
         self.lock_connection = None
+        self.backend_pid = None
+        self.transaction_id = None
 
     def acquire(self):
         if self.acquired:
+            self.verify()
             return
+        if self.backend_pid is not None:
+            raise SourceMigrationGateUnavailable("Shared source boundary cannot reacquire its backend.")
         lock_connection = None
         try:
             lock_connection = _new_lock_connection()
@@ -83,28 +111,11 @@ class _BoundarySharedLock:
             lock_connection.autocommit = False
             with lock_connection.cursor() as cursor:
                 cursor.execute(
-                    """
-                    SELECT pg_advisory_xact_lock_shared(%s, %s),
-                           pg_backend_pid()
-                    """,
+                    "SELECT pg_advisory_xact_lock_shared(%s, %s), pg_backend_pid(), pg_current_xact_id()",
                     [SOURCE_GATE_LOCK_NAMESPACE, self.makerspace_id],
                 )
-                lock_backend_pid = cursor.fetchone()[1]
-                cursor.execute(
-                    """
-                    SELECT pg_backend_pid(), EXISTS (
-                        SELECT 1 FROM pg_locks
-                        WHERE locktype = 'advisory'
-                          AND pid = pg_backend_pid()
-                          AND classid = %s AND objid = %s
-                          AND granted
-                    )
-                    """,
-                    [SOURCE_GATE_LOCK_NAMESPACE, self.makerspace_id],
-                )
-                retained_backend_pid, lock_is_held = cursor.fetchone()
-                if retained_backend_pid != lock_backend_pid or not lock_is_held:
-                    raise RuntimeError("The shared advisory lock was not retained.")
+                _, self.backend_pid, self.transaction_id = cursor.fetchone()
+            self._verify()
             self.acquired = True
         except Exception as exc:
             if lock_connection is not None:
@@ -116,6 +127,32 @@ class _BoundarySharedLock:
             raise SourceMigrationGateUnavailable(
                 "The source migration write gate is unavailable."
             ) from exc
+
+    def verify(self):
+        if not self.acquired:
+            raise SourceMigrationGateUnavailable("The shared source boundary was released.")
+        self._verify()
+
+    def _verify(self):
+        try:
+            if self.lock_connection is None or self.lock_connection.closed or self.lock_connection.autocommit:
+                raise RuntimeError("Shared source transaction ended.")
+            with self.lock_connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT pg_backend_pid(), EXISTS (
+                           SELECT 1 FROM pg_locks
+                           WHERE locktype = 'advisory' AND pid = pg_backend_pid()
+                             AND classid = %s AND objid = %s AND objsubid = 2
+                             AND mode = 'ShareLock' AND granted
+                       ), pg_current_xact_id()""",
+                    [SOURCE_GATE_LOCK_NAMESPACE, self.makerspace_id],
+                )
+                pid, held, transaction_id = cursor.fetchone()
+            if pid != self.backend_pid or transaction_id != self.transaction_id or not held:
+                raise RuntimeError("Original shared source backend/transaction/lock was lost.")
+        except Exception as exc:
+            # Keep acquired intact: the original owner must still rollback/close.
+            raise SourceMigrationGateUnavailable("The shared source boundary was lost.") from exc
 
     def release(self):
         if not self.acquired:
@@ -148,9 +185,92 @@ def _new_lock_connection():
 
 
 @contextmanager
+def exclusive_boundary(makerspace_id):
+    """Operator-only owner; never reconnect or reacquire after continuity loss."""
+    lock = _BoundaryExclusiveLock(makerspace_id)
+    try:
+        lock.acquire()
+        yield lock
+    finally:
+        lock.acquired = False
+        if lock.lock_connection is not None:
+            # Preserve the original failure, especially an uncertain commit ACK.
+            try:
+                lock.lock_connection.rollback()
+            except Exception:
+                pass
+            try:
+                lock.lock_connection.close()
+            except Exception:
+                pass
+
+
+class _BoundaryExclusiveLock:
+    def __init__(self, makerspace_id):
+        if type(makerspace_id) is not int or not 0 < makerspace_id <= 2147483647:
+            raise SourceMigrationGateUnavailable("Exclusive boundary requires a bounded tenant ID.")
+        self.makerspace_id = makerspace_id
+        self.lock_connection = None
+        self.backend_pid = None
+        self.transaction_id = None
+        self.acquired = False
+
+    def acquire(self):
+        if self.lock_connection is not None:
+            raise SourceMigrationGateUnavailable("Exclusive boundary cannot reacquire its backend.")
+        try:
+            self.lock_connection = _new_lock_connection()
+            self.lock_connection.autocommit = False
+            with self.lock_connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_advisory_xact_lock(%s, %s), pg_backend_pid(), pg_current_xact_id()",
+                    [SOURCE_GATE_LOCK_NAMESPACE, self.makerspace_id],
+                )
+                _, self.backend_pid, self.transaction_id = cursor.fetchone()
+            self._verify()
+            self.acquired = True
+        except Exception as exc:
+            raise SourceMigrationGateUnavailable("The exclusive source boundary is unavailable.") from exc
+
+    def verified_connection(self):
+        if not self.acquired:
+            raise SourceMigrationGateUnavailable("No acquired exclusive source boundary.")
+        self._verify()
+        return self.lock_connection
+
+    def _verify(self):
+        try:
+            if self.lock_connection.closed or self.lock_connection.autocommit:
+                raise RuntimeError("Exclusive source transaction ended.")
+            with self.lock_connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT pg_backend_pid(), EXISTS (
+                           SELECT 1 FROM pg_locks
+                           WHERE locktype = 'advisory' AND pid = pg_backend_pid()
+                             AND classid = %s AND objid = %s AND objsubid = 2
+                             AND mode = 'ExclusiveLock' AND granted
+                       ), pg_current_xact_id()""",
+                    [SOURCE_GATE_LOCK_NAMESPACE, self.makerspace_id],
+                )
+                pid, held, transaction_id = cursor.fetchone()
+            if pid != self.backend_pid or transaction_id != self.transaction_id or not held:
+                raise RuntimeError("Original exclusive source backend/transaction/lock was lost.")
+        except Exception as exc:
+            self.acquired = False
+            raise SourceMigrationGateUnavailable("The exclusive source boundary was lost.") from exc
+
+
+@contextmanager
 def unscoped_writer_shared_boundary():
-    with shared_boundary(UNSCOPED_WRITER_LOCK_KEY):
+    if _unscoped_writer_owned.get():
         yield
+        return
+    with shared_boundary(UNSCOPED_WRITER_LOCK_KEY):
+        token = _unscoped_writer_owned.set(True)
+        try:
+            yield
+        finally:
+            _unscoped_writer_owned.reset(token)
 
 
 @contextmanager

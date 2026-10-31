@@ -1,0 +1,41 @@
+{
+  "status": "read-only-final-local-preview-verified",
+  "backend_source_sha256": {
+    "scripts/provision-runtime-image.py": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+    "scripts/setup-host-orchestration.sh": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+    "scripts/update.sh": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+    "scripts/install-host-bundle.sh": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+    "setup.sh": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31",
+    "backend/apps/backup/runtime_image_identity.py": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+    "backend/apps/backup/full_capture.py": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+    "backend/apps/backup/archive_payload.py": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f"
+  },
+  "preserved_original_process_environment_values": 77,
+  "backend_refreshed": true,
+  "public_page": "/m/showcase-checkin",
+  "public_visible": [
+    "Borrow with check-in",
+    "No account needed",
+    "Full name field border",
+    "1 listed item",
+    "Synthetic local QA lab/item; roster deliberately unconfigured"
+  ],
+  "staff_page": "/m/showcase-lab/admin/requests",
+  "staff_visible": [
+    "Restored existing synthetic superadmin session",
+    "Switch makerspace",
+    "Pending request8",
+    "Accepted request9 ready for handover"
+  ],
+  "screenshots": {
+    "final-checkin-account-free-preview-round5.jpg": "748f6eb04416e7b727d5c2b4045a9701b013d0755f0a84db173537333fd4e767",
+    "final-staff-requests-preview-round5.jpg": "f67745b8282bb171be76c95f8c979a60084eb82be6eff8f5bd9b411be4ebd28c"
+  },
+  "no_request_submission_or_physical_hardware_transaction_performed": true,
+  "strict_developer_readiness": {
+    "http_status": 503,
+    "marker_diagnostic_present": true,
+    "reason": "Uninstalled host-run developer topology; no bypass or fake marker applied. Actual installed-host restore/readiness evidence is separate."
+  },
+  "production_settings_changed": false
+}

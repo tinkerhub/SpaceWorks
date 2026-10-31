@@ -7,7 +7,27 @@ from .tenant_dump_cross_tenant_verify import verify_lost_edge_manifest
 from .tenant_dump_user_closure_manifest import verify_user_closure_manifest
 
 
-def verify_envelope_custody_manifest(capture, manifest):
+def verify_envelope_custody_manifest(capture, manifest, *, outer_version=None):
+    # Missing context is the strict producer/publication path, never legacy.
+    if outer_version is not None and (type(outer_version) is not int or outer_version not in {1, 2}):
+        raise TenantDumpVerificationError("Unknown Lane D custody version.")
+    if outer_version != 1:
+        from .tenant_dump_projection_proof import validate_projection_record
+        from .tenant_client_catalog import validate_catalog_identity, validate_client_catalog
+        from .tenant_restore_types import TenantRestoreRefused
+        validate_projection_record(manifest)
+        try:
+            if manifest["source"]["deployment_identity"] != capture.source_deployment_identity:
+                raise TenantRestoreRefused("The Lane D source deployment identity changed.")
+            validate_catalog_identity(str(capture.pk), capture.source_deployment_identity["deployment_id"],
+                                      capture.source_makerspace_id)
+            validate_client_catalog(
+                manifest.get("api_client_catalog"), capture_id=str(capture.pk),
+                source_deployment_id=capture.source_deployment_identity["deployment_id"],
+                source_makerspace_id=capture.source_makerspace_id,
+            )
+        except (TenantRestoreRefused, KeyError, TypeError) as exc:
+            raise TenantDumpVerificationError("The Lane D source client catalog is invalid.") from exc
     expected_mode = source_pii_mode(capture.source_encryption_mode)
     source = manifest.get("source")
     encryption = manifest.get("encryption")

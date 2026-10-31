@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="156.481" timestamp="2026-10-29T18:35:24.040986+00:00" hostname="MacBookAir"><testcase classname="tests.tenant_migration.test_x13_builder_boundaries" name="test_real_builder_custom_dump_roundtrip_reconciles_both_boundaries" time="156.321"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'Mapped raw values'&#10;  Actual message: 'A sanitized row differs from its frozen input projection.'">tmp_path = PosixPath('/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-0/test_real_builder_custom_dump_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x112f96650&gt;
+
+    def test_real_builder_custom_dump_roundtrip_reconciles_both_boundaries(tmp_path, monkeypatch):
+        database = dict(connections["default"].settings_dict)
+        projection, expectations, old_builtin_pk = freeze_source(database, tmp_path)
+        assert_preload_identity_refusal(projection, expectations)
+        original = builder.verify_projection_database
+        visits, refusals = [], []
+    
+        def probe(using, makerspace_id, **kwargs):
+            boundary = "restored" if using.startswith("tenant_dump_verify_") else "scratch"
+            visits.append(boundary)
+            # Both baseline calls and all negative probes execute the production
+            # verifier; no mocked success or verified boolean substitutes for it.
+            actual = original(using, makerspace_id, **kwargs)
+            assert_valid_target(using, old_builtin_pk)
+            for name, mutate, message, recompute in ROW_CASES:
+                with transaction.atomic(using=using):
+                    with connections[using].cursor() as cursor:
+                        cursor.execute("SET CONSTRAINTS ALL DEFERRED")
+                    mutate(using)
+                    changed = dict(kwargs)
+                    if name != "sequence_frontier":
+                        changed["expected_sequence_state"] = normalize_sequences(using)
+                    if recompute:
+                        recompute_old_digest(using, changed)
+                    with pytest.raises(TenantDumpVerificationError, match=message):
+                        original(using, makerspace_id, **changed)
+                    refusals.append((boundary, name))
+                    transaction.set_rollback(True, using=using)
+                # setval is not transactional; restore frontiers after row rollback.
+                assert normalize_sequences(using) == kwargs["expected_sequence_state"]
+            for mode in ("omit", "add", "change"):
+                changed = dict(kwargs, expected_cross_tenant_lost_edges=corrupt_loss(
+                    kwargs["expected_cross_tenant_lost_edges"], mode))
+                with pytest.raises(TenantDumpVerificationError, match="loss ledger.*frozen"):
+                    original(using, makerspace_id, **changed)
+                refusals.append((boundary, "loss_" + mode))
+            for parameter, value, message in (
+                ("expected_row_counts", dict(kwargs["expected_row_counts"], **{"inventory.Category": 999}), "identity/count"),
+                ("expected_semantic_references", (), "independent frozen"),
+            ):
+                with pytest.raises(TenantDumpVerificationError, match=message):
+                    original(using, makerspace_id, **dict(kwargs, **{parameter: value}))
+                refusals.append((boundary, parameter))
+            assert original(using, makerspace_id, **kwargs) == actual
+            return actual
+    
+        monkeypatch.setattr(builder, "verify_projection_database", probe)
+&gt;       result = builder.build_tenant_dump(
+            projection, tmp_path / "database.dump", run_id=expectations.capture_id,
+            source_pii_mode=PLAINTEXT, expectations=expectations, database=database,
+        )
+
+tests/tenant_migration/test_x13_builder_boundaries.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/tenant_migration/tenant_dump_builder.py:159: in build_tenant_dump
+    verify_projection_database(using, makerspace_id, **verification)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+using = 'tenant_dump_16399105392e45c1a0c99a9219b7c0be', makerspace_id = 41001
+kwargs = {'expected_mapped_digest': '582560679ea15d89f7103fc13968587f7f4b01e84f584cf0ea6c13d6197a8395', 'mapped_identities': {'...42002), 'apiclients.ApiKeyRequest': (), 'audit.AuditLog': (49001,), 'backup.MakerspaceArchiveRecipient': (), ...}, ...}
+
+    def probe(using, makerspace_id, **kwargs):
+        boundary = "restored" if using.startswith("tenant_dump_verify_") else "scratch"
+        visits.append(boundary)
+        # Both baseline calls and all negative probes execute the production
+        # verifier; no mocked success or verified boolean substitutes for it.
+        actual = original(using, makerspace_id, **kwargs)
+        assert_valid_target(using, old_builtin_pk)
+        for name, mutate, message, recompute in ROW_CASES:
+            with transaction.atomic(using=using):
+                with connections[using].cursor() as cursor:
+                    cursor.execute("SET CONSTRAINTS ALL DEFERRED")
+                mutate(using)
+                changed = dict(kwargs)
+                if name != "sequence_frontier":
+                    changed["expected_sequence_state"] = normalize_sequences(using)
+                if recompute:
+                    recompute_old_digest(using, changed)
+&gt;               with pytest.raises(TenantDumpVerificationError, match=message):
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: Regex pattern did not match.
+E                 Expected regex: 'Mapped raw values'
+E                 Actual message: 'A sanitized row differs from its frozen input projection.'
+
+tests/tenant_migration/test_x13_builder_boundaries.py:109: AssertionError</failure></testcase></testsuite></testsuites>

@@ -29,7 +29,8 @@ export function usePublicInventory(
     queryKey: publicInventoryKey(slug, page, query, category, sort),
     queryFn: () => fetchPublicInventory(slug, page, query, category, sort),
     enabled: enabled && Boolean(slug),
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === slug ? previousData : undefined,
   });
 }
 

@@ -1,0 +1,13 @@
+{
+  "format": "spaceworks-qr-scanner-draft-source-freeze-v1",
+  "status": "Source hold released; Stage2 two-key edit/readback complete; separateStage3 active,rootruntimepending",
+  "exact_delta": "Only two identical key attributes; removing them restores exact baseline bytes",
+  "files": [
+    {
+      "path": "frontend/src/components/ui/QrScanner.tsx",
+      "lines": 290,
+      "sha256": "147e1ca33768157e8a7ceac97229e717e9be1f77a574bfb12a431cdddcabc6b7",
+      "prior_sha256": "cc590607b988968c0283f61c0571b73503b878e49d027402bc4b32037eee0f5c"
+    }
+  ]
+}

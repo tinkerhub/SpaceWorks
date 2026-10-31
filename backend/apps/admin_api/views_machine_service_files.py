@@ -126,6 +126,7 @@ class MachineServiceFileFinalizeView(APIView):
         try:
             file = service_storage.finalize_file(
                 service_request, actor=request.user, **serializer.validated_data,
+                authorize=lambda: _manageable_request(request.user, pk),
             )
         except StorageUnavailable:
             return storage_unavailable_response()
@@ -160,7 +161,7 @@ class MachineServiceFileDeleteView(APIView):
     def delete(self, request, pk, *args, **kwargs):
         file = _manageable_file(request.user, pk)
         try:
-            service_storage.delete_staged_file(file, actor=request.user)
+            service_storage.delete_staged_file(file, actor=request.user, authorize=lambda: _manageable_file(request.user, pk))
         except StorageUnavailable:
             return storage_unavailable_response()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,8 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
+from apps.inventory import public_image_storage
 from datetime import datetime, timedelta, timezone as dt_timezone
 from zoneinfo import ZoneInfo
 
@@ -21,7 +24,6 @@ from apps.events.services_recurrence import (
 )
 from apps.events.services_calendar import (
     CALENDAR_SERIES_FIELDS,
-    calendar_event_changed,
     calendar_series_changed,
 )
 from apps.forms_schema.validation import validate_form_schema
@@ -182,21 +184,29 @@ def extend_series(series, *, actor=None):
     return locked, created
 
 
-def _apply_template(series, event, changed_fields):
+def _apply_template(series, event, changed_fields, *, actor):
     overrides = set(event.series_override_fields or [])
-    applied = []
-    for field in changed_fields & TEMPLATE_FIELDS:
-        if field not in overrides:
-            setattr(event, field, getattr(series, field))
-            applied.append(field)
+    applied = {
+        field for field in (changed_fields & TEMPLATE_FIELDS) - overrides
+        if getattr(event, field) != getattr(series, field)
+    }
     if applied:
-        event.save(update_fields=(*sorted(applied), "updated_at"))
-        if set(applied) & {"title", "description", "location", "is_public"}:
-            calendar_event_changed(event)
+        services.update_event(event, actor=actor, inherit_fields=applied)
+
+
+def update_series(series, *, actor, effective_from=None, **changes):
+    context = (
+        storage_lifecycle(series.makerspace_id) if set(changes) & RECURRENCE_FIELDS
+        else boundary_tenant_write(series.makerspace_id)
+    )
+    with context as guard:
+        if guard is not None:
+            guard.verify()
+        return _update_series(series, actor=actor, effective_from=effective_from, guard=guard, **changes)
 
 
 @transaction.atomic
-def update_series(series, *, actor, effective_from=None, **changes):
+def _update_series(series, *, actor, effective_from=None, guard, **changes):
     locked = EventSeries.objects.select_for_update().get(pk=series.pk)
     if locked.status not in (EventSeries.Status.DRAFT, EventSeries.Status.PUBLISHED):
         raise EventInvalidTransition("Terminal series cannot be updated.")
@@ -229,7 +239,13 @@ def update_series(series, *, actor, effective_from=None, **changes):
                 services.cancel(event, actor=actor, notify=False)
             else:
                 event_id = event.pk
+                old_image_key = event.image_key
+                guard.verify(event.makerspace_id)
                 event.delete()
+                if old_image_key:
+                    public_image_storage.release_public_image_on_commit(
+                        locked.makerspace, old_image_key, guard=guard,
+                    )
                 removed.append(event_id)
                 audit.record(
                     actor, "event.series_occurrence_removed", makerspace=locked.makerspace,
@@ -237,7 +253,7 @@ def update_series(series, *, actor, effective_from=None, **changes):
                 )
     else:
         for event in future:
-            _apply_template(locked, event, set(changes))
+            _apply_template(locked, event, set(changes), actor=actor)
     created = _materialize_locked(locked, actor=actor, now=timezone.now())
     audit.record(
         actor, "event.series_updated", makerspace=locked.makerspace, target=locked,

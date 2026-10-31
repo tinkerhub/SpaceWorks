@@ -1,0 +1,5 @@
+Updated only the three authorized test files: shared CORS autouse fixture/import and exact canonical audit-row validation.
+
+Static checks confirm all 33 existing test functions retain identical source/AST hashes; other bytes remain unchanged outside the authorized edits.
+
+[SHA freeze](/tmp/spaceworks-social-box-fixture-stage3-freeze.json). No runtime, collection, builds, staging, or commits. The 72 box/10 social failures remain unclassified.

@@ -1,0 +1,26 @@
+Implemented within the allowed inventory boundary.
+
+Changed in `frontend/src/features/inventory/`:
+
+- `PublicInventoryPage.tsx`
+- `usePublicInventory.ts`
+- `usePublicSession.ts`
+- `PublicRequestPanel.tsx`
+- `PublicSelfCheckoutPage.tsx`
+- `PublicToolScanPanel.tsx`
+- `PublicEvidenceUpload.tsx`
+- `BorrowRequestCard.tsx`
+- `PendingToolCheckoutControls.tsx`
+
+New files for root’s Source Map handoff:
+
+- `PublicBorrowRequest.tsx` — person visits and completion rendering.
+- `PublicBorrowRequestForm.tsx` — captured submissions, retries and draft state.
+- `PublicSelfCheckoutView.tsx` — standalone checkout/return UI.
+- `usePublicToolOperation.ts` — shared admission and guarded mutation publication.
+
+Behavior choices: Maker changes reset cart/details; same-Maker sign-in preserves selection. Completion survives kiosk reset and tab changes. Changed submitted bodies rotate idempotency keys; identical failed retries retain them. Success clears only an unchanged cart composition. Checkout/return share admission, and uploads fence both asynchronous boundaries.
+
+One outside-scope source gap remains: `CheckinIdentityStep.tsx:71` dispatches lookup without rechecking lifetime inside `mutationFn`. Its callback guards remain intact; root must address delayed lookup dispatch separately.
+
+No tests, builds, census, staging, commits or review commands ran. Root API/session/backend and existing tests were untouched. Runtime validation and final QA remain pending with root.

@@ -11,7 +11,7 @@ from apps.machines.models import Machine, MachineServiceRequest
 from apps.machines.service_workflow import accept, start
 from tests.machines.public_service_helpers import post_request, service_lab
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 STATUS_KEYS = {"public_token", "status", "title", "created_at", "accepted_at", "started_at", "completed_at",
                "estimated_minutes", "queue_position", "queue_approved_ahead", "queue_awaiting_review_ahead"}

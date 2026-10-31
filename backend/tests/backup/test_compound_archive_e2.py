@@ -16,10 +16,12 @@ from apps.backup.models import (
     MakerspaceArchiveCustodyState,
     MakerspaceArchiveRecipient,
 )
+from apps.backup.models_host_identity import DeploymentDatabaseIdentity
 from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.recipients import fingerprint_for
 from apps.makerspaces.models import Makerspace
 from tests.backup.e7_manifest_test_facts import bind_source_partition_proof
+from tests.backup.full_backup_fixture_helpers import BUILD
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -50,6 +52,7 @@ def _recipient(makerspace, value, label):
 
 
 def _prepare_build(monkeypatch, settings, markers):
+    DeploymentDatabaseIdentity.objects.get_or_create(pk=1)
     monkeypatch.setenv("SPACEWORKS_OCI_DIGEST", "sha256:" + "a" * 64)
     settings.BACKUP_AGE_RECIPIENT = PLATFORM_RECIPIENT
     monkeypatch.setattr(archive_builder, "_require_binary", lambda _command: None)
@@ -61,19 +64,18 @@ def _prepare_build(monkeypatch, settings, markers):
     monkeypatch.setattr(
         archive_payload,
         "_pg_dump",
-        lambda path, _snapshot: path.write_bytes(FULL_MAIN_BYTES),
+        lambda path, _snapshot, **_kwargs: path.write_bytes(FULL_MAIN_BYTES),
     )
     monkeypatch.setattr(
         archive_payload,
         "_object_closure",
         lambda: {"private": {}, "public_image": {}},
     )
-    monkeypatch.setattr(
-        archive_payload, "_write_continuity_keys", lambda _path: None
-    )
-    monkeypatch.setattr(
-        archive_payload, "_command_version", lambda _command: "pg_dump 16"
-    )
+    if markers:
+        monkeypatch.setattr(archive_payload, "_write_continuity_keys", lambda _path: None)
+    else:
+        monkeypatch.setattr(archive_payload, "_build_info", lambda: dict(BUILD))
+    monkeypatch.setattr(archive_payload, "_command_version", lambda _cmd: "pg_dump (PostgreSQL) 16.4")
     monkeypatch.setattr(
         compound_slice_build, "verify_unsealed_slice", lambda *_args, **_kwargs: None
     )
@@ -86,9 +88,7 @@ def _prepare_build(monkeypatch, settings, markers):
         else:
             shutil.copyfile(source, destination)
 
-    monkeypatch.setattr(
-        compound_archive, "project_readable_main_dump", project_main
-    )
+    monkeypatch.setattr(compound_archive, "project_readable_main_dump", project_main)
     monkeypatch.setattr(
         compound_archive,
         "verify_reconstruction",
@@ -121,12 +121,7 @@ def _prepare_build(monkeypatch, settings, markers):
     def fake_age(command, **_kwargs):
         commands.append(command)
         if "-o" not in command:
-        # Not an age invocation. This fake replaces the SHARED subprocess module, so
-        # every other binary the code runs lands here too -- including
-        # `postgres_client._binary_major`'s `<client> --version` probe. Delegate
-        # instead of stubbing: a bare SimpleNamespace has no `.stdout`, which turned a
-        # clean PostgresClientUnavailable into an AttributeError on every host without
-        # a versioned client directory (any non-Debian/RHEL host).
+            # subprocess is shared: delegate client version probes unchanged.
             return real_run(command, **_kwargs)
         output = Path(command[command.index("-o") + 1])
         payload = _kwargs.get("input")
@@ -274,8 +269,17 @@ def test_extracted_deployment_payload_stays_at_archive_root(
         assert not (extracted / "main").exists()
         assert len(list(extracted.rglob("manifest.json"))) == 1
         manifest = json.loads(root_manifest.read_text(encoding="utf-8"))
-        assert bool(manifest["slices"]) is with_slices
-        assert (extracted / "slices").is_dir() is with_slices
+        if with_slices:
+            assert manifest["slices"]
+            assert (extracted / "slices").is_dir()
+        else:
+            from apps.backup.full_format import FULL_FORMAT, FULL_PROTOCOL
+
+            assert manifest["format"] == FULL_FORMAT
+            assert manifest["protocol_version"] == FULL_PROTOCOL
+            assert manifest["slices"] == manifest["slice_components"] == []
+            assert (extracted / "keys/env.json").is_file()
+            assert not (extracted / "slices").exists()
     finally:
         tempdir.cleanup()
 

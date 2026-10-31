@@ -32,6 +32,7 @@ class MakerspaceSwitcherSerializer(serializers.ModelSerializer):
             "public_code",
             "item_code_prefix",
             "slug",
+            "superadmin_access_enabled",
             "telegram_group_chat_id",
             # Module flags are frontend-safe (already in the public bootstrap) and are
             # required so the console can gate module tabs (Machines, Events, ...) for a

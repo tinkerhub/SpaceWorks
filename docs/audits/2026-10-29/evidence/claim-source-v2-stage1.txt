@@ -1,0 +1,3 @@
+APPROVED. The delta resolves the prior bounded revision, including exact `TenantNotRestored` handling and OIDC mapping after transaction unwind.
+
+Read-only source review only; no edits, runtime, imports, or tests.

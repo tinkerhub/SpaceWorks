@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 
 
 class MakerspacesConfig(AppConfig):
@@ -13,10 +13,21 @@ class MakerspacesConfig(AppConfig):
         from apps.makerspaces import domain_verification
         from apps.makerspaces.cors import register_signal
         from apps.makerspaces.hosting import invalidate
-        from apps.makerspaces.models import Makerspace
+        from apps.makerspaces.models import Makerspace, MemberProfile, MemberProject
+        from apps.makerspaces.profile_delete_guards import (
+            protect_profile_images, protect_project_image,
+        )
 
         register_signal()
         self._register_separability()
+        pre_delete.connect(
+            protect_profile_images, sender=MemberProfile,
+            dispatch_uid="makerspaces.protect_profile_images_on_delete", weak=False,
+        )
+        pre_delete.connect(
+            protect_project_image, sender=MemberProject,
+            dispatch_uid="makerspaces.protect_project_image_on_delete", weak=False,
+        )
 
         def invalidate_hosting_cache(**kwargs):
             # Any write to frontend_domain / frontend_domain_status must drop the

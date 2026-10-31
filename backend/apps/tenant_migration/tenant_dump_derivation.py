@@ -11,6 +11,10 @@ from apps.backup.digests import sha256_file
 
 from .models import TenantDumpCapture
 from .tenant_dump_builder import build_tenant_dump
+from .tenant_dump_api_clients import build_source_client_catalog
+from .tenant_dump_inner_manifest import _manifest  # explicit compatibility re-export
+from .tenant_dump_projection_expectations import capture_projection_expectations
+from .tenant_dump_projection_proof import validate_projection_record
 from .tenant_dump_catalog import CATALOG_SCHEMA_SHA256
 from .tenant_dump_database import (
     empty_verification_database,
@@ -25,11 +29,11 @@ from .tenant_dump_envelope import (
 from .tenant_dump_errors import TenantDumpBuildError, TenantDumpVerificationError
 from .tenant_dump_key_inventory import (
     enumerate_immutable_source_keys,
-    manifest_key_inventory,
+    manifest_key_inventory,  # noqa: F401  compatibility re-export
     retained_key_rows,
 )
 from .tenant_dump_lineage import (
-    FORMAT,
+    FORMAT,  # noqa: F401  compatibility re-export
     canonical_digest,
     derivation_policy_digest,
 )
@@ -53,16 +57,29 @@ def derive_tenant_dump(capture_id, *, database=None):
         if bundle.exists():
             raise TenantDumpBuildError("The Lane D derivation output already exists.")
         bundle.mkdir(mode=0o700)
+        policy_digest = derivation_policy_digest(
+            source_encryption_mode=capture.source_encryption_mode
+        )
         with empty_verification_database(
             capture.makerspace_id,
             f"{capture.pk}source",
             database=database,
         ) as (using, database_name):
             restore_scratch_dump(source_image, database_name, database=database)
+            api_client_catalog = build_source_client_catalog(
+                capture.pk, capture.source_deployment_identity["deployment_id"],
+                capture.source_makerspace_id, using=using,
+            )
             projection = project_makerspace_source(
                 capture.source_makerspace_id,
                 using=using,
                 capture_id=capture.pk,
+            )
+            expectations = capture_projection_expectations(
+                projection, capture_id=capture.pk,
+                source_database_image_sha256=capture.database_image_sha256,
+                catalog_sha256=capture.catalog_digest,
+                derivation_policy_sha256=policy_digest, using=using,
             )
             pii_mode = source_pii_mode(capture.source_encryption_mode)
             pii_findings = scan_mapped_pii(projection.rows, pii_mode)
@@ -76,6 +93,7 @@ def derive_tenant_dump(capture_id, *, database=None):
             bundle / "database.dump",
             run_id=capture.pk,
             source_pii_mode=pii_mode,
+            expectations=expectations,
             database=database,
         )
         object_entries = tuple(
@@ -95,9 +113,6 @@ def derive_tenant_dump(capture_id, *, database=None):
                 recipients.tenant_dek_recipients,
                 bundle / TENANT_DEKS_MEMBER,
             )
-        policy_digest = derivation_policy_digest(
-            source_encryption_mode=capture.source_encryption_mode
-        )
         manifest = _manifest(
             capture,
             build,
@@ -108,10 +123,12 @@ def derive_tenant_dump(capture_id, *, database=None):
             pii_findings=pii_findings,
             retained_keys=retained_keys,
             key_envelope=key_envelope,
+            api_client_catalog=api_client_catalog,
         )
         manifest["contents"] = build_tenant_content_ledger(
             bundle, source_pii_mode=pii_mode
         )
+        validate_projection_record(manifest)
         manifest_path = bundle / "manifest.json"
         manifest_path.write_text(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")),
@@ -166,66 +183,6 @@ def _verify_capture_bytes(capture, source_image):
         )
     if canonical_digest(capture.object_ledger) != capture.object_ledger_sha256:
         raise TenantDumpVerificationError("The immutable object ledger digest changed.")
-
-
-def _manifest(
-    capture,
-    build,
-    objects,
-    projection,
-    policy_digest,
-    *,
-    pii_mode,
-    pii_findings,
-    retained_keys,
-    key_envelope,
-):
-    return {
-        "format": FORMAT,
-        "capture_id": str(capture.pk),
-        "source_pii_mode": pii_mode,
-        "source": {
-            "deployment_identity": capture.source_deployment_identity,
-            "makerspace_id": capture.source_makerspace_id,
-            "makerspace_slug": capture.source_makerspace_slug,
-            "request_actor_id": capture.requested_by_id,
-            "gate_owner_id": str(capture.gate_owner_id),
-            "gate_fencing_token": capture.gate_fencing_token,
-            "superadmin_access_at_decision": (
-                capture.superadmin_access_at_decision
-            ),
-            "tenant_recipients": capture.frozen_tenant_recipients,
-            "database_snapshot_at": capture.database_snapshot_at.isoformat(),
-            "postgres_major": capture.source_postgres_major,
-            "encryption_mode": capture.source_encryption_mode,
-            "source_pii_mode": pii_mode,
-            "catalog_digest": capture.catalog_digest,
-            "capture_completed_at": capture.capture_completed_at.isoformat(),
-        },
-        "lineage": {
-            "database_image_sha256": capture.database_image_sha256,
-            "object_ledger_sha256": capture.object_ledger_sha256,
-            "derivation_policy_sha256": policy_digest,
-        },
-        "database": {
-            "member_path": "database.dump",
-            "mapped_raw_sha256": build.mapped_raw_sha256,
-            "sequence_state": build.sequence_state,
-        },
-        "objects": list(objects),
-        "encryption": {
-            "source_pii_mode": pii_mode,
-            "mapped_column_findings": pii_findings.as_manifest(),
-            "retained_key_inventory": manifest_key_inventory(retained_keys),
-            "tenant_dek_envelope": key_envelope or {
-                "path": TENANT_DEKS_MEMBER,
-                "present": False,
-            },
-        },
-        "machine_operator_manifest": list(projection.machine_operator_manifest),
-        "user_closure": projection.user_closure.manifest(),
-        "cross_tenant_lost_edges": list(projection.cross_tenant_lost_edges),
-    }
 
 
 @transaction.atomic

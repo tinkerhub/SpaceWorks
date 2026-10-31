@@ -1,0 +1,23 @@
+{
+  "status": "39 focused cases passed; final release checks remain",
+  "environment": "Python3.12 Linux, actual DockerCLI27/Compose, networknone, noDB/provider calls",
+  "initial": {
+    "passed": 24,
+    "failed": 15,
+    "seconds": 12.42,
+    "classification": "Test enumerator assumed every Compose command was a list; standard infrastructure services may have command:null."
+  },
+  "corrected": {
+    "passed": 39,
+    "failed": 0,
+    "seconds": 85.49
+  },
+  "source_changes_for_correction": false,
+  "test_correction": "Normalize null infrastructure command only; exact expected app role set,16settings and validators unchanged.",
+  "test_hashes": {
+    "backend/tests/test_security_env_forwarding.py": "5eb76809e59b33c4415523592fe4d8d2b51d3226ed211fb3b24764cdb02d05a7",
+    "backend/tests/security_env_forwarding_helpers.py": "bedc8fef4211440b053f46e42528f2322febf1dc01876e8b484850fd5afd5751",
+    "backend/tests/security_env_settings_probe.py": "44b296152cbdaaa44c2437c7d89da958f988299097ac4c92d4c1336ab53b1c9b"
+  },
+  "claim_limits": "Process settings/wrapping only; no database-aware PII rollout, KMS, production credentials or live config change."
+}

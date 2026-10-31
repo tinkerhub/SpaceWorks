@@ -1,0 +1,29 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/machineService src/features/inventory/PublicRequestReferenceOwnership.test.tsx src/features/printing
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [32m✓[39m src/features/machineService/PublicMachineServicePage.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1697[2mms[22m[39m
+     [33m[2m✓[22m[39m selects types by id and submits a successful generic proposal with a private tracker [33m 451[2mms[22m[39m
+ [32m✓[39m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 852[2mms[22m[39m
+     [33m[2m✓[22m[39m gates the form and sends identity with every presign and submission [33m 403[2mms[22m[39m
+ [32m✓[39m src/features/machineService/PublicServiceVisitOwnership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2144[2mms[22m[39m
+     [33m[2m✓[22m[39m resets canonical check-in, private draft/files and lookup results before paint on A→B→A [33m 637[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a current draft across stable catalog object refreshes but resets on a type round trip [33m 355[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceStatusOwnership.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestForm.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 1030[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceSubmissionContracts.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 938[2mms[22m[39m
+     [33m[2m✓[22m[39m captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue [33m 376[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestReferenceOwnership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 602[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestOwnership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 713[2mms[22m[39m
+ [32m✓[39m src/features/printing/PublicPrintRequestForm.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 191[2mms[22m[39m
+ [32m✓[39m src/features/printing/publicApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/features/machineService/publicApi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m78 passed[39m[22m[90m (78)[39m
+[2m   Start at [22m 20:25:11
+[2m   Duration [22m 23.49s[2m (transform 861ms, setup 1.78s, import 3.93s, tests 8.54s, environment 7.92s)[22m
+

@@ -1,0 +1,25 @@
+{
+  "runtime_status": "root Node20 focused service/printing/reference 78 passed; TSC passed; full suite/release pending",
+  "files": [
+    {
+      "path": "frontend/src/features/machineService/PublicMachineServicePage.tsx",
+      "lines": 120,
+      "sha256": "79e9291a6afe47c3e16fc33ed0faca2723496dd5a7e28408d11a29b13c572fab"
+    },
+    {
+      "path": "frontend/src/features/machineService/ServiceRequestForm.tsx",
+      "lines": 176,
+      "sha256": "15873e7da3e656abd90642041b3d6749952d3901da967a3ac6d04215c23c8162"
+    },
+    {
+      "path": "frontend/src/features/machineService/ServiceStatusPanel.tsx",
+      "lines": 68,
+      "sha256": "97ae7948aa23433a865ee98b30631da55103afc3171f0015c8cd86a1e2b0dc80"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicRequestStatusPage.tsx",
+      "lines": 101,
+      "sha256": "d54f6b63af323410093878af75c4c6ae6b9b894e1c58bfd684bf9115f3c1b56a"
+    }
+  ]
+}

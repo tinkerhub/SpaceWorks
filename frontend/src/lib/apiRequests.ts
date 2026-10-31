@@ -1,5 +1,6 @@
 import { API_URL, API_V1_URL } from "./apiConfig";
-import { apiError, messageForStatus, StructuredApiError } from "./apiErrors";
+import { messageForStatus, StructuredApiError } from "./apiErrors";
+import { readApiResponse, requireCurrentSession, type ApiResponseOwner } from "./apiResponses";
 import {
   authHeaders,
   cacheTenantPublishableKey,
@@ -7,6 +8,7 @@ import {
   clearAccessToken,
   expireStaffAuthSession,
   getAccessToken,
+  getSessionGeneration,
   publicHeaders,
   refreshAccessToken,
   tenantPublishableKeys,
@@ -14,18 +16,22 @@ import {
 import type { StaffAuthUser, TenantBootstrap } from "./apiTypes";
 
 export async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    headers: await publicHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error(`${messageForStatus(response.status)} (${response.status})`);
+  const owner = { generation: getSessionGeneration() };
+  try {
+    const headers = await publicHeaders();
+    requireCurrentSession(owner);
+    const response = await fetch(url, { headers });
+    requireCurrentSession(owner);
+    if (!response.ok) {
+      throw new Error(`${messageForStatus(response.status)} (${response.status})`);
+    }
+    return await readApiResponse<T>(response, owner, "json");
+  } finally {
+    requireCurrentSession(owner);
   }
-
-  return (await response.json()) as T;
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+export function apiGet<T>(path: string): Promise<T> {
   return fetchJson<T>(`${API_URL}${path}`);
 }
 
@@ -34,79 +40,121 @@ export async function publicV1Request<T>(
   options: RequestInit = {},
   publishableKey?: string,
 ): Promise<T> {
+  const owner = { generation: getSessionGeneration() };
+  try {
+    const headers = await publicHeaders(publishableKey);
+    requireCurrentSession(owner);
+    return await publicJsonRequest<T>(path, options, headers, owner);
+  } finally {
+    requireCurrentSession(owner);
+  }
+}
+
+async function publicJsonRequest<T>(
+  path: string,
+  options: RequestInit,
+  publicCredentials: HeadersInit,
+  owner: ApiResponseOwner,
+): Promise<T> {
+  requireCurrentSession(owner);
   const response = await fetch(`${API_V1_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(await publicHeaders(publishableKey)),
+      ...publicCredentials,
       ...authHeaders(),
       ...(options.headers ?? {}),
     },
   });
-
-  if (!response.ok) {
-    throw apiError(response.status, await response.json().catch(() => ({})));
-  }
-
-  return (await response.json()) as T;
+  requireCurrentSession(owner);
+  return readApiResponse<T>(response, owner, "json");
 }
 
 export async function bootstrapTenant(params: { tenant?: string; slug?: string }) {
-  const search = new URLSearchParams();
-  if (params.tenant) search.set("tenant", params.tenant);
-  if (params.slug) search.set("slug", params.slug);
-  const bootstrap = await publicV1Request<TenantBootstrap>(
-    `/bootstrap?${search.toString()}`,
-  );
-  cacheTenantPublishableKey(
-    bootstrap.makerspace.slug,
-    bootstrap.public_api.publishable_key,
-  );
-  return bootstrap;
+  const owner = { generation: getSessionGeneration() };
+  try {
+    const search = new URLSearchParams();
+    if (params.tenant) search.set("tenant", params.tenant);
+    if (params.slug) search.set("slug", params.slug);
+    const bootstrap = await publicV1Request<TenantBootstrap>(
+      `/bootstrap?${search.toString()}`,
+    );
+    requireCurrentSession(owner);
+    cacheTenantPublishableKey(
+      bootstrap.makerspace.slug,
+      bootstrap.public_api.publishable_key,
+    );
+    return bootstrap;
+  } finally {
+    requireCurrentSession(owner);
+  }
 }
 
-export async function tenantPublicRequest<T>(
+export function tenantPublicRequest<T>(
   slug: string,
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const normalized = slug.trim();
-  let publishableKey = tenantPublishableKeys.get(normalized);
-  if (!publishableKey) {
-    const bootstrap = await bootstrapTenant({ slug: normalized });
-    publishableKey = bootstrap.public_api.publishable_key;
-  }
+  return tenantPublicRequestWithRetry(slug, (headers, owner) => publicJsonRequest<T>(path, options, headers, owner));
+}
+
+async function tenantPublicRequestWithRetry<T>(
+  slug: string,
+  request: (publicCredentials: HeadersInit, owner: ApiResponseOwner) => Promise<T>,
+): Promise<T> {
+  const owner = { generation: getSessionGeneration() };
   try {
-    return await publicV1Request<T>(path, options, publishableKey);
-  } catch (error) {
-    // A signed-in member who reloaded holds no access token until the refresh cookie is
-    // exchanged; without this every account-only public action would 401 after a reload.
-    const unauthorized = error instanceof StructuredApiError && error.status === 401;
-    if (!unauthorized) throw error;
-    if (await refreshAccessToken()) return publicV1Request<T>(path, options, publishableKey);
-    // The held token is dead and cannot be renewed: drop it, or every later public call on
-    // this page keeps sending it, and retry once anonymously so open routes still answer.
-    if (!getAccessToken()) throw error;
-    clearAccessToken();
-    return publicV1Request<T>(path, options, publishableKey);
+    const normalized = slug.trim();
+    let publishableKey = tenantPublishableKeys.get(normalized);
+    if (!publishableKey) {
+      const bootstrap = await bootstrapTenant({ slug: normalized });
+      requireCurrentSession(owner);
+      publishableKey = bootstrap.public_api.publishable_key;
+    } else {
+      cacheTenantPublishableKey(normalized, publishableKey);
+    }
+    // Resolve credentials once so a guarded retry reaches fetch without another await.
+    const publicCredentials = await publicHeaders(publishableKey);
+    requireCurrentSession(owner);
+    try {
+      const result = await request(publicCredentials, owner);
+      requireCurrentSession(owner);
+      return result;
+    } catch (error) {
+      requireCurrentSession(owner);
+      // A signed-in member who reloaded holds no access token until the refresh cookie is
+      // exchanged; without this every account-only public action would 401 after a reload.
+      const unauthorized = error instanceof StructuredApiError && error.status === 401;
+      if (!unauthorized) throw error;
+      const refreshed = await refreshAccessToken();
+      requireCurrentSession(owner);
+      if (refreshed) return await request(publicCredentials, owner);
+      // The held token is dead and cannot be renewed: drop it, or every later public call on
+      // this page keeps sending it, and retry once anonymously so open routes still answer.
+      if (!getAccessToken()) throw error;
+      clearAccessToken();
+      // No await between our own clear and adoption; later external changes still lose ownership.
+      owner.generation = getSessionGeneration();
+      requireCurrentSession(owner);
+      return await request(publicCredentials, owner);
+    }
+  } finally {
+    requireCurrentSession(owner);
   }
 }
 
-export async function tenantPublicRequestBlob(slug: string, path: string): Promise<Blob> {
-  const normalized = slug.trim();
-  let publishableKey = tenantPublishableKeys.get(normalized);
-  if (!publishableKey) {
-    const bootstrap = await bootstrapTenant({ slug: normalized });
-    publishableKey = bootstrap.public_api.publishable_key;
-  }
-  const response = await fetch(`${API_V1_URL}${path}`, {
-    headers: { ...(await publicHeaders(publishableKey)), ...authHeaders() },
+export function tenantPublicRequestBlob(slug: string, path: string): Promise<Blob> {
+  return tenantPublicRequestWithRetry(slug, async (publicCredentials, owner) => {
+    requireCurrentSession(owner);
+    const response = await fetch(`${API_V1_URL}${path}`, {
+      headers: { ...publicCredentials, ...authHeaders() },
+    });
+    requireCurrentSession(owner);
+    return readApiResponse<Blob>(response, owner, "blob");
   });
-  if (!response.ok) throw apiError(response.status, await response.json().catch(() => ({})));
-  return response.blob();
 }
 
-export async function fetchMe(): Promise<StaffAuthUser> {
+export function fetchMe(): Promise<StaffAuthUser> {
   return staffRequest<StaffAuthUser>("/auth/me");
 }
 
@@ -118,35 +166,60 @@ export async function fetchMe(): Promise<StaffAuthUser> {
  */
 async function staffFetch(
   path: string,
-  options: RequestInit = {},
-  includePublicCredentials = false,
+  options: RequestInit,
+  includePublicCredentials: boolean,
+  owner: ApiResponseOwner,
 ): Promise<Response> {
   const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
-  const makeRequest = async () =>
+  const publicCredentials = includePublicCredentials ? await publicHeaders() : {};
+  requireCurrentSession(owner);
+  const makeRequest = () =>
     fetch(`${API_V1_URL}${path}`, {
       ...options,
       headers: {
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
-        ...(includePublicCredentials ? await publicHeaders() : {}),
+        ...publicCredentials,
         ...authHeaders(),
         ...(options.headers ?? {}),
       },
     });
 
   let response = await makeRequest();
+  requireCurrentSession(owner);
 
   if (response.status === 401 && canRefreshAfterUnauthorized(path)) {
     const refreshed = await refreshAccessToken();
+    requireCurrentSession(owner);
     if (refreshed) {
       response = await makeRequest();
-      if (response.status === 401) {
-        expireStaffAuthSession();
-      }
-    } else {
+      requireCurrentSession(owner);
+    }
+    if (!refreshed || response.status === 401) {
+      // Expiry clears exactly once before notifying listeners. Adopt that clear only:
+      // a synchronous listener that signs in/out must still invalidate this response.
+      owner.generation += 1;
       expireStaffAuthSession();
+      requireCurrentSession(owner);
     }
   }
   return response;
+}
+
+async function authenticatedResponse<T>(
+  path: string,
+  options: RequestInit,
+  includePublicCredentials: boolean,
+  kind: "json" | "blob",
+): Promise<T> {
+  const owner = { generation: getSessionGeneration() };
+  try {
+    const response = await staffFetch(path, options, includePublicCredentials, owner);
+    return await readApiResponse<T>(response, owner, kind, kind === "json");
+  } finally {
+    // Network failures also belong to their dispatch session. Preserve genuine 401s
+    // after our own expiry, but never publish an outcome under a newer account.
+    requireCurrentSession(owner);
+  }
 }
 
 /** Fetch a binary/non-JSON authenticated resource as a Blob.
@@ -154,60 +227,35 @@ async function staffFetch(
  * `<img src>` cannot carry an Authorization header, so an authenticated image has to be
  * fetched and handed to the DOM as an object URL. Callers must revoke that URL.
  */
-export async function staffRequestBlob(
+export function staffRequestBlob(
   path: string,
   options: RequestInit = {},
 ): Promise<Blob> {
-  const response = await staffFetch(path, options);
-  if (!response.ok) {
-    throw apiError(response.status, await response.json().catch(() => ({})));
-  }
-  return await response.blob();
+  return authenticatedResponse<Blob>(path, options, false, "blob");
 }
 
-export async function staffRequest<T>(
+export function staffRequest<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await staffFetch(path, options);
-
-  if (!response.ok) {
-    throw apiError(response.status, await response.json().catch(() => ({})));
-  }
-  // 204 No Content (e.g. DRF destroy) has an empty body - parsing it as JSON
-  // would throw and surface a successful mutation as a failure.
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  return (await response.json()) as T;
+  return authenticatedResponse<T>(path, options, false, "json");
 }
 
-export async function memberRequest<T>(
+export function memberRequest<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await staffFetch(path, options, true);
-  if (!response.ok) {
-    throw apiError(response.status, await response.json().catch(() => ({})));
-  }
-  if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+  return authenticatedResponse<T>(path, options, true, "json");
 }
 
-export async function memberRequestBlob(path: string): Promise<Blob> {
-  const response = await staffFetch(path, {}, true);
-  if (!response.ok) throw apiError(response.status, await response.json().catch(() => ({})));
-  return response.blob();
+export function memberRequestBlob(path: string): Promise<Blob> {
+  return authenticatedResponse<Blob>(path, {}, true, "blob");
 }
 
 export async function downloadStaffFile(path: string, filename: string) {
-  const response = await fetch(`${API_V1_URL}${path}`, {
-    headers: authHeaders(),
-  });
-  if (!response.ok) {
-    throw new Error(`Download failed (${response.status})`);
-  }
-  const blob = await response.blob();
+  const owner = { generation: getSessionGeneration() };
+  const blob = await staffRequestBlob(path);
+  requireCurrentSession(owner);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

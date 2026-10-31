@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="276" time="73.024" timestamp="2026-10-29T18:47:28.304702+00:00" hostname="MacBookAir"><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[label-control\x01metadata]" time="0.579" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[label-control\x7fmetadata]" time="0.038" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[label-control\x85metadata]" time="0.037" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[label-control\x9fmetadata]" time="0.035" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[scopes-value4]" time="0.033" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[scopes-value5]" time="0.035" /><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_source_producer_refuses_unsafe_raw_metadata_without_echoing_bytes[allowed_origins-value6]" time="0.040" /><testcase classname="tests.tenant_migration.test_x12_derivation_source_binding" name="test_actual_derivation_embeds_immutable_catalog_in_age_output_with_live_rows_changed" time="5.048"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'">tmp_path = PosixPath('/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_actual_derivation_embeds_0')
+settings = &lt;pytest_django.fixtures.Settings object at 0x115f85bf0&gt;
+
+    def test_actual_derivation_embeds_immutable_catalog_in_age_output_with_live_rows_changed(tmp_path, settings):
+        settings.PII_ENCRYPTION_ENABLED = False
+        settings.BACKUP_AGE_RECIPIENT = ""
+        settings.TENANT_DUMP_STAGING_DIR = str(tmp_path / "staging")
+        frozen = freeze_client_source(tmp_path / "source")
+        identities = []
+        for index in range(2):
+            key_root = tmp_path / f"custodian-{index}"
+            key_root.mkdir(mode=0o700)
+&gt;           identity, recipient = real_age_identity(key_root)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/tenant_migration/test_x12_derivation_source_binding.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/tenant_migration/x12_real_producer_helpers.py:87: in real_age_identity
+    subprocess.run(["age-keygen", "-o", str(identity)], check=True, capture_output=True)
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:555: in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1039: in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Popen: returncode: 255 args: ['age-keygen', '-o', '/private/var/folders/19/...&gt;
+args = ['age-keygen', '-o', '/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_actual_derivation_embeds_0/custodian-0/custodian.agekey']
+executable = b'age-keygen', preexec_fn = None, close_fds = True, pass_fds = ()
+cwd = None, env = None, startupinfo = None, creationflags = 0, shell = False
+p2cread = -1, p2cwrite = -1, c2pread = 12, c2pwrite = 13, errread = 14
+errwrite = 15, restore_signals = True, gid = None, gids = None, uid = None
+umask = -1, start_new_session = False, process_group = -1
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       restore_signals,
+                       gid, gids, uid, umask,
+                       start_new_session, process_group):
+        """Execute program (POSIX version)"""
+    
+        if isinstance(args, (str, bytes)):
+            args = [args]
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError('path-like args is not allowed when '
+                                'shell is true')
+            args = [args]
+        else:
+            args = list(args)
+    
+        if shell:
+            # On Android the default shell is at '/system/bin/sh'.
+            unix_shell = ('/system/bin/sh' if
+                      hasattr(sys, 'getandroidapilevel') else '/bin/sh')
+            args = [unix_shell, "-c"] + args
+            if executable:
+                args[0] = executable
+    
+        if executable is None:
+            executable = args[0]
+    
+        sys.audit("subprocess.Popen", executable, args, cwd, env)
+    
+        if (_USE_POSIX_SPAWN
+                and os.path.dirname(executable)
+                and preexec_fn is None
+                and (not close_fds or _HAVE_POSIX_SPAWN_CLOSEFROM)
+                and not pass_fds
+                and cwd is None
+                and (p2cread == -1 or p2cread &gt; 2)
+                and (c2pwrite == -1 or c2pwrite &gt; 2)
+                and (errwrite == -1 or errwrite &gt; 2)
+                and not start_new_session
+                and process_group == -1
+                and gid is None
+                and gids is None
+                and uid is None
+                and umask &lt; 0):
+            self._posix_spawn(args, executable, env, restore_signals, close_fds,
+                              p2cread, p2cwrite,
+                              c2pread, c2pwrite,
+                              errread, errwrite)
+            return
+    
+        orig_executable = executable
+    
+        # For transferring possible exec failure from child to parent.
+        # Data format: "exception name:hex errno:description"
+        # Pickle is not used; it is complex and involves memory allocation.
+        errpipe_read, errpipe_write = os.pipe()
+        # errpipe_write must not be in the standard io 0, 1, or 2 fd range.
+        low_fds_to_close = []
+        while errpipe_write &lt; 3:
+            low_fds_to_close.append(errpipe_write)
+            errpipe_write = os.dup(errpipe_write)
+        for low_fd in low_fds_to_close:
+            os.close(low_fd)
+        try:
+            try:
+                # We must avoid complex work that could involve
+                # malloc or free in the child process to avoid
+                # potential deadlocks, thus we do all this here.
+                # and pass it to fork_exec()
+    
+                if env is not None:
+                    env_list = []
+                    for k, v in env.items():
+                        k = os.fsencode(k)
+                        if b'=' in k:
+                            raise ValueError("illegal environment variable name")
+                        env_list.append(k + b'=' + os.fsencode(v))
+                else:
+                    env_list = None  # Use execv instead of execve.
+                executable = os.fsencode(executable)
+                if os.path.dirname(executable):
+                    executable_list = (executable,)
+                else:
+                    # This matches the behavior of os._execvpe().
+                    executable_list = tuple(
+                        os.path.join(os.fsencode(dir), executable)
+                        for dir in os.get_exec_path(env))
+                fds_to_keep = set(pass_fds)
+                fds_to_keep.add(errpipe_write)
+                self.pid = _fork_exec(
+                        args, executable_list,
+                        close_fds, tuple(sorted(map(int, fds_to_keep))),
+                        cwd, env_list,
+                        p2cread, p2cwrite, c2pread, c2pwrite,
+                        errread, errwrite,
+                        errpipe_read, errpipe_write,
+                        restore_signals, start_new_session,
+                        process_group, gid, gids, uid, umask,
+                        preexec_fn)
+                self._child_created = True
+            finally:
+                # be sure the FD is closed no matter what
+                os.close(errpipe_write)
+    
+            self._close_pipe_fds(p2cread, p2cwrite,
+                                 c2pread, c2pwrite,
+                                 errread, errwrite)
+    
+            # Wait for exec to fail or succeed; possibly raising an
+            # exception (limited in size)
+            errpipe_data = bytearray()
+            while True:
+                part = os.read(errpipe_read, 50000)
+                errpipe_data += part
+                if not part or len(errpipe_data) &gt; 50000:
+                    break
+        finally:
+            # be sure the FD is closed no matter what
+            os.close(errpipe_read)
+    
+        if errpipe_data:
+            try:
+                pid, sts = os.waitpid(self.pid, 0)
+                if pid == self.pid:
+                    self._handle_exitstatus(sts)
+                else:
+                    self.returncode = sys.maxsize
+            except ChildProcessError:
+                pass
+    
+            try:
+                exception_name, hex_errno, err_msg = (
+                        errpipe_data.split(b':', 2))
+                # The encoding here should match the encoding
+                # written in by the subprocess implementations
+                # like _posixsubprocess
+                err_msg = err_msg.decode()
+            except ValueError:
+                exception_name = b'SubprocessError'
+                hex_errno = b'0'
+                err_msg = 'Bad exception data from child: {!r}'.format(
+                              bytes(errpipe_data))
+            child_exception_type = getattr(
+                    builtins, exception_name.decode('ascii'),
+                    SubprocessError)
+            if issubclass(child_exception_type, OSError) and hex_errno:
+                errno_num = int(hex_errno, 16)
+                if err_msg == "noexec:chdir":
+                    err_msg = ""
+                    # The error must be from chdir(cwd).
+                    err_filename = cwd
+                elif err_msg == "noexec":
+                    err_msg = ""
+                    err_filename = None
+                else:
+                    err_filename = orig_executable
+                if errno_num != 0:
+                    err_msg = os.strerror(errno_num)
+                if err_filename is not None:
+&gt;                   raise child_exception_type(errno_num, err_msg, err_filename)
+E                   FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'
+
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1990: FileNotFoundError</failure></testcase><testcase classname="tests.tenant_migration.test_x12_repository_client_integration" name="test_real_source_producer_selected_reader_proof_approval_and_fresh_client_service" time="60.765"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'">tmp_path = PosixPath('/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_real_source_producer_sele0')
+settings = &lt;pytest_django.fixtures.Settings object at 0x115fbea50&gt;
+
+    def test_real_source_producer_selected_reader_proof_approval_and_fresh_client_service(tmp_path, settings):
+        settings.PII_ENCRYPTION_ENABLED = False
+        frozen = freeze_client_source(tmp_path / "producer")
+&gt;       produced = produce_encrypted_source(frozen)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/tenant_migration/test_x12_repository_client_integration.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/tenant_migration/x12_real_producer_helpers.py:109: in produce_encrypted_source
+    identity, recipient = real_age_identity(root)
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+tests/tenant_migration/x12_real_producer_helpers.py:87: in real_age_identity
+    subprocess.run(["age-keygen", "-o", str(identity)], check=True, capture_output=True)
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:555: in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1039: in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Popen: returncode: 255 args: ['age-keygen', '-o', '/private/var/folders/19/...&gt;
+args = ['age-keygen', '-o', '/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_real_source_producer_sele0/producer/custodian.agekey']
+executable = b'age-keygen', preexec_fn = None, close_fds = True, pass_fds = ()
+cwd = None, env = None, startupinfo = None, creationflags = 0, shell = False
+p2cread = -1, p2cwrite = -1, c2pread = 12, c2pwrite = 13, errread = 14
+errwrite = 15, restore_signals = True, gid = None, gids = None, uid = None
+umask = -1, start_new_session = False, process_group = -1
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       restore_signals,
+                       gid, gids, uid, umask,
+                       start_new_session, process_group):
+        """Execute program (POSIX version)"""
+    
+        if isinstance(args, (str, bytes)):
+            args = [args]
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError('path-like args is not allowed when '
+                                'shell is true')
+            args = [args]
+        else:
+            args = list(args)
+    
+        if shell:
+            # On Android the default shell is at '/system/bin/sh'.
+            unix_shell = ('/system/bin/sh' if
+                      hasattr(sys, 'getandroidapilevel') else '/bin/sh')
+            args = [unix_shell, "-c"] + args
+            if executable:
+                args[0] = executable
+    
+        if executable is None:
+            executable = args[0]
+    
+        sys.audit("subprocess.Popen", executable, args, cwd, env)
+    
+        if (_USE_POSIX_SPAWN
+                and os.path.dirname(executable)
+                and preexec_fn is None
+                and (not close_fds or _HAVE_POSIX_SPAWN_CLOSEFROM)
+                and not pass_fds
+                and cwd is None
+                and (p2cread == -1 or p2cread &gt; 2)
+                and (c2pwrite == -1 or c2pwrite &gt; 2)
+                and (errwrite == -1 or errwrite &gt; 2)
+                and not start_new_session
+                and process_group == -1
+                and gid is None
+                and gids is None
+                and uid is None
+                and umask &lt; 0):
+            self._posix_spawn(args, executable, env, restore_signals, close_fds,
+                              p2cread, p2cwrite,
+                              c2pread, c2pwrite,
+                              errread, errwrite)
+            return
+    
+        orig_executable = executable
+    
+        # For transferring possible exec failure from child to parent.
+        # Data format: "exception name:hex errno:description"
+        # Pickle is not used; it is complex and involves memory allocation.
+        errpipe_read, errpipe_write = os.pipe()
+        # errpipe_write must not be in the standard io 0, 1, or 2 fd range.
+        low_fds_to_close = []
+        while errpipe_write &lt; 3:
+            low_fds_to_close.append(errpipe_write)
+            errpipe_write = os.dup(errpipe_write)
+        for low_fd in low_fds_to_close:
+            os.close(low_fd)
+        try:
+            try:
+                # We must avoid complex work that could involve
+                # malloc or free in the child process to avoid
+                # potential deadlocks, thus we do all this here.
+                # and pass it to fork_exec()
+    
+                if env is not None:
+                    env_list = []
+                    for k, v in env.items():
+                        k = os.fsencode(k)
+                        if b'=' in k:
+                            raise ValueError("illegal environment variable name")
+                        env_list.append(k + b'=' + os.fsencode(v))
+                else:
+                    env_list = None  # Use execv instead of execve.
+                executable = os.fsencode(executable)
+                if os.path.dirname(executable):
+                    executable_list = (executable,)
+                else:
+                    # This matches the behavior of os._execvpe().
+                    executable_list = tuple(
+                        os.path.join(os.fsencode(dir), executable)
+                        for dir in os.get_exec_path(env))
+                fds_to_keep = set(pass_fds)
+                fds_to_keep.add(errpipe_write)
+                self.pid = _fork_exec(
+                        args, executable_list,
+                        close_fds, tuple(sorted(map(int, fds_to_keep))),
+                        cwd, env_list,
+                        p2cread, p2cwrite, c2pread, c2pwrite,
+                        errread, errwrite,
+                        errpipe_read, errpipe_write,
+                        restore_signals, start_new_session,
+                        process_group, gid, gids, uid, umask,
+                        preexec_fn)
+                self._child_created = True
+            finally:
+                # be sure the FD is closed no matter what
+                os.close(errpipe_write)
+    
+            self._close_pipe_fds(p2cread, p2cwrite,
+                                 c2pread, c2pwrite,
+                                 errread, errwrite)
+    
+            # Wait for exec to fail or succeed; possibly raising an
+            # exception (limited in size)
+            errpipe_data = bytearray()
+            while True:
+                part = os.read(errpipe_read, 50000)
+                errpipe_data += part
+                if not part or len(errpipe_data) &gt; 50000:
+                    break
+        finally:
+            # be sure the FD is closed no matter what
+            os.close(errpipe_read)
+    
+        if errpipe_data:
+            try:
+                pid, sts = os.waitpid(self.pid, 0)
+                if pid == self.pid:
+                    self._handle_exitstatus(sts)
+                else:
+                    self.returncode = sys.maxsize
+            except ChildProcessError:
+                pass
+    
+            try:
+                exception_name, hex_errno, err_msg = (
+                        errpipe_data.split(b':', 2))
+                # The encoding here should match the encoding
+                # written in by the subprocess implementations
+                # like _posixsubprocess
+                err_msg = err_msg.decode()
+            except ValueError:
+                exception_name = b'SubprocessError'
+                hex_errno = b'0'
+                err_msg = 'Bad exception data from child: {!r}'.format(
+                              bytes(errpipe_data))
+            child_exception_type = getattr(
+                    builtins, exception_name.decode('ascii'),
+                    SubprocessError)
+            if issubclass(child_exception_type, OSError) and hex_errno:
+                errno_num = int(hex_errno, 16)
+                if err_msg == "noexec:chdir":
+                    err_msg = ""
+                    # The error must be from chdir(cwd).
+                    err_filename = cwd
+                elif err_msg == "noexec":
+                    err_msg = ""
+                    err_filename = None
+                else:
+                    err_filename = orig_executable
+                if errno_num != 0:
+                    err_msg = os.strerror(errno_num)
+                if err_filename is not None:
+&gt;                   raise child_exception_type(errno_num, err_msg, err_filename)
+E                   FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'
+
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1990: FileNotFoundError</failure></testcase><testcase classname="tests.tenant_migration.test_x12_source_catalog" name="test_immutable_alias_catalog_preserves_exact_tenant_metadata_without_credential_queries" time="4.559" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_real_age_decrypted_member_is_exact_frozen_buffer_even_after_path_changes" time="0.008"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'">tmp_path = PosixPath('/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_real_age_decrypted_member0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x115b6e1a0&gt;
+
+    def test_real_age_decrypted_member_is_exact_frozen_buffer_even_after_path_changes(tmp_path, monkeypatch):
+        tmp_path.chmod(0o700)
+        inner = bundle_for(tmp_path / "bundle")
+        bundle = tmp_path / "bundle"
+        expected = (bundle / "manifest.json").read_bytes()
+&gt;       identity, recipient = real_age_identity(tmp_path)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/tenant_migration/test_x12_age_manifest_binding.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/tenant_migration/x12_real_producer_helpers.py:87: in real_age_identity
+    subprocess.run(["age-keygen", "-o", str(identity)], check=True, capture_output=True)
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:555: in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1039: in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Popen: returncode: 255 args: ['age-keygen', '-o', '/private/var/folders/19/...&gt;
+args = ['age-keygen', '-o', '/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-2/test_real_age_decrypted_member0/custodian.agekey']
+executable = b'age-keygen', preexec_fn = None, close_fds = True, pass_fds = ()
+cwd = None, env = None, startupinfo = None, creationflags = 0, shell = False
+p2cread = -1, p2cwrite = -1, c2pread = 9, c2pwrite = 12, errread = 13
+errwrite = 14, restore_signals = True, gid = None, gids = None, uid = None
+umask = -1, start_new_session = False, process_group = -1
+
+    def _execute_child(self, args, executable, preexec_fn, close_fds,
+                       pass_fds, cwd, env,
+                       startupinfo, creationflags, shell,
+                       p2cread, p2cwrite,
+                       c2pread, c2pwrite,
+                       errread, errwrite,
+                       restore_signals,
+                       gid, gids, uid, umask,
+                       start_new_session, process_group):
+        """Execute program (POSIX version)"""
+    
+        if isinstance(args, (str, bytes)):
+            args = [args]
+        elif isinstance(args, os.PathLike):
+            if shell:
+                raise TypeError('path-like args is not allowed when '
+                                'shell is true')
+            args = [args]
+        else:
+            args = list(args)
+    
+        if shell:
+            # On Android the default shell is at '/system/bin/sh'.
+            unix_shell = ('/system/bin/sh' if
+                      hasattr(sys, 'getandroidapilevel') else '/bin/sh')
+            args = [unix_shell, "-c"] + args
+            if executable:
+                args[0] = executable
+    
+        if executable is None:
+            executable = args[0]
+    
+        sys.audit("subprocess.Popen", executable, args, cwd, env)
+    
+        if (_USE_POSIX_SPAWN
+                and os.path.dirname(executable)
+                and preexec_fn is None
+                and (not close_fds or _HAVE_POSIX_SPAWN_CLOSEFROM)
+                and not pass_fds
+                and cwd is None
+                and (p2cread == -1 or p2cread &gt; 2)
+                and (c2pwrite == -1 or c2pwrite &gt; 2)
+                and (errwrite == -1 or errwrite &gt; 2)
+                and not start_new_session
+                and process_group == -1
+                and gid is None
+                and gids is None
+                and uid is None
+                and umask &lt; 0):
+            self._posix_spawn(args, executable, env, restore_signals, close_fds,
+                              p2cread, p2cwrite,
+                              c2pread, c2pwrite,
+                              errread, errwrite)
+            return
+    
+        orig_executable = executable
+    
+        # For transferring possible exec failure from child to parent.
+        # Data format: "exception name:hex errno:description"
+        # Pickle is not used; it is complex and involves memory allocation.
+        errpipe_read, errpipe_write = os.pipe()
+        # errpipe_write must not be in the standard io 0, 1, or 2 fd range.
+        low_fds_to_close = []
+        while errpipe_write &lt; 3:
+            low_fds_to_close.append(errpipe_write)
+            errpipe_write = os.dup(errpipe_write)
+        for low_fd in low_fds_to_close:
+            os.close(low_fd)
+        try:
+            try:
+                # We must avoid complex work that could involve
+                # malloc or free in the child process to avoid
+                # potential deadlocks, thus we do all this here.
+                # and pass it to fork_exec()
+    
+                if env is not None:
+                    env_list = []
+                    for k, v in env.items():
+                        k = os.fsencode(k)
+                        if b'=' in k:
+                            raise ValueError("illegal environment variable name")
+                        env_list.append(k + b'=' + os.fsencode(v))
+                else:
+                    env_list = None  # Use execv instead of execve.
+                executable = os.fsencode(executable)
+                if os.path.dirname(executable):
+                    executable_list = (executable,)
+                else:
+                    # This matches the behavior of os._execvpe().
+                    executable_list = tuple(
+                        os.path.join(os.fsencode(dir), executable)
+                        for dir in os.get_exec_path(env))
+                fds_to_keep = set(pass_fds)
+                fds_to_keep.add(errpipe_write)
+                self.pid = _fork_exec(
+                        args, executable_list,
+                        close_fds, tuple(sorted(map(int, fds_to_keep))),
+                        cwd, env_list,
+                        p2cread, p2cwrite, c2pread, c2pwrite,
+                        errread, errwrite,
+                        errpipe_read, errpipe_write,
+                        restore_signals, start_new_session,
+                        process_group, gid, gids, uid, umask,
+                        preexec_fn)
+                self._child_created = True
+            finally:
+                # be sure the FD is closed no matter what
+                os.close(errpipe_write)
+    
+            self._close_pipe_fds(p2cread, p2cwrite,
+                                 c2pread, c2pwrite,
+                                 errread, errwrite)
+    
+            # Wait for exec to fail or succeed; possibly raising an
+            # exception (limited in size)
+            errpipe_data = bytearray()
+            while True:
+                part = os.read(errpipe_read, 50000)
+                errpipe_data += part
+                if not part or len(errpipe_data) &gt; 50000:
+                    break
+        finally:
+            # be sure the FD is closed no matter what
+            os.close(errpipe_read)
+    
+        if errpipe_data:
+            try:
+                pid, sts = os.waitpid(self.pid, 0)
+                if pid == self.pid:
+                    self._handle_exitstatus(sts)
+                else:
+                    self.returncode = sys.maxsize
+            except ChildProcessError:
+                pass
+    
+            try:
+                exception_name, hex_errno, err_msg = (
+                        errpipe_data.split(b':', 2))
+                # The encoding here should match the encoding
+                # written in by the subprocess implementations
+                # like _posixsubprocess
+                err_msg = err_msg.decode()
+            except ValueError:
+                exception_name = b'SubprocessError'
+                hex_errno = b'0'
+                err_msg = 'Bad exception data from child: {!r}'.format(
+                              bytes(errpipe_data))
+            child_exception_type = getattr(
+                    builtins, exception_name.decode('ascii'),
+                    SubprocessError)
+            if issubclass(child_exception_type, OSError) and hex_errno:
+                errno_num = int(hex_errno, 16)
+                if err_msg == "noexec:chdir":
+                    err_msg = ""
+                    # The error must be from chdir(cwd).
+                    err_filename = cwd
+                elif err_msg == "noexec":
+                    err_msg = ""
+                    err_filename = None
+                else:
+                    err_filename = orig_executable
+                if errno_num != 0:
+                    err_msg = os.strerror(errno_num)
+                if err_filename is not None:
+&gt;                   raise child_exception_type(errno_num, err_msg, err_filename)
+E                   FileNotFoundError: [Errno 2] No such file or directory: 'age-keygen'
+
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py:1990: FileNotFoundError</failure></testcase><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[proof_absent]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[catalog_absent]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[capture]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[content]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[custody]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_producer_refuses_conflicting_precomputed_inner_hash" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[version-True]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[version-2]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[capture_id-not-a-uuid]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[capture_id-568267BE-8127-4DA6-810D-D3C2B90C6FC0]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[source_deployment_id-value4]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[source_deployment_id-opaque-deployment]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[source_makerspace_id-True]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[source_makerspace_id-0]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_header_is_exact_canonical_version_uuid_and_digest[entries-value9]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[missing]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[extra]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[entry_extra]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[entry_missing]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[entry_hash]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[catalog_hash]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[duplicate]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_allowlist_order_and_both_digests_are_enforced[order]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-private\x00label]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-control\x7fmetadata]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-control\x85metadata]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-control\x9fmetadata]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-\ud800]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[label-value5]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[is_active-1]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[eligible_for_reissue-1]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value8]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value9]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value10]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value11]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value12]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_scopes-value13]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_origins-value14]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_unsafe_metadata_refuses_even_with_recomputed_digests[stored_origins-value15]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes0-inactive]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes1-invalid_label]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes2-invalid_client_type]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes3-invalid_rate_limit_tier]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes4-invalid_scopes]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes5-invalid_scopes]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes6-invalid_origins]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_invalid_representable_metadata_is_retained_with_fixed_reason[changes7-invalid_origins]" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_valid_empty_catalog_and_independent_identity_bindings" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_catalog_bounds" name="test_catalog_row_and_serialized_byte_budgets_are_enforced" time="0.001" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_no_request_finishes_zero_without_either_reissue_callback[None]" time="0.018" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_no_request_finishes_zero_without_either_reissue_callback[document1]" time="0.017" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_no_request_finishes_zero_without_either_reissue_callback[document2]" time="0.018" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[False]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document1]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document2]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document3]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document4]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document5]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document6]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document7]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_malformed_non_none_request_refuses_before_effects[document8]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_request_requires_dedicated_concrete_capability[target0]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_request_requires_dedicated_concrete_capability[target1]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_request_requires_dedicated_concrete_capability[ValidatedApiClientTargetAdapter]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[artifact_sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[capture_id-00000000-0000-0000-0000-000000000001]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[source_catalog_sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[source_client_ref-3333333333333333333333333333333333333333333333333333333333333333]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[source_entry_sha256-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[label-changed]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[client_type-server]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[rate_limit_tier-trusted]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[host_principal-]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[host_principal-operator\x00]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[nonce-]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[nonce-\ud800]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[privileged_scopes_approved-1]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[target_scopes-value13]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[target_scopes-value14]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[target_origins-value15]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_nonempty_approval_bindings_attribution_and_scope_are_not_optional[target_origins-value16]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[expiry]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[future]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[naive]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[hash]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[duplicate_reference]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_approval_expiry_hash_and_uniqueness_are_checked_before_effects[duplicate_nonce]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_client_requests" name="test_validated_records_are_deeply_frozen_and_provider_return_is_redacted" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[none-success]" time="0.012" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[none-restore_error]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[none-later_error]" time="0.008" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[inplace-success]" time="0.012" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[inplace-restore_error]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[inplace-later_error]" time="0.009" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[replace-success]" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[replace-restore_error]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_restore_only_receives_live_private_snapshot_and_cleanup_holds_lock[replace-later_error]" time="0.010" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[wrong]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[empty]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[relative]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[symlink]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[hardlink]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[fifo]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[directory]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[mode]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[parent_mode]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_bad_original_dump_refuses_before_first_phase[owner]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_disk_failure_cleans_partial_owned_snapshot_without_effects[write]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_disk_failure_cleans_partial_owned_snapshot_without_effects[zero_write]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_disk_failure_cleans_partial_owned_snapshot_without_effects[fsync]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_partial_writes_make_progress_and_copy_is_bounded" time="0.019" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_snapshot_preparation_has_no_filesystem_or_adapter_fallback[ops_mode]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_snapshot_preparation_has_no_filesystem_or_adapter_fallback[ancestor_mode]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_snapshot_preparation_has_no_filesystem_or_adapter_fallback[missing_dump_method]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_snapshot_preparation_has_no_filesystem_or_adapter_fallback[unsupported_dump_method]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot" name="test_private_source_parent_alias_still_consumes_authenticated_owned_snapshot" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_original_descriptor_drift_during_copy_refuses_before_ledger[truncate]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_original_descriptor_drift_during_copy_refuses_before_ledger[grow]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_original_descriptor_drift_during_copy_refuses_before_ledger[same_size]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[inplace]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[symlink]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[replace]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[chmod]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[hardlink]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_snapshot_is_rechecked_immediately_before_actual_restore[directory_swap]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_digest_is_rechecked_even_if_metadata_guard_is_instrumented_stable" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_completed_restore_resume_still_reverifies_dump_before_any_skip[None]" time="0.013" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_completed_restore_resume_still_reverifies_dump_before_any_skip[document1]" time="0.012" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_missing_snapshot_name_cleanup_does_not_delete_original" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_operations_directory_swap_after_restore_begin_refuses_before_adapter" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_cleanup_io_failure_is_typed_or_preserves_the_existing_restore_error[False]" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_dump_snapshot_races" name="test_cleanup_io_failure_is_typed_or_preserves_the_existing_restore_error[True]" time="0.007" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[artifact_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[artifact_sha256-begun-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[artifact_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[artifact_sha256-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[outer_version-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[outer_version-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[outer_version-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[outer_version-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[capture_id-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[capture_id-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[capture_id-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[capture_id-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[inner_manifest_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[inner_manifest_sha256-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[inner_manifest_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[inner_manifest_sha256-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_mode-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_mode-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_mode-done-static-preflight]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_mode-done-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_proof_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_proof_sha256-begun-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_proof_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[projection_proof_sha256-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[database_member_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[database_member_sha256-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[database_member_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[database_member_sha256-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_catalog_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_catalog_sha256-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_catalog_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_catalog_sha256-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_approvals_sha256-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_approvals_sha256-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_approvals_sha256-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_approvals_sha256-done-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_reissue_requested-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_reissue_requested-begun-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_reissue_requested-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_every_binding_is_compared_in_both_relevant_phase_states[api_client_reissue_requested-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[False-begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[False-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[False-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[False-done-api-client-reissue]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[True-begun-static-preflight]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[True-begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[True-done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_empty_nonempty_request_change_cannot_silently_skip[True-done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_expiry_is_rechecked_before_existing_phase_shortcut[begun-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_expiry_is_rechecked_before_existing_phase_shortcut[begun-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_expiry_is_rechecked_before_existing_phase_shortcut[done-static-preflight]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_expiry_is_rechecked_before_existing_phase_shortcut[done-api-client-reissue]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[begun-static-preflight-1]" time="0.010" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[begun-static-preflight-2]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[begun-api-client-reissue-1]" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[begun-api-client-reissue-2]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[done-static-preflight-1]" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[done-static-preflight-2]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[done-api-client-reissue-1]" time="0.010" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_historical_missing_binding_is_only_actual_v1_no_request[done-api-client-reissue-2]" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_completed_real_run_rereads_changed_selected_artifact_before_all_shortcuts" time="0.011" /><testcase classname="tests.tenant_migration.test_x12_resume_bindings" name="test_new_selected_artifact_sha_on_existing_run_keeps_host_ledger_refusal" time="0.005" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_v2_no_request_consumes_catalog_proof_and_frozen_minimal_context" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_missing_mandatory_path_cannot_be_replaced_by_boolean_approval[False-selected_artifact_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_missing_mandatory_path_cannot_be_replaced_by_boolean_approval[False-inner_manifest_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_missing_mandatory_path_cannot_be_replaced_by_boolean_approval[True-selected_artifact_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_missing_mandatory_path_cannot_be_replaced_by_boolean_approval[True-inner_manifest_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_substitution_after_selection_refuses_before_first_effect[artifact]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_substitution_after_selection_refuses_before_first_effect[inner]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_substitution_after_selection_refuses_before_first_effect[catalog]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_substitution_after_selection_refuses_before_first_effect[proof]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_substitution_after_selection_refuses_before_first_effect[dump]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[missing_proof]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[proof_digest]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[capture]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[source]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[custody]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[catalog_header]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[database]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[content_size]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[content_order]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[objects]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[policy]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_incompatible_v2_inner_still_refuses[deployment]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_duplicate_and_nonfinite_json_refuses[{&quot;capture_id&quot;:1,&quot;capture_id&quot;:2}]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_duplicate_and_nonfinite_json_refuses[{&quot;value&quot;:NaN}]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_authenticated_duplicate_and_nonfinite_json_refuses[{&quot;value&quot;:Infinity}]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_selected_outer_has_exact_version_and_header[unknown]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_selected_outer_has_exact_version_and_header[bool_version]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_selected_outer_has_exact_version_and_header[missing_inner_sha]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_selected_outer_has_exact_version_and_header[empty_compatibility]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_selected_outer_has_exact_version_and_header[extra_field]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_contract_is_explicit_and_nonempty_reissue_refuses" time="0.010" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[outer_sha256_ok]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[inner_sha256_ok]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[artifact_sha256_ok]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[format_ok]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[build_compatible]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[schema_compatible]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[postgres_compatible]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[encryption_mode_matches]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[tenant_fingerprint_matches]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[target_crypto_keys_ready]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[object_capacity_sufficient]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_admission" name="test_actual_v1_legacy_admission_still_requires_every_current_artifact_gate[api_approval_valid]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[relative-path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[relative-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[symlink-path]" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[symlink-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[hardlink-path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[hardlink-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[directory-path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[directory-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[fifo-path]" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[fifo-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[mode-path]" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[mode-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[parent_mode-path]" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[parent_mode-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[owner-path]" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_selected_and_inner_paths_refuse_unsafe_files[owner-inner_path]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_reader_accepts_owned_parent_alias_but_refuses_final_symlink[path]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_private_reader_accepts_owned_parent_alias_but_refuses_final_symlink[inner_path]" time="0.004" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_oversize_inner_refuses_before_reading_payload" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_outer_digest_and_manifest_use_one_descriptor_despite_path_swap" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_inplace_artifact_drift_between_digest_and_parse_refuses" time="0.002" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[header_mode]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[padding]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[trailing]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[extra_record]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[payload]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_selected_files" name="test_actual_wrapper_sha_and_canonical_bytes_are_all_required[selected_sha]" time="0.003" /></testsuite></testsuites>

@@ -1,3 +1,4 @@
+from apps.object_storage_lifecycle import storage_lifecycle
 """Event cover image upload/attach/clear, mirroring admin_api.views_machine_image.
 
 Lives in apps.events rather than admin_api so an `events` tombstone withdraws it
@@ -84,51 +85,38 @@ class EventImageView(APIView):
             503: OpenApiResponse(description="Public image storage is unavailable."),
         },
     )
-    @transaction.atomic
     def put(self, request, pk, *args, **kwargs):
         event = _manageable_event(request.user, pk)
-        serializer = PublicImageAttachRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        object_key = serializer.validated_data["object_key"]
-        # Prefix check first: it is what stops one makerspace attaching another's
-        # object, and it must run before anything touches storage.
-        if not object_key.startswith(f"{IMAGE_PREFIX}/{event.makerspace_id}/"):
-            raise ValidationError(
-                {"object_key": "Image object key is outside this makerspace."}
-            )
-        if not public_image_storage.is_safe_object_key(object_key):
-            raise ValidationError({"object_key": "Invalid image object key."})
-        if public_image_storage.public_image_key_in_use(
-            event.makerspace_id,
-            object_key,
-            event_id=event.pk,
-        ):
-            raise ValidationError({"object_key": "This image is already in use."})
-        try:
-            result = public_image_storage.finalize_upload(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if result.status != "ok":
-            if result.status in {"empty", "too_large"}:
-                public_image_storage.delete_object(object_key)
-                public_image_storage.delete_object(
-                    public_image_storage.staging_key(object_key)
+        with storage_lifecycle(event.makerspace_id) as guard:
+            serializer = PublicImageAttachRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            object_key = serializer.validated_data["object_key"]
+            # Prefix check first: it is what stops one makerspace attaching another's
+            # object, and it must run before anything touches storage.
+            if not object_key.startswith(f"{IMAGE_PREFIX}/{event.makerspace_id}/"):
+                raise ValidationError(
+                    {"object_key": "Image object key is outside this makerspace."}
                 )
-            raise ValidationError(
-                {"object_key": public_image_storage.finalize_error_message(result)}
-            )
-        try:
-            is_valid_image = public_image_storage.sniff_is_valid_image(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if not is_valid_image:
-            public_image_storage.delete_object(object_key)
-            public_image_storage.delete_object(
-                public_image_storage.staging_key(object_key)
-            )
-            raise ValidationError({"object_key": "Uploaded file is not a valid image."})
-        event = services_images.update_image(event, request.user, object_key)
-        return self._response(request, event)
+            if not public_image_storage.is_safe_object_key(object_key):
+                raise ValidationError({"object_key": "Invalid image object key."})
+            if public_image_storage.public_image_key_in_use(
+                event.makerspace_id,
+                object_key,
+                event_id=event.pk,
+            ):
+                raise ValidationError({"object_key": "This image is already in use."})
+            try:
+                result = public_image_storage.finalize_upload(object_key)
+            except StorageUnavailable:
+                return storage_unavailable_response()
+            if result.status != "ok":
+                raise ValidationError(
+                    {"object_key": public_image_storage.finalize_error_message(result)}
+                )
+            guard.verify()
+            with transaction.atomic():
+                event = services_images.update_image(event, request.user, object_key, size_bytes=result.size, guard=guard)
+                return self._response(request, event)
 
     @extend_schema(
         tags=["Admin events"],
@@ -141,5 +129,6 @@ class EventImageView(APIView):
     )
     def delete(self, request, pk, *args, **kwargs):
         event = _manageable_event(request.user, pk)
-        event = services_images.remove_image(event, request.user)
-        return self._response(request, event)
+        with storage_lifecycle(event.makerspace_id) as guard:
+            event = services_images.remove_image(event, request.user, guard=guard)
+            return self._response(request, event)

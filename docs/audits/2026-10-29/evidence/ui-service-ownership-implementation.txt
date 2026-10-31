@@ -1,0 +1,16 @@
+Stage 2 implemented: fresh visit/form ownership, captured request bodies, guarded serial uploads and publications, exact-action admission release, tracker fencing, and maker/URL-keyed status drafts. Check-in typing stays stable; capability-token fallback remains intact.
+
+Only these four files changed; no new files:
+
+| File | Lines | SHA-256 |
+|---|---:|---|
+| [PublicMachineServicePage.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/machineService/PublicMachineServicePage.tsx) | 120 | `79e9291a6afe47c3e16fc33ed0faca2723496dd5a7e28408d11a29b13c572fab` |
+| [ServiceRequestForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/machineService/ServiceRequestForm.tsx) | 176 | `15873e7da3e656abd90642041b3d6749952d3901da967a3ac6d04215c23c8162` |
+| [ServiceStatusPanel.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/machineService/ServiceStatusPanel.tsx) | 68 | `97ae7948aa23433a865ee98b30631da55103afc3171f0015c8cd86a1e2b0dc80` |
+| [PublicRequestStatusPage.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/inventory/PublicRequestStatusPage.tsx) | 101 | `d54f6b63af323410093878af75c4c6ae6b9b894e1c58bfd684bf9115f3c1b56a` |
+
+Scoped diff SHA-256: `a3000db254bc1f80f33ca8f665a4ec5ddc758c9e1beff4660254a4f4f9e5fda9`
+
+Static diff whitespace check passed. No tests, builds, runtime, census, staging, or commits performed.
+
+Remaining Stage 3 risks: ownership races and happy flows remain unverified. The existing pending-callback assertion needs the added `AuthAction` argument. Already-dispatched requests can finish; subsequent work and stale publication are fenced.

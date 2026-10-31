@@ -7,8 +7,11 @@ import uuid
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
+from apps.audit import services as audit
 from apps.evidence.models import EvidencePhoto, EvidenceUploadFinalization
+from apps.evidence.quota import finalized_size_bytes, local_accounting_database_id
 
 
 FINALIZATION_WAIT_SECONDS = 5
@@ -57,7 +60,7 @@ def finalize_upload(evidence, max_bytes):
         raise
 
 
-def charge_storage_once(evidence, size):
+def charge_storage_once(evidence, size, *, no_key=False):
     """Charge PUT-backed evidence once, at the consuming workflow's DB boundary."""
     if settings.STORAGE_PRESIGN_METHOD != "put":
         return
@@ -67,13 +70,32 @@ def charge_storage_once(evidence, size):
     with transaction.atomic():
         state = EvidenceUploadFinalization.objects.select_for_update().get(
             evidence_id=evidence.pk,
-            status=EvidenceUploadFinalization.Status.FINALIZED,
         )
+        validated_size = finalized_size_bytes(state)
+        if not validated_size or type(size) is not int or size != validated_size:
+            raise ValidationError(
+                {"size_bytes": "Evidence size must match the positive finalized size."},
+                code="invalid_evidence_size",
+            )
         if state.quota_charged:
+            return  # Legacy handled flags still cannot bypass journal validation.
+        database_id = local_accounting_database_id()
+        if not add_storage(evidence.makerspace, validated_size, no_key=no_key):
             return
-        add_storage(evidence.makerspace, size)
         state.quota_charged = True
         state.save(update_fields=["quota_charged", "updated_at"])
+        audit.record(
+            None,
+            "evidence.storage_charged",
+            makerspace=evidence.makerspace,
+            target=evidence,
+            meta={
+                "version": 1,
+                "bytes": validated_size,
+                "journal_version": state.updated_at.isoformat(),
+                "accounting_database_id": database_id,
+            },
+        )
 
 
 def _claim(evidence_id):

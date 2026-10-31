@@ -110,6 +110,9 @@ class RequestSubmitResponseSerializer(serializers.Serializer):
 class PublicRequestItemStatusSerializer(serializers.Serializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     requested_quantity = serializers.IntegerField(read_only=True)
+    accepted_quantity = serializers.IntegerField(read_only=True)
+    issued_quantity = serializers.IntegerField(read_only=True)
+    returned_quantity = serializers.IntegerField(read_only=True)
 
 
 class PublicRequestStatusSerializer(serializers.Serializer):

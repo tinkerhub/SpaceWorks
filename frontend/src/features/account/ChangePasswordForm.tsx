@@ -5,6 +5,8 @@ import { Button, ErrorText, Field, PasswordInput, buttonClasses, useToast } from
 import { cn } from "../../lib/cn";
 import { setAccessToken, StructuredApiError } from "../../lib/api";
 
+import { useAuthActionOwner, type AuthAction } from "../auth/useAuthActionOwner";
+
 export type ChangePasswordResponse = { detail: string; access?: string | null };
 
 type ChangePasswordFormProps = {
@@ -55,25 +57,50 @@ function announced(message: string | null) {
 // that Set-Cookie and the next refresh fails with the revoked cookie.
 export function ChangePasswordForm({ username, request, onChanged, submitLabel = "Update password", fullWidth = false }: ChangePasswordFormProps) {
   const { showToast } = useToast();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const owner = useAuthActionOwner(username);
+  const emptyCredentials = { currentPassword: "", newPassword: "", confirm: "" };
+  const [storedCredentials, setCredentials] = useState({ context: owner.context, ...emptyCredentials });
+  // Masked inputs must also belong to this identity, immediately on the first render.
+  const credentials = storedCredentials.context === owner.context ? storedCredentials : { context: owner.context, ...emptyCredentials };
+  const { currentPassword, newPassword, confirm } = credentials;
+  function editCredentials(patch: Partial<typeof emptyCredentials>) {
+    setCredentials((state) => owner.isContextCurrent()
+      ? { ...(state.context === owner.context ? state : { context: owner.context, ...emptyCredentials }), ...patch } : state);
+  }
+  const [status, setStatus] = useState<{ context: typeof owner.context; pending: boolean; error: unknown }>();
+  const pending = status?.context === owner.context && status.pending;
+  const error = status?.context === owner.context ? status.error : null;
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: ({ payload }: { owner: AuthAction; payload: { current_password: string; new_password: string } }) =>
       request("/auth/change-password", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+        method: "POST", credentials: "include", body: JSON.stringify(payload),
       }),
-    onSuccess: (data) => {
-      if (data?.access) setAccessToken(data.access);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirm("");
+    onSuccess: (data, input) => {
+      if (!owner.isCurrent(input.owner)) return;
+      try {
+        if (data?.access && !owner.install(input.owner, data.access, setAccessToken)) return;
+      } catch {
+        if (!owner.isCurrent(input.owner)) return;
+        setCredentials({ context: input.owner.context, ...emptyCredentials });
+        setStatus({ context: input.owner.context, pending: false,
+          error: new Error("Password updated; sign in again.") });
+        return;
+      }
+      if (!owner.isCurrent(input.owner)) return;
+      setCredentials({ context: input.owner.context, ...emptyCredentials });
+      setStatus({ context: input.owner.context, pending: false, error: null });
+      if (!owner.isCurrent(input.owner)) return;
       showToast("Password updated", { tone: "success" });
-      onChanged();
+      if (owner.isCurrent(input.owner)) onChanged();
     },
-    onError: () => showToast("Password not updated", { tone: "error" }),
+    onError: (error, input) => {
+      if (!owner.isCurrent(input.owner)) return;
+      setStatus({ context: input.owner.context, pending: false, error });
+      if (owner.isCurrent(input.owner)) showToast("Password not updated", { tone: "error" });
+    },
+    onSettled: (_data, _error, input) => {
+      if (owner.finish(input.owner)) setStatus((state) => state?.context === input.owner.context ? { ...state, pending: false } : state);
+    },
   });
   const mismatch = confirm.length > 0 && newPassword !== confirm;
   const unchanged = newPassword.length > 0 && newPassword === currentPassword;
@@ -83,18 +110,22 @@ export function ChangePasswordForm({ username, request, onChanged, submitLabel =
     confirm.length > 0 &&
     confirm === newPassword &&
     !unchanged &&
-    !mutation.isPending;
-  const currentError = fieldMessage(mutation.error, "current_password");
-  const newError = fieldMessage(mutation.error, "new_password");
-  const otherError = generalMessage(mutation.error);
-  const noPassword = passwordNotSet(mutation.error);
+    !pending;
+  const currentError = fieldMessage(error, "current_password");
+  const newError = fieldMessage(error, "new_password");
+  const otherError = generalMessage(error);
+  const noPassword = passwordNotSet(error);
 
   return (
     <form
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        if (canSubmit) mutation.mutate();
+        if (!canSubmit) return;
+        const action = owner.begin();
+        if (!action) return;
+        setStatus({ context: action.context, pending: true, error: null });
+        mutation.mutate({ owner: action, payload: { current_password: currentPassword, new_password: newPassword } });
       }}
     >
       <input
@@ -111,7 +142,7 @@ export function ChangePasswordForm({ username, request, onChanged, submitLabel =
         <PasswordInput
           autoComplete="current-password"
           value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
+          onChange={(e) => editCredentials({ currentPassword: e.target.value })}
         />
       </Field>
       {noPassword ? (
@@ -126,14 +157,14 @@ export function ChangePasswordForm({ username, request, onChanged, submitLabel =
         <PasswordInput
           autoComplete="new-password"
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={(e) => editCredentials({ newPassword: e.target.value })}
         />
       </Field>
       <Field label="Confirm new password" error={announced(mismatch ? "Passwords do not match." : null)}>
         <PasswordInput
           autoComplete="new-password"
           value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
+          onChange={(e) => editCredentials({ confirm: e.target.value })}
         />
       </Field>
       <ErrorText message={otherError} />
@@ -141,7 +172,7 @@ export function ChangePasswordForm({ username, request, onChanged, submitLabel =
         variant="primary"
         type="submit"
         disabled={!canSubmit}
-        loading={mutation.isPending}
+        loading={pending}
         loadingLabel="Updating…"
         className={cn(fullWidth ? "w-full" : "w-full sm:w-auto sm:self-start")}
       >

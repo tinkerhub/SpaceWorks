@@ -12,6 +12,9 @@ what makes uninstall safe enough to not need a destructive-confirmation prompt.
 
 from django.db import transaction
 
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
+from apps.makerspaces.module_purge_state import enabling_modules
+
 from apps.audit import services as audit
 from apps.makerspaces.capabilities import prune_features, validate_capabilities
 from apps.makerspaces.models import Makerspace
@@ -66,7 +69,7 @@ def install_module(makerspace, key, actor=None):
             f"{', '.join(unavailable)} is not shipped by this deployment "
             "(TOMBSTONED_APPS). Enabling it would have no effect."
         )
-    with transaction.atomic():
+    with boundary_tenant_write(makerspace.pk), transaction.atomic():
         locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
         before = set(locked.enabled_modules or [])
         added = sorted(with_dependencies({key}) - before)
@@ -85,7 +88,7 @@ def uninstall_module(makerspace, key, actor=None):
         raise ModuleInstallError(
             f"{key} is a core module and cannot be uninstalled."
         )
-    with transaction.atomic():
+    with boundary_tenant_write(makerspace.pk), transaction.atomic():
         locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
         before = set(locked.enabled_modules or [])
         if key not in before:
@@ -106,7 +109,7 @@ def apply_profile(makerspace, profile, actor=None):
     # deployment does not ship is right here, where refusing would make the setup
     # wizard unusable on a tombstoned build.
     keys = {key for key in profile_modules(profile) if module_available(key)}
-    with transaction.atomic():
+    with boundary_tenant_write(makerspace.pk), transaction.atomic():
         locked = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
         # Unknown legacy keys are preserved: `_canonical_modules` keeps them and a
         # profile must not silently strip a capability the registry has not learned yet.
@@ -138,6 +141,7 @@ def _apply(locked, modules, actor):
     canonical_modules, canonical_features = validate_capabilities(
         sorted(modules), kept_features
     )
+    enabling_modules(locked, canonical_modules)
     locked.enabled_modules = canonical_modules
     locked.enabled_features = canonical_features
     locked.save(update_fields=["enabled_modules", "enabled_features"])

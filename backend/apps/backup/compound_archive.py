@@ -24,6 +24,10 @@ from apps.backup.postgres_client import server_major
 from apps.backup.reconstruction_verifier import verify_reconstruction
 from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.recipients import fingerprint_for
+from apps.backup.source_capture_facts import (
+    require_source_capture_facts,
+    source_capture_facts_from_capture,
+)
 from apps.backup.source_reservations import capture_source_reservations
 from apps.backup.source_verifier import verify_and_sign_source_partition
 
@@ -53,12 +57,21 @@ class CompoundCapture:
         self.source_dump_sha256 = ""
         self.source_database_identity = ""
         self.source_server_identity = ""
+        self._source_capture_facts = None
         self.object_plan = None
         self.frozen_population = ()
         self.frozen_population_ids = ()
         self.predecessor_snapshot = {}
         self.user_closure_digest = ""
         self.verifier_root = self.root.parent / f".lane-e-verifier-{self.capture_id}"
+
+    @property
+    def source_capture_facts(self):
+        return self._source_capture_facts
+
+    @source_capture_facts.setter
+    def source_capture_facts(self, value):
+        raise BackupBuildError("Frozen source capture facts cannot be replaced.")
 
     def prepare_from_snapshot(self):
         if self.frozen_slices:
@@ -104,6 +117,8 @@ class CompoundCapture:
     def capture_from_snapshot(
         self, *, tenant_payload, capture_objects, write_json, object_plan
     ):
+        if self._source_capture_facts is not None:
+            raise BackupBuildError("The source capture facts were already frozen.")
         if self.expected_main_ledger is None:
             raise BackupBuildError("Compound capture was not prepared in the snapshot.")
         self.object_plan = object_plan
@@ -130,6 +145,7 @@ class CompoundCapture:
         self.user_closure_digest = closure_digest_from_slice_ledgers(
             self.unsealed_slices
         )
+        self._source_capture_facts = source_capture_facts_from_capture(self)
 
     def promotion_snapshot(self):
         slices = {item.makerspace_id: item for item in self.frozen_slices}
@@ -171,6 +187,8 @@ class CompoundCapture:
             )
 
     def project_readable_main(self, manifest):
+        source_facts = require_source_capture_facts(self)
+        _verify_frozen_dump(self.root / "database.dump", source_facts.frozen_dump_sha256)
         self.require_verified_slice_coverage()
         if self.expected_main_ledger is None:
             raise BackupBuildError("Readable-main verification ledger is missing.")
@@ -205,6 +223,7 @@ class CompoundCapture:
                 MAIN_COMPONENT, manifest["storage"]["objects"]
             )
             _verify_sealed_slices(self.root, self.slice_entries)
+            _verify_frozen_dump(source_dump, source_facts.frozen_dump_sha256)
             self.source_partition_proof = verify_and_sign_source_partition(
                 self,
                 detailed_manifest=manifest,
@@ -245,3 +264,12 @@ def _verify_sealed_slices(root, entries):
             or sha256_file(path) != entry["ciphertext_sha256"]
         ):
             raise BackupBuildError("A sealed sovereign slice failed ciphertext verification.")
+
+
+def _verify_frozen_dump(path, expected_sha256):
+    try:
+        actual = sha256_file(path)
+    except OSError as exc:
+        raise BackupBuildError("The frozen source dump is unreadable.") from exc
+    if actual != expected_sha256:
+        raise BackupBuildError("The frozen source dump changed during capture or projection.")

@@ -1,0 +1,81 @@
+{
+  "status": "TEST_ONLY_STAGE3_ROOT_READ_AND_STRICT25_RUNTIME_VERIFIED",
+  "CLI": {
+    "exit_code": 0,
+    "seconds": 48.64,
+    "pinned_model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "scope": "exact three-file test-only contract update; tests/runtime forbidden"
+  },
+  "allowed_files": [
+    {
+      "path": "backend/tests/backup/recovery_bundle_support.py",
+      "before_sha256": "c6e42c5c806936017b782b83422c64a6c137facf549bbcf358722878bd13e0e7",
+      "after_sha256": "355432ca6076f2990024ca42c0e552af01c1c97d9e2a85ce9154ac3cedaf038c",
+      "inverse_byte_reconstruction_exact": true,
+      "Python_AST_parse": true
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_installed_layout.py",
+      "before_sha256": "5112cf21b9f6b0358db5ea574d93ab74645fd6eb322350370b7b10813de822d2",
+      "after_sha256": "ab245ee60bbde5f5f3d424b2c279881e47cfedea8b128571d8431f3e859af4b0",
+      "inverse_byte_reconstruction_exact": true,
+      "Python_AST_parse": true
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_bundle_install.py",
+      "before_sha256": "c89ae4f07b2c5b539d624655e8437db8a1bca1741ce81fb6344a8478af7854e0",
+      "after_sha256": "23de52da392a7b55b36577fa03809e8926d69c0854b32602b33cb5b0db76d3fc",
+      "inverse_byte_reconstruction_exact": true,
+      "Python_AST_parse": true
+    }
+  ],
+  "actual_diff_sha256": "9e799149ce5097706010ce25cd34a0016abb16404eb7bc4c3420ae880dc5832c",
+  "delta_counts": {
+    "files": 3,
+    "original_line_replacements": 4,
+    "new_assertion_lines": 1,
+    "existing_guard25_assertions_changed": 0,
+    "other_assertions_or_test_bodies_changed": 0
+  },
+  "case_id_rename": {
+    "before": "tests/backup/test_recovery_bundle_install.py::test_actual_installer_copies_exact_59_files_preserves_private_state_and_backups",
+    "after": "tests/backup/test_recovery_bundle_install.py::test_actual_installer_copies_exact_reviewed_files_preserves_private_state_and_backups",
+    "parameterization_and_body_unchanged": true
+  },
+  "new_exact_contract": {
+    "unique_copy_paths": 60,
+    "required_new_member": "scripts/provision-runtime-image.py",
+    "installed_mode": "0644",
+    "guard_dependencies": 25
+  },
+  "tests_imports_builds_Docker_runtime_run": false,
+  "public_pins_or_source_changed": false,
+  "index_empty": true,
+  "root_independent_review_and_compatibility_execution_pending": false,
+  "root_independent_read": "Exact four replacements+one new explicit membership/mode assertion independently reconstructed; all other bytes unchanged.",
+  "compatibility_runtime_pending": false,
+  "compatibility_runtime": "runtime-image-copy60-runtime-20261031.json",
+  "compatibility_runtime_sha256": "65600e3a3319d17992b0e0ed8520bb9a1b307259d9a4747a360f786b6453eb2a",
+  "fixture_constructor_followup": {
+    "initial_strict_run": {
+      "passed": 23,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0
+    },
+    "reason": "Private harness umask077 made nested copied-code fixture directories0700; nonroot cases could not reach the production guard.",
+    "path": "backend/tests/backup/recovery_bundle_support.py",
+    "stage3_sha256": "355432ca6076f2990024ca42c0e552af01c1c97d9e2a85ce9154ac3cedaf038c",
+    "final_sha256": "46029ac6e5e06179c5260591e1eb8d5828ba324a1d832049e3cd7d32b48c2dc8",
+    "exact_change": "Three lines chmod only directories inside fresh disposable 60-code-file fixture to0755; no private data or ancestors outside fixture, no assertion/production/umask/deadline change.",
+    "root_independent_diff_read": true,
+    "global_trivial_one_file_fixture_exception": true,
+    "final_same_25_cases": {
+      "passed": 25,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  }
+}

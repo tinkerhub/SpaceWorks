@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="42" time="110.751" timestamp="2026-10-29T22:35:27.070362+00:00" hostname="5456c54e1fef"><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quiesced-apps.integrations.tasks.deliver_email_task]" time="53.002" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quiesced-apps.backup.tasks.scheduled_deployment_backup_task]" time="1.422" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quiesced-apps.evidence.tasks.sweep_evidence_retention_task]" time="1.324" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quarantined-apps.integrations.tasks.deliver_email_task]" time="1.301" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quarantined-apps.backup.tasks.scheduled_deployment_backup_task]" time="1.291" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[quarantined-apps.evidence.tasks.sweep_evidence_retention_task]" time="1.553" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[target_import-apps.integrations.tasks.deliver_email_task]" time="1.342" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[target_import-apps.backup.tasks.scheduled_deployment_backup_task]" time="1.230" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[target_import-apps.evidence.tasks.sweep_evidence_retention_task]" time="1.330" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[unknown-apps.integrations.tasks.deliver_email_task]" time="1.175" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[unknown-apps.backup.tasks.scheduled_deployment_backup_task]" time="1.369" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[unknown-apps.evidence.tasks.sweep_evidence_retention_task]" time="1.503" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[None-apps.integrations.tasks.deliver_email_task]" time="1.260" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[None-apps.backup.tasks.scheduled_deployment_backup_task]" time="1.206" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_non_normal_missing_and_unknown_refuse_before_resolver_or_effect[None-apps.evidence.tasks.sweep_evidence_retention_task]" time="1.276" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_each_invocation_reads_existing_primary_state_afresh[apps.integrations.tasks.deliver_email_task]" time="2.856"><failure message="AttributeError: 'NoneType' object has no attribute 'push'">name = 'apps.integrations.tasks.deliver_email_task'
+
+    @pytest.mark.parametrize("name", NAMES)
+    def test_each_invocation_reads_existing_primary_state_afresh(name):
+        effects = []
+        task = probe_task(name, effects)
+        DeploymentRecoveryState.objects.filter(pk=1).update(mode="normal")
+        with CaptureQueriesContext(connection) as queries:
+            # Missing job row produces no tenant ID, but deployment fence still queries.
+&gt;           assert task(7001) == "effect"
+                   ^^^^^^^^^^
+
+tests/backup/test_recovery_task_fence_db.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/tenant_migration/task_gate.py:37: in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:428: in __call__
+    self.push_request(args=args, kwargs=kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;@task: apps.integrations.tasks.deliver_email_task of None&gt;, args = ()
+kwargs = {'args': (7001,), 'kwargs': {}}
+
+    def push_request(self, *args, **kwargs):
+&gt;       self.request_stack.push(Context(*args, **{**self.request.__dict__, **kwargs}))
+        ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'push'
+
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:1155: AttributeError</failure></testcase><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_each_invocation_reads_existing_primary_state_afresh[apps.backup.tasks.scheduled_deployment_backup_task]" time="1.404"><failure message="AttributeError: 'NoneType' object has no attribute 'push'">name = 'apps.backup.tasks.scheduled_deployment_backup_task'
+
+    @pytest.mark.parametrize("name", NAMES)
+    def test_each_invocation_reads_existing_primary_state_afresh(name):
+        effects = []
+        task = probe_task(name, effects)
+        DeploymentRecoveryState.objects.filter(pk=1).update(mode="normal")
+        with CaptureQueriesContext(connection) as queries:
+            # Missing job row produces no tenant ID, but deployment fence still queries.
+&gt;           assert task(7001) == "effect"
+                   ^^^^^^^^^^
+
+tests/backup/test_recovery_task_fence_db.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/tenant_migration/task_gate.py:32: in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:428: in __call__
+    self.push_request(args=args, kwargs=kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;@task: apps.backup.tasks.scheduled_deployment_backup_task of None&gt;
+args = (), kwargs = {'args': (7001,), 'kwargs': {}}
+
+    def push_request(self, *args, **kwargs):
+&gt;       self.request_stack.push(Context(*args, **{**self.request.__dict__, **kwargs}))
+        ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'push'
+
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:1155: AttributeError</failure></testcase><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_each_invocation_reads_existing_primary_state_afresh[apps.evidence.tasks.sweep_evidence_retention_task]" time="1.280"><failure message="AttributeError: 'NoneType' object has no attribute 'push'">name = 'apps.evidence.tasks.sweep_evidence_retention_task'
+
+    @pytest.mark.parametrize("name", NAMES)
+    def test_each_invocation_reads_existing_primary_state_afresh(name):
+        effects = []
+        task = probe_task(name, effects)
+        DeploymentRecoveryState.objects.filter(pk=1).update(mode="normal")
+        with CaptureQueriesContext(connection) as queries:
+            # Missing job row produces no tenant ID, but deployment fence still queries.
+&gt;           assert task(7001) == "effect"
+                   ^^^^^^^^^^
+
+tests/backup/test_recovery_task_fence_db.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/tenant_migration/task_gate.py:34: in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:428: in __call__
+    self.push_request(args=args, kwargs=kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;@task: apps.evidence.tasks.sweep_evidence_retention_task of None&gt;
+args = (), kwargs = {'args': (7001,), 'kwargs': {}}
+
+    def push_request(self, *args, **kwargs):
+&gt;       self.request_stack.push(Context(*args, **{**self.request.__dict__, **kwargs}))
+        ^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'push'
+
+/usr/local/lib/python3.12/site-packages/celery/app/task.py:1155: AttributeError</failure></testcase><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_database_read_failure_does_not_escape_into_task_or_reveal_driver_details" time="1.197" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_actual_fail_command_retains_global_fence_and_active_operation[quiesced]" time="1.288" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_actual_fail_command_retains_global_fence_and_active_operation[quarantined]" time="1.207" /><testcase classname="tests.backup.test_recovery_task_fence_db" name="test_actual_fail_command_retains_global_fence_and_active_operation[target_import]" time="1.298" /><testcase classname="tests.backup.test_recovery_acknowledgement_db" name="test_actual_database_ack_does_not_release_host_until_fresh_root_bound_proof" time="2.169" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_ref_is_source_checked_then_only_current_exact_journal_copy_exempt" time="1.513" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_bytes_are_never_exempt_from_streamed_source_readback[bytes]" time="1.306" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_bytes_are_never_exempt_from_streamed_source_readback[size]" time="1.313" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_bytes_are_never_exempt_from_streamed_source_readback[metadata]" time="1.305" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_bytes_are_never_exempt_from_streamed_source_readback[content-type]" time="1.259" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_archived_rollback_bytes_are_never_exempt_from_streamed_source_readback[header]" time="1.221" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_prefix_and_model_never_replace_exact_current_operation_journal_proof[other-op]" time="1.589" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_prefix_and_model_never_replace_exact_current_operation_journal_proof[wrong-row]" time="1.361" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_prefix_and_model_never_replace_exact_current_operation_journal_proof[owner]" time="1.289" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_prefix_and_model_never_replace_exact_current_operation_journal_proof[missing-outcome]" time="1.356" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_prefix_and_model_never_replace_exact_current_operation_journal_proof[extra-ref]" time="1.323" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_source_closure_refusal_precedes_new_rollback_rows_or_journal" time="1.187" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_terminal_expired_evidence_requires_all_final_and_staging_versions_absent[None]" time="1.562" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_terminal_expired_evidence_requires_all_final_and_staging_versions_absent[final]" time="1.747" /><testcase classname="tests.backup.test_recovery_object_closure_db" name="test_terminal_expired_evidence_requires_all_final_and_staging_versions_absent[staging]" time="1.633" /><testcase classname="tests.backup.test_recovery_producer_caps" name="test_serialized_caps_precede_tar_encryption_or_publication[False-manifest]" time="1.269" /><testcase classname="tests.backup.test_recovery_producer_caps" name="test_serialized_caps_precede_tar_encryption_or_publication[False-continuity]" time="1.150" /><testcase classname="tests.backup.test_recovery_producer_caps" name="test_serialized_caps_precede_tar_encryption_or_publication[True-manifest]" time="1.307" /><testcase classname="tests.backup.test_recovery_producer_caps" name="test_serialized_caps_precede_tar_encryption_or_publication[True-continuity]" time="1.228" /></testsuite></testsuites>

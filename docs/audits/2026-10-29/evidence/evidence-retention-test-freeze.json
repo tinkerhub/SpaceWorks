@@ -1,0 +1,75 @@
+{
+  "reviewer": "/root/audit_backend_finish",
+  "runtime": "NOT RUN; root owns central execution",
+  "cases": "68 new parameterized cases plus existing retention tests; exact runtime count belongs to pytest",
+  "source_manifest": "evidence-safety-source-freeze.json",
+  "files": [
+    {
+      "path": "backend/tests/evidence/safety_retention_helpers.py",
+      "sha256": "4d0c6b3b10f50d46154cd69822a12dd1e569672feb0f203d5e46acd8e853e47e",
+      "lines": 159
+    },
+    {
+      "path": "backend/tests/evidence/safety_pg_helpers.py",
+      "sha256": "af5e4fb8bb6892a8c569617a3308f9ef70ae3c0d9acc280087b2458be15df8ff",
+      "lines": 119
+    },
+    {
+      "path": "backend/tests/evidence/test_claim_policy_safety.py",
+      "sha256": "37094588ac5a4dda60cd8c511af5980db364119dda7558b33ea9045fabf84c09",
+      "lines": 123
+    },
+    {
+      "path": "backend/tests/evidence/test_claim_policy_races.py",
+      "sha256": "e95aef689168664df506792c2fdce48e3dc4c0b7f6ff940f17e35ff07cbfcccb",
+      "lines": 67
+    },
+    {
+      "path": "backend/tests/evidence/test_charge_provenance_safety.py",
+      "sha256": "72221ee607a3c84bbd7ac58a4076b74b65fd0db05eb591263bba62ba296a03ac",
+      "lines": 233
+    },
+    {
+      "path": "backend/tests/evidence/test_promotion_retention_race.py",
+      "sha256": "98b27e5c9ed684ed2ffeb4b7fd9685499a5b08c9f594ad3fa1fb214c81481bd4",
+      "lines": 137
+    },
+    {
+      "path": "backend/tests/evidence/test_retention_fair_progress.py",
+      "sha256": "ba0354ceb724003ef859f1d4c049d8b66bf59ada9a7093be4e17790ab8d2e421",
+      "lines": 169
+    },
+    {
+      "path": "backend/tests/evidence/test_object_retention.py",
+      "sha256": "7c0bb6b40c812df8e8b7126495f48518a53a4147ea3ed2959afd284ff2f14d40",
+      "lines": 341
+    },
+    {
+      "path": "backend/tests/checkout_lock_fixture_helpers.py",
+      "sha256": "1e4f146bba01e2ac2d334e02de1d420dd910a6fdd454b7dc618858ff1ac442ea",
+      "lines": 271
+    }
+  ],
+  "runtime_result": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/evidence-retention-round1.xml",
+    "junit_sha256": "04300764b0572dfc64c4469b816d9a9db3dc0c25b481d10fff142fa8d5b03990",
+    "group_result": "77 passed in 99.53 seconds per root execution; overlapping focused group, do not add as independent overall-suite coverage",
+    "root_log": "/tmp/spaceworks-evidence-retention-round1.log"
+  },
+  "runtime_binding": {
+    "matching_original_frozen_files": [
+      "backend/tests/evidence/safety_retention_helpers.py",
+      "backend/tests/evidence/safety_pg_helpers.py",
+      "backend/tests/evidence/test_claim_policy_safety.py",
+      "backend/tests/evidence/test_claim_policy_races.py",
+      "backend/tests/evidence/test_charge_provenance_safety.py",
+      "backend/tests/evidence/test_promotion_retention_race.py",
+      "backend/tests/evidence/test_retention_fair_progress.py",
+      "backend/tests/evidence/test_object_retention.py",
+      "backend/tests/checkout_lock_fixture_helpers.py"
+    ],
+    "changed_since_original_freeze": [],
+    "note": "Original source digests remain unchanged as historical evidence. Root-owned recompute command changed separately; this record does not claim that command was covered by retention tests."
+  }
+}

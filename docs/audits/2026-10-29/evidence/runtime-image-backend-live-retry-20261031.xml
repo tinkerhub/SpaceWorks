@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="runtime-image-backend-live-retry-20261031" tests="3" failures="0" errors="0" skipped="0">
+  <testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]" time="98.578" />
+  <testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]" time="103.372" />
+  <testcase classname="tests.backup.test_signed_full_runtime_role_exact" name="test_real_signed_full_capture_and_restore_use_exact_runtime_login" time="63.077" />
+</testsuite>

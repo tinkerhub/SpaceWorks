@@ -1,0 +1,29 @@
+**APPROVE** — the bounded plan fits the current source and applicable invariants. No mandatory revisions.
+
+Minimal source files, relative to `backend/apps/`:
+
+- `procurement/views_receipts.py`
+- `procurement/views_items.py`
+- `procurement/admin.py`
+- `procurement/admin_forms.py` — new
+- `warranty/views.py`
+- `warranty/views_documents.py`
+- `warranty/admin.py`
+
+`warranty/access.py` is justified only for a small shared locked-module helper.
+
+Implementation requirements:
+
+1. **DOC-S01:** Capture the existing publication result and charge `result.size` once immediately before metadata creation, in the transaction containing its audit. Enter the existing lifecycle wrapper outside `atomic()`; publish before row locks; acquire a fresh Makerspace module lock before the item/warranty lock. Pass that fresh Makerspace to `add_storage`. Preserve scoped re-resolution and the same-key early return. Machine warranties require `machines`; asset warranties require `staff_admin`—do not use the helper’s legacy machine `printing` mapping. Quota refusal leaves the final object intact. Audit failure rolls back debit and metadata; retry validates the surviving published winner. Keep deletion credit conservative and document delayed capacity recovery until authoritative reconciliation.
+
+2. **PROC-S02:** Atomically save, call `stamp_status_change(item, actor, None)`, and audit creation. Preserve direct ordered/received creation. For the update companion, use a freshly locked item as `serializer.instance` before provenance validation and saving; wrapping the stale instance alone is insufficient.
+
+3. **PROC-S03:** Validate ownership and provenance in the actual ModelForm using the request actor, with a request-bound form factory and DRF validation errors converted to form errors. Preserve global types, legitimate unprovenanced retagging, and existing readonly tenant/kind fields.
+
+4. **WARR-S02:** Pass `actor` into `_upsert_warranty`; lock **Makerspace → concrete host → existing Warranty**. Re-resolve authorization and module state against fresh objects. The host lock serializes first creation. Apply only submitted fields, retain model validation, and record audit inside the same transaction. Remove caller-side duplicate audits; preserve responses and the 300-line ceiling.
+
+5. **WARR-S03:** Make existing warranty `makerspace`, `asset`, and `machine` readonly through the actual admin form. Keep vendor/date edits usable.
+
+Separate Stage 3 must prove real API admission for both presign methods with genuine byte validation/publication, finite managed limits, rollback/retry behavior, published-winner sizing, authorization/origin/module/tenant guards, PostgreSQL sparse-update and first-create concurrency, and actual admin forms plus malicious POSTs. Lifecycle tests need `transaction=True` and committed fixtures; retain real lifecycle/source boundaries.
+
+No edits, runtime checks, or tests performed. Root-owned gate, reconciliation, evidence accounting, final review, and QA remain outside this group.

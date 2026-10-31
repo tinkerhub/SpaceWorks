@@ -1,0 +1,387 @@
+{
+  "version": "0.9.0",
+  "environment": "local synthetic demonstration data",
+  "verification": "Rendered views only; action execution is recorded separately in the audit report.",
+  "images": [
+    {
+      "file": "about.jpg",
+      "bytes": 88107,
+      "sha256": "82e1d5750986934dc0b507428a19d2316823b99f5bf03ea8038ed7625d14a095"
+    },
+    {
+      "file": "machine-consumables.jpg",
+      "bytes": 215561,
+      "sha256": "cbbaeea94743f8e25970d74a7936cdbff4a8584d988f1f1845c9361f9eaab26b"
+    },
+    {
+      "file": "machine-documents.jpg",
+      "bytes": 194926,
+      "sha256": "d9ad94010bf28cda811cb5c98597dd45c1838ee558a613d0f424fd392817d869"
+    },
+    {
+      "file": "machine-errors.jpg",
+      "bytes": 187687,
+      "sha256": "e53fcf857caa25e765ec39a60032dbf28ff0c824fb4803fc21b3fe5dc8decf2a"
+    },
+    {
+      "file": "machine-maintenance.jpg",
+      "bytes": 202198,
+      "sha256": "1a67abe21c3bcde2ba3406e7a5a6213635ba6c1759378e3bfd24405c58e6e1a2"
+    },
+    {
+      "file": "machine-operators.jpg",
+      "bytes": 191400,
+      "sha256": "ebda40692c6b8348df390267736884d09d13d50a751cf1ca4b9f75a06540f0dc"
+    },
+    {
+      "file": "machine-overview.jpg",
+      "bytes": 196445,
+      "sha256": "8ae75c6bc2d8f458bf0e08498bde975b04f5751a17e296811e47f0b949535c32"
+    },
+    {
+      "file": "machine-status-running.jpg",
+      "bytes": 195217,
+      "sha256": "0ccff23539d72ed38b3f4028ab3f1004134e016ee31a6254c853385bf61f1597"
+    },
+    {
+      "file": "machine-usage.jpg",
+      "bytes": 189436,
+      "sha256": "2c6b830afe49da663721053009aec0df0f8ba1313b5d0f5e32d4d5f71e9bea68"
+    },
+    {
+      "file": "machine-warranty.jpg",
+      "bytes": 193975,
+      "sha256": "7d5f15c8166ad96224ddd29c2e9be2ddf6aae1627ca0823a0ce594942b2ba517"
+    },
+    {
+      "file": "mobile-checkin-focused-dark.jpg",
+      "bytes": 67661,
+      "sha256": "a4d659f207aeea1338c3f193ff76191e83e7a3c8024c84059582a0b8681aa3cd"
+    },
+    {
+      "file": "mobile-my-requests-dark.jpg",
+      "bytes": 35404,
+      "sha256": "d6105d3afd37ffc6a3cf7c951878466c44980264fdd80286b5aa10c59828d478"
+    },
+    {
+      "file": "public-booking-form.jpg",
+      "bytes": 85017,
+      "sha256": "7dff63773489b7a0561e921a5c7f75c545c3bbececbd96770a0de18e1a7b1ce6"
+    },
+    {
+      "file": "public-bookings.jpg",
+      "bytes": 48099,
+      "sha256": "baa73590f48a9a648994ef76c2a5be86b5d4a1a03619f09fabf12c9cf25fc760"
+    },
+    {
+      "file": "public-borrow-request.jpg",
+      "bytes": 114116,
+      "sha256": "834a88ba1754b4f7fdd019d95c2f708c820957ead2580f6f4600f1c03e174084"
+    },
+    {
+      "file": "public-checkin-focused.jpg",
+      "bytes": 86099,
+      "sha256": "e0b048e0371480c2f23d59c1fee8bd0ac6b305cb88586fd4beb18b2cbc06906f"
+    },
+    {
+      "file": "public-events.jpg",
+      "bytes": 108772,
+      "sha256": "1c43c84980c97fc4ef68e1cd76fc7ea0f3100566e21d14c9ea842043b995ee2e"
+    },
+    {
+      "file": "public-inventory.jpg",
+      "bytes": 123946,
+      "sha256": "d3c769c4f7ca09bb40274496612e6d1f85f0937232a179796bef948d010bb668"
+    },
+    {
+      "file": "public-machine-service.jpg",
+      "bytes": 101022,
+      "sha256": "bd2cb1d6c85f4f6341cf068f39f3c9f6d87287dbac3d9ddfd9ecc09c09d4f5dd"
+    },
+    {
+      "file": "public-machines.jpg",
+      "bytes": 115658,
+      "sha256": "2819dc5fc933e9a1de5098890b9236c3f598d708e2eb59a4e9695e285abc8728"
+    },
+    {
+      "file": "public-makerspace-directory.jpg",
+      "bytes": 82401,
+      "sha256": "14a0b06a895bd7da03e9b4c3c089d5d787731aa4570798048723d4c1f83b2a50"
+    },
+    {
+      "file": "public-member-account.jpg",
+      "bytes": 61204,
+      "sha256": "87277c95a701a43e3dd0caa6ea906f745d56df245087863b21302c249d804e19"
+    },
+    {
+      "file": "public-member-overview.jpg",
+      "bytes": 55776,
+      "sha256": "a72ede73bb26ee77db551c89bc42319e135481bc73ac535fe26a5377e76a9a0e"
+    },
+    {
+      "file": "public-member-requests.jpg",
+      "bytes": 107781,
+      "sha256": "de8b0bc618d396ff80ff59e4e99afe868a95accb923b7134b1b1b38981319105"
+    },
+    {
+      "file": "public-my-requests.jpg",
+      "bytes": 50463,
+      "sha256": "7624ca8b4b87a9aff27429475b6a18e6310ab670fc51267a6cfb81090cb60bd7"
+    },
+    {
+      "file": "public-password-recovery.jpg",
+      "bytes": 37385,
+      "sha256": "af6b587948c41e1f5d841a990b76f0966718973ff7fd33970f41e67184da6c1b"
+    },
+    {
+      "file": "public-request-tracking.jpg",
+      "bytes": 34494,
+      "sha256": "988006de358adf64b0f1bd86ea4fe67c99bcd04ee09b74feb056d9176a9ef36c"
+    },
+    {
+      "file": "public-self-checkout.jpg",
+      "bytes": 43209,
+      "sha256": "75c082122c3d50546403eb42843483b7c2d2313f8be7ef7b9e1c9fb42eedb41e"
+    },
+    {
+      "file": "public-self-return.jpg",
+      "bytes": 45744,
+      "sha256": "d12a25dc5cac47814e2d444bec140d744df07e4283e6db6f3e396bf350b3330c"
+    },
+    {
+      "file": "public-stats.jpg",
+      "bytes": 110984,
+      "sha256": "92f99f76413041fb72317f791eb708aec34bf585cd9922a97f6dffeb20643e4f"
+    },
+    {
+      "file": "staff-accountability.jpg",
+      "bytes": 85709,
+      "sha256": "acd0714d9b05ac09c518748d277d6cc1e61c8a2fd47d11032c8f98884a363e9a"
+    },
+    {
+      "file": "staff-api-access.jpg",
+      "bytes": 108733,
+      "sha256": "9af9584b86cd6897226672c4bc2c27df75fdb593c8bf44f46e3da625c7c3a5d5"
+    },
+    {
+      "file": "staff-audit.jpg",
+      "bytes": 167431,
+      "sha256": "55fc8e65c4585c22bd8f3db6283ddcef498e9c8cbe11126916bebed6b8ba73ab"
+    },
+    {
+      "file": "staff-backup-restore.jpg",
+      "bytes": 109454,
+      "sha256": "22035d1e06e308f5a9be783e28f97b48b232f3445aec1c8270e96d7c9b7b7513"
+    },
+    {
+      "file": "staff-bookings.jpg",
+      "bytes": 47102,
+      "sha256": "d52a764f0952bb3ebc4efe1ba1c538aa2f10b50f9112fbd014ee0cd7dcf8d9d8"
+    },
+    {
+      "file": "staff-bulk-import.jpg",
+      "bytes": 63789,
+      "sha256": "7d30a70690c402051bcf082315086dad2459a4fa2b71acd1c63624f737ee9786"
+    },
+    {
+      "file": "staff-categories.jpg",
+      "bytes": 128785,
+      "sha256": "02f6177a92a45e2e41f7c2a30255d35e36e5c6f613fada153538769bbd0c8441"
+    },
+    {
+      "file": "staff-containers.jpg",
+      "bytes": 54699,
+      "sha256": "c303df837b1df1ee2d3b0a4be1a7a18c27c6498d3cad444ace48edf1fa240308"
+    },
+    {
+      "file": "staff-dashboard.jpg",
+      "bytes": 73385,
+      "sha256": "2904e8ded7fc4a884777ac8eb8525a79277c765fcb2cd5e15a9858a8d03fa4f3"
+    },
+    {
+      "file": "staff-data-export.jpg",
+      "bytes": 101739,
+      "sha256": "e1baf29cae8ffa7c32c0d241cc1835958bf71bb97b60b9d50fdb04c386cc9810"
+    },
+    {
+      "file": "staff-direct-handout.jpg",
+      "bytes": 135772,
+      "sha256": "4ef0450a660dfced6c82600c5eee95978656781d6e13954644f4295d35c54dee"
+    },
+    {
+      "file": "staff-email-log.jpg",
+      "bytes": 51889,
+      "sha256": "6e63e4fb92c692e753de489f0c1525d2192d79085c6914f066d4006cfa67e47e"
+    },
+    {
+      "file": "staff-email-templates.jpg",
+      "bytes": 220196,
+      "sha256": "58c691ce4b6a71e793db5c00f56381a746e477b7fc12178da71c025b89244f66"
+    },
+    {
+      "file": "staff-events.jpg",
+      "bytes": 86333,
+      "sha256": "889d6750ca0b0cc01b5984748b6233cd57a6f1d2fa7d255a99c70444118af80d"
+    },
+    {
+      "file": "staff-handover.jpg",
+      "bytes": 52193,
+      "sha256": "56ebc4987e66e396860ca9ae802159cf62594009deaf5e1c6d82ce6bd9c0aa21"
+    },
+    {
+      "file": "staff-inventory.jpg",
+      "bytes": 83054,
+      "sha256": "a232def16ef5f4a8a5ea48fc22e21fc37803d977a6ae3b061210c2a18e0d4b44"
+    },
+    {
+      "file": "staff-ledger.jpg",
+      "bytes": 61952,
+      "sha256": "d9f303ebccf658947a06141dee328cc955e9377deee436baba07571c5a1d099b"
+    },
+    {
+      "file": "staff-machine-1-3d_printer.jpg",
+      "bytes": 193688,
+      "sha256": "31d07c526a5f37b17ae301644d44958e812a67d7a820d273ef5ae8c75968416f"
+    },
+    {
+      "file": "staff-machine-2-laser_cutter.jpg",
+      "bytes": 102481,
+      "sha256": "0e00dfb8f02879a592b70f2723b4d762a4d80bb98362c27d4bb056f89483653a"
+    },
+    {
+      "file": "staff-machine-3-cnc_mill.jpg",
+      "bytes": 101158,
+      "sha256": "a51716add207554cbc99a45083af53af3dea2b4c8b98afcacee9b9de3e4fecec"
+    },
+    {
+      "file": "staff-machine-4-cnc_router.jpg",
+      "bytes": 101804,
+      "sha256": "4cb0c015e588c3f36fdb82ee5ab7f6112a14928e78113fcab1e6dd748ca7290f"
+    },
+    {
+      "file": "staff-machine-5-vinyl_cutter.jpg",
+      "bytes": 171318,
+      "sha256": "322e647346af1baa07367728d70621271f758a53549764ce897f6aaec428dec0"
+    },
+    {
+      "file": "staff-machine-6-pcb_mill.jpg",
+      "bytes": 106977,
+      "sha256": "f65966438e3beade0635003cf62e3bc72dfbb686da07305b5f30aa3384d2c20d"
+    },
+    {
+      "file": "staff-machine-7-other.jpg",
+      "bytes": 101803,
+      "sha256": "8ade5b1f769b769102a62e9780677fa92ed04c7b2b88815337117d695e139484"
+    },
+    {
+      "file": "staff-machine-8-resin_printer.jpg",
+      "bytes": 173939,
+      "sha256": "d93ace286aa1473f6f7c4b6bf1f1b66b018fcaa86c5f8f1b2be5f46d2b638fe4"
+    },
+    {
+      "file": "staff-machines.jpg",
+      "bytes": 72846,
+      "sha256": "4f842f49af826a52bedd78782a0eaf6020d14ed48f8864f95029a91b9e8e5f20"
+    },
+    {
+      "file": "staff-makerspace-chooser.jpg",
+      "bytes": 41112,
+      "sha256": "acba45d69d6e61e13f6f2bcb9f57bfd4c533c0f493721589fa61d3bec11e0063"
+    },
+    {
+      "file": "staff-members.jpg",
+      "bytes": 60874,
+      "sha256": "73b7ec5323dc1141297f41253d8c1f5a38ba3089ce5e88f65c085b238d554e69"
+    },
+    {
+      "file": "staff-modules.jpg",
+      "bytes": 210945,
+      "sha256": "268ead1ecfaf119965dbb7bc42763f501b326fc700f48a0327b8de97cec60989"
+    },
+    {
+      "file": "staff-notifications.jpg",
+      "bytes": 327608,
+      "sha256": "b39d9b56bb3ca24eceb0af5f3442f7ea8fec06fa3795495255b6f3ebb9e800ea"
+    },
+    {
+      "file": "staff-payments.jpg",
+      "bytes": 54443,
+      "sha256": "b7505c0185c691f3afa61ccbc9549b4544e639feea7816f17d40869112acbe5f"
+    },
+    {
+      "file": "staff-platform.jpg",
+      "bytes": 135041,
+      "sha256": "0ef1c878516f3a53d7fe42d457506b74505177f6faa18c6117fdb7aa9856daae"
+    },
+    {
+      "file": "staff-qr-tools.jpg",
+      "bytes": 67820,
+      "sha256": "4b875ba96d4a85f17bd11b89c39a8ac7b4e474a17f610eda548b489b510cc0b2"
+    },
+    {
+      "file": "staff-reports.jpg",
+      "bytes": 570833,
+      "sha256": "1fe6ae2efb7b2566d84469921a56c0154d1dc07120c1dcfb919566ee5b364a41"
+    },
+    {
+      "file": "staff-request-cancellation.jpg",
+      "bytes": 61586,
+      "sha256": "1ad84d7e6ea1b92c804889340811e3647f1d729e204e8c2038e6f6ec45e7c466"
+    },
+    {
+      "file": "staff-requests.jpg",
+      "bytes": 90028,
+      "sha256": "a5f8c63a3771ef2383b285c04c7a23c75acce5750cd89a35b3e662ceba37e122"
+    },
+    {
+      "file": "staff-scanner.jpg",
+      "bytes": 44385,
+      "sha256": "4aeff7f594365560849fddc0e5dcadd3069852a55e3001f3344849a9f1fb65d7"
+    },
+    {
+      "file": "staff-settings.jpg",
+      "bytes": 372841,
+      "sha256": "cc0031fe6abda2c84807854ed1f36409f1ecc8fee82d51e885246ac3d3383917"
+    },
+    {
+      "file": "staff-sign-in.jpg",
+      "bytes": 36919,
+      "sha256": "dcd062ab26c8ad1430074ff1dd8a3c072c0ec55520c509e54386a77726983c7e"
+    },
+    {
+      "file": "staff-stocktake.jpg",
+      "bytes": 51618,
+      "sha256": "c6912f301fd86cbf112b0141b6d6d2235ff0ec86722bdff58f93659c140fd614"
+    },
+    {
+      "file": "staff-tenant-migration.jpg",
+      "bytes": 125497,
+      "sha256": "33f6afbf72c267f8094c79fd919a4622eb7ead8c264c09c87645d5ff43091e65"
+    },
+    {
+      "file": "staff-to-be-fixed.jpg",
+      "bytes": 51384,
+      "sha256": "49b927e13d3e8f44b9a4a65fba0be2d5e0d48cb5bbcfd0eab333d284cbacfdb1"
+    },
+    {
+      "file": "staff-to-buy.jpg",
+      "bytes": 86144,
+      "sha256": "3c38b645fb33f7d00e6c3711cd0d7dc983760a319a7bf931c258bfda74eb4f18"
+    },
+    {
+      "file": "staff-transfers.jpg",
+      "bytes": 53652,
+      "sha256": "eafb1616170ce875b183a9481f62a613dff6124f7b23d72f63d6980b8ad667f3"
+    },
+    {
+      "file": "staff-users.jpg",
+      "bytes": 61546,
+      "sha256": "c3c479dc200e2153dca432e90cbcb7011bdf468b24e05ea9ca6798ccb917ec89"
+    },
+    {
+      "file": "staff-warranty.jpg",
+      "bytes": 126047,
+      "sha256": "70468cd315d7990f17654d32fdb55b5a51680d40baffea35b5b1c6de0b48eab8"
+    }
+  ]
+}

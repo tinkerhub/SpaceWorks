@@ -8,6 +8,7 @@ from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 
 from config.storage_validation import assert_distinct_storage_buckets
+from config.task_queue_settings import default_task_queue
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -467,6 +468,11 @@ CELERY_TASK_ALWAYS_EAGER = env.bool(
     "CELERY_TASK_ALWAYS_EAGER", default=(_celery_broker == "")
 )
 CELERY_BROKER_URL = _celery_broker or "redis://redis:6379/0"
+CELERY_TASK_DEFAULT_QUEUE = default_task_queue(
+    env("SPACEWORKS_TASK_GENERATION", default="")
+)
+CELERY_TASK_DEFAULT_EXCHANGE = CELERY_TASK_DEFAULT_QUEUE
+CELERY_TASK_DEFAULT_ROUTING_KEY = CELERY_TASK_DEFAULT_QUEUE
 
 def cache_config(cache_url):
     """Pick the cache backend, given whatever Redis URL was explicitly configured.
@@ -1082,7 +1088,7 @@ SPECTACULAR_SETTINGS = {
     # `tests/test_version_consistency.py`. It cannot simply READ that file: the backend
     # image is built with `context: ./backend`, so the repo root is outside the build
     # context and the file does not exist inside the container.
-    "VERSION": "0.8.5",
+    "VERSION": "0.9.0",
     "ENUM_NAME_OVERRIDES": {
         "QrPrintBatchStatusEnum": [
             ("draft", "Draft"),

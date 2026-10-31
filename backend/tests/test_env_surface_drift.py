@@ -303,3 +303,13 @@ def test_backup_preflight_policy_covers_the_complete_environment_surface():
     from apps.backup.settings_policy import POLICIES
 
     assert set(POLICIES) == _names_the_backend_reads()
+
+
+def test_backup_age_identity_path_is_excluded_nonsecret_and_nonblocking():
+    """The host-local pinned path carries neither key bytes nor archive continuity."""
+    from apps.backup.settings_policy import POLICIES, Policy
+
+    policy = POLICIES["BACKUP_AGE_IDENTITY_FILE"]
+    assert policy.policy is Policy.EXCLUDED
+    assert policy.secret_bearing is False
+    assert policy.blocks_restore is False

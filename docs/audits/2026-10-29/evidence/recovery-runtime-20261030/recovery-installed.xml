@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="28" time="74.120" timestamp="2026-10-29T22:37:31.514206+00:00" hostname="0e190e5c551d"><testcase classname="tests.backup.test_recovery_bundle_install" name="test_actual_installer_copies_exact_59_files_preserves_private_state_and_backups" time="0.488" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[missing]" time="3.666" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[symlink]" time="3.808" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[hardlink]" time="6.859" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[fifo]" time="30.545"><failure message="subprocess.TimeoutExpired: Command '['bash', '-c', 'set -euo pipefail\ndie() { echo &quot;$*&quot; &gt;&amp;2; exit 31; }\nsay() { :; }\nROOT=&quot;$1&quot;\nsource &quot;$2/scripts/install-host-bundle.sh&quot;\ninstall_staged_host_bundle &quot;$2&quot;\n', 'private-stage3', '/tmp/pytest-of-root/pytest-0/test_every_dependency_checker_3/untouched', '/tmp/recovery-installed-mzrvalc_']' timed out after 30 seconds">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_every_dependency_checker_3')
+fault = 'fifo'
+
+    @pytest.mark.parametrize("fault", ["missing", "symlink", "hardlink", "fifo"])
+    def test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects(tmp_path, fault):
+        require_linux_root()
+        for fact in inventory():
+            with installed_root() as source:
+                path = source / fact["path"]
+                raw = path.read_bytes()
+                path.unlink()
+                other = source / "alias-target"
+                if fault in {"symlink", "hardlink"}:
+                    other.write_bytes(raw)
+                    if fault == "symlink": path.symlink_to(other)
+                    else: os.link(other, path)
+                elif fault == "fifo":
+                    os.mkfifo(path)
+                target = tmp_path / "untouched"
+                target.mkdir(exist_ok=True)
+                (target / "sentinel").write_bytes(b"no changes")
+                before = snapshot(target)
+&gt;               result = install(source, target)
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/backup/test_recovery_bundle_install.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/backup/recovery_bundle_support.py:64: in install
+    return subprocess.run(["bash", "-c", code, "private-stage3", str(target), str(source)], cwd="/",
+/usr/local/lib/python3.12/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Popen: returncode: -9 args: ['bash', '-c', 'set -euo pipefail\ndie() { echo...&gt;
+endtime = 14614.350219188, orig_timeout = 30, stdout_seq = [], stderr_seq = []
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() &gt; endtime:
+&gt;           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['bash', '-c', 'set -euo pipefail\ndie() { echo "$*" &gt;&amp;2; exit 31; }\nsay() { :; }\nROOT="$1"\nsource "$2/scripts/install-host-bundle.sh"\ninstall_staged_host_bundle "$2"\n', 'private-stage3', '/tmp/pytest-of-root/pytest-0/test_every_dependency_checker_3/untouched', '/tmp/recovery-installed-mzrvalc_']' timed out after 30 seconds
+
+/usr/local/lib/python3.12/subprocess.py:1253: TimeoutExpired</failure></testcase><testcase classname="tests.backup.test_recovery_bundle_install" name="test_changed_guarded_source_or_broken_checker_refuses_before_backup_creation" time="3.432" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[duplicate]" time="0.308" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[traversal]" time="0.132" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[unknown]" time="0.120" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[nonliteral]" time="0.132" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[missing]" time="0.135" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[digest]" time="0.128" /><testcase classname="tests.backup.test_recovery_bundle_install" name="test_actual_nonroot_bundle_install_retains_caller_ownership_without_conversion" time="0.537" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_correct_copied_layout_help_and_missing_environment_have_no_effects" time="0.720" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_poisoned_valid_timestamp_bytecode_is_ignored_without_cache_writes" time="0.368" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[missing]" time="2.598" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[altered]" time="2.546" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[symlink]" time="3.476" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[hardlink]" time="2.562" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[fifo]" time="3.033" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[owner]" time="3.090" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[writable]" time="3.205" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_real_nobody_process_cannot_use_otherwise_correct_root_bundle" time="0.118" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_operator_owned_ancestor_refuses_even_when_invoked_by_root" time="0.121" /><testcase classname="tests.backup.test_recovery_installed_layout" name="test_linked_code_directory_refuses_before_python_import" time="0.106" /><testcase classname="tests.backup.test_recovery_fresh_install_synthetic" name="test_actual_fresh_root_or_nobody_install_preserves_explicit_ownership_mode[False]" time="0.808" /><testcase classname="tests.backup.test_recovery_fresh_install_synthetic" name="test_actual_fresh_root_or_nobody_install_preserves_explicit_ownership_mode[True]" time="0.384" /><testcase classname="tests.backup.test_recovery_fresh_install_synthetic" name="test_fresh_archive_preflight_refuses_missing_transitive_file_before_target_move" time="0.231" /></testsuite></testsuites>

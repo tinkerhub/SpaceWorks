@@ -1,0 +1,25 @@
+Stage 2 implemented in exactly the four allowed files:
+
+- [return_workflow.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/return_workflow.py:85): typed loan-backed refusal through both existing pre-promotion and locked checks.
+- [public_return_validation.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/public_return_validation.py:15): scoped, read-only QR/loan/owner preflight; full-issued, unresolved ledger validation; fresh item locks in PK order.
+- [self_checkout_workflow.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/self_checkout_workflow.py:153): preflight before evidence handling, locked recheck before storage charge and inventory effects.
+- [handover_views.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/handover_views.py:88): reviewed-only OpenAPI description.
+
+Compatibility retained by source inspection: secondary QR settles the whole batch; reviewed partial returns, canonical direct returns and public problem-report behavior remain unchanged. No availability arithmetic or legacy repair added. Existing lock joins remain unchanged.
+
+AST syntax passed; line counts respectively **159 / 70 / 297 / 160**. No tests, migrations, other-file edits, staging or commits. `self_checkout_helpers.py` untouched. Ready for root verification and separate Stage 3 tests. Race failures discovered after promotion prevent settlement; promotion may already have occurred.
+
+SHA-256 hashes, relative to `backend/apps/hardware_requests/`:
+
+```text
+return_workflow.py
+28b605ebacd3dca5a2ce3830640a4e4acc19ed75c17d7838a30c961ab6121ac6
+public_return_validation.py
+6956b9f9225862daa9c87f9ca9de279de43bf5a4304a591fc89682bfd5b15cc8
+self_checkout_workflow.py
+22247712ec3622bb5a61c0c24dc4335ec5876cf2752116e4111768d6bc67ac6d
+handover_views.py
+f7b159bc3a28b1b8662dbf5d98137187330a09296136243c041943be9e5b15b5
+self_checkout_helpers.py (unchanged)
+37a8f948ad27fb624a86a7a6f97a43cef081b63f8086171fa1602cbd2623f00c
+```

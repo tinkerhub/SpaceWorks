@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "Space Works API",
-        "version": "0.8.5",
+        "version": "0.9.0",
         "description": "Multi-tenant makerspace hardware loan system.\n\nPublic flow: browse inventory, search with `q`, page with `page`, sign in as a member, submit a borrow request, then track it by public token.\n\nAdmin flow: authenticate with JWT, manage makerspaces, inventory, staff, QR labels, bulk imports, request review, issue, and return.\n\nAuthentication: staff/admin endpoints use `Authorization: Bearer <access>`. Public browser endpoints can use `X-Publishable-Key` when public key hardening is enabled. Server API clients send `X-Client-Id`, `X-Timestamp`, `X-Nonce`, and `X-Signature`. Generate a unique, unpredictable `X-Nonce` for every request and sign the byte sequence `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY` with HMAC-SHA256. The nonce uses 1-128 characters from `A-Z`, `a-z`, `0-9`, `.`, `_`, `~`, and `-`. A deployment may temporarily accept the legacy nonce-less signed format while `APICLIENT_REQUIRE_NONCE` is disabled."
     },
     "paths": {
@@ -906,6 +906,15 @@
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid asset edit, ineligible asset, or disabled module."
+                    },
+                    "403": {
+                        "description": "Active staff access and edit inventory permission required."
+                    },
+                    "404": {
+                        "description": "Asset not found in the accessible inventory scope."
                     }
                 }
             }
@@ -962,6 +971,15 @@
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid action, ineligible asset, insufficient stock, or disabled module."
+                    },
+                    "403": {
+                        "description": "Active staff access and edit inventory permission required."
+                    },
+                    "404": {
+                        "description": "Asset not found in the accessible inventory scope."
                     }
                 }
             }
@@ -1007,6 +1025,26 @@
                     },
                     "404": {
                         "description": "Not found in the caller's scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -15235,6 +15273,9 @@
                     },
                     "429": {
                         "description": "Export creation rate limit exceeded."
+                    },
+                    "503": {
+                        "description": "Export dispatch is temporarily unavailable (export_dispatch_unavailable)."
                     }
                 }
             }
@@ -19692,7 +19733,7 @@
         "/api/v1/admin/makerspace/{makerspace_id}/request-history": {
             "get": {
                 "operationId": "api_v1_admin_makerspace_request_history_list",
-                "summary": "List terminal request history (returned / rejected / closed with issue)",
+                "summary": "List terminal requests allowed by issue or review authority",
                 "parameters": [
                     {
                         "in": "path",
@@ -25195,8 +25236,11 @@
                     "400": {
                         "description": "Invalid evidence upload request."
                     },
+                    "401": {
+                        "description": "Authentication is required."
+                    },
                     "403": {
-                        "description": "Insufficient makerspace permission."
+                        "description": "Inactive user, disallowed origin or insufficient makerspace permission."
                     },
                     "503": {
                         "description": "Evidence storage is unavailable."
@@ -29019,10 +29063,13 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request, or the asset_units module is off."
+                        "description": "Invalid request, the asset_units module is off, or print_batch_id was supplied while qr_print_batches is off."
                     },
                     "403": {
                         "description": "Converting a quantity product to unit tracking requires edit_inventory."
+                    },
+                    "404": {
+                        "description": "Product not found in the authorized makerspace scope."
                     },
                     "409": {
                         "content": {
@@ -29033,6 +29080,26 @@
                             }
                         },
                         "description": "tracking_mode_locked: the product holds stock and cannot be converted."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29208,7 +29275,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "SVG QR label."
+                        "description": "QR payload, SVG label and target."
+                    },
+                    "400": {
+                        "description": "Invalid request or required module is disabled."
+                    },
+                    "403": {
+                        "description": "Permission denied, or the target is outside this site's makerspace."
+                    },
+                    "404": {
+                        "description": "QR or target not found in the caller's makerspace scope."
                     }
                 }
             }
@@ -29268,6 +29344,35 @@
                     },
                     "409": {
                         "description": "Outstanding loan or target QR conflict."
+                    },
+                    "400": {
+                        "description": "Invalid request or required module is disabled."
+                    },
+                    "403": {
+                        "description": "Permission denied, or the target is outside this site's makerspace."
+                    },
+                    "404": {
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29304,6 +29409,35 @@
                             }
                         },
                         "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid request or required module is disabled."
+                    },
+                    "403": {
+                        "description": "Permission denied, or the target is outside this site's makerspace."
+                    },
+                    "404": {
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29363,13 +29497,33 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request body."
+                        "description": "Invalid request or required module is disabled."
                     },
                     "403": {
                         "description": "Permission denied, or the target is outside this site's makerspace."
                     },
                     "404": {
-                        "description": "Not found in the caller's makerspace scope."
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29429,13 +29583,33 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request body."
+                        "description": "Invalid request or required module is disabled."
                     },
                     "403": {
                         "description": "Permission denied, or the target is outside this site's makerspace."
                     },
                     "404": {
-                        "description": "Not found in the caller's makerspace scope."
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29524,13 +29698,33 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request body."
+                        "description": "Invalid request or required module is disabled."
                     },
                     "403": {
                         "description": "Permission denied, or the target is outside this site's makerspace."
                     },
                     "404": {
-                        "description": "Not found in the caller's makerspace scope."
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29538,7 +29732,7 @@
         "/api/v1/admin/qr/scan": {
             "post": {
                 "operationId": "api_v1_admin_qr_scan_create",
-                "description": "Context is limited to issue or return and scan events are immutable.",
+                "description": "Context is issue, return or inventory_check; scan events are immutable.",
                 "summary": "Record a QR scan",
                 "tags": [
                     "QR assets"
@@ -29590,13 +29784,33 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request body."
+                        "description": "Invalid request or required module is disabled."
                     },
                     "403": {
                         "description": "Permission denied, or the target is outside this site's makerspace."
                     },
                     "404": {
-                        "description": "Not found in the caller's makerspace scope."
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -29645,13 +29859,33 @@
                         "description": ""
                     },
                     "400": {
-                        "description": "Invalid request body."
+                        "description": "Invalid request or required module is disabled."
                     },
                     "403": {
                         "description": "Permission denied, or the target is outside this site's makerspace."
                     },
                     "404": {
-                        "description": "Not found in the caller's makerspace scope."
+                        "description": "QR or target not found in the caller's makerspace scope."
+                    },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_quiesced: tenant writes are frozen for migration."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "tenant_migration_gate_unavailable: the source gate could not prove the write is safe."
                     }
                 }
             }
@@ -30089,6 +30323,122 @@
                 }
             }
         },
+        "/api/v1/admin/requests/{id}/cancel": {
+            "post": {
+                "operationId": "api_v1_admin_requests_cancel_create",
+                "summary": "Cancel an accepted, unissued borrow request",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Admin requests"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminRequest"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Invalid request."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Permission denied."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Not found."
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Workflow conflict."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Service unavailable."
+                    }
+                }
+            }
+        },
         "/api/v1/admin/requests/{id}/issue": {
             "post": {
                 "operationId": "api_v1_admin_requests_issue_create",
@@ -30295,7 +30645,7 @@
         "/api/v1/admin/requests/{id}/return": {
             "post": {
                 "operationId": "api_v1_admin_requests_return_create",
-                "description": "Return photo evidence, a remark and item outcomes are always required. For a loan with an assigned container, box_code must match that container. For a loan without one, omit box_code or send an empty string; a nonempty code is rejected.",
+                "description": "Only reviewed requests may be returned here. Public self-checkout and staff direct loans must use their respective tool/direct loan return flows. Return photo evidence, a remark and item outcomes are always required. For a loan with an assigned container, box_code must match that container. For a loan without one, omit box_code or send an empty string; a nonempty code is rejected.",
                 "summary": "Return issued request items",
                 "parameters": [
                     {
@@ -34232,6 +34582,16 @@
                         },
                         "description": ""
                     },
+                    "423": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HardwareRequestError"
+                                }
+                            }
+                        },
+                        "description": "Source freeze: a makerspace affected by the identity transition is frozen for tenant migration."
+                    },
                     "503": {
                         "content": {
                             "application/json": {
@@ -34916,7 +35276,7 @@
         "/api/v1/guest-admin/requests/{id}/return": {
             "post": {
                 "operationId": "api_v1_guest_admin_requests_return_create",
-                "description": "Return photo evidence, a remark and item outcomes are always required. For a loan with an assigned container, box_code must match that container. For a loan without one, omit box_code or send an empty string; a nonempty code is rejected.",
+                "description": "Only reviewed requests may be returned here. Public self-checkout and staff direct loans must use their respective tool/direct loan return flows. Return photo evidence, a remark and item outcomes are always required. For a loan with an assigned container, box_code must match that container. For a loan without one, omit box_code or send an empty string; a nonempty code is rejected.",
                 "summary": "Return issued request items",
                 "parameters": [
                     {
@@ -39799,6 +40159,108 @@
                 }
             }
         },
+        "/api/v1/public/{makerspace_slug}/machine-service-requests/mine": {
+            "get": {
+                "operationId": "api_v1_public_machine_service_requests_mine_list",
+                "description": "Requires an active personal account. Returns only requests whose member is the signed-in account, newest first, in pages of 24. Community membership and current check-in are not required. Uses the public status field allowlist.",
+                "summary": "List my machine service requests in this makerspace",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
+                    {
+                        "in": "path",
+                        "name": "makerspace_slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Public machine service"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedPublicMachineServiceStatusList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryModuleError"
+                                }
+                            }
+                        },
+                        "description": "Machine service module disabled."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Account or site scope refused."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace or page not found."
+                    }
+                }
+            }
+        },
         "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/consumable-pools": {
             "get": {
                 "operationId": "api_v1_public_machine_service_3d_printer_consumable_pools_list",
@@ -40942,6 +41404,108 @@
                             }
                         },
                         "description": "Service unavailable."
+                    }
+                }
+            }
+        },
+        "/api/v1/public/{makerspace_slug}/requests/mine": {
+            "get": {
+                "operationId": "api_v1_public_requests_mine_list",
+                "description": "Requires an active personal account. Returns only requests owned by the signed-in account, newest first; community membership and current check-in are not required. Uses pages of 24 and the public status field allowlist.",
+                "summary": "List my hardware requests in this makerspace",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Nonce",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Unique, unpredictable nonce for HMAC-authenticated server API clients (1-128 characters: letters, digits, `.`, `_`, `~`, or `-`). Include it between `X-Timestamp` and the raw body in the signed bytes: `METHOD\\nFULL_PATH\\nTIMESTAMP\\nNONCE\\nBODY`. It is optional only for publishable-key/browser authentication and during the temporary legacy rollout while `APICLIENT_REQUIRE_NONCE` is disabled."
+                    },
+                    {
+                        "in": "header",
+                        "name": "X-Publishable-Key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Public API key for a makerspace public client. Required when API_CLIENT_AUTH_REQUIRED is enabled."
+                    },
+                    {
+                        "in": "path",
+                        "name": "makerspace_slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Public requests"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedOwnRequestStatusList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryModuleError"
+                                }
+                            }
+                        },
+                        "description": "Request workflow module disabled."
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Authentication required."
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Account or site scope refused."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RequestHistoryError"
+                                }
+                            }
+                        },
+                        "description": "Makerspace or page not found."
                     }
                 }
             }
@@ -42544,6 +43108,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "cancellation_reason": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "assigned_box_id": {
                         "type": "integer",
                         "readOnly": true,
@@ -42592,6 +43160,15 @@
                         "format": "date-time",
                         "readOnly": true
                     },
+                    "closed_by": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AdminRequestActor"
+                            }
+                        ],
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "closed_at": {
                         "type": "string",
                         "format": "date-time",
@@ -42630,10 +43207,12 @@
                     "accepted_by",
                     "assigned_box_id",
                     "assigned_box_label",
+                    "cancellation_reason",
                     "checkin_project_name",
                     "checkin_purpose",
                     "checkin_verified_at",
                     "closed_at",
+                    "closed_by",
                     "created_at",
                     "id",
                     "issue_evidence_id",
@@ -43553,12 +44132,14 @@
                         "minimum": 1
                     },
                     "name_prefix": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 154
                     },
                     "serial_numbers": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "maxLength": 100
                         }
                     },
                     "print_batch_id": {
@@ -44777,6 +45358,18 @@
                     "mapping": {}
                 }
             },
+            "CancelRequest": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "reason"
+                ]
+            },
             "Capability": {
                 "type": "object",
                 "properties": {
@@ -45782,10 +46375,12 @@
                         "type": "integer"
                     },
                     "label": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                     },
                     "location": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                     },
                     "description": {
                         "type": "string"
@@ -48541,7 +49136,8 @@
                     "size_bytes": {
                         "type": "integer",
                         "minimum": 0,
-                        "nullable": true
+                        "nullable": true,
+                        "description": "Optional declared bytes, at most 10485760. Stored bytes are validated independently."
                     }
                 },
                 "required": [
@@ -48751,13 +49347,14 @@
                 "enum": [
                     "hardware_requests",
                     "printing",
+                    "machine_service",
                     "events",
                     "bookings",
                     "maintenance",
                     "members"
                 ],
                 "type": "string",
-                "description": "* `hardware_requests` - Hardware requests\n* `printing` - Printing\n* `events` - Events\n* `bookings` - Bookings\n* `maintenance` - Maintenance\n* `members` - Members"
+                "description": "* `hardware_requests` - Hardware requests\n* `printing` - Printing\n* `machine_service` - Machine services\n* `events` - Events\n* `bookings` - Bookings\n* `maintenance` - Maintenance\n* `members` - Members"
             },
             "FeedbackForm": {
                 "type": "object",
@@ -49426,6 +50023,26 @@
                 "type": "string",
                 "description": "* `capacity` - capacity\n* `custom_form` - custom_form\n* `description` - description\n* `ends_at` - ends_at\n* `image_key` - image_key\n* `is_public` - is_public\n* `location` - location\n* `location_kind` - location_kind\n* `payment_amount` - payment_amount\n* `registration_cutoff_at` - registration_cutoff_at\n* `registration_cutoff_lead_minutes` - registration_cutoff_lead_minutes\n* `registration_requires_approval` - registration_requires_approval\n* `starts_at` - starts_at\n* `title` - title"
             },
+            "IntegrationChatDestinationsHealth": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/Status83eEnum"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IntegrationDestinationHealth"
+                        }
+                    },
+                    "legacy_channels": {
+                        "$ref": "#/components/schemas/IntegrationLegacyChannels"
+                    }
+                }
+            },
             "IntegrationConfiguredHealth": {
                 "type": "object",
                 "properties": {
@@ -49460,6 +50077,78 @@
                         "nullable": true
                     }
                 }
+            },
+            "IntegrationDestinationFailure": {
+                "type": "object",
+                "properties": {
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "at",
+                    "error"
+                ]
+            },
+            "IntegrationDestinationHealth": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "channel": {
+                        "$ref": "#/components/schemas/IntegrationDestinationHealthChannelEnum"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "configured": {
+                        "type": "boolean"
+                    },
+                    "last_sent_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "failed": {
+                        "type": "integer"
+                    },
+                    "last_failure": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/IntegrationDestinationFailure"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "channel",
+                    "configured",
+                    "failed",
+                    "id",
+                    "is_active",
+                    "label",
+                    "last_failure",
+                    "last_sent_at"
+                ]
+            },
+            "IntegrationDestinationHealthChannelEnum": {
+                "enum": [
+                    "telegram",
+                    "slack",
+                    "mattermost",
+                    "discord"
+                ],
+                "type": "string",
+                "description": "* `telegram` - telegram\n* `slack` - slack\n* `mattermost` - mattermost\n* `discord` - discord"
             },
             "IntegrationEmailHealth": {
                 "type": "object",
@@ -49513,6 +50202,9 @@
                     "telegram": {
                         "$ref": "#/components/schemas/IntegrationTelegramHealth"
                     },
+                    "chat_destinations": {
+                        "$ref": "#/components/schemas/IntegrationChatDestinationsHealth"
+                    },
                     "worker": {
                         "$ref": "#/components/schemas/IntegrationWorkerHealth"
                     }
@@ -49558,6 +50250,23 @@
                     "stream",
                     "subject"
                 ]
+            },
+            "IntegrationLegacyChannels": {
+                "type": "object",
+                "properties": {
+                    "telegram": {
+                        "type": "boolean"
+                    },
+                    "slack": {
+                        "type": "boolean"
+                    },
+                    "mattermost": {
+                        "type": "boolean"
+                    },
+                    "discord": {
+                        "type": "boolean"
+                    }
+                }
             },
             "IntegrationTelegramFailure": {
                 "type": "object",
@@ -50164,6 +50873,19 @@
                     "evidence_id"
                 ]
             },
+            "Key923Enum": {
+                "enum": [
+                    "hardware_requests",
+                    "printing",
+                    "machine_service",
+                    "events",
+                    "bookings",
+                    "maintenance",
+                    "members"
+                ],
+                "type": "string",
+                "description": "* `hardware_requests` - Hardware requests\n* `printing` - Printing\n* `machine_service` - Machine services\n* `events` - Events\n* `bookings` - Bookings\n* `maintenance` - Maintenance\n* `members` - Members"
+            },
             "KeyCbbEnum": {
                 "enum": [
                     "email",
@@ -50175,18 +50897,6 @@
                 ],
                 "type": "string",
                 "description": "* `email` - Email\n* `telegram` - Telegram\n* `slack` - Slack\n* `mattermost` - Mattermost\n* `discord` - Discord\n* `native_push` - Native push"
-            },
-            "KeyD07Enum": {
-                "enum": [
-                    "hardware_requests",
-                    "printing",
-                    "events",
-                    "bookings",
-                    "maintenance",
-                    "members"
-                ],
-                "type": "string",
-                "description": "* `hardware_requests` - Hardware requests\n* `printing` - Printing\n* `events` - Events\n* `bookings` - Bookings\n* `maintenance` - Maintenance\n* `members` - Members"
             },
             "Kind3bfEnum": {
                 "enum": [
@@ -54602,7 +55312,7 @@
                 "type": "object",
                 "properties": {
                     "key": {
-                        "$ref": "#/components/schemas/KeyD07Enum"
+                        "$ref": "#/components/schemas/Key923Enum"
                     },
                     "label": {
                         "type": "string"
@@ -55803,6 +56513,38 @@
                     "new_password"
                 ]
             },
+            "OwnRequestStatus": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicRequestItemStatus"
+                        },
+                        "readOnly": true
+                    },
+                    "public_token": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "items",
+                    "public_token",
+                    "status"
+                ]
+            },
             "PaginatedAdminMembershipList": {
                 "type": "object",
                 "required": [
@@ -56237,6 +56979,37 @@
                     }
                 }
             },
+            "PaginatedOwnRequestStatusList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OwnRequestStatus"
+                        }
+                    }
+                }
+            },
             "PaginatedPublicMachineList": {
                 "type": "object",
                 "required": [
@@ -56264,6 +57037,37 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/PublicMachine"
+                        }
+                    }
+                }
+            },
+            "PaginatedPublicMachineServiceStatusList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=4"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri",
+                        "example": "http://api.example.org/accounts/?page=2"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicMachineServiceStatus"
                         }
                     }
                 }
@@ -60967,11 +61771,26 @@
                     "requested_quantity": {
                         "type": "integer",
                         "readOnly": true
+                    },
+                    "accepted_quantity": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "issued_quantity": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "returned_quantity": {
+                        "type": "integer",
+                        "readOnly": true
                     }
                 },
                 "required": [
+                    "accepted_quantity",
+                    "issued_quantity",
                     "product_name",
-                    "requested_quantity"
+                    "requested_quantity",
+                    "returned_quantity"
                 ]
             },
             "PublicRequestModeEnum": {
@@ -61923,7 +62742,8 @@
                 "type": "object",
                 "properties": {
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                     }
                 },
                 "required": [
@@ -61990,6 +62810,7 @@
                                 "$ref": "#/components/schemas/QrCode"
                             }
                         ],
+                        "nullable": true,
                         "readOnly": true
                     },
                     "label_text": {
@@ -62026,7 +62847,8 @@
                         "type": "integer"
                     },
                     "label_text": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 255
                     },
                     "sort_order": {
                         "type": "integer",
@@ -62869,6 +63691,33 @@
                 ],
                 "type": "string",
                 "description": "* `anyone` - anyone\n* `checked_in` - checked_in"
+            },
+            "RequestHistoryError": {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "detail"
+                ]
+            },
+            "RequestHistoryModuleError": {
+                "type": "object",
+                "properties": {
+                    "module": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "module"
+                ]
             },
             "RequestItemInput": {
                 "type": "object",

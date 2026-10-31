@@ -1,0 +1,100 @@
+{
+  "status": "independently-read-test-sources-runtime-not-yet-run",
+  "estimated_cases": 158,
+  "files": [
+    {
+      "path": "backend/tests/document_quota/__init__.py",
+      "lines": 1,
+      "sha256": "7e337400c9a7c2a38130ccfc093f03c1d87454bcf7a46c91a52717fbae3f9347"
+    },
+    {
+      "path": "backend/tests/document_quota/helpers.py",
+      "lines": 66,
+      "sha256": "e7a162870d49cc4dec42b8cbb9bf421c7a08bfda343b13c0fb742f25cc3019f7"
+    },
+    {
+      "path": "backend/tests/document_quota/test_admission.py",
+      "lines": 48,
+      "sha256": "b9dce03f7a2b88b87fff14d6562756c7f3b77655013528b4839ba125ba0213c7"
+    },
+    {
+      "path": "backend/tests/document_quota/test_callbacks.py",
+      "lines": 166,
+      "sha256": "ad2ba449033dae628e23165cf2efd31a680029e1b91aa9a294b6f79e357ee915"
+    },
+    {
+      "path": "backend/tests/document_quota/test_concurrency.py",
+      "lines": 116,
+      "sha256": "1c595ab17ee3371172ea4f7fd0771b834e22eb6cd18dcd14f9af9d7149875975"
+    },
+    {
+      "path": "backend/tests/document_quota/test_delete_receipt.py",
+      "lines": 102,
+      "sha256": "1c1c52494ebb6f183376d26a4000e9931cadb1bf9cf8304cff7fb8ce4b909c3b"
+    },
+    {
+      "path": "backend/tests/document_quota/test_lifecycle.py",
+      "lines": 92,
+      "sha256": "111f034eaaf08a4224651cb92ef5b1db1bbbd7ec33c41c08ca6d4916d3bcdc08"
+    },
+    {
+      "path": "backend/tests/document_quota/test_native_cascade.py",
+      "lines": 58,
+      "sha256": "4de9f5aa3ef54bb4e6ae5ee7e2a831d07739144f386248403b9550ef807f3ca8"
+    },
+    {
+      "path": "backend/tests/document_quota/test_portability.py",
+      "lines": 119,
+      "sha256": "46b7132d9ecb7828294a738585faa539489a015947c830e2f95c0fcc87cfd41b"
+    },
+    {
+      "path": "backend/tests/document_quota/test_provenance.py",
+      "lines": 129,
+      "sha256": "23259cf8aa93845433d5986915faa6346219c8b83fdfa64a1efe87f62dc8fb12"
+    },
+    {
+      "path": "backend/tests/document_quota/test_recompute.py",
+      "lines": 86,
+      "sha256": "6a02358094b5d2535ba81192cee9aaf092c22c64fda4c6eab6f81ce5f4e99e15"
+    },
+    {
+      "path": "backend/tests/document_quota/test_references.py",
+      "lines": 63,
+      "sha256": "66e591838e7f5d79ae8b5b044681e67aaee65f7a50133cd3d27575f3177e2913"
+    },
+    {
+      "path": "backend/tests/document_quota/version_store.py",
+      "lines": 49,
+      "sha256": "4c078b3347c975b63ff5a66e00dcd7ce473bc84e97949ccc56357a58b23f50d6"
+    },
+    {
+      "path": "backend/tests/document_safety/helpers.py",
+      "lines": 219,
+      "sha256": "3b685cf5fb93f79038d31a13a08f99b1caeea784ef3f4b96875650ccf37715cf"
+    },
+    {
+      "path": "backend/tests/document_safety/test_public_quota_refund_regression.py",
+      "lines": 50,
+      "sha256": "dbefca80289c38ee756c3726d7054664905675010ec745c27f1b7520f83b4a32"
+    },
+    {
+      "path": "backend/tests/document_safety/test_quota.py",
+      "lines": 184,
+      "sha256": "a8f738cff1b56699157aa5407ecfb86a86d33834b74ee294cc3ea5ed04e728c3"
+    }
+  ],
+  "review": "Root read all ordinary test files, real3-kind API2cycle standalone counter leak regression(no new helper imports), real PostgreSQL contention/blocking edge before domain locks, realnativeAdmin single/cascade/bulk, typed503 context rollback, one-shot callbacks and actual SQL/audit failure rollback, existing source/storage guards, exact DATA/marker receipts, providerfailure/lateversions, actual command\u2192delete preserving unrelatedrealdebit and functional portable projection/remap/insert. Positive counters/guards/proof never mocked; onlyprovidertransport replaced. Negativefaultmocks exercise realcounter rollback or exact refusal.",
+  "trimming": "Redundant shared-parser kind cross products and duplicate strict listing matrices removed; existing version_cleanup compatibility retained. Both signal implementations and all3API/native/concurrency positives remain.",
+  "global_error_oracle": "Late callbackStorageUnavailable asserts exact existing workflow handler503code evidence_storage_unavailable plusno-credit/reference facts.",
+  "test_execution_pending": true,
+  "deterministic_id_followup": {
+    "reason": "Strict collection guard refused initial run before execution because module-import uuid4 parameter changed automatic case ID",
+    "path": "backend/tests/document_quota/test_provenance.py",
+    "before_sha256": "23259cf8aa93845433d5986915faa6346219c8b83fdfa64a1efe87f62dc8fb12",
+    "after_sha256": "3c971788bde514a71857261ae1e9fcd04c85d3611bd1e5fb879b0feaa7dd5c8f",
+    "root_verified": "Exact single-decorator reconstruction to old release bytes; all inputs/functions/assertions unchanged",
+    "current_primary_inventory_sha256": "dc4a6bd9daee719ad0081aa329395377944b1ef62da81ad3aa54a1c866570926",
+    "secondary_inventory_sha256": "e7bccbe97776583cb271bdcf7197fdfa421ac8514fe77cf909c99331054a9d2f",
+    "current_collected_cases": 189
+  }
+}

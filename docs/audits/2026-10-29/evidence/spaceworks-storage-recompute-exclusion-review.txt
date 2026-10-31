@@ -1,0 +1,18 @@
+**APPROVED — Stage 1 feasibility only**, with these constraints.
+
+The defect is confirmed: [recompute_storage.py:51](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/makerspaces/management/commands/recompute_storage.py:51) retains a shared boundary, then overwrites the counter at line 110. Concurrent [add_storage/free_storage](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/makerspaces/limits_usage.py:155) can therefore commit changes that the stale SET erases. Evidence provenance does not fix this race.
+
+The proposed reuse fits the production ordering. Maintenance finalization/deletion retain `source shared → storage lifecycle → application row locks` through accounting. Export, certificate, retention, and rollback cleanup paths also retain tenant source boundaries. I found no normally admitted active-tenant writer bypass invalidating this approach in the reviewed paths.
+
+Required constraints:
+
+- Keep existing shared defaults and migration-exclusive APIs unchanged. Apply nesting/transaction refusal only to the new exclusive opt-in, **before** the retained-owner fast path; refuse non-autocommit callers too.
+- Acquire the dedicated tenant-exclusive lock before marking context ownership. Nested assertions/shared guards must reuse it. Verify the exact namespace/key, backend, `objsubid=2`, and `ExclusiveLock`; acquisition or continuity failure must prevent SET. Retain ownership through update commit and release on every exit.
+- Freshly recheck tenant servability, source gate, purge intent/module purge, and normal recovery admission under exclusion. `_assert_gate_state` alone does not cover all these conditions.
+- Preserve migration ordering: claim takes global key `0` before tenant exclusion; snapshots, cutover, recovery, copy-capture release, and purge already have exclusive owners. Do not route them through the new operator-only refusal. Keep readiness and ordinary read paths unchanged.
+- Strengthen the command’s explicit check in [source_gate_module_guards.py:94](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/source_gate_module_guards.py:94) to require literal `exclusive=True`. The general fan-out scanner excludes class methods; adding this command to its function registry would be incorrect. No authority-source relocation is needed.
+- Retain category/evidence calculations and warning/no-update behavior. Keep files ≤300 lines and document the tenant-write pause and maintenance recommendation.
+
+The specified real-PostgreSQL Stage 3 matrix remains required before claiming production correctness, including queued migration interaction and read-only progress. Use committed fixtures and real producers; mock provider transport only.
+
+No edits, tests, database access, or runtime execution performed.

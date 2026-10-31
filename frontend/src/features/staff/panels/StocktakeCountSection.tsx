@@ -93,18 +93,22 @@ export function CountSection({ makerspace, stocktakeId }: { makerspace: Makerspa
         method: "POST",
         body: JSON.stringify({ payload }),
       });
+      let message = `Scanned ${result.asset_tag || result.name || result.label || payload}`;
       if (result.type === "asset" && result.asset_id && result.product_id) {
         setMode("asset");
         setProductId(String(result.product_id));
         setAssetId(String(result.asset_id));
       } else if (result.type === "product" && result.product_id) {
-        setMode("product");
+        const product = await staffRequest<ProductOption>(`/admin/inventory/${result.product_id}`);
+        const individual = product.tracking_mode === "individual";
+        setMode(individual ? "asset" : "product");
         setProductId(String(result.product_id));
         setAssetId("");
+        if (individual) message = `${product.name} is tracked by unit. Scan or select an actual asset to record its count.`;
       } else if (result.type === "box" && result.container_id) {
         setContainerId(String(result.container_id));
       }
-      setScanNote({ text: `Scanned ${result.asset_tag || result.name || result.label || payload}`, ok: true });
+      setScanNote({ text: message, ok: true });
     } catch (error) {
       setScanNote({ text: errorText(error, "Unable to resolve scanned QR"), ok: false });
     }
@@ -127,14 +131,14 @@ export function CountSection({ makerspace, stocktakeId }: { makerspace: Makerspa
         <SegmentedControl
           ariaLabel="Count type"
           value={mode}
-          onValueChange={(next) => { setMode(next); setAssetId(""); }}
+          onValueChange={(next) => { setMode(next); setProductId(""); setAssetId(""); }}
           options={[{ value: "product", label: "Product" }, { value: "asset", label: "Asset" }]}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={mode === "asset" ? "Product for asset" : "Product"}>
             <Dropdown value={productId} disabled={products.isLoading} onChange={(event) => { setProductId(event.target.value); setAssetId(""); }}>
               <option value="">Select product</option>
-              {products.data?.results.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
+              {products.data?.results.filter((product) => mode === "asset" || product.tracking_mode === "quantity").map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
             </Dropdown>
           </Field>
           {mode === "asset" ? (

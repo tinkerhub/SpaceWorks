@@ -12,7 +12,11 @@ logger = logging.getLogger(__name__)
 @receiver(post_delete, sender=DataExportJob)
 def release_export_archive(sender, instance, **kwargs):
     """Delete and uncharge an archive after any committed row-deletion path."""
-    if not instance.object_key:
+    from apps.makerspaces.purge_cleanup import owns_cleanup
+
+    if owns_cleanup(instance.makerspace_id):
+        return
+    if not instance.object_key or getattr(instance, "_archive_released", False):
         return
     makerspace = instance.makerspace
 

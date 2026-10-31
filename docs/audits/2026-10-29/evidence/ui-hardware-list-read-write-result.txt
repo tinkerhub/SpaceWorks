@@ -1,0 +1,7 @@
+Implemented only [QueuesModalShared.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/QueuesModalShared.tsx): separate read owner, capture/current plus cancellation checks, and `readOwner.context` dependency. Every QR/select/manual edit guard is preserved.
+
+No tests, application runtime, TSC, builds, staging, or commits.
+
+Scoped `git diff --check`: passed.  
+Line count: **130** (≤300).  
+SHA-256: `f8a796d284593bd9ee6d397f1dc0d7835dd56b907719797c0d6055da337f7d10`

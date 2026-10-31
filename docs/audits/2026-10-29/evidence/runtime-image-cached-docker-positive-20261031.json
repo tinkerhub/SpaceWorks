@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "helper_sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+  "actual_cached_backend_image": true,
+  "real_selected_repository_digest": "sha256:25eec473f6fa5a149064d3349d92d78f26b45f5af2948c42027f94bdc8c24f08",
+  "expected_backend_entrypoint": true,
+  "helper_exit_code": 0,
+  "temp_dotenv_only": true,
+  "unrelated_bytes_preserved": true,
+  "dotenv_mode": "0600",
+  "dotenv_single_link": true,
+  "no_temporary_file_remains": true,
+  "actual_image_identity_tags_digests_entrypoint_unchanged": true,
+  "docker_operations": [
+    "image inspect before",
+    "helper image inspect twice",
+    "image inspect after"
+  ],
+  "no_pull_build_tag_remove_or_container_start": true,
+  "not_a_new_restore_or_application_bootstrap": true,
+  "clean_repeat_uses_private_helper_copy": true,
+  "python_no_bytecode_before_import": true,
+  "private_helper_inventory_before_after_exact": true,
+  "private_helper_inventory": {
+    "provision-runtime-image.py": {
+      "sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+      "mode": 420
+    }
+  },
+  "initial_native_probe_side_effect": {
+    "unexpected_frozen_frame_cache": "scripts/__pycache__/provision-runtime-image.cpython-314.pyc",
+    "cache_sha256": "b932e4ae84f0489992b828a09ac00dc6f3e1a6824c32b4e593bb3f941e748d87",
+    "cache_bytes": 15696,
+    "expected_4829_source_bytes_and_modes_unchanged": true,
+    "extra_cache_caused_primary_postrun_inventory_refusal": true,
+    "original_snapshot_and_cache_retained": true,
+    "original_snapshot_not_rebaselined_or_reused_as_closed_frame": true,
+    "cause": "Initial native Python3.14 helper import preceded the later child CLI -B; importlib wrote cache into the mounted source snapshot.",
+    "correction": "Repeat from a new private helper copy with Python -B and sys.dont_write_bytecode before import; exact helper inventory verified before/after."
+  },
+  "preserved_prior_public_artifact_sha256": "6dec96df95ef35ec8efd0115bc5d19564d3e4157da1ff1949c604010927b2651"
+}

@@ -4,6 +4,7 @@ import { ScanLine } from "lucide-react";
 
 import { Button, ErrorText, Field, Input, Modal, Textarea } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
+import { useHardwareQrVisit } from "./useHardwareQrVisit";
 import { EvidenceUpload } from "./panels/EvidenceUpload";
 import type { DirectLoan, DirectLoanReturnItem } from "./DirectLoanList";
 import { DirectLoanReturnOutcomes, type AssetOutcome, type AssetState, type QtyState } from "./DirectLoanReturnOutcomes";
@@ -19,6 +20,7 @@ type DirectLoanReturnModalProps = {
   notes: string;
   qrPayload: string;
   pending: boolean;
+  canEdit?: () => boolean;
   error: string;
   onEvidenceUploaded: (evidenceId: number | null) => void;
   onNotesChange: (notes: string) => void;
@@ -34,6 +36,7 @@ export function DirectLoanReturnModal({
   notes,
   qrPayload,
   pending,
+  canEdit = () => !pending,
   error,
   onEvidenceUploaded,
   onNotesChange,
@@ -44,6 +47,11 @@ export function DirectLoanReturnModal({
   const [showScanner, setShowScanner] = useState(false);
   const [qtyState, setQtyState] = useState<QtyState>({});
   const [assetState, setAssetState] = useState<AssetState>({});
+  const qr = useHardwareQrVisit(`${makerspaceId}:${loan?.id}`, () => Boolean(loan) && !pending && canEdit());
+  const cameraVisit = qr.cameraVisit;
+  const closeScanner = () => {
+    if (qr.canEdit() && qr.cameraCurrent(cameraVisit)) { qr.closeCamera(); setShowScanner(false); }
+  };
   const returnItems: DirectLoanReturnItem[] = loan?.return_items ?? [];
 
   useEffect(() => {
@@ -67,7 +75,7 @@ export function DirectLoanReturnModal({
           .map((item) => [item.item_id, Object.fromEntries(item.assets.map((asset) => [asset.asset_id, "returned" as AssetOutcome]))]),
       ),
     );
-  }, [loan]);
+  }, [loan?.id]);
 
   const scanRequired = Boolean(loan?.return_scan_required);
   const buildResolutions = (): DirectLoanResolution[] =>
@@ -101,12 +109,14 @@ export function DirectLoanReturnModal({
   ].filter(Boolean);
 
   const updateQty = (itemId: number, key: "returned" | "damaged" | "missing", value: string) => {
+    if (!qr.canEdit()) return;
     setQtyState((current) => ({
       ...current,
       [itemId]: { ...(current[itemId] ?? { returned: 0, damaged: 0, missing: 0 }), [key]: Number(value) || 0 },
     }));
   };
   const updateAsset = (itemId: number, assetId: number, outcome: AssetOutcome) => {
+    if (!qr.canEdit()) return;
     setAssetState((current) => ({ ...current, [itemId]: { ...(current[itemId] ?? {}), [assetId]: outcome } }));
   };
 
@@ -114,7 +124,7 @@ export function DirectLoanReturnModal({
     <Modal
       open={Boolean(loan)}
       onClose={() => {
-        if (!pending) onCancel();
+        if (qr.canEdit()) onCancel();
       }}
       title={loan ? `Return ${loan.target_label}` : "Return direct handout"}
       description="A return needs a photo of what came back and a note on its condition."
@@ -122,7 +132,7 @@ export function DirectLoanReturnModal({
       footer={
         <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-end">
           {missing.length ? <p className="text-caption text-ink-muted sm:mr-auto">Still needed: {missing.join(", ")}.</p> : null}
-          <Button disabled={pending} onClick={onCancel}>Cancel</Button>
+          <Button disabled={pending} onClick={() => { if (qr.canEdit()) onCancel(); }}>Cancel</Button>
           <Button variant="primary" type="submit" form="direct-loan-return-form" disabled={!canSubmit} loading={pending} loadingLabel="Returning…">
             Submit return
           </Button>
@@ -134,10 +144,10 @@ export function DirectLoanReturnModal({
         className="grid gap-5"
         onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          if (canSubmit) onSubmit(resolutions);
+          if (canSubmit && qr.canEdit()) onSubmit(resolutions);
         }}
       >
-        <EvidenceUpload makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={onEvidenceUploaded} />
+        <EvidenceUpload resourceContext={loan?.id} makerspaceId={makerspaceId} evidenceType="return" label="Return photo" disabled={pending} onUploaded={(id) => { if (qr.canEdit()) onEvidenceUploaded(id); }} />
         <DirectLoanReturnOutcomes
           items={returnItems}
           qtyState={qtyState}
@@ -149,21 +159,24 @@ export function DirectLoanReturnModal({
         />
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
           <Field label="Return QR scan" optional={!scanRequired} className="min-w-0 flex-1">
-            <Input className="font-mono text-sm" value={qrPayload} disabled={pending} onChange={(event) => onQrPayloadChange(event.target.value)} />
+            <Input className="font-mono text-sm" value={qrPayload} disabled={pending} onChange={(event) => { if (qr.canEdit()) { qr.closeCamera(); setShowScanner(false); onQrPayloadChange(event.target.value); } }} />
           </Field>
-          <Button startIcon={<ScanLine />} disabled={pending} onClick={() => setShowScanner(true)}>Scan QR</Button>
+          <Button startIcon={<ScanLine />} disabled={pending} onClick={() => { if (qr.canEdit()) { qr.openCamera(); setShowScanner(true); } }}>Scan QR</Button>
         </div>
         <Field label="Return notes" helperText="What came back, and in what condition.">
-          <Textarea value={notes} disabled={pending} onChange={(event) => onNotesChange(event.target.value)} />
+          <Textarea value={notes} disabled={pending} onChange={(event) => { if (qr.canEdit()) onNotesChange(event.target.value); }} />
         </Field>
         <ErrorText message={error} />
         {showScanner ? (
           <QrScanner
             onScan={(payload) => {
+              const scan = qr.captureSingleCamera(cameraVisit);
+              if (!qr.current(scan)) return;
+              qr.closeCamera();
               onQrPayloadChange(payload.trim());
               setShowScanner(false);
             }}
-            onClose={() => setShowScanner(false)}
+            onClose={closeScanner}
           />
         ) : null}
       </form>

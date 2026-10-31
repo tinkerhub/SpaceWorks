@@ -1,3 +1,4 @@
+from apps.object_storage_lifecycle import storage_lifecycle
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -83,45 +84,49 @@ class InventoryProductImageView(APIView):
             503: OpenApiResponse(description="Public image storage is unavailable."),
         },
     )
-    @transaction.atomic
     def put(self, request, pk, *args, **kwargs):
         product = self._product(request, pk)
-        serializer = PublicImageAttachRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        object_key = serializer.validated_data["object_key"]
-        try:
-            size = finalize_product_image(
-                product.makerspace_id, object_key, product_id=product.pk
-            )
-        except PublicImageRejected as exc:
-            raise ValidationError({"object_key": str(exc)}) from exc
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        product = InventoryProduct.objects.select_for_update().select_related(
-            "makerspace"
-        ).get(pk=product.pk)
-        if object_key and public_image_storage.public_image_key_in_use(
-            product.makerspace_id,
-            object_key,
-            product_id=product.pk,
-        ):
-            raise ValidationError({"object_key": "This image is already in use."})
-        old_key = product.image_key
-        if object_key != old_key:
-            add_storage(product.makerspace, size)
-        if old_key and old_key != object_key:
-            public_image_storage.release_public_image_on_commit(
-                product.makerspace, old_key
-            )
-        product.image_key = object_key
-        product.save(update_fields=["image_key", "updated_at"])
-        audit.record(
-            request.user,
-            "inventory.image_attached",
-            makerspace=product.makerspace,
-            target=product,
-        )
-        return Response(InventoryProductAdminSerializer(product).data)
+        with storage_lifecycle(product.makerspace_id) as guard:
+            serializer = PublicImageAttachRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            object_key = serializer.validated_data["object_key"]
+            try:
+                size = finalize_product_image(
+                    product.makerspace_id, object_key, product_id=product.pk
+                )
+            except PublicImageRejected as exc:
+                raise ValidationError({"object_key": str(exc)}) from exc
+            except StorageUnavailable:
+                return storage_unavailable_response()
+            guard.verify()
+            with transaction.atomic():
+                product = self._product(request, pk)
+                product = InventoryProduct.objects.select_for_update().select_related(
+                    "makerspace"
+                ).get(pk=product.pk)
+                guard.verify(product.makerspace_id)
+                if object_key and public_image_storage.public_image_key_in_use(
+                    product.makerspace_id,
+                    object_key,
+                    product_id=product.pk,
+                ):
+                    raise ValidationError({"object_key": "This image is already in use."})
+                old_key = product.image_key
+                if object_key != old_key:
+                    add_storage(product.makerspace, size)
+                if old_key and old_key != object_key:
+                    public_image_storage.release_public_image_on_commit(
+                        product.makerspace, old_key, guard=guard
+                    )
+                product.image_key = object_key
+                product.save(update_fields=["image_key", "updated_at"])
+                audit.record(
+                    request.user,
+                    "inventory.image_attached",
+                    makerspace=product.makerspace,
+                    target=product,
+                )
+                return Response(InventoryProductAdminSerializer(product).data)
 
     @extend_schema(
         tags=["Admin inventory"],
@@ -130,23 +135,27 @@ class InventoryProductImageView(APIView):
             200: InventoryProductAdminSerializer,
         },
     )
-    @transaction.atomic
     def delete(self, request, pk, *args, **kwargs):
         product = self._product(request, pk)
-        product = InventoryProduct.objects.select_for_update().select_related(
-            "makerspace"
-        ).get(pk=product.pk)
-        old_key = product.image_key
-        if old_key:
-            public_image_storage.release_public_image_on_commit(
-                product.makerspace, old_key
-            )
-        product.image_key = ""
-        product.save(update_fields=["image_key", "updated_at"])
-        audit.record(
-            request.user,
-            "inventory.image_cleared",
-            makerspace=product.makerspace,
-            target=product,
-        )
-        return Response(InventoryProductAdminSerializer(product).data)
+        with storage_lifecycle(product.makerspace_id) as guard:
+            guard.verify()
+            with transaction.atomic():
+                product = self._product(request, pk)
+                product = InventoryProduct.objects.select_for_update().select_related(
+                    "makerspace"
+                ).get(pk=product.pk)
+                guard.verify(product.makerspace_id)
+                old_key = product.image_key
+                if old_key:
+                    public_image_storage.release_public_image_on_commit(
+                        product.makerspace, old_key, guard=guard
+                    )
+                product.image_key = ""
+                product.save(update_fields=["image_key", "updated_at"])
+                audit.record(
+                    request.user,
+                    "inventory.image_cleared",
+                    makerspace=product.makerspace,
+                    target=product,
+                )
+                return Response(InventoryProductAdminSerializer(product).data)

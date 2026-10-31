@@ -1,0 +1,3186 @@
+{
+  "approved_stage1_hashes": {
+    "/tmp/spaceworks-native-qr-audit-stage1.txt": {
+      "bytes": 1403,
+      "sha256": "f048574d3ad4f84843b6227235fd8121fe4447538866d3f6b508e7bdb477bbad"
+    },
+    "/tmp/spaceworks-qr-generation-native-delta-stage1.txt": {
+      "bytes": 1097,
+      "sha256": "e5d81eaa4ef831b7881fc47b8ba2aa201e8d931888fada415eaa188435e102ce"
+    },
+    "/tmp/spaceworks-qr-resolve-audit-doc-stage1.txt": {
+      "bytes": 1133,
+      "sha256": "fe3a4ef264ea38c9ff1abd70f96e8c8eee0af9c3e389614e4849c13edf735052"
+    },
+    "/tmp/spaceworks-qr-source-gate-v2-stage1.txt": {
+      "bytes": 1473,
+      "sha256": "ffd35112419ed945ae191320f788f2d3ef3dc0638ee1eec3766441bc9d7819f4"
+    }
+  },
+  "build_stage_commit_executed": false,
+  "combined_command_census_note": "Named paths are explicit. Root owns the final combined group and runtime census; existing parent77/native29/QR126 and reported green totals were not independently executed here.",
+  "created_at_utc": "2026-10-30T00:56:22.444374+00:00",
+  "django_imports_executed": false,
+  "exact_root_command": "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest -q --reuse-db tests/qr_source_safety\n'",
+  "files": {
+    "backend/tests/qr_source_safety/__init__.py": {
+      "bytes": 78,
+      "functions": [],
+      "lines": 1,
+      "sha256": "809c9bb5b15284ab5f6def6749f3655caef58af0b16a64fd72f2b112932329f4"
+    },
+    "backend/tests/qr_source_safety/http_helpers.py": {
+      "bytes": 6537,
+      "functions": [
+        {
+          "line": 25,
+          "name": "closure_lab",
+          "sha256": "f15626b72b8c125d0f174e9892de6f296aa317d723fc3c312599816466009cee"
+        },
+        {
+          "line": 40,
+          "name": "empty_product",
+          "sha256": "310ffdbc2d1956cca97773951139ca2f4e5c1929f8c019c94d68cb272561c769"
+        },
+        {
+          "line": 47,
+          "name": "bulk_request",
+          "sha256": "cd11d059c9a6d8e8a0f59c547c3fe50676ea2c957fabc351b1b4e52cf3a72151"
+        },
+        {
+          "line": 54,
+          "name": "generation_request",
+          "sha256": "0cce9b2e05096b5c7850a44d3ab2c7077710fa90b9a23ddc01fa779106046033"
+        },
+        {
+          "line": 64,
+          "name": "prepared",
+          "sha256": "9e70d8299e1e0c15d1b70f81f40a45505e1357ecb3fdd8bc14ccccd25931a133"
+        },
+        {
+          "line": 121,
+          "name": "success",
+          "sha256": "a6990aa5967020fb84e3590cddf9bc30672e38ef7747fa4d7c359d610f6e384e"
+        },
+        {
+          "line": 127,
+          "name": "event",
+          "sha256": "075c6023144d9e5540355daa38328cb8819f028fe23ef7c1fe5d94f4f1a4da00"
+        }
+      ],
+      "lines": 134,
+      "sha256": "6ecad6755ce56a2d93c4ee46b144eea65b2995f02b6226aefcdd29b7d040d4a9"
+    },
+    "backend/tests/qr_source_safety/pg_helpers.py": {
+      "bytes": 2286,
+      "functions": [
+        {
+          "line": 14,
+          "name": "row_lock",
+          "sha256": "5d1b33dd17168d5725624ca6fbd35ab8015b50a3d788d743ec48669629faa237"
+        },
+        {
+          "line": 19,
+          "name": "table_lock",
+          "sha256": "e7bf9da4dbaf8fc6e374c0e02495574946ad910b7ef636004e49573e038951f6"
+        },
+        {
+          "line": 23,
+          "name": "audit_insert",
+          "sha256": "06593357f0d0861bef2cd2415cdf3bac6cee5ed2b0d603c5425639b228bfe323"
+        },
+        {
+          "line": 27,
+          "name": "locks",
+          "sha256": "de65988681875ed2d85df6db80160a49f908abde99524f01ff52ab308ba1cb83"
+        },
+        {
+          "line": 37,
+          "name": "assert_shared",
+          "sha256": "eff5d6d0a1bc119cfe96130ced73ca8e065f48dd8cc567aeb74690f597992ac1"
+        },
+        {
+          "line": 42,
+          "name": "exclusive",
+          "sha256": "f08b6102eb2b54306a36467289f5f7f3786f764c1c7024c6685489954fc5a2ac"
+        },
+        {
+          "line": 52,
+          "name": "atomic_request",
+          "sha256": "7a988e25801de72f3b233cf9d1a8e7426a833f1a3646a8c024fadb03c1bc81ca"
+        },
+        {
+          "line": 54,
+          "name": "atomic_request.call",
+          "sha256": "7f5a6df99219e50c7555a516502cdd5ee27b048707a9f51d9e144dde3cc2f553"
+        },
+        {
+          "line": 60,
+          "name": "source_wait",
+          "sha256": "86c155cb6e0972652dc6c2bcb90ad3ab8f4a906a9f0b1996f6bd8ba8527bd426"
+        }
+      ],
+      "lines": 66,
+      "sha256": "2c202de00e98b2efa49ce0d6c900654359aad9cc927610a5d2b1aa0885f1b575"
+    },
+    "backend/tests/qr_source_safety/race_helpers.py": {
+      "bytes": 910,
+      "functions": [
+        {
+          "line": 8,
+          "name": "backend_pid",
+          "sha256": "aa6de5d328268783de0893066cc93264624d2feb48bf3ad256a06cd01b94f4f8"
+        },
+        {
+          "line": 14,
+          "name": "change_qr",
+          "sha256": "c39e1624451f0e3956b839d6a8ab68cdc58a9f8f1ef249c1714cbe11c29760d0"
+        },
+        {
+          "line": 23,
+          "name": "replacement",
+          "sha256": "8f599d719eaafb314f9dd9a14ba74a102e139b0523497733030b7d3e63346416"
+        },
+        {
+          "line": 27,
+          "name": "expected_qr_denial",
+          "sha256": "6ef61c751ab0fa284f02b522b056868a234a91988c1635b83ff97a1d69c7ca8e"
+        }
+      ],
+      "lines": 28,
+      "sha256": "543f861f6a8af797914d0f887cd2cd87124e711c01c30a69e8389b6570bb63ab"
+    },
+    "backend/tests/qr_source_safety/state_helpers.py": {
+      "bytes": 1982,
+      "functions": [
+        {
+          "line": 12,
+          "name": "plain",
+          "sha256": "f4604fa6d186fb6f7412c7fc7b7bb74c565c072d10c503b923ac7e3c544db871"
+        },
+        {
+          "line": 22,
+          "name": "state",
+          "sha256": "811188c2e8ac6e82b3a226a36a975562de1043b4b53e34d120b1a5b8bc5011f5"
+        },
+        {
+          "line": 30,
+          "name": "audit_ids",
+          "sha256": "5dde6d8a0224729673bde2e90b48a8db7f1d760bb89219015fd6e2527cd2d6f5"
+        },
+        {
+          "line": 34,
+          "name": "audits_since",
+          "sha256": "ec75af40b337cd21fe8e2c4c91c648e13cea1f7a9beacab0af65d7a58d1d5b42"
+        },
+        {
+          "line": 38,
+          "name": "assert_gate",
+          "sha256": "a78bbf2fc68894b390d05ef40e7f3452c024f172910106fd7f8f902195638024"
+        },
+        {
+          "line": 43,
+          "name": "assert_canonical",
+          "sha256": "276194cc2e623ca5a974b5c92475f8038bfedba15ba823d62459f4a0338b3f82"
+        }
+      ],
+      "lines": 50,
+      "sha256": "cb27d7c3cc849c210afcbc615786ffc93a9ecf16e6fae7458e29d820415f4f87"
+    },
+    "backend/tests/qr_source_safety/test_audit_rollback_closure.py": {
+      "bytes": 1116,
+      "functions": [
+        {
+          "line": 15,
+          "name": "test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain",
+          "sha256": "4afdb64653916ad071ed6297a01401e67ca754be72adf4b542026318170a7e0f"
+        }
+      ],
+      "lines": 23,
+      "sha256": "8122ff57fd3877869b88a597f236b3b6d70a159ae1777e9f5bb98ed9c8c51514"
+    },
+    "backend/tests/qr_source_safety/test_fresh_qr_waits.py": {
+      "bytes": 3037,
+      "functions": [
+        {
+          "line": 24,
+          "name": "test_qr_identity_fresh_after_observed_source_n_wait",
+          "sha256": "e8612f59f886fa4672d12c4a4c95e8a9ba6249fc7c1c7d0a94278989aabafe58"
+        },
+        {
+          "line": 42,
+          "name": "test_qr_identity_fresh_after_actual_qr_row_wait",
+          "sha256": "115560a87d433d46625931bc2c7d6ef910d3292d229a76c8d59b25ec456da9ad"
+        }
+      ],
+      "lines": 66,
+      "sha256": "764b6b3c467fc98b28f49588fc81a94c172576d4f4da5a306326399cc753ca19"
+    },
+    "backend/tests/qr_source_safety/test_fresh_target_waits.py": {
+      "bytes": 4511,
+      "functions": [
+        {
+          "line": 19,
+          "name": "relocate",
+          "sha256": "6a26be04fc2dc39493cceb96dfdd89a83bf23c012f2ae3c76de3b97af2592565"
+        },
+        {
+          "line": 31,
+          "name": "test_target_ownership_fresh_after_source_n_wait",
+          "sha256": "fda536f0a055d232333de0fdbb5dead15dd941e4162bb5fedf2c8731ecc99ace"
+        },
+        {
+          "line": 47,
+          "name": "test_target_ownership_fresh_after_product_or_asset_row_wait",
+          "sha256": "db862df11ad6bbbd5dcad82580966960625360af841facf6b4defb65241e65d7"
+        },
+        {
+          "line": 66,
+          "name": "test_generation_fresh_product_after_real_product_wait",
+          "sha256": "9ebd5d68d39389e2a3feae1a56a6f5ee93067470aeab65a9013ce360086c9bc9"
+        },
+        {
+          "line": 83,
+          "name": "test_cross_asset_destination_product_fresh_after_real_product_wait",
+          "sha256": "be4c9b60aa9e6fb89d7895c5100f0cdb9f58f28f7056f54370f2deb212fe5bb3"
+        }
+      ],
+      "lines": 100,
+      "sha256": "84018953aff5026923d87493c80f8544c54638dd4aab46dd19ea6a145a563128"
+    },
+    "backend/tests/qr_source_safety/test_generation_fresh_policy.py": {
+      "bytes": 5779,
+      "functions": [
+        {
+          "line": 23,
+          "name": "mutate_policy",
+          "sha256": "feab4c72f9d7bda15cc38fc2b88b5672d6ff7786fea2a7838363725b6e8019a1"
+        },
+        {
+          "line": 35,
+          "name": "test_native_generation_refuses_fresh_policy_after_actual_row_wait",
+          "sha256": "1819686f14afe94253351f92779a4b474198e29c967bab24ea4f4131d3055bb1"
+        },
+        {
+          "line": 61,
+          "name": "test_api_generation_hidden_maker_explicit_membership_keeps_manage_qr_authority",
+          "sha256": "eea6570ae468adb6ca01638d6e71977b0ad5b837605e9bb5cdfc906b4871e41d"
+        },
+        {
+          "line": 83,
+          "name": "test_actual_generation_preserves_module_quota_and_quantity_refusals",
+          "sha256": "81381c17f5b2fe30b211d27bb0b341ad87df7b6afbc392f825e86a87d80b3337"
+        },
+        {
+          "line": 105,
+          "name": "test_generation_reuses_missing_qr_before_adding_units_and_updates_quantities",
+          "sha256": "8ed13392cb85a9bbb67487c15306af6c3ca7f4b6ac24dbb5ca290a70a0372873"
+        }
+      ],
+      "lines": 115,
+      "sha256": "d030b95007868f8acaea5363145e73a8ea671e6f809db28b11ca6fb32d7bb1e6"
+    },
+    "backend/tests/qr_source_safety/test_native_canonical_audit.py": {
+      "bytes": 6126,
+      "functions": [
+        {
+          "line": 17,
+          "name": "deletion",
+          "sha256": "dc19f8129f7392eab309aabebd967b69edf1b45c45f41c6204d5336cdc9e19ae"
+        },
+        {
+          "line": 24,
+          "name": "codes",
+          "sha256": "d555f8cd6ef35e8f7544f00dbbb1a36acf891005f4d1666430e959fa522002e0"
+        },
+        {
+          "line": 29,
+          "name": "assert_attempts",
+          "sha256": "be62d9028bf78caa74374fd87c164f1200762d064c0de79692ee520580b68295"
+        },
+        {
+          "line": 36,
+          "name": "test_native_created_by_edit_audits_only_field_names",
+          "sha256": "859b37652d1cc45a591449885fb7de93748b3fd2e0d4c38bb8e09bd02260deb9"
+        },
+        {
+          "line": 50,
+          "name": "test_native_noop_has_no_canonical_audit",
+          "sha256": "81c440822d40a87a73ea01537e2ee0bc38d1a9cceca8ad158fb0e208819f1032"
+        },
+        {
+          "line": 65,
+          "name": "test_native_delete_has_exact_canonical_events",
+          "sha256": "82eb2bd3025453b2aef5f1dfe90028e7254d4fc8f79e5a9258b221ecc6d2708b"
+        },
+        {
+          "line": 80,
+          "name": "test_actual_native_history_protects_qr_delete_without_audit",
+          "sha256": "9a9c25814e4e93e1abbbd0fb2af2b903a7eea77905de423fd440d609f7b5f12c"
+        },
+        {
+          "line": 93,
+          "name": "test_real_native_audit_insert_then_refusal_rolls_back_domain_and_canonical",
+          "sha256": "791b229c4e5822eb00b6caab0fc7b9b18716051a17ed392353e2f3a1d4480bd1"
+        },
+        {
+          "line": 119,
+          "name": "test_native_custom_actions_keep_exact_service_event_without_control_duplicate",
+          "sha256": "aa9a14eaa9ffff634eecfdab3ca846236924df1055d65b87353ee83d970ef8cd"
+        },
+        {
+          "line": 137,
+          "name": "test_native_qr_add_stays_denied",
+          "sha256": "49f44a20f8cb1ad3a5b05ad080db2bf51cb02674255a9b884c40d8e3e77083f4"
+        }
+      ],
+      "lines": 145,
+      "sha256": "fe5afc2fc9fe98474b764bd38b1c19f2033b0af812ffb23ced6feb841eb953ca"
+    },
+    "backend/tests/qr_source_safety/test_native_effective_selection.py": {
+      "bytes": 3576,
+      "functions": [
+        {
+          "line": 16,
+          "name": "test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows",
+          "sha256": "31fe51dd302875b6cabe8305da5ee5cf8cabe94533b27dff6f85f4ee41f31801"
+        },
+        {
+          "line": 53,
+          "name": "test_raw_post_ids_outside_effective_native_queryset_cannot_freeze_or_delete",
+          "sha256": "520067c8eb3fea2fb36a530aa835e5a840a434ce31a38a99432cc9386f59f162"
+        }
+      ],
+      "lines": 68,
+      "sha256": "2fffa9c4db3ca64e16e014b51e0eeb08ccb8688900a3f98626de257190d81503"
+    },
+    "backend/tests/qr_source_safety/test_openapi_contract.py": {
+      "bytes": 1685,
+      "functions": [
+        {
+          "line": 15,
+          "name": "schema",
+          "sha256": "534e85632e9c223a1e0f568a09cf36d059f31a06ccaff3a82cfc575d350b163e"
+        },
+        {
+          "line": 20,
+          "name": "test_qr_mutation_schema_documents_typed_gate_refusals",
+          "sha256": "41ff5e6de14f74434e2667f3022c7e1db12d728ed423e0616cd6bf285cf52030"
+        },
+        {
+          "line": 26,
+          "name": "test_native_generation_keyword_is_not_a_public_request_schema_field",
+          "sha256": "628edcfba9171eaf549e670b07a881d0fb7aabe32876b5157d6d179e8c280ff5"
+        },
+        {
+          "line": 39,
+          "name": "test_print_get_retains_its_read_error_contract_without_write_gate_responses",
+          "sha256": "2d46a61265642398bb8dbac1b22ebcef3fe46fa78376a110119c056e13c5abc7"
+        }
+      ],
+      "lines": 41,
+      "sha256": "4755522d7cec8f5bbb8f27bb61cb033287466473826c3bb51411efad1cdf58c0"
+    },
+    "backend/tests/qr_source_safety/test_quiesced_http.py": {
+      "bytes": 3201,
+      "functions": [
+        {
+          "line": 17,
+          "name": "test_actual_http_open_positive_control",
+          "sha256": "11628ba0d09c169f58cbf35556a44d33791f7895e191cf29a40aca5110c2c4a2"
+        },
+        {
+          "line": 24,
+          "name": "test_genuine_quiesced_actual_owner_refuses_all_writers",
+          "sha256": "0d103600c6d912375f8f978cb9a18eb445ff0372d09be977f8bd720e99a129df"
+        },
+        {
+          "line": 35,
+          "name": "test_cross_maker_each_independent_gate_refuses_valid_transfer",
+          "sha256": "90776040aeae9ce8c61a48e0a191e98d5305b16da81afad2a1f5d4111cbb9641"
+        },
+        {
+          "line": 44,
+          "name": "test_native_cross_transfer_open_positive_control",
+          "sha256": "73e3d0167589c0a09beb58d4255a0609d1e8ee75408139e184093bdd7e1fe17a"
+        },
+        {
+          "line": 53,
+          "name": "test_print_get_stays_available_and_read_only_while_quiesced",
+          "sha256": "32723a24c085f4bca22bb8dc8fb466777cd834bf3c9a8a339113ee91082c577b"
+        },
+        {
+          "line": 69,
+          "name": "test_existing_get_container_lookup_remains_read_only_when_quiesced",
+          "sha256": "ae824e192f66b82fc5b0caf17f44a93b9dac91ead86c58b453c88d1639802aa5"
+        }
+      ],
+      "lines": 80,
+      "sha256": "d93957b11c27170de4beec18fbaaecaf0b8064ade6111bf5ce630e2aa8badfb6"
+    },
+    "backend/tests/qr_source_safety/test_resolve_audit.py": {
+      "bytes": 7005,
+      "functions": [
+        {
+          "line": 23,
+          "name": "reader",
+          "sha256": "fbe195e655fbf0908092ae9e002ab88ed8c1ea71c6ffee2181bdf0a213c22443"
+        },
+        {
+          "line": 37,
+          "name": "scan_audit",
+          "sha256": "b1b8336fe7c11d4711dd5bae98e577b382ad445aeec5af8554f174c2723751bb"
+        },
+        {
+          "line": 54,
+          "name": "test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto",
+          "sha256": "89ef5089da82a6e598d88788252e82b851b0e7feddfdc7ec19900644eb1b74c7"
+        },
+        {
+          "line": 86,
+          "name": "test_real_resolve_audit_insert_then_refusal_rolls_back_scan_and_audit",
+          "sha256": "9cec3396637f01a0bce61091d9a18e5742af0a175223f1aad4446084868f9870"
+        },
+        {
+          "line": 99,
+          "name": "test_explicit_scan_still_has_exactly_one_event_and_one_audit",
+          "sha256": "be6ce9b97effb69a129fe40428c3d9d9982329bfe4affe535a2716b32c0c91a1"
+        },
+        {
+          "line": 112,
+          "name": "test_view_inventory_reader_cannot_explicitly_scan_and_denial_writes_nothing",
+          "sha256": "f168432496fe7312ae4280a9a146cc8045c0ec2fc2b923e4c2fd5d3d847fc988"
+        },
+        {
+          "line": 127,
+          "name": "test_actual_resolve_denial_emits_neither_scan_nor_audit",
+          "sha256": "69e78a1b0b0e17858ee5487e39c1e89ab8841e3c4a7b9321b3e64dde2961b578"
+        }
+      ],
+      "lines": 153,
+      "sha256": "5573a9b1c08671484d0d3223d707878e221db62a0f238b5366cec278183d1a38"
+    },
+    "backend/tests/qr_source_safety/test_scope_before_gate.py": {
+      "bytes": 2134,
+      "functions": [
+        {
+          "line": 17,
+          "name": "test_scope_and_auth_precede_foreign_gate_state",
+          "sha256": "3beb9ba92c85ed7cc50da5a3d6ca27369b319ae939a7003a16887eb19ab8cd5f"
+        },
+        {
+          "line": 39,
+          "name": "test_scope_and_auth_precede_foreign_gate_state.capture",
+          "sha256": "3f547623dc08cbd7cc81d4765ed6f3067a3ca8ba15a5f23d7e994458b9a1c6ec"
+        }
+      ],
+      "lines": 48,
+      "sha256": "a91f5c8c6707db5e688bf77b859e83c1a09e47058cac5a4583cc4ee8141483fe"
+    },
+    "backend/tests/qr_source_safety/test_source_lock_lifetime.py": {
+      "bytes": 4513,
+      "functions": [
+        {
+          "line": 21,
+          "name": "test_exclusive_source_blocks_actual_http_before_any_domain_row_lock",
+          "sha256": "4fe6f03817bc7a3692acab6214b6021b6044c724b3652c63eaeeb5e32a2dfb29"
+        },
+        {
+          "line": 34,
+          "name": "test_real_audit_insert_and_actual_outer_commit_retain_source_n",
+          "sha256": "abd92f42f5bec0aa5699fd2b2c7e99384e904eaad76d876c857ed0ad25bee5e2"
+        },
+        {
+          "line": 41,
+          "name": "test_real_audit_insert_and_actual_outer_commit_retain_source_n.outer",
+          "sha256": "92b5e82d3933b06280d8dc210888d382620f8b02d16314c3f9acfc314fde1913"
+        },
+        {
+          "line": 82,
+          "name": "test_sorted_two_source_admission_waits_at_destination_before_qr_lock",
+          "sha256": "484bb3906f796857d29448cc3a4026981ab90031bf71e95d9f2f0d0d8663c926"
+        }
+      ],
+      "lines": 98,
+      "sha256": "813567ab44b1aae9c8ee15dbf8a8753ac805cdc8cc9fff400a6aeff06155c604"
+    }
+  },
+  "frozen_strict_four_cases": {
+    "edited": false,
+    "file": "backend/tests/test_qr_atomic_mutations.py",
+    "function": "test_closed_source_gate_refuses_real_qr_writes",
+    "parameter_products": [
+      "box",
+      "product",
+      "asset",
+      "scan"
+    ],
+    "required_status": 423
+  },
+  "generated_openapi_observation": {
+    "current_post_response_codes": {
+      "/api/v1/admin/products/{id}/assets/generate": [
+        "201",
+        "400",
+        "403",
+        "404",
+        "409"
+      ],
+      "/api/v1/admin/qr/boxes": [
+        "201",
+        "400",
+        "403",
+        "404"
+      ],
+      "/api/v1/admin/qr/resolve": [
+        "200",
+        "400",
+        "403",
+        "404"
+      ],
+      "/api/v1/admin/qr/scan": [
+        "201",
+        "400",
+        "403",
+        "404"
+      ],
+      "/api/v1/admin/qr/tools": [
+        "201",
+        "400",
+        "403",
+        "404"
+      ],
+      "/api/v1/admin/qr/{id}/rebind-target": [
+        "200",
+        "409"
+      ],
+      "/api/v1/admin/qr/{id}/revoke": [
+        "200"
+      ]
+    },
+    "note": "Current generated snapshot lacks the new 423/503 responses. Source annotations were read; tests require the final regenerated contract. Schema/types were not edited.",
+    "root_owned_regeneration_pending_at_freeze": true
+  },
+  "observed_source_hashes": {
+    "AGENTS.md": {
+      "bytes": 32271,
+      "sha256": "f1a04f4b84a8d6138f78c90900826908563c2129a569a779dc8342aa9e323c60"
+    },
+    "CLAUDE.md": {
+      "bytes": 32271,
+      "sha256": "f1a04f4b84a8d6138f78c90900826908563c2129a569a779dc8342aa9e323c60"
+    },
+    "backend/apps/accounts/authentication.py": {
+      "bytes": 9980,
+      "sha256": "4fafae6863cadd861fad03a13b4977459d687db3844e02f43552d0b0f37e7274"
+    },
+    "backend/apps/accounts/rbac.py": {
+      "bytes": 9698,
+      "sha256": "7f64a57fc7dbfb83fed364bda06b1b88babffae5bb392d1ff9d99b451a6e3c2e"
+    },
+    "backend/apps/admin_api/permissions.py": {
+      "bytes": 3112,
+      "sha256": "a3fc316178a4e2385b79f38e926d949634be7c125a412534906ef12c8e8ce157"
+    },
+    "backend/apps/boxes/__init__.py": {
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "backend/apps/boxes/access.py": {
+      "bytes": 1364,
+      "sha256": "3b2ed6228afbd06f4e6660bb6517c1965bc364470597425bbcba260a509e5454"
+    },
+    "backend/apps/boxes/admin.py": {
+      "bytes": 8761,
+      "sha256": "60f9992007cdd6a1da5046387f22dfc93ee151376d70dbe797b4937e5e26a2ac"
+    },
+    "backend/apps/boxes/admin_forms.py": {
+      "bytes": 2273,
+      "sha256": "504f94285124a5e4c80a72710178b1d2c4a1a2a237e93e9687067c85c155c5e6"
+    },
+    "backend/apps/boxes/admin_lifecycle.py": {
+      "bytes": 3145,
+      "sha256": "febfc57a34b0cb3cb895d26d1a009039ab74014411dbf0aaa6c5a63993eeada6"
+    },
+    "backend/apps/boxes/admin_qr_lifecycle.py": {
+      "bytes": 11574,
+      "sha256": "412bea74180f9bcddce1b5376a8ea441a2a58e0434c73eae0ef6d38ffa22ea20"
+    },
+    "backend/apps/boxes/api_views.py": {
+      "bytes": 376,
+      "sha256": "ccaf70e48dbc8e17dc95912e2f4eb85671012fb7b20153cde55de48c095675f5"
+    },
+    "backend/apps/boxes/api_views_eligibility.py": {
+      "bytes": 4276,
+      "sha256": "1253f1f7446572dcb239f533b88554518d8f17ef69f6c9b305a82302637f0a0f"
+    },
+    "backend/apps/boxes/api_views_qr.py": {
+      "bytes": 12277,
+      "sha256": "537a205ed050531faafa4936531cc94691ab721e21a998560bea0a5d6305a224"
+    },
+    "backend/apps/boxes/apps.py": {
+      "bytes": 147,
+      "sha256": "14f1aefbc5ba038296f3c9b6b96a58d37950d96d74a62c33bbb23e02f55c3a1c"
+    },
+    "backend/apps/boxes/asset_rebind.py": {
+      "bytes": 10978,
+      "sha256": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f"
+    },
+    "backend/apps/boxes/contents.py": {
+      "bytes": 1390,
+      "sha256": "57f5fc4ccc545293a9fb2db80f3d0baca6ace54315c508639cf8ff77d79d1ca4"
+    },
+    "backend/apps/boxes/exceptions.py": {
+      "bytes": 168,
+      "sha256": "ce9a4c3e9e9d14c7503bb44c1d5cbdf195735022e08c73ef500e640e5343dbd3"
+    },
+    "backend/apps/boxes/models.py": {
+      "bytes": 6635,
+      "sha256": "d09918dde5ccf1bbaa6808353b91fc6d0ffccb623fa8609dcd591a33b7f066b7"
+    },
+    "backend/apps/boxes/qr_admission.py": {
+      "bytes": 5683,
+      "sha256": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71"
+    },
+    "backend/apps/boxes/qr_render.py": {
+      "bytes": 915,
+      "sha256": "86d2df0314e0a7ae04781f2452e8b696422ffaa23b5681ecd04127a83cddda26"
+    },
+    "backend/apps/boxes/rebind.py": {
+      "bytes": 6620,
+      "sha256": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea"
+    },
+    "backend/apps/boxes/rebind_results.py": {
+      "bytes": 135,
+      "sha256": "5931a36cacd13341526f79fe38a30ba30bb5f67f77fcbc04cd675e9cbb20eab2"
+    },
+    "backend/apps/boxes/serializers.py": {
+      "bytes": 4890,
+      "sha256": "eb87bb8fd67974bcc5d204a8a66d43dbc9b67a1111b040d59936628ebca90946"
+    },
+    "backend/apps/boxes/services.py": {
+      "bytes": 5130,
+      "sha256": "91ef7b63e2c69173cda207bbe880ea9e3328cc5385706b4aaba8b57ae5a65ae4"
+    },
+    "backend/apps/boxes/targets.py": {
+      "bytes": 813,
+      "sha256": "a965ce5d148bd19b1c1a51d036e0d1bb45630f4795f87845d52ef3e7d9b972ea"
+    },
+    "backend/apps/boxes/urls.py": {
+      "bytes": 737,
+      "sha256": "8e4624359ee0a0cf339d4826c32e73f2dfad118f4aa69d353ce2f788703e44f2"
+    },
+    "backend/apps/inventory/admin.py": {
+      "bytes": 7201,
+      "sha256": "ba9ac32112a3000b1677a13773dfd58d2a24b8713c93165df9bf6f3187b0a965"
+    },
+    "backend/apps/inventory/availability_quantities.py": {
+      "bytes": 10557,
+      "sha256": "788f2d3c76662ee51274311ca14e05378f57c3d080286c8325a6307bb1dcd72d"
+    },
+    "backend/apps/inventory/availability_tracking.py": {
+      "bytes": 2515,
+      "sha256": "925e44d9bc41f8e3b090b2e850492dfa23a047783facbb2073f6ff7e3b5cafe9"
+    },
+    "backend/apps/inventory/availability_types.py": {
+      "bytes": 177,
+      "sha256": "26af452d4a7e736c9d49594a86a83026c5a548e20031e3bb693739e055cbf0df"
+    },
+    "backend/apps/makerspaces/guards.py": {
+      "bytes": 4076,
+      "sha256": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f"
+    },
+    "backend/apps/makerspaces/limits_usage.py": {
+      "bytes": 8541,
+      "sha256": "6c8eeb25864861a4a4d5001bf702dbe25808aa14a0edc1e9a18c1f70e0993e3f"
+    },
+    "backend/apps/makerspaces/origin_scope.py": {
+      "bytes": 7071,
+      "sha256": "2220de34cbae8ebc8d293dbc7647fcaa940901ac64f7bcbbef5fd7f09990c257"
+    },
+    "backend/apps/makerspaces/origin_scope_model_lookups.py": {
+      "bytes": 11912,
+      "sha256": "3d5f0f2deb8d3dccfdedf43b7be678c53f5dc93e0fa1b2e24b6f116e6ab96914"
+    },
+    "backend/apps/makerspaces/origin_scope_routes.py": {
+      "bytes": 10236,
+      "sha256": "9689c32cd0df988be87fffdb6f84cd98e810b196865df39c75384eaf81e69f20"
+    },
+    "backend/apps/operations/serializers.py": {
+      "bytes": 8095,
+      "sha256": "0e81d5174d1506c70c70450eb726ea4b329b930ad75e2a3620155ca07724c647"
+    },
+    "backend/apps/operations/services_qr_assets.py": {
+      "bytes": 8749,
+      "sha256": "c3b4742ea7485b20e6c3146e680e7a7d138e4dd925e8e685f97192b767109d1e"
+    },
+    "backend/apps/operations/views_containers.py": {
+      "bytes": 11862,
+      "sha256": "d35661ca20418b732011dedfb3bb3a32e710e73a6b9d0ba2138878ab434aab74"
+    },
+    "backend/apps/operations/views_qr_batches.py": {
+      "bytes": 10808,
+      "sha256": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2"
+    },
+    "backend/apps/tenant_migration/gate_http_ownership.py": {
+      "bytes": 1429,
+      "sha256": "a5021de40edb2deb252ad212de802fa52fabec4712bca0543f1cb0ac8382d176"
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "bytes": 8939,
+      "sha256": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815"
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "bytes": 8380,
+      "sha256": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332"
+    },
+    "backend/apps/tenant_migration/middleware.py": {
+      "bytes": 5079,
+      "sha256": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78"
+    },
+    "backend/config/admin_access.py": {
+      "bytes": 9334,
+      "sha256": "a3de0b6b78826ed1a656d2f785d78fa5e51d4ca345ce7b17d9a7b3e48ccace09"
+    },
+    "backend/config/admin_audit.py": {
+      "bytes": 3047,
+      "sha256": "5acc9bc3e6b74a2a68ed0c3e1a84ef09590471ff77354ed4675fd5c1037a3cf5"
+    },
+    "backend/config/admin_source_gate.py": {
+      "bytes": 4658,
+      "sha256": "f876b2d72e6cfedf077611ba567fd3bb460b2dee9b0ae8db4929ea092dc79e9e"
+    },
+    "backend/tests/native_box_audit_helpers.py": {
+      "bytes": 5574,
+      "sha256": "c6d6944bb31d6c2c00117a60e233c6e2078935a41bcc950d7dd262c1dc0f6dc2"
+    },
+    "backend/tests/native_warranty_race_helpers.py": {
+      "bytes": 10990,
+      "sha256": "cc423938f17d2ffe9a1520c960e1402e8e0e7514e7e81d901b01e920ad81541f"
+    },
+    "backend/tests/qr_target_safety_helpers.py": {
+      "bytes": 5703,
+      "sha256": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9"
+    },
+    "backend/tests/tenant_migration/source_gate_helpers.py": {
+      "bytes": 1194,
+      "sha256": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332"
+    },
+    "backend/tests/test_qr_atomic_mutations.py": {
+      "bytes": 5194,
+      "sha256": "006361f66ad9801e46f60b7d0e13e63f6e26689572e460cfd5184f52a6d68308"
+    },
+    "docs/DEV-WORKFLOW.md": {
+      "bytes": 18989,
+      "sha256": "e4bc80cd82b2666fb09efe5ef79b65c23aab87b15f545cb0034f60cb0190d72e"
+    },
+    "docs/INVARIANTS.md": {
+      "bytes": 299185,
+      "sha256": "2f4fad2d44763a9083a69922b45a94159601d97735686c80301d61694b12aeef"
+    },
+    "frontend/openapi-schema.json": {
+      "bytes": 2491312,
+      "sha256": "ef34175b5eca65d37381987a3bf68ca49c9703f1e13e3034d100b316f4ba93c7"
+    },
+    "frontend/src/generated/api.ts": {
+      "bytes": 170355,
+      "sha256": "538f711ab3c437f67fc9f5442711afdbe415c24b5099178a85193c3f8dc67a3e"
+    }
+  },
+  "proposed_combined_root_command": "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest -q --reuse-db tests/qr_source_safety tests/box_parent_safety tests/test_native_box_audit.py tests/test_native_box_creation.py tests/test_qr_api.py tests/test_qr_atomic_mutations.py tests/test_qr_target_boundaries.py tests/test_qr_revoke_fresh_state.py tests/test_box_qr_input_boundaries.py tests/test_qr_revoke_autocommit.py tests/test_qr_rebind.py tests/test_qr_rebind_assets.py tests/test_qr_asset_move_core.py tests/test_qr_asset_move_edges.py tests/test_qr_asset_move_warranty.py tests/test_qr_checkout_target_overlap.py tests/test_box_checkout_nested_guard.py tests/test_box_checkout_scan_guards.py tests/test_checkout_lock_races.py tests/test_checkout_native_lock_races.py tests/test_checkout_evidence_lock_races.py tests/operations/test_qr_audit_safety.py tests/operations/test_qr_input_safety.py tests/operations/test_qr_print_module_safety.py tests/tenant_migration/test_source_gate_nested_atomic_stage3.py\n'",
+  "pytest_collection_executed": false,
+  "result_message": "Stage 3 tests-only freeze: 16 new Python files, 38 test functions, 273 static parameter products. AST/module-path/line-ceiling checks only; no runtime execution or collection. Strict gate/scope/order expectations retained. Root must run runtime and own the final census. Static middleware admission/sort concerns and stale generated OpenAPI responses are recorded below. No existing file, source, shared helper, schema, evidence, or source ledger edited; no staging or commit.",
+  "runtime_executed": false,
+  "scope": "Stage 3 tests only; backend/tests/qr_source_safety/*.py plus this /tmp freeze manifest",
+  "static_case_count": 273,
+  "static_census": [
+    {
+      "dimensions": [
+        {
+          "count": 10,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            },
+            {
+              "kind": "native-cross-product"
+            },
+            {
+              "kind": "native-cross-asset"
+            },
+            {
+              "kind": "native-generate"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_audit_rollback_closure.py",
+      "function": "test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain",
+      "static_case_count": 10,
+      "static_case_products": [
+        {
+          "kind": "api-revoke"
+        },
+        {
+          "kind": "api-rebind"
+        },
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "api-generate"
+        },
+        {
+          "kind": "native-revoke"
+        },
+        {
+          "kind": "native-rebind"
+        },
+        {
+          "kind": "native-cross-product"
+        },
+        {
+          "kind": "native-cross-asset"
+        },
+        {
+          "kind": "native-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 7,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            }
+          ]
+        },
+        {
+          "count": 3,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            },
+            {
+              "mutation": "retargeted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_qr_waits.py",
+      "function": "test_qr_identity_fresh_after_observed_source_n_wait",
+      "static_case_count": 21,
+      "static_case_products": [
+        {
+          "kind": "api-scan",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "retargeted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 9,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            }
+          ]
+        },
+        {
+          "count": 3,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            },
+            {
+              "mutation": "retargeted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_qr_waits.py",
+      "function": "test_qr_identity_fresh_after_actual_qr_row_wait",
+      "static_case_count": 27,
+      "static_case_products": [
+        {
+          "kind": "api-scan",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "api-revoke",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-revoke",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-revoke",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "api-rebind",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-rebind",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-rebind",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-edit",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-single",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-bulk",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-revoke",
+          "mutation": "retargeted"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "retargeted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 4,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_target_waits.py",
+      "function": "test_target_ownership_fresh_after_source_n_wait",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "kind": "api-product",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-product",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-asset",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-asset",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-scan",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-resolve",
+          "mutation": "deleted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 4,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "native-rebind"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_target_waits.py",
+      "function": "test_target_ownership_fresh_after_product_or_asset_row_wait",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "kind": "api-product",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-product",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-asset",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-asset",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "api-rebind",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-rebind",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-rebind",
+          "mutation": "deleted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-generate"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_target_waits.py",
+      "function": "test_generation_fresh_product_after_real_product_wait",
+      "static_case_count": 4,
+      "static_case_products": [
+        {
+          "kind": "api-generate",
+          "mutation": "moved"
+        },
+        {
+          "kind": "api-generate",
+          "mutation": "deleted"
+        },
+        {
+          "kind": "native-generate",
+          "mutation": "moved"
+        },
+        {
+          "kind": "native-generate",
+          "mutation": "deleted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "mutation"
+          ],
+          "values": [
+            {
+              "mutation": "moved"
+            },
+            {
+              "mutation": "deleted"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_fresh_target_waits.py",
+      "function": "test_cross_asset_destination_product_fresh_after_real_product_wait",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "mutation": "moved"
+        },
+        {
+          "mutation": "deleted"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 5,
+          "parameters": [
+            "denial"
+          ],
+          "values": [
+            {
+              "denial": "inactive"
+            },
+            {
+              "denial": "suspended"
+            },
+            {
+              "denial": "non-superuser"
+            },
+            {
+              "denial": "password-rotation"
+            },
+            {
+              "denial": "hidden-maker"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "wait_on"
+          ],
+          "values": [
+            {
+              "wait_on": "maker"
+            },
+            {
+              "wait_on": "product"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+      "function": "test_native_generation_refuses_fresh_policy_after_actual_row_wait",
+      "static_case_count": 10,
+      "static_case_products": [
+        {
+          "denial": "inactive",
+          "wait_on": "maker"
+        },
+        {
+          "denial": "inactive",
+          "wait_on": "product"
+        },
+        {
+          "denial": "suspended",
+          "wait_on": "maker"
+        },
+        {
+          "denial": "suspended",
+          "wait_on": "product"
+        },
+        {
+          "denial": "non-superuser",
+          "wait_on": "maker"
+        },
+        {
+          "denial": "non-superuser",
+          "wait_on": "product"
+        },
+        {
+          "denial": "password-rotation",
+          "wait_on": "maker"
+        },
+        {
+          "denial": "password-rotation",
+          "wait_on": "product"
+        },
+        {
+          "denial": "hidden-maker",
+          "wait_on": "maker"
+        },
+        {
+          "denial": "hidden-maker",
+          "wait_on": "product"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+      "function": "test_api_generation_hidden_maker_explicit_membership_keeps_manage_qr_authority",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "native"
+          ],
+          "values": [
+            {
+              "native": false
+            },
+            {
+              "native": true
+            }
+          ]
+        },
+        {
+          "count": 3,
+          "parameters": [
+            "policy"
+          ],
+          "values": [
+            {
+              "policy": "module-off"
+            },
+            {
+              "policy": "quota"
+            },
+            {
+              "policy": "quantity-stock"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+      "function": "test_actual_generation_preserves_module_quota_and_quantity_refusals",
+      "static_case_count": 6,
+      "static_case_products": [
+        {
+          "native": false,
+          "policy": "module-off"
+        },
+        {
+          "native": false,
+          "policy": "quota"
+        },
+        {
+          "native": false,
+          "policy": "quantity-stock"
+        },
+        {
+          "native": true,
+          "policy": "module-off"
+        },
+        {
+          "native": true,
+          "policy": "quota"
+        },
+        {
+          "native": true,
+          "policy": "quantity-stock"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "native"
+          ],
+          "values": [
+            {
+              "native": false
+            },
+            {
+              "native": true
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+      "function": "test_generation_reuses_missing_qr_before_adding_units_and_updates_quantities",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "native": false
+        },
+        {
+          "native": true
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_native_created_by_edit_audits_only_field_names",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_native_noop_has_no_canonical_audit",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "mode"
+          ],
+          "values": [
+            {
+              "mode": "single"
+            },
+            {
+              "mode": "bulk"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_native_delete_has_exact_canonical_events",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "mode": "single"
+        },
+        {
+          "mode": "bulk"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "mode"
+          ],
+          "values": [
+            {
+              "mode": "single"
+            },
+            {
+              "mode": "bulk"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_actual_native_history_protects_qr_delete_without_audit",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "mode": "single"
+        },
+        {
+          "mode": "bulk"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_real_native_audit_insert_then_refusal_rolls_back_domain_and_canonical",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "kind": "native-edit"
+        },
+        {
+          "kind": "native-single"
+        },
+        {
+          "kind": "native-bulk"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "kind",
+            "event"
+          ],
+          "values": [
+            {
+              "event": "qr.revoked",
+              "kind": "native-revoke"
+            },
+            {
+              "event": "qr.rebound",
+              "kind": "native-rebind"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_native_custom_actions_keep_exact_service_event_without_control_duplicate",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "event": "qr.revoked",
+          "kind": "native-revoke"
+        },
+        {
+          "event": "qr.rebound",
+          "kind": "native-rebind"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_native_canonical_audit.py",
+      "function": "test_native_qr_add_stays_denied",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "across"
+          ],
+          "values": [
+            {
+              "across": false
+            },
+            {
+              "across": true
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "action"
+          ],
+          "values": [
+            {
+              "action": "delete_selected"
+            },
+            {
+              "action": "revoke_selected"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_effective_selection.py",
+      "function": "test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows",
+      "static_case_count": 4,
+      "static_case_products": [
+        {
+          "across": false,
+          "action": "delete_selected"
+        },
+        {
+          "across": false,
+          "action": "revoke_selected"
+        },
+        {
+          "across": true,
+          "action": "delete_selected"
+        },
+        {
+          "across": true,
+          "action": "revoke_selected"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "across"
+          ],
+          "values": [
+            {
+              "across": false
+            },
+            {
+              "across": true
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_native_effective_selection.py",
+      "function": "test_raw_post_ids_outside_effective_native_queryset_cannot_freeze_or_delete",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "across": false
+        },
+        {
+          "across": true
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 7,
+          "parameters": [
+            "path"
+          ],
+          "values": [
+            {
+              "path": "/api/v1/admin/qr/boxes"
+            },
+            {
+              "path": "/api/v1/admin/qr/tools"
+            },
+            {
+              "path": "/api/v1/admin/qr/scan"
+            },
+            {
+              "path": "/api/v1/admin/qr/resolve"
+            },
+            {
+              "path": "/api/v1/admin/qr/{id}/revoke"
+            },
+            {
+              "path": "/api/v1/admin/qr/{id}/rebind-target"
+            },
+            {
+              "path": "/api/v1/admin/products/{id}/assets/generate"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_openapi_contract.py",
+      "function": "test_qr_mutation_schema_documents_typed_gate_refusals",
+      "static_case_count": 7,
+      "static_case_products": [
+        {
+          "path": "/api/v1/admin/qr/boxes"
+        },
+        {
+          "path": "/api/v1/admin/qr/tools"
+        },
+        {
+          "path": "/api/v1/admin/qr/scan"
+        },
+        {
+          "path": "/api/v1/admin/qr/resolve"
+        },
+        {
+          "path": "/api/v1/admin/qr/{id}/revoke"
+        },
+        {
+          "path": "/api/v1/admin/qr/{id}/rebind-target"
+        },
+        {
+          "path": "/api/v1/admin/products/{id}/assets/generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_openapi_contract.py",
+      "function": "test_native_generation_keyword_is_not_a_public_request_schema_field",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_openapi_contract.py",
+      "function": "test_print_get_retains_its_read_error_contract_without_write_gate_responses",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 16,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-box"
+            },
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            },
+            {
+              "kind": "native-generate"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_actual_http_open_positive_control",
+      "static_case_count": 16,
+      "static_case_products": [
+        {
+          "kind": "api-box"
+        },
+        {
+          "kind": "api-product"
+        },
+        {
+          "kind": "api-asset"
+        },
+        {
+          "kind": "api-scan"
+        },
+        {
+          "kind": "api-resolve"
+        },
+        {
+          "kind": "api-revoke"
+        },
+        {
+          "kind": "api-rebind"
+        },
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "api-generate"
+        },
+        {
+          "kind": "native-edit"
+        },
+        {
+          "kind": "native-single"
+        },
+        {
+          "kind": "native-bulk"
+        },
+        {
+          "kind": "native-revoke"
+        },
+        {
+          "kind": "native-rebind"
+        },
+        {
+          "kind": "native-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 16,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-box"
+            },
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            },
+            {
+              "kind": "native-generate"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_genuine_quiesced_actual_owner_refuses_all_writers",
+      "static_case_count": 16,
+      "static_case_products": [
+        {
+          "kind": "api-box"
+        },
+        {
+          "kind": "api-product"
+        },
+        {
+          "kind": "api-asset"
+        },
+        {
+          "kind": "api-scan"
+        },
+        {
+          "kind": "api-resolve"
+        },
+        {
+          "kind": "api-revoke"
+        },
+        {
+          "kind": "api-rebind"
+        },
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "api-generate"
+        },
+        {
+          "kind": "native-edit"
+        },
+        {
+          "kind": "native-single"
+        },
+        {
+          "kind": "native-bulk"
+        },
+        {
+          "kind": "native-revoke"
+        },
+        {
+          "kind": "native-rebind"
+        },
+        {
+          "kind": "native-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 4,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "native-cross-product"
+            },
+            {
+              "kind": "native-cross-asset"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "frozen"
+          ],
+          "values": [
+            {
+              "frozen": "source"
+            },
+            {
+              "frozen": "destination"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_cross_maker_each_independent_gate_refuses_valid_transfer",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "frozen": "source",
+          "kind": "api-cross-product"
+        },
+        {
+          "frozen": "destination",
+          "kind": "api-cross-product"
+        },
+        {
+          "frozen": "source",
+          "kind": "api-cross-asset"
+        },
+        {
+          "frozen": "destination",
+          "kind": "api-cross-asset"
+        },
+        {
+          "frozen": "source",
+          "kind": "native-cross-product"
+        },
+        {
+          "frozen": "destination",
+          "kind": "native-cross-product"
+        },
+        {
+          "frozen": "source",
+          "kind": "native-cross-asset"
+        },
+        {
+          "frozen": "destination",
+          "kind": "native-cross-asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 2,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "native-cross-product"
+            },
+            {
+              "kind": "native-cross-asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_native_cross_transfer_open_positive_control",
+      "static_case_count": 2,
+      "static_case_products": [
+        {
+          "kind": "native-cross-product"
+        },
+        {
+          "kind": "native-cross-asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "box"
+            },
+            {
+              "kind": "product"
+            },
+            {
+              "kind": "asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_print_get_stays_available_and_read_only_while_quiesced",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "kind": "box"
+        },
+        {
+          "kind": "product"
+        },
+        {
+          "kind": "asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "route"
+          ],
+          "values": [
+            {
+              "route": "container-detail"
+            },
+            {
+              "route": "container-contents"
+            },
+            {
+              "route": "container-history"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_quiesced_http.py",
+      "function": "test_existing_get_container_lookup_remains_read_only_when_quiesced",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "route": "container-detail"
+        },
+        {
+          "route": "container-contents"
+        },
+        {
+          "route": "container-history"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "box"
+            },
+            {
+              "kind": "product"
+            },
+            {
+              "kind": "asset"
+            }
+          ]
+        },
+        {
+          "count": 2,
+          "parameters": [
+            "view_only"
+          ],
+          "values": [
+            {
+              "view_only": false
+            },
+            {
+              "view_only": true
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "function": "test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto",
+      "static_case_count": 6,
+      "static_case_products": [
+        {
+          "kind": "box",
+          "view_only": false
+        },
+        {
+          "kind": "box",
+          "view_only": true
+        },
+        {
+          "kind": "product",
+          "view_only": false
+        },
+        {
+          "kind": "product",
+          "view_only": true
+        },
+        {
+          "kind": "asset",
+          "view_only": false
+        },
+        {
+          "kind": "asset",
+          "view_only": true
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "box"
+            },
+            {
+              "kind": "product"
+            },
+            {
+              "kind": "asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "function": "test_real_resolve_audit_insert_then_refusal_rolls_back_scan_and_audit",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "kind": "box"
+        },
+        {
+          "kind": "product"
+        },
+        {
+          "kind": "asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 3,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "box"
+            },
+            {
+              "kind": "product"
+            },
+            {
+              "kind": "asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "function": "test_explicit_scan_still_has_exactly_one_event_and_one_audit",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "kind": "box"
+        },
+        {
+          "kind": "product"
+        },
+        {
+          "kind": "asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "function": "test_view_inventory_reader_cannot_explicitly_scan_and_denial_writes_nothing",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 8,
+          "parameters": [
+            "denial",
+            "status"
+          ],
+          "values": [
+            {
+              "denial": "unknown",
+              "status": 404
+            },
+            {
+              "denial": "revoked",
+              "status": 404
+            },
+            {
+              "denial": "missing-target",
+              "status": 404
+            },
+            {
+              "denial": "foreign-target",
+              "status": 404
+            },
+            {
+              "denial": "wrong-origin",
+              "status": 403
+            },
+            {
+              "denial": "foreign-scope",
+              "status": 404
+            },
+            {
+              "denial": "module-disabled",
+              "status": 400
+            },
+            {
+              "denial": "suspended",
+              "status": 403
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_resolve_audit.py",
+      "function": "test_actual_resolve_denial_emits_neither_scan_nor_audit",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "denial": "unknown",
+          "status": 404
+        },
+        {
+          "denial": "revoked",
+          "status": 404
+        },
+        {
+          "denial": "missing-target",
+          "status": 404
+        },
+        {
+          "denial": "foreign-target",
+          "status": 404
+        },
+        {
+          "denial": "wrong-origin",
+          "status": 403
+        },
+        {
+          "denial": "foreign-scope",
+          "status": 404
+        },
+        {
+          "denial": "module-disabled",
+          "status": 400
+        },
+        {
+          "denial": "suspended",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 10,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-box"
+            },
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            }
+          ]
+        },
+        {
+          "count": 4,
+          "parameters": [
+            "denial"
+          ],
+          "values": [
+            {
+              "denial": "wrong-origin"
+            },
+            {
+              "denial": "foreign-member"
+            },
+            {
+              "denial": "unscoped"
+            },
+            {
+              "denial": "no-actions"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_scope_before_gate.py",
+      "function": "test_scope_and_auth_precede_foreign_gate_state",
+      "static_case_count": 40,
+      "static_case_products": [
+        {
+          "denial": "wrong-origin",
+          "kind": "api-box"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-box"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-box"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-box"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-product"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-product"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-product"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-product"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-asset"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-asset"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-asset"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-asset"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-scan"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-scan"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-scan"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-scan"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-resolve"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-resolve"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-resolve"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-resolve"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-revoke"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-revoke"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-revoke"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-revoke"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-rebind"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-rebind"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-rebind"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-rebind"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-cross-product"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-cross-product"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-cross-product"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-cross-product"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-cross-asset"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-cross-asset"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-cross-asset"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-cross-asset"
+        },
+        {
+          "denial": "wrong-origin",
+          "kind": "api-generate"
+        },
+        {
+          "denial": "foreign-member",
+          "kind": "api-generate"
+        },
+        {
+          "denial": "unscoped",
+          "kind": "api-generate"
+        },
+        {
+          "denial": "no-actions",
+          "kind": "api-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 16,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-box"
+            },
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            },
+            {
+              "kind": "native-generate"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_source_lock_lifetime.py",
+      "function": "test_exclusive_source_blocks_actual_http_before_any_domain_row_lock",
+      "static_case_count": 16,
+      "static_case_products": [
+        {
+          "kind": "api-box"
+        },
+        {
+          "kind": "api-product"
+        },
+        {
+          "kind": "api-asset"
+        },
+        {
+          "kind": "api-scan"
+        },
+        {
+          "kind": "api-resolve"
+        },
+        {
+          "kind": "api-revoke"
+        },
+        {
+          "kind": "api-rebind"
+        },
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "api-generate"
+        },
+        {
+          "kind": "native-edit"
+        },
+        {
+          "kind": "native-single"
+        },
+        {
+          "kind": "native-bulk"
+        },
+        {
+          "kind": "native-revoke"
+        },
+        {
+          "kind": "native-rebind"
+        },
+        {
+          "kind": "native-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 18,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-box"
+            },
+            {
+              "kind": "api-product"
+            },
+            {
+              "kind": "api-asset"
+            },
+            {
+              "kind": "api-scan"
+            },
+            {
+              "kind": "api-resolve"
+            },
+            {
+              "kind": "api-revoke"
+            },
+            {
+              "kind": "api-rebind"
+            },
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "api-generate"
+            },
+            {
+              "kind": "native-edit"
+            },
+            {
+              "kind": "native-single"
+            },
+            {
+              "kind": "native-bulk"
+            },
+            {
+              "kind": "native-revoke"
+            },
+            {
+              "kind": "native-rebind"
+            },
+            {
+              "kind": "native-generate"
+            },
+            {
+              "kind": "native-cross-product"
+            },
+            {
+              "kind": "native-cross-asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_source_lock_lifetime.py",
+      "function": "test_real_audit_insert_and_actual_outer_commit_retain_source_n",
+      "static_case_count": 18,
+      "static_case_products": [
+        {
+          "kind": "api-box"
+        },
+        {
+          "kind": "api-product"
+        },
+        {
+          "kind": "api-asset"
+        },
+        {
+          "kind": "api-scan"
+        },
+        {
+          "kind": "api-resolve"
+        },
+        {
+          "kind": "api-revoke"
+        },
+        {
+          "kind": "api-rebind"
+        },
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "api-generate"
+        },
+        {
+          "kind": "native-edit"
+        },
+        {
+          "kind": "native-single"
+        },
+        {
+          "kind": "native-bulk"
+        },
+        {
+          "kind": "native-revoke"
+        },
+        {
+          "kind": "native-rebind"
+        },
+        {
+          "kind": "native-generate"
+        },
+        {
+          "kind": "native-cross-product"
+        },
+        {
+          "kind": "native-cross-asset"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        {
+          "count": 4,
+          "parameters": [
+            "kind"
+          ],
+          "values": [
+            {
+              "kind": "api-cross-product"
+            },
+            {
+              "kind": "api-cross-asset"
+            },
+            {
+              "kind": "native-cross-product"
+            },
+            {
+              "kind": "native-cross-asset"
+            }
+          ]
+        }
+      ],
+      "file": "backend/tests/qr_source_safety/test_source_lock_lifetime.py",
+      "function": "test_sorted_two_source_admission_waits_at_destination_before_qr_lock",
+      "static_case_count": 4,
+      "static_case_products": [
+        {
+          "kind": "api-cross-product"
+        },
+        {
+          "kind": "api-cross-asset"
+        },
+        {
+          "kind": "native-cross-product"
+        },
+        {
+          "kind": "native-cross-asset"
+        }
+      ]
+    }
+  ],
+  "static_source_concerns": [
+    {
+      "id": "gate-before-authorization",
+      "observation": "Authoritative QR revoke/rebind and asset-generation object routes resolve and consult Source N before view scope authorization. Origin fallback for body-resolved routes can also consult an origin tenant before permission denial. A frozen source may therefore produce 423 where the strict new scope matrix requires 403/404 with no gate-state query.",
+      "sources": [
+        "backend/apps/tenant_migration/middleware.py:SourceMigrationGateMiddleware.__call__",
+        "backend/apps/tenant_migration/middleware.py:_makerspace_ids",
+        "backend/apps/makerspaces/origin_scope_model_lookups.py:BASE_MODEL_LOOKUPS",
+        "backend/apps/accounts/authentication.py:SpaceWorksJWTAuthentication.authenticate",
+        "backend/apps/tenant_migration/gate_runtime.py:assert_request_write_allowed"
+      ],
+      "status": "static inference; root runtime verification required",
+      "tests": [
+        "test_scope_and_auth_precede_foreign_gate_state"
+      ]
+    },
+    {
+      "id": "api-cross-source-sort",
+      "observation": "HTTP middleware admits the route QR source alone before the rebind service learns both makerspaces. When source PK > destination PK, an outer application transaction can acquire high Source N before low Source N, despite the service sorting its own later admissions. Strict tests retain sorted-before-QR expectations.",
+      "sources": [
+        "backend/apps/tenant_migration/middleware.py:_makerspace_ids",
+        "backend/apps/boxes/qr_admission.py:qr_sources",
+        "backend/apps/boxes/rebind.py:rebind_qr_target"
+      ],
+      "status": "static inference; root runtime verification required",
+      "tests": [
+        "test_sorted_two_source_admission_waits_at_destination_before_qr_lock",
+        "test_real_audit_insert_and_actual_outer_commit_retain_source_n"
+      ]
+    }
+  ],
+  "static_verification": [
+    "stdlib ast.parse for every owned file",
+    "all owned files <=300 lines",
+    "referenced apps/tests/config module paths exist",
+    "AST-only parameter-product census, not pytest collection",
+    "SHA256 of owned files/functions and observed sources"
+  ],
+  "test_function_count": 38,
+  "tradeoffs": [
+    "No runtime result is claimed. All 273 products are a stdlib AST census; root owns collection and final census.",
+    "Existing parent/native/shared helpers and the four strict 423 cases were not edited.",
+    "The stable box_parent_safety Worker captures full SQL and exact blocking PID edges. No pg_stat_activity query text, mocked guards, sleeps or DB timeouts establish a winner.",
+    "An explicitly supported caller outer transaction provides same-backend full-SQL Source N proof; tests also query exact pg_locks PID/key/mode/granted state. Autocommit dedicated lock ownership is not inferred from worker PID.",
+    "Native bulk LogEntry attempts preceding delete_queryset may survive failures; canonical AuditLog and whole domain rows must roll back. Frozen-source dispatch must refuse before these attempts.",
+    "Whole-row snapshots normalize memoryview to bytes recursively; no shallow selected-column or count-only denial assertions.",
+    "Native moved/disappeared/retargeted QR selections require actual Django 404, following the final _fresh_rows correction.",
+    "No source fix is attempted for static concerns. Strict expected behavior remains reviewable by root.",
+    "qr_admission/admin_qr_lifecycle source census and schema regeneration remain root-owned."
+  ],
+  "untouched_frozen_test_and_helper_hashes": {
+    "backend/tests/box_parent_safety/__init__.py": {
+      "bytes": 80,
+      "sha256": "12faa3eaf777f02cccf1e7b609b09df3f4bbb87854643965bdce9941d5e6e671"
+    },
+    "backend/tests/box_parent_safety/http_helpers.py": {
+      "bytes": 4101,
+      "sha256": "fd068f67dcb7f6e249b5df5c029e7997609b9f85e98420ab4e3574e2c86c7a63"
+    },
+    "backend/tests/box_parent_safety/pg_helpers.py": {
+      "bytes": 4837,
+      "sha256": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5"
+    },
+    "backend/tests/box_parent_safety/test_fresh_native_policy.py": {
+      "bytes": 5160,
+      "sha256": "1b49081959e19d0589b5632bdfd059c44d88e1821951668391faf1ad272b4ef2"
+    },
+    "backend/tests/box_parent_safety/test_lock_contract.py": {
+      "bytes": 3917,
+      "sha256": "eb80b096bc4cb8ee5a9488943fd722d45c706db3b873ee502e0d9bac16fe5838"
+    },
+    "backend/tests/box_parent_safety/test_parent_races.py": {
+      "bytes": 7610,
+      "sha256": "f9c7b290a489c86bf83eef50718a2f4c5780972822cca35c3f80db4b151ba3d0"
+    },
+    "backend/tests/box_parent_safety/test_source_order.py": {
+      "bytes": 3524,
+      "sha256": "749291d6fccb58d666395496437305020744db433b361820c3ab5fb46ba25f9e"
+    },
+    "backend/tests/qr_target_safety_helpers.py": {
+      "bytes": 5703,
+      "sha256": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9"
+    },
+    "backend/tests/test_native_box_audit.py": {
+      "bytes": 11957,
+      "sha256": "78b5e52030022c8bdbdaed60f6da398a54853e2289377daa78da9092c35adbf2"
+    },
+    "backend/tests/test_native_box_creation.py": {
+      "bytes": 6299,
+      "sha256": "38bdc1a0a5bc76510851975e12e25195b57c8c65c6f5ab7cd8241469efd1b337"
+    },
+    "backend/tests/test_qr_api.py": {
+      "bytes": 10914,
+      "sha256": "9953a2ce967f07a50a9e634f1641c918e497cccc50327398088498b57f9ea190"
+    },
+    "backend/tests/test_qr_asset_move_core.py": {
+      "bytes": 7367,
+      "sha256": "5480c686c18dc9c6229dc99e3a3e259b516047ba51b161ff0f87c1b87a995311"
+    },
+    "backend/tests/test_qr_asset_move_edges.py": {
+      "bytes": 6270,
+      "sha256": "99ba05bee91ab4174ea4354747fe8e77740748b2ab9f3a951a684a3769729dad"
+    },
+    "backend/tests/test_qr_asset_move_warranty.py": {
+      "bytes": 1942,
+      "sha256": "1c7041b4c3e7554cdd870b2715e74d1188c0b3d90e9410197f5e079d08b13270"
+    },
+    "backend/tests/test_qr_atomic_mutations.py": {
+      "bytes": 5194,
+      "sha256": "006361f66ad9801e46f60b7d0e13e63f6e26689572e460cfd5184f52a6d68308"
+    },
+    "backend/tests/test_qr_checkout_target_overlap.py": {
+      "bytes": 5316,
+      "sha256": "33b463aef9b66a1176f781e0763a6f619b18d6a99a39b758032cb100ca7aee00"
+    },
+    "backend/tests/test_qr_rebind.py": {
+      "bytes": 8632,
+      "sha256": "657da94c3a23249860bfb388ad1a120d5233bbdec97fa72a20e9377580ba0f53"
+    },
+    "backend/tests/test_qr_rebind_assets.py": {
+      "bytes": 2982,
+      "sha256": "42e9f617df1fff22321ecb4297f750f0a5b58c31d6e0029e29bb5df76361553b"
+    },
+    "backend/tests/test_qr_revoke_autocommit.py": {
+      "bytes": 1281,
+      "sha256": "2a3bf94f6fb03303234ac1894e0a0df5e3c3d3d878018dde3a056df044b7e445"
+    },
+    "backend/tests/test_qr_revoke_fresh_state.py": {
+      "bytes": 3808,
+      "sha256": "184ac05c8b00becfce2bc78c343c55f960a499d8cd788db0563c8ddf7e7e9990"
+    },
+    "backend/tests/test_qr_target_boundaries.py": {
+      "bytes": 5952,
+      "sha256": "80ed6556e67cb7924e97d26c960a04a10c65e322484b76cee928cec852a6c46e"
+    }
+  },
+  "version": 1,
+  "independent_review": "audit_backend_finish independently read every authored helper/test and source concern. No runtime performed, no assertion weakening. Main273 frozen and ready for root now; AssetQr/print extension tests are separate directories. Existing source guard ordering vs new strict policy expectations requires root classification; generated OpenAPI assertions require root-owned snapshot refresh.",
+  "root_execution_status": "Ready for immediate immutable-snapshot root execution; no need to wait AssetQr/print extension test writers."
+}

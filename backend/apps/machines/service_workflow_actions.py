@@ -158,7 +158,12 @@ def start(service_request, actor, machine_scope, *, machine_id=None, estimated_m
                 raise ServiceConsumptionInvalid("A consumable pool and exactly one planned quantity must be supplied together.")
             from apps.machines.models import MachineConsumablePool
             from apps.machines.service_consumable_pools import reserve_for_request
-            reserve_for_request(locked, actor, pool=MachineConsumablePool.objects.get(pk=consumable_pool_id),
+            pool = MachineConsumablePool.objects.select_for_update(of=("self",)).filter(
+                pk=consumable_pool_id, makerspace_id=locked.makerspace_id,
+            ).first()
+            if pool is None:
+                raise ServiceConsumptionInvalid("Consumable pool is not available for this service request.")
+            reserve_for_request(locked, actor, pool=pool,
                                 planned_grams=planned_grams, planned_quantity=planned_quantity, machine=machine)
             locked.refresh_from_db()
         locked.assigned_machine, locked.status, locked.handled_by, locked.started_at = machine, MachineServiceRequest.Status.IN_PROGRESS, actor, timezone.now()

@@ -106,6 +106,8 @@ def reopen_source(*, pairing, makerspace, receipt_envelope, actor):
     locked_space = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
     if str(locked_space.pk) != pairing.source_tenant_id:
         raise TransitionConflictError("The pairing names a different source tenant.")
+    if locked_space.purge_started_at is not None:
+        raise TransitionConflictError("Purge has started; source reopening is forbidden.")
     receipt = verify_and_persist_peer_receipt(
         pairing,
         receipt_envelope,

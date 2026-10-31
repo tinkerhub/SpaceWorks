@@ -36,8 +36,24 @@ class SourceMigrationGateMiddleware:
         except Resolver404:
             return self.get_response(request)
         request.resolver_match = match
+        try:
+            from .gate_http_ownership import api_owns_http_boundary
+
+            if api_owns_http_boundary(request, match):
+                # P covers authentication's global writes; the verified owner
+                # performs authorized preflight before acquiring any tenant N.
+                with unscoped_writer_shared_boundary():
+                    return self.get_response(request)
+        except SourceMigrationGateClosed as exc:
+            return _locked_response(exc)
+        except SourceMigrationGateUnavailable as exc:
+            return _unavailable_response(exc)
         makerspace_ids = _makerspace_ids(request, match)
         try:
+            from .gate_http_ownership import service_owns_http_boundary
+
+            if service_owns_http_boundary(request, match):
+                return self.get_response(request)
             refusal_exempt = match.view_name in HTTP_EXEMPTIONS
             if makerspace_ids:
                 with ExitStack() as locks:

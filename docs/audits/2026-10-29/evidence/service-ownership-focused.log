@@ -1,0 +1,2126 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/machineService src/features/inventory/PublicRequestReferenceOwnership.test.tsx src/features/printing
+
+
+ RUN  v4.1.12 /app
+
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx (20 tests | 6 failed) 4319ms
+     × selects types by id and submits a successful generic proposal with a private tracker 341ms
+     × honors Machines type preselection and the /print wrapper defaults to the printer 1035ms
+     × shows an unavailable preselection without silently choosing a different type 137ms
+     × resets printer fields, files and submission errors when the selected type changes 1025ms
+     × disables the type selector while uploading and submitting 1042ms
+     ✓ waits for the refresh-cookie probe before showing sign-in or enabling a form 118ms
+     ✓ renders generic in_progress status and keeps old printer token links working 94ms
+     × reports status errors without losing the request form 48ms
+     ✓ recovers status through Retry status after a temporary failure: Error: Network unavailable 82ms
+     ✓ recovers status through Retry status after a temporary failure: StructuredApiError: Status temporarily unavailable 122ms
+     ✓ does not poll after a terminal token error (403) 66ms
+     ✓ does not poll after a terminal token error (404) 36ms
+     ✓ never fetches or polls status with moduleoff 8ms
+     ✓ never fetches or polls status with no-token 23ms
+     ✓ shows the loading catalog state without a submission form 11ms
+     ✓ shows the empty catalog state without a submission form 23ms
+     ✓ shows the error catalog state without a submission form 19ms
+     ✓ shows the moduleoff catalog state without a submission form 11ms
+     ✓ surfaces a catalog fetch failure with a retry action 25ms
+     ✓ filters cached printer types when printing is disabled 50ms
+ ✓ src/features/machineService/ServiceRequestForm.test.tsx (11 tests) 1319ms
+     ✓ uploads model and screenshot in order, pins every later call and submits the returned file ids  346ms
+ ❯ src/features/machineService/PublicServiceVisitOwnership.test.tsx (8 tests | 3 failed) 1821ms
+     ✓ resets canonical check-in, private draft/files and lookup results before paint on A→B→A  672ms
+     ✓ keeps check-in typing mounted while changing a confirmed person clears private details 207ms
+     ✓ preserves a current draft across stable catalog object refreshes but resets on a type round trip 300ms
+     × creates fresh visits for changed request policy and real auth epochs 47ms
+     ✓ treats defaultPrinter changes as visits even when the selected catalog id stays the same 138ms
+     × releases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B 59ms
+     × keeps unpublished types and off modules gated, including cached printer types 174ms
+     ✓ retains a successful token/banner after internal field reset and finish; old completion cannot replace B 223ms
+ ❯ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx (6 tests | 2 failed) 2746ms
+     ✓ gates the form and sends identity with every presign and submission  411ms
+     ✓ uses the same checked-in identity for generic attachments and the shared typed POST 137ms
+     ✓ keeps generic input disabled while check-in is pending or unreadable 88ms
+     × leaves the existing form and request body unchanged for other policies 1021ms
+     ✓ asks a signed-out visitor to sign in instead of showing the form 57ms
+     × lets quantity be cleared while typing, clamps it, and resets the form after submitting 1030ms
+ ❯ src/features/machineService/ServiceStatusOwnership.test.tsx (7 tests | 1 failed) 364ms
+     ✓ uses an explicit encoded URL capability ahead of a saved token 156ms
+     ✓ keeps legacy printer fallback and migrates it to the current same-browser storage key 36ms
+     ✓ masks completion before paint on A→B→A and fences stale success/retry/storage publication 59ms
+     ✓ clears a person's ephemeral completion without erasing the saved capability or reviving old callbacks 24ms
+     ✓ keeps the changed URL visit current despite old completion and retry closures 36ms
+     ✓ masks an auth visit's banner before paint while preserving capability compatibility across actors 27ms
+     × prevents queued success/persistence and retry work from publishing after unmount 25ms
+ ✓ src/features/machineService/ServiceSubmissionContracts.test.tsx (10 tests) 907ms
+     ✓ captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue  354ms
+ ✓ src/features/machineService/ServiceRequestOwnership.test.tsx (6 tests) 533ms
+ ✓ src/features/inventory/PublicRequestReferenceOwnership.test.tsx (4 tests) 571ms
+ ✓ src/features/printing/PublicPrintRequestForm.test.tsx (1 test) 181ms
+ ✓ src/features/machineService/publicApi.test.ts (3 tests) 8ms
+ ✓ src/features/printing/publicApi.test.ts (2 tests) 10ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > selects types by id and submits a successful generic proposal with a private tracker
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ title src/features/machineService/PublicMachineServicePage.test.tsx:42:63
+     40|   fireEvent.click(screen.getByRole("option", { name }));
+     41| }
+     42| function title(value = "Enclosure") { fireEvent.change(screen.getByLab…
+       |                                                               ^
+     43| function submit() { fireEvent.click(screen.getByRole("button", { name:…
+     44|
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:73:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > honors Machines type preselection and the /print wrapper defaults to the printer
+TestingLibraryElementError: Unable to find a label with the text of: /^description/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:87:25
+     85|   it("honors Machines type preselection and the /print wrapper default…
+     86|     const first = renderPage("/m/forge/machine-service?type=11");
+     87|     expect(await screen.findByLabelText(/^description/i)).toBeVisible(…
+       |                         ^
+     88|     expect(screen.getByRole("combobox", { name: "Machine type" })).toH…
+     89|     first.unmount();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > shows an unavailable preselection without silently choosing a different type
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:103:19
+    101|     expect(screen.queryByLabelText(/^title$/i)).not.toBeInTheDocument(…
+    102|     await choose("Laser cutter");
+    103|     expect(screen.getByLabelText(/^title$/i)).toBeEnabled();
+       |                   ^
+    104|   });
+    105|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > resets printer fields, files and submission errors when the selected type changes
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:109:18
+    107|     submitServiceRequest.mockRejectedValue(new Error("Printer capacity…
+    108|     renderPage("/m/forge/machine-service?type=22");
+    109|     await screen.findByLabelText(/^title$/i);
+       |                  ^
+    110|     title();
+    111|     fireEvent.change(screen.getByLabelText(/slicer settings/i), { targ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > disables the type selector while uploading and submitting
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:131:18
+    129|     submitServiceRequest.mockReturnValue(request.promise);
+    130|     renderPage("/m/forge/machine-service?type=11");
+    131|     await screen.findByLabelText(/^title$/i);
+       |                  ^
+    132|     title();
+    133|     fireEvent.change(screen.getByLabelText(/^attachments/i), { target:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  src/features/machineService/PublicMachineServicePage.test.tsx > public machine service page > reports status errors without losing the request form
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inse...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/machineService/PublicMachineServicePage.test.tsx:169:19
+    167|     renderPage("/m/forge/machine-service?type=11&token=missing");
+    168|     expect(await screen.findByText("Request token was not found")).toB…
+    169|     expect(screen.getByLabelText(/^title$/i)).toBeEnabled();
+       |                   ^
+    170|   });
+    171|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  src/features/machineService/PublicServiceVisitOwnership.test.tsx > actual shared service page semantic visits > creates fresh visits for changed request policy and real auth epochs
+Error: expect(element).toHaveValue()
+
+Expected the element to have value:
+
+Received:
+  Private A project
+ ❯ src/features/machineService/PublicServiceVisitOwnership.test.tsx:101:44
+     99|     bootstrap.makerspace.request_access = "checked_in";
+    100|     act(() => view.client.setQueryData(["tenant-bootstrap", "a"], boot…
+    101|     expect(screen.getByLabelText("Title")).toHaveValue("");
+       |                                            ^
+    102|     expect(screen.getByLabelText("Title")).toBeDisabled();
+    103|     expect(screen.queryByText("private.pdf")).not.toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  src/features/machineService/PublicServiceVisitOwnership.test.tsx > actual shared service page semantic visits > releases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <input
+  class="block min-h-11 w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle"
+  id="_r_6v_"
+  maxlength="200"
+  required=""
+  type="text"
+  value="Private A project"
+/> instead
+ ❯ src/features/machineService/PublicServiceVisitOwnership.test.tsx:132:50
+    130|     expect(screen.getByRole("combobox", { name: "Machine type" })).toB…
+    131|     act(() => view.client.setQueryData(["public-service-types", "a"], …
+    132|     expect(screen.queryByLabelText("Title")).not.toBeInTheDocument();
+       |                                                  ^
+    133|     expect(screen.getByRole("combobox", { name: "Machine type" })).toB…
+    134|     choose("Machine type", "3D Printer"); title("B still pending"); su…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  src/features/machineService/PublicServiceVisitOwnership.test.tsx > actual shared service page semantic visits > keeps unpublished types and off modules gated, including cached printer types
+TestingLibraryElementError: Unable to find an element with the text: No service types available. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab a home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/a"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab a
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/a"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/a/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/a/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 sca...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/machineService/PublicServiceVisitOwnership.test.tsx:169:19
+    167|     bootstrap.modules = ["machines"];
+    168|     act(() => view.client.setQueryData(["tenant-bootstrap", "a"], { ..…
+    169|     expect(screen.getByText("No service types available")).toBeVisible…
+       |                   ^
+    170|     expect(screen.queryByLabelText("Title")).not.toBeInTheDocument();
+    171|     expect(screen.queryByRole("complementary", { name: "Service reques…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  src/features/machineService/ServiceStatusOwnership.test.tsx > service tracker capabilities and ephemeral visit ownership > prevents queued success/persistence and retry work from publishing after unmount
+AssertionError: expected 'queued-a' to be 'mounted-token' // Object.is equality
+
+Expected: "mounted-token"
+Received: "queued-a"
+
+ ❯ src/features/machineService/ServiceStatusOwnership.test.tsx:172:65
+    170|     act(() => { old.onSuccess("queued-a"); view.navigate("/m/b/service…
+    171|     await screen.findByText("Status b-url");
+    172|     expect(localStorage.getItem("tinkerspace.serviceStatus.a")).toBe("…
+       |                                                                 ^
+    173|     expect(localStorage.getItem("tinkerspace.serviceStatus.b")).toBe("…
+    174|     const b = latest();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx > checked-in public print requests > leaves the existing form and request body unchanged for other policies
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+ ...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+ ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx:234:32
+    232|     renderPage();
+    233|     expect(screen.queryByLabelText(/your name/i)).not.toBeInTheDocumen…
+    234|     const title = await screen.findByLabelText(/^title$/i);
+       |                                ^
+    235|     expect(title).toBeEnabled();
+    236|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx > checked-in public print requests > lets quantity be cleared while typing, clamps it, and resets the form after submitting
+TestingLibraryElementError: Unable to find a label with the text of: /^title$/i
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+ ...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Forge home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/forge"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Forge
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge"
+              >
+                Inventory
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machines"
+              >
+                Machines
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label text-ink-secondary transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/forge/machine-service"
+              >
+                Service requests
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+ ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx:257:32
+    255|   it("lets quantity be cleared while typing, clamps it, and resets the…
+    256|     renderPage();
+    257|     const title = await screen.findByLabelText(/^title$/i);
+       |                                ^
+    258|     const quantity = screen.getByLabelText(/^quantity$/i);
+    259|     fireEvent.change(title, { target: { value: "Bracket" } });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  4 failed | 7 passed (11)
+      Tests  12 failed | 66 passed (78)
+   Start at  20:22:37
+   Duration  28.93s (transform 1.43s, setup 1.90s, import 4.59s, tests 12.78s, environment 8.25s)
+

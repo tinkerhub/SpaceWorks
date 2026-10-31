@@ -1,0 +1,70 @@
+{
+  "status": "independently-source-read-frozen-runtime-unexecuted",
+  "source_files": [
+    {
+      "path": "backend/apps/backup/storage_promotion.py",
+      "lines": 176,
+      "sha256": "a944b057138fd2510357665a548a2c2126eea6f61f7759573727de4089e4b4a3"
+    },
+    {
+      "path": "backend/apps/backup/artifact_protocol.py",
+      "lines": 37,
+      "sha256": "2e65e2c5b76bfebe73cc9e467e43a369b44ebd2f7e075edfc1d77a5521781fe2"
+    },
+    {
+      "path": "backend/apps/backup/reconciliation.py",
+      "lines": 140,
+      "sha256": "bdaf87285bec7cfd62622097e5871d9b2ec96e34f65d102239af7d679677535c"
+    },
+    {
+      "path": "backend/apps/backup/services_archives.py",
+      "lines": 263,
+      "sha256": "b02860b19d6c02af9eb2e6685abaef95b36558bce7e2a9103a7328caba1b530f"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "backend/tests/backup/test_seekable_promotion.py",
+      "lines": 232,
+      "sha256": "83351dc60f8a74501a7190303fa579dbec018963fa48ce9b1574f069180c5c3d"
+    },
+    {
+      "path": "backend/tests/backup/test_seekable_promotion_s3.py",
+      "lines": 190,
+      "sha256": "d268ed06f3a468a8b639a46649a22d14dfb126e10baf6714a8c53e56dc613fa2"
+    },
+    {
+      "path": "backend/tests/backup/seekable_promotion_helpers.py",
+      "lines": 171,
+      "sha256": "8f046523cf7d101d53d83f138f1fe71f476e0b21b5d92b025d9e3c818b768ed5"
+    },
+    {
+      "path": "backend/tests/backup/test_reconciliation_operation_lock.py",
+      "lines": 152,
+      "sha256": "a44f3c3d579edf7f9dedde6e73f88db98b2c9bb9b6dedf317536d23bae55195a"
+    },
+    {
+      "path": "backend/tests/backup/test_reconciliation_e5.py",
+      "lines": 177,
+      "sha256": "954068f23249377dbdfc9eca3e78f7cf809573e5c807f3da08308d37bd0655e5"
+    },
+    {
+      "path": "backend/tests/backup/test_promotion_concurrency_e10.py",
+      "lines": 75,
+      "sha256": "175812052d693e1ed5cfa4366e924bfd11dd8f186c69175cc7b355dc1d8743d8"
+    }
+  ],
+  "source_approved": "Exact4-file bounded seekable SDK promotion fix; Stage1 APPROVED; parent runtime only",
+  "sdk_behavior": "Private unlinked disk spool bounded by immutable expected size/hash for every real caller, verify before unchanged create-only PUT, default checksums retained. Legacy twoarg alias requires typedGETContentLength only.",
+  "tests": "Actual StreamingBody + real TemporaryFile unit; actual defaultwhen_supported boto3/S3 local59200 primitive tests; real ledger/caller transitions and narrow kwargs adapters.",
+  "guard_25_change": false,
+  "runtime_by_child": false,
+  "parent_unit_command": "python -m pytest -q --create-db tests/backup/test_seekable_promotion.py tests/backup/test_reconciliation_operation_lock.py tests/backup/test_reconciliation_e5.py tests/backup/test_promotion_concurrency_e10.py",
+  "parent_s3_command": "SPACEWORKS_TEST_S3_DISPOSABLE=1 python -m pytest -q tests/backup/test_seekable_promotion_s3.py",
+  "s3_extra_env": [
+    "SPACEWORKS_TEST_S3_ENDPOINT_URL",
+    "SPACEWORKS_TEST_S3_ACCESS_KEY_ID",
+    "SPACEWORKS_TEST_S3_SECRET_ACCESS_KEY"
+  ],
+  "image": "Parent must update current source freeze to64, build genuine new OCI, restart both isolated backend+worker and request new actualbackup; original failure was before any restoreSQL."
+}

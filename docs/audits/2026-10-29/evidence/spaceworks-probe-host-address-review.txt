@@ -1,0 +1,9 @@
+APPROVED.
+
+Replacing `inet_server_addr()::text` with PostgreSQL `host(inet_server_addr())` is the minimal representation correction: it returns the host address without the mask, with no Python normalization or relaxed equality.
+
+The change preserves paired transport, port/TLS, live identity, immutable-row, system-identifier, container-IP membership, port-5432, independent DB corroboration, and bound-marker checks.
+
+The planned real TCP PostgreSQL 16 probe, independent SQL assertions, finite IPv4/IPv6 SQL cases, and explicitly synthetic rejection controls provide bounded, meaningful proof. Diagnostic scope is acceptable with the stated exact-call fallback.
+
+Read-only review only; no imports, execution, tests, or edits performed.

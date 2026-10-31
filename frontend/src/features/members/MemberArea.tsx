@@ -157,6 +157,8 @@ function MemberAreaContent() {
             membership={membership}
             membershipOn={membershipOn}
             eventsOn={eventsOn}
+            hardwareRequestsOn={moduleEnabled(bootstrap.data?.modules, "request_workflow")}
+            machineRequestsOn={moduleEnabled(bootstrap.data?.modules, "machine_service")}
             makerspaceId={makerspaceId}
             makerspaceSlug={resolvedSlug}
             waiver={waiver.data}

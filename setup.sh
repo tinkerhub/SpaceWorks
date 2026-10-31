@@ -70,31 +70,7 @@ else
   # list opens with; nothing is final until that step.
   MSPROFILE="recommended"
   ask_request_access
-  read -r -p "Admin login username [admin]: "                             ADMINUSER; ADMINUSER="${ADMINUSER:-admin}"
-  read -r -p "Admin email [admin@example.com]: "                          ADMINEMAIL; ADMINEMAIL="${ADMINEMAIL:-admin@example.com}"
-  read -r -s -p "Admin password (leave blank to auto-generate): "         ADMINPASS; echo
-  GEN_PASS=0
-  if [ -z "$ADMINPASS" ]; then ADMINPASS="$(rand_key 16)"; GEN_PASS=1; fi
-  # Google sign-in is GUIDED, never automatic. Client IDs are issued by Google against
-  # a specific origin, so no credential can ship in the box and "works out of the box"
-  # is impossible here -- guided is the ceiling. Skipping leaves username/password
-  # login fully working, which is the only login a fresh install has either way.
-  echo
-  echo "Optional: Google sign-in. To enable it you need a Google OAuth client ID:"
-  echo "  1. Open https://console.cloud.google.com/apis/credentials"
-  echo "  2. Create Credentials -> OAuth client ID -> Web application"
-  echo "  3. Add this to 'Authorised JavaScript origins':  http://${WEBHOST}"
-  echo "  4. Copy the Client ID (it ends in .apps.googleusercontent.com)"
-  echo "Leave blank to skip — you can add it later in Platform settings."
-  read -r -p "Google Web client ID (optional): " GOOGLE_WEB_CLIENT_ID
-  GOOGLE_WEB_CLIENT_ID="$(printf '%s' "$GOOGLE_WEB_CLIENT_ID" | tr -d '[:space:]')"
-  if [ -n "$GOOGLE_WEB_CLIENT_ID" ] && [[ "$GOOGLE_WEB_CLIENT_ID" != *.apps.googleusercontent.com ]]; then
-    # Caught here rather than at first login: a wrong value makes the Google button
-    # appear and then fail token verification for every user, with nothing on screen
-    # explaining why.
-    warn "That does not look like a Google client ID; skipping Google sign-in."
-    GOOGLE_WEB_CLIENT_ID=""
-  fi
+  ask_setup_identity
 
   read -r -p "Stripe secret key (optional; leave blank to skip): " STRIPE_SECRET_KEY
   read -r -s -p "Stripe webhook secret (optional; leave blank to skip): " STRIPE_WEBHOOK_SECRET; echo
@@ -198,11 +174,15 @@ mkdir -p backups && chmod 700 backups
 prepare_compose_wrapper
 if [[ "$BUILD_FROM_SOURCE" == 1 ]]; then
   say "Building and starting the app from source (first run can take a few minutes)..."
-  "${COMPOSE[@]}" up -d --build
+  "${COMPOSE[@]}" pull --ignore-buildable
+  "${COMPOSE[@]}" up -d --build --pull never
 else
   say "Pulling release images (first run can take a few minutes)..."
   "${COMPOSE[@]}" pull
-  "${COMPOSE[@]}" up -d
+  # The final pull can move the backend tag after prepare_compose_wrapper's pull.
+  provision_runtime_image_identity --image "$HOST_CONFIG_IMAGE"
+  refresh_compose_config
+  "${COMPOSE[@]}" up -d --pull never
 fi
 
 # The deployment operation lock must be the same inode for backend, worker, beat and
@@ -215,13 +195,13 @@ if ! grep -q '^BACKUP_AGE_RECIPIENT=' .env; then
     -y /var/lib/spaceworks/ops/work/age-identity.txt | tr -d '\r\n')"
   printf '\nBACKUP_AGE_RECIPIENT=%s\n' "$BACKUP_RECIPIENT" >> .env
   refresh_compose_config
-  "${COMPOSE[@]}" up -d
+  "${COMPOSE[@]}" up -d --pull never
 fi
 if ! grep -q '^BACKUP_ARCHIVE_SIGNING_PRIVATE_KEY=' .env; then
   SIGNING_PAIR="$("${COMPOSE[@]}" exec -T backend python -c 'from apps.ed25519 import encode_key,generate_keypair; p,q=generate_keypair(); print(encode_key(p)); print(encode_key(q))' | tr -d '\r')"
   printf '\nBACKUP_ARCHIVE_SIGNING_PRIVATE_KEY=%s\nBACKUP_ARCHIVE_VERIFY_PUBLIC_KEY=%s\n' "$(printf '%s\n' "$SIGNING_PAIR" | sed -n '1p')" "$(printf '%s\n' "$SIGNING_PAIR" | sed -n '2p')" >> .env
   refresh_compose_config
-  "${COMPOSE[@]}" up -d
+  "${COMPOSE[@]}" up -d --pull never
 fi
 install_producer_capability
 

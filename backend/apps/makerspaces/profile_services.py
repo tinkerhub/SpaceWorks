@@ -1,6 +1,8 @@
 """Reading and writing a member's own profile, and the member-visible directory."""
 
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.tenant_migration.gate_runtime import tenant_write
 
 from apps.audit import services as audit
 from apps.inventory import public_image_storage
@@ -121,46 +123,51 @@ def profile_activity(membership, *, local_only=False):
     return activity
 
 
-@transaction.atomic
 def save_profile(membership, data):
     """Apply a partial profile update, replacing the project list when one is sent."""
-    profile = MemberProfile.objects.select_for_update().filter(
-        membership=membership
-    ).first() or profile_for(membership)
-    was_visible = profile.is_visible
-    attended_events_were_shown = profile.show_attended_events
-    project_count_before = profile.projects.count()
-    fields = []
-    for field in (
-        "is_visible", "show_attended_events", "headline", "institution", "bio",
-        "interests", "languages", "education",
-    ):
-        if field in data:
-            setattr(profile, field, data[field])
-            fields.append(field)
-    if "github_username" in data:
-        username = (data["github_username"] or "").strip()
-        if username != profile.github_username:
-            # A new handle invalidates the cached count outright rather than leaving the
-            # previous account's total showing under someone else's name until the next
-            # sync — which would be a false claim, not merely stale data.
-            profile.github_username = username
-            profile.github_contributions = None
-            profile.github_synced_at = None
-            fields += ["github_username", "github_contributions", "github_synced_at"]
-    if fields:
-        profile.save(update_fields=[*fields, "updated_at"])
-    if "projects" in data:
-        save_projects(profile, data["projects"])
-    _audit_profile_saved(
-        membership,
-        profile,
-        was_visible,
-        attended_events_were_shown,
-        project_count_before,
-        fields,
+    context = (
+        storage_lifecycle(membership.makerspace_id) if "projects" in data
+        else tenant_write(membership.makerspace_id)
     )
-    return profile
+    with context as guard:
+        with transaction.atomic():
+            profile = MemberProfile.objects.select_for_update().filter(
+                membership=membership
+            ).first() or profile_for(membership)
+            was_visible = profile.is_visible
+            attended_events_were_shown = profile.show_attended_events
+            project_count_before = profile.projects.count()
+            fields = []
+            for field in (
+                "is_visible", "show_attended_events", "headline", "institution", "bio",
+                "interests", "languages", "education",
+            ):
+                if field in data:
+                    setattr(profile, field, data[field])
+                    fields.append(field)
+            if "github_username" in data:
+                username = (data["github_username"] or "").strip()
+                if username != profile.github_username:
+                    # A new handle invalidates the cached count outright rather than leaving the
+                    # previous account's total showing under someone else's name until the next
+                    # sync — which would be a false claim, not merely stale data.
+                    profile.github_username = username
+                    profile.github_contributions = None
+                    profile.github_synced_at = None
+                    fields += ["github_username", "github_contributions", "github_synced_at"]
+            if fields:
+                profile.save(update_fields=[*fields, "updated_at"])
+            if "projects" in data:
+                save_projects(profile, data["projects"], guard=guard)
+            _audit_profile_saved(
+                membership,
+                profile,
+                was_visible,
+                attended_events_were_shown,
+                project_count_before,
+                fields,
+            )
+            return profile
 
 
 def _audit_profile_saved(
@@ -198,7 +205,7 @@ def _audit_profile_saved(
     )
 
 
-def save_projects(profile, rows):
+def save_projects(profile, rows, *, guard):
     """Replace the project list.
 
     Replace rather than merge, matching every other list-shaped save in this codebase
@@ -240,7 +247,7 @@ def save_projects(profile, rows):
         # bucket stay in step with the row disappearing.
         from apps.makerspaces import profile_images
 
-        profile_images.clear_project_image(profile, project)
+        profile_images.clear_project_image(profile, project, guard=guard)
     MemberProject.objects.filter(
         pk__in=[project.pk for project in removed]
     ).delete()

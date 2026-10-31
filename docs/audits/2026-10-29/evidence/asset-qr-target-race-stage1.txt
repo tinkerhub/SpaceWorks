@@ -1,0 +1,12 @@
+Approved for Stage 2, confined to [views_qr_batches.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:168). No ordering blocker found in the inspected canonical transfer path.
+
+- Use `qr_write([initial_makerspace_id])` before row locks, then Maker `NO KEY UPDATE` → existing active QR → fresh scoped asset. Keep both lookups pinned to the initial tenant.
+- Refresh the actor before constructing the scoped asset queryset, then refresh and recheck `MANAGE_QR` after the final lock wait. A moved/deleted asset must produce scoped 404 before QR creation or audit.
+- Preserve `asset_units` alone, the existing `get_or_create` fields, created-only `qr.created`, audit-free reuse, and the response DTO.
+- Annotate this actual `AssetQrView.post` write with typed 423/503 responses; annotations on `AssetGenerateView` do not cover it.
+
+The proposed lock mode resolves the identified cycle: canonical transfer holds QR → asset → products; `adjust_quantities()` only re-locks its products and writes adjustment/audit rows. The inspected path has no later Maker update lock or external provider call. Maker `NO KEY UPDATE` permits its FK `KEY SHARE` checks while still excluding module uninstall.
+
+The proposed separate Stage 3 coverage is appropriate. Both winner orders must exercise actual HTTP and canonical rebind with an existing active QR, with deterministic synchronization and bounded waits. Also retain the no-QR create/reuse, audit rollback, genuine QUIESCED 423, typed unavailable 503, module-disable serialization, and post-wait authority checks.
+
+Static review only; no edits, Django imports, runtime, tests, builds, staging, or commits performed.

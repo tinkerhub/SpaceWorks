@@ -60,6 +60,8 @@ def _archive_locked(makerspace, actor, *, archived_at):
 def unarchive(makerspace, actor):
     with transaction.atomic():
         locked = makerspace.__class__.objects.select_for_update().get(pk=makerspace.pk)
+        if locked.purge_started_at is not None:
+            raise ValidationError("Purge has started; restore a pre-purge backup to recover this makerspace.")
         if not locked.superadmin_access_enabled:
             raise ValidationError("Cannot unarchive a hidden makerspace.")
         if locked.archived_at is None:

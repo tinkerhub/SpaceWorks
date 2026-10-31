@@ -1,0 +1,33 @@
+{
+  "status": "passed-bounded-snapshot-runtime",
+  "tests": 280,
+  "new_source_contract_cases": 270,
+  "existing_compatibility_cases": 10,
+  "seconds": 191.52,
+  "snapshot": "/tmp/spaceworks-qr-api-source-guard-corrected-snapshot-20261030",
+  "junit": {
+    "path": "docs/audits/2026-10-29/evidence/qr-api-source-contract-corrected-round2.xml",
+    "sha256": "0750e027ac278570d18d36e2a86474b256e464568c3515238a90d7375b37f758"
+  },
+  "files": {
+    "backend/apps/tenant_migration/source_gate_api_owned_bindings.py": "2860ea6766eeb4cf71b3eb46fa9a304dcd9500acf87ab469650cb38c9b21fd04",
+    "backend/apps/tenant_migration/source_gate_api_owned_http_guards.py": "ff66a18e7a33cd2e3e905070b498ae2500bb5d0ef67390079145a65ecfdca900",
+    "backend/apps/tenant_migration/source_gate_http_guards.py": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770",
+    "backend/apps/tenant_migration/gate_runtime.py": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+    "backend/tests/tenant_migration/api_owned_http_source_helpers.py": "67415bdd54fffbd8792636af1661a998318a09141af7cf1ceccb06bbe46ed3a1",
+    "backend/tests/tenant_migration/test_api_owned_http_source_contract.py": "601fa3855186f99b96559f2cc9455f0a0623b2ffb5331707003b4cd3421440c5"
+  },
+  "fixture_corrections": [
+    "Preserve syntactically valid empty with via ast.Pass after escaping sole yield; no source guard relaxed.",
+    "Registry-lookup mutation is rejected earlier by declaration-use guard; assert that exact refusal category."
+  ],
+  "prior_runtime": {
+    "passed": 278,
+    "failed_fixture_cases": 2,
+    "seconds": 168.3,
+    "junit": "docs/audits/2026-10-29/evidence/qr-api-source-contract-round1.xml"
+  },
+  "limits": [
+    "Late shared-reference primitive source changed after this snapshot; complete final-source backend run still required."
+  ]
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="163.886" timestamp="2026-10-29T18:50:01.577110+00:00" hostname="MacBookAir"><testcase classname="tests.tenant_migration.test_x12_derivation_source_binding" name="test_actual_derivation_embeds_immutable_catalog_in_age_output_with_live_rows_changed" time="83.774"><failure message="AssertionError: assert {'format': 's...cts': [], ...} == {'format': 's...2be4f97', ...}&#10;  &#10;  Omitting 13 identical items, use -vv to show&#10;  Differing items:&#10;[+2 more lines; full report in element text]">tmp_path = PosixPath('/private/var/folders/19/j_c36499163_t_w1t7xvpt7h0000gn/T/pytest-of-shaanshoukath/pytest-3/test_actual_derivation_embeds_0')
+settings = &lt;pytest_django.fixtures.Settings object at 0x115513230&gt;
+
+    def test_actual_derivation_embeds_immutable_catalog_in_age_output_with_live_rows_changed(tmp_path, settings):
+        settings.PII_ENCRYPTION_ENABLED = False
+        settings.BACKUP_AGE_RECIPIENT = ""
+        settings.TENANT_DUMP_STAGING_DIR = str(tmp_path / "staging")
+        frozen = freeze_client_source(tmp_path / "source")
+        identities = []
+        for index in range(2):
+            key_root = tmp_path / f"custodian-{index}"
+            key_root.mkdir(mode=0o700)
+            identity, recipient = real_age_identity(key_root)
+            identities.append(identity)
+            MakerspaceArchiveRecipient.objects.create(
+                makerspace=frozen.space, public_recipient=recipient, fingerprint=fingerprint_for(recipient),
+                label=f"X12 custodian {index}", verified_at=timezone.now(),
+            )
+        actor = User.objects.create_user(username="x12-derivation-operator", email="operator@example.test",
+                                         role=User.Role.SUPERADMIN, is_superuser=True)
+        facts = frozen.capture
+        # Phase S fixture: a real pg_dump image plus explicit captured metadata.
+        # No active DB, custody predicate, projection verifier or encryption call is replaced.
+        capture = TenantDumpCapture.objects.create(
+            id=facts.pk, makerspace=frozen.space, requested_by=actor, status=TenantDumpCapture.Status.CAPTURED,
+            source_deployment_identity=facts.source_deployment_identity,
+            source_makerspace_id=facts.source_makerspace_id, source_makerspace_slug=facts.source_makerspace_slug,
+            superadmin_access_at_decision=False,
+            frozen_tenant_recipients=list(canonical_tenant_recipient_snapshot(frozen.space.pk)),
+            gate_owner_id=facts.gate_owner_id, gate_fencing_token=1,
+            database_snapshot_at=facts.database_snapshot_at, capture_completed_at=facts.capture_completed_at,
+            source_postgres_major=16, database_image_sha256=facts.database_image_sha256,
+            object_ledger=[], object_ledger_sha256=facts.object_ledger_sha256,
+            source_encryption_mode=False, catalog_digest=facts.catalog_digest,
+        )
+        root = create_capture_root(capture.pk)
+        private_write(root / "database.source.dump", (frozen.root / "database.source.dump").read_bytes())
+        assert set(ApiClient.objects.filter(makerspace=frozen.space).values_list("label", flat=True)) == {"Changed live row"}
+        artifact, manifest = derive_tenant_dump(capture.pk)
+        capture.refresh_from_db()
+        assert capture.status == TenantDumpCapture.Status.PENDING_PUBLICATION
+&gt;       assert capture.manifest == manifest
+E       AssertionError: assert {'format': 's...cts': [], ...} == {'format': 's...2be4f97', ...}
+E         
+E         Omitting 13 identical items, use -vv to show
+E         Differing items:
+E         {'database': {'member_path': 'database.dump', 'sequence_state': {'public.boxes_box_id_seq': [1, False], 'public.auth_g...nt_id_seq': [1, False], ...}, 'mapped_raw_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}} != {'database': {'member_path': 'database.dump', 'mapped_raw_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca4...ccounts_devicerefreshtoken_id_seq': (1, False), 'public.accounts_emailverificationchallenge_id_seq': (1, False), ...}}}
+E         Use -v to get more diff
+
+tests/tenant_migration/test_x12_derivation_source_binding.py:67: AssertionError</failure></testcase><testcase classname="tests.tenant_migration.test_x12_repository_client_integration" name="test_real_source_producer_selected_reader_proof_approval_and_fresh_client_service" time="79.611" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_real_age_decrypted_member_is_exact_frozen_buffer_even_after_path_changes" time="0.183" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[proof_absent]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[catalog_absent]" time="0.003" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[capture]" time="0.017" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[content]" time="0.033" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_new_producer_refuses_missing_or_incompatible_admission_facts_before_age[custody]" time="0.006" /><testcase classname="tests.tenant_migration.test_x12_age_manifest_binding" name="test_producer_refuses_conflicting_precomputed_inner_hash" time="0.010" /></testsuite></testsuites>

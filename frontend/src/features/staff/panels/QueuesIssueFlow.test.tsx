@@ -72,7 +72,7 @@ afterEach(() => {
 async function openIssue() {
   render(
     <QueryClientProvider client={queryClient}>
-      <Queues makerspace={makerspace} guestOnly canReturnRequest canReviewRequests={false} />
+      <Queues makerspace={makerspace} guestOnly canIssueRequest canReturnRequest canReviewRequests={false} />
     </QueryClientProvider>,
   );
   fireEvent.click(await screen.findByRole("button", { name: "Issue" }));

@@ -67,21 +67,22 @@ export function QueueSection({
 type Setter = (row: HardwareRequest | null) => void;
 type QueueActionProps = { row: HardwareRequest; disabled: boolean; openModal: (setter: Setter, row: HardwareRequest) => void };
 
-export function PendingActions({ row, disabled, openModal, setAcceptRow, setRejectRow, setDueRow }: QueueActionProps & { setAcceptRow: Setter; setRejectRow: Setter; setDueRow: Setter }) {
+export function PendingActions({ row, disabled, openModal, setAcceptRow, setRejectRow, setDueRow }: QueueActionProps & { setAcceptRow: Setter | null; setRejectRow: Setter | null; setDueRow: Setter | null }) {
   return (
     <>
-      <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAcceptRow, row)}>Accept</Button>
-      <Button size="sm" variant="danger-quiet" disabled={disabled} onClick={() => openModal(setRejectRow, row)}>Reject…</Button>
-      <Button size="sm" variant="quiet" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</Button>
+      {setAcceptRow ? <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAcceptRow, row)}>Accept</Button> : null}
+      {setRejectRow ? <Button size="sm" variant="danger-quiet" disabled={disabled} onClick={() => openModal(setRejectRow, row)}>Reject…</Button> : null}
+      {setDueRow ? <Button size="sm" variant="quiet" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</Button> : null}
     </>
   );
 }
 
-export function AcceptedActions({ row, disabled, openModal, setAssignIssueRow, setDueRow }: QueueActionProps & { setAssignIssueRow: Setter; setDueRow: Setter | null }) {
+export function AcceptedActions({ row, disabled, openModal, setAssignIssueRow, setDueRow, onCancel }: QueueActionProps & { setAssignIssueRow: Setter | null; setDueRow: Setter | null; onCancel?: (() => void) | null }) {
   return (
     <>
-      <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAssignIssueRow, row)}>Issue</Button>
+      {setAssignIssueRow ? <Button size="sm" variant="secondary" disabled={disabled} onClick={() => openModal(setAssignIssueRow, row)}>Issue</Button> : null}
       {setDueRow ? <Button size="sm" variant="quiet" disabled={disabled} onClick={() => openModal(setDueRow, row)}>Set due</Button> : null}
+      {onCancel ? <Button size="sm" variant="danger-quiet" disabled={disabled} onClick={onCancel}>Cancel request…</Button> : null}
     </>
   );
 }

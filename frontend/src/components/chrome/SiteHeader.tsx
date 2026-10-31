@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Menu as MenuIcon, X } from "lucide-react";
 
 import { cn } from "../../lib/cn";
+import { useMediaQuery } from "../../lib/useMediaQuery";
 import { ThemeToggle } from "../ThemeToggle";
 import { IconButton, buttonClasses } from "../ui";
 
@@ -45,10 +46,17 @@ function isActive(pathname: string, link: SiteNavLink) {
 export function SiteHeader({ brand, links, actions, extra }: SiteHeaderProps) {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const desktop = useMediaQuery("(min-width: 60rem)");
+  const desktopRef = useRef(desktop);
+  desktopRef.current = desktop;
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (desktop) setMenuOpen(false);
+  }, [desktop]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md">
-      <nav aria-label="Main navigation" className="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6">
+      <nav ref={navRef} tabIndex={-1} aria-label="Main navigation" className="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6">
         <div className="min-w-0 shrink">{brand}</div>
         <ul className="hidden items-center gap-1 md:flex">
           {links.map((link) => (
@@ -76,15 +84,22 @@ export function SiteHeader({ brand, links, actions, extra }: SiteHeaderProps) {
               </Link>
             ))}
           </div>
-          <DialogPrimitive.Root open={menuOpen} onOpenChange={setMenuOpen}>
+          <DialogPrimitive.Root open={!desktop && menuOpen} onOpenChange={setMenuOpen}>
             <DialogPrimitive.Trigger asChild>
               <IconButton label="Open navigation menu" variant="quiet" className="md:hidden">
                 <MenuIcon />
               </IconButton>
             </DialogPrimitive.Trigger>
-            <DialogPrimitive.Portal>
+            {!desktop ? <DialogPrimitive.Portal>
               <DialogPrimitive.Overlay className="sw-overlay-in fixed inset-0 z-50 bg-overlay md:hidden" />
-              <DialogPrimitive.Content className="sw-dialog-in fixed inset-x-0 top-0 z-50 max-h-dvh overflow-y-auto rounded-b-2xl border-b border-line bg-canvas p-4 shadow-float md:hidden">
+              <DialogPrimitive.Content
+                className="sw-dialog-in fixed inset-x-0 top-0 z-50 max-h-dvh overflow-y-auto rounded-b-2xl border-b border-line bg-canvas p-4 shadow-float md:hidden"
+                onCloseAutoFocus={(event) => {
+                  if (!desktopRef.current) return;
+                  event.preventDefault();
+                  requestAnimationFrame(() => navRef.current?.focus());
+                }}
+              >
                 <DialogPrimitive.Title className="sr-only">Navigation</DialogPrimitive.Title>
                 <DialogPrimitive.Description className="sr-only">Site sections and sign-in links</DialogPrimitive.Description>
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -127,7 +142,7 @@ export function SiteHeader({ brand, links, actions, extra }: SiteHeaderProps) {
                   </div>
                 ) : null}
               </DialogPrimitive.Content>
-            </DialogPrimitive.Portal>
+            </DialogPrimitive.Portal> : null}
           </DialogPrimitive.Root>
         </div>
       </nav>

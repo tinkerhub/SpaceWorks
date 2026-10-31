@@ -3,7 +3,7 @@
 
 record_compose_config() {
   local record="$1"; shift
-  docker run --rm --user 0:0 --entrypoint python \
+  docker run --pull=never --rm --user 0:0 --entrypoint python \
     -v "$ROOT:/repo:ro" -v "$OPS_HOST_DIR:/ops" "$HOST_CONFIG_IMAGE" \
     /repo/scripts/configure-compose-wrapper.py record-config \
     --topology bundled --static-env /repo/.env \
@@ -12,19 +12,35 @@ record_compose_config() {
 }
 
 refresh_compose_config() {
-  record_compose_config compose-topology.json
+  # Explicit chaining also matters in rollback's set +e / conditional context.
+  record_compose_config compose-topology.json &&
   record_compose_config compose-topology-build.json \
-    --compose-file /repo/docker/compose.build.yml
+    --compose-file /repo/docker/compose.build.yml &&
   record_compose_config compose-topology-tls.json \
-    --compose-file /repo/docker/compose.tls.yml
+    --compose-file /repo/docker/compose.tls.yml &&
   record_compose_config compose-topology-build-tls.json \
     --compose-file /repo/docker/compose.build.yml \
-    --compose-file /repo/docker/compose.tls.yml
+    --compose-file /repo/docker/compose.tls.yml &&
   record_compose_config compose-topology-saas.json \
-    --compose-file /repo/docker/compose.saas.yml
+    --compose-file /repo/docker/compose.saas.yml &&
   record_compose_config compose-topology-build-saas.json \
     --compose-file /repo/docker/compose.build.yml \
     --compose-file /repo/docker/compose.saas.yml
+}
+
+provision_runtime_image_identity() {
+  local digest
+  digest="$(python3 -I -B "$ROOT/scripts/provision-runtime-image.py" \
+    --env-file "$ROOT/.env" "$@")" || return 1
+  # Compose gives the parent shell precedence over the newly persisted dotenv.
+  export SPACEWORKS_OCI_DIGEST="$digest"
+}
+
+refresh_old_image_identity_and_only_trusted_records() {
+  # Never invoke init/install_producer_capability here: the old proof is restored bytes.
+  HOST_CONFIG_IMAGE="$BACKEND_IMAGE:$previous_version"
+  OPS_HOST_DIR="$OPS_DIR"
+  provision_runtime_image_identity --image "$HOST_CONFIG_IMAGE" && refresh_compose_config
 }
 
 prepare_compose_wrapper() {
@@ -34,16 +50,18 @@ prepare_compose_wrapper() {
   export OPS_HOST_DIR
   if [[ "${SPACEWORKS_HOST_CONFIG_BUILD:-1}" == "1" ]]; then
     docker build -q -t "$HOST_CONFIG_IMAGE" "$ROOT/backend" >/dev/null
+    provision_runtime_image_identity --clear
   else
     docker pull "$HOST_CONFIG_IMAGE" >/dev/null
+    provision_runtime_image_identity --image "$HOST_CONFIG_IMAGE"
   fi
-  docker run --rm --user 0:0 --entrypoint sh \
+  docker run --pull=never --rm --user 0:0 --entrypoint sh \
     -v "$OPS_HOST_DIR:/ops" "$HOST_CONFIG_IMAGE" -c \
     "mkdir -p /ops/work && chown 10001:10001 /ops/work && chmod 700 /ops/work && touch /ops/operation.lock && chown 0:0 /ops/operation.lock && chmod 666 /ops/operation.lock && chown 0:$host_gid /ops && chmod 750 /ops"
-  if ! docker run --rm --user 0:0 --entrypoint test \
+  if ! docker run --pull=never --rm --user 0:0 --entrypoint test \
     -v "$OPS_HOST_DIR:/ops" "$HOST_CONFIG_IMAGE" -f /ops/database-pointer.env; then
     python3 "$ROOT/scripts/bundled-database-url.py" "$ROOT/.env" | \
-      docker run --rm -i --user 0:0 --entrypoint python \
+      docker run --pull=never --rm -i --user 0:0 --entrypoint python \
       -v "$ROOT:/repo:ro" -v "$OPS_HOST_DIR:/ops" "$HOST_CONFIG_IMAGE" \
       /repo/scripts/configure-compose-wrapper.py initialize-pointer \
       --topology bundled --static-env /repo/.env \
@@ -52,7 +70,7 @@ prepare_compose_wrapper() {
   fi
   refresh_compose_config
   HOST_STATE_DIR="${SPACEWORKS_HOST_STATE_DIR:-/var/lib/spaceworks/host}"
-  docker run --rm --user 0:0 --entrypoint python \
+  docker run --pull=never --rm --user 0:0 --entrypoint python \
     -v "$ROOT:/repo:ro" -v "$HOST_STATE_DIR:/state" "$HOST_CONFIG_IMAGE" \
     /repo/scripts/host-capability.py init-keys --state-dir /state
 }
@@ -60,7 +78,7 @@ prepare_compose_wrapper() {
 install_producer_capability() {
   HOST_STATE_DIR="${SPACEWORKS_HOST_STATE_DIR:-/var/lib/spaceworks/host}"
   grep -E '^BACKUP_ARCHIVE_VERIFY_PUBLIC_KEY=' "$ROOT/.env" | \
-    docker run --rm -i --user 0:0 --entrypoint python \
+    docker run --pull=never --rm -i --user 0:0 --entrypoint python \
     -v "$ROOT/scripts:/installed-scripts:ro" \
     -v "$HOST_STATE_DIR:/state" "$HOST_CONFIG_IMAGE" \
     /app/scripts/install_producer_capability.py \

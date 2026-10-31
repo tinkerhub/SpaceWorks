@@ -13,9 +13,10 @@ from apps.machines.service_file_policies import get_policy
 from apps.machines.service_workflow import submit
 from apps.makerspaces.models import MakerspaceMembership
 from tests.return_helpers import authenticated_client, make_member, make_space
+from tests.atomic_publication.store import Store
 
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def service_request(space):
@@ -41,8 +42,11 @@ def request_url(row, action):
     return reverse(f"admin-machine-service-file-{action}", kwargs={"pk": row.pk})
 
 
-def fake_result(size=4, content_type="application/pdf"):
-    return service_storage.ServiceObjectValidationResult(size=size, content_type=content_type)
+def stored_upload(monkeypatch, key, data=b"%PDF-report"):
+    store = Store()
+    store.seed(service_storage.staging_key(key), data, "application/pdf")
+    monkeypatch.setattr(service_storage, "_client", lambda: store)
+    return store
 
 
 def test_presign_finalize_happy_path_and_no_key_leak(monkeypatch):
@@ -53,8 +57,7 @@ def test_presign_finalize_happy_path_and_no_key_leak(monkeypatch):
 
     presign = client.post(request_url(row, "presign"), {"filename": "report.pdf", "content_type": "application/pdf"}, format="json")
     file_id = presign.data["file_id"]
-    monkeypatch.setattr(service_storage, "finalize_upload", lambda *args: 4)
-    monkeypatch.setattr(service_storage, "validate_service_object", lambda *args: fake_result())
+    stored_upload(monkeypatch, ServiceRequestFile.objects.get(pk=file_id).object_key)
     finalized = client.post(request_url(row, "finalize"), {"file_id": file_id}, format="json")
 
     file = ServiceRequestFile.objects.get(pk=file_id)
@@ -71,7 +74,7 @@ def test_declared_type_size_and_signature_rejections(monkeypatch):
 
     invalid = client.post(request_url(row, "presign"), {"filename": "malware.exe", "content_type": "application/pdf"}, format="json")
     presign = client.post(request_url(row, "presign"), {"filename": "report.pdf", "content_type": "application/pdf"}, format="json")
-    monkeypatch.setattr(service_storage, "finalize_upload", lambda *args: 0)
+    stored_upload(monkeypatch, ServiceRequestFile.objects.get(pk=presign.data["file_id"]).object_key, b"")
     oversized = client.post(request_url(row, "finalize"), {"file_id": presign.data["file_id"]}, format="json")
 
     upload = ServiceRequestFile.objects.get(pk=presign.data["file_id"])
@@ -85,7 +88,7 @@ def test_declared_type_size_and_signature_rejections(monkeypatch):
     assert (invalid.status_code, oversized.status_code) == (400, 400)
 
 
-def test_put_attach_failure_compensates_final_object(monkeypatch, settings):
+def test_put_attach_failure_preserves_unclaimed_final_and_rolls_back_metadata(monkeypatch, settings):
     settings.STORAGE_PRESIGN_METHOD = "put"
     space = make_space("service-file-put")
     row, machine = service_request(space)
@@ -94,15 +97,17 @@ def test_put_attach_failure_compensates_final_object(monkeypatch, settings):
         machine=machine, kind="attachment", object_key="machine/key", content_type="application/pdf",
         original_filename="report.pdf", owner_user_id=actor.pk,
     )
-    monkeypatch.setattr(service_storage, "finalize_upload", lambda *args: 4)
-    monkeypatch.setattr(service_storage, "validate_service_object", lambda *args: fake_result())
+    store = stored_upload(monkeypatch, file.object_key)
     monkeypatch.setattr("apps.machines.service_storage.limits.add_storage", Mock(side_effect=ValidationError("quota")))
     cleanup = Mock()
     monkeypatch.setattr(service_storage, "cleanup_upload", cleanup)
 
     with pytest.raises(ValidationError):
         service_storage.finalize_file(row, file_id=file.pk, actor=actor)
-    cleanup.assert_called_once_with(file.object_key)
+    cleanup.assert_not_called()
+    assert store.objects[file.object_key][0] == b"%PDF-report"
+    space.refresh_from_db()
+    assert space.storage_bytes_used == 0
     assert ServiceRequestFile.objects.get(pk=file.pk).service_request_id is None
 
 
@@ -119,7 +124,7 @@ def test_finalize_refuses_another_users_staged_file_before_storage(monkeypatch):
         owner_user_id=owner.pk,
     )
     promote, cleanup = Mock(return_value=4), Mock()
-    monkeypatch.setattr(service_storage, "finalize_upload", promote)
+    monkeypatch.setattr(service_storage, "prepare_file", promote)
     monkeypatch.setattr(service_storage, "cleanup_upload", cleanup)
 
     with pytest.raises(ValidationError):
@@ -148,8 +153,8 @@ def test_finalize_rechecks_staged_file_owner_under_lock(monkeypatch):
         return 4
 
     cleanup = Mock()
-    monkeypatch.setattr(service_storage, "finalize_upload", change_owner_during_promotion)
-    monkeypatch.setattr(service_storage, "validate_service_object", lambda *args: fake_result())
+    store = stored_upload(monkeypatch, file.object_key)
+    store.before_put = change_owner_during_promotion
     monkeypatch.setattr(service_storage, "cleanup_upload", cleanup)
 
     with pytest.raises(ValidationError):
@@ -158,7 +163,8 @@ def test_finalize_rechecks_staged_file_owner_under_lock(monkeypatch):
     file.refresh_from_db()
     assert file.owner_user_id == new_owner.pk
     assert file.service_request_id is None
-    cleanup.assert_called_once_with(file.object_key)
+    cleanup.assert_not_called()
+    assert store.objects[file.object_key][0] == b"%PDF-report"
 
 
 def test_policy_snapshot_ignores_later_machine_policy_edit(monkeypatch):
@@ -170,8 +176,7 @@ def test_policy_snapshot_ignores_later_machine_policy_edit(monkeypatch):
         original_filename="report.pdf", owner_user_id=actor.pk, file_policy_name="documents", file_policy_version=1,
     )
     Machine.objects.filter(pk=machine.pk).update(service_file_policy={"name": "removed", "version": 99})
-    monkeypatch.setattr(service_storage, "finalize_upload", lambda *args: 4)
-    monkeypatch.setattr(service_storage, "validate_service_object", lambda *args: fake_result())
+    store = stored_upload(monkeypatch, file.object_key)
 
     service_storage.finalize_file(row, file_id=file.pk, actor=actor)
     file.refresh_from_db()
@@ -197,13 +202,13 @@ def test_delete_staged_file_frees_storage(monkeypatch):
     space = make_space("service-file-delete")
     _, machine = service_request(space)
     file = ServiceRequestFile.objects.create(machine=machine, kind="attachment", object_key="machine/staged", owner_user_id=1, size_bytes=33)
-    free_storage, cleanup = Mock(), Mock()
+    free_storage, cleanup = Mock(), Mock(return_value=True)
     monkeypatch.setattr("apps.machines.service_storage.limits.free_storage", free_storage)
-    monkeypatch.setattr(service_storage, "cleanup_upload", cleanup)
+    monkeypatch.setattr(service_storage, "delete_object", cleanup)
 
     service_storage.delete_staged_file(file, actor=manager(space))
     free_storage.assert_called_once_with(space, 33)
-    cleanup.assert_called_once_with("machine/staged")
+    assert cleanup.call_args_list == [(("machine/staged",), {}), (("staging/machine/staged",), {})]
     assert not ServiceRequestFile.objects.filter(pk=file.pk).exists()
 
 

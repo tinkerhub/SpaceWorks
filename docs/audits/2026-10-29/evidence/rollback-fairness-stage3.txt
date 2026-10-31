@@ -1,0 +1,15 @@
+Added **25 cases**, with every file under 300 lines:
+
+- [test_rollback_cleanup_progress.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_rollback_cleanup_progress.py) — 19 cases, 194 lines.
+- [test_rollback_cleanup_fairness.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_rollback_cleanup_fairness.py) — 6 cases, 172 lines.
+- [rollback_cleanup_progress_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/rollback_cleanup_progress_helpers.py) — 89 lines.
+
+Static syntax and whitespace checks passed. No pytest, migrations, staging, commits, production, or documentation changes.
+
+Central command from `backend/`:
+
+```bash
+python -m pytest tests/backup/test_rollback_cleanup_progress.py tests/backup/test_rollback_cleanup_fairness.py -q
+```
+
+No known fixture-validity concerns from source inspection. Tests reuse real outcome/version semantics and locks; frozen receipts come from the actual purge workflow. Child processes configure filesystem settings only, with no database setup or inherited secret environment. Runtime validation remains pending.

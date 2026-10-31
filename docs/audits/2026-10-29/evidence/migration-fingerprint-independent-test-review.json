@@ -1,0 +1,17 @@
+{
+  "status": "independent-root-read-approved-for-frozen-finite-runtime",
+  "stage3_test_release_sha256": "6db1799bea5336809314c588e49d375b05e9f39b85921b0201128368507a37e3",
+  "test_files": {
+    "backend/tests/backup/migration_fingerprint_test_support.py": "e45afa2b872bf06a9792422fe88e1860ef2b5d04b6975f950d81939e3dbd8479",
+    "backend/tests/backup/test_migration_fingerprint_filesystem.py": "042753b9a7dd9f6f849a4eba1cbf56d18d6d9220da2d02bedc04070cb3e34e39",
+    "backend/tests/backup/test_migration_fingerprint_gate.py": "36d79a1dde489ff2103fbac442a92441e7da6104eb2dc360aecc125cc254d3d3",
+    "backend/tests/backup/test_migration_fingerprint_inventory.py": "7625fa4b6d4f0fd1189e559644a6773af50080d42bb5cdb18c2d84b9c66389fb",
+    "backend/tests/backup/test_migration_fingerprint_regression.py": "c00bd897b8b8a0e3c93a63a76c2c2b7507347ac7bc6e90e02d4ac7b8f3650103",
+    "backend/tests/backup/test_migration_fingerprint_standalone.py": "ca0299654c7c685f76e6a10006fa84858407b950a35f05cf6c8170e4b3ac6456"
+  },
+  "new_cases": 45,
+  "red_public_api_cases": 12,
+  "root_independently_read_all_six_files": true,
+  "runtime_pending": true,
+  "production_approval": false
+}

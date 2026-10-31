@@ -1,0 +1,43 @@
+{
+  "format": "spaceworks-ui-walkin-roster-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "new_cases_static_expansion": 27,
+  "new_test_files": 3,
+  "new_helpers": 1,
+  "existing_fixture_adapter_cases_retained": 8,
+  "runtime_status": "Root verified 341/341 tests across 50 files in 113.47 seconds; chained npx tsc -b and npm run build exited 0. Whole-frontend and release verification remain separate.",
+  "files": [
+    {
+      "path": "frontend/src/test/walkInRosterHarness.tsx",
+      "cases": 0,
+      "lines": 74,
+      "sha256": "a81501f9a8670d8756738878bbfba1dd6ad466728e831c29c1b6929f2be52718"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.rosterRead.test.tsx",
+      "cases": 10,
+      "lines": 156,
+      "sha256": "d07134949ee788780a2d835f169522da42fc1fe7adf929c7e24244c6b2ee885a"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.rosterPause.test.tsx",
+      "cases": 3,
+      "lines": 97,
+      "sha256": "77adaebb8f2774a859f6a30d0412128f07545bfc76b9762835b5f5b8d25802e9"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx",
+      "cases": 14,
+      "lines": 176,
+      "sha256": "a819ef73cf73acbc785f68d696dff21b7ddbf89b953eb97bcc859533664895b4"
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx",
+      "cases": 8,
+      "lines": 137,
+      "sha256": "92897446c0e6901194bde5234bbf0d133eeca5ebf428a907987356c0ead8d6de"
+    }
+  ],
+  "runtime_log": "docs/audits/2026-10-29/evidence/ui-staff-hardware-corrected-runtime.log",
+  "fixture_correction": "Initial combined run: 338 pass, 3 fixture assertion failures. Two container-list assertions now distinguish visible combobox label from duplicate native option text while retaining exact option checks. One failed-create draft assertion expects native type=email whitespace normalization; name/phone preservation remains exact. No source or ownership assertion was weakened."
+}

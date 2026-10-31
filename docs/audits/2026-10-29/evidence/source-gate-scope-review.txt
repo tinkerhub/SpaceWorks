@@ -1,0 +1,23 @@
+**APPROVED — the bounded alternative. Unconditional gate activation should wait for initial real attestation.** This approves the approach only; it does not authorize edits or certify the corpus.
+
+Two findings support that decision:
+
+- [release.yml](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/.github/workflows/release.yml:101) adds an unconditional `verify-source` dependency to publishing. The actual registry is `UNREVIEWED`, and the [CLI](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/source_audit/cli.py:51) explicitly returns failure for that state. This would prevent releases until a new whole-corpus certification programme is completed.
+- [The repository-state pytest](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_release.py:154) deliberately requires evidence that does not exist. Refusal is the correct current behavior. Testing that refusal can pass honestly without declaring release readiness.
+
+The applicable minimum-code rule says, “Every changed line should trace directly to the user's request.” A comprehensive product audit does not, by itself, justify introducing a permanently failing release dependency. The [segmentation document](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/docs/audits/2026-10-29/evidence/source-review-segmentation.md:55) also describes whole-corpus fingerprint invalidation after any source correction. Activation therefore introduces substantial ongoing review obligations, beyond delivering the audit’s actual fixes.
+
+Concrete minimal modifications:
+
+1. **Restore only the new release wiring:** remove `verify-source` and restore `publish.needs: prepare`. Preserve the committed CI/pip-audit requirements, exact-SHA checkouts, publishing, release creation and promotion graph.
+2. **Adjust only the new workflow-structure tests:** remove expectations specific to `verify-source`; retain assertions protecting the existing release graph and exact source SHA.
+3. **Replace the deliberately-red corpus test with an actual-checkout refusal assertion:** confirm the real registry is `UNREVIEWED`, invoke the real CLI, require exit code `1` and the explicit `scope/corpus is UNREVIEWED` refusal, and require no success output. Rename its readiness-oriented name and remove instructions to deselect it. Because the CLI refuses before discovery, describe this precisely as an integration test of registry refusal—not full scanner execution.
+4. **Document deferred activation in the named segmentation document:** retain `python scripts/check_source_primitives.py` as the independent release-audit command. State that it currently refuses and certification remains incomplete.
+
+Keep the scanner, guard, validator, UNREVIEWED registry and all failclosed fixture tests intact. No bypass flag, fabricated review, skip, xfail, validator weakening or fingerprint redesign is needed.
+
+Activation prerequisites are actual complete source/context reviews, explicit report-backed decisions including scope and caller coverage, a valid normalized ledger for the final snapshot, and a successful independent CLI check of that exact release checkout. Source changes require the documented reassessment; updating hashes alone supplies no approval.
+
+The final audit report and mandatory final Codex uncommitted review remain required. Real feature/security findings remain production blockers independently of this optional certification.
+
+No files were edited, no tests were run, and no corpus attestation was performed.

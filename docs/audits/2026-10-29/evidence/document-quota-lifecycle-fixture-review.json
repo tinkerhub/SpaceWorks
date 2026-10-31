@@ -1,0 +1,18 @@
+{
+  "status": "independently-read-exact-test-timing-refinement-runtime-pending",
+  "files": {
+    "backend/tests/document_quota/helpers.py": {
+      "before_sha256": "e7a162870d49cc4dec42b8cbb9bf421c7a08bfda343b13c0fb742f25cc3019f7",
+      "after_sha256": "f2e4bf3596ac61146dcf5805dd049eff40c2876baa505c21d5832f3678638907",
+      "exact_inverse_reconstruction": true
+    },
+    "backend/tests/document_quota/test_lifecycle.py": {
+      "before_sha256": "111f034eaaf08a4224651cb92ef5b1db1bbbd7ec33c41c08ca6d4916d3bcdc08",
+      "after_sha256": "942dcd92954781db92ac5df132d1365d0045a0e619ad40ca643837ac7dcca58f",
+      "exact_inverse_reconstruction": true
+    }
+  },
+  "root_verified": "Bothcurrentfiles reconstructed exactpriorreleasebytes. Optionalproviderboundary addedAFTERstatelesspresign+seed andBEFORErealfilefinalization; lifecycle passes sameguardassertion atthatpoint. Everyquota/audit/rollback/idempotence/assertion remainsunchanged; finalize/deletion providerI/O stillcheckedunderactualPGsource/storageguard.",
+  "reason": "Genuine runtime3newtest failures occurredinsidepresignedURLgeneration, beforeanyfinalization. Statelesssigningdoesnotrequireexclusivebyte-lifecycleguard.",
+  "runtime_pending": true
+}

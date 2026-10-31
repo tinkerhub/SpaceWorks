@@ -1,6 +1,7 @@
 from celery import Task
 from django.apps import apps
 
+from apps.backup.task_admission import assert_background_work_allowed
 from apps.tenant_migration.gate_locks import unscoped_writer_shared_boundary
 from apps.tenant_migration.gate_policy import (
     TASK_EXEMPTIONS,
@@ -16,6 +17,8 @@ class TenantGateTask(Task):
     abstract = True
 
     def __call__(self, *args, **kwargs):
+        # Source-gate exemptions concern tenant locks, never deployment recovery.
+        assert_background_work_allowed()
         resolver = TASK_TENANT_RESOLVERS.get(self.name)
         makerspace_id = (
             _resolve_makerspace_id(resolver, args, kwargs)

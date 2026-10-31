@@ -12,6 +12,7 @@ from apps.evidence.services_retention import sweep_evidence_retention
 from apps.makerspaces import lifecycle
 from apps.makerspaces.models import Makerspace
 from apps.operations.models import ReportMetricRollup
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -60,7 +61,7 @@ def test_automatic_evidence_retention_does_not_rewrite_rollups(settings, monkeyp
     assert ReportMetricRollup.objects.values().get(pk=rollup.pk) == before
 
 
-def test_explicit_legal_tenant_purge_deletes_rollups(settings, monkeypatch):
+def test_explicit_legal_tenant_purge_deletes_rollups(settings, purge_store, purge_clock):
     settings.MANAGED_POSTGRES = True
     actor = get_user_model().objects.create_superuser(
         username="legal-purge", email="legal-purge@example.test", password="pw"
@@ -73,9 +74,7 @@ def test_explicit_legal_tenant_purge_deletes_rollups(settings, monkeypatch):
         superadmin_access_enabled=True,
     )
     rollup = _rollup(space)
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda _keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda _keys: None)
-
+    arm(space, actor, purge_clock)
     lifecycle.purge(space, actor)
 
     assert not Makerspace.objects.filter(pk=space.pk).exists()

@@ -1,0 +1,20 @@
+Written and frozen. Only the six owned paths changed:
+
+- [checkout_lock_race_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/checkout_lock_race_helpers.py) — bounded barriers, workers, and SQL-correlated PostgreSQL observation.
+- [checkout_lock_fixture_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/checkout_lock_fixture_helpers.py) — genuine PNG validation, finite managed quotas, legitimate handovers and returns.
+- [test_checkout_lock_races.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_checkout_lock_races.py) — both container races, both winner orders, POST/PUT.
+- [test_checkout_native_lock_races.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_checkout_native_lock_races.py) — actual native revoke action and real rebind/FK contention.
+- [test_checkout_evidence_lock_races.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_checkout_evidence_lock_races.py) — triage inversion and actual retention sweep contention.
+- [test_asset_fix_concurrency.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_asset_fix_concurrency.py:100) — only the requested Maker NK wait boundary and explanatory comment; fresh-state assertions remain intact.
+
+The 20 new parameterized cases correlate complete executed SQL with the server query prefix, distinct waiter/blocker PIDs, and a PostgreSQL `Lock` wait. Evidence inversion cases checkpoint after real validation, at domain attachment/completion boundaries. PUT cases check actual Maker NK SQL and exact storage accounting.
+
+Syntax/AST compilation and diff whitespace checks passed. All files are ≤300 lines. No case was deferred; **runtime verification remains pending with root**.
+
+Root-only test command, **not run**:
+
+```bash
+python -m pytest -q tests/test_checkout_lock_races.py tests/test_checkout_native_lock_races.py tests/test_checkout_evidence_lock_races.py tests/test_asset_fix_concurrency.py::test_issue_wins_and_waiting_asset_edit_rechecks_eligibility
+```
+
+No production edits, tests, builds, schema/migration/server/provider commands, staging, or commits were performed.

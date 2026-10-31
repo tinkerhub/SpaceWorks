@@ -1,0 +1,322 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 3,
+  "observed_lexical_owner_count": 25,
+  "owner_census_method": "Recursive stdlib AST module/class/function census; each purpose/boundary/disposition manually mapped from actual complete read.",
+  "blanket_approval": false,
+  "runtime_validation": "Root pending;27 genuine source-order failures not yet claimed passing. No child runtime.",
+  "files": [
+    {
+      "path": "backend/apps/tenant_migration/gate_http_ownership.py",
+      "file_sha256": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+      "lines": 163,
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 163,
+          "purpose": "Declare exact purge and QR API ownership independently.",
+          "runtime_boundary": "Literal source-owned route declarations and reflection helpers; no permission grants.",
+          "disposition": "Keep exact8 API table separate from unchanged3 purge declarations; static guard closure pending.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "service_owns_http_boundary",
+          "line_start": 27,
+          "line_end": 37,
+          "purpose": "Validate the existing native purge handler/service/non-atomic/CSRF contract.",
+          "runtime_boundary": "Called by ordinary middleware before dispatch; original function and table AST unchanged.",
+          "disposition": "Retain unchanged purge semantics and minimal fixture API.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "api_owns_http_boundary",
+          "line_start": 91,
+          "line_end": 116,
+          "purpose": "Verify exact registered POST callbacks and the owner expressions actually consumed.",
+          "runtime_boundary": "Pure runtime reflection before tenant resolution; import/binding/class/callback drift becomes SourceMigrationGateUnavailable.",
+          "disposition": "No request flag or broad route-prefix delegation; actual role/origin checks remain in existing authentication/views/services.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": [
+            "QR-HTTP-SOURCE-OWNERSHIP"
+          ]
+        },
+        {
+          "owner": "_api_post",
+          "line_start": 119,
+          "line_end": 137,
+          "purpose": "Resolve canonical class and URL alias and validate its own real POST implementation.",
+          "runtime_boundary": "Canonical module/class/qualname/code-qualname/globals checks, no ORM or service invocation.",
+          "disposition": "Reject substituted/inherited/nonfunction handlers rather than unwrapping a replaced method.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": [
+            "QR-HTTP-SOURCE-OWNERSHIP"
+          ]
+        },
+        {
+          "owner": "_validate_api_callback",
+          "line_start": 140,
+          "line_end": 163,
+          "purpose": "Compare actual DRF callback factory/wrapper/class/closure/configuration with framework reference.",
+          "runtime_boundary": "Reference factory produces callable metadata only; actual code/globals/defaults/classes/initkwargs/closure must match.",
+          "disposition": "Reject borrowed cls metadata without matching actual callback behavior.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": [
+            "QR-HTTP-SOURCE-OWNERSHIP"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/tenant_migration/middleware.py",
+      "file_sha256": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+      "lines": 146,
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 146,
+          "purpose": "Expose HTTP source lock and typed refusal middleware.",
+          "runtime_boundary": "Django request boundary, before DRF actor admission.",
+          "disposition": "Keep source status rendering separate from actual role authorization.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "SourceMigrationGateMiddleware",
+          "line_start": 25,
+          "line_end": 77,
+          "purpose": "Retain shared ownership through state-changing dispatch.",
+          "runtime_boundary": "Safe methods delegate; exact reviewed API owners use P, ordinary routes retain existing N rules.",
+          "disposition": "Source guard routing change inspected; actual strict scope/sorted regressions pending root.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "SourceMigrationGateMiddleware.__init__",
+          "line_start": 28,
+          "line_end": 29,
+          "purpose": "Capture the underlying Django request handler.",
+          "runtime_boundary": "Middleware construction only.",
+          "disposition": "Retain unchanged handler binding.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "SourceMigrationGateMiddleware.__call__",
+          "line_start": 31,
+          "line_end": 69,
+          "purpose": "Retain P for exact verified API dispatch before any tenant resolution.",
+          "runtime_boundary": "Resolve actual callback, verify owned declaration, hold unscoped P across authentication and service transaction; default/purge/exemption paths unchanged.",
+          "disposition": "Canonical services still perform authorized preflight and sorted N before domain locks; no early route-high N.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": [
+            "QR-HTTP-SOURCE-OWNERSHIP"
+          ]
+        },
+        {
+          "owner": "SourceMigrationGateMiddleware.process_exception",
+          "line_start": 71,
+          "line_end": 77,
+          "purpose": "Translate late source failures into typed HTTP responses.",
+          "runtime_boundary": "Django exception boundary for SourceMigrationGateClosed and Unavailable.",
+          "disposition": "Retain existing423/503 behavior for service-owned and ordinary paths.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_makerspace_ids",
+          "line_start": 80,
+          "line_end": 117,
+          "purpose": "Resolve ordinary route/slug/public-code/origin ownership hints.",
+          "runtime_boundary": "Existing advisory ordinary HTTP gate resolution; reviewed API branch exits before invoking it.",
+          "disposition": "Preserve ordinary target authority and unknown-resolution fallback behavior.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_public_identifier_makerspace_id",
+          "line_start": 120,
+          "line_end": 135,
+          "purpose": "Resolve a public slug or public code to one servable Maker.",
+          "runtime_boundary": "Read-only ordinary HTTP preflight with scoped servability helper.",
+          "disposition": "Retain existing failure-to-unscoped fallback.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_locked_response",
+          "line_start": 138,
+          "line_end": 142,
+          "purpose": "Project a frozen source error into JSON423 with optional purpose.",
+          "runtime_boundary": "No domain query or mutation.",
+          "disposition": "Retain exact detail/code/purpose error contract.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_unavailable_response",
+          "line_start": 145,
+          "line_end": 146,
+          "purpose": "Project unavailable source ownership into JSON503.",
+          "runtime_boundary": "No domain query or mutation.",
+          "disposition": "Retain exact detail/code failure contract.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/tenant_migration/gate_runtime.py",
+      "file_sha256": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+      "lines": 208,
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 208,
+          "purpose": "Declare source ownership contexts and shared runtime helpers.",
+          "runtime_boundary": "Existing source/exclusive/archive/fanout contexts plus exact API late admission.",
+          "disposition": "No lock primitive or model authority field changed.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "assert_write_allowed",
+          "line_start": 22,
+          "line_end": 36,
+          "purpose": "Validate a source using existing boundary/SQL-transaction ownership.",
+          "runtime_boundary": "Nested owner reuse or shared acquisition before gate state read.",
+          "disposition": "Retain unchanged source admission implementation; root owns lower-level lock continuity verification.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_assert_gate_state",
+          "line_start": 39,
+          "line_end": 62,
+          "purpose": "Check restored/purge/source state and explicit archive lease authority.",
+          "runtime_boundary": "Source-scoped read under previously acquired ownership.",
+          "disposition": "Retain exclusive-owner verification and live archive authority matching.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "boundary_tenant_write",
+          "line_start": 66,
+          "line_end": 102,
+          "purpose": "Retain source shared/exclusive ownership across caller phases.",
+          "runtime_boundary": "Reject exclusive upgrades/outer application transactions; reuse nested contexts and reset tokens finally.",
+          "disposition": "Entire original helper AST preserved; exclusive operator/counter behavior unchanged.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "fanout_tenant_write",
+          "line_start": 106,
+          "line_end": 120,
+          "purpose": "Skip only closed/not-restored source items while continuing a fanout.",
+          "runtime_boundary": "Retained tenant boundary with explicit skipped count and structured log.",
+          "disposition": "Retain unchanged refusal accounting and no swallowing other errors.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "_exclusive_boundary_connection",
+          "line_start": 123,
+          "line_end": 130,
+          "purpose": "Return only the active matching verified exclusive database owner.",
+          "runtime_boundary": "Private operator counter bridge; checks source identity and retained owner context.",
+          "disposition": "Retain original root-owned XID/backend continuity semantics.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "assert_request_write_allowed",
+          "line_start": 133,
+          "line_end": 169,
+          "purpose": "Revalidate exact API ownership and require actual trusted P before deferring N to service.",
+          "runtime_boundary": "JWT late gate; missing library-owned P raises unavailable before returning or authoritative target resolution.",
+          "disposition": "No auth/principal/device/role/origin checks are skipped; ordinary/exempt routes keep prior guard.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": [
+            "QR-HTTP-SOURCE-OWNERSHIP"
+          ]
+        },
+        {
+          "owner": "tenant_write",
+          "line_start": 173,
+          "line_end": 177,
+          "purpose": "Retain shared source SQL lock through one transaction commit.",
+          "runtime_boundary": "Internal transactional service helper.",
+          "disposition": "Retain unchanged canonical assert then body transaction.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "source_archive_write",
+          "line_start": 181,
+          "line_end": 189,
+          "purpose": "Bind exact archive owner/fence to one transactional write.",
+          "runtime_boundary": "Archive context token with guaranteed final reset.",
+          "disposition": "Retain explicit authority tuple and ordinary tenant_write.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "source_archive_boundary",
+          "line_start": 193,
+          "line_end": 199,
+          "purpose": "Bind archive owner/fence across a retained tenant boundary.",
+          "runtime_boundary": "Longer service phase boundary with guaranteed token reset.",
+          "disposition": "Retain unchanged scoped archive authority handling.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        },
+        {
+          "owner": "assert_boundary_held",
+          "line_start": 202,
+          "line_end": 208,
+          "purpose": "Require retained source ownership for raw storage export writes.",
+          "runtime_boundary": "Checks actual context membership and current gate state before provider bridge.",
+          "disposition": "Retain original boundary assertion; provider implementation outside this packet.",
+          "decision": "reviewed-runtime-pending",
+          "evidence": "Complete actual three-file source independently read after approved Stage2; unchanged helpers protected by exact AST report; targeted real root regressions remain execution-pending.",
+          "findings": []
+        }
+      ]
+    }
+  ],
+  "denominator": "Exactly3 files/25 lexical owners in this packet; no approval inferred for imported lock primitives, auth methods, service owners or any unexamined source."
+}

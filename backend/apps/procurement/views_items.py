@@ -1,3 +1,5 @@
+from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -6,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 
 from apps.admin_api.permissions import IsActiveStaff
 from apps.audit import services as audit
-from apps.makerspaces.guards import require_module
+from apps.makerspaces.guards import require_module, require_module_locked
 from apps.makerspaces.models import Makerspace
 from apps.procurement.serializers import ToBuyItemSerializer
 from apps.procurement import access
@@ -49,10 +51,11 @@ class ToBuyListCreateView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
+    @transaction.atomic
     def perform_create(self, serializer):
         makerspace_id = self.kwargs["makerspace_id"]
         makerspace = get_object_or_404(Makerspace, pk=makerspace_id)
-        require_module(makerspace, MODULE_KEY)
+        makerspace = require_module_locked(makerspace, MODULE_KEY)
         if not access.can_use(self.request.user, makerspace_id):
             raise PermissionDenied()
         kind = access.derive_kind(
@@ -72,6 +75,7 @@ class ToBuyListCreateView(generics.ListCreateAPIView):
             kind=kind,
             created_by=self.request.user,
         )
+        stamp_status_change(item, self.request.user, None)
         audit.record(
             self.request.user,
             "procurement.item_added",
@@ -127,7 +131,18 @@ class ToBuyDetailView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
 
+    @transaction.atomic
     def perform_update(self, serializer):
+        makerspace = require_module_locked(serializer.instance.makerspace_id, MODULE_KEY)
+        get_object_or_404(
+            ToBuyItem.objects.select_for_update(),
+            pk=serializer.instance.pk,
+            makerspace=makerspace,
+        )
+        # Re-resolve scope after waiting, then save against this fresh row rather
+        # than the instance DRF read before validation and lock acquisition.
+        serializer.instance = self.get_object()
+        serializer.instance.makerspace = makerspace
         self._assert_can_manage(serializer.instance)
         machine_type = serializer.validated_data.get(
             "machine_type", serializer.instance.machine_type
@@ -150,14 +165,18 @@ class ToBuyDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
     def perform_destroy(self, instance):
-        self._assert_can_manage(instance)
-        audit.record(
-            self.request.user,
-            "procurement.item_removed",
-            makerspace=instance.makerspace,
-            target=instance,
-        )
-        instance.delete()
+        with storage_lifecycle(instance.makerspace_id) as guard:
+            with transaction.atomic():
+                self._assert_can_manage(instance)
+                audit.record(
+                    self.request.user,
+                    "procurement.item_removed",
+                    makerspace=instance.makerspace,
+                    target=instance,
+                )
+                guard.verify()
+                instance._storage_guard = guard
+                instance.delete()
 
 
 __all__ = [

@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, transaction
 from django.utils import timezone
 
 from apps.audit import services as audit
@@ -25,6 +25,7 @@ from apps.hardware_requests.workflow_errors import (
 )
 from apps.hardware_requests.workflow_utils import constraint_name, locked_request
 from apps.inventory import availability
+from apps.makerspaces.models import Makerspace
 
 
 def assign_box(actor, request, box_code):
@@ -79,6 +80,31 @@ def assign_box(actor, request, box_code):
         return locked
 
 
+def clear_unissued_assignment(request):
+    """Caller holds the request lock; take any box lock BEFORE product locks.
+
+    Only the request's assignment is released. Physical box state and immutable
+    scans remain untouched, and a later reservation refusal rolls this write back.
+    """
+    if not connection.in_atomic_block:
+        raise RuntimeError("clear_unissued_assignment requires transaction.atomic().")
+    if (
+        request.status != HardwareRequest.Status.ACCEPTED
+        or request.issued_at is not None
+        or request.issued_by_id is not None
+        or request.issue_evidence_id is not None
+    ):
+        raise InvalidTransition("Only an accepted, unissued assignment can be cleared.")
+    previous_box_id = request.assigned_box_id
+    if previous_box_id is not None:
+        box = Box.objects.select_for_update().get(pk=previous_box_id)
+        if box.makerspace_id != request.makerspace_id:
+            raise InvalidTransition("Assigned box belongs to another makerspace.")
+        request.assigned_box = None
+        request.save(update_fields=["assigned_box", "updated_at"])
+    return previous_box_id
+
+
 def issue_request(actor, request, evidence_id, remark="", asset_qr_payloads=None, rejects=None):
     asset_qr_payloads = list(asset_qr_payloads or [])
     # rejects: [{"item_id", "broken", "disposition"}] - units rejected as broken at
@@ -122,10 +148,13 @@ def issue_request(actor, request, evidence_id, remark="", asset_qr_payloads=None
             )
         if not lock_evidence_for_attachment(evidence.pk):
             raise RequestValidationError("Evidence has expired under the retention policy.")
+        locked.makerspace = Makerspace.objects.select_for_update(no_key=True).get(
+            pk=locked.makerspace_id
+        )
         # Promotion and byte validation happen before this domain transaction so its
         # request/evidence row locks never span S3 I/O. Quota remains charged at the
         # consuming workflow boundary and only for PUT-backed managed storage.
-        charge_storage_once(evidence, finalized.size)
+        charge_storage_once(evidence, finalized.size, no_key=True)
         if locked.assigned_box_id:
             if not BoxScan.objects.filter(
                 request=locked,

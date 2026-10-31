@@ -10,10 +10,16 @@ from apps.accounts.claim_sessions import (
     token_payload_for_context,
     validated_claim_session,
 )
+from apps.backup.not_restored import TenantNotRestored
 from apps.makerspaces.models import MakerspaceMembership, presence_presets
 from apps.presence.geofence import evaluate_geofence, geofence_metadata
 from apps.presence.guard import MemberPresenceRequired
 from apps.presence.models import PresenceSession
+from apps.tenant_migration.gate_errors import (
+    SourceMigrationGateClosed,
+    SourceMigrationGateUnavailable,
+)
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
 
 
 def _active_sessions(user, makerspace, now, *, claim_id=None):
@@ -135,21 +141,42 @@ def end_sessions_for_membership(actor, membership, reason="membership_revoked"):
         audit.record(actor, "presence.ended_membership_revoked", makerspace=membership.makerspace, target=session)
 
 
-def end_sessions_for_claim(claim, *, ended_at, actor):
-    """Lock claim then end exactly the active presence rows carrying its FK."""
+def end_sessions_for_claim(claim, *, ended_at, actor, expected_makerspace_id=None):
+    """Lock claim then end exactly the active presence rows carrying its FK.
+
+    Callers own source admission before their row locks. Only defensive rejection
+    cleanup supplies an expected tenant and harmlessly defers on stale provenance;
+    canonical revocation keeps its strict inconsistency errors.
+    """
     with transaction.atomic():
         from apps.accounts.models_claim import MemberClaimCode
 
-        locked = (
-            MemberClaimCode.objects.select_for_update(of=("self",))
-            .select_related("membership")
-            .get(pk=claim.pk)
-        )
+        try:
+            locked = (
+                MemberClaimCode.objects.select_for_update(of=("self",))
+                .select_related("membership")
+                .get(pk=claim.pk)
+            )
+        except MemberClaimCode.DoesNotExist:
+            if expected_makerspace_id is not None:
+                return
+            raise
         if (
             locked.session_id != claim.session_id
             or locked.membership_id != claim.membership_id
         ):
+            if expected_makerspace_id is not None:
+                return
             raise RuntimeError("Claim-session provenance is inconsistent.")
+        if expected_makerspace_id is not None and (
+            locked.membership.makerspace_id != expected_makerspace_id
+            or locked.membership.user_id != claim.membership.user_id
+            or not (
+                locked.revoked_at is not None
+                or (locked.absolute_expires_at and locked.absolute_expires_at <= ended_at)
+            )
+        ):
+            return
         sessions = list(
             PresenceSession.objects.select_for_update().filter(
                 created_via_claim_session=locked,
@@ -159,6 +186,10 @@ def end_sessions_for_claim(claim, *, ended_at, actor):
                 expires_at__gt=ended_at,
             )
         )
+        if expected_makerspace_id is not None and any(
+            session.membership_id != locked.membership_id for session in sessions
+        ):
+            return
         for session in sessions:
             session.ended_at = ended_at
             session.ended_by = actor
@@ -174,16 +205,30 @@ def end_sessions_for_claim(claim, *, ended_at, actor):
 
 
 def expire_claim_presence(session_id):
-    """End expired/revoked claim presence after a signed access token is rejected."""
+    """Repair stale legacy presence after rejection; normal revoke is already atomic.
+
+    Normal expiry is bounded by the claim deadline. This defensive cleanup must not
+    mutate a frozen source or replace authentication's generic invalid-token response.
+    """
     from apps.accounts.models_claim import MemberClaimCode
 
-    claim = MemberClaimCode.objects.filter(session_id=session_id).first()
+    claim = (
+        MemberClaimCode.objects.select_related("membership")
+        .filter(session_id=session_id).first()
+    )
     now = timezone.now()
     if claim and (
         claim.revoked_at is not None
         or (claim.absolute_expires_at and claim.absolute_expires_at <= now)
     ):
-        end_sessions_for_claim(claim, ended_at=now, actor=None)
+        try:
+            with boundary_tenant_write(claim.membership.makerspace_id):
+                end_sessions_for_claim(
+                    claim, ended_at=now, actor=None,
+                    expected_makerspace_id=claim.membership.makerspace_id,
+                )
+        except (SourceMigrationGateClosed, SourceMigrationGateUnavailable, TenantNotRestored):
+            return
 
 
 def _validate_claim_scope(claim, user, makerspace):

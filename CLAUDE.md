@@ -89,8 +89,14 @@ channel only. Two architectural rules are load-bearing and easy to violate if yo
 
 ```
 draft → pending_approval → {rejected | accepted}
-accepted → issued → {partially_returned | returned | closed_with_issue}
+accepted → {cancelled | issued}
+issued → {partially_returned | returned | closed_with_issue}
 ```
+
+Staff holding `REJECT_REQUEST` in the request's makerspace may cancel an accepted request only before
+any handover. Cancellation releases its attributable reservation, preserves approval quantities and
+immutable history, and records a scoped-PII reason with the existing closed actor/time. There is no public
+cancellation action; ambiguous pooled reservation drift refuses the entire transaction.
 
 The workflow module enforces *allowed* transitions only. `closed_with_issue` and the
 accountability/access-restriction flow (PRD §6.5) are how lost/damaged hardware ties back to a requester's

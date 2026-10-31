@@ -45,3 +45,21 @@ def sibling_detail(sibling):
         "created_by_this_run": sibling.created_by_this_run,
         "owner_marker": sibling.owner_marker,
     }
+
+
+def validate_artifact_resume_bindings(ledger, bindings):
+    """Compare immutable admission facts before any completed-phase shortcut."""
+    from .tenant_client_catalog import _canonical
+    from .tenant_restore_types import TenantRestoreRefused
+
+    records = ledger.records()
+    legacy = bindings["outer_version"] == 1 and bindings["api_client_reissue_requested"] is False
+    relevant = [record for record in records if record["phase"] in {"static-preflight", "api-client-reissue"}]
+    if records and not any(record["phase"] == "static-preflight" for record in relevant) and not legacy:
+        raise TenantRestoreRefused("The restore ledger lacks immutable artifact admission bindings.")
+    for record in relevant:
+        prior = record["detail"].get("artifact_bindings")
+        if prior is None and legacy:
+            continue
+        if not isinstance(prior, dict) or _canonical(prior) != _canonical(bindings):
+            raise TenantRestoreRefused("The restore artifact, projection or API approvals changed on resume.")

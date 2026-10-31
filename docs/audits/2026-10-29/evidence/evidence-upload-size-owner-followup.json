@@ -1,0 +1,19 @@
+{
+  "format": "explicit-source-owner-decisions-followup-v1",
+  "reviewer": "/root/audit_backend_finish",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "supersedes": "evidence-source-decisions-pre-no-key.json EvidenceUrlRequestSerializer owner only",
+  "path": "backend/apps/evidence/serializers.py",
+  "file_sha256": "bcbd86d512bdeb983ec9fcc319c18f5606ee9a34c44dfb411356363e4dd5b9fa",
+  "owner": "EvidenceUrlRequestSerializer",
+  "line_start": 7,
+  "line_end": 15,
+  "purpose": "Validate declared metadata before issuing an upload URL and creating immutable evidence metadata.",
+  "runtime_boundary": "EvidenceUploadUrlView.post and public evidence URL request consumers; PostgreSQL positive bigint insert occurs only after validation.",
+  "disposition": "Add a dynamic configured upload-size ceiling before provider calls; retain declarations as untrusted metadata for accounting.",
+  "decision": "finding-open",
+  "findings": [
+    "EVID-S06"
+  ],
+  "evidence": "size_bytes only defines min_value=0, with neither a max_value nor validate_size_bytes. IntegerField does not impose the PostgreSQL bigint storage range here. No runtime overflow attempted."
+}

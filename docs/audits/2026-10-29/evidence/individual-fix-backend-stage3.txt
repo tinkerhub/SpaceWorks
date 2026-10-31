@@ -1,0 +1,30 @@
+Added and frozen **15 cases** in four new files:
+
+- [test_individual_fix_boundaries.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_individual_fix_boundaries.py) — 132 lines
+- [test_individual_fix_lifecycle.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_individual_fix_lifecycle.py) — 131 lines
+- [test_asset_fix_concurrency.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_asset_fix_concurrency.py) — 198 lines
+- [asset_fix_concurrency_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/asset_fix_concurrency_helpers.py) — 125 lines
+
+Exact node IDs, relative to `backend/`:
+
+```text
+tests/test_individual_fix_boundaries.py::test_aggregate_api_refuses_individual_stock[repair]
+tests/test_individual_fix_boundaries.py::test_aggregate_api_refuses_individual_stock[scrap]
+tests/test_individual_fix_boundaries.py::test_aggregate_api_refuses_individual_stock[shelve]
+tests/test_individual_fix_boundaries.py::test_central_helper_reads_locked_mode_despite_stale_caller[repair]
+tests/test_individual_fix_boundaries.py::test_central_helper_reads_locked_mode_despite_stale_caller[scrap]
+tests/test_individual_fix_boundaries.py::test_central_helper_reads_locked_mode_despite_stale_caller[shelve]
+tests/test_individual_fix_boundaries.py::test_control_action_refuses_individual_stock[repair]
+tests/test_individual_fix_boundaries.py::test_control_action_refuses_individual_stock[scrap]
+tests/test_individual_fix_boundaries.py::test_quantity_api_fix_cycle_still_moves_buckets_and_audits
+tests/test_individual_fix_lifecycle.py::test_repaired_unit_reconciles_surfaces_and_completes_real_lending_cycle
+tests/test_individual_fix_lifecycle.py::test_unmarked_accepted_reservation_refuses_shelve_then_issues_normally
+tests/test_asset_fix_concurrency.py::test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[shelve]
+tests/test_asset_fix_concurrency.py::test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[metadata]
+tests/test_asset_fix_concurrency.py::test_waiting_repair_rechecks_committed_repair_without_duplicate_audit
+tests/test_asset_fix_concurrency.py::test_fix_module_lock_still_serializes_actual_module_configuration
+```
+
+Fixtures use canonical unit movements, real acceptance/issue/return workflows, QR scans and genuine image validation through POST-configured `EvidenceStore`. Races require PostgreSQL and committed fixtures, observe distinct PIDs and exact waiting SQL within 5 seconds, apply 8-second lock/12-second statement limits, and clean up owned workers.
+
+AST syntax and line limits checked. **Tests were not executed.** No production/frontend/docs edits, migrations, generation, staging or commits.

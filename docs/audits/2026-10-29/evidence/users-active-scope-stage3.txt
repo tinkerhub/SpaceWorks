@@ -1,0 +1,15 @@
+Added five focused tests and froze changes:
+
+- [StaffUsersScope.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/StaffUsersScope.test.tsx) — 178 lines.
+- [staffUsersScopeHarness.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/test/staffUsersScopeHarness.tsx) — 142 lines.
+
+Uses real components/providers; mocks only `staffRequest`. Covers Demo scope, exact staff submission, tenant remount resets, global makerspace creation/cache invalidation, and permission denial.
+
+Run under **Node 20**, from `frontend`:
+
+```bash
+npm test -- src/features/staff/StaffUsersScope.test.tsx
+npm test -- src/features/staff/StaffUsersScope.test.tsx src/features/staff/panels/UsersInvitations.test.tsx
+```
+
+Runtime validity remains unverified: no tests, typechecks, or builds ran. Static whitespace checks passed. No existing files edited, staging, or commits.

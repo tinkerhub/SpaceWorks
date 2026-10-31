@@ -1,0 +1,3 @@
+Changed only [services.py:22](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/services.py:22) to `select_for_update(no_key=True)`.
+
+Static AST verification passed. All helpers, duplicate-field mapping, and revoke behavior remain unchanged. No tests, runtime, build, staging, or commit performed.

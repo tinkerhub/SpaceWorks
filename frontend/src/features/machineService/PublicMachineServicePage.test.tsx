@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StructuredApiError } from "../../lib/api";
+import { accessToken } from "../../test/accessTokens";
 import { deferred, genericType, printerType, serviceStatus } from "./serviceTestFixtures";
 
 const { fetchServiceTypes, fetchServiceStatus, submitServiceRequest, presignServiceUpload, uploadToStorage,
@@ -21,7 +22,7 @@ vi.mock("../../lib/modules", () => ({ useModules: () => ({ loading: state.loadin
 vi.mock("../inventory/useMakerspacePublic", () => ({ useMakerspacePublic: () => ({
   makerspaceSlug: "forge", displayName: "Forge", header: { homePath: "/m/forge", name: "Forge" },
   tenantPath: (path = "") => `/m/forge${path ? `/${path}` : ""}`,
-  bootstrap: { makerspace: { request_access: "accounts" } },
+  bootstrap: { makerspace: {} },
   bootstrapQuery: { isLoading: state.bootstrapLoading, error: state.bootstrapError, refetch: vi.fn() },
 }) }));
 import { PublicMachineServicePage } from "./PublicMachineServicePage";
@@ -54,7 +55,10 @@ beforeEach(() => {
   presignServiceUpload.mockReset().mockResolvedValue({ queue_id: 8, file_id: 17, upload: { url: "https://objects.example", fields: {} } });
   uploadToStorage.mockReset().mockResolvedValue(undefined);
   getAccessToken.mockReset().mockReturnValue("");
-  refreshAccessToken.mockReset().mockResolvedValue(true);
+  refreshAccessToken.mockReset().mockImplementation(async () => {
+    getAccessToken.mockReturnValue(accessToken("service-restored-member"));
+    return true;
+  });
 });
 
 afterEach(() => { vi.useRealTimers(); });

@@ -29,9 +29,8 @@ EXEMPTIONS = {
     # The policy implementation necessarily contains the raw fields it centralizes.
     ("makerspaces/servability.py", "is_servable"),
     ("makerspaces/servability.py", "archived_or_inactive_makerspace_ids"),
-    # Archive recovery must inspect and clear archived_at, and purge must inspect it.
+    # Archive recovery must inspect and clear archived_at.
     ("makerspaces/lifecycle_archive.py", "unarchive"),
-    ("makerspaces/lifecycle_purge.py", "purge"),
     # /control/ is the superadmin recovery surface for archived/import-failed rows.
     ("makerspaces/admin.py", "ArchivedFilter.queryset"),
     ("makerspaces/admin.py", "MakerspaceAdmin.archived"),
@@ -44,6 +43,8 @@ EXEMPTIONS = {
     # requires a superuser, a locked pairing, and a verified single-use abort receipt
     # from the target proving it reached ABORTED and can no longer activate.
     ("tenant_migration/cutover.py", "reopen_source"),
+    # Explicit archived purge runs under the real exclusive lifecycle boundary.
+    ("makerspaces/purge_intent.py", "require_purgeable"),
 }
 
 

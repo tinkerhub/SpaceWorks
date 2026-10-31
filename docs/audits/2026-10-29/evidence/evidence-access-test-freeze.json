@@ -1,0 +1,49 @@
+{
+  "status": "Source/test hashes match the bytes included in root central focused passing run; final whole-suite/review/QA still pending.",
+  "coverage": "23 test functions / 44 parametrized cases; projection/import metadata coverage is not a full host restore artifact roundtrip",
+  "files": [
+    {
+      "path": "backend/tests/evidence/safety_access_helpers.py",
+      "sha256": "506aa28d3be64187fd046e1a13d356131d2d09ba0066a56d1668018f8a51f83e",
+      "lines": 173
+    },
+    {
+      "path": "backend/tests/evidence/safety_transport_helpers.py",
+      "sha256": "c3df89e4bf44449f66ab0e059b0e3c752c3b1769679ecfe457129c6a7f87e896",
+      "lines": 53
+    },
+    {
+      "path": "backend/tests/evidence/safety_accounting_helpers.py",
+      "sha256": "702d0ec938a79fd0599273dff61c425af4e4ec87320b0da473ff6033721039c0",
+      "lines": 90
+    },
+    {
+      "path": "backend/tests/evidence/test_evidence_origin_admission.py",
+      "sha256": "cb22f11daaa740a677788c81262d5cc5ded66efbd361da007305560d846b809e",
+      "lines": 155
+    },
+    {
+      "path": "backend/tests/evidence/test_evidence_declared_size.py",
+      "sha256": "06d4cb77ad1d8e39f483b6f977512401d51619c88f6dafbb9418401599fecc11",
+      "lines": 97
+    },
+    {
+      "path": "backend/tests/evidence/test_evidence_recompute_provenance.py",
+      "sha256": "2f8db9c7ab67b1d9c95f1d6582b1a13c75bb6e60f7d4e877b43c129f6abb979d",
+      "lines": 203
+    },
+    {
+      "path": "backend/tests/evidence/test_evidence_accounting_export.py",
+      "sha256": "61f2bcb27a5601e575a24dc10cbeb262d99e6d4647fc2ebbe5c7dbb66bbadd0f",
+      "lines": 173
+    }
+  ],
+  "runtime_correction": "Root first run 41 passed / 3 fixture failures: psycopg memoryview cannot be deepcopied. Test-only snapshot_copy recursively converts every binary memoryview to exact bytes, retains all fields and values. Corrected rerun pending root.",
+  "runtime_result": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/qr-evidence-focused-round2.xml",
+    "junit_sha256": "f965bf5f0e7d71e86c64e99884d7b957ed292e25334bf7f802c348062e341d44",
+    "group_result": "127 passed in 63.57 seconds; overlapping focused group, do not sum as new independent coverage",
+    "root_log": "/tmp/spaceworks-qr-evidence-focused-round2.log"
+  }
+}

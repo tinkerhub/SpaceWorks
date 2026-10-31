@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="pytest tests">
+  <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="25" time="115.745" timestamp="2026-10-30T21:08:31.766228+00:00">
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_actual_installer_copies_exact_reviewed_files_preserves_private_state_and_backups" time="0.815" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[missing]" time="7.105" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[symlink]" time="5.409" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[hardlink]" time="12.709" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[fifo]" time="11.723" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_changed_guarded_source_or_broken_checker_refuses_before_backup_creation" time="8.293" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[duplicate]" time="0.515" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[traversal]" time="0.480" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[unknown]" time="0.750" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[nonliteral]" time="0.322" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[missing]" time="0.371" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[digest]" time="0.377" />
+    <testcase classname="tests.backup.test_recovery_bundle_install" name="test_actual_nonroot_bundle_install_retains_caller_ownership_without_conversion" time="1.134" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_correct_copied_layout_help_and_missing_environment_have_no_effects" time="1.795" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_poisoned_valid_timestamp_bytecode_is_ignored_without_cache_writes" time="0.786" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[missing]" time="5.753" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[altered]" time="6.614" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[symlink]" time="5.886" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[hardlink]" time="8.318" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[fifo]" time="15.892" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[owner]" time="10.753" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[writable]" time="8.608" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_real_nobody_process_cannot_use_otherwise_correct_root_bundle" time="0.516" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_operator_owned_ancestor_refuses_even_when_invoked_by_root" time="0.210" />
+    <testcase classname="tests.backup.test_recovery_installed_layout" name="test_linked_code_directory_refuses_before_python_import" time="0.184" />
+  </testsuite>
+</testsuites>

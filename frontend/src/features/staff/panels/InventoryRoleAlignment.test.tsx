@@ -92,15 +92,15 @@ describe("Inventory honours canEditInventory", () => {
 
 describe("request queues on the handover surface", () => {
   it("gives a handover role Active loans with Return and no Set due", async () => {
-    wrap(<Queues makerspace={space(CORE)} guestOnly canReturnRequest canReviewRequests={false} />);
+    wrap(<Queues makerspace={space(CORE)} guestOnly canIssueRequest canReturnRequest canReviewRequests={false} />);
     expect(await screen.findByRole("heading", { name: "Active loans" })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: "Return" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Set due" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Pending review" })).not.toBeInTheDocument();
   });
 
-  it("hides Active loans from a handover role that cannot return", () => {
-    wrap(<Queues makerspace={space(CORE)} guestOnly canReturnRequest={false} canReviewRequests={false} />);
+  it("hides Active loans from a return-only handover role without issue authority", () => {
+    wrap(<Queues makerspace={space(CORE)} guestOnly canReturnRequest canReviewRequests={false} />);
     expect(screen.queryByRole("heading", { name: "Active loans" })).not.toBeInTheDocument();
     expect(staffRequest).not.toHaveBeenCalledWith(expect.stringContaining("/active-loans"));
   });

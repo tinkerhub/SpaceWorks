@@ -1,0 +1,28 @@
+{
+  "status": "fourth-actual-topology-refused-in-pre-backup-target-diagnostic",
+  "recorded_at_utc": "2026-10-30T05:18:23+00:00",
+  "run_id": "swdrill2026103004564540338d",
+  "source_fixed_refusal": "Bundled SQL transport and application identity disagree.",
+  "trace": [
+    "probe_target_identity.py:42",
+    "host_restore_admission.py:246 (strict independent SQL dictionary comparison)",
+    "bootstrap_operator.py:88 (diagnostic subprocess)"
+  ],
+  "phase": "After real configuration/inventory/physical address admission, before seed and archive production; no restore was requested or quiescence/restore SQL attempted.",
+  "source_defect": "Actual PostgreSQL json_build_object serializes raw oid as a JSON string; the actual fixed probe exposes int(oid). Only this type differs. Name, UUID and system values match as strings.",
+  "scope": "Local isolated retained fourth topology only. Existing root host lock/full25guard; actual target_identity SQL result was observed and returned unchanged.",
+  "app_role": "Actual app login has all five superuser/CREATEDB/CREATEROLE/replication/bypass-RLS flags false; system identifier is available and matches. No optional-system fallback is needed.",
+  "diagnostic_effects": [
+    "Two fixed SELECT-only maintenance oneoffs and their product tracked cleanup",
+    "Product db exec SELECT corroboration; no source/result rewriting"
+  ],
+  "diagnostic_limits": [
+    "No control, backup, grants, quiescence, restore SQL or protected-state writes",
+    "No successful restore claim; actual inspected raw fields/credentials withheld"
+  ],
+  "bounded_next_fix": "Change only independent SQL SELECT oid to SELECT oid::bigint before JSON construction; keep strict dictionary/system/physical/marker checks and refresh matching host guard SHA.",
+  "proof": "docs/audits/2026-10-29/evidence/restore-actual-host-round4-field-diagnostic.json",
+  "proof_sha256": "c451f7a75020fa04ab50d417eec0d7953f22e77049f56712be20a771fcfbc3e8",
+  "restored_success": false,
+  "retention": "Prior topology, original source bytes and generated private credentials remain private; no raw logs, environment, DSN, token or secret values are included."
+}

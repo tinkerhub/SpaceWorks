@@ -1,0 +1,10 @@
+Added `test_absolute_import_shadow_preserves_explicit_relative_rejection` in [test_host_operator_docker_boundary.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_host_operator_docker_boundary.py:201), covering two forms:
+
+- `from . import unreviewed`
+- `from .unreviewed import dependency`
+
+Each uses a finite copied source map. Static reasoning: the old resolver would pull synthetic Django `apps.py` into the closure and fail the positive assertion. The corrected resolver excludes it, while each deferred explicit relative import must fail with exactly the unreviewed path identified.
+
+Only the permitted file was edited. All original controls and the helper correction remain unchanged; the file is 271 lines.
+
+**Not runtime verified.** No tests, collection, test/production imports, DB, Docker, providers, builds, or staging were run.

@@ -1,0 +1,161 @@
+{
+  "status": "passed",
+  "problem": "The original numbered-only migration digest omitted dynamically imported extracted SQL helpers.",
+  "change": "Fingerprint every regular non-cache source/data file recursively inside installed migration packages, with sorted relative path and byte-length framing; preserve the public callable, marker format and refusal reason.",
+  "source": {
+    "current_frozen_files": 4810,
+    "current_frozen_inventory_sha256": "62f5b62cf55bbe0e8ffb3cede0e9df50bbdceac0f44408a0b47c05e22774d1ee",
+    "original_red_files": 4809,
+    "original_red_inventory_sha256": "ad66b3ea1a146baac6e7b2e17db1e1df99bd3bbc87a605443fc8d315a2d33367",
+    "exact_red_overlay": {
+      "restored_producer_sha256": "e5d9b126319b668979e645b2ab57f36581461f55a08d486f1db3fb4588b08f05",
+      "new_migration_fingerprint_helper_absent": true,
+      "all_other_entries_and_modes_unchanged": true
+    },
+    "production_files": [
+      {
+        "path": "backend/apps/backup/producer_capability.py",
+        "sha256": "2d7488c938ab5fc6bbbe8cd55ed6c7320cc4e6bd017415e523a7e04216641994",
+        "lines": 242
+      },
+      {
+        "path": "backend/apps/backup/migration_fingerprint.py",
+        "sha256": "c7234b307420e08cc50826184ef19b5a4a8b034142c2fe765213bf47ed3862d2",
+        "lines": 114
+      }
+    ],
+    "p2_source_and_test_checkout_bytes_still_match_frozen_frame": true,
+    "all_p2_production_paths_outside_source65_copy59_guard25": true,
+    "protected_pins_refreshed_for_p2": false
+  },
+  "gates": {
+    "stage1": "independent pinned read-only plan APPROVED",
+    "stage2": "separate pinned source author; root independently approved exact extraction/re-export and helper",
+    "stage3": "fresh separate pinned test author; root independently read all six files",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "stage4": "Root owns mandatory whole-branch review after both P1/P2 closeout"
+  },
+  "runtime": {
+    "red": {
+      "cases": 12,
+      "passed": 0,
+      "failures": 12,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 4.668,
+      "pytest_seconds": 0.481,
+      "collection_sha256": "bb6160d499b09d062012f248f38a4ff70145ab89d496018e72a6af60dcd453da",
+      "raw_private_xml_sha256": "6924d3b410d7c9a98f97e3dcf90fc41aae76781c0cb80fe5de6cfff2a2159341",
+      "frozen_inputs_sha256": "37a89a8304fff8b2f5798af09a7d52daf4523039681b5e4122ad492721912bf5",
+      "source_and_inputs_verified_before_after": true
+    },
+    "current": {
+      "cases": 76,
+      "passed": 76,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 0,
+      "driver_seconds": 58.379,
+      "pytest_seconds": 53.572,
+      "collection_sha256": "b25acd163931e6a50b3c2e23209f0cb2ec3ee0386b601d30feba7fc4f817f52e",
+      "raw_private_xml_sha256": "727855d0f713754b0e7e531257839dc23fead3dadfae9dc1e009972cb5304d87",
+      "frozen_inputs_sha256": "1539f4895f9730c7c4b6ce56016a4b2a0375c6f4f9dd189916f7d493175f64c8",
+      "source_and_inputs_verified_before_after": true
+    }
+  },
+  "case_accounting": {
+    "new_cases_passed": 45,
+    "existing_affected_compatibility_cases_passed": 31,
+    "current_unique_passed": 76,
+    "original_public_api_red_cases": 12,
+    "all_twelve_red_case_ids_pass_current": true,
+    "duplicates": 0
+  },
+  "verified_behaviors": [
+    "All six extracted SQL helper names and forward/reverse rollback-only byte changes alter the public digest.",
+    "Nested library/init/data/orphan helper mutation, addition, removal and rename alter path/byte inventory.",
+    "Existing marker refuses actual helper drift repeatedly without automatic rewriting; explicit installer regeneration restores acceptance.",
+    "Actual archive builder refuses migration drift before recipient selection, workspace creation, capture, encryption, storage upload or ledger persistence.",
+    "Bare installer subprocess leaves Django settings unconfigured and application model registry unloaded.",
+    "Deterministic order and exact framing; normal compiler caches inert.",
+    "Selected ancestry/source/cache-named symlinks and special files refuse; unrelated non-migration app symlink remains outside scope.",
+    "Unreadable file/directory and changed descriptor/inode/size/timestamp refuse; opened descriptors close."
+  ],
+  "runtime_topology": {
+    "linux_immutable_test_runtime": true,
+    "postgresql_affected_compatibility_real": true,
+    "database_port": 55433,
+    "cache_database": 12,
+    "broker_database": 14,
+    "docker_daemon_socket_mounted": false,
+    "actual_s3_minio_used": false,
+    "privileged_script_acl_fixture_seam": "Existing installed-producer fixture relaxes its ACL check; pre-existing explicit ACL tests remain selected."
+  },
+  "sanitized_xml": [
+    {
+      "file": "migration-fingerprint-pre-fix-red-20261031.xml",
+      "sha256": "f8dc2960d0c48fa355c2f87e746fb24599c459b384d256f098126d1fb6005439",
+      "cases": 12,
+      "failures": 12,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "migration-fingerprint-current-20261031.xml",
+      "sha256": "add2750d43ab9980a1499283cc996dc21d54805e390f2a28a3f5ea47ab83f3af",
+      "cases": 76,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  ],
+  "test_source_files": [
+    {
+      "path": "backend/tests/backup/migration_fingerprint_test_support.py",
+      "sha256": "e45afa2b872bf06a9792422fe88e1860ef2b5d04b6975f950d81939e3dbd8479",
+      "lines": 73,
+      "static_cases": 0
+    },
+    {
+      "path": "backend/tests/backup/test_migration_fingerprint_filesystem.py",
+      "sha256": "042753b9a7dd9f6f849a4eba1cbf56d18d6d9220da2d02bedc04070cb3e34e39",
+      "lines": 146,
+      "static_cases": 19
+    },
+    {
+      "path": "backend/tests/backup/test_migration_fingerprint_gate.py",
+      "sha256": "36d79a1dde489ff2103fbac442a92441e7da6104eb2dc360aecc125cc254d3d3",
+      "lines": 112,
+      "static_cases": 6
+    },
+    {
+      "path": "backend/tests/backup/test_migration_fingerprint_inventory.py",
+      "sha256": "7625fa4b6d4f0fd1189e559644a6773af50080d42bb5cdb18c2d84b9c66389fb",
+      "lines": 82,
+      "static_cases": 7
+    },
+    {
+      "path": "backend/tests/backup/test_migration_fingerprint_regression.py",
+      "sha256": "c00bd897b8b8a0e3c93a63a76c2c2b7507347ac7bc6e90e02d4ac7b8f3650103",
+      "lines": 67,
+      "static_cases": 12
+    },
+    {
+      "path": "backend/tests/backup/test_migration_fingerprint_standalone.py",
+      "sha256": "ca0299654c7c685f76e6a10006fa84858407b950a35f05cf6c8170e4b3ac6456",
+      "lines": 74,
+      "static_cases": 1
+    }
+  ],
+  "limits": [
+    "Fingerprint boundary is migration package source/data, not external runtime library attestation.",
+    "Compiler artifacts are excluded. File-read identity checks do not promise atomicity against arbitrary concurrent changes to the entire tree; installed image inputs are expected immutable.",
+    "P2 source was frozen before the separate P1 OCI provisioning source changes. The P1 delta has its own verification.",
+    "This change did not rebuild or re-execute the original actual restore7 image; its original evidence remains bounded separately.",
+    "No stage/commit/push/deployment performed."
+  ],
+  "privacy": "Raw failure traces, environment and provider details remain private."
+}

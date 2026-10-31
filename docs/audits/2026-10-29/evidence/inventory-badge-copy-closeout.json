@@ -1,0 +1,21 @@
+{
+  "status": "passed-trivial-copy-correction",
+  "path": "frontend/src/features/inventory/PublicInventoryPage.tsx",
+  "line": 99,
+  "sha256": "2cee8192f6d7b10839e9cefcd3f1740818d99a2b6fb769284f201b424fa2a14c",
+  "before_sha256": "fdeea37806caa2b391bd7db13020c54573af1e67321d268df26fb7926e442689",
+  "change": "Only singular/plural badge text; count1 item, other/unknown counts items; no state/API/event changes",
+  "independently_verified": "Exact original source reconstructed and matched review3 starting-source hash; browser AX shows singular item",
+  "focused_existing_tests": {
+    "passed": 4,
+    "failures": 0,
+    "node": "20.20.2",
+    "vitest": "4.1.12",
+    "test_seconds": 3.928,
+    "total_seconds": 25.24,
+    "private_log_sha256": "2f824cce5dfd4b2d434f9568c483e39faaeded3312a547269fbd11c6bfcb01ba",
+    "tests_changed": false
+  },
+  "workflow": "Separate trivial one-line mechanical copy correction; global scope gate permits direct handling without repeating substantive stages. Source-write CLI used pinned gpt-6.1-sol/high. Whole-uncommitted review3 covers substantive audit; this exact copy-only delta separately reviewed after its capture.",
+  "live_payments_or_production_changes": false
+}

@@ -1,0 +1,609 @@
+{
+  "format": "spaceworks-qr-asset-race-test-freeze-v1",
+  "created_utc": "2026-10-30T01:08:36.044983+00:00",
+  "stage": "Stage 3 TESTS ONLY; author-only",
+  "ownership": "backend/tests/qr_asset_race_safety",
+  "files": {
+    "backend/tests/qr_asset_race_safety/__init__.py": {
+      "sha256": "c82ffcccd4a44c18ccdee70dbbd2934aab143125f7fc2bad2148651c294f6411",
+      "lines": 1,
+      "functions": [],
+      "test_functions": [],
+      "static_cases": 0
+    },
+    "backend/tests/qr_asset_race_safety/helpers.py": {
+      "sha256": "5d6e98c103f189136ac53b427cc0a23713d89ab987306dff0f36313a562a99a3",
+      "lines": 202,
+      "functions": [
+        {
+          "name": "lab",
+          "line": 24,
+          "end_line": 51,
+          "sha256": "0db4cd23253acab2378d6f915c408e8112c9cbbb42abe5d7688016da56196f50",
+          "author_pre_correction_sha256": "d4b11541066a39f443c942dd48274263baee6c6a4bc400bb7ae3da8823f339dc"
+        },
+        {
+          "name": "code",
+          "line": 54,
+          "end_line": 59,
+          "sha256": "47159e397d4f97c33acdd4c7b8dbf32bbe03baf5f9b6f41ec13b578dff08a687",
+          "author_pre_correction_sha256": "47159e397d4f97c33acdd4c7b8dbf32bbe03baf5f9b6f41ec13b578dff08a687"
+        },
+        {
+          "name": "asset_http",
+          "line": 62,
+          "end_line": 63,
+          "sha256": "0aaf76725e2fb39be4164882da65adee584814bfd5e7c8dbcae8024fbe441eae",
+          "author_pre_correction_sha256": "0aaf76725e2fb39be4164882da65adee584814bfd5e7c8dbcae8024fbe441eae"
+        },
+        {
+          "name": "move_http",
+          "line": 66,
+          "end_line": 73,
+          "sha256": "41ce9c11bd981a4d866755614c0f167d20bb9197cbc0763beaede78f9fafb972",
+          "author_pre_correction_sha256": "41ce9c11bd981a4d866755614c0f167d20bb9197cbc0763beaede78f9fafb972"
+        },
+        {
+          "name": "frozen",
+          "line": 76,
+          "end_line": 84,
+          "sha256": "edd5f73bca24d46fe1d6ca011a33925b94b25bc0e87ba1e7d2811904fde5c778",
+          "author_pre_correction_sha256": "edd5f73bca24d46fe1d6ca011a33925b94b25bc0e87ba1e7d2811904fde5c778"
+        },
+        {
+          "name": "state",
+          "line": 87,
+          "end_line": 91,
+          "sha256": "0b0bf9a1f7e5f3599d04d0a6233607d7083428c1f12d47d90ebd337e0cdd13b5",
+          "author_pre_correction_sha256": "0b0bf9a1f7e5f3599d04d0a6233607d7083428c1f12d47d90ebd337e0cdd13b5"
+        },
+        {
+          "name": "row",
+          "line": 94,
+          "end_line": 95,
+          "sha256": "9be8efea2876279d45ac9da6c420cb08e53d173e681f4f73ad1378f5b12b5712",
+          "author_pre_correction_sha256": "9be8efea2876279d45ac9da6c420cb08e53d173e681f4f73ad1378f5b12b5712"
+        },
+        {
+          "name": "dto",
+          "line": 98,
+          "end_line": 99,
+          "sha256": "ae71ab1d5edce68dec0541e4195173eb3b8c67a62c933a35288530acab0b54d6",
+          "author_pre_correction_sha256": "ae71ab1d5edce68dec0541e4195173eb3b8c67a62c933a35288530acab0b54d6"
+        },
+        {
+          "name": "move_dto",
+          "line": 102,
+          "end_line": 103,
+          "sha256": "b83f591dffebce974d8ba404d0e7fd22699752317110f58ddd6ff0e4474e4cb6",
+          "author_pre_correction_sha256": "b83f591dffebce974d8ba404d0e7fd22699752317110f58ddd6ff0e4474e4cb6"
+        },
+        {
+          "name": "lock_on",
+          "line": 106,
+          "end_line": 107,
+          "sha256": "14b4ad2481856f1c03c4da93d7ddbf2d26a9fb1f669d52dd95916af1942fed8c",
+          "author_pre_correction_sha256": "14b4ad2481856f1c03c4da93d7ddbf2d26a9fb1f669d52dd95916af1942fed8c"
+        },
+        {
+          "name": "audit_insert",
+          "line": 114,
+          "end_line": 115,
+          "sha256": "8d67fbfd18a7bb891160100a99569f35621589f55cf9f2cfb76ac310f40d5066",
+          "author_pre_correction_sha256": "8d67fbfd18a7bb891160100a99569f35621589f55cf9f2cfb76ac310f40d5066"
+        },
+        {
+          "name": "source_shared",
+          "line": 118,
+          "end_line": 119,
+          "sha256": "f49258801534f5e0f8d7e38e3497758b36327ec6aad7be363eb940d2d08a1493",
+          "author_pre_correction_sha256": "f49258801534f5e0f8d7e38e3497758b36327ec6aad7be363eb940d2d08a1493"
+        },
+        {
+          "name": "backend_pid",
+          "line": 122,
+          "end_line": 125,
+          "sha256": "9a7cea4d3ed7ffa6eaaff30805629532fb27258daced873751f99e7061566742",
+          "author_pre_correction_sha256": "9a7cea4d3ed7ffa6eaaff30805629532fb27258daced873751f99e7061566742"
+        },
+        {
+          "name": "assert_no_domain_write",
+          "line": 128,
+          "end_line": 132,
+          "sha256": "b61b3b046bd5d1b8cba74bbd39bdbfe6c40d2ba693ab2ff78f60bc386185f6a3",
+          "author_pre_correction_sha256": "b61b3b046bd5d1b8cba74bbd39bdbfe6c40d2ba693ab2ff78f60bc386185f6a3"
+        },
+        {
+          "name": "record_sql",
+          "line": 135,
+          "end_line": 139,
+          "sha256": "9e71714b3337a2ad091a3fb4f82db70fe01e1a69b9b2920c3111147f5739ae7a",
+          "author_pre_correction_sha256": "9e71714b3337a2ad091a3fb4f82db70fe01e1a69b9b2920c3111147f5739ae7a"
+        },
+        {
+          "name": "assert_lock_order",
+          "line": 142,
+          "end_line": 158,
+          "sha256": "4431f67b69d30423dd7e53fdc0bd476afcf481801f2f28b0d26175952fdacad4",
+          "author_pre_correction_sha256": "4431f67b69d30423dd7e53fdc0bd476afcf481801f2f28b0d26175952fdacad4"
+        },
+        {
+          "name": "new_rows",
+          "line": 161,
+          "end_line": 166,
+          "sha256": "95afd2e70eb2cfa60db5a8bcfc3f51dd8cc6beeb4506c81e1ce8e519569f5f50",
+          "author_pre_correction_sha256": "95afd2e70eb2cfa60db5a8bcfc3f51dd8cc6beeb4506c81e1ce8e519569f5f50"
+        },
+        {
+          "name": "assert_event",
+          "line": 169,
+          "end_line": 175,
+          "sha256": "64a3b81ef76bfe496a475478a72aedd645aa04782ae791a03492e7eea769d882",
+          "author_pre_correction_sha256": "64a3b81ef76bfe496a475478a72aedd645aa04782ae791a03492e7eea769d882"
+        },
+        {
+          "name": "assert_changed",
+          "line": 178,
+          "end_line": 180,
+          "sha256": "30c94a4c6136ccd18a1b5f03735ed3b5845b79b496f99310e1ae399ade2b5a4a",
+          "author_pre_correction_sha256": "30c94a4c6136ccd18a1b5f03735ed3b5845b79b496f99310e1ae399ade2b5a4a"
+        },
+        {
+          "name": "assert_created",
+          "line": 183,
+          "end_line": 202,
+          "sha256": "d88beb4a58597bc3f9b467c3247f2bc8c87481e63296201ab1423121abcf1e3e",
+          "author_pre_correction_sha256": "d88beb4a58597bc3f9b467c3247f2bc8c87481e63296201ab1423121abcf1e3e"
+        }
+      ],
+      "test_functions": [],
+      "static_cases": 0,
+      "supersedes_pre_verification_sha256": "02631b112ed2bd75866920e08666c9762d59d96ef57ad7c5fb921ca4ad2b7249",
+      "function_hash_convention": "Post-verification SHA256 hashes actual AST function lineno..end_lineno source lines including trailing newline, excluding preceding decorators. Author hashes retained as explicitly historical."
+    },
+    "backend/tests/qr_asset_race_safety/move_assertions.py": {
+      "sha256": "d7bcf0cf4e5aff9f28c042c5302ad777bf86776c8a9903d1522d9fe861dc763d",
+      "lines": 85,
+      "functions": [
+        {
+          "name": "assert_moved",
+          "line": 12,
+          "end_line": 85,
+          "sha256": "3d3fe6320cbc279010b3f0ac96953e60eacbb5c73a52a045d8234beec838b75c"
+        }
+      ],
+      "test_functions": [],
+      "static_cases": 0
+    },
+    "backend/tests/qr_asset_race_safety/source_observations.py": {
+      "sha256": "59fe70fe0520fa30db251d8415e8e710be497a216977ff844684583d3da58a18",
+      "lines": 62,
+      "functions": [
+        {
+          "name": "source_pids",
+          "line": 10,
+          "end_line": 17,
+          "sha256": "cc78c3bb28c305e4c6adf82f45f668df9ca421f3c5adec4d6df03cae5e5cb5f5",
+          "pre_observation_correction_sha256": "cc78c3bb28c305e4c6adf82f45f668df9ca421f3c5adec4d6df03cae5e5cb5f5"
+        },
+        {
+          "name": "dedicated_waiter",
+          "line": 20,
+          "end_line": 52,
+          "sha256": "d2ab66292f1ff9efc20b3cd3193de09069f85a383aa7afa82766173b977f2526",
+          "pre_observation_correction_sha256": "fc2044d990d74d37d2a038353f1ac6b8f72dddb5209dfad957baf9e720dc6bc0"
+        },
+        {
+          "name": "assert_source_shared_held",
+          "line": 55,
+          "end_line": 62,
+          "sha256": "18b956b830a3d5c26694dc960052284fb9369f973c51cc9e11da58419f2387dd",
+          "pre_observation_correction_sha256": "18b956b830a3d5c26694dc960052284fb9369f973c51cc9e11da58419f2387dd"
+        }
+      ],
+      "test_functions": [],
+      "static_cases": 0,
+      "supersedes_pre_pg_activity_correction_sha256": "13e6413be83bf77db6d9ad43b8766761da9effe340d424e11014a43820aecf76",
+      "function_hash_convention": "Current AST named function source span includes trailing newline, excludes decorators; historical author/pre-correction hashes retained."
+    },
+    "backend/tests/qr_asset_race_safety/test_create_contract.py": {
+      "sha256": "4c4544e10e935097bd8deb3f0656023975dabd5934260a504cb2dc5dbf95c701",
+      "lines": 54,
+      "functions": [
+        {
+          "name": "test_create_once_and_reuse_201_without_update_or_extra_audit",
+          "line": 17,
+          "end_line": 41,
+          "sha256": "8b354eb365b0c331d7ce3eca033e0f99154ab00a642af2d4335ec290f04ab8d5"
+        },
+        {
+          "name": "test_real_audit_insert_then_exception_rolls_back_qr_and_audit",
+          "line": 44,
+          "end_line": 54,
+          "sha256": "b9e77b055ae0840cf2ab14d5d463ad8f8bd79377ade8994e2fa12bc0d28022fa"
+        }
+      ],
+      "test_functions": [
+        {
+          "function": "test_create_once_and_reuse_201_without_update_or_extra_audit",
+          "static_cases": 2,
+          "parameters": [
+            {
+              "names": "qr_management",
+              "values": [
+                true,
+                false
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_real_audit_insert_then_exception_rolls_back_qr_and_audit",
+          "static_cases": 1,
+          "parameters": []
+        }
+      ],
+      "static_cases": 3
+    },
+    "backend/tests/qr_asset_race_safety/test_fresh_policy.py": {
+      "sha256": "e3ca63190a059c984de3ab2c0d6703df61a812747f8b6fb403b386e29d5a19ea",
+      "lines": 101,
+      "functions": [
+        {
+          "name": "test_actual_module_uninstall_commits_while_asset_qr_waits",
+          "line": 21,
+          "end_line": 44,
+          "sha256": "2c27193f723a039e748cc3351f62d87289cfc6b8902ce2708a91bfa9c7f561a9"
+        },
+        {
+          "name": "test_actor_and_action_rechecked_after_last_row_lock_wait",
+          "line": 47,
+          "end_line": 81,
+          "sha256": "df570cd0a311445c0dee8e3cb60db218b0248f8066b5702f46239279d6218646"
+        },
+        {
+          "name": "test_wrong_tenant_role_or_submission_obeys_global_http_policy",
+          "line": 84,
+          "end_line": 101,
+          "sha256": "535997b07b6de60a42b2e765e44c0669af4124ecd392ad0e9b51e938c845e3ce"
+        }
+      ],
+      "test_functions": [
+        {
+          "function": "test_actual_module_uninstall_commits_while_asset_qr_waits",
+          "static_cases": 2,
+          "parameters": [
+            {
+              "names": "existing",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_actor_and_action_rechecked_after_last_row_lock_wait",
+          "static_cases": 9,
+          "parameters": [
+            {
+              "names": "wait,existing",
+              "values": [
+                [
+                  "qr",
+                  true
+                ],
+                [
+                  "asset",
+                  true
+                ],
+                [
+                  "asset",
+                  false
+                ]
+              ]
+            },
+            {
+              "names": "change",
+              "values": [
+                "permission",
+                "inactive",
+                "suspended"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_wrong_tenant_role_or_submission_obeys_global_http_policy",
+          "static_cases": 3,
+          "parameters": [
+            {
+              "names": "denial",
+              "values": [
+                "foreign-role",
+                "foreign-origin",
+                "member-session"
+              ]
+            }
+          ]
+        }
+      ],
+      "static_cases": 14
+    },
+    "backend/tests/qr_asset_race_safety/test_openapi_source.py": {
+      "sha256": "72ae0de6942521a0e4d9bd019d31c75624f1f35a5382ca9443ab72ba78c90bf1",
+      "lines": 49,
+      "functions": [
+        {
+          "name": "asset_post",
+          "line": 6,
+          "end_line": 11,
+          "sha256": "05f3547dc72673c45d48bc1197fe7d893accda40da9badf5ff75bea74030dc98"
+        },
+        {
+          "name": "test_actual_asset_qr_post_has_typed_source_423_and_503",
+          "line": 14,
+          "end_line": 28,
+          "sha256": "410e98f4dc01f92a2c087309e223a53549a1f87142b5c937f8c72c2ea46cb720"
+        },
+        {
+          "name": "test_asset_qr_itself_retains_source_admission_around_locks_and_audit",
+          "line": 31,
+          "end_line": 49,
+          "sha256": "89c4696b004070e1f155b7e478f2efe7ee1837c597d1a21036c9c4526afc1139"
+        }
+      ],
+      "test_functions": [
+        {
+          "function": "test_actual_asset_qr_post_has_typed_source_423_and_503",
+          "static_cases": 1,
+          "parameters": []
+        },
+        {
+          "function": "test_asset_qr_itself_retains_source_admission_around_locks_and_audit",
+          "static_cases": 1,
+          "parameters": []
+        }
+      ],
+      "static_cases": 2
+    },
+    "backend/tests/qr_asset_race_safety/test_source_boundary.py": {
+      "sha256": "3a2fdd781884de924ef13116b9092e8294096bc825999a6836d45460fb2bace2",
+      "lines": 133,
+      "functions": [
+        {
+          "name": "test_genuine_quiesced_source_returns_typed_423_without_mutation",
+          "line": 21,
+          "end_line": 33,
+          "sha256": "934fdcb108513a6bffd3e873353ac064ddeac0e79333f5e71fa2a7e9ba3b9355"
+        },
+        {
+          "name": "test_exclusive_source_blocks_http_before_any_domain_row_lock",
+          "line": 36,
+          "end_line": 63,
+          "sha256": "eea994ca6f02a9387dc627c85435695c1bbc9f8b8c2c9eab7d4c7b2c1950edfb"
+        },
+        {
+          "name": "test_exclusive_source_blocks_http_before_any_domain_row_lock.request_in_outer_atomic",
+          "line": 40,
+          "end_line": 42,
+          "sha256": "23ecd96f03b6f35ef0164036ee41baf6f84bb00ecd26ed36c14c87f64596e25c"
+        },
+        {
+          "name": "test_shared_source_survives_real_audit_insert_and_outer_commit",
+          "line": 66,
+          "end_line": 103,
+          "sha256": "69134460288d5235e548fc8b949f71c2349cadc75843fad72490085c6ebfba5f"
+        },
+        {
+          "name": "test_shared_source_survives_real_audit_insert_and_outer_commit.request_in_outer_atomic",
+          "line": 71,
+          "end_line": 78,
+          "sha256": "9f310be425551fafef3412cfd1a75c8a25399712614bb02a68e33dc120bdd026"
+        },
+        {
+          "name": "test_actual_dedicated_lock_acquisition_failure_is_typed_503",
+          "line": 106,
+          "end_line": 133,
+          "sha256": "89690c6c20f72767258591f52c9c1019154a74de6e7cbe4561fbbe8ecac20e3e"
+        }
+      ],
+      "test_functions": [
+        {
+          "function": "test_genuine_quiesced_source_returns_typed_423_without_mutation",
+          "static_cases": 2,
+          "parameters": [
+            {
+              "names": "existing",
+              "values": [
+                false,
+                true
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_exclusive_source_blocks_http_before_any_domain_row_lock",
+          "static_cases": 1,
+          "parameters": []
+        },
+        {
+          "function": "test_shared_source_survives_real_audit_insert_and_outer_commit",
+          "static_cases": 2,
+          "parameters": [
+            {
+              "names": "cut",
+              "values": [
+                "audit-insert",
+                "before-outer-commit"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_actual_dedicated_lock_acquisition_failure_is_typed_503",
+          "static_cases": 1,
+          "parameters": []
+        }
+      ],
+      "static_cases": 6
+    },
+    "backend/tests/qr_asset_race_safety/test_transfer_races.py": {
+      "sha256": "e2521ce8dab4155df8392aa6860d1716fc8f2214cf5ad2c8e7d8d35e94998ae4",
+      "lines": 81,
+      "functions": [
+        {
+          "name": "test_transfer_wins_after_asset_qr_cached_original_tenant",
+          "line": 18,
+          "end_line": 56,
+          "sha256": "cb2f1fae82017d72143b6d29bddfa22fd0d6a11c335b055ec23b8a75885eac78"
+        },
+        {
+          "name": "test_asset_qr_reuse_wins_then_allows_legitimate_canonical_move",
+          "line": 59,
+          "end_line": 81,
+          "sha256": "42a204ac223c22a1b2ce19bd917df582fe9e06549eb11437d04819787f043d16"
+        }
+      ],
+      "test_functions": [
+        {
+          "function": "test_transfer_wins_after_asset_qr_cached_original_tenant",
+          "static_cases": 2,
+          "parameters": [
+            {
+              "names": "wait",
+              "values": [
+                "maker",
+                "qr"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_asset_qr_reuse_wins_then_allows_legitimate_canonical_move",
+          "static_cases": 1,
+          "parameters": []
+        }
+      ],
+      "static_cases": 3
+    }
+  },
+  "static_counts": {
+    "test_functions": 13,
+    "expanded_cases": 28,
+    "method": "AST literal parameter products only; no collection or project imports"
+  },
+  "source_observed_sha256": {
+    "backend/apps/operations/views_qr_batches.py": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2",
+    "backend/apps/operations/urls.py": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+    "backend/apps/operations/views.py": "3622b8497650ec1e7f9b6df34b6a0a3d4bf62cee0b0d48619a242082968fb22e",
+    "backend/apps/boxes/qr_admission.py": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+    "backend/apps/boxes/rebind.py": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+    "backend/apps/boxes/asset_rebind.py": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+    "backend/apps/boxes/api_views_qr.py": "537a205ed050531faafa4936531cc94691ab721e21a998560bea0a5d6305a224",
+    "backend/apps/boxes/access.py": "3b2ed6228afbd06f4e6660bb6517c1965bc364470597425bbcba260a509e5454",
+    "backend/apps/boxes/serializers.py": "eb87bb8fd67974bcc5d204a8a66d43dbc9b67a1111b040d59936628ebca90946",
+    "backend/apps/boxes/models.py": "d09918dde5ccf1bbaa6808353b91fc6d0ffccb623fa8609dcd591a33b7f066b7",
+    "backend/apps/makerspaces/guards.py": "6aa82ecd5703d7ef9d6f38492aeaaa0c411a064fda92e0b13a47c723ed15852f",
+    "backend/apps/makerspaces/module_install.py": "8bf3befad9b3a25a1b550aee6d65c4c1a52ab760442b36d46ccddf156acb4033",
+    "backend/apps/makerspaces/platform.py": "030c5768905a17e1c805b8abe2759c7e512bfd851945162e5e662378776c3ae9",
+    "backend/apps/admin_api/views_modules.py": "68ad242092c5ead6b94efeec2ba9b7d3c816e8bbe1dea0c463f9af8b50cbb1ee",
+    "backend/apps/accounts/rbac.py": "7f64a57fc7dbfb83fed364bda06b1b88babffae5bb392d1ff9d99b451a6e3c2e",
+    "backend/apps/tenant_migration/gate_locks.py": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+    "backend/apps/tenant_migration/gate_runtime.py": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+    "backend/apps/tenant_migration/middleware.py": "16d7ef2901318b498153ed73d7e3e38c1e3db0d64175dd2332297f75da789f78",
+    "backend/apps/inventory/availability_quantities.py": "788f2d3c76662ee51274311ca14e05378f57c3d080286c8325a6307bb1dcd72d",
+    "backend/tests/qr_target_safety_helpers.py": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+    "backend/tests/box_parent_safety/pg_helpers.py": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+    "backend/tests/tenant_migration/source_gate_helpers.py": "ad8519e171185c81c83dcc8d7be31bb520588b6a1b02534c1353aa0ea25ef332"
+  },
+  "asset_qr_post_observed": {
+    "path": "backend/apps/operations/views_qr_batches.py",
+    "start_line_including_decorators": 173,
+    "end_line": 214,
+    "sha256": "918a83695696adbc1c2cc9b48a85119ca28519e27ee6d094e81f4fdc6d6348f2"
+  },
+  "stage2_preservation_comparison": {
+    "backend/apps/operations/urls.py": {
+      "stage2": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+      "observed": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+      "matches": true
+    },
+    "backend/apps/operations/views.py": {
+      "stage2": "3622b8497650ec1e7f9b6df34b6a0a3d4bf62cee0b0d48619a242082968fb22e",
+      "observed": "3622b8497650ec1e7f9b6df34b6a0a3d4bf62cee0b0d48619a242082968fb22e",
+      "matches": true
+    },
+    "backend/apps/boxes/qr_admission.py": {
+      "stage2": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "observed": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "matches": true
+    },
+    "backend/apps/boxes/rebind.py": {
+      "stage2": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "observed": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "matches": true
+    },
+    "backend/apps/boxes/asset_rebind.py": {
+      "stage2": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "observed": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "matches": true
+    }
+  },
+  "stage_inputs": {
+    "/tmp/spaceworks-asset-qr-target-race-stage1.txt": "a09c068d1424d1c8f9944c12438b3a14d872150341cae43aabee35e6513f8c24",
+    "/tmp/spaceworks-asset-qr-target-race-stage2.txt": "4b190fe44e5bc7e178d02720c2e9011766fb0eb100984d582e94da470dd14ccb"
+  },
+  "coverage": [
+    "Canonical cross-maker HTTP rebind wins while AssetQr waits on Maker NK or existing QR",
+    "AssetQr holds real QR before asset; canonical mover waits QR; coherent reuse then legal move",
+    "Complete persisted snapshots, exact canonical counts, warranty/document scope, scans and audits",
+    "Exact Maker NO KEY UPDATE with no Maker upgrade; QR-before-asset full worker SQL",
+    "Real pg_blocking_pids edges and bounded watchdogs from stable box_parent_safety.pg_helpers",
+    "Actual source exclusive blocks before domain locks; real shared lock retained at audit INSERT and before outer commit",
+    "Genuine QUIESCED 423 and actual cancellation of an owned dedicated acquisition produces typed 503",
+    "Create 201 once; exact created_by, metadata and DTO; reuse 201 with no audit or no-op writes",
+    "Real audit INSERT followed by exception rolls back QR and audit",
+    "Actual module-uninstall HTTP wins Maker wait and causes typed asset_units 400",
+    "Permission revoked or actor inactive/suspended during existing QR and existing/new final asset waits",
+    "Legacy persisted qr_management-off positive control with production guards enabled",
+    "Wrong-tenant role, wrong origin, and member submission preserve global 403/404 policy",
+    "Actual AssetQr post typed OpenAPI 423/503 annotation plus local source-boundary AST assertion"
+  ],
+  "commands_for_root_only": [
+    "./scripts/dev-docker.sh exec -T backend sh -c 'export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager; export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\"); python -m pytest tests/qr_asset_race_safety -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-asset-race.xml'"
+  ],
+  "runtime": {
+    "status": "READY_ROOT_ONLY; independently inspected; no need to wait print policy extension",
+    "collected": false,
+    "executed": false,
+    "django_imported_by_author": false,
+    "builds": false,
+    "tests_passed": null,
+    "junit_path_after_root_execution": "/tmp/spaceworks-qr-asset-race.xml"
+  },
+  "author_validation": [
+    "stdlib ast.parse of owned files",
+    "literal static case counts",
+    "file/function SHA-256",
+    "line ceiling and whitespace",
+    "no imports from unfrozen qr_source_safety helpers",
+    "stage2 overlapping preservation hashes unchanged"
+  ],
+  "source_edits": [],
+  "staged": false,
+  "committed": false,
+  "source_issues_found_in_bounded_asset_qr_scope": [],
+  "doctor": "Auth configured; runtime endpoint DNS/reachability failure observed. No nested gate launched.",
+  "independent_review": "audit_backend_finish fully read all nine authored files, actual PG ownership/cancellation, canonical full move assertions, source/module/actor controls and AST schema guard. No runtime performed.",
+  "fixture_verification_correction": "space() defaults core modules only; asset_units is opt-in (ModuleDefinition.default_enabled=False). Legitimately enable asset_units on both fixture Makerspaces before requests. No production guard disabled, no assertions weakened. 28 static cases unchanged.",
+  "pg_observation_correction": "Root-approved test-only fix discovers exact new waiting PID/key/ShareLock/granted=False/blocker from fresh pg_locks; clears PostgreSQL statistics snapshot before separately binding owned PID to actual Source SQL. Genuine cancellation and strict typed503/no-write assertions unchanged.",
+  "historical_root_run": {
+    "junit": "docs/audits/2026-10-29/evidence/qr-asset-race-round1.xml",
+    "sha256": "659f0c5afd95253cc846a5c2fae55f16cc48b739e07475e21fe8eb99b155e5aa",
+    "cases": 28,
+    "failures": 1,
+    "errors": 0,
+    "meaning": "27 passed, sole503 observation failed before cancellation; corrected source_observations helper rerun pending. Not an all-pass claim."
+  }
+}

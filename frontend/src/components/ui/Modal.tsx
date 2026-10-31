@@ -65,7 +65,7 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const tokenRef = useRef<symbol | null>(null);
   const top = useSyncExternalStore(subscribe, getSnapshot);
-  const amTop = top === tokenRef.current;
+  const amTop = tokenRef.current !== null && top === tokenRef.current;
   const amTopRef = useRef(amTop);
   amTopRef.current = amTop;
   // Keep onClose in a ref so the focus effect depends only on `open`. Callers pass a

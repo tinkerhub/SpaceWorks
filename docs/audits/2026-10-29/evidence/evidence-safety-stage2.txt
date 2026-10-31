@@ -1,0 +1,25 @@
+Stage 2 S02–S06 implemented; source frozen for integration.
+
+| Exact path | Lines |
+|---|---:|
+| [backend/apps/evidence/services_retention.py](backend/apps/evidence/services_retention.py) | 264 |
+| [backend/apps/evidence/views.py](backend/apps/evidence/views.py) | 201 |
+| [backend/apps/evidence/serializers.py](backend/apps/evidence/serializers.py) | 69 |
+| [backend/apps/evidence/finalization.py](backend/apps/evidence/finalization.py) | 218 |
+| [backend/apps/evidence/quota.py](backend/apps/evidence/quota.py) | 61 |
+| [backend/apps/makerspaces/limits_usage.py](backend/apps/makerspaces/limits_usage.py) | 269 |
+| [backend/apps/makerspaces/management/commands/recompute_storage.py](backend/apps/makerspaces/management/commands/recompute_storage.py) | 168 |
+| [backend/apps/tenant_migration/audit_references_meta_source_local.py](backend/apps/tenant_migration/audit_references_meta_source_local.py) | 75 |
+
+Changes:
+- Retention claims recheck current policy under the required locks and skip fresh promotion without creating a blocker.
+- Actual finite PUT debits atomically write journal-bound, deployment-local audit proof. Expiry credits only proven charges, separately from removed bytes.
+- Recompute preserves proven charges until terminal expiry, removes declared-size fallback, and retains provider-error refusal.
+- Evidence endpoints use existing active-user/origin permissions; declared upload size receives dynamic validation.
+- Added the source-local accounting identity declaration and repaired quota-message mojibake.
+
+Operator wording: policy changes govern future claims; committed claims may finish. Legacy, POST, missing-identity and otherwise unproved charges receive no automatic credit and may require reconciliation. Consistent same-deployment restores may retain proof; foreign, portable and custom tenant-dump provenance remains inert. Whole-counter reconciliation concurrency remains outside scope.
+
+Checks passed: eight-file AST parsing, ≤300-line ceilings, scoped whitespace/diff checks, lock-order inspection, and preservation of prior dirty fixes and non-evidence reconciliation categories. Named parent-owned files and frozen Box QR test matched baseline; index unchanged.
+
+**Runtime NOT RUN.** No tests, builds, schema generation, migrations, servers, provider calls, staging, commits or resets performed. Stage 3 remains separate.

@@ -3,14 +3,16 @@
 import ast
 
 from .gate_policy import FANOUT_GATE_PARTICIPANTS
+from .source_gate_atomic_admission import validate_atomic_admission
 from .source_gate_ast import APPS_DIR, all_functions, parents
 
 
 def validate_fanout_gate_coverage(
     apps_dir=APPS_DIR, *, participants=FANOUT_GATE_PARTICIPANTS, error_class=AssertionError
 ):
-    """Require tenant loops to use the skip-and-count boundary, never a raw gate."""
+    """Require skip-and-count jobs or proven all-or-nothing retained admission."""
     functions = all_functions(apps_dir)
+    atomic_calls = validate_atomic_admission(apps_dir, functions, error_class)
     declared = set(participants)
     stale = declared - set(functions)
     if stale:
@@ -42,7 +44,7 @@ def validate_fanout_gate_coverage(
                 continue
             if name not in {"boundary_tenant_write", "tenant_write"}:
                 continue
-            if _has_loop_parent(call, parent_map, function):
+            if _has_loop_parent(call, parent_map, function) and call not in atomic_calls:
                 unsafe.append(target)
                 break
     if unsafe:

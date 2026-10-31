@@ -4,6 +4,9 @@ from decimal import Decimal
 import json
 
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
+from apps.machines.service_file_lifecycle import prepare_files
 from rest_framework.exceptions import NotFound, ValidationError
 
 from apps.machines.models import (
@@ -118,28 +121,33 @@ def _kernel_payload(queue, data):
 
 
 def submit_request(makerspace, data, actor, *, compatibility=False):
-    """Submit a kernel request and charge print quota exactly once."""
-    queue = resolve_queue(makerspace, data.get("queue_id"), compatibility=compatibility)
-    with transaction.atomic():
-        from apps.encryption.write_fence import assert_mapped_write_allowed
-        from apps.makerspaces.models import Makerspace
-        from apps.makerspaces.guards import require_module
+    ids = tuple(data.get("file_ids") or ())
+    context = storage_lifecycle(makerspace.pk) if ids else boundary_tenant_write(makerspace.pk)
+    with context as guard:
+        queue = resolve_queue(makerspace, data.get("queue_id"), compatibility=compatibility)
+        prepared = {}
+        if ids:
+            prepared = prepare_files(makerspace.pk, ids, actor, guard)
+            guard.verify()
+        with transaction.atomic():
+            from apps.encryption.write_fence import assert_mapped_write_allowed
+            from apps.makerspaces.models import Makerspace
+            from apps.makerspaces.guards import require_module
 
-        assert_mapped_write_allowed(makerspace.pk)
-        makerspace = Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace.pk)
-        require_module(makerspace, "printing")
-        queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=queue.pk)
-        if not queue.is_active:
-            raise ValidationError({"queue_id": "Select an active public printer queue."})
-        limits.check_quota(makerspace, "print", adding=1, no_key=True)
-        row = submit(queue, actor, member=actor, actor=actor, requester_name=actor.display_name or "", contact_email=actor.email or "", contact_phone=actor.phone or "", title=data["title"], description=data.get("description", ""), source_link=data.get("source_link", ""), capability_payload=_kernel_payload(queue, data))
-        ids = data.get("file_ids") or []
-        files = list(ServiceRequestFile.objects.select_for_update().filter(id__in=ids, makerspace=makerspace, queue=queue, owner_user_id=actor.pk, service_request__isnull=True, attached_at__isnull=True))
-        if len(files) != len(set(ids)):
-            raise ValidationError({"file_ids": "One or more uploads are invalid, already used, or not yours."})
-        for file in files:
-            finalize_file(row, file_id=file.pk, actor=actor)
-        return row
+            assert_mapped_write_allowed(makerspace.pk)
+            makerspace = Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace.pk)
+            require_module(makerspace, "printing")
+            queue = ServiceQueue.objects.select_for_update(of=("self",)).select_related("makerspace", "machine_type").get(pk=queue.pk)
+            if not queue.is_active:
+                raise ValidationError({"queue_id": "Select an active public printer queue."})
+            limits.check_quota(makerspace, "print", adding=1, no_key=True)
+            row = submit(queue, actor, member=actor, actor=actor, requester_name=actor.display_name or "", contact_email=actor.email or "", contact_phone=actor.phone or "", title=data["title"], description=data.get("description", ""), source_link=data.get("source_link", ""), capability_payload=_kernel_payload(queue, data))
+            files = list(ServiceRequestFile.objects.select_for_update().filter(id__in=ids, makerspace=makerspace, queue=queue, owner_user_id=actor.pk, service_request__isnull=True, attached_at__isnull=True))
+            if len(files) != len(set(ids)):
+                raise ValidationError({"file_ids": "One or more uploads are invalid, already used, or not yours."})
+            for file in files:
+                finalize_file(row, file_id=file.pk, actor=actor, guard=guard, prepared=prepared[file.pk])
+            return row
 
 
 class _StatusProjection:

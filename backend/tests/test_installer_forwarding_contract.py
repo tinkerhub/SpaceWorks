@@ -65,12 +65,39 @@ def test_existing_install_drops_the_shell_repository_override():
 def test_installer_requires_the_request_access_helper_in_the_release():
     """Setup sources this helper, so a partial release must fail before installing the archive."""
     source = (ROOT / "install.sh").read_text(encoding="utf-8")
-    required = source.split("for required in ", 1)[1].split("; do", 1)[0]
-    required = required.replace("\\\n", "").split()
+    declarations = list(re.finditer(r"^required_files=\(([^)]*)\)\n", source, re.MULTILINE))
+    assert len(declarations) == 1
+    declaration = declarations[0]
+    # Only literal, unquoted path tokens and whitespace: no comments or shell evaluation.
+    assert re.fullmatch(r"[A-Za-z0-9_./\s-]+", declaration[1])
+    required = declaration[1].split()
+    assert len(required) == len(set(required))
     assert "setup.sh" in required
     assert "scripts/request-access-selection.sh" in required
     assert "scripts/install-deploy-runner.sh" in required
     assert "scripts/setup-deploy-runner.sh" in required
+    assert set(required) >= {
+        "docker-compose.prod.yml", "scripts/update.sh", "scripts/spaceworks-compose.sh",
+        "scripts/module-selection.sh", "scripts/update-lock.sh", "scripts/install-host-bundle.sh",
+        "scripts/check-restore-host-bundle.py", "scripts/restore.sh", "scripts/import-backup.sh",
+        "install.sh",
+    }
+    loop = 'for required in "${required_files[@]}"; do\n'
+    assert source.count("\n" + loop) == 1
+    assert source[declaration.end():].startswith(loop)
+    loop_end = source.index("\ndone\n", declaration.end()) + len("\ndone\n")
+    regular_check = ('  "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" && '
+                     '"${RUN_ROOT[@]}" test ! -L "$STAGE_DIR/$required" \\')
+    assert regular_check in source[declaration.end():loop_end].splitlines()
+    checker = ('\nguarded_paths="$("${RUN_ROOT[@]}" python3 -I -B '
+               '"$STAGE_DIR/scripts/check-restore-host-bundle.py" \\\n'
+               '  "$STAGE_DIR" "${required_files[@]}")" || die ')
+    checker_start = source.index(checker, loop_end - 1)
+    chmod = source.index('"${RUN_ROOT[@]}" chmod ', loop_end)
+    update = source.index('\n  run_installed "$update_command"', loop_end)
+    move = source.index('\n"${RUN_ROOT[@]}" mv -- "$STAGE_DIR" "$INSTALL_DIR"', loop_end)
+    setup = source.index('run_installed "$setup_command"', move)
+    assert declaration.start() < loop_end <= checker_start + 1 < chmod < update < move < setup
 
 
 def test_installer_reads_the_private_stage_dir_only_as_root():

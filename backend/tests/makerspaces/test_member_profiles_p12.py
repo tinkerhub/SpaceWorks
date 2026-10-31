@@ -62,6 +62,7 @@ def directory_url(makerspace):
 # --- the surface ------------------------------------------------------------------
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_member_writes_their_own_profile_and_reads_it_back():
     space = make_space()
     membership = member(space)
@@ -93,6 +94,7 @@ def test_a_member_writes_their_own_profile_and_reads_it_back():
     assert response.data["projects"][0]["title"] == "Line follower"
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_javascript_link_is_refused():
     """These render as an href on a page other members read."""
     space = make_space()
@@ -106,6 +108,7 @@ def test_a_javascript_link_is_refused():
     assert response.status_code == 400
 
 
+@pytest.mark.django_db(transaction=True)
 def test_lists_are_capped():
     space = make_space()
     membership = member(space)
@@ -118,6 +121,7 @@ def test_lists_are_capped():
     assert response.status_code == 400
 
 
+@pytest.mark.django_db(transaction=True)
 def test_saving_projects_replaces_the_list_and_rejects_a_foreign_id():
     space = make_space()
     membership = member(space)
@@ -152,6 +156,7 @@ def test_saving_projects_replaces_the_list_and_rejects_a_foreign_id():
     assert foreign.title == "Theirs"
 
 
+@pytest.mark.django_db(transaction=True)
 def test_changing_the_github_handle_drops_the_cached_count():
     """Otherwise one account's total shows under another account's name."""
     space = make_space()
@@ -172,6 +177,7 @@ def test_changing_the_github_handle_drops_the_cached_count():
 # --- privacy ----------------------------------------------------------------------
 
 
+@pytest.mark.django_db(transaction=True)
 def test_the_directory_lists_only_opted_in_members_and_counts_the_rest():
     space = make_space()
     shown = member(space, username="shown", display_name="Shown Person")
@@ -188,6 +194,7 @@ def test_the_directory_lists_only_opted_in_members_and_counts_the_rest():
     assert response.data["hidden_count"] == 2
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_directory_row_never_carries_contact_details():
     space = make_space()
     shown = member(space, username="shown", display_name="Shown Person")
@@ -198,6 +205,7 @@ def test_a_directory_row_never_carries_contact_details():
     assert set(row) == {"membership_id", "display_name", "headline", "avatar_url"}
 
 
+@pytest.mark.django_db(transaction=True)
 def test_an_unpublished_profile_is_a_404_to_another_member():
     space = make_space()
     hidden = member(space, username="hidden")
@@ -284,6 +292,7 @@ def test_every_collector_sees_member_imagery():
     assert {avatar, project_key} <= set(membership_public_image_keys(space))
 
 
+@pytest.mark.django_db(transaction=True)
 def test_a_membership_purge_destroys_profiles_but_keeps_the_membership():
     from apps.makerspaces.module_purge_collectors import membership_delete
 
@@ -292,7 +301,9 @@ def test_a_membership_purge_destroys_profiles_but_keeps_the_membership():
     profile = profile_services.profile_for(membership)
     MemberProject.objects.create(profile=profile, title="P")
 
-    membership_delete(space, None)
+    from apps.object_storage_lifecycle import storage_lifecycle
+    with storage_lifecycle(space.pk) as guard:
+        membership_delete(space, None, guard=guard)
 
     assert not MemberProfile.objects.filter(pk=profile.pk).exists()
     assert not MemberProject.objects.exists(), "projects cascade from the profile"
@@ -310,6 +321,7 @@ def test_the_membership_plan_declares_its_imagery():
 # --- GitHub -----------------------------------------------------------------------
 
 
+@pytest.mark.django_db(transaction=True)
 def test_github_is_dormant_without_a_token(settings):
     from apps.makerspaces import github_contributions
 
@@ -362,6 +374,7 @@ def test_a_transport_failure_is_swallowed(settings, monkeypatch):
     assert github_contributions.fetch_total("octocat") is None
 
 
+@pytest.mark.django_db(transaction=True)
 def test_profile_reads_never_call_github(settings, monkeypatch):
     """The read path must not depend on an external service being up at all."""
     import urllib.request
@@ -378,10 +391,15 @@ def test_profile_reads_never_call_github(settings, monkeypatch):
     assert authed(membership.user).get(profile_url(space)).status_code == 200
 
 
+@pytest.mark.django_db(transaction=True)
 def test_save_projects_rejects_a_foreign_id_before_writing_anything():
     space = make_space()
     membership = member(space)
     profile = profile_services.profile_for(membership)
 
-    with pytest.raises(ValidationError):
-        profile_services.save_projects(profile, [{"title": "New"}, {"id": 999, "title": "X"}])
+    from django.db import transaction
+    from apps.object_storage_lifecycle import storage_lifecycle
+    with storage_lifecycle(space.pk) as guard:
+        with pytest.raises(ValidationError), transaction.atomic():
+            profile_services.save_projects(profile, [{"title": "New"}, {"id": 999, "title": "X"}], guard=guard)
+    assert not MemberProject.objects.filter(profile=profile, title="New").exists()

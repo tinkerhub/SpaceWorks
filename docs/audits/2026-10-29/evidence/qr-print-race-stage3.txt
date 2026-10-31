@@ -1,0 +1,5 @@
+Added 60 static cases in seven new `backend/tests/qr_print_race_safety/` files; largest is 202 lines.
+
+Syntax, case products, dependencies, and freeze hashes verified. Concurrent source changes are recorded.
+
+[Freeze manifest](/tmp/spaceworks-qr-print-race-test-freeze.json) includes exact files/functions, hashes, tradeoffs, and root command. Runtime remains pending. No tests, collection, Django imports, builds, staging, or commits performed.

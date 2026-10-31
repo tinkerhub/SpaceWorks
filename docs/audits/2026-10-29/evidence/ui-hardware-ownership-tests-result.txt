@@ -1,0 +1,5 @@
+Added **67 cases across 9 new test files and 1 test helper**. All 12 frozen production hashes match.
+
+No tests, TSC, builds, application runtime, staging, or commits performed. **Runtime validation remains pending.**
+
+[Handoff: exact files, case counts, coverage, fixture adapter, and focused repository-root Node 20 command](/tmp/spaceworks-ui-followup/hardware-ownership-tests-result.txt)

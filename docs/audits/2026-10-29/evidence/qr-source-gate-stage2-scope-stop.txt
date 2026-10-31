@@ -1,0 +1,7 @@
+Stopped before editing: I found a scope conflict.
+
+Native generation at [inventory/admin.py:154](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/inventory/admin.py:154) and API generation both call `generate_assets_with_qr(actor, product, data)`. The service receives no caller context. It cannot reliably recheck native-only hidden-space/superuser policy after waiting while preserving the API’s membership exception.
+
+The minimal scope extension is one caller change in `backend/apps/inventory/admin.py`: pass `native=True`, with the corresponding keyword handled in the already-approved service file. May I include that wiring?
+
+No files edited; no tests, Django imports, builds, staging, or commits performed. All inspected scoped files currently remain ≤300 lines.

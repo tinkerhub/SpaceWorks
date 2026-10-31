@@ -1,0 +1,13 @@
+Concrete correction required in delta items 4–5: **restore the preserved target identity before launching `control rehydrate`.**
+
+`scripts/restore.sh:17–19` launches every control command through the application’s `management` entrypoint. After the identity-free dump replaces the database, the next command is `control rehydrate` (`:237`). H1 requires that entrypoint to reject a missing database singleton; code inside `rehydrate_control_record` cannot repair it because the command cannot start. See [H1 startup requirements](docs/INVARIANTS.md:3104) and [identity requirements](docs/INVARIANTS.md:3223).
+
+Revise the sequence explicitly:
+
+1. Capture the exact target identity before replacement.
+2. After `pg_restore`, use the existing privileged maintenance path to check endpoint/name/OID/TLS and available system corroboration, require an empty identity table, and insert the exact preserved target singleton transactionally.
+3. Query and verify the complete restored target identity, retain immediate grant reprovisioning, then launch `control rehydrate`. Keep failure within the existing destructive rollback path.
+
+The pre-insert physical check must work without the singleton; `query_live_database_identity()` deliberately refuses its absence ([database_identity.py:88](backend/apps/backup/database_identity.py:88)). Use that complete query after insertion. Preserve the existing root marker without bypassing or overwriting it.
+
+The proposed exact operational-row omission and UUID-backed, no-superuser source identity otherwise fit the named owners and invariants. No tests or edits performed; cryptographic/cohort approval was not reopened.

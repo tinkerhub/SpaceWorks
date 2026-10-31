@@ -1,0 +1,15 @@
+APPROVED — Stage 1 plan only.
+
+The raw readonly FK in `QrPrintBatchItemInline` exposes the live QR string and native change link. The proposed ownership check closes that surface while retaining historical snapshots and FK rows.
+
+Required implementation boundaries are sound:
+
+- Compare QR and batch makerspace IDs before stringification or link construction.
+- Return neutral “QR unavailable” for foreign QR rows.
+- Preserve same-maker text/link using `format_html` and `reverse`.
+- Set `fields = readonly_fields` explicitly to exclude an editable raw FK.
+- Keep permissions and lifecycle behavior unchanged.
+
+After source write/readback, the separate Stage 3 test file should verify actual authenticated native GET rendering, hidden-B and same-maker cases, form-field exclusion, and unchanged history/audit state.
+
+Read-only source review completed; no imports, execution, tests, or mutations. Runtime and final review remain with the parent.

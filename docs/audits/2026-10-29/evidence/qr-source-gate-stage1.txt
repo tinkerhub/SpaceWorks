@@ -1,0 +1,38 @@
+**MANDATORY REVISIONS before Stage 2.** The proposed admission order is sound, but the file scope misses two actual native write paths.
+
+1. **Native QR change/delete remain enabled.** [QrCodeAdmin](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/admin.py:134) leaves `created_by` editable and inherits single/bulk deletion. The generic [admin source check](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/config/admin_source_gate.py:61) does not retain Source-N through these operations under autocommit. Add local retained admission around their actual native transaction/dispatch, including sorted admission for bulk targets. Preserve native superuser and hidden-space guards; do not change global guards.
+
+2. **Native asset QR generation needs retained admission.** [generate_qr_assets](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/inventory/admin.py:116) calls [generate_assets_with_qr](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:96), which acquires Maker/product locks without retaining Source-N. Add admission before its existing Maker lock and recheck the locked product’s tenant. This is a demonstrated caller gap, not an inference from a QR constructor.
+
+The minimal implementation algorithm is:
+
+- **Preflight without row locks:** resolve authorized QR/target makerspace identities using existing action scope and origin checks. For cross-space rebind/move, validate destination authority and resolve destination targets before consulting their source gates. Missing or unauthorized targets must retain their scoped refusal.
+- **Admit before locking:** enter existing `boundary_tenant_write` contexts for sorted, deduplicated source/destination IDs. Enclose the actual mutation transaction and its commit; when joining an outer atomic transaction, retain its existing transaction-scoped ownership.
+- **Lock and revalidate:** fetch fresh scoped QR/target rows. Refuse changed tenant identities with 404/conflict; never acquire a newly discovered tenant under row locks. Asset moves must also validate locked asset/source-product/destination-product ownership.
+- **Preserve row order:** retain QR → target/asset → ordered products where currently used. Do not add blanket Maker locks to revoke/rebind: [existing PostgreSQL tests](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_checkout_native_lock_races.py:126) require these paths to progress while checkout holds Maker `NO KEY UPDATE`.
+- **Complete atomically:** keep mutation, scans, renames, warranty movement, availability calls and existing audits in the same transaction. Preserve active/revoked/reuse/conflict behavior.
+
+Specific routing changes:
+
+- **Box creation:** consume the parent’s frozen source-before-Maker implementation unchanged.
+- **Tool creation:** admit before creation/reuse work; revalidate target ownership under the appropriate locks. Where locking an existing QR for reuse, preserve QR-before-target order.
+- **Scan and resolve:** admit before locking the fresh active QR and writing the scan. Construct payload/actions from fresh state. Resolve must retain `VIEW_INVENTORY` authority without requiring `MANAGE_QR`.
+- **Revoke:** replace the API’s initial locked lookup with unlocked scoped preflight. The shared service must admit first, then lock/recheck the QR.
+- **Rebind:** add unlocked scoped target preflight in `access.py`; keep the existing locked lookup afterward. Admit both tenants before the initial QR lock. The asset-move helper must receive already-admitted identities and perform fresh ownership checks.
+
+Concrete Stage 2 file scope:
+
+- `boxes/api_views_qr.py`
+- `boxes/services.py` — revoke portion only after parent freeze
+- `boxes/access.py`
+- `boxes/rebind.py`
+- `boxes/asset_rebind.py`
+- Small `boxes/qr_admission.py`, if needed
+- Small native QR lifecycle module plus minimal `QrCodeAdmin` wiring after parent freeze
+- `operations/services_qr_assets.py` — generation admission only
+
+Keep every file ≤300 lines. Leave Print GET, middleware/exemptions, global guards, quantity algorithms and hardware workflow mutations unchanged.
+
+Stage 3 must retain strict **423** expectations and cover all listed writes plus the two native additions: genuine QUIESCED refusals with unchanged state, real Source-N exclusive blocking **before** row locks, fresh-state refusals after waiting, retained ownership through outer commit/audit probes, valid same/cross-space flows, scoped denials, and existing checkout/revoke/rebind races.
+
+No edits, tests, or runtime checks were performed.

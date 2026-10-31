@@ -15,7 +15,7 @@ def _run(tmp_path, database, pointer, target, *, scheduler=None):
             fixtures.CAPTURE_ID,
             "admin@example.test",
         ),
-        artifact=fixtures.Artifact(),
+        artifact=fixtures.Artifact(tmp_path / "selected"),
         database=database,
         writers=database.writers,
         pointer=pointer,
