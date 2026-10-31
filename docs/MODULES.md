@@ -14,7 +14,7 @@ happens to its data.
 
 | Level | Who changes it | What it means |
 |---|---|---|
-| **Core module** | nobody | Always on. The Hard Rules make the loan spine *the system*: issuing hardware needs a box QR scan **and** an issue photo, so catalogue + requests + staff console + evidence + QR + scanner ship with every install. |
+| **Core module** | nobody | Always on. Issue photos are always required; QR support is needed for individually tracked units and container-based handovers. Catalogue + requests + staff console + evidence + QR + scanner ship with every install. Containers are optional on reviewed requests; an assigned container requires its scan, and individually tracked units always need their own QR scans. |
 | **Module** | superadmin (console or CLI) | A whole capability. Installing adds its surfaces; uninstalling hides them and **keeps every row**. |
 | **Feature** | Space Manager (in the console) | A switch *inside* a module, for something narrower than a whole capability. Inert while its parent module is off. |
 
@@ -130,8 +130,9 @@ thirteen modules under it are optional.
 
 - **What it is** — generating, revoking and printing the QR codes for boxes, tools and asset units.
 - **What it adds** — the `qr_generate`, `qr_revoke` and `qr_print` workflows, plus QR rebinding.
-- **Without it** — not an option: issuing reviewed-request hardware requires a box QR scan, so a space
-  with no QR codes could not complete a handover.
+- **Without it** — not an option: individually tracked units and container-based handovers need QR
+  codes. Reviewed requests can issue quantity-tracked items without a container; issue photos remain
+  required, and an assigned container still requires its scan.
 - **Data** — core; not separately purgeable. Scan records are immutable.
 
 ### scanner
@@ -140,7 +141,9 @@ thirteen modules under it are optional.
 
 - **What it is** — the camera scanner and the container lookup it feeds.
 - **What it adds** — the `qr_scan` and `container_lookup` workflows.
-- **Without it** — not an option, for the same reason as `qr_management`: no scan, no handover.
+- **Without it** — not an option: scans are required for individually tracked units and for assigned
+  containers. A reviewed request without a container still requires an issue photo and each tracked
+  unit's own QR scan.
 - **Data** — core; not separately purgeable.
 
 ### asset_units
@@ -164,8 +167,10 @@ thirteen modules under it are optional.
   direct handout can resolve a scanned container into the loan.
 - **Without it** — you cannot create, list, open, edit or re-parent containers in the console, and a
   direct handout will not accept one. Storage location stops being modelled as a hierarchy. Scanning a box QR still
-  resolves — that is [`scanner`](#scanner) — and containers that already exist keep their codes, so the
-  box-scan-at-issue rule is unaffected.
+  resolves — that is [`scanner`](#scanner) — and containers that already exist keep their codes.
+  Reviewed requests can be issued without a container. If one is assigned, its scan is required at
+  issue and return; otherwise returns record no container scan. Photos remain required, as do each
+  individually tracked unit's own QR scans at issue.
 - **Data** — `purge_module_data` reports it stores no data of its own to purge separately.
 
 ### bulk_import
@@ -579,9 +584,17 @@ scripts/spaceworks-compose.sh bundled run --rm --no-deps backend --role manageme
 - **Superadmin only**, and it asks you to type the makerspace slug back before proceeding.
 - **It cannot be undone.** Uninstall is reversible; this is not.
 - **Payment records are kept** — see [`payments`](#payments).
-- Uploaded files are removed after the database work commits, and your storage quota is credited back
-  only for objects the bucket confirmed it deleted, so the counter can never drift below what you are
-  actually storing.
+- **File cleanup happens before row deletion.** A durable module-purge receipt freezes the exact
+  graph, file locators and original quota obligations. If storage cleanup fails, rows and locators stay
+  available for retry; reinstalling is blocked while that intent is pending.
+- Successful cleanup commits graph removal, the original quota credit and its audit record together.
+  Unknown historical charges receive no guessed credit. A conservative overcount can be reconciled
+  after verifying storage.
+- Keep the receipt. An upload already admitted by storage can finish late; an active superadmin can
+  explicitly retry its cleanup in `/control/`. Completed retries grant no second quota credit. Receipts
+  never schedule themselves, cannot be rebound to another tenant or storage origin, and are invalidated
+  by recovery or a subsequent reinstall. A stale frozen graph requires recovery or an explicitly
+  confirmed whole-tenant purge, rather than a force option.
 
 A module absent from `--list` either owns no data of its own or cannot be purged separately, and the
 command tells you which. [`machines`](#machines) is the notable second case.

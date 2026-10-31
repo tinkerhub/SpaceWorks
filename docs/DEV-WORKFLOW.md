@@ -36,14 +36,16 @@ Merkle batches, organizations conferring actions across their makerspaces, and a
 protected route behind a `legacy:v1` cutover) — its rules are the two newest sections of
 `docs/INVARIANTS.md`.
 
-**Codex is AVAILABLE — verified 2026-08-15: `codex doctor` reports `auth is configured` (ChatGPT tokens,
-standalone runtime 0.147.0, all checks green) — so the Stage-1/2/4 gates in `~/.claude/CLAUDE.md` are LIVE
-and must be run.** It runs as the `gpt-5.6-sol` model at **high** reasoning effort
-(`model = "gpt-5.6-sol"`, `model_reasoning_effort = "high"` in `~/.codex/config.toml`). There was
-a stretch when `codex doctor` reported no credentials, during which Claude implemented directly and the
-owner waived those gates; that no longer applies. **Re-check `codex doctor` rather than trusting this
-paragraph** — it is the one claim here that goes stale without anyone editing the file, and it stayed wrong
-for weeks.
+**The Stage-1/2/4 Codex gates are LIVE, subject to a fresh `codex doctor` check when work starts.**
+Use the current global `~/.claude/CLAUDE.md` and its `~/.claude/commands/run-codex.md` definition as
+the authority for invocation mode, model, reasoning effort and runtime requirements. Do not copy an old
+CLI/model constant from this document or assume the interactive `~/.codex/config.toml` defaults are
+the gate's settings. If credentials are unavailable, report the gates as blocked and follow the global
+instructions; a previous owner's waiver is not a standing exemption.
+
+Stage 1 requires plan review and owner approval before Stage 2 implementation; Stage 4 requires the
+background review through the current global `/run-codex` workflow. Preserve the mandatory owner QA
+gate below: no early commit before that approval.
 
 **The commit-trailer rule is attribution, not ceremony:** name Codex in a `Co-Authored-By` trailer only on
 work Codex actually wrote. A Codex trailer on work it did not write is false attribution, and that overrides
@@ -73,49 +75,50 @@ plus their prior verdict returned both approvals in minutes.
   `origin_scope.py`, `admin_api/urls.py`, `openapi-schema.json`, `api.ts`). Worktrees are fresh checkouts →
   **gitignored files (e.g. `backend/.env`) must be copied in**. Cap at 2 heavy builds. At the end: merge the
   worktree branch → `dev`, `git worktree remove`, drop its DB.
-- **Codex gotchas.** Run Codex with skill-free prompts that skip reading this file, in the **background**
-  (`run_in_background:true`) — the 10-min foreground ceiling is too short. Stage-4 = `codex exec review
-  --uncommitted` (no `--sandbox`, no custom prompt; findings at the literal tail). If Codex dies with
-  Windows `-1073741502` / "host exited during handshake", it's desktop-heap exhaustion — kill **only** codex
-  PIDs (never `node.exe` = harness/MCP); a reboot clears it. **Never `git add`/stage before a Codex
-  workspace-write run** — a non-empty staged index makes Codex's `apply_patch` silently fail with a
+- **Codex gotchas.** Follow the current global `/run-codex` instructions for foreground implementation,
+  background Stage-4 review, flags and reading the captured result file. Do not substitute a copied
+  command from an older CLI. The historical Windows `-1073741502` / "host exited during handshake"
+  workaround was to stop only Codex PIDs, never harness/MCP `node.exe` processes.
+  **Never `git add`/stage before a Codex workspace-write run** — a non-empty staged index makes
+  Codex's `apply_patch` silently fail with a
   misleading "workspace/tests/ is read-only" error and no files written. Keep the index clean during
-  implementation; only `git add` right before the Stage-4 `codex review` (so it sees new untracked files),
-  then `git reset` before the next Codex build.
-- **Test harness.** Local `spaceworks-db` (:5433), `spaceworks-redis` (:6379), `spaceworks-minio` (:9200)
-  must be running — `./scripts/dev-local.sh infra` starts exactly those. Run tests with
-  `./scripts/dev-local.sh test` (or `DATABASE_URL=…@localhost:5433/makerspace_manager pytest`, or the
-  worktree's dedicated DB). **Never run two `pytest` procs against one DB** (TRUNCATE-FK teardown races +
+  implementation. Before Stage 4, ensure new untracked files are included in the review: the current
+  global uncommitted-review mode includes them without staging. Verify visibility for the selected mode;
+  do not stage merely to make files visible, and return to a clean index before another workspace-write run.
+- **Test harness.** Use the Docker commands under [Tests](#tests), with the database-owner override and
+  an ephemeral encryption key. Base [Compose](../docker-compose.yml) publishes Postgres on :5432 and
+  MinIO on :9000 (console :9001); Redis has no host port by default. Machine overrides may change these.
+  **Never run two `pytest` procs against one DB** (TRUNCATE-FK teardown races +
   false concurrency failures) and **never run the full suite concurrently with `codex review`** (it runs its
   own pytest). If a background full-suite is killed by the environment, run it as **foreground chunks**
-  (`pytest tests/<subdirs>`, `tests/test_[a-l]*.py`, `tests/test_[m-z]*.py`). **The baseline is ZERO reds** —
-  the seven long-standing failures were fixed on 2026-08-12, so any red is a NEW regression, not background
-  noise. This bullet once exempted `test_machine_image_presign_finalize_delete_and_audit` as a permitted
-  MinIO-host-port failure; that test no longer exists in the tree and the exemption went with it. Do not
-  reintroduce a "known failures" allowance without naming the test and the date it was granted.
-- **Local dev topology (Arch host) — three ways to run, one set of port remaps.** Host ports are remapped in
-  the gitignored, machine-specific `docker-compose.override.yml`: Postgres :5433, Redis :6379, MinIO
-  :9200/:9201 (:9100 is taken by a Dart dev tool on this machine). Secrets always come from `backend/.env`.
+  using the same child-shell environment below and scoped test paths. Consult [AGENTS.md](../AGENTS.md)
+  for the explicitly named environmental exceptions and known ordering flake; there is no blanket
+  exemption for other failures and no current pass count asserted here.
+- **Local dev topology — three ways to run.** Defaults come from the committed Compose files;
+  `docker-compose.override.yml` is optional, gitignored and machine-specific. Root `.env` supplies Compose
+  interpolation; host Django reads `backend/.env`. Do not interchange their network addresses.
   1. **Everything in Docker with live reload — the default.** `./scripts/dev-docker.sh up -d --build`.
      `docker-compose.dev.yml` (committed) layers onto the base file: `./backend` and `./frontend` are
      bind-mounted, Django runs under autoreloading `runserver` with `DEBUG=True`, and the frontend is the
      Vite dev server with HMR instead of nginx. Frontend :5000, backend + `/control/` + `/docs/` on :8000.
      No host virtualenv, no host `npm install`.
   2. **Everything in Docker, production-shaped.** `docker compose up -d --build` — gunicorn + nginx serving
-     the baked `dist`, i.e. what a makerspace operator actually runs. Frontend :8080, backend :8002. Code
-     changes need a rebuild. It runs with `DEBUG=False`, so `.env` must set a real `SECRET_KEY` (32+
-     random characters): `migrate` refuses the compose placeholder with system check `accounts.E001`.
-  3. **Infrastructure only in Docker, app on the host — fallback.** `./scripts/dev-local.sh` (gitignored,
-     machine-specific) exports host-facing rewrites of the container hostnames. Kept because host `pytest`
-     and one-off `manage.py` runs are faster than `exec`-ing into a container.
+     the baked `dist`. Base defaults are frontend :80 and backend :8001; a machine override may replace
+     them. Code changes need a rebuild. This is a separate topology requiring explicit non-DEBUG
+     configuration, including a real `SECRET_KEY` (32+ random characters) and a process-visible
+     `TRUSTED_PROXY_COUNT`; see [Local development](#local-development).
+  3. **Infrastructure only in Docker, apps on the host — advanced fallback.** Configure the host
+     virtualenv, frontend dependencies and service URLs manually as described below. There is no
+     committed host-launcher script to supply the rewrites.
 
   **`scripts/dev-docker.sh` exists because passing any `-f` to `docker compose` disables the automatic merge
   of `docker-compose.override.yml`.** It spells the chain out as base → override → dev, in that order: the
-  override supplies the infrastructure port remaps, and the dev layer must come last so its app-service
+  optional override can supply infrastructure port remaps, and the dev layer must come last so its app-service
   commands, ports and bind mounts win. Every argument is forwarded verbatim, so it is a drop-in prefix for
-  any compose subcommand. Three traps this topology already hit:
+  any compose subcommand. Use `./scripts/dev-docker.sh config` to inspect the merged configuration
+  locally (it contains secrets; do not publish it). Three traps this topology already hit:
   - **The base file hands `backend`'s environment to `migrate`/`worker`/`beat` through a YAML anchor**, so a
-    patch to `backend` alone never reaches them — the override applies the MinIO host-port rewrite to all
+    patch to `backend` alone never reaches them. Apply browser-facing storage URL changes to all
     four (the Celery worker builds public image URLs into outbound mail).
   - **`tsc -b` must not emit `vite.config.js` next to `vite.config.ts`** — Vite resolves `.js` first, so a
     stale artifact silently shadows the real config; `tsconfig.node.json` therefore emits into
@@ -123,8 +126,9 @@ plus their prior verdict returned both approvals in minutes.
   - **The dev frontend must carry its own `image:` tag** (`spaceworks-frontend-dev`): `frontend` is the only
     service overriding `build.target`, so without it both topologies derive the same `spaceworks-frontend`
     name, whichever built last owns the tag, and a later prod `docker compose up -d` **without `--build`**
-    silently runs the dev image — `CMD` is `npm run dev`, nginx never starts, `8080->80` points at a dead
-    port, and the container sits **unhealthy while its logs read a perfectly normal "VITE ready"**. The
+    silently runs the dev image — `CMD` is `npm run dev`, nginx never starts, and its published port
+    points at a dead nginx listener. The container sits **unhealthy while its logs read a perfectly
+    normal "VITE ready"**. The
     instant tell is the port: the dev stage is `FROM deps` (no source), so without the dev layer's
     `./frontend:/app` mount there is no `vite.config.ts` and Vite falls back to its default **:5173**
     instead of the configured **:5000**.
@@ -135,49 +139,124 @@ plus their prior verdict returned both approvals in minutes.
 
 ## Local development
 
-The topology bullet above explains *why* there are three ways to run this and what each one is for; this
-section is the commands. Keep them adjacent — they were 1,400 lines apart once, which is how the two
-accounts drifted.
-
-The default path needs nothing installed on the host but Docker. Migrations run automatically as a
-`depends_on: service_completed_successfully` step, so `up` is the whole story:
+Start with the root `.env.example` and the local settings in
+[DEVELOPMENT.md](../.github/DEVELOPMENT.md#1-configure-a-local-docker-environment). The default path
+needs Git, Docker and a current Compose plugin, with no host Python/npm setup. Run commands from the
+repository root. Migrations run automatically before application services start:
 
 ```bash
-# Everything — db, redis, minio, Django, Celery worker/beat, Vite — with live reload.
-./scripts/dev-docker.sh up -d --build     # first run; drop --build afterwards
-./scripts/dev-docker.sh run --rm --no-deps backend --role management python manage.py seed_demo   # first run only
+./scripts/dev-docker.sh config              # inspect locally; output contains secrets
+./scripts/dev-docker.sh up -d --build       # first run; drop --build afterwards
 ./scripts/dev-docker.sh logs -f backend
-./scripts/dev-docker.sh restart worker beat   # Celery has no autoreload
-./scripts/dev-docker.sh down
-
-# After changing package.json, recreate the node_modules volume:
-./scripts/dev-docker.sh up -d --build -V frontend
-
-# Tests. The DATABASE_URL override is REQUIRED: the backend container runs as the
-# least-privilege `spaceworks_app` role, which has no CREATEDB, so pytest cannot build
-# its test database as itself (every django_db test errors in setup without this).
-./scripts/dev-docker.sh exec -e DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager \
-  -T backend pytest
+./scripts/dev-docker.sh restart worker beat # Celery has no autoreload
+./scripts/dev-docker.sh down                # retains data volumes
 ```
 
-`tests/backup` and `tests/tenant_migration` are **Docker-only in practice**: they need a PostgreSQL
-client whose major equals the server's (16), which `postgres_client.client_binary` looks for under
-`/usr/lib/postgresql/{major}/bin` or `/usr/pgsql-{major}/bin`. Neither path exists on Arch, so on the
-host they all refuse with `PostgresClientUnavailable` — the environment, not a regression. The backend
-image installs client 16 *and* 17 on purpose (`pg_dump` must be >= every supported source server;
-`pg_restore` must be <= the target, because 17+ emits a `transaction_timeout` GUC that 16 rejects).
-
-Host fallback (faster `pytest` / one-off `manage.py`; needs `backend/.venv` + `npm install`):
+**Optional synthetic local fixtures only:** on a disposable local database, run the following after
+startup. It creates demo accounts and resets demo inventory; never run it against production data.
 
 ```bash
-./scripts/dev-local.sh infra          # db, redis, minio only
-./scripts/dev-local.sh migrate
-./scripts/dev-local.sh backend        # http://localhost:8000
-./scripts/dev-local.sh frontend       # http://localhost:5000
-./scripts/dev-local.sh test
+./scripts/dev-docker.sh run --rm --no-deps backend --role management python manage.py seed_demo
 ```
 
-**Never run both at once** — they bind the same host ports (:8000, :5000) and the same database.
+- Public catalog: `http://localhost:5000`; the seed includes `http://localhost:5000/m/alpha-lab`.
+- Staff console: `http://localhost:5000/admin/`; Django control plane: `http://localhost:8000/control/`.
+- API: `http://localhost:8000/api`; Swagger `/docs/`, ReDoc `/redoc/`, schema `/schema/` on that backend.
 
-- Public inventory page: `http://localhost:5000/m/makerspace`
-- API: `http://localhost:8000/api` — Swagger UI at `/docs/`, ReDoc at `/redoc/`, schema at `/schema/`.
+The frontend Docker image uses **Node 22 Alpine**. For intentional dependency changes, use that image
+to regenerate `frontend/package-lock.json`, then rebuild and renew the dev dependency volume:
+
+```bash
+docker run --rm -v "$PWD/frontend:/app" -w /app node:22-alpine npm install --package-lock-only
+./scripts/dev-docker.sh up -d --build -V frontend
+```
+
+**Production-shaped Docker is separate.** Stop the dev stack first. `docker compose up -d --build`
+uses gunicorn/nginx with base defaults of `http://localhost` and `http://localhost:8001` for the backend,
+subject to the optional automatic machine override. Configure `DEBUG=False`, a non-placeholder
+`SECRET_KEY`, local origins/storage URLs and the actual proxy topology before using it. The base
+environment does not forward `TRUSTED_PROXY_COUNT`: provide it to Django/Celery processes, including
+`migrate`, through a local Compose override. The bundled nginx path has one proxy; direct backend
+access has none. Use the [self-hosting guide](self-hosting.md) for deployment configuration.
+
+**Advanced host applications with container infrastructure:** stop the Docker application stack first,
+then start only infrastructure:
+
+```bash
+./scripts/dev-docker.sh down
+./scripts/dev-docker.sh up -d db redis minio createbuckets
+```
+
+Manually create `backend/.venv` with Python 3.12+, install `backend/requirements.txt`, and copy
+`backend/.env.example` to `backend/.env` if it does not already exist. Set a local `SECRET_KEY`,
+`DEBUG=True`, HTTP development cookies (`AUTH_COOKIE_SAMESITE=Lax`, `AUTH_COOKIE_SECURE=False`),
+and `DATABASE_URL` using the actual published Postgres port (base :5432). Set both
+`AWS_S3_ENDPOINT_URL` and `AWS_S3_PUBLIC_ENDPOINT_URL` to the host-reachable MinIO endpoint (base
+`http://localhost:9000`), and align `PUBLIC_IMAGE_BASE_URL`. Container service names are not host URLs.
+
+Redis is not published by default. If the host apps need Redis, explicitly publish it in your local
+override and configure the host-facing `CELERY_BROKER_URL` / `CACHE_URL`; this project does not read a
+`REDIS_URL` setting. Otherwise leave the broker unset for eager tasks and the database cache. Configure
+any other host-run workers the same way. From `backend/`, with the virtualenv activated, run
+`python manage.py migrate` and `python manage.py runserver`. In a separate terminal, use Node 20.19+
+or 22.12+, install frontend dependencies with `npm ci`, configure `frontend/.env` from its example
+(`VITE_API_URL=http://localhost:8000/api`), and run `npm run dev` from `frontend/`.
+
+**Never run host and Docker application stacks simultaneously:** they share the database and dev app
+ports (:8000, :5000). A parallel worktree needs its own database and non-conflicting service mappings.
+
+## Tests
+
+Documented commands are not evidence of a passing run. Before pushing, run the required local backend
+suite and frontend checks: GitHub CI only runs `pip-audit`. Keep the existing owner QA gate and API
+generation requirements in [AGENTS.md](../AGENTS.md); schema changes still require both generated
+artifacts, using spectacular's `--format openapi-json`.
+
+For the backend, use the running dev stack and the **database owner**: runtime `spaceworks_app` lacks
+`CREATEDB`. Generate a fresh Fernet `API_CLIENT_ENC_KEY` inside the child shell using the image's installed
+`cryptography`; the normally empty container setting otherwise breaks encrypted-secret tests. The key
+is captured in the shell, not printed or persisted, and applies only to that test process:
+
+```bash
+./scripts/dev-docker.sh exec -T backend sh -c '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest -q --create-db
+'
+```
+
+Use the dedicated worktree database URL instead when running a parallel track. Never run two pytest
+processes against one database, or the full suite alongside Codex review. For environmental exceptions,
+consult [AGENTS.md](../AGENTS.md): it names `test_host_orchestration_surface_h1a.py` and
+`test_host_update_boundary.py`, whose repository paths require a host checkout, plus the isolated-pass
+ordering flake in `tests/backup/test_compound_archive_verification_e3.py`. Inspect every other failure;
+do not broaden those exceptions into a general allowance.
+
+`backend/tests/backup` and `backend/tests/tenant_migration` require PostgreSQL client tools matching the
+server major (**16** in base Compose). The resolver checks `/usr/lib/postgresql/{major}/bin` and
+`/usr/pgsql-{major}/bin`, then accepts tools on `PATH` only when their major matches. A host lacking
+matching tools fails with `PostgresClientUnavailable`; this is an environment issue, so use Docker:
+
+```bash
+./scripts/dev-docker.sh exec -T backend sh -c '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest tests/backup tests/tenant_migration -q --create-db
+'
+```
+
+The backend image deliberately installs clients 16 and 17: deployment-local dump/restore selects the
+server's major, while migration from newer supported sources needs the newer dump client.
+
+For the frontend, the regression harness specifically uses **Node 20**, independently of the Node 22
+Docker image build. From the repository root:
+
+```bash
+docker run --rm -v "$PWD/frontend:/app" -w /app node:20 sh -c "npm ci && npx tsc -b && npm test && npm run build"
+```
+
+If host-platform dependencies or a live dev process share `frontend/node_modules`, add
+`-v spaceworks-node20-test-deps:/app/node_modules` to that command while retaining the
+`-v "$PWD/frontend:/app"` source mount. This isolates Node 20 dependencies in a test-only volume.
+Use plain `npx tsc -b`; `--noEmit` fails this composite configuration. Host Node 26's native experimental
+`localStorage` conflicts with jsdom, so it is not the regression harness.

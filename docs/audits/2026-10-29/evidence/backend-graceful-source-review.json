@@ -1,0 +1,35 @@
+{
+  "status": "independently-source-reviewed-functional-verification-passed-final-review-pending",
+  "files": {
+    "docker-compose.yml": {
+      "sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+      "difference": "One literal exec word before Gunicorn; all other bytes match clean round2 source."
+    },
+    "docker-compose.prod.yml": {
+      "sha256": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+      "difference": "One literal exec word before Gunicorn; all other bytes match clean round2 source."
+    },
+    "docker-compose.cloud.yml": {
+      "sha256": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+      "difference": "One literal exec word before Gunicorn; all other bytes match clean round2 source."
+    },
+    "backend/apps/backup/host_restore_admission.py": {
+      "sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+      "changed_top_level_owners": [
+        "admit_configuration"
+      ],
+      "review": "Only optional literal exec at canonical command boundary; all other literal portions escaped and role/numeric/suffix/fullmatch guards preserved."
+    }
+  },
+  "source_pin": "Single corresponding restore.sh EXPECTED admission digest update authorized after initial functional proof; other pins unchanged.",
+  "public_metadata": "No source65/guard25/copy59 hash reapproval before passing verification.",
+  "runtime": {
+    "pytest_passed": 266,
+    "real_container_cases_passed": 9,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "proof": "backend-process-and-restore-admission-runtime.json",
+    "proof_sha256": "ccb87a25e3a9bc54806c61e2aa9bcd273a5651f832ab8ac3896ae20bf63bc5b8"
+  }
+}

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
@@ -8,6 +8,7 @@ import type { PrinterPool } from "../../../generated/api";
 import { staffRequest as realStaffRequest } from "../../../lib/api";
 import type { Machine, MachineStatus, MachineType } from "../machinesApi";
 import { MachinesPanel } from "./MachinesPanel";
+import { machineConsoleTestClient, machineTestMakerspaces } from "./machine/machineConsoleTestUtils";
 
 /* Shared fixtures for the MachinesPanel test files. Each test file mocks `lib/api` itself
    (vi.mock is per file), so the import above resolves to that file's mock. */
@@ -63,6 +64,7 @@ function mockApi(setup: Setup) {
   const requests = setup.requests ?? {};
   staffRequest.mockImplementation(async (path: string, options?: RequestInit) => {
     if (!path) return [];
+    if (path === "/admin/makerspaces") return machineTestMakerspaces();
     if (options?.method === "POST" && path.endsWith("/machines")) return { id: 99 };
     if (path.endsWith("/machine-types")) return types;
     if (path.includes("/machines?page=")) {
@@ -95,7 +97,7 @@ export function renderPanel(
   route = "/admin/machines",
 ) {
   mockApi(setup);
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = machineConsoleTestClient();
   // A REAL router, not a location stub: the panel resolves its selected machine type from
   // the URL and navigates with `<Link>`/`<Navigate>`, and a stub that only fakes
   // `window.location` passes against code that never reads router context at all.

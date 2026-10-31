@@ -1,0 +1,44 @@
+{
+  "status": "source inspected; separate Stage 3 and root runtime pending",
+  "files": [
+    {
+      "path": "backend/apps/boxes/services.py",
+      "sha256": "b4c6a72a21919ef6c8e0929ebf82bbc1292e7ecc402a7dee72b4b9a7192aba5e",
+      "lines": 95,
+      "reviewer": "audit_backend_finish",
+      "review": "Full actual source independently read after approved Stage 2. Runtime pending; QR services revoke and QrCodeAdmin source admission remain separately open."
+    },
+    {
+      "path": "backend/apps/boxes/admin_forms.py",
+      "sha256": "504f94285124a5e4c80a72710178b1d2c4a1a2a237e93e9687067c85c155c5e6",
+      "lines": 55,
+      "reviewer": "audit_backend_finish",
+      "review": "Full actual source independently read after approved Stage 2. Runtime pending; QR services revoke and QrCodeAdmin source admission remain separately open."
+    },
+    {
+      "path": "backend/apps/boxes/admin.py",
+      "sha256": "a0a6267caf5e999f5c09126724110835a74958bad230ba8f8cb901151e42eb6b",
+      "lines": 291,
+      "reviewer": "audit_backend_finish",
+      "review": "Full actual source independently read after approved Stage 2. Runtime pending; QR services revoke and QrCodeAdmin source admission remain separately open."
+    },
+    {
+      "path": "backend/apps/boxes/admin_lifecycle.py",
+      "sha256": "febfc57a34b0cb3cb895d26d1a009039ab74014411dbf0aaa6c5a63993eeada6",
+      "lines": 59,
+      "reviewer": "audit_backend_finish",
+      "review": "Full actual source independently read after approved Stage 2. Runtime pending; QR services revoke and QrCodeAdmin source admission remain separately open."
+    },
+    {
+      "path": "backend/apps/operations/views_containers.py",
+      "sha256": "d35661ca20418b732011dedfb3bb3a32e710e73a6b9d0ba2138878ab434aab74",
+      "lines": 267,
+      "reviewer": "audit_backend_finish",
+      "review": "Full actual source independently read after approved Stage 2. Runtime pending; QR services revoke and QrCodeAdmin source admission remain separately open."
+    }
+  ],
+  "supersedes": [
+    "qr-native-current-source-freeze.json overlapping Box files only"
+  ],
+  "remaining": "QR source-gate delta must preserve parent logic; new exact file hashes then supersede historical snapshots."
+}

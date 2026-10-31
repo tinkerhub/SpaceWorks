@@ -60,6 +60,9 @@ assert_token_issuance_allowed = assert_principal_allowed
 def enter_quarantine(restore, reason):
     now = timezone.now()
     state = _locked_state()
+    from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+    invalidate_restored_receipts()
     state.mode = DeploymentRecoveryState.Mode.QUARANTINED
     state.auth_generation = uuid.uuid4()
     state.active_restore = restore
@@ -182,6 +185,9 @@ def acknowledge_quarantine(actor, acknowledgement):
                 )
             }
         )
+    from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+    invalidate_restored_receipts()
     now = timezone.now()
     state.mode = DeploymentRecoveryState.Mode.NORMAL
     state.acknowledged_at = now

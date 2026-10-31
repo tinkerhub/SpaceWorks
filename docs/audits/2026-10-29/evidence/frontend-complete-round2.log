@@ -1,0 +1,457 @@
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/staff/TenantMigrationPanel.test.tsx (12 tests) 2053ms
+     ✓ renders the exact closure and approves its exact digest and per-person decision  451ms
+     ✓ submits an explicit resolution and membership disposition per person  324ms
+     ✓ requires tenant-naming confirmations for every destructive cutover action  314ms
+ ✓ src/features/staff/staffSocialRecovery.test.tsx (1 test) 451ms
+     ✓ keeps ownership while typing, blocks the old callback during password login, and recovers into the central picker  450ms
+ ✓ src/features/staff/panels/MachineTypesPanel.test.tsx (6 tests) 999ms
+     ✓ rejects blank and case-insensitive duplicate entries before creation  480ms
+ ✓ src/features/staff/panels/QueuesHandoverModals.test.tsx (11 tests) 1532ms
+     ✓ asks for the loan's container instead of sending a blank box code  303ms
+     ✓ submits exact individual outcomes without a container, leaving pending units on loan  335ms
+ ✓ src/lib/apiSessionRefreshPin.test.ts (21 tests) 55ms
+ ✓ src/features/staff/consoleModuleGating.test.tsx (19 tests) 2034ms
+     ✓ treats a notifications bookmark as stale and lands on the dashboard  677ms
+     ✓ serves a gated tab once its module is on  415ms
+ ✓ src/features/staff/MembersPanel.test.tsx (6 tests) 2532ms
+     ✓ offers waiver, referral and verification controls (the tab renders only with membership on)  897ms
+     ✓ offers only assignable roles and hides Revoke on a manage_makerspace row for a Space Manager  859ms
+ ✓ src/features/staff/panels/OperationsReportsOffstate.test.tsx (2 tests) 821ms
+     ✓ describes the FabLab health card by the modules that are on  342ms
+     ✓ drops catalog entries the server marks unavailable instead of listing them disabled  478ms
+ ✓ src/features/staff/IntegrationHealthDestinations.test.tsx (8 tests) 785ms
+     ✓ queries health and diagnoses actual rooms for all four enabled chat channels  380ms
+ ✓ src/features/staff/panels/StocktakeCountSection.auditB.test.tsx (5 tests) 1990ms
+     ✓ hides individual products from the Product dropdown  479ms
+     ✓ offers individual products in Asset mode and submits the selected physical unit  518ms
+     ✓ routes an individual product QR to Asset mode with guidance and blocks aggregate submission  428ms
+ ✓ src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx (7 tests) 748ms
+     ✓ gates evidence and sends the confirmed identity through checkout and return  339ms
+ ✓ src/features/staff/shell/StaffShell.test.tsx (8 tests) 743ms
+ ✓ src/features/inventory/PublicRequestPanelCheckedIn.test.tsx (14 tests) 601ms
+ ✓ src/features/staff/panels/machine/HandoverConsole.test.tsx (3 tests) 436ms
+ ✓ src/features/staff/staffSelection.routes.test.tsx (15 tests) 1661ms
+ ✓ src/features/machineService/PublicMachineServicePage.test.tsx (20 tests) 2143ms
+     ✓ selects types by id and submits a successful generic proposal with a private tracker  606ms
+     ✓ resets printer fields, files and submission errors when the selected type changes  378ms
+ ✓ src/features/inventory/PublicIdentityTenantScope.test.tsx (3 tests) 708ms
+     ✓ PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name  302ms
+ ✓ src/features/staff/ApiClientsPanel.test.tsx (6 tests) 995ms
+     ✓ requires an explicit scope and sends it on create  418ms
+ ✓ src/features/inventory/PublicRequestPanelAccountLess.test.tsx (15 tests) 929ms
+ ✓ src/features/members/MemberAuthPanel.verificationOwnership.test.tsx (15 tests) 1184ms
+ ✓ src/features/account/ChangePasswordForm.ownership.test.tsx (14 tests) 2188ms
+     ✓ CP01 ignores a parsed success after clear  393ms
+     ✓ CP08 obsolete finally cannot unlock a newer pending visit  310ms
+ ✓ src/features/organizations/OrganizationInvitationRedeemPage.test.tsx (7 tests) 724ms
+     ✓ finishes restoration and offers member sign-in after refresh rejected without side effects  339ms
+ ✓ src/features/organizations/OrganizationInvitationRedeemPage.installation.test.tsx (2 tests) 401ms
+     ✓ preserves one durable redemption and the member session on staff installation failure, then clears cache and navigates once on retry  310ms
+ ✓ src/lib/apiSessionPinStorage.test.ts (11 tests) 219ms
+ ✓ src/lib/sessionIntent.test.ts (74 tests) 18ms
+ ✓ src/lib/apiSessionLogoutStorage.test.ts (9 tests) 32ms
+ ✓ src/AppRoutes.moduleGating.test.tsx (18 tests) 473ms
+ ✓ src/features/inventory/PublicRequestPanelFlow.test.tsx (2 tests) 427ms
+     ✓ ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow  340ms
+ ✓ src/features/staff/ChangePasswordGate.test.tsx (3 tests) 316ms
+ ✓ src/features/auth/PasswordRecoveryFlow.test.tsx (9 tests) 624ms
+ ✓ src/features/members/MemberAuthPanel.ownership.test.tsx (18 tests) 1106ms
+ ✓ src/features/inventory/CheckinIdentityStep.races.test.tsx (6 tests) 919ms
+ ✓ src/features/inventory/PublicMachinesPage.test.tsx (4 tests) 475ms
+ ✓ src/features/machineService/ServiceRequestForm.test.tsx (11 tests) 1254ms
+ ✓ src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx (8 tests) 599ms
+ ✓ src/features/account/ChangePasswordForm.test.tsx (10 tests) 482ms
+ ✓ src/features/staff/AccountDialog.test.tsx (2 tests) 498ms
+     ✓ lets a Space Manager open their account and change their own password  395ms
+stderr | src/features/auth/SocialSignInButtons.providerOwnership.test.tsx > actual social components and SDK ownership > SP01 Google callback after replaced host dispatches no credential exchange
+A props object containing a "key" prop is being spread into JSX:
+  let props = {key: someKey, surface: ..., onSuccess: ..., makerspaceSlug: ..., email: ..., ownershipScope: ...};
+  <SocialSignInButtons {...props} />
+React keys must be passed directly to JSX without using spread:
+  let props = {surface: ..., onSuccess: ..., makerspaceSlug: ..., email: ..., ownershipScope: ...};
+  <SocialSignInButtons key={someKey} {...props} />
+
+ ✓ src/features/auth/SocialSignInButtons.providerOwnership.test.tsx (28 tests) 1300ms
+ ✓ src/features/staff/ApiClientsTelegramSettings.test.tsx (5 tests) 377ms
+ ✓ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx (6 tests) 1055ms
+     ✓ gates the form and sends identity with every presign and submission  463ms
+ ✓ src/components/chrome/PublicHeaders.test.tsx (9 tests) 310ms
+ ✓ src/components/chrome/SiteHeaderResponsive.test.tsx (2 tests) 486ms
+     ✓ 800→1200 unmounts the modal and releases Radix isolation/focus; 800 again stays closed and can reopen  373ms
+ ✓ src/features/members/MemberAccountSection.test.tsx (4 tests) 552ms
+     ✓ replaces the whole member area until the password is rotated  365ms
+ ✓ src/features/members/MemberAreaModuleGating.test.tsx (2 tests) 346ms
+ ✓ src/components/NotFoundPage.test.tsx (4 tests) 345ms
+ ✓ src/features/organizations/OrganizationInvitationRedeemPage.ownership.test.tsx (19 tests) 752ms
+ ✓ src/features/members/MemberAuthPanel.installation.test.tsx (3 tests) 320ms
+ ✓ src/features/staff/BackupRestorePanel.test.tsx (5 tests) 533ms
+     ✓ states the purge boundary and shows an all-table restore report  320ms
+ ✓ src/features/AboutPage.test.tsx (2 tests) 301ms
+ ✓ src/components/ui/CameraCapture.test.tsx (8 tests) 274ms
+ ✓ src/App.centralMemberRoute.test.tsx (2 tests) 145ms
+ ✓ src/components/ui/Dropdown.test.tsx (4 tests) 481ms
+ ✓ src/components/ui/Tabs.test.tsx (4 tests) 336ms
+ ✓ src/features/forms/FeedbackFormControls.test.tsx (2 tests) 254ms
+ ✓ src/features/members/MemberAuthPanel.providerIntent.test.tsx (4 tests) 448ms
+ ✓ src/features/members/MemberAuthPanel.test.tsx (3 tests) 295ms
+ ✓ src/features/inventory/PublicSelfCheckoutPage.test.tsx (5 tests) 422ms
+ ✓ src/features/auth/SocialSignInButtons.oidcOwnership.test.tsx (15 tests) 444ms
+ ✓ src/features/members/ArchivedPayments.test.tsx (2 tests) 637ms
+     ✓ renders the explicit empty state  457ms
+ ✓ src/features/members/MemberCalendarActions.test.tsx (2 tests) 366ms
+     ✓ asks in a dialog before creating the bearer link, and cancel sends nothing  303ms
+ ✓ src/components/chrome/AuthLayout.test.tsx (2 tests) 649ms
+     ✓ puts the title, description and form in the main landmark beside a decorative brand panel  479ms
+ ✓ src/features/members/MemberAreaAccountsOff.test.tsx (4 tests) 306ms
+ ✓ src/components/ui/QrScanner.test.tsx (2 tests) 191ms
+ ✓ src/features/inventory/PublicRequestStatusPage.test.tsx (3 tests) 254ms
+ ✓ src/features/staff/DataExportsPanel.test.tsx (2 tests) 199ms
+ ✓ src/components/ui/ConfirmDialog.test.tsx (5 tests) 194ms
+ ✓ src/features/inventory/ProductCard.test.tsx (5 tests) 173ms
+ ✓ src/features/members/MemberAreaArchivedLink.test.tsx (2 tests) 242ms
+ ✓ src/components/ui/CollapsibleSection.test.tsx (5 tests) 160ms
+ ✓ src/features/members/MemberReferrals.test.tsx (3 tests) 171ms
+ ✓ src/features/printing/PublicPrintRequestForm.test.tsx (1 test) 179ms
+ ✓ src/features/staff/ApiClientScopePicker.test.tsx (2 tests) 206ms
+ ✓ src/components/ui/dialogStack.test.tsx (6 tests) 330ms
+ ✓ src/features/auth/SocialSignInButtons.test.tsx (4 tests) 131ms
+ ✓ src/components/ui/Field.test.tsx (8 tests) 174ms
+ ✓ src/lib/apiResponsePublicationRetry.test.ts (104 tests) 95ms
+ ✓ src/features/inventory/EventRegistrationForm.test.tsx (2 tests) 138ms
+ ✓ src/features/inventory/RequestCartBar.test.tsx (3 tests) 145ms
+ ✓ src/components/AppErrorBoundary.test.tsx (2 tests) 124ms
+ ✓ src/components/ui/Toast.test.tsx (6 tests) 181ms
+ ✓ src/components/ui/dialogFocus.test.ts (6 tests) 103ms
+ ✓ src/features/members/MemberAreaSections.test.tsx (2 tests) 203ms
+ ✓ src/lib/apiRequestSessionRace.test.ts (68 tests) 46ms
+ ✓ src/features/members/JoinMembershipCta.test.tsx (5 tests) 137ms
+ ✓ src/lib/apiResponsePublicationFailure.test.ts (127 tests) 65ms
+ ✓ src/lib/apiResponsePublicationBootstrap.test.ts (25 tests) 23ms
+ ✓ src/lib/apiResponsePublicationExpiry.test.ts (72 tests) 47ms
+ ✓ src/lib/apiResponsePublicationFetch.test.ts (48 tests) 33ms
+ ✓ src/lib/apiResponsePublicationBody.test.ts (80 tests) 43ms
+ ✓ src/lib/apiDownloadRecovery.test.ts (9 tests) 25ms
+ ❯ src/features/staff/staffSelection.acknowledgement.test.tsx (2 tests | 1 failed) 260ms
+     × a fresh superadmin login masks the old scoped workspace and picker until /admin commits, then chooses Calicut's dashboard 188ms
+     ✓ invalidates a retained chooser synchronously, rejects the pending render's callback, and accepts the acknowledged picker's fresh callback 71ms
+ ✓ src/lib/apiSessionRace.test.ts (14 tests) 19ms
+ ❯ src/features/account/ChangePasswordForm.installation.test.tsx (2 tests | 2 failed) 211ms
+     × reports the completed server change truthfully, clears every secret and publishes no failed installation 141ms
+     × releases the failed action so a fresh submission after storage repair installs once and completes 69ms
+ ✓ src/features/staff/panels/OperationsReportsModuleGating.test.tsx (2 tests) 696ms
+     ✓ renders no panel, health tile or catalog entry for a switched-off module  476ms
+ ✓ src/features/staff/EventRegisterMember.test.tsx (2 tests) 470ms
+ ✓ src/features/staff/panels/InventoryRoleAlignment.test.tsx (5 tests) 625ms
+     ✓ gives a view-only role a read-only panel  350ms
+ ✓ src/features/staff/panels/MachinesPanel.workflows.test.tsx (6 tests) 1532ms
+     ✓ creates consumables from a type page with that type scope  328ms
+     ✓ offers shared pools plus only the selected machine's bound pool  658ms
+ ✓ src/features/staff/settingsModuleGating.test.tsx (16 tests) 868ms
+ ✓ src/features/staff/staffSelection.authority.test.tsx (11 tests) 913ms
+ ✓ src/features/staff/DirectLoans.test.tsx (6 tests) 619ms
+ ✓ src/features/staff/panels/machine/OverviewTab.test.tsx (3 tests) 537ms
+     ✓ keeps a status draft through unrelated refreshes and blocks both details click and submit  340ms
+ ✓ src/features/staff/panels/QueuesIssueFlow.test.tsx (3 tests) 927ms
+     ✓ skips assignment when no container is chosen (selected then cleared: false)  315ms
+     ✓ skips assignment when no container is chosen (selected then cleared: true)  312ms
+ ✓ src/features/staff/panels/MachinesPanel.test.tsx (13 tests) 1062ms
+ ✓ src/features/staff/panels/machine/MachineServiceConsole.test.tsx (3 tests) 396ms
+ ✓ src/features/staff/panels/machine/ConsumablePoolCreateForm.test.tsx (6 tests) 635ms
+     ✓ selects a named tile and submits its most recent pool hex separately  345ms
+ ✓ src/features/staff/panels/machine/PrinterServiceConsole.test.tsx (4 tests) 431ms
+ ✓ src/features/staff/panels/machine/PrinterQueueAuthority.test.tsx (5 tests) 373ms
+ ✓ src/features/staff/MakerspacePaymentSettings.test.tsx (3 tests) 280ms
+ ✓ src/features/staff/panels/machine/BuiltinTypeRow.test.tsx (5 tests) 582ms
+     ✓ lets a space manager change a built-in for this makerspace only, sending only what differs  330ms
+ ✓ src/features/staff/panels/OperationsReportsSingleTenant.test.tsx (3 tests) 483ms
+ ✓ src/features/staff/panels/UsersInvitations.test.tsx (6 tests) 602ms
+ ✓ src/features/staff/shell/StaffSidebarNav.test.tsx (6 tests) 668ms
+     ✓ starts every group folded, unfolds one from its heading and remembers it  312ms
+ ✓ src/features/staff/panels/machine/MachineDrawer.consumables.test.tsx (3 tests) 450ms
+ ✓ src/features/staff/EventFormFields.test.tsx (2 tests) 375ms
+     ✓ keeps the two cutoff modes mutually exclusive  340ms
+ ✓ src/features/staff/panels/StocktakePanel.test.tsx (3 tests) 584ms
+ ✓ src/features/staff/Track3Payments.test.tsx (3 tests) 494ms
+     ✓ submits a booking price from the bookable-space editor  374ms
+ ✓ src/features/staff/queryInvalidation.stats.test.tsx (2 tests) 441ms
+     ✓ real tool checkout and return refresh visible warm A stats before 30s while warm B stays untouched  426ms
+ ✓ src/features/staff/staffSelection.cache.test.tsx (7 tests) 1355ms
+     ✓ a previous-generation deferred list cannot publish into the new login or either list consumer  376ms
+ ✓ src/features/staff/panels/RoleEditor.test.tsx (3 tests) 342ms
+ ✓ src/features/staff/panels/NotificationInbox.test.tsx (4 tests) 340ms
+ ✓ src/features/staff/MakerspaceArchiveRequestPanel.test.tsx (3 tests) 352ms
+ ✓ src/features/staff/shell/staffSidebarAccess.test.tsx (3 tests) 551ms
+     ✓ lists only what the role allows, even when the module is on  306ms
+ ✓ src/features/staff/MakerspaceCheckinSettings.test.tsx (7 tests) 488ms
+ ✓ src/features/staff/panels/UsersTable.test.tsx (6 tests) 331ms
+ ✓ src/features/staff/panels/machine/MachineServiceConsoleInvalidation.test.tsx (1 test) 313ms
+     ✓ refreshes the Operations reports and every payment view after recording a payment  312ms
+ ✓ src/features/staff/PlatformStripeConnectPanel.test.tsx (3 tests) 450ms
+ ✓ src/features/staff/panels/InventoryItemModal.test.tsx (5 tests) 556ms
+     ✓ hides quantities for individual creation and restores the typed quantities when switched back  477ms
+ ✓ src/features/staff/PlatformApps.test.tsx (3 tests) 415ms
+     ✓ reads a 403 as an unrecognised code, not a permission error  318ms
+ ✓ src/features/staff/staffSelection.login.test.tsx (7 tests) 1491ms
+     ✓ password login from /admin ignores the saved Kochi hint and opens the central picker  363ms
+ ✓ src/features/staff/panels/RoleManager.test.tsx (6 tests) 492ms
+     ✓ edits an existing role against its role-scoped catalog, keeping off-module grants visible  339ms
+ ✓ src/features/staff/panels/Categories.test.tsx (2 tests) 541ms
+     ✓ shows each category's code and the classification guide with this makerspace's prefix  370ms
+ ✓ src/features/staff/panels/machine/manualPrice.test.tsx (9 tests) 864ms
+     ✓ shows the price input and column  474ms
+ ✓ src/features/staff/panels/MemberMachineScopeModal.test.tsx (3 tests) 373ms
+     ✓ locks the role's types and saves only the personal selection  330ms
+ ✓ src/features/staff/shell/StaffShellResponsive.test.tsx (3 tests) 921ms
+     ✓ 800→1200 unmounts the sheet, releases Radix isolation and restores main focus; 800 again stays closed and can reopen  479ms
+ ✓ src/features/staff/staffSession.completion.test.tsx (3 tests) 1018ms
+     ✓ shows a current failed logout in the real LoginPanel after local identity and token cleanup  414ms
+     ✓ a new password submit invalidates an old logout warning in the same act before any new token is installed  331ms
+ ✓ src/features/staff/StaffTabContent.test.tsx (3 tests) 955ms
+     ✓ scopes the audit log to the active makerspace  328ms
+     ✓ mentions payouts on Platform settings only when the payouts panel renders  313ms
+     ✓ keeps payouts in the description when platform hosting shows the payouts panel  313ms
+ ✓ src/features/staff/EvidenceRetentionPanel.test.tsx (2 tests) 273ms
+ ✓ src/features/staff/MemberClaimCodes.test.tsx (1 test) 357ms
+     ✓ offers only walk-ins and renders the one-time code, QR, and expiry  356ms
+ ✓ src/features/staff/panels/machine/ConsumablePoolList.test.tsx (2 tests) 325ms
+ ✓ src/features/staff/panels/machine/ServicePaymentGating.test.tsx (3 tests) 250ms
+ ✓ src/features/staff/panels/ScannerPanel.test.tsx (3 tests) 469ms
+ ✓ src/features/staff/panels/machine/PublicPrinterQueueSetup.test.tsx (3 tests) 280ms
+ ✓ src/features/staff/staffSelection.callbacks.test.tsx (5 tests) 559ms
+ ✓ src/features/staff/EventSeriesForm.test.tsx (2 tests) 364ms
+     ✓ previews cadence as a local wall-clock schedule  356ms
+ ✓ src/features/staff/panels/machine/MachineCreateForm.test.tsx (3 tests) 308ms
+ ✓ src/features/staff/PaymentsPanel.test.tsx (4 tests) 847ms
+     ✓ renders all four subject filter choices  417ms
+ ✓ src/features/staff/EventCertificateActions.test.tsx (5 tests) 288ms
+ ✓ src/features/staff/PlatformSocialAuthPanel.test.tsx (2 tests) 236ms
+ ✓ src/features/staff/panels/DashboardPanel.test.tsx (3 tests) 756ms
+     ✓ renders only server-declared machine tiles in restricted mode  410ms
+ ✓ src/features/staff/panels/machine/MachineTypeConsumables.test.tsx (5 tests) 281ms
+ ✓ src/features/staff/panels/OperationsReportCharts.test.tsx (2 tests) 182ms
+ ✓ src/features/staff/panels/QueuesList.test.tsx (2 tests) 358ms
+     ✓ shows a table with the row's actions on wider screens  311ms
+ ✓ src/features/staff/MakerspacePublicStatsSettings.test.tsx (2 tests) 325ms
+ ✓ src/features/staff/MakerspaceCustomDomainSettings.test.tsx (4 tests) 149ms
+ ✓ src/features/staff/MakerspaceEmailTestSettings.test.tsx (3 tests) 308ms
+ ✓ src/features/staff/PaymentReconcileActions.test.tsx (2 tests) 367ms
+     ✓ reconciles a pending payment and invalidates shared and domain views  334ms
+ ✓ src/features/staff/panels/ContainerLabels.test.tsx (3 tests) 331ms
+ ✓ src/features/staff/panels/OperationsReportsMembers.test.tsx (2 tests) 121ms
+ ✓ src/features/staff/MakerspaceItemCodeSettings.test.tsx (1 test) 226ms
+ ✓ src/features/staff/EventCheckInOperator.test.tsx (2 tests) 166ms
+ ✓ src/features/staff/panels/ProcurementPanel.test.ts (3 tests) 20ms
+ ✓ src/features/staff/NotificationScopePicker.test.tsx (3 tests) 191ms
+ ✓ src/features/staff/panels/EmailTemplateTypeSelector.test.tsx (2 tests) 151ms
+ ✓ src/features/staff/panels/AuditLog.test.tsx (2 tests) 85ms
+ ✓ src/features/staff/makerspaceCurrency.test.tsx (2 tests) 122ms
+ ✓ src/features/staff/useStaffSession.test.tsx (1 test) 73ms
+ ✓ src/features/staff/evidenceUi.test.ts (4 tests) 22ms
+ ✓ src/lib/apiResponsePublicationDownload.test.ts (9 tests) 28ms
+ ✓ src/features/staff/staleViewInvalidation.test.ts (5 tests) 23ms
+ ✓ src/lib/apiRequests.test.ts (4 tests) 12ms
+ ✓ src/lib/apiRequestDispatchRace.test.ts (20 tests) 23ms
+ ✓ src/features/staff/staffTabs.test.ts (43 tests) 18ms
+ ✓ src/features/machineService/publicApi.test.ts (3 tests) 8ms
+ ✓ src/features/auth/socialSdk.test.ts (1 test) 17ms
+ ✓ src/lib/apiTenantCredentialRevisit.test.ts (2 tests) 11ms
+ ✓ src/features/staff/panels/machine/typeConfig.test.ts (4 tests) 6ms
+ ✓ src/lib/apiSession.test.ts (4 tests) 10ms
+ ✓ src/features/staff/staffRoleAlignment.test.ts (9 tests) 6ms
+ ✓ src/features/printing/publicApi.test.ts (2 tests) 7ms
+ ✓ src/features/inventory/publicSelfCheckoutApi.test.ts (2 tests) 8ms
+ ✓ src/features/inventory/PublicRequestHeader.test.ts (5 tests) 5ms
+ ✓ src/features/members/geolocation.test.ts (7 tests) 6ms
+ ✓ src/lib/modules.test.ts (2 tests) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/account/ChangePasswordForm.installation.test.tsx > password rotation installation > reports the completed server change truthfully, clears every secret and publishes no failed installation
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Password updated; sign in again.
+Received:
+
+ ❯ src/features/account/ChangePasswordForm.installation.test.tsx:71:46
+     69|     const epoch = getSessionGeneration();
+     70|     submit();
+     71|     expect(await screen.findByRole("alert")).toHaveTextContent("Passwo…
+       |                                              ^
+     72|     emptyPasswords();
+     73|     expect(changed).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/features/account/ChangePasswordForm.installation.test.tsx > password rotation installation > releases the failed action so a fresh submission after storage repair installs once and completes
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <div
+  aria-live="assertive"
+  class="flex w-full max-w-[460px] justify-center sm:justify-start"
+  role="alert"
+/> instead
+ ❯ src/features/account/ChangePasswordForm.installation.test.tsx:99:45
+     97|     emptyPasswords();
+     98|     expect(screen.getByRole("status")).toHaveTextContent("Password upd…
+     99|     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+       |                                             ^
+    100|     expect(screen.queryByText("Password not updated")).not.toBeInTheDo…
+    101|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/features/staff/staffSelection.acknowledgement.test.tsx > staff selection waits for a committed route > a fresh superadmin login masks the old scoped workspace and picker until /admin commits, then chooses Calicut's dashboard
+TestingLibraryElementError: Found multiple elements with the role "status"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<output
+  data-testid="route"
+>
+  /m/kochi/admin/settings
+</output>
+
+Ignored nodes: comments, script, style
+<span
+  class="inline-flex items-end gap-1.5 py-2"
+  role="status"
+>
+  <span
+    aria-hidden="true"
+    class="sw-dot-jump block size-2.5 rounded-full bg-accent"
+    style="animation-delay: 0ms;"
+  />
+  <span
+    aria-hidden="true"
+    class="sw-dot-jump block size-2.5 rounded-full bg-secondary"
+    style="animation-delay: 160ms;"
+  />
+  <span
+    aria-hidden="true"
+    class="sw-dot-jump block size-2.5 rounded-full bg-ink"
+    style="animation-delay: 320ms;"
+  />
+  <span
+    class="sr-only"
+  >
+    Checking makerspace access…
+  </span>
+</span>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <output
+      data-testid="route"
+    >
+      /m/kochi/admin/settings
+    </output>
+    <input
+      aria-label="Test destination"
+      value=""
+    />
+    <button>
+      Navigate test route
+    </button>
+    <button>
+      History back
+    </button>
+    <button>
+      History forward
+    </button>
+    <button>
+      Remount staff app
+    </button>
+    <main
+      class="grid min-h-dvh place-items-center bg-subtle px-4 text-ink"
+    >
+      <div
+        class="flex flex-col items-center gap-4 text-center"
+      >
+        <a
+          aria-label="Open makerspace listing"
+          class="inline-flex min-w-0 max-w-full text-left transition pointer-coarse:min-h-11 pointer-coarse:items-center hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus text-muted"
+          data-discover="true"
+          href="/"
+        >
+          <span
+            class="inline-flex min-w-0 max-w-full items-center gap-2"
+          >
+            <img
+              alt=""
+              class="shrink-0"
+              height="22"
+              src="/favicon.png"
+              width="22"
+            />
+            <span
+              class="min-w-0 break-words font-semibold tracking-wide"
+            >
+              Space Works
+            </span>
+          </span>
+        </a>
+        <span
+          class="inline-flex items-end gap-1.5 py-2"
+          role="status"
+        >
+          <span
+            aria-hidden="true"
+            class="sw-dot-jump block size-2.5 rounded-full bg-accent"
+            style="animation-delay: 0ms;"
+          />
+          <span
+            aria-hidden="true"
+            class="sw-dot-jump block size-2.5 rounded-full bg-secondary"
+            style="animation-delay: 160ms;"
+          />
+          <span
+            aria-hidden="true"
+            class="sw-dot-jump block size-2.5 rounded-full bg-ink"
+            style="animation-delay: 320ms;"
+          />
+          <span
+            class="sr-only"
+          >
+            Checking makerspace access…
+          </span>
+        </span>
+        <p
+          aria-hidden="true"
+          class="text-body-ui text-ink-muted"
+        >
+          Checking makerspace access…
+        </p>
+      </div>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/staff/staffSelection.acknowledgement.test.tsx:71:19
+     69|     await waitFor(() => expect(queryClient.getQueryState(staffMakerspa…
+     70|     expect(screen.getByTestId("route")).toHaveTextContent(/^\/m\/kochi…
+     71|     expect(screen.getByRole("status")).toHaveTextContent("Checking mak…
+       |                   ^
+     72|     noPanel();
+     73|     expect(leaves).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 181 passed (183)
+      Tests  3 failed | 1580 passed (1583)
+   Start at  18:50:18
+   Duration  368.06s (transform 7.19s, setup 33.23s, import 67.89s, tests 86.56s, environment 152.92s)
+
+JSON report written to /tmp/spaceworks-frontend-complete.json

@@ -1,6 +1,8 @@
+import { useLocation } from "react-router-dom";
 import { useState, type ComponentProps, type ReactNode } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui";
+import { MyRequestsPanel } from "../requests/MyRequestsPanel";
 import { AccountCard } from "../account/AccountCard";
 import { MemberAccountSection } from "./MemberAccountSection";
 import { MemberActivityPanel, type MemberActivity } from "./MemberActivity";
@@ -18,6 +20,8 @@ type MemberAreaTabsProps = {
   membership?: Membership;
   membershipOn: boolean;
   eventsOn: boolean;
+  hardwareRequestsOn?: boolean;
+  machineRequestsOn?: boolean;
   makerspaceId: number;
   makerspaceSlug: string;
   waiver?: Waiver;
@@ -36,18 +40,19 @@ type MemberAreaTabsProps = {
 };
 
 /**
- * The signed-in member area as account tabs. Every panel stays mounted (inactive ones are
- * only hidden), so each section loads exactly as it did on the single long page and a
- * switch between tabs never refetches or drops a half-written form.
+ * Existing panels retain their mounted drafts. Private request history is mounted only
+ * while selected, so leaving the tab resets consent to reveal browser capabilities.
  */
 export function MemberAreaTabs(props: MemberAreaTabsProps) {
   const { membership, membershipOn, eventsOn, makerspaceId, makerspaceSlug, activity, payments, username } = props;
+  const location = useLocation();
   const active = membership?.membership_status === "active";
   const showActivity = Boolean(membership) && ((membershipOn && Boolean(activity)) || (eventsOn && active));
   const showProfile = Boolean(membership) && membershipOn && active && makerspaceId >= 0;
   const showPayments = Boolean(membership && payments?.length);
   const tabs = [
     { value: "overview", label: "Overview", show: true },
+    { value: "requests", label: "Requests", show: Boolean(username) && Boolean(props.hardwareRequestsOn || props.machineRequestsOn) },
     { value: "activity", label: "Activity", show: showActivity },
     { value: "profile", label: "Profile", show: showProfile },
     { value: "payments", label: "Payments", show: showPayments },
@@ -78,6 +83,11 @@ export function MemberAreaTabs(props: MemberAreaTabsProps) {
         ) : null}
         {props.referrals ? <MemberReferrals {...props.referrals} /> : null}
       </TabsContent>
+      {value === "requests" ? <TabsContent value="requests" className={panel}>
+        <MyRequestsPanel slug={makerspaceSlug} hardwareOn={Boolean(props.hardwareRequestsOn)}
+          machineOn={Boolean(props.machineRequestsOn)} memberAccountsOn
+          basePath={location.pathname.startsWith("/m/") ? `/m/${encodeURIComponent(makerspaceSlug)}` : ""} />
+      </TabsContent> : null}
       {showActivity ? (
         <TabsContent value="activity" forceMount className={panel}>
           {membershipOn && activity ? <MemberActivityPanel activity={activity} makerspaceId={makerspaceId} makerspaceSlug={makerspaceSlug} /> : null}

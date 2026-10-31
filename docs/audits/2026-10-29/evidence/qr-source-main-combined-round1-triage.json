@@ -1,0 +1,123 @@
+{
+  "xml": "docs/audits/2026-10-29/evidence/qr-source-main-combined-round1.xml",
+  "xml_sha256": "c1ee4bd1b884de18de3d035c80f0b69a046890eb5b354bd5cc5734eebe05e9ef",
+  "cases": 399,
+  "failed_or_error": 28,
+  "root_reported_pass": 371,
+  "root_reported_duration_seconds": 687.11,
+  "failures": [
+    {
+      "class": "tests.qr_source_safety.test_generation_fresh_policy",
+      "name": "test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-hidden-maker]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-box]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-asset]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-scan]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-resolve]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-revoke]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-rebind]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-cross-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-cross-asset]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-generate]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-revoke]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-rebind]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-cross-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-cross-asset]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-generate]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[unscoped-api-revoke]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[unscoped-api-rebind]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[unscoped-api-cross-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[unscoped-api-cross-asset]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[unscoped-api-generate]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[no-actions-api-revoke]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[no-actions-api-rebind]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[no-actions-api-cross-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[no-actions-api-cross-asset]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_scope_before_gate",
+      "name": "test_scope_and_auth_precede_foreign_gate_state[no-actions-api-generate]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_source_lock_lifetime",
+      "name": "test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-product]"
+    },
+    {
+      "class": "tests.qr_source_safety.test_source_lock_lifetime",
+      "name": "test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-asset]"
+    }
+  ],
+  "classification": "25 early source gate before actual authorization,2 reverse Source-N order,1 impossible product-holder then Maker-hide fixture inversion; no assertions weakened. Root actual run, no child runtime."
+}

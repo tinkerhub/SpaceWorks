@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="44" time="36.833" timestamp="2026-10-29T21:05:58.026623+00:00" hostname="4027d958e55c"><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_membership_only_inventory_manager_can_upload_and_read[same-origin]" time="2.104" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_membership_only_inventory_manager_can_upload_and_read[originless]" time="0.157" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_foreign_origin_refused_even_when_actor_has_both_tenants[upload]" time="0.124" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_foreign_origin_refused_even_when_actor_has_both_tenants[detail]" time="0.108" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_unresolved_target_from_tenant_origin_keeps_standard_403[upload]" time="0.131" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_unresolved_target_from_tenant_origin_keeps_standard_403[detail]" time="0.092" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[upload-suspended-403]" time="0.099" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[upload-inactive-401]" time="0.097" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[upload-rotation-403]" time="0.104" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[detail-suspended-403]" time="0.093" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[detail-inactive-401]" time="0.091" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_active_user_checks_survive_real_staff_jwt[detail-rotation-403]" time="0.091" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_detail_404_after_origin_admission_passes[no-action-scope]" time="0.102" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_detail_404_after_origin_admission_passes[superadmin-hidden]" time="0.116" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_originless_native_selected_tenant_preserves_inventory_authority" time="0.150" /><testcase classname="tests.evidence.test_evidence_origin_admission" name="test_current_hmac_server_transport_keeps_originless_staff_profile" time="0.180" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_http_declared_size_rejected_before_presign_or_rows[over-limit]" time="0.112" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_http_declared_size_rejected_before_presign_or_rows[over-bigint]" time="0.104" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_optional_and_bounded_http_declarations_remain_compatible[omitted]" time="0.102" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_optional_and_bounded_http_declarations_remain_compatible[None]" time="0.102" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_optional_and_bounded_http_declarations_remain_compatible[0]" time="0.102" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_optional_and_bounded_http_declarations_remain_compatible[1]" time="0.103" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_optional_and_bounded_http_declarations_remain_compatible[4096]" time="0.102" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_http_cap_reads_current_override_not_import_time_field_metadata" time="0.120" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_accepted_declaration_never_controls_actual_finalized_debit[underdeclared]" time="0.117" /><testcase classname="tests.evidence.test_evidence_declared_size" name="test_accepted_declaration_never_controls_actual_finalized_debit[overdeclared]" time="0.117" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_legacy_declared_size_never_becomes_accounted_bytes[missing]" time="1.288" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_legacy_declared_size_never_becomes_accounted_bytes[observed]" time="1.366" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_staged_unattached_object_stays_outside_existing_row_accounting" time="1.292" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_legacy_handled_flag_is_neither_debit_proof_nor_repaired_by_recompute" time="1.253" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_real_finite_debit_preserves_journal_bytes_until_expiry[missing]" time="1.523" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_real_finite_debit_preserves_journal_bytes_until_expiry[smaller]" time="1.497" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_real_finite_debit_preserves_journal_bytes_until_expiry[larger]" time="1.477" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_provider_head_failure_aborts_whole_counter_set[legacy]" time="1.573" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_provider_head_failure_aborts_whole_counter_set[charged]" time="1.296" /><testcase classname="tests.evidence.test_evidence_recompute_provenance" name="test_actual_expiry_then_recompute_keeps_other_categories_and_tenants" time="1.393" /><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_literal_accounting_identity_reference_is_source_local_and_guarded" time="3.642" /><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_portable_projection_remaps_photo_but_namespaces_charge_identity[omitted-journal]" time="3.406"><failure message="TypeError: cannot pickle memoryview objects">lab = namespace(home=&lt;Makerspace: safety-a&gt;, other=&lt;Makerspace: safety-b&gt;, user=&lt;User: safety-inventory&gt;, memberships=[&lt;Make...test.APIClient object at 0xffffa7160740&gt;, identity=&lt;DeploymentDatabaseIdentity: DeploymentDatabaseIdentity object (1)&gt;)
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_portable_projection_remap0')
+carry_journal = False
+
+    @pytest.mark.parametrize("carry_journal", [False, True], ids=["omitted-journal", "copied-journal"])
+    def test_portable_projection_remaps_photo_but_namespaces_charge_identity(lab, tmp_path, carry_journal):
+        evidence, state, marker = charged_photo(lab)
+        projected = project_marker(marker, tmp_path)
+        assert projected["target_id"] == str(evidence.pk)
+        assert projected["meta"] == marker.meta | {
+            "accounting_database_id": f"source:{lab.identity.database_uuid}",
+        }
+        assert type(projected["meta"]["bytes"]) is int
+        assert type(projected["meta"]["version"]) is int
+        target = fresh_target_photo(lab)
+        target_state = transplanted_journal(lab, state, target) if carry_journal else None
+    
+        with transaction.atomic():
+&gt;           imported = import_projected_marker(projected, tmp_path, target)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/evidence/test_evidence_accounting_export.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/evidence/safety_accounting_helpers.py:44: in import_projected_marker
+    row = deepcopy(source)
+          ^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:136: in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:221: in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = &lt;memory at 0xffffa72af640&gt;
+memo = {281473481698048: {'id': 8694, 'actor_id': None, 'action': 'evidence.storage_charged', 'target_type': 'evidence.eviden...22}, UUID('525dc219-3f02-439f-80dd-5769e69b8daa')], 281473486074064: UUID('525dc219-3f02-439f-80dd-5769e69b8daa'), ...}
+_nil = []
+
+    def deepcopy(x, memo=None, _nil=[]):
+        """Deep copy operation on arbitrary Python objects.
+    
+        See the module's __doc__ string for more info.
+        """
+    
+        if memo is None:
+            memo = {}
+    
+        d = id(x)
+        y = memo.get(d, _nil)
+        if y is not _nil:
+            return y
+    
+        cls = type(x)
+    
+        copier = _deepcopy_dispatch.get(cls)
+        if copier is not None:
+            y = copier(x, memo)
+        else:
+            if issubclass(cls, type):
+                y = _deepcopy_atomic(x, memo)
+            else:
+                copier = getattr(x, "__deepcopy__", None)
+                if copier is not None:
+                    y = copier(memo)
+                else:
+                    reductor = dispatch_table.get(cls)
+                    if reductor:
+                        rv = reductor(x)
+                    else:
+                        reductor = getattr(x, "__reduce_ex__", None)
+                        if reductor is not None:
+&gt;                           rv = reductor(4)
+                                 ^^^^^^^^^^^
+E                           TypeError: cannot pickle memoryview objects
+
+/usr/local/lib/python3.12/copy.py:151: TypeError</failure></testcase><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_portable_projection_remaps_photo_but_namespaces_charge_identity[copied-journal]" time="3.695"><failure message="TypeError: cannot pickle memoryview objects">lab = namespace(home=&lt;Makerspace: safety-a&gt;, other=&lt;Makerspace: safety-b&gt;, user=&lt;User: safety-inventory&gt;, memberships=[&lt;Make...test.APIClient object at 0xffffa7286fc0&gt;, identity=&lt;DeploymentDatabaseIdentity: DeploymentDatabaseIdentity object (1)&gt;)
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_portable_projection_remap1')
+carry_journal = True
+
+    @pytest.mark.parametrize("carry_journal", [False, True], ids=["omitted-journal", "copied-journal"])
+    def test_portable_projection_remaps_photo_but_namespaces_charge_identity(lab, tmp_path, carry_journal):
+        evidence, state, marker = charged_photo(lab)
+        projected = project_marker(marker, tmp_path)
+        assert projected["target_id"] == str(evidence.pk)
+        assert projected["meta"] == marker.meta | {
+            "accounting_database_id": f"source:{lab.identity.database_uuid}",
+        }
+        assert type(projected["meta"]["bytes"]) is int
+        assert type(projected["meta"]["version"]) is int
+        target = fresh_target_photo(lab)
+        target_state = transplanted_journal(lab, state, target) if carry_journal else None
+    
+        with transaction.atomic():
+&gt;           imported = import_projected_marker(projected, tmp_path, target)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/evidence/test_evidence_accounting_export.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/evidence/safety_accounting_helpers.py:44: in import_projected_marker
+    row = deepcopy(source)
+          ^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:136: in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:221: in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = &lt;memory at 0xffffa76cc880&gt;
+memo = {281473482875264: {'id': 8696, 'actor_id': None, 'action': 'evidence.storage_charged', 'target_type': 'evidence.eviden...00}, UUID('d306a649-10d5-40f2-9e38-c1067f47ba20')], 281473483721040: UUID('d306a649-10d5-40f2-9e38-c1067f47ba20'), ...}
+_nil = []
+
+    def deepcopy(x, memo=None, _nil=[]):
+        """Deep copy operation on arbitrary Python objects.
+    
+        See the module's __doc__ string for more info.
+        """
+    
+        if memo is None:
+            memo = {}
+    
+        d = id(x)
+        y = memo.get(d, _nil)
+        if y is not _nil:
+            return y
+    
+        cls = type(x)
+    
+        copier = _deepcopy_dispatch.get(cls)
+        if copier is not None:
+            y = copier(x, memo)
+        else:
+            if issubclass(cls, type):
+                y = _deepcopy_atomic(x, memo)
+            else:
+                copier = getattr(x, "__deepcopy__", None)
+                if copier is not None:
+                    y = copier(memo)
+                else:
+                    reductor = dispatch_table.get(cls)
+                    if reductor:
+                        rv = reductor(x)
+                    else:
+                        reductor = getattr(x, "__reduce_ex__", None)
+                        if reductor is not None:
+&gt;                           rv = reductor(4)
+                                 ^^^^^^^^^^^
+E                           TypeError: cannot pickle memoryview objects
+
+/usr/local/lib/python3.12/copy.py:151: TypeError</failure></testcase><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_custom_tenant_dump_retains_inert_snapshot_without_portable_prefix" time="1.492" /><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_consistent_local_database_snapshot_metadata_retains_proof" time="1.478"><failure message="TypeError: cannot pickle memoryview objects">lab = namespace(home=&lt;Makerspace: safety-a&gt;, other=&lt;Makerspace: safety-b&gt;, user=&lt;User: safety-inventory&gt;, memberships=[&lt;Make...test.APIClient object at 0xffffa7238a70&gt;, identity=&lt;DeploymentDatabaseIdentity: DeploymentDatabaseIdentity object (1)&gt;)
+
+    def test_consistent_local_database_snapshot_metadata_retains_proof(lab):
+        evidence, state, marker = charged_photo(lab)
+        lab.home.refresh_from_db()
+        # These are raw DB snapshot records, not a portable archive or host restore run.
+        models = (DeploymentDatabaseIdentity, EvidencePhoto, EvidenceUploadFinalization, AuditLog, Makerspace)
+&gt;       snapshot = {model._meta.label: deepcopy(raw_records(model.objects.all(), model))
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    for model in models}
+
+tests/evidence/test_evidence_accounting_export.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.12/copy.py:136: in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:196: in _deepcopy_list
+    append(deepcopy(a, memo))
+           ^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:136: in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/copy.py:221: in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = &lt;memory at 0xffffa7274700&gt;
+memo = {281473482806400: [], 281473484741952: {'id': 8699, 'actor_id': None, 'action': 'evidence.storage_charged', 'target_ty...35-1a4ed214550e'}, {'int': 97348069396458610747724936884561117170}, UUID('493c8e62-5469-47de-bdd8-d41b84e3fff2')], ...}
+_nil = []
+
+    def deepcopy(x, memo=None, _nil=[]):
+        """Deep copy operation on arbitrary Python objects.
+    
+        See the module's __doc__ string for more info.
+        """
+    
+        if memo is None:
+            memo = {}
+    
+        d = id(x)
+        y = memo.get(d, _nil)
+        if y is not _nil:
+            return y
+    
+        cls = type(x)
+    
+        copier = _deepcopy_dispatch.get(cls)
+        if copier is not None:
+            y = copier(x, memo)
+        else:
+            if issubclass(cls, type):
+                y = _deepcopy_atomic(x, memo)
+            else:
+                copier = getattr(x, "__deepcopy__", None)
+                if copier is not None:
+                    y = copier(memo)
+                else:
+                    reductor = dispatch_table.get(cls)
+                    if reductor:
+                        rv = reductor(x)
+                    else:
+                        reductor = getattr(x, "__reduce_ex__", None)
+                        if reductor is not None:
+&gt;                           rv = reductor(4)
+                                 ^^^^^^^^^^^
+E                           TypeError: cannot pickle memoryview objects
+
+/usr/local/lib/python3.12/copy.py:151: TypeError</failure></testcase><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_missing_identity_is_read_only_and_late_seed_cannot_retroactively_prove_debit" time="1.326" /><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_malformed_or_unknown_identity_marker_cannot_prove_target_debit[not-a-uuid]" time="1.283" /><testcase classname="tests.evidence.test_evidence_accounting_export" name="test_malformed_or_unknown_identity_marker_cannot_prove_target_debit[00000000-0000-0000-0000-000000000011]" time="1.286" /></testsuite></testsuites>

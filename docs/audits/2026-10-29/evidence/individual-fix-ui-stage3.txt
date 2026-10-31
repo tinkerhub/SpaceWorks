@@ -1,0 +1,13 @@
+Added and frozen three new files:
+
+- [NeedsFixShelf.units.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/NeedsFixShelf.units.test.tsx) — 99 lines, 4 cases: individual-row controls, scoped unit repair/refetch/invalidation/close, module-off gating, disabling while open.
+- [NeedsFixShelf.quantity.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/NeedsFixShelf.quantity.test.tsx) — 119 lines, 5 cases: untouched default, exact repair/reset, invalid inputs, stale scrap confirmation/retry, exact confirmed scrap.
+- [needsFixShelfHarness.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/test/needsFixShelfHarness.tsx) — 115 lines; only `staffRequest` mocked, unknown paths throw.
+
+Whitespace checks found no issues. No existing files edited; no tests, typecheck, build, staging, or commit run.
+
+Central execution command using Node 20:
+
+```sh
+docker run --rm -v "$PWD/frontend:/app" -w /app node:20 npm test -- src/features/staff/panels/NeedsFixShelf.units.test.tsx src/features/staff/panels/NeedsFixShelf.quantity.test.tsx
+```

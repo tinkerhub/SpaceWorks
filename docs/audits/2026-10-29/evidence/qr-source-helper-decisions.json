@@ -1,0 +1,376 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 2,
+  "observed_lexical_owner_count": 26,
+  "owner_census_method": "Stdlib AST recursive named owner enumeration; mappings individually written from complete actual source read.",
+  "selected_hashes_rechecked": true,
+  "blanket_approval": false,
+  "runtime_validation": "Root runtime pending; no child execution. Separate QR Stage3 follows final tiny resolve-audit/schema source delta.",
+  "files": [
+    {
+      "path": "backend/apps/boxes/qr_admission.py",
+      "file_sha256": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 137,
+          "purpose": "Declare QR-local retained source and fresh-policy helpers.",
+          "runtime_boundary": "Shared HTTP/native/service integration; imports no provider or Maker locking primitive.",
+          "disposition": "Explicit helper ownership must be included in root final source census.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "qr_sources",
+          "line_start": 17,
+          "line_end": 21,
+          "purpose": "Admit sorted deduplicated tenant source scopes.",
+          "runtime_boundary": "Existing boundary_tenant_write retained with ExitStack, before caller row locks.",
+          "disposition": "Preserve actual shared lock owner; PG exclusion/outercommit tests pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "qr_write",
+          "line_start": 25,
+          "line_end": 29,
+          "purpose": "Retain source admission across the actual SQL transaction exit.",
+          "runtime_boundary": "Source boundaries entered before transaction.atomic; nested callers retain SQL ownership to outer commit.",
+          "disposition": "Preserve source-before-row ordering; root runtime pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "current_qr_actor",
+          "line_start": 32,
+          "line_end": 45,
+          "purpose": "Reload actual actor and enforce active/native policy after waits.",
+          "runtime_boundary": "Fresh User query; native adds superuser/no-password-rotation and explicit nonhidden Makerspace checks.",
+          "disposition": "API membership exception remains available; native exception explicitly refused.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "qr_identity",
+          "line_start": 48,
+          "line_end": 49,
+          "purpose": "Snapshot the QR tenant and generic target identity.",
+          "runtime_boundary": "Pure immutable tuple used for preflight/fresh comparison.",
+          "disposition": "Retain exact Maker/type/id identity.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "fresh_qr",
+          "line_start": 52,
+          "line_end": 62,
+          "purpose": "Lock the originally admitted QR and refuse changed identity or lost authority.",
+          "runtime_boundary": "Scoped QR FOR UPDATE under already-held Source N; no Maker lock.",
+          "disposition": "Preserve checkout-compatible order and avoid following a new tenant.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "admitted_qr",
+          "line_start": 66,
+          "line_end": 80,
+          "purpose": "Admit scanner source before fetching fresh active QR and payload.",
+          "runtime_boundary": "Unlocked scope/module preflight then qr_write and fresh active lock.",
+          "disposition": "Resolve reader authority remains caller-selected VIEW_INVENTORY.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "create_tool_qr",
+          "line_start": 83,
+          "line_end": 122,
+          "purpose": "Create/reuse a target QR with source admission and atomic real audit.",
+          "runtime_boundary": "Unlocked authorized target preflight; existing QR before target lock; fresh target Maker and action after wait.",
+          "disposition": "No orphan write after move/deletion, no quantity algorithm changes; runtime pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "require_qr_request_scope",
+          "line_start": 125,
+          "line_end": 137,
+          "purpose": "Bind actual resolved tenant set to browser/native selection scope.",
+          "runtime_boundary": "Request origin and selected Maker checks against actual preflight owners, not mutable body fallback.",
+          "disposition": "Refuse ambiguous/cross-origin sets before source state is consulted.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/boxes/admin_qr_lifecycle.py",
+      "file_sha256": "412bea74180f9bcddce1b5376a8ea441a2a58e0434c73eae0ef6d38ffa22ea20",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 231,
+          "purpose": "Define native QR transaction admission plus the extracted existing rebind form.",
+          "runtime_boundary": "Local ModelAdmin mixin before canonical audit and superuser mixins.",
+          "disposition": "No global admin/source guard modification.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "QrRebindAdminForm",
+          "line_start": 23,
+          "line_end": 92,
+          "purpose": "Present existing scoped native product/asset rebind controls.",
+          "runtime_boundary": "Explicitly extracted form preserves public admin import and existing field declarations.",
+          "disposition": "AST-equivalent extraction; retain visible and unarchived choices.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "QrRebindAdminForm.__init__",
+          "line_start": 36,
+          "line_end": 53,
+          "purpose": "Bind rebind choices to visible servable Makerspaces and their targets.",
+          "runtime_boundary": "Native form querysets; no row locks or mutation.",
+          "disposition": "Retain existing choice semantics.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "QrRebindAdminForm.clean",
+          "line_start": 55,
+          "line_end": 72,
+          "purpose": "Validate required target and destination product host.",
+          "runtime_boundary": "Django Form validation before rebind service preflight.",
+          "disposition": "Retain existing typed field/form refusals.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "QrRebindAdminForm.rebind_payload",
+          "line_start": 74,
+          "line_end": 92,
+          "purpose": "Translate validated native choices into the shared service DTO.",
+          "runtime_boundary": "Pure form projection; no client authority derived from labels.",
+          "disposition": "Retain existing target/destination/name keys.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": []
+        },
+        {
+          "owner": "QrLifecycleMixin",
+          "line_start": 95,
+          "line_end": 229,
+          "purpose": "Retain native QR source admission around actual dispatch/history/commit.",
+          "runtime_boundary": "Native change/delete/action boundaries; ordinary mutation audit delegated to canonical mixin.",
+          "disposition": "Source closure inspected; actual native and PG tests pending.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin._assert_source_gate",
+          "line_start": 96,
+          "line_end": 99,
+          "purpose": "Replace raw POST-id assertion with actual effective scoped selection admission.",
+          "runtime_boundary": "Inherited hook intentionally no-op only because local native wrappers cover every admitted mutation entry.",
+          "disposition": "Keep local complete wrappers, including select_across; runtime tests must prove retained gate rather than trusting this override.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin._fresh_rows",
+          "line_start": 101,
+          "line_end": 113,
+          "purpose": "Reload exact scoped QR snapshots and optionally lock them in PK order.",
+          "runtime_boundary": "Reject missing/moved/retargeted rows before full native save/delete; query cannot follow unadmitted Maker.",
+          "disposition": "Preserve exact identity equality; verification corrected native DRF Conflict to Django Http404 so expected missing/moved rows return scoped404 rather than500.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin._qr_rows",
+          "line_start": 116,
+          "line_end": 130,
+          "purpose": "Own sorted source boundaries then actual QR locks and fresh native policy.",
+          "runtime_boundary": "Wraps actual operation and post-wait policy check before transaction commit; no Maker lock.",
+          "disposition": "Policy loss during target/product wait rolls back canonical/domain mutations.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin._selected_object",
+          "line_start": 132,
+          "line_end": 137,
+          "purpose": "Resolve the visible native object with validated alternate field.",
+          "runtime_boundary": "Unlocked native POST preflight before source/row admission.",
+          "disposition": "Retain hidden scoping and forbidden to_field refusal.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.changeform_view",
+          "line_start": 139,
+          "line_end": 143,
+          "purpose": "Retain admission around real native QR POST form transaction.",
+          "runtime_boundary": "GET and denied add behavior delegate; existing target preflight then source/QR lock before inherited changeform.",
+          "disposition": "No stale full save or native history outside retained scope.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.save_model",
+          "line_start": 145,
+          "line_end": 157,
+          "purpose": "Preserve locked QR identity while permitting only actual created_by change.",
+          "runtime_boundary": "Nested admitted source/QR ownership; fresh concrete fields copied before canonical save/audit.",
+          "disposition": "Never resurrect missing QR or undo concurrent rebind with stale full Model.save.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.delete_view",
+          "line_start": 159,
+          "line_end": 163,
+          "purpose": "Retain admission around native single-delete history and commit.",
+          "runtime_boundary": "POST preflight source/QR boundary surrounds inherited Django delete transaction.",
+          "disposition": "GET remains existing read/confirmation behavior.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.delete_model",
+          "line_start": 165,
+          "line_end": 167,
+          "purpose": "Reload the admitted QR before actual native single Collector.",
+          "runtime_boundary": "Nested source/QR lock reuse then canonical AuditMixin deletion.",
+          "disposition": "Protected scan history still blocks deletion and rolls back canonical audit.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.delete_queryset",
+          "line_start": 169,
+          "line_end": 173,
+          "purpose": "Use frozen effective selected QR rows under retained locks for bulk deletion.",
+          "runtime_boundary": "Stable scoped selection passed from action dispatcher, fresh exact identity before audit/Collector.",
+          "disposition": "Canonical audit and domain rollback remain shared atomic; native LogEntry attempts are an explicit separate diagnostic boundary.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin.response_action",
+          "line_start": 175,
+          "line_end": 211,
+          "purpose": "Validate actual action form and freeze effective filtered selection including select_across.",
+          "runtime_boundary": "Replicates action index/select_across resolution before retaining sorted selected+rebind destination sources.",
+          "disposition": "Dispatch receives frozen PK subset; no later unadmitted row expansion.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        },
+        {
+          "owner": "QrLifecycleMixin._delete_action_dispatch",
+          "line_start": 213,
+          "line_end": 229,
+          "purpose": "Hold admitted sources around bulk native history then actual canonical delete helper.",
+          "runtime_boundary": "Source boundary before history and nested atomic QR locks; fresh policy and identity checks on both sides of wait.",
+          "disposition": "No extra Maker lock; native bulk LogEntry attempts may survive a failed deletion as documented.",
+          "decision": "reviewed-fix-runtime-pending",
+          "evidence": "Complete actual source independently read after approved QR Stage2; exact lexical span above.",
+          "findings": [
+            "QR-SOURCE-ADMISSION",
+            "QR-NATIVE-AUDIT"
+          ]
+        }
+      ],
+      "supersedes_pre_verification_sha256": "cda37d9eea93ecf319151bab746c4361b9906a34d89b38cabd409c411bffaa11"
+    }
+  ],
+  "denominator": "Exactly2 new helper files/26 lexical owners; no inferred approval for other imported functions/callers/files.",
+  "verification_correction": "Native-only Http404 for vanished/moved effective selection after wait, independently checked against actual Conflict(APIException) and Django view dispatch; runtime remains pending."
+}

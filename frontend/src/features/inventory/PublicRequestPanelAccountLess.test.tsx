@@ -29,6 +29,7 @@ vi.mock("../../lib/api", async () => {
   return { ...actual, getAccessToken, refreshAccessToken };
 });
 
+import { accessToken } from "../../test/accessTokens";
 import { PublicRequestPanel } from "./PublicRequestPanel";
 
 const ITEMS = [{ productId: 7, name: "Logic analyzer", quantity: 1 }];
@@ -320,7 +321,10 @@ describe("account-required policies with nobody signed in", () => {
 
   it("restores a reloaded session from the refresh cookie and files the request under it", async () => {
     // The access token lives in memory only; after a reload it is behind the cookie.
-    refreshAccessToken.mockResolvedValue(true);
+    refreshAccessToken.mockImplementation(async () => {
+      getAccessToken.mockReturnValue(accessToken("borrow-restored-member"));
+      return true;
+    });
     renderSignedOut({ memberAccountsOn: false });
 
     fill(/request purpose/i, "Bench diagnostics");

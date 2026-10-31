@@ -19,13 +19,23 @@ from apps.tenant_migration.tenant_restore_types import (
 )
 
 
-ARTIFACT = "a" * 64
-class Artifact:
+from tests.tenant_migration.x12_selected_test_helpers import (
+    SelectedArtifact, admission_inner, outer_manifest, sha, wrapper_bytes,
+)
+
+RUN_ID = str(uuid.uuid4())
+CAPTURE_ID = str(uuid.uuid4())
+ARTIFACT = sha(wrapper_bytes(outer_manifest(admission_inner(CAPTURE_ID))))
+
+
+class Artifact(SelectedArtifact):
+    def __init__(self, root):
+        super().__init__(root, inner=admission_inner(CAPTURE_ID))
+        assert self.inputs.artifact_sha256 == ARTIFACT
+
     def static_preflight(self, _inputs):
         return ArtifactPreflight(*([True] * 12))
 
-    def database_dump_path(self):
-        return "/artifact/database.dump"
 class Writers:
     def __init__(self, events, ops):
         self.events = events
@@ -185,15 +195,12 @@ class Journal:
         return 1
 
 
-RUN_ID = str(uuid.uuid4())
-CAPTURE_ID = str(uuid.uuid4())
-
 def invoke(tmp_path, database):
     pointer = Pointer(database.events)
     return run_target_restore(
         ops_dir=tmp_path / "ops",
         inputs=RestoreInputs(RUN_ID, ARTIFACT, CAPTURE_ID, "admin@example.test"),
-        artifact=Artifact(), database=database, writers=database.writers,
+        artifact=Artifact(tmp_path / "selected"), database=database, writers=database.writers,
         pointer=pointer, target=Target(pointer, database.events),
         object_store=Objects(), destination_prefix="imports/run",
         capability_journal=Journal(), marker_writer=HostMarkerTransition(tmp_path / "marker.json", Journal(), require_root_owned=False),
@@ -217,7 +224,7 @@ def test_static_refusal_creates_no_target_state_or_sibling(tmp_path):
         run_target_restore(
             ops_dir=tmp_path / "ops",
             inputs=RestoreInputs(RUN_ID, ARTIFACT, CAPTURE_ID, "admin@example.test"),
-            artifact=InvalidArtifact(), database=database, writers=writers,
+            artifact=InvalidArtifact(tmp_path / "selected"), database=database, writers=writers,
             pointer=pointer, target=Target(pointer, events), object_store=Objects(),
             destination_prefix="imports/run", capability_journal=Journal(),
             marker_writer=HostMarkerTransition(tmp_path / "marker.json", Journal(), require_root_owned=False),

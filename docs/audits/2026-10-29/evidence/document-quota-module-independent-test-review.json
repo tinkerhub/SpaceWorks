@@ -1,0 +1,63 @@
+{
+  "status": "independently-read-tests-runtime-not-yet-run",
+  "estimated_new_cases": 31,
+  "files": [
+    {
+      "path": "backend/tests/makerspaces/document_quota_module_support.py",
+      "lines": 219,
+      "sha256": "4dd67c92b54501128fa2b5cbcb1d4377781fad2a0011e9d0ce4f3ceb0abaf75b",
+      "static_expected_new_cases": 0
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_authority.py",
+      "lines": 158,
+      "sha256": "1481046a1d9e47db294e8eb974928424c1c99e11b0c21a5568bfd43e9de804f9",
+      "static_expected_new_cases": 20
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_legacy.py",
+      "lines": 64,
+      "sha256": "553fdf275f01ee6f90b6e5434ddc479d93e939321ed118a0a5a335490197c1b9",
+      "static_expected_new_cases": 1
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_modes.py",
+      "lines": 79,
+      "sha256": "1dbd942691d2be5aa957b369799bc2c7a21c776b8894449c80dac68a17911545",
+      "static_expected_new_cases": 3
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_purge.py",
+      "lines": 70,
+      "sha256": "f22b8b47917a6148da4f64769103d030e4f014fcfd5fed6226cfa95ed50037f2",
+      "static_expected_new_cases": 1
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_recompute.py",
+      "lines": 68,
+      "sha256": "72a0c3237de4a9c4ad1a2a5c65f75052732750ab52e8def0bce625ffcc45d25a",
+      "static_expected_new_cases": 3
+    },
+    {
+      "path": "backend/tests/makerspaces/test_document_quota_module_rollback.py",
+      "lines": 109,
+      "sha256": "0836579db44aec548767a60b4acd58b884f6232bf1db33bf20533213bec5be16",
+      "static_expected_new_cases": 3
+    },
+    {
+      "path": "backend/tests/makerspaces/test_module_cleanup_accounting.py",
+      "lines": 173,
+      "sha256": "9d3e5674ecdb32c4767d3b3aecc7a4f38a831ef856f58c351a887e4ddb70abbb",
+      "static_expected_new_cases": 0
+    },
+    {
+      "path": "backend/tests/makerspaces/test_module_cleanup_bytefirst.py",
+      "lines": 177,
+      "sha256": "04fd1155a5cc374b0f972e248bf5b955a6f122d5df08e7fe21e8d2807ee98ac7",
+      "static_expected_new_cases": 0
+    }
+  ],
+  "review": "Root read all6newtestfiles+provideradapter; realstaffAPI debits, actualPostgrescounter/source/storageguards unmocked; onlyprovidertransport simulated. Positivepublish/purge/retry/rollback/recompute preserve unrelatedwarrantybytesanddebit. Negativehandoffs teststrictbinding/localprovenance, actualoldcanonicalpendinggraphshape, managed/selfhostdrift. ProvideradapterrefusesS3insideSQLatomic and preservesversiondata/marker/Quietackdistinctions.",
+  "existing_fixture_diff": "Exactly2wrappers accept/pass**kwargs; alloldassertions unchanged, independentlydiffedagainstimmutablepre-ledger source.",
+  "test_execution_pending": true
+}

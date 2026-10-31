@@ -1,0 +1,10 @@
+Implemented only the two approved owners:
+
+- [add_qr_to_batch](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:33): fresh `SELECT FOR UPDATE` by QR pk and batch makerspace before label/snapshot/item derivation. Initial foreign-input 400 remains; subsequently moved QR returns 404.
+- [QrPrintBatchItemView.post](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:93): module lock now uses `no_key=True`.
+
+Static AST/source-hash checks passed. `AssetQrView` source and AST, generation loops, and 1,927 other backend sources remain unchanged. Files are 191/214 lines. Existing validation, revoked behavior, sorting, actual-actor audits, audit-free no-op, historical snapshots, and Source N boundaries are preserved.
+
+Known read exposure remains in [QrPrintBatchItemSerializer](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/serializers.py:202): historical batch references can expose live QR fields after a cross-makerspace move. Left untouched for separate coordination.
+
+No tests, Django imports, runtime checks, builds, staging, or commits performed.

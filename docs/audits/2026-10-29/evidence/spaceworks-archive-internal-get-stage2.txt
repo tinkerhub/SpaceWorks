@@ -1,0 +1,16 @@
+Changed only [storage.py:68](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/storage.py:68):
+
+```diff
+-        return client(public_endpoint=True).get_object(
++        return client().get_object(
+```
+
+Static review: PASS. All other bytes unchanged; AST confirms only that keyword removal.
+
+Baseline-bound to frozen11695 round3 pre-change SHA:
+`393b133843aff9b40307a5c19d529c03106b29f086c783f834c9ae1d366347b5`
+
+New SHA-256:
+`b1ccfab397f24438cf0f79f79e9e464e52cbcf23302fb0fe1412be15d1c5a420`
+
+Immutable baseline and focused64 manifest untouched. No runtime, tests, collection, Docker, DB, provider, build, or install actions performed. Existing full-suite lanes do not validate this changed SHA.

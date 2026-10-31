@@ -1,0 +1,20 @@
+{
+  "status": "source-frozen-actual-host-candidate-pass-stage3-tests-writing",
+  "files": [
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+      "lines": 255
+    },
+    {
+      "path": "scripts/restore.sh",
+      "sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+      "lines": 72
+    }
+  ],
+  "candidate_runtime_proof": "docs/audits/2026-10-29/evidence/restore-actual-oid-candidate-target-proof.json",
+  "candidate_runtime_proof_sha256": "d99d474eb8168d9b1787888a9d4792e0d049a3100fddbdf23d23e14eecd3ff5d",
+  "source_delta": "One SQL oid::bigint cast in independent JSON corroboration + exact matching25guard SHA; all dictionary/system/name/UUID/physical/port/marker checks preserved.",
+  "tests": "Separate Stage3 CLI writing finite3actualPG cases; no tests executed by this lane.",
+  "source_manifest": "Parent owns approved64/25/59refresh after runtime test proof. No current source manifest was changed here."
+}

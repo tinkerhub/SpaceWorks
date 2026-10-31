@@ -1,0 +1,1857 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root, GPT-6; exact serving-model identifier is not exposed in this session",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 18,
+  "observed_lexical_owner_count": 126,
+  "owner_census_method": "Parsed the actual selected bytes using Python ast without importing or executing application source. Enumerated each module and every recursive ClassDef, FunctionDef and AsyncFunctionDef, including nested Meta and Status classes. Names are qualified within their containing file. Declaration starts use AST lineno, excluding preceding decorators. Inline lambda expressions remain within their enclosing named owner. Decisions were made individually from actual source reading, not generated from the census.",
+  "selected_hashes_rechecked": true,
+  "selected_hashes_unchanged_during_review": true,
+  "blanket_approval": false,
+  "runtime_validation": "Not performed. No application, tests, builds or migrations were run.",
+  "files": [
+    {
+      "path": "backend/apps/inventory/availability.py",
+      "file_sha256": "f0d0c6cbd84ef7b8e6f29d4950da230716d34841627fa3b5ae94acd3b1529937",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 32,
+          "purpose": "Expose the stable inventory availability import surface.",
+          "runtime_boundary": "Import-only barrel consumed by workflow, operations and staff callers.",
+          "disposition": "Retain explicit re-exports; this decision covers declarations, not the behavior of imported children or callers.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-32 route manual adjustments, asset accounting, quantity mutations, request mutations, tracking changes and exceptions to their separate implementation owners.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_assets.py",
+      "file_sha256": "a131dc9b6164bc82485f3f66e3270854805ce609f070353f10186cf6376ce22a",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 97,
+          "purpose": "Declare the asset-status to product-bucket correspondence.",
+          "runtime_boundary": "Shared constants and ORM dependencies for asset-backed inventory accounting.",
+          "disposition": "Retain the explicit status mapping; retired assets deliberately have no counted bucket.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 8-17 map available, reserved, issued, damaged, lost and maintenance statuses to six quantity fields. Mutation functions are reviewed separately.",
+          "findings": []
+        },
+        {
+          "owner": "reconcile_individual_product_from_assets",
+          "line_start": 20,
+          "line_end": 64,
+          "purpose": "Rebuild individual product buckets while preserving outstanding workflow reservations.",
+          "runtime_boundary": "Internal ORM helper requiring the caller to hold the product row lock.",
+          "disposition": "Retain reservation preservation and refusal when physical available assets cannot cover unmarked reservations.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 30-41 count mapped asset statuses only for individual products; 43-51 preserve reservations and subtract them from available assets; 53-63 save changed fields. move_asset_status:85-86 supplies the product lock.",
+          "findings": []
+        },
+        {
+          "owner": "move_asset_status",
+          "line_start": 67,
+          "line_end": 97,
+          "purpose": "Move one asset and its product quantities between supported statuses.",
+          "runtime_boundary": "Requires an atomic transaction and an already locked, freshly validated asset; locks and reconciles the product itself.",
+          "disposition": "Retain this general accounting primitive. Action-specific eligibility belongs to callers; INV-S02's separate caller correction remains runtime-pending.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 73-83 reject missing transactions and unmapped transitions; 85-96 lock, reconcile and move both rows. admin_api/views_assets.py:173-183 revalidates the locked asset before calling.",
+          "findings": ["INV-S02"]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_manual_adjustments.py",
+      "file_sha256": "437a3f0c083c655f3821e87bbf32f71f6320b9f444d47666d39df7cc0049c131",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 17,
+          "purpose": "Declare the manual-adjustment wrapper and its shared quantity primitive.",
+          "runtime_boundary": "Imports Django transaction support, product classification and the inventory error type.",
+          "disposition": "Retain the separation between manual counts and asset-backed internal adjustments.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-6 explicitly describe and import the manual-versus-unit boundary. The child performs the actual check.",
+          "findings": []
+        },
+        {
+          "owner": "adjust_manual_quantities",
+          "line_start": 10,
+          "line_end": 17,
+          "purpose": "Refuse manual quantity changes on individual products.",
+          "runtime_boundary": "Atomic service that reloads and locks the product before checking its tracking mode.",
+          "disposition": "Retain locked classification validation and delegation to the audited quantity service.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 9-17 lock before refusing individual products. admin_api/views_inventory_products.py:133-156 and inventory/admin_quantity_actions.py:43-59 use this wrapper rather than calling adjust_quantities directly.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_quantities.py",
+      "file_sha256": "788f2d3c76662ee51274311ca14e05378f57c3d080286c8325a6307bb1dcd72d",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 284,
+          "purpose": "Declare dependencies for quantity accounting primitives.",
+          "runtime_boundary": "Imports transaction state, inventory models and the domain stock exception.",
+          "disposition": "Retain inventory-owned arithmetic; module declarations do not establish caller authorization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-5 contain imports only. Each arithmetic function below has a separate decision.",
+          "findings": []
+        },
+        {
+          "owner": "adjust_quantities",
+          "line_start": 8,
+          "line_end": 69,
+          "purpose": "Apply signed available, damaged and lost deltas with an adjustment record and audit.",
+          "runtime_boundary": "Internal atomic service; reloads the product under a row lock. Authorization and integer input validation belong to callers.",
+          "disposition": "Retain the reusable primitive and the separate manual wrapper that excludes individual products.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 14-22 lock and reject negative results; 24-43 recompute total from all six buckets; 48-68 record adjustment and audit atomically. serializers_inventory_assets.py:7-21 supplies manual integer deltas and a reason.",
+          "findings": []
+        },
+        {
+          "owner": "consume_available",
+          "line_start": 72,
+          "line_end": 83,
+          "purpose": "Debit a positive whole number of available consumable units.",
+          "runtime_boundary": "Internal machine-consumption adapter delegating persistence and audit to adjust_quantities.",
+          "disposition": "Retain explicit rejection of booleans, nonintegers and nonpositive quantities.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 74-83 validate quantity and construct a negative available delta. machines/service_consumption.py:120-131 and machines/services_consumables.py:156-164 pass whole-count consumption to it.",
+          "findings": []
+        },
+        {
+          "owner": "move_available_to_triage_bucket",
+          "line_start": 86,
+          "line_end": 170,
+          "purpose": "Move returned quantity stock into a staff-confirmed damaged, missing or needs-fix bucket.",
+          "runtime_boundary": "Internal problem-report triage helper; individual assets take a separate caller branch.",
+          "disposition": "Retain outcome-specific accounting and the atomic requirement for the needs-fix branch.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 96-115 delegate damaged/missing deltas and reject unknown outcomes; 117-170 lock, move and audit needs-fix stock. problem_report_workflow.py:126-139 routes individual products away from this aggregate helper.",
+          "findings": []
+        },
+        {
+          "owner": "issue_available",
+          "line_start": 172,
+          "line_end": 189,
+          "purpose": "Move direct-issue quantity from available to issued without a reservation.",
+          "runtime_boundary": "Requires an atomic transaction, a caller-held product lock and validated positive quantity.",
+          "disposition": "Retain the accounting primitive. This does not approve its public/direct callers or close their QR and lock-order findings.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 180-189 require transaction state, bound the debit and save both buckets. self_checkout_helpers.py:110-125 locks products before calling _issue_product:199-204. HW-002/HW-003 concern surrounding caller behavior.",
+          "findings": ["HW-002", "HW-003"]
+        },
+        {
+          "owner": "return_to_available",
+          "line_start": 192,
+          "line_end": 206,
+          "purpose": "Move direct-loan quantity from issued back to available.",
+          "runtime_boundary": "Requires an atomic transaction, a caller-held product lock and caller-validated outstanding quantity.",
+          "disposition": "Retain the bounded arithmetic; do not treat it as validation of a loan's remaining obligations or closure of HW-001.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 197-206 require transaction state and sufficient issued stock. self_checkout_helpers.py:275-296 computes outstanding quantities and locks products; that caller's cross-flow correctness remains separately owned under HW-001.",
+          "findings": ["HW-001"]
+        },
+        {
+          "owner": "transfer_available_quantity",
+          "line_start": 209,
+          "line_end": 250,
+          "purpose": "Move available stock and its total between two product rows.",
+          "runtime_boundary": "Internal transfer primitive requiring an atomic transaction; source/destination tenancy and eligibility are caller responsibilities.",
+          "disposition": "Retain ordered product locking and equal source debit/destination credit.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 217-225 validate transaction and positive quantity; 227-239 lock products in primary-key order and check source stock; 242-249 update both totals. services_transfer_splits.py:7-34 rejects individual quantity transfers before delegation.",
+          "findings": []
+        },
+        {
+          "owner": "apply_stocktake_delta",
+          "line_start": 253,
+          "line_end": 283,
+          "purpose": "Apply stocktake ledger deltas and recompute a product total.",
+          "runtime_boundary": "Requires an atomic transaction and caller-held product row lock; stocktake eligibility and ledger audit belong to operations.",
+          "disposition": "Retain negative-result refusal and inclusion of reserved, issued and needs-fix buckets in total.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 258-266 check transaction and resulting counts; 267-283 persist the total and affected fields. operations/services_stocktake_helpers.py:176-189 obtains the product lock before applying ledger deltas.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_requests.py",
+      "file_sha256": "8d271f99cac912c6b86a9bc5cb09d35af740929ba406c0cce7fd532fdf40a72e",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 256,
+          "purpose": "Declare request-accounting dependencies and broken-unit disposition constants.",
+          "runtime_boundary": "Imports transaction state and inventory models; declares needs-fix and removal tokens.",
+          "disposition": "Retain these declarations independently of the child mutation decisions.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-4 contain imports; 87-89 define the two disposition constants. The INV-S01 correction resides in separately enumerated child functions.",
+          "findings": []
+        },
+        {
+          "owner": "reserve_for_request",
+          "line_start": 7,
+          "line_end": 53,
+          "purpose": "Reserve accepted request quantities against current aggregate and physical stock.",
+          "runtime_boundary": "Called inside request acceptance's transaction; locks products in primary-key order.",
+          "disposition": "Retain per-product aggregation and the individual-unit check under the same lock as reservation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 11-26 aggregate repeated product items; 28-46 check physical units and available quantities before moving buckets. request_workflow.py:154-193 validates accepted amounts before this call.",
+          "findings": []
+        },
+        {
+          "owner": "assert_individual_assets_available",
+          "line_start": 56,
+          "line_end": 84,
+          "purpose": "Ensure available serialized units cover new acceptance plus existing reservations.",
+          "runtime_boundary": "Read helper called by reserve_for_request while the product is locked.",
+          "disposition": "Retain subtraction of outstanding reservations and distinct guidance for absent versus unavailable units.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 65-74 compare available assets against required quantity plus reserved_quantity; 75-84 produce specific refusal guidance. reserve_for_request:15-37 supplies the locked baseline.",
+          "findings": []
+        },
+        {
+          "owner": "issue_items",
+          "line_start": 92,
+          "line_end": 146,
+          "purpose": "Move accepted reservations into issued, needs-fix or removed quantities.",
+          "runtime_boundary": "Internal reviewed-handover primitive inside the request transaction; callers validate rejects and synchronize individual assets.",
+          "disposition": "Retain product locking, reservation bounds and item accounting; this decision does not approve surrounding QR/evidence workflows.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 104-111 lock products in order; 118-142 bound broken units and move buckets; 144-146 record item counts. handover_workflow.py:140-148 validates rejects and handles individual assets before delegation.",
+          "findings": []
+        },
+        {
+          "owner": "_require_quantity_fix_action",
+          "line_start": 149,
+          "line_end": 155,
+          "purpose": "Reject aggregate repair, shelving and scrapping for individual products.",
+          "runtime_boundary": "Central guard called with a freshly row-locked product by all three aggregate fix helpers.",
+          "disposition": "Retain the implemented INV-S01 correction; require the parent-owned runtime validation before closure.",
+          "decision": "source-corrected-runtime-pending",
+          "evidence": "Lines 150-155 reject TrackingMode.INDIVIDUAL. Calls occur after select_for_update at 162-163, 177-178 and 192-193. The entire file hash matches individual-fix-freeze.json.",
+          "findings": ["INV-S01"]
+        },
+        {
+          "owner": "repair_from_needs_fix",
+          "line_start": 158,
+          "line_end": 171,
+          "purpose": "Return repaired quantity stock from needs-fix to available.",
+          "runtime_boundary": "Requires an atomic caller; reloads and locks the product before classification and quantity checks.",
+          "disposition": "Retain the post-lock individual-product refusal. Source correction is inspected; runtime proof remains pending.",
+          "decision": "source-corrected-runtime-pending",
+          "evidence": "Lines 160-167 enforce transaction, lock, tracking guard and shelf bounds before 168-170 mutate buckets. views_needs_fix.py:71-84 wraps the helper and audit in one transaction.",
+          "findings": ["INV-S01"]
+        },
+        {
+          "owner": "move_available_to_needs_fix",
+          "line_start": 173,
+          "line_end": 186,
+          "purpose": "Shelve available quantity stock for repair.",
+          "runtime_boundary": "Requires an atomic caller; locks the product and checks its current tracking mode.",
+          "disposition": "Retain the shared post-lock guard and available-stock bound; defer runtime closure to the parent.",
+          "decision": "source-corrected-runtime-pending",
+          "evidence": "Lines 175-181 check transaction, freshly locked tracking mode and available count before 183-185 move stock. views_needs_fix.py:74-75 reaches this corrected central boundary.",
+          "findings": ["INV-S01"]
+        },
+        {
+          "owner": "scrap_from_needs_fix",
+          "line_start": 188,
+          "line_end": 201,
+          "purpose": "Remove unrepairable quantity stock from needs-fix and total inventory.",
+          "runtime_boundary": "Requires an atomic caller and acquires the product lock itself.",
+          "disposition": "Retain refusal of individual products before total reduction; do not close INV-S01 without runtime validation.",
+          "decision": "source-corrected-runtime-pending",
+          "evidence": "Lines 190-197 check transaction, locked classification and shelf quantity; 198-200 reduce needs-fix and total together. admin_quantity_actions.py:82-89,124-134 reaches this helper through the native action.",
+          "findings": ["INV-S01"]
+        },
+        {
+          "owner": "return_items",
+          "line_start": 204,
+          "line_end": 256,
+          "purpose": "Apply validated returned, damaged and missing resolutions to product and request-item counts.",
+          "runtime_boundary": "Internal transaction-bound primitive; callers own request-kind eligibility, remaining quantities, evidence and per-unit outcomes.",
+          "disposition": "Retain inventory arithmetic while preserving HW-001 as a separate caller-boundary finding. This helper does not establish loan-flow eligibility.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 208-215 lock products in order; 217-244 bound issued debits and distribute outcomes; 247-256 update item totals. return_workflow.py:48-66 validates the request and builds resolutions before calling.",
+          "findings": ["HW-001"]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_tracking.py",
+      "file_sha256": "925e44d9bc41f8e3b090b2e850492dfa23a047783facbb2073f6ff7e3b5cafe9",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 60,
+          "purpose": "Declare availability-owned fields and tracking-transition dependencies.",
+          "runtime_boundary": "Shared constants identify classification and quantity columns owned by inventory services.",
+          "disposition": "Retain the explicit owned-field list and derived quantity-only subset.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 6-18 include tracking_mode and all seven quantity fields, including needs_fix_quantity. Child guards receive separate decisions.",
+          "findings": []
+        },
+        {
+          "owner": "change_tracking_mode",
+          "line_start": 21,
+          "line_end": 41,
+          "purpose": "Change tracking classification only when existing stock state permits it.",
+          "runtime_boundary": "Internal atomic-caller service that validates the target and reloads the product under a lock.",
+          "disposition": "Retain the locked blocker check and harmless same-mode return.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 29-38 enforce transaction, valid choice and blockers after locking; 39-40 save only classification and timestamp. bulk_import_apply.py:129-133 routes mapped mode changes through it.",
+          "findings": []
+        },
+        {
+          "owner": "_change_blocker",
+          "line_start": 44,
+          "line_end": 60,
+          "purpose": "Explain why a product cannot safely change tracking mode.",
+          "runtime_boundary": "Read helper invoked on the product held by change_tracking_mode.",
+          "disposition": "Retain independent checks for quantity state, physical assets and accepted or active loans.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 47-50 reject any nonzero bucket or asset row; 51-59 reject accepted, issued and partially returned request items. Pending proposals are not classified as held stock.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/availability_types.py",
+      "file_sha256": "26af452d4a7e736c9d49594a86a83026c5a548e20031e3bb693739e055cbf0df",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 6,
+          "purpose": "Declare shared availability domain exceptions.",
+          "runtime_boundary": "Import-only exception definitions used by services and caller error mapping.",
+          "disposition": "Retain the two distinct exception identities.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-6 contain only InsufficientStock and TrackingModeChangeRefused declarations, with no execution or persistence.",
+          "findings": []
+        },
+        {
+          "owner": "InsufficientStock",
+          "line_start": 1,
+          "line_end": 2,
+          "purpose": "Signal inventory quantity or unit-state refusal.",
+          "runtime_boundary": "Plain Exception subclass raised by inventory primitives and translated by adapters.",
+          "disposition": "Retain the domain exception without coupling it to HTTP.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-2 define no custom behavior. views_needs_fix.py:85-86 and views_inventory_products.py:155-156 translate it into API validation errors.",
+          "findings": []
+        },
+        {
+          "owner": "TrackingModeChangeRefused",
+          "line_start": 5,
+          "line_end": 6,
+          "purpose": "Distinguish unsafe tracking changes from stock shortage.",
+          "runtime_boundary": "Plain service exception consumed by API and bulk-import boundaries.",
+          "disposition": "Retain the separate error type for classification conflicts.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 5-6 declare the exception; availability_tracking.py:31-38 raises it for invalid targets or stock-state blockers; bulk_import_apply.py:75-79 handles it per row.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_availability.py",
+      "file_sha256": "5e715b9b9beb0ff2573469ff19b82241df3957b52f6eabe11fdd0fc834984016",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 39,
+          "purpose": "Declare dependencies for the public availability projection.",
+          "runtime_boundary": "Pure read projection using inventory model values and math.ceil.",
+          "disposition": "Retain a single formatter shared by public serialization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-4 import math, typing and the product/display-mode definitions; no module-level queries or writes occur.",
+          "findings": []
+        },
+        {
+          "owner": "_status_label",
+          "line_start": 7,
+          "line_end": 17,
+          "purpose": "Convert internal available and total quantities into a coarse public label.",
+          "runtime_boundary": "Pure helper called only after the hidden-mode branch in get_public_availability.",
+          "disposition": "Retain zero-stock precedence and the ceiling-based twenty-percent threshold.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 11-17 return Unavailable when either count is nonpositive, Limited at available <= ceil(total * 0.2), otherwise Available; this matches AGENTS.md's public rule.",
+          "findings": []
+        },
+        {
+          "owner": "get_public_availability",
+          "line_start": 20,
+          "line_end": 39,
+          "purpose": "Apply hidden/status/exact display policy without exposing prohibited counts.",
+          "runtime_boundary": "PublicProductSerializer's read-only availability method; view querysets separately enforce is_public.",
+          "disposition": "Retain hidden null output and require both exact mode and show_public_count before emitting count.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 21-22 return None for hidden; 26-27 emit labels only; 29-36 require both count gates; 39 falls back to status-only. serializers.py:50-51 delegates directly.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/models.py",
+      "file_sha256": "431a15f36582f260b97c5df1dd91084e46e110b4aff80752196ec61d14a2fb85",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 279,
+          "purpose": "Declare inventory model dependencies.",
+          "runtime_boundary": "Django model registration imports validation, field and makerspace definitions.",
+          "disposition": "Retain these imports; schema and method behavior are decided under their child owners.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-6 import Django validation/models/DEFERRED and Makerspace. No module-level inventory mutation occurs.",
+          "findings": []
+        },
+        {
+          "owner": "PublicAvailabilityMode",
+          "line_start": 9,
+          "line_end": 12,
+          "purpose": "Define the three supported public availability policies.",
+          "runtime_boundary": "Django TextChoices consumed by model fields and public formatting.",
+          "disposition": "Retain exact_count, status_only and hidden tokens.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 10-12 match public_availability.py:21-39 and its count safety gate.",
+          "findings": []
+        },
+        {
+          "owner": "TrackingMode",
+          "line_start": 15,
+          "line_end": 17,
+          "purpose": "Distinguish aggregate stock from serialized-unit stock.",
+          "runtime_boundary": "Django TextChoices used by model fields and availability guards.",
+          "disposition": "Retain quantity and individual as distinct persisted classifications.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 16-17 declare the two values checked by availability_manual_adjustments.py:12 and availability_requests.py:150.",
+          "findings": []
+        },
+        {
+          "owner": "Category",
+          "line_start": 20,
+          "line_end": 70,
+          "purpose": "Store tenant-owned inventory grouping and item-code allocation state.",
+          "runtime_boundary": "Django model fields; request authorization and tenant scoping remain outside the model.",
+          "disposition": "Retain explicit makerspace ownership and a noneditable sequence counter.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 21-39 define tenant FK, display fields, validated code and code_sequence. Nested Meta and methods are assessed separately.",
+          "findings": []
+        },
+        {
+          "owner": "Category.Meta",
+          "line_start": 43,
+          "line_end": 56,
+          "purpose": "Constrain category identifiers within a tenant and define display ordering.",
+          "runtime_boundary": "Django declarative database constraints and model metadata.",
+          "disposition": "Retain tenant-scoped slug/code uniqueness with blank codes excluded from code uniqueness.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 45-53 scope both unique constraints by makerspace; 55 orders by display_order and name.",
+          "findings": []
+        },
+        {
+          "owner": "Category.__str__",
+          "line_start": 58,
+          "line_end": 59,
+          "purpose": "Identify a category and its makerspace in internal displays.",
+          "runtime_boundary": "Model string conversion; not the public serializer representation.",
+          "disposition": "Retain the tenant-qualified internal label.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 59 includes category name and makerspace slug. PublicCategorySerializer explicitly declares its separate public fields.",
+          "findings": []
+        },
+        {
+          "owner": "Category.save",
+          "line_start": 61,
+          "line_end": 70,
+          "purpose": "Prevent ordinary full saves from overwriting newer item-code allocation counters.",
+          "runtime_boundary": "Django model save override; explicit sequence writes remain possible for the allocator.",
+          "disposition": "Retain exclusion of code_sequence from ordinary existing-row full saves.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 64-69 exclude the counter unless update_fields is explicit or insertion is intended. item_codes.py:55-69 locks the category and explicitly saves code_sequence.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct",
+          "line_start": 73,
+          "line_end": 215,
+          "purpose": "Store tenant-owned product identity, stock buckets, public policy and private storage metadata.",
+          "runtime_boundary": "Django persistence model; fields alone do not authorize writes or public disclosure.",
+          "disposition": "Retain separate privacy controls and default count suppression; service owners govern quantity and tracking changes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 74-95 define ownership and optional relations; 105-113 define stock; 114-123 separate public policy from storage_location and archival. PublicProductSerializer does not serialize private stock fields.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.Meta",
+          "line_start": 127,
+          "line_end": 180,
+          "purpose": "Provide stock nonnegativity, bucket-total consistency and scoped item-code uniqueness constraints.",
+          "runtime_boundary": "Declarative Django schema; this review does not prove installed database constraints.",
+          "disposition": "Retain database backstops while leaving stronger arithmetic equality to availability services.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 134-160 constrain each quantity nonnegative; 162-173 require total to cover all six buckets; 175-178 scope nonblank letters by makerspace and category.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.__str__",
+          "line_start": 182,
+          "line_end": 183,
+          "purpose": "Render an internal tenant-qualified product label.",
+          "runtime_boundary": "Model string conversion used by internal/admin displays.",
+          "disposition": "Retain the concise name and makerspace slug representation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 183 exposes only the internal name/slug label; public API output uses explicit serializer fields instead.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.from_db",
+          "line_start": 186,
+          "line_end": 190,
+          "purpose": "Remember the category associated with a loaded product.",
+          "runtime_boundary": "Django ORM materialization hook, including deferred category loads.",
+          "disposition": "Retain the DEFERRED-aware baseline used to detect actual category moves.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 187-190 preserve the loaded category without forcing a deferred relation query. item_codes.py:95-103 resolves a deferred baseline when needed.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.save",
+          "line_start": 192,
+          "line_end": 199,
+          "purpose": "Synchronize item-code letters with category changes on every model save.",
+          "runtime_boundary": "Django save override delegating allocation to item_codes.sync_code_letter.",
+          "disposition": "Retain explicit update_fields expansion only when the allocator changes code_letter.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 195-199 delegate allocation, include the changed letter in partial saves and refresh the category baseline. item_codes.py:79-92 preserves unchanged categories and imported letters.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.item_code",
+          "line_start": 202,
+          "line_end": 205,
+          "purpose": "Assemble the public item code from its stored parts.",
+          "runtime_boundary": "Read-only property delegating formatting to item_codes.item_code.",
+          "disposition": "Retain computed codes rather than storing a stale assembled value.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 203-205 delegate without persistence; item_codes.py:42-48 reads category code, makerspace prefix and code_letter.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryProduct.clean",
+          "line_start": 207,
+          "line_end": 215,
+          "purpose": "Reject product box/category relations crossing makerspaces.",
+          "runtime_boundary": "Django model validation hook; save does not automatically invoke clean, so API callers also validate relations.",
+          "disposition": "Retain model-level validation without claiming it alone secures every writer.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 208-215 check both optional relations. admin_api/views_inventory_products.py:58-65,107-113 and its relation helpers independently enforce the tenant match.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAsset",
+          "line_start": 218,
+          "line_end": 279,
+          "purpose": "Represent a tenant-owned serialized physical unit.",
+          "runtime_boundary": "Django model fields for product/container relation, status, identifiers and staff notes.",
+          "disposition": "Retain explicit unit state and ownership; inventory primitives and caller workflows govern transitions and evidence.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 228-256 define tenant/product/container FKs, tag, serial, status, self-checkout flag and notes. None of these unit/private fields are included in PublicProductSerializer.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAsset.Status",
+          "line_start": 219,
+          "line_end": 226,
+          "purpose": "Define serialized-unit lifecycle statuses.",
+          "runtime_boundary": "Nested Django TextChoices used by asset fields and inventory accounting.",
+          "disposition": "Retain retired as a distinct noncounted state; general bucket movement rejects unmapped statuses.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 220-226 declare seven statuses. availability_assets.py:8-15 maps six counted states; move_asset_status:78-83 refuses transitions lacking buckets.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAsset.Meta",
+          "line_start": 258,
+          "line_end": 267,
+          "purpose": "Enforce tenant-local asset-tag uniqueness and support scoped status queries.",
+          "runtime_boundary": "Django declarative schema metadata.",
+          "disposition": "Retain makerspace in both the uniqueness constraint and status index.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 260-266 constrain makerspace plus asset_tag and index makerspace plus status. Installed-schema behavior was not tested.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAsset.clean",
+          "line_start": 269,
+          "line_end": 276,
+          "purpose": "Reject foreign-tenant product and container references on an asset.",
+          "runtime_boundary": "Django model validation hook; individual write adapters must still validate their inputs.",
+          "disposition": "Retain accumulated field errors for both tenant relationships.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 270-276 compare both referenced makerspace IDs and raise ValidationError. serializers_inventory_assets.py:114-117 separately validates the editable container relation.",
+          "findings": []
+        },
+        {
+          "owner": "InventoryAsset.__str__",
+          "line_start": 278,
+          "line_end": 279,
+          "purpose": "Render an internal asset label with tenant context.",
+          "runtime_boundary": "Model string conversion, not a public API projection.",
+          "disposition": "Retain tag and makerspace slug for internal disambiguation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 279 returns asset_tag and makerspace slug; no notes, serial number or stock history is included.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/serializers.py",
+      "file_sha256": "f83943023b4979b4cdb9388b367034d335ddb9b8f4ef21c8673e84d3996e83d6",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 202,
+          "purpose": "Declare public serializer dependencies and the availability schema.",
+          "runtime_boundary": "DRF/OpenAPI declarations; no query builder or persistence operation.",
+          "disposition": "Retain explicit schema tokens and optional count representation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 8-23 declare nullable availability, status/exact modes and a nonnegative optional count. Data production is assessed under child owners and bounded caller context.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProductSerializer",
+          "line_start": 26,
+          "line_end": 55,
+          "purpose": "Define the public product field allowlist.",
+          "runtime_boundary": "Read-only DRF projection of products already filtered by public views.",
+          "disposition": "Retain explicit fields and delegated availability policy; exclude private locations, boxes, QR, evidence and requester history.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 27-47 expose identity, description, category, availability and image only. No raw stock bucket, storage_location, box or asset field is declared.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProductSerializer.get_availability",
+          "line_start": 50,
+          "line_end": 51,
+          "purpose": "Serialize policy-controlled availability.",
+          "runtime_boundary": "DRF method field delegating to the single public availability formatter.",
+          "disposition": "Retain delegation rather than duplicating count policy.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 51 calls get_public_availability; public_availability.py:21-39 suppresses hidden and unauthorized exact counts.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProductSerializer.get_image_url",
+          "line_start": 54,
+          "line_end": 55,
+          "purpose": "Expose the attached public product image URL.",
+          "runtime_boundary": "Read-only URL formatting for an already attached public image key.",
+          "disposition": "Retain null for absent images; attachment validation belongs to the image pipeline.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 55 formats only product.image_key through public_url and returns None for blank output. It does not generate evidence links or signed private URLs.",
+          "findings": []
+        },
+        {
+          "owner": "PublicCategorySerializer",
+          "line_start": 58,
+          "line_end": 65,
+          "purpose": "Expose category presentation and visible product count.",
+          "runtime_boundary": "Read-only projection of PublicCategoryListView's annotated queryset.",
+          "disposition": "Retain product_count as a count of public listings, separate from hidden unit quantities.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 59-65 declare display fields and product_count. views.py:152-158 counts only public, nonarchived products.",
+          "findings": []
+        },
+        {
+          "owner": "PublicMakerspaceSerializer",
+          "line_start": 68,
+          "line_end": 83,
+          "purpose": "Expose public makerspace identity, location and artwork.",
+          "runtime_boundary": "Read-only directory serializer.",
+          "disposition": "Retain the explicit public allowlist without integration, staff or tenant-control fields.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 69-75 declare name, public code, slug, location, map URL and artwork URLs only; child URL methods are separately reviewed.",
+          "findings": []
+        },
+        {
+          "owner": "PublicMakerspaceSerializer.get_logo_url",
+          "line_start": 78,
+          "line_end": 79,
+          "purpose": "Format the attached public makerspace logo URL.",
+          "runtime_boundary": "Read-only method field over makerspace.logo_key.",
+          "disposition": "Retain public URL formatting and null for no logo.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 79 delegates logo_key to public_image_storage.public_url without querying private storage.",
+          "findings": []
+        },
+        {
+          "owner": "PublicMakerspaceSerializer.get_cover_image_url",
+          "line_start": 82,
+          "line_end": 83,
+          "purpose": "Format the attached public makerspace cover URL.",
+          "runtime_boundary": "Read-only method field over makerspace.cover_image_key.",
+          "disposition": "Retain public URL formatting and null for no cover.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 83 delegates cover_image_key to public_url; it does not expose private evidence objects.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsBusiestPrinterSerializer",
+          "line_start": 86,
+          "line_end": 91,
+          "purpose": "Describe the busiest-printer public statistic.",
+          "runtime_boundary": "Read-only output schema; aggregation and module admission are upstream.",
+          "disposition": "Retain the named presentation fields; this schema decision does not approve the unseen printing builder.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 87-91 contain name, optional model, hours, completed count and nullable image_url only.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsPrinterSerializer",
+          "line_start": 94,
+          "line_end": 100,
+          "purpose": "Describe public per-printer usage statistics.",
+          "runtime_boundary": "Read-only DRF schema receiving aggregate data.",
+          "disposition": "Retain aggregate printer fields without inferring upstream query correctness.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 95-100 declare printer name/model, jobs, hours, grams and image_url; no requester or job-detail field is present.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsBrandSerializer",
+          "line_start": 103,
+          "line_end": 105,
+          "purpose": "Represent aggregate filament use by brand.",
+          "runtime_boundary": "Read-only nested output schema.",
+          "disposition": "Retain the brand and grams pair.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 104-105 declare only a brand label and numeric grams; there are no write or identity fields.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsStatusCountsSerializer",
+          "line_start": 108,
+          "line_end": 115,
+          "purpose": "Describe public printing job totals by status.",
+          "runtime_boundary": "Read-only aggregate schema; upstream builder owns filtering.",
+          "disposition": "Retain explicit status counters without claiming producer authorization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 109-115 enumerate pending, accepted, printing, completed, collected, failed and rejected integer fields.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsQueueSerializer",
+          "line_start": 118,
+          "line_end": 121,
+          "purpose": "Describe aggregate current printing queue counts.",
+          "runtime_boundary": "Read-only nested schema.",
+          "disposition": "Retain the three queue-stage counters.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 119-121 declare pending, accepted and printing only, with read_only=True.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsJobsSerializer",
+          "line_start": 124,
+          "line_end": 127,
+          "purpose": "Compose printing job totals and queue summaries.",
+          "runtime_boundary": "Read-only nested serializer composition.",
+          "disposition": "Retain explicit completed, status_counts and queue fields.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 125-127 use the separately declared status and queue serializers; no arbitrary job object is serialized.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsFilamentTrendSerializer",
+          "line_start": 130,
+          "line_end": 132,
+          "purpose": "Describe a public filament-consumption time bucket.",
+          "runtime_boundary": "Read-only period/grams schema.",
+          "disposition": "Retain the aggregate pair; upstream period calculation is outside this packet.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 131-132 declare only period and grams.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsPrintingSerializer",
+          "line_start": 135,
+          "line_end": 147,
+          "purpose": "Compose the public printing statistics section.",
+          "runtime_boundary": "Read-only serializer composition; printing admission and aggregation are upstream.",
+          "disposition": "Retain explicit aggregate children and nullable busiest-printer output.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 136-147 declare usage totals, per-printer values, brand totals, jobs and trend; no raw requester records are included.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsPopularHardwareSerializer",
+          "line_start": 150,
+          "line_end": 153,
+          "purpose": "Describe public historical lending popularity.",
+          "runtime_boundary": "Read-only projection; producer decides which public products contribute.",
+          "disposition": "Retain the declared historical aggregates; do not equate this schema with approval of the producer's privacy policy.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 151-153 declare name, times_lent and total_quantity_lent. public_stats_hardware.py:55-77 builds these from public, nonarchived products.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsToolsOutSerializer",
+          "line_start": 156,
+          "line_end": 158,
+          "purpose": "Describe currently issued quantities permitted for public statistics.",
+          "runtime_boundary": "Read-only schema whose producer must enforce exact-count policy.",
+          "disposition": "Retain the output pair with producer-owned count gating.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 157-158 declare name and quantity_out. public_stats_hardware.py:40-48,161-165 restricts the producer to exact_count plus show_public_count.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsLibrarySerializer",
+          "line_start": 161,
+          "line_end": 164,
+          "purpose": "Describe public library size and permitted stock totals.",
+          "runtime_boundary": "Read-only aggregate schema.",
+          "disposition": "Retain explicit counters; hidden unit quantities must remain excluded by the producer.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 162-164 declare out, listing-size and available counters. public_stats_hardware.py:80-89 sums units from exact_count_products and counts public product listings separately.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsRecentlyAddedSerializer",
+          "line_start": 167,
+          "line_end": 169,
+          "purpose": "Describe recently added public inventory listings.",
+          "runtime_boundary": "Read-only name/date projection.",
+          "disposition": "Retain presentation-only fields.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 168-169 declare name and created_at. public_stats_hardware.py:92-99 receives the public-products queryset.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsHardwareSerializer",
+          "line_start": 172,
+          "line_end": 176,
+          "purpose": "Compose hardware public-statistics sections.",
+          "runtime_boundary": "Read-only nested serializer composition.",
+          "disposition": "Retain explicit popularity, tools-out, library and recent-listing children.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 173-176 name each child serializer, avoiding implicit serialization of product or request models.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsCurrentLoanSerializer",
+          "line_start": 179,
+          "line_end": 183,
+          "purpose": "Describe the deliberately public current-loan projection.",
+          "runtime_boundary": "Read-only schema; holder-name disclosure is controlled by the upstream makerspace policy.",
+          "disposition": "Retain the explicit fields with the documented correlation limitation; the serializer itself is not the privacy gate.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 180-183 expose item_name, holder_name, due and since. public_stats_hardware.py:132-147 calls public_display_name only when public_stats_show_holder_names is true; timestamps remain as documented.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsMachinesSerializer",
+          "line_start": 186,
+          "line_end": 187,
+          "purpose": "Describe aggregate public machine usage.",
+          "runtime_boundary": "Read-only single-field schema.",
+          "disposition": "Retain usage_hours; machine aggregation and admission are outside this packet.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 187 declares only a read-only FloatField for usage_hours.",
+          "findings": []
+        },
+        {
+          "owner": "PublicStatsSerializer",
+          "line_start": 190,
+          "line_end": 202,
+          "purpose": "Compose the public statistics response.",
+          "runtime_boundary": "Read-only response schema; endpoint/module gates and builders remain separate.",
+          "disposition": "Retain optional machine/printing sections and explicit hardware/current-loan serializers.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 191-202 explicitly compose nullable optional machines/printing, hardware and current_loans. No implicit model field expansion occurs.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/views.py",
+      "file_sha256": "ae16859cf05c19216da071bbb6e10afda47038c3e6b10787a35ecd55a86aea57",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 188,
+          "purpose": "Declare public inventory endpoint dependencies and OpenAPI metadata.",
+          "runtime_boundary": "DRF class declarations using public serializers, tenant lookup, servability and client throttling.",
+          "disposition": "Retain explicit public adapters and schema annotations; queryset children determine disclosure.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-19 import shared boundaries; schema decorators at 22-28,42-75,131-136,163-168 document the four public views.",
+          "findings": []
+        },
+        {
+          "owner": "PublicMakerspaceListView",
+          "line_start": 29,
+          "line_end": 39,
+          "purpose": "Expose the public makerspace directory.",
+          "runtime_boundary": "AllowAny read endpoint with ClientTierRateThrottle and public_read scope.",
+          "disposition": "Retain the explicit public serializer and intentionally unpaginated directory.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 30-34 declare permission, throttle, serializer and pagination behavior. This directory exposes makerspace presentation, not inventory quantities.",
+          "findings": []
+        },
+        {
+          "owner": "PublicMakerspaceListView.get_queryset",
+          "line_start": 36,
+          "line_end": 39,
+          "purpose": "Select makerspaces eligible for central public discovery.",
+          "runtime_boundary": "Read-only queryset filtered by canonical servability and directory visibility.",
+          "disposition": "Retain opt-in public inventory and central-directory suppression.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 37-39 require public_inventory_enabled, apply servable_queryset and exclude hidden_from_central_directory. servability.py:26-40 excludes archived, purging, inactive and not-restored tenants.",
+          "findings": []
+        },
+        {
+          "owner": "PublicInventoryListView",
+          "line_start": 76,
+          "line_end": 128,
+          "purpose": "Expose public inventory search and sorting.",
+          "runtime_boundary": "AllowAny throttled DRF ListAPIView using PublicProductSerializer and inherited list pagination.",
+          "disposition": "Retain the explicit serializer and shared public-read throttle.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 77-80 declare endpoint policy; OpenAPI parameters at 46-73 describe tenant identifier, search, category and sorting.",
+          "findings": []
+        },
+        {
+          "owner": "PublicInventoryListView.get_queryset",
+          "line_start": 82,
+          "line_end": 128,
+          "purpose": "Filter public products within the resolved tenant and apply bounded search/sort options.",
+          "runtime_boundary": "Read-only tenant-related queryset; public availability values are formatted separately by the serializer.",
+          "disposition": "Retain tenant anchoring, public/nonarchived filters and ORM-based search/sorting.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 83-96 resolve a servable tenant, enforce public inventory and restrict products. Lines 97-107 apply ORM filters. Lines 118-127 correlate popularity by the selected product; the annotation is not a serializer field.",
+          "findings": []
+        },
+        {
+          "owner": "PublicCategoryListView",
+          "line_start": 137,
+          "line_end": 160,
+          "purpose": "Expose categories that contain public inventory.",
+          "runtime_boundary": "AllowAny throttled read endpoint with an explicit category serializer and no pagination.",
+          "disposition": "Retain category navigation's declared endpoint policy.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 138-142 declare permission, throttle, unpaginated response and serializer. Product quantities are not serialized by this view.",
+          "findings": []
+        },
+        {
+          "owner": "PublicCategoryListView.get_queryset",
+          "line_start": 144,
+          "line_end": 160,
+          "purpose": "Select tenant categories with at least one visible product.",
+          "runtime_boundary": "Read-only related queryset after public tenant lookup and module/display checks.",
+          "disposition": "Retain filtered product-count annotation and exclusion of empty public categories.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 145-150 enforce tenant eligibility; 152-158 count only is_public=True, is_archived=False products and require a positive listing count.",
+          "findings": []
+        },
+        {
+          "owner": "PublicInventoryDetailView",
+          "line_start": 169,
+          "line_end": 188,
+          "purpose": "Expose one product through the same public projection as inventory listing.",
+          "runtime_boundary": "AllowAny throttled RetrieveAPIView; object lookup operates on the child-filtered queryset.",
+          "disposition": "Retain the shared public serializer and throttle.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 170-173 declare public read policy and PublicProductSerializer, preventing detail-only exposure of internal model fields.",
+          "findings": []
+        },
+        {
+          "owner": "PublicInventoryDetailView.get_queryset",
+          "line_start": 175,
+          "line_end": 188,
+          "purpose": "Constrain detail lookup to public, nonarchived inventory of the addressed tenant.",
+          "runtime_boundary": "Read-only queryset used by DRF's object lookup.",
+          "disposition": "Retain tenant relation anchoring and canonical servability before primary-key selection.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 176-181 resolve and gate the tenant; 182-188 restrict its products by is_public and is_archived and apply relation-aware servability.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_attach.py",
+      "file_sha256": "eb2eb7bec6baae21fe13dd7e673a4e7c36ea1f232302bf5c235187bfe81ee513",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 36,
+          "purpose": "Declare the product-image attachment validation adapter.",
+          "runtime_boundary": "Imports the shared public image storage surface.",
+          "disposition": "Retain one attachment pipeline for endpoint and bulk-import callers.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-3 describe promotion/validation and import its storage dependency. Exception and helper behavior are decided separately.",
+          "findings": []
+        },
+        {
+          "owner": "PublicImageRejected",
+          "line_start": 6,
+          "line_end": 7,
+          "purpose": "Signal a caller-displayable product-image rejection.",
+          "runtime_boundary": "Domain exception translated by API and import adapters.",
+          "disposition": "Retain separation from provider unavailability.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 6-7 define the exception contract. views_inventory_images.py:97-100 distinguishes rejection from StorageUnavailable.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_product_image",
+          "line_start": 10,
+          "line_end": 32,
+          "purpose": "Validate tenant ownership and publish a bounded, valid product image before attachment.",
+          "runtime_boundary": "Internal storage-I/O helper; caller supplies EDIT_INVENTORY authorization and a tenant lifecycle guard outside domain row transactions.",
+          "disposition": "Retain prefix/safety/reference checks and validated publication. This helper does not itself attach or charge quota.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 19-26 enforce items/<tenant>/, safe key and no other owner; 27-32 finalize and reject invalid results. views_inventory_images.py:89-102 and bulk_import_apply.py:24-47 perform preparation under storage_lifecycle before domain atomic blocks.",
+          "findings": []
+        },
+        {
+          "owner": "_delete_upload",
+          "line_start": 35,
+          "line_end": 36,
+          "purpose": "Clean up a rejected staging upload without deleting an accepted final object.",
+          "runtime_boundary": "Best-effort deletion through the shared version-aware storage helper.",
+          "disposition": "Retain staging-only cleanup for empty or oversized uploads.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 36 explicitly derives staging_key(object_key). finalize_product_image:29-30 invokes it only for empty/too_large results.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_metadata.py",
+      "file_sha256": "0efa11e06ac271465acfc919a7533289a041703ad0d0b61eb9f0a861834bb257",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 58,
+          "purpose": "Declare shared public image metadata helpers.",
+          "runtime_boundary": "Imports settings and DRF validation support; no module-level storage operation.",
+          "disposition": "Retain metadata responsibilities separately from publication and deletion.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-5 contain the module contract and imports. Reference lookup, URL formatting and extension validation are independent children.",
+          "findings": []
+        },
+        {
+          "owner": "public_image_key_in_use",
+          "line_start": 8,
+          "line_end": 34,
+          "purpose": "Detect existing public image ownership across registered model fields.",
+          "runtime_boundary": "Internal global reference check; not an actor-authorized public lookup. Safe use requires caller-owned tenant key validation and lifecycle exclusion.",
+          "disposition": "Retain registry-driven checks and precise exclusions for the entity retaining its own key.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 15-29 map explicit owner IDs and exclude only the supplied owner; 21-34 check every public-image field rule. object_ownership_registry.py:37-75 includes inventory and other public-image holders.",
+          "findings": []
+        },
+        {
+          "owner": "public_url",
+          "line_start": 37,
+          "line_end": 45,
+          "purpose": "Format a URL for an already accepted public image key.",
+          "runtime_boundary": "Pure settings-based formatter; it is not a key validator or private storage signer.",
+          "disposition": "Retain blank handling and configured public-base precedence.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 38-45 return blank for no key, otherwise PUBLIC_IMAGE_BASE_URL or browser-facing endpoint plus public bucket. serializers.py:54-55 passes attached product.image_key.",
+          "findings": []
+        },
+        {
+          "owner": "ext_for",
+          "line_start": 48,
+          "line_end": 58,
+          "purpose": "Validate public image MIME selection against filename extension.",
+          "runtime_boundary": "Presign input validation before object-key generation; byte validation occurs during publication.",
+          "disposition": "Retain MIME allowlisting, basename normalization and extension matching.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 49-57 reject unsupported MIME or mismatched extensions and strip path components. views_inventory_images.py:58-67 uses its returned extension to build a generated key.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_publication.py",
+      "file_sha256": "296e4d7a450c0dd0b468ef1a90321158995e8fa27795fb0c8bd8f48b49c802de",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 46,
+          "purpose": "Declare snapshot-image validation and shared object publication dependencies.",
+          "runtime_boundary": "Storage publication adapter with no domain-model writes.",
+          "disposition": "Retain the shared bounded publication primitive and image validator.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 2-8 import immutable metadata support, settings, MIME detection and apps.object_publication.publish. Child decisions cover actual I/O.",
+          "findings": []
+        },
+        {
+          "owner": "InvalidImage",
+          "line_start": 11,
+          "line_end": 12,
+          "purpose": "Distinguish invalid image content from storage transport failure.",
+          "runtime_boundary": "Local validator exception translated into an invalid FinalizeResult.",
+          "disposition": "Retain the narrow content-validation exception.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 11-12 define the exception; validate_snapshot:23-24 raises it and finalize:41-42 translates it.",
+          "findings": []
+        },
+        {
+          "owner": "ImageMetadata",
+          "line_start": 16,
+          "line_end": 18,
+          "purpose": "Carry observed validated image size and MIME.",
+          "runtime_boundary": "Frozen dataclass returned by snapshot validation to the publication primitive.",
+          "disposition": "Retain immutable observed facts rather than caller-reported metadata.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 15-18 freeze size and content_type. validate_snapshot:25 populates them from the bounded storage snapshot and detected MIME.",
+          "findings": []
+        },
+        {
+          "owner": "validate_snapshot",
+          "line_start": 21,
+          "line_end": 25,
+          "purpose": "Validate image bytes and require their detected MIME to match stored content type.",
+          "runtime_boundary": "Validator applied to bounded final or staging snapshots by object_publication.",
+          "disposition": "Retain allowlist plus detected-MIME equality before accepting publication.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 22-25 inspect observed.data(), compare detected MIME against settings and observed.content_type, then return observed size. evidence/image_validation.py:21-27 catches decoder failures and verifies image structure.",
+          "findings": []
+        },
+        {
+          "owner": "finalize",
+          "line_start": 28,
+          "line_end": 46,
+          "purpose": "Publish or validate an immutable final image and translate expected invalid-upload states.",
+          "runtime_boundary": "External storage I/O; callers must keep this outside domain row-lock transactions and hold lifecycle exclusion.",
+          "disposition": "Retain bounded missing-object retries, shared conditional publication and staging-only cleanup.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 30-38 bound retries; 39-44 translate size/content/missing states; 45-46 clean staging after success. object_publication.py:102-138 validates existing finals and uses IfNoneMatch='*', revalidating the winner.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_release.py",
+      "file_sha256": "81748f5c8048fdd31fbbce3fbe9fff93328f021071aca8306c799b241a31c0f2",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 45,
+          "purpose": "Declare public-image cleanup logging.",
+          "runtime_boundary": "Logger declaration for post-detachment storage/quota cleanup.",
+          "disposition": "Retain module-level logging only; cleanup behavior belongs to the child owner.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-4 declare the post-commit cleanup contract and logger without external calls.",
+          "findings": []
+        },
+        {
+          "owner": "release_public_image",
+          "line_start": 7,
+          "line_end": 45,
+          "purpose": "Delete a detached image and release quota only after successful deletion.",
+          "runtime_boundary": "Called after metadata commit, under an explicit verified lifecycle guard and prior no-reference check.",
+          "disposition": "Retain conservative accounting: failed sizing/deletion does not free storage; accounting failure is logged.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 25-35 size then verify and delete; 39-45 require successful deletion and known size before free_storage. tenant_object_callbacks.py:9-11 supplies guarded exclusion and key_in_use checking.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_sniff.py",
+      "file_sha256": "b52b9c95712b43bafc011e87eb7f2eae8a30cd6ea0c1727f2f067c03ae67a0e3",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 34,
+          "purpose": "Declare dependencies for validating an existing public image object.",
+          "runtime_boundary": "Storage/validator imports only.",
+          "disposition": "Retain the compatibility helper surface; unused imports do not establish an execution defect.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-7 import boto3 configuration, storage exceptions and image validation support. Storage access is confined to the child functions.",
+          "findings": []
+        },
+        {
+          "owner": "_client",
+          "line_start": 10,
+          "line_end": 21,
+          "purpose": "Create the backend-facing S3 client for image inspection.",
+          "runtime_boundary": "Settings-derived SDK client factory, not a browser presign URL builder.",
+          "disposition": "Retain configured backend endpoint, region, signature and addressing mode.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 11-20 construct boto3.client using AWS_S3_ENDPOINT_URL and shared credential/configuration settings; no tenant-supplied endpoint is accepted.",
+          "findings": []
+        },
+        {
+          "owner": "sniff_is_valid_image",
+          "line_start": 24,
+          "line_end": 34,
+          "purpose": "Validate an existing public image through the bounded snapshot validator.",
+          "runtime_boundary": "External storage read; content invalidity returns false, provider unavailability propagates.",
+          "disposition": "Retain distinction between missing/invalid bytes and storage failure.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 29-32 call validate_existing with the public bucket, configured byte limit and validate_snapshot. Lines 33-34 catch only InvalidObjectSize and InvalidImage.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/public_image_storage.py",
+      "file_sha256": "dd22b0c2362a13d98cd812e19ad99cefdf7ece40de59d980ee5313026c92f1ef",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 264,
+          "purpose": "Declare the shared public-image storage facade and metadata re-exports.",
+          "runtime_boundary": "SDK/settings imports, shared helper imports and logger declaration.",
+          "disposition": "Retain explicit metadata and version-aware deletion dependencies; imported implementations are not blanket-approved.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 12-19 import StorageUnavailable, metadata helpers, image sniffing and delete_accepted_object_versions; 22 declares logging. Child owners cover operations separately.",
+          "findings": []
+        },
+        {
+          "owner": "FinalizeResult",
+          "line_start": 26,
+          "line_end": 28,
+          "purpose": "Carry public-image finalization status and observed size.",
+          "runtime_boundary": "Frozen dataclass exchanged between storage and attachment adapters.",
+          "disposition": "Retain the immutable result object and nullable size for unobserved/invalid content.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 25-28 declare frozen status and size fields. public_image_attach.py:27-32 accepts only status='ok'.",
+          "findings": []
+        },
+        {
+          "owner": "_s3_client",
+          "line_start": 31,
+          "line_end": 42,
+          "purpose": "Construct an S3 client for a selected configured endpoint.",
+          "runtime_boundary": "Internal SDK factory; public and backend wrappers supply settings-owned endpoints.",
+          "disposition": "Retain explicit region/signature/addressing configuration.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 32-41 pass endpoint_url, shared credentials, region and Config. _client:45-46 and _public_client:49-50 select the two intended endpoint settings.",
+          "findings": []
+        },
+        {
+          "owner": "_client",
+          "line_start": 45,
+          "line_end": 46,
+          "purpose": "Create the backend-facing public-bucket client.",
+          "runtime_boundary": "Internal SDK factory used for backend object I/O.",
+          "disposition": "Retain AWS_S3_ENDPOINT_URL selection.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 46 delegates to _s3_client with the backend endpoint, keeping it distinct from browser-facing signing.",
+          "findings": []
+        },
+        {
+          "owner": "_public_client",
+          "line_start": 49,
+          "line_end": 50,
+          "purpose": "Create a client whose generated upload URLs address the browser-facing storage host.",
+          "runtime_boundary": "Presign SDK factory using deployment-owned settings.",
+          "disposition": "Retain the separate public endpoint selection.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 50 uses AWS_S3_PUBLIC_ENDPOINT_URL. presigned_upload:232,246 uses this client for both supported presign modes.",
+          "findings": []
+        },
+        {
+          "owner": "build_object_key",
+          "line_start": 53,
+          "line_end": 56,
+          "purpose": "Generate a public-image key in an allowed tenant namespace.",
+          "runtime_boundary": "Internal key constructor; callers supply authoritative tenant IDs and validated extensions.",
+          "disposition": "Retain kind allowlisting and random UUID filenames.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 54-56 reject unknown kinds and assemble kind/tenant/uuid+ext. views_inventory_images.py:58-67 obtains ext through ext_for and tenant from the scoped product.",
+          "findings": []
+        },
+        {
+          "owner": "staging_key",
+          "line_start": 59,
+          "line_end": 60,
+          "purpose": "Derive the client-writable staging locator from a final image key.",
+          "runtime_boundary": "Pure prefix helper shared by presign, publication and rejected-upload cleanup.",
+          "disposition": "Retain the distinct staging/ namespace.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 60 adds staging/. presigned_upload:236,248 signs this derived key; publication receives the final and staging locators separately.",
+          "findings": []
+        },
+        {
+          "owner": "is_safe_object_key",
+          "line_start": 63,
+          "line_end": 66,
+          "purpose": "Reject traversal-like and control-character public image keys.",
+          "runtime_boundary": "Pure structural check; tenant/kind ownership is enforced separately by attach adapters.",
+          "disposition": "Retain complementary structural validation without treating it as authorization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 64-66 reject leading slash, backslash, '..', ASCII controls and DEL. public_image_attach.py:19-22 additionally requires items/<makerspace_id>/.",
+          "findings": []
+        },
+        {
+          "owner": "delete_object",
+          "line_start": 69,
+          "line_end": 79,
+          "purpose": "Delete accepted public-image object versions and report success conservatively.",
+          "runtime_boundary": "Low-level storage mutation; lifecycle ownership and reference checks belong to the guarded caller.",
+          "disposition": "Retain version-aware deletion and explicit false on provider failure.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 73-79 delegate to delete_accepted_object_versions and return false on SDK errors. object_storage.py:80-106 requires enabled versioning and deletes only a validated version snapshot.",
+          "findings": []
+        },
+        {
+          "owner": "release_public_image",
+          "line_start": 82,
+          "line_end": 88,
+          "purpose": "Dispatch guarded image deletion and quota release.",
+          "runtime_boundary": "Facade requiring an explicit guard; supports injected storage implementations.",
+          "disposition": "Retain refusal of unguarded cleanup and the dependency-injection seam.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 86-88 raise StorageUnavailable without a guard and delegate using supplied storage or this module. The implementation verifies the guard before deletion and quota release.",
+          "findings": []
+        },
+        {
+          "owner": "release_public_image_on_commit",
+          "line_start": 91,
+          "line_end": 103,
+          "purpose": "Schedule guarded detached-image deletion and quota release after metadata commit.",
+          "runtime_boundary": "Django on_commit registration; callback must run before the outer lifecycle owner releases its guard.",
+          "disposition": "Retain purge-owner suppression and conservative orphan retention when no guard is supplied.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 95-101 skip purge-owned cleanup or log a missing guard; 102-103 verify and register the callback. views_inventory_images.py:89-129 encloses domain commit within storage_lifecycle.",
+          "findings": []
+        },
+        {
+          "owner": "delete_public_image_on_commit",
+          "line_start": 106,
+          "line_end": 116,
+          "purpose": "Schedule guarded image deletion without quota release.",
+          "runtime_boundary": "Django on_commit adapter for lifecycle-owned cleanup.",
+          "disposition": "Retain explicit guard verification, purge-owner suppression and no deletion when coordination is absent.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 110-116 skip purge-owned work, log missing guards and register deletion only after verification. The inline callback delegates to tenant_object_callbacks.delete_public_image.",
+          "findings": []
+        },
+        {
+          "owner": "put_bytes",
+          "line_start": 119,
+          "line_end": 128,
+          "purpose": "Write backend-supplied public-bucket bytes.",
+          "runtime_boundary": "Privileged low-level SDK helper; not the client upload or validated immutable-final publication boundary.",
+          "disposition": "Retain provider-error translation. This decision does not authorize arbitrary callers to overwrite accepted final keys.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 121-128 perform put_object and translate SDK failures. The inspected attachment path uses finalize_upload, whose publication primitive performs conditional creation instead.",
+          "findings": []
+        },
+        {
+          "owner": "copy_object",
+          "line_start": 130,
+          "line_end": 141,
+          "purpose": "Copy one backend-selected public-bucket object key to another.",
+          "runtime_boundary": "Privileged low-level storage helper; it does not itself provide create-once publication.",
+          "disposition": "Retain the narrow helper without approving unseen callers or using it as evidence of image immutability.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 132-141 copy within PUBLIC_IMAGE_BUCKET and translate SDK failures. public_image_publication.py:31-35 delegates to publish rather than this unconditional COPY helper.",
+          "findings": []
+        },
+        {
+          "owner": "object_exists",
+          "line_start": 144,
+          "line_end": 158,
+          "purpose": "Distinguish a missing public object from storage unavailability.",
+          "runtime_boundary": "Backend HEAD request against the configured public bucket.",
+          "disposition": "Retain false only for recognized missing-object responses and propagate other failures as StorageUnavailable.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 150-157 distinguish 404/NoSuchKey/NotFound from other ClientError and transport errors; 158 returns true only after successful HEAD.",
+          "findings": []
+        },
+        {
+          "owner": "object_size",
+          "line_start": 161,
+          "line_end": 176,
+          "purpose": "Read the current public object size for accounting and inspection.",
+          "runtime_boundary": "Backend HEAD helper; it does not validate image bytes or bind publication.",
+          "disposition": "Retain None for absence and explicit provider failure propagation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 167-174 separate missing responses from unavailable storage; 176 reads ContentLength. public_image_release.py:25-43 sizes before confirmed deletion and quota release.",
+          "findings": []
+        },
+        {
+          "owner": "object_size_after_upload",
+          "line_start": 180,
+          "line_end": 186,
+          "purpose": "Retry size observation for an upload that may not yet be visible.",
+          "runtime_boundary": "Internal bounded polling helper with caller-selectable attempt/delay values.",
+          "disposition": "Retain bounded retries and absence result; do not treat HEAD visibility as content validation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 181-186 return a found size or stop at the configured final attempt; provider failure from object_size is not converted into absence.",
+          "findings": []
+        },
+        {
+          "owner": "_finalize_result",
+          "line_start": 189,
+          "line_end": 212,
+          "purpose": "Classify an observed object size and log rejected size states.",
+          "runtime_boundary": "Internal size-result compatibility helper; not the current content-publication implementation.",
+          "disposition": "Retain explicit missing/empty/oversized distinctions without treating an ok size as proof of valid image bytes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 190-198 classify size; 200-212 log invalid results. finalize_upload:260-264 delegates to the separate snapshot-validating publication implementation.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_error_message",
+          "line_start": 215,
+          "line_end": 225,
+          "purpose": "Translate image finalization states into caller-safe messages.",
+          "runtime_boundary": "Pure formatter used by attachment validation.",
+          "disposition": "Retain explicit invalid/missing/empty/too-large text and a safe generic fallback.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 216-225 return fixed messages and a configured size limit; provider exception payloads are not interpolated.",
+          "findings": []
+        },
+        {
+          "owner": "presigned_upload",
+          "line_start": 228,
+          "line_end": 257,
+          "purpose": "Create a browser upload authorization targeting only staging bytes.",
+          "runtime_boundary": "Storage presign helper; authorized caller generates the final key and validates MIME/extension first.",
+          "disposition": "Retain staging for both modes, MIME binding, POST size constraints and provider-error translation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 232-239 sign PUT to staging_key with ContentType and TTL; 246-254 sign POST with the same staging key and length range. Finalize later enforces actual size/content for PUT as well.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_upload",
+          "line_start": 260,
+          "line_end": 264,
+          "purpose": "Dispatch image finalization through the validated publication adapter.",
+          "runtime_boundary": "Facade passing this storage module into public_image_publication.finalize.",
+          "disposition": "Retain one shared finalization path and its injectable storage surface.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 262-264 delegate directly. public_image_publication.py:31-35 supplies byte limits and validate_snapshot to create-once publication.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/inventory/tenant_object_callbacks.py",
+      "file_sha256": "2df3378ee02c6fed1d296c355d7c473d790a2432490cd898827417da848a43c2",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 20,
+          "purpose": "Declare lifecycle and reference-check dependencies for synchronous cleanup callbacks.",
+          "runtime_boundary": "Post-commit callback module; no background task or independent guard acquisition is declared.",
+          "disposition": "Retain explicit lifecycle ownership and conservative reference lookup.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-3 state the synchronous contract and import storage_lifecycle and key_in_use; child callbacks perform storage actions.",
+          "findings": []
+        },
+        {
+          "owner": "release_public_image",
+          "line_start": 6,
+          "line_end": 11,
+          "purpose": "Release a detached, unreferenced image and its quota under the existing tenant guard.",
+          "runtime_boundary": "Synchronous post-commit callback reusing the explicit lifecycle guard.",
+          "disposition": "Retain the final reference check before guarded storage/quota cleanup.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 9-11 enter storage_lifecycle with the supplied guard and require a nonblank globally unreferenced public-image key. object_storage_references.py:10-45 checks canonical and coordination references conservatively.",
+          "findings": []
+        },
+        {
+          "owner": "delete_public_image",
+          "line_start": 14,
+          "line_end": 20,
+          "purpose": "Delete a detached public image without changing quota.",
+          "runtime_boundary": "Synchronous callback requiring a tenant-matching lifecycle guard.",
+          "disposition": "Retain reference refusal and immediate guard verification before deletion.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 17-20 reuse the guard, skip blank/referenced keys, verify tenant continuity and invoke version-aware deletion. No accounting credit is issued here.",
+          "findings": []
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "INV-S01",
+      "status": "source-corrected-runtime-pending",
+      "selected_source": "backend/apps/inventory/availability_requests.py",
+      "selected_owners": [
+        "_require_quantity_fix_action",
+        "repair_from_needs_fix",
+        "move_available_to_needs_fix",
+        "scrap_from_needs_fix"
+      ],
+      "problem": "Aggregate fix actions previously changed product buckets for individual products without changing their physical asset rows.",
+      "inspected_correction": "Each aggregate fix helper reloads the product under select_for_update and invokes the central individual-product refusal before quantity writes.",
+      "evidence": [
+        "backend/apps/inventory/availability_requests.py:149-155",
+        "backend/apps/inventory/availability_requests.py:160-170",
+        "backend/apps/inventory/availability_requests.py:175-185",
+        "backend/apps/inventory/availability_requests.py:190-200",
+        "docs/audits/2026-10-29/evidence/inventory-source-open-findings.md:6-20",
+        "docs/audits/2026-10-29/evidence/individual-fix-freeze.json"
+      ],
+      "freeze_hash_matches": true,
+      "closure": "Not closed by this packet; runtime and final review remain parent-owned."
+    },
+    {
+      "id": "INV-S02",
+      "status": "source-corrected-runtime-pending",
+      "outside_selected_packet": true,
+      "problem": "Asset action eligibility could become stale while waiting for the asset lock.",
+      "bounded_observation": "The current views_assets.py repeats action validation on the freshly locked asset and uses no-key makerspace plus asset-only locking. Both edit and status-action paths were read as caller context.",
+      "evidence": [
+        "backend/apps/admin_api/views_assets.py:102-120",
+        "backend/apps/admin_api/views_assets.py:173-183",
+        "docs/audits/2026-10-29/evidence/inventory-source-open-findings.md:22-34"
+      ],
+      "closure": "No owner approval or runtime pass for views_assets.py is granted by this inventory packet."
+    },
+    {
+      "id": "INV-S03",
+      "status": "source-corrected-runtime-pending",
+      "outside_selected_packet": true,
+      "problem": "Explicit zero or invalid shelf input previously fell back to the entire needs-fix quantity.",
+      "bounded_observation": "The durable evidence records a source correction and pending runtime validation. The frontend production file and its tests were not read by this reviewer.",
+      "evidence": [
+        "docs/audits/2026-10-29/evidence/inventory-source-open-findings.md:36-49",
+        "docs/audits/2026-10-29/evidence/individual-fix-freeze.json"
+      ],
+      "closure": "Evidence status retained without independently approving the unseen frontend correction."
+    },
+    {
+      "id": "HW-001",
+      "status": "finding-open",
+      "outside_selected_packet": true,
+      "problem": "Reviewed-return admission could desynchronize a PublicToolLoan-backed request and its loan-specific return state.",
+      "bounded_observation": "Current return_workflow.py contains an explicit PublicToolLoan refusal. That changed caller is outside this packet; this observation does not close the hardware finding or establish runtime correctness.",
+      "evidence": [
+        "docs/audits/2026-10-29/evidence/hardware-workflows-source-decisions.json:1884-1907",
+        "backend/apps/hardware_requests/return_workflow.py:85-100",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:275-296",
+        "backend/apps/inventory/availability_quantities.py:192-206",
+        "backend/apps/inventory/availability_requests.py:204-256"
+      ],
+      "closure": "Retained pending separate hardware fix review and runtime validation."
+    },
+    {
+      "id": "HW-002",
+      "status": "finding-open",
+      "outside_selected_packet": true,
+      "problem": "Box checkout could issue individually tracked assets without their individual QR scans.",
+      "bounded_observation": "Inventory accounting primitives do not enforce individual QR evidence; that responsibility remains with the public/direct checkout callers.",
+      "evidence": [
+        "docs/audits/2026-10-29/evidence/hardware-workflows-source-decisions.json:1908-1933",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:85-125",
+        "backend/apps/inventory/availability_quantities.py:172-189"
+      ],
+      "closure": "No approval or closure from this packet."
+    },
+    {
+      "id": "HW-003",
+      "status": "finding-open",
+      "outside_selected_packet": true,
+      "problem": "Selected-container direct issue and public checkout could acquire box/QR locks in opposite orders.",
+      "bounded_observation": "The conflicting direct/public transaction owners were not fully rereviewed here. Correct quantity arithmetic does not resolve their lock-order issue.",
+      "evidence": [
+        "docs/audits/2026-10-29/evidence/hardware-workflows-source-decisions.json:1934-1955",
+        "backend/apps/inventory/availability_quantities.py:172-189"
+      ],
+      "closure": "No approval or closure from this packet."
+    }
+  ],
+  "new_independent_source_findings": [],
+  "extra_context_read": [
+    {
+      "path": "AGENTS.md",
+      "read_ranges": [[1, 411]],
+      "purpose": "Repository contracts, inventory authority, tenancy, public disclosure and review constraints."
+    },
+    {
+      "path": "/Users/shaanshoukath/.claude/CLAUDE.md",
+      "read_ranges": [[1, 238]],
+      "purpose": "Global workflow orientation; the user's explicit source-only assignment bounds this work."
+    },
+    {
+      "path": "docs/INVARIANTS.md",
+      "read_ranges": [[1, 110], [245, 345], [390, 435], [1301, 1335]],
+      "purpose": "Item-code ownership, tenant servability, public-name privacy, image registration, storage accounting, staging, immutable publication and inventory integrity."
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/inventory-source-open-findings.md",
+      "read_ranges": [[1, 49]],
+      "purpose": "Durable INV-S01/INV-S02/INV-S03 findings and pending-runtime status."
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/individual-fix-freeze.json",
+      "read_ranges": [[1, 57]],
+      "purpose": "Frozen correction hashes; selected availability_requests.py matched."
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/hardware-workflows-source-decisions.json",
+      "read_ranges": [[1, 130], [1880, 1971]],
+      "purpose": "Output shape and existing hardware findings only; not evidence that inventory or hardware is safe."
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/source-scope-followup.md",
+      "read_ranges": [[1, 64]],
+      "purpose": "Understand the separate source-ledger/freeze boundary; no production-ledger decision inferred."
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/source-review-segmentation.md",
+      "read_ranges": [[1, 66]],
+      "purpose": "Identify the wider seven-app inventory/handover lane and its independent review obligations."
+    },
+    {
+      "path": "backend/apps/object_publication.py",
+      "read_ranges": [[1, 139]],
+      "purpose": "Bounded snapshot reads, conditional final creation and actual-winner revalidation supporting image finalization."
+    },
+    {
+      "path": "backend/apps/object_storage.py",
+      "read_ranges": [[65, 115]],
+      "purpose": "Version-aware accepted-object deletion contract; the complete lower snapshot enumerator was not reviewed."
+    },
+    {
+      "path": "backend/apps/object_storage_lifecycle.py",
+      "read_ranges": [[1, 96]],
+      "purpose": "Explicit tenant guard continuity and lifecycle ordering around image metadata and cleanup."
+    },
+    {
+      "path": "backend/apps/object_storage_references.py",
+      "read_ranges": [[1, 49]],
+      "purpose": "Conservative global canonical/coordination reference checks before cleanup."
+    },
+    {
+      "path": "backend/apps/evidence/image_validation.py",
+      "read_ranges": [[1, 27]],
+      "purpose": "Actual decoder verification and invalid-image handling used by public snapshots."
+    },
+    {
+      "path": "backend/apps/backup/object_ownership_registry.py",
+      "read_ranges": [[1, 99]],
+      "purpose": "Registered public-image field ownership used by cross-model collision checks."
+    },
+    {
+      "path": "backend/apps/admin_api/views_inventory_images.py",
+      "read_ranges": [[1, 161]],
+      "purpose": "Caller authorization, generated presigns, preparation outside domain locks, guarded attachment and post-commit release."
+    },
+    {
+      "path": "backend/apps/admin_api/bulk_import_apply.py",
+      "read_ranges": [[1, 208]],
+      "purpose": "Second product-image attachment caller, lifecycle exclusion and mapped tracking changes."
+    },
+    {
+      "path": "backend/apps/admin_api/views_needs_fix.py",
+      "read_ranges": [[1, 87]],
+      "purpose": "Reachable aggregate-fix API, positive quantity validation, action scope and transactional audit."
+    },
+    {
+      "path": "backend/apps/inventory/admin_quantity_actions.py",
+      "read_ranges": [[1, 143]],
+      "purpose": "Native manual-adjustment and fix-action callers; not selected-file approval."
+    },
+    {
+      "path": "backend/apps/admin_api/views_assets.py",
+      "read_ranges": [[1, 194]],
+      "purpose": "Bounded INV-S02 caller context: fresh locked validation and non-key/asset-only locking."
+    },
+    {
+      "path": "backend/apps/admin_api/views_inventory_products.py",
+      "read_ranges": [[1, 170]],
+      "purpose": "Manual adjustment authorization and explicit product relation tenancy checks."
+    },
+    {
+      "path": "backend/apps/admin_api/serializers_inventory.py",
+      "read_ranges": [[1, 18]],
+      "purpose": "Resolve actual split serializer implementations."
+    },
+    {
+      "path": "backend/apps/admin_api/serializers_inventory_assets.py",
+      "read_ranges": [[1, 142]],
+      "purpose": "Integer adjustment inputs, image-key request contract and editable asset container scoping."
+    },
+    {
+      "path": "backend/apps/admin_api/serializers_inventory_products.py",
+      "read_ranges": [[1, 160]],
+      "purpose": "Initial individual zero-stock validation and protected product fields; the update implementation after line 160 was not read."
+    },
+    {
+      "path": "backend/apps/inventory/item_codes.py",
+      "read_ranges": [[1, 118]],
+      "purpose": "Model save delegation, counter locking, loaded-category behavior and public code search."
+    },
+    {
+      "path": "backend/apps/inventory/public_stats_hardware.py",
+      "read_ranges": [[1, 208]],
+      "purpose": "Bounded producer context for stock-count gating and holder-name policy; no whole-file approval."
+    },
+    {
+      "path": "backend/apps/makerspaces/lookup.py",
+      "read_ranges": [[1, 32]],
+      "purpose": "Actual public tenant resolution and servability behavior."
+    },
+    {
+      "path": "backend/apps/makerspaces/servability.py",
+      "read_ranges": [[1, 67]],
+      "purpose": "Canonical public tenant exclusion predicates."
+    },
+    {
+      "path": "backend/apps/hardware_requests/request_workflow.py",
+      "read_ranges": [[154, 205]],
+      "purpose": "Accepted-quantity validation and transaction surrounding reservation."
+    },
+    {
+      "path": "backend/apps/hardware_requests/handover_workflow.py",
+      "read_ranges": [[100, 230]],
+      "purpose": "Reviewed issue caller's evidence, reject validation and asset-before-product accounting sequence."
+    },
+    {
+      "path": "backend/apps/hardware_requests/return_workflow.py",
+      "read_ranges": [[1, 115]],
+      "purpose": "Validated resolutions and current request-kind refusal surrounding the inventory return primitive; no hardware finding closure."
+    },
+    {
+      "path": "backend/apps/hardware_requests/return_helpers.py",
+      "read_ranges": [[1, 110]],
+      "purpose": "Resolution membership, nonnegative quantities and remaining-count validation."
+    },
+    {
+      "path": "backend/apps/hardware_requests/problem_report_workflow.py",
+      "read_ranges": [[90, 165]],
+      "purpose": "Individual-versus-aggregate triage routing and locked asset selection."
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_helpers.py",
+      "read_ranges": [[85, 125], [175, 210], [270, 300]],
+      "purpose": "Caller-held product locks and direct issue/return primitive contracts; known hardware findings remain separate."
+    },
+    {
+      "path": "backend/apps/operations/services_stocktake_helpers.py",
+      "read_ranges": [[145, 205]],
+      "purpose": "Ledger-driven product locking before apply_stocktake_delta."
+    },
+    {
+      "path": "backend/apps/operations/services_transfers.py",
+      "read_ranges": [[50, 105]],
+      "purpose": "Scoped asset selection and eligibility check before status movement."
+    },
+    {
+      "path": "backend/apps/operations/services_transfer_splits.py",
+      "read_ranges": [[1, 60]],
+      "purpose": "Quantity-transfer classification boundary and delegation."
+    },
+    {
+      "path": "backend/apps/machines/service_consumption.py",
+      "read_ranges": [[110, 140]],
+      "purpose": "Whole-count consumable conversion before inventory debit."
+    },
+    {
+      "path": "backend/apps/machines/services_consumables.py",
+      "read_ranges": [[145, 170]],
+      "purpose": "Second whole-count consumption caller."
+    }
+  ],
+  "extra_context_policy": "These ranges were read only to establish selected-owner boundaries. They receive no whole-file, owner, runtime or release approval. Additional rg outputs were navigation/caller-location observations, not full reads or approval evidence.",
+  "unexamined_remaining_seven_app_audit_scope": {
+    "meaning": "The wider inventory/handover lane remains outside this packet except for the 18 selected files. Bounded context reads do not discharge another packet's review obligations.",
+    "applications": [
+      {
+        "path": "backend/apps/inventory",
+        "remaining_scope": "All files and owners other than the 18 selected files remain without decisions from this packet, including context-only inventory admin, item-code and statistics sources."
+      },
+      {
+        "path": "backend/apps/hardware_requests",
+        "remaining_scope": "All owner decisions and correction closure remain with the separate hardware audit. HW-001, HW-002 and HW-003 are not approved here."
+      },
+      {
+        "path": "backend/apps/operations",
+        "remaining_scope": "Transfer, stocktake, asset generation and other operation owners remain separately reviewable; the cited caller slices are context only."
+      },
+      {
+        "path": "backend/apps/boxes",
+        "remaining_scope": "QR resolution, scan immutability, container lifecycle and all other production owners were not reviewed by this packet."
+      },
+      {
+        "path": "backend/apps/evidence",
+        "remaining_scope": "Evidence authorization, finalization journals, retention, metadata immutability and storage owners remain outside this packet; image_validation.py was context only."
+      },
+      {
+        "path": "backend/apps/procurement",
+        "remaining_scope": "No production owner was read or approved by this packet."
+      },
+      {
+        "path": "backend/apps/warranty",
+        "remaining_scope": "No production owner was read or approved by this packet."
+      }
+    ],
+    "frontend": "No frontend production owner or test was read or approved. INV-S03 status is retained from durable evidence only."
+  },
+  "limitations": [
+    "This is an explicit source review of exactly 18 selected files and 126 named lexical owners, not Stage 4, runtime proof, deployment certification or blanket approval.",
+    "All selected files were read in full. Their final SHA-256 values matched the initial AST census.",
+    "Four selected owners retain source-corrected-runtime-pending decisions for INV-S01. No runtime success is inferred from source correctness or the freeze record.",
+    "INV-S02 and INV-S03 remain outside the selected packet. HW-001, HW-002 and HW-003 remain separately open; observed caller changes do not close them.",
+    "No tests, builds, migrations, application imports, dynamic application execution, provider requests, source edits, staging, commits or production-ledger writes were performed.",
+    "Only static source parsing, hashing, line inspection, file reading and caller-location searches were used. An initial shell heredoc was refused by the read-only environment; the census was subsequently performed without a temporary file.",
+    "Internal arithmetic helpers depend on caller-owned authorization, input validation, transaction lifetime and, where documented, row locks. A reviewed-no-finding decision does not authorize new callers that omit those contracts.",
+    "Low-level put_bytes and copy_object helpers are not immutable-publication boundaries. The inspected product attachment path uses the separately validated conditional publication path.",
+    "Database constraint installation, actual PostgreSQL interleavings, object-store conditional-write/versioning behavior, anonymous staging policy and quota behavior were not exercised.",
+    "Sourceprimitivecensus/site binding remains for the parent after final source freeze. This packet does not modify or populate the production ledger.",
+    "The exact serving-model suffix is unavailable to this session; the reviewer field does not borrow the model label from the prior hardware packet."
+  ]
+}

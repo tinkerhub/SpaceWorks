@@ -13,7 +13,7 @@ def finalize_product_image(makerspace_id, object_key, *, product_id=None):
     Ownership, key-in-use, finalize (staging -> final, size bounds) and the Pillow sniff
     all run here, so every attach path -- the image endpoint and bulk import alike --
     accepts only an uploaded, size-bounded, decodable image in this makerspace. A rejected
-    upload's objects are deleted. Raises PublicImageRejected, or StorageUnavailable when
+    upload's staging object may be deleted; final ownership is retained. Raises PublicImageRejected, or StorageUnavailable when
     object storage cannot be reached.
     """
     if not object_key.startswith(f"items/{makerspace_id}/"):
@@ -29,12 +29,8 @@ def finalize_product_image(makerspace_id, object_key, *, product_id=None):
         if result.status in {"empty", "too_large"}:
             _delete_upload(object_key)
         raise PublicImageRejected(public_image_storage.finalize_error_message(result))
-    if not public_image_storage.sniff_is_valid_image(object_key):
-        _delete_upload(object_key)
-        raise PublicImageRejected("Uploaded file is not a valid image.")
     return result.size
 
 
 def _delete_upload(object_key):
-    public_image_storage.delete_object(object_key)
     public_image_storage.delete_object(public_image_storage.staging_key(object_key))

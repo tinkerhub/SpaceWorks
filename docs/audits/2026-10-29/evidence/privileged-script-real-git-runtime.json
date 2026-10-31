@@ -1,0 +1,12 @@
+{
+  "scope": "Five privileged executable-mode controls on actual host checkout and real Git index",
+  "command": "backend/.venv/bin/python -m pytest --noconftest -c /dev/null backend/tests/test_privileged_script_modes.py --junitxml=/tmp/spaceworks-actual-git-mode-current.xml -q",
+  "tests": 5,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": "0.299",
+  "test_source_sha256": "120c91028b1167e6b9f4884b4898f12504f519ba7c374652604bde85788dd799",
+  "index_unchanged": true,
+  "baseline_resolution": "Original five frozen Linux-snapshot failures require actual checkout .git/index; no production or test assertion changes."
+}

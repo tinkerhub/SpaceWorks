@@ -13,7 +13,7 @@ from apps.machines.models import MachineServiceRequest, MachineType, ServiceQueu
 from tests.machines.public_service_helpers import endpoint, object_io, post_request, service_lab
 from tests.return_helpers import make_space
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def png_bytes():
@@ -56,7 +56,8 @@ def test_uploaded_owned_file_finalizes_and_keeps_declared_policy_snapshot(servic
     assert file.service_request_id == row.pk and file.attached_at is not None
     assert file.kind == {"stl": "model", "screenshot": "screenshot", "attachment": "attachment"}[kind]
     assert (file.original_filename, file.content_type, file.size_bytes) == (filename, mime, len(body))
-    assert storage.get_object.call_count == 1
+    assert storage.get_object.call_count == 1  # existing final is snapshotted exactly once
+    storage.put_object.assert_not_called()
     assert AuditLog.objects.filter(makerspace=space, action="machine_service.file_attached", target_id=str(file.pk)).count() == 1
     with pytest.raises(RuntimeError, match="immutable"):
         file.original_filename = "replacement.pdf"

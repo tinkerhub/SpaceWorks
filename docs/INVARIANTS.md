@@ -42,6 +42,22 @@ staff-origin/bootstrap/Host/TLS trust only when `frontend_domain_status=VERIFIED
 counter (`add_storage`/`free_storage`) charged at finalize; `recompute_storage` management command is the
 authoritative reconciler. Email daily cap via `integrations.DailyEmailCounter`.
 
+**Warranty/receipt quota provenance (unreleased).** Only an actual finite managed storage debit
+creates local proof in the immutable document-added audit event. Explicit or cascading document
+deletion may release that debit once, after successful deletion of a nonempty accepted data-version
+snapshot and an unreferenced-key check under retained source/storage exclusion. Legacy, foreign,
+source-prefixed or unproven events, failed/empty/marker-only snapshots grant no invented credit.
+Procurement module purge freezes only proven receipt obligations while managed accounting is active and revalidates the original event
+after byte-first strict cleanup, settling release, graph and checkpoint in the same durable transaction;
+later receipt cleanup does not refund again. A pending payable receipt refuses graph settlement after
+accounting mode or provenance changes; a new self-host purge keeps the legacy zero-credit shape.
+Whole-tenant purge deletes the Maker and needs no extra
+refund. `recompute_storage` preserves each valid live unreleased proof's amount even when HEAD sees
+missing or changed bytes; legacy/unproven documents retain HEAD-only reconciliation. There is no
+automatic callback retry queue: ordinary deletion failures stay conservative and operators can use
+the existing `recompute_storage` command for reconciliation. Unfinished module purges retain their
+explicit receipt retry and block reconciliation until resolved. Self-host/unlimited behavior and billing are unchanged.
+
 **One domain per makerspace.** `Makerspace.frontend_domain` (case-insensitively unique) is the single
 frontend-registry field (the old per-type `TenantFrontend` model is deleted). Two origin helpers in
 `platform.py`: `makerspace_staff_origins` (ONLY the exact `https://<frontend_domain>`, feeds refresh/
@@ -79,9 +95,24 @@ Break-glass: superadmin may create a fresh SPACE_MANAGER / reset a hidden-only S
 **Makerspace archive → purge (superadmin, `/control/` only).** `Makerspace.archived_at` is the
 single soft-delete flag; archive scoping is threaded through central rbac + all aggregates + public +
 token-status surfaces (archived is invisible everywhere but `/control/`). `lifecycle.py` is the single
-lifecycle source. **Purge** is break-glass: collects S3 keys, writes a platform-scoped audit, then in
-one `transaction.atomic()` suspends immutability triggers **transaction-scoped** and deletes the full
-`PROTECT` object graph in verified dependency order, then best-effort deletes S3.
+lifecycle source. **Purge** is break-glass and byte-first. A dedicated confirmed POST owns the host
+operation lock and verified exclusive source boundary. It commits irreversible `purge_started_at`
+and an immutable global intent audit, then waits for the frozen presign drain deadline through an
+explicit later retry. No unarchive or ordinary writes are allowed after intent. Storage origin,
+namespace/typed-reference closure and every version are checked before deleting bytes, outside
+application transactions. Any storage failure retains the graph and intent for retry. A final short
+`transaction.atomic()` rechecks authority, suspends immutability triggers **transaction-scoped**, and
+deletes the full `PROTECT` object graph in verified dependency order together with the receipt and
+final global audit.
+
+`PurgeReceipt` preserves immutable identifier-only origins/keys/namespaces after graph removal. It
+has no Maker/User FK, never schedules work, and is never an automatic restore-time deletion job.
+Only an active-superuser CSRF-protected POST may retry cleanup, after proving raw tenant absence,
+current recovery generation, unchanged physical origins and no current/global/coordination references.
+That rare retry holds unscoped and all-current-tenant exclusive source locks to exclude publication.
+A storage check records its time; presign expiry alone does not prove an already-admitted upload
+cannot finish later. Retain receipts indefinitely. Tenant exports omit them, compound backups omit
+their authority, and recovery irreversibly invalidates any surviving raw/legacy receipt before readiness.
 - Self-host: `SET LOCAL session_replication_role='replica'` (all triggers off; FK off — ORM does
   CASCADE/SET_NULL in Python).
 - Managed Postgres (`MANAGED_POSTGRES=True`, e.g. Supabase forbids `session_replication_role`):
@@ -264,12 +295,9 @@ skip one and the objects simply outlive every row that could name them, or the r
 writes a total that omits them. `public_image_key_in_use` also has to learn the new model, or two
 entities can claim one key and clearing either blanks the other. The `BookableSpace` gap this
 paragraph used to name is **FIXED** — `recompute_storage._public_image_keys` now includes it, with
-a comment recording why. **The surviving instance of the same bug is `MaintenanceLogDocument`**: it
-is charged to quota on upload (`maintenance/services_documents.py`), collected by the makerspace
-purge **and** by its module purge plan, but is **absent from `recompute_storage`**, so the
-authoritative reconciler writes a total omitting every maintenance document and silently lowers a
-space's recorded usage. This list exists because that failure mode keeps recurring in the one
-mechanism that fails silently. Storage accounting itself is a **no-op on self-host** (`limits.add_storage`/`free_storage`
+a comment recording why. `MaintenanceLogDocument` is also included by the reconciler, alongside
+its upload accounting and both purge collectors. Keep all of these registrations aligned; adding
+a document model only to upload accounting silently lowers recorded usage on the next reconciliation. Storage accounting itself is a **no-op on self-host** (`limits.add_storage`/`free_storage`
 return early), so a test asserting `storage_bytes_used` must force managed mode with
 `monkeypatch.setattr(limits, 'is_self_host', lambda: False)` and wrap `on_commit` object deletes in
 `django_capture_on_commit_callbacks(execute=True)`.
@@ -295,18 +323,12 @@ return early), so a test asserting `storage_bytes_used` must force managed mode 
   scheduler lock-boundary test records `transaction.get_connection().in_atomic_block` while the task
   runs. When a test exists to prevent a specific regression, reintroduce that regression and verify
   the test fails before trusting it.
-- **A presigned upload is a hole in all three row-walking mechanisms, and it is a PLATFORM property,
-  not a bug in any one endpoint.** `presigned_upload` hands out write access to a key before any row
-  claims it, and in POST mode (the default; MinIO) it targets the **final** key. An unattached upload
-  is therefore invisible to `limits.add_storage` (charged at attach), to `recompute_storage` (sums
-  rows) and to every purge collector (enumerates rows) simultaneously. `MemberImagePresignThrottle`
-  caps the one presign an ordinary member can reach — per **account**, POST-only, so a member who
-  spends their uploads does not lose the ability to *clear* an image, the one action that frees
-  storage. That bounds the damage; it does not eliminate orphans. **Eliminating them means either
-  presigning into the `staging/` prefix in POST mode too (so an unclaimed object never enters the
-  served namespace and a bucket lifecycle rule can expire it) or a sweeper for unclaimed keys** —
-  both touch every image path in the system and are their own phase. Do not add a new member-reachable
-  presign without a per-account cap.
+- **Unattached staged uploads are outside row-based quota reconciliation.** Both POST and PUT
+  presigns target `staging/<final-key>`; only validated attachment publishes the final object. Public
+  image bucket policy must deny anonymous staging reads (including versions) while preserving signed
+  backend reads. `MemberImagePresignThrottle` caps the member-reachable presign per account, POST-only,
+  so exhausting uploads never blocks clearing an image. Namespace-aware purge and storage lifecycle
+  cleanup must include staged and rowless keys; counting only attached rows is insufficient.
 
 **Rate limits are global only when their cache is global.** `CACHES` must stay configured to use
 Django's `RedisCache` when `CACHE_URL` or an explicitly set `CELERY_BROKER_URL` supplies Redis; a
@@ -329,7 +351,7 @@ URLs. Upload validation: strict magic-sniff for PDF/image; the private maker/CAD
 public-image + evidence buckets stay strictly image-only.
 
 **Evidence object retention bounds live bytes without weakening evidence-row immutability.** Evidence is
-the deliberate exception to the generic POST wording above: both POST and PUT presigns target
+protected separately by its finalization journal: both POST and PUT presigns target
 `staging/<final-key>`, and an attaching workflow promotes to the never-client-writable final key. The
 deployment default is 365 days; a makerspace override must be between 30 and 3650 days. The global
 `EVIDENCE_OBJECT_EXPIRY_ENABLED` switch ships false, and policy GET/PATCH plus preview remain available
@@ -408,8 +430,14 @@ backs a JSONField default. `frontend_exposed=False` marks an internal master swi
 from both the bootstrap `modules` array and `MODULE_WORKFLOWS`, preserving the byte-for-byte payload
 invariant; unknown legacy keys stay exposed (`_canonical_modules` deliberately preserves them).
 `is_core` marks the six un-toggleable modules — `public_inventory`, `request_workflow`, `staff_admin`,
-`evidence_uploads`, `qr_management`, `scanner` — because the Hard Rules require a box QR scan **and** an
-issue photo to issue hardware. `tests/makerspaces/test_module_registry.py` is the drift guard: it
+`evidence_uploads`, `qr_management`, `scanner` — because issue photos are always required, and QR
+support is needed for individually tracked units and container-based handovers. Containers are optional
+on reviewed requests; an assigned container still requires its scan, and individually tracked units
+always require their own asset QR scans. Returns always require a photo, remark and item outcomes;
+an assigned container requires its matching scan. A return without an assigned container accepts only
+an omitted or blank `box_code`, records `ReturnEvent.box=None` and no `BoxScan` or `box.scanned` audit
+entry, and retains the request/evidence audit entries with `box_id: null` in request metadata.
+`tests/makerspaces/test_module_registry.py` is the drift guard: it
 AST-parses `apps/` and fails if a registered module has no real guard call site, if a guarded key is
 unregistered, if the derived lists change, or if a migration-referenced callable stops resolving.
 
@@ -939,9 +967,10 @@ screen reads the same endpoint.
   alone, so a DRF field error arrives as the bare `"This field cannot be blank."` with the field
   name stripped. Matching the message for `/phone/i` looked right and never once fired, so the
   prompt it gates had been dead since the day it shipped.
-- **Known gap: OIDC has no browser flow.** The backend accepts an ID token only, and no frontend renders
-  configured providers, so on the web an accounts-off deployment today means staff-created walk-ins.
-  Adding the browser flow (PKCE, redirect, discovery) is its own phase.
+- **Institution OIDC has a member browser flow.** `SocialSignInButtons` renders configured institution
+  providers even when consumer accounts are disabled; `socialSdk` starts the server authorization flow
+  and consumes its one-use callback nonce. This does not grant staff access: organization invitation
+  redemption keeps the member session until explicit staff authentication succeeds.
 
 **Login methods are four independent platform switches (module program phase 10).**
 `accounts.PlatformLoginMethods` (`pk=1`, superadmin-only) governs password / social / phone /
@@ -1055,6 +1084,17 @@ enabling a key cannot make an unconfigured channel send, and disabling it stops 
   tenant owns the destination channel and pays for it; identity resolves before a tenant exists.
   Do not re-propose per-makerspace auth credentials — that was considered and cancelled.
 
+**Request lifecycle alerts (0.9.0).** Hardware lifecycle adapters emit one staff inbox event per
+successful submitted/accepted/rejected/cancelled/issued/return transition; the old separate submission
+emit is removed. Return reminders keep their existing path. Generic machine jobs use the
+`machine_service` notification feature and actual machine/type scope; reprint children notify only
+after their creation commits. Printer jobs use `printing`
+exclusively, so one event cannot fan out through both adapters. Configured printing and generic
+machine Telegram alerts default on; explicit off preferences, channel/module and destination gates
+still win. Generic machine services add no requester-email stream. `staff_notifications_enabled`
+retains its staff-email/push recipient meaning, not a new chat kill switch. Inbox writes and external
+fan-out retain their existing best-effort on-commit behavior; this is not a durable outbox guarantee.
+
 **Notifications v2 — recipients, rooms, templates, scoping (phase 21).** Four additions on top of the
 per-feature×per-channel matrix, all additive and dormant until configured. The governing rule: this area
 fails **OPEN** to the action-based default — a broken selection, scope, module or template lookup must
@@ -1085,14 +1125,11 @@ never mute a makerspace. Deliberately the opposite of the *access* rules, which 
   reaches no *scoped* room. Credentials are typed per channel with a check constraint, never one overloaded
   column. One log row per destination (D13), quota charged per room, and `destination_label` is snapshotted
   so a queued row whose room was deleted goes terminal instead of falling through to the space-wide webhook.
-- **Telegram is the channel every "all four platforms" claim fails on.** It never went through
-  `send_webhook` (`telegram.send_message` reads the makerspace directly), so both senders take a
-  destination. **Telegram destinations carry NO bot token** (`resolve_bot_token` is makerspace →
-  `settings.TELEGRAM_BOT_TOKEN`): the accept/reject buttons post back to ONE webhook authenticated by a
-  single `TELEGRAM_WEBHOOK_SECRET`, so a second bot's callbacks could not be authenticated or routed and
-  its buttons would be dead. Per-bot destinations need per-bot secrets and inbound routing — its own phase.
-  Inbound routing resolves the actor from `from.id` and the request from the callback data, never a chat
-  id, so rooms cannot strand a callback. `notification_enums.MAX_MESSAGE_LENGTH` is one table for all four
+- **Telegram has a separate transport.** It never goes through `send_webhook`, so both senders take
+  a destination. **Telegram destinations carry NO bot token**: `resolve_bot_token` uses the makerspace
+  token, then `settings.TELEGRAM_BOT_TOKEN`. Telegram is outbound only; the retained authenticated
+  webhook acknowledges and discards callbacks. No message may carry decision buttons or mutate a
+  request from chat. `notification_enums.MAX_MESSAGE_LENGTH` is one table for all four
   (Telegram 4096, Slack 40000, Mattermost 16383, Discord 2000) because Telegram and Discord **reject** an
   oversized body rather than clipping it.
 - **Templates extend `email_templates_registry`, never a second engine.** Four FabLab streams
@@ -1272,6 +1309,32 @@ entry point moved. The review URL must keep `admin_site.admin_view`, must load t
 `self.get_queryset(request)` (the superadmin queryset excludes hard-hidden makerspaces), must re-check
 `has_change_permission`, and must parse quantities as ints before calling the workflow.
 
+**Accepted-request cancellation is staff-only and wholly unissued.** `workflow.cancel_request` delegates
+only `accepted → cancelled` to `cancellation_workflow`, requiring an authenticated, active actor without
+a password-change gate and canonical `REJECT_REQUEST` authority in the exact request tenant. No public
+requester or handover-only authority is added. Pending reads require accept OR reject; accepted reads
+require issue OR reject. History gives issue holders the previous terminal statuses plus cancelled;
+reject-only holders see rejected/cancelled only. Active-loan authority stays issue-only.
+
+The transaction fences mapped PII **before** locking the request, verifies the locked tenant, rejects any
+issue actor/time/evidence, nonzero issue/return/damage/missing/needs-fix item counter, return/accountability
+record, asset link or public loan (regardless of outcome). It clears only the same-tenant request's optional
+box FK through the handover owner **before product locks**; physical box state and immutable scans stay.
+The availability owner locks products in PK order and proves the pooled reservation equals **all accepted
+request demand plus independent physically reserved assets**. Quantity-tracked asset backing, foreign
+bindings, shortage, surplus and an individual available bucket inconsistent with physical AVAILABLE minus
+accepted demand refuse atomically; cancellation never repairs drift. Only this request's accepted quantity
+moves reserved → available; approval quantities/actor/time, totals, issued stock, assets and other requests
+remain unchanged. A duplicate cancellation is a conflict without another stock release or audit event.
+
+`cancellation_reason` is trimmed, required, at most 500 characters and source-scoped encrypted PII without
+a search index. It appears only on authorized staff detail; public bearer status remains minimal. Existing
+`closed_by`/`closed_at` identify cancellation and derive its timeline event. `request.cancelled` audit
+metadata records `reason_recorded: true` and, only when present, typed `previous_box_id` (`boxes.Box`), never
+the reason. Generic requester/staff notifications use the existing on-commit fan-out and verified-contact
+safeguard; no reason enters notifications. `/control/` uses the guarded per-request review page with a
+reason and explicit confirmation, never a bulk cancellation or direct status write.
+
 **The shared account-less requester principal is not a person, and no per-PERSON aggregate may rank it.**
 Every anonymous submission in a makerspace points at one `Makerspace.anonymous_requester`, so grouping by
 `requester_id` folds every unrelated stranger into a single fictional human. `_repeat_offenders`,
@@ -1295,6 +1358,12 @@ account-less requester at once — and the read-side exclusion is the backstop f
   the request workflow, so reconciliation must keep it.
 - **Stock transfers** may only move an asset to `available`, `maintenance` or `damaged`, and refuse issued or
   loan-linked assets (checked under the lock).
+- **Product stocktake lines are quantity-only.** Individual-tracked tools must be counted through
+  asset rows/QRs; creation and application both reject aggregate product adjustments, including legacy
+  lines. Batched asset generation also rechecks `qr_print_batches` under the makerspace lock.
+- **Cross-makerspace quantity transfers** match destination categories by their local slug, never a
+  foreign category FK. A missing destination match remains uncategorized. Missing/foreign stock
+  references return scoped 404s and roll back the entire operation.
 - **Stocktake approve/apply**: superadmin, or a `manage_makerspace` holder who is not the stocktake's
   `completed_by`; legacy rows with no completer stay superadmin-only. The rule lives in
   `operations/stocktake_authority.py`, is enforced inside the locked services (so `/control/` obeys it) and
@@ -2257,7 +2326,8 @@ same-directory atomic replacement and parent-directory fsync, after the archive 
 installed. It records SHA-256 for the installed `host-capability.py`, `import-backup.sh`, `restore.sh`,
 `spaceworks-compose.sh` and `validate-compose-wrapper.py` host scripts, SHA-256 for the image's actual common
 entrypoint, the closed supported compound-protocol range, only the verification-key fingerprint, and a
-length-framed digest of the installed Django migration files. It never records or receives the private
+length-framed digest of source/data files within installed Django migration packages, including extracted
+SQL and nested helper modules; compiler caches are excluded. It never records or receives the private
 archive-signing key. The installer runs as a bare `docker run --entrypoint python` with no Django settings,
 so the import closure of `backend/scripts/install_producer_capability.py` must never require configured
 settings or app loading; `BackupBuildError` therefore lives in the settings-free `apps/backup/errors.py`,
@@ -2268,7 +2338,9 @@ recipient resolution, temporary workspace creation, capture bytes, encryption, s
 ledger persistence. The marker and directory must be root-owned and non-writable by non-root principals,
 and the marker must be exactly mode `0444`. The producer re-hashes every privileged script from the
 read-only host scripts mount, the common entrypoint from the running image and the installed migration
-files; recorded versions never substitute for those byte comparisons. It also proves the protocol to be
+package inputs; recorded versions never substitute for those byte comparisons. Helper-only changes also
+require the normal trusted installer/update flow to regenerate the capability marker; production never
+automatically accepts a changed fingerprint. It also proves the protocol to be
 emitted is inside the marker range, derives the public identity of the configured private signing key,
 requires it to equal the configured verification key, and compares its fingerprint with the marker. A
 missing, unreadable, malformed, misowned, wrong-mode, locally modified or rolled-back input refuses with a
@@ -2403,9 +2475,13 @@ host wrapper holds its existing `flock` while it decrypts into the operation-own
 runs that validator through `docker compose run --rm --no-deps`; only success permits the `.env` backup and
 rewrite or recreation of backend, worker and beat. Refusal writes no restore intent or audit, calls no object
 store, leaves `.env` byte-identical with no `.env.pre-restore-*`, does not restart a service, and cleans the
-temporary directory. The compound coordinator calls this same validator while holding the host operation
-lock, then independently validates the installed host capability record and topology before its first ledger
-effect; `host_restore_gate_status()` remains descriptive only and never confers launch authority.
+temporary directory. The compound coordinator library calls this same validator while holding the host
+operation lock, then independently validates the installed host capability record and topology before its
+first ledger effect. It requires an injected target host adapter; this checkout ships no installed B1
+compound restore launcher. The installed bundled supervisor handles signed-full and admissible registered
+historical same-host archives; it refuses B1 restoration, including protocol 2. The B1 custody, protocol and
+fence invariants above still govern any coordinator adapter. `host_restore_gate_status()` remains
+descriptive only and never confers launch authority.
 
 **Auto-created many-to-many through tables are physical tables, not fields embedded in their owning
 model's row.** Each must therefore have its own literal physical-table disposition and its own count,
@@ -2914,6 +2990,17 @@ and no change may quietly upgrade the roster into an authentication source.
   person's name. The issue photo is the after-the-fact evidence that resolves it. This risk was
   accepted deliberately by the operator; do not "fix" it by loosening the evidence requirements,
   which are the only thing making it survivable.
+
+**Private request history is independent of presence.** Typed names and public roster IDs never
+recover historical requests or private tokens. Account-free visitors use per-request private links,
+including after upstream checkout. Browser shortcuts are tenant-scoped capabilities, hidden until an
+explicit per-visit reveal; forgetting one does not cancel the request or revoke its token. Signed-in
+history requires a real active personal account, exact tenant and requester ownership for hardware,
+and exact `member` ownership for machine services. Legacy machine `requester` identifies a staff
+creator and never grants borrower history. No current membership or check-in is required to read
+one's account history. Origin restrictions and claim-session refusal still apply. Public hardware
+status exposes per-request requested/accepted/issued/returned quantities, never private inventory
+counts, staff reasons, contacts, evidence or locations.
 
 **Only a well-formed 2xx list is ever trusted, and an unreadable response is never a denial.**
 Unlike the retired pre-M7 client, this endpoint returns a roster rather than a verdict, so there is

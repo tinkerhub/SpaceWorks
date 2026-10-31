@@ -9,10 +9,13 @@ from apps.hardware_requests.permissions import CanReviewRequest
 from apps.hardware_requests.serializers import (
     AcceptRequestSerializer,
     AdminRequestSerializer,
+    CancelRequestSerializer,
     RejectRequestSerializer,
 )
 from apps.hardware_requests.view_helpers import (
     ACTION_ERROR_RESPONSES,
+    ERROR_401,
+    ERROR_503,
     request_queryset,
 )
 from apps.makerspaces.guards import require_module
@@ -67,6 +70,28 @@ class RejectRequestView(APIView):
             request.user,
             hardware_request,
             serializer.validated_data["reason"],
+        )
+        return Response(AdminRequestSerializer(updated).data)
+
+
+class CancelRequestView(APIView):
+    permission_classes = [CanReviewRequest]
+
+    @extend_schema(
+        tags=["Admin requests"],
+        summary="Cancel an accepted, unissued borrow request",
+        request=CancelRequestSerializer,
+        responses={
+            200: AdminRequestSerializer, **ACTION_ERROR_RESPONSES,
+            401: ERROR_401, 503: ERROR_503,
+        },
+    )
+    def post(self, request, pk, *args, **kwargs):
+        hardware_request = _scoped_request(request.user, pk, rbac.Action.REJECT_REQUEST)
+        serializer = CancelRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        updated = workflow.cancel_request(
+            request.user, hardware_request, serializer.validated_data["reason"],
         )
         return Response(AdminRequestSerializer(updated).data)
 

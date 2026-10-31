@@ -1,0 +1,24 @@
+Stage 2 implemented. Edited exactly:
+
+- [procurement/views_receipts.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/views_receipts.py): charges validated publication bytes atomically with metadata and audit.
+- [procurement/views_items.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/views_items.py): atomic creation attribution; fresh locked instance and authorization before updates.
+- [procurement/admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/admin.py): binds the actual form to the request actor.
+- [procurement/admin_forms.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/admin_forms.py), new: validates type ownership/provenance and converts DRF errors into form errors.
+- [warranty/views.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views.py): locks makerspace → host → warranty; preserves omitted fields; saves and audits atomically.
+- [warranty/views_documents.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views_documents.py): charges actual bytes using fresh module and host authorization.
+- [warranty/admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/admin.py): freezes existing tenant/host fields while retaining vendor/date edits.
+
+Both production `_upsert_warranty` callers—`AssetWarrantyView.put` and `MachineWarrantyView.put`—now pass `actor`; duplicate caller audits were removed.
+
+Prior dirty changes and deletion callbacks remain intact. `warranty/access.py` and root-owned boundaries/counters were untouched. Published winners survive quota refusal; conservative deletion accounting delays capacity recovery until authoritative reconciliation.
+
+Static AST/diff checks passed; files range from 29–219 lines. No tests, runtime, build, staging, or commit performed.
+
+Stage 3 should verify:
+
+- Real PUT/POST publication, actual winner sizing, finite quotas, idempotency, audit rollback and retry.
+- Tenant/origin/module guards and permission changes while waiting.
+- PostgreSQL sparse-update and first-create concurrency.
+- Actual admin forms and malicious POSTs, including valid global types, unprovenanced retags, and vendor/date edits.
+
+Runtime validation remains pending.

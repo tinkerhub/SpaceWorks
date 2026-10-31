@@ -1,21 +1,20 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Upload } from "lucide-react";
 
-import { Button, ConfirmDialog, ErrorText, Field, Input, Skeleton, useToast } from "../../components/ui";
+import { Button, ErrorText, Field, Input, Skeleton, useToast } from "../../components/ui";
 import { errorText } from "./panels/shared";
 import { WarrantyStatusBadge } from "./WarrantyStatusBadge";
 import {
-  deleteWarrantyDocument,
   getWarranty,
-  getWarrantyDocumentUrl,
   saveWarranty,
-  uploadWarrantyDocument,
   type Warranty,
-  type WarrantyDocument,
   type WarrantyHostKind,
   type WarrantyPayload,
 } from "./warrantyApi";
+
+import { WarrantyDocuments } from "./WarrantyDocuments";
+import { useAuthActionOwner, type AuthAction } from "../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../lib/apiSession";
 
 type WarrantySectionProps = {
   hostKind: WarrantyHostKind;
@@ -37,25 +36,29 @@ const emptyForm: WarrantyForm = {
   vendor_contact: "",
 };
 
-const acceptedDocumentTypes = "application/pdf,image/jpeg,image/png,image/webp";
-
-export function WarrantySection({ hostKind, hostId, disabled = false }: WarrantySectionProps) {
+export function WarrantySection(props: WarrantySectionProps) {
+  return <OwnedWarrantySection key={`${props.hostKind}:${props.hostId}:${getSessionGeneration()}`} {...props} />;
+}
+function OwnedWarrantySection({ hostKind, hostId, disabled = false }: WarrantySectionProps) {
+  const owner = useAuthActionOwner(`${hostKind}:${hostId}`);
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const headingId = useId();
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const queryKey = ["warranty", hostKind, hostId] as const;
   const warranty = useQuery({
     queryKey,
     queryFn: () => getWarranty(hostKind, hostId),
   });
-  const [form, setForm] = useState<WarrantyForm>(emptyForm);
-  const [documentError, setDocumentError] = useState("");
-  const [removeTarget, setRemoveTarget] = useState<WarrantyDocument | null>(null);
+  const [editor, setEditor] = useState({ values: emptyForm, initialized: false, dirty: false });
+  const form = editor.values;
 
+  const metadata = warranty.data === undefined ? undefined : JSON.stringify(formFromWarranty(warranty.data));
   useEffect(() => {
-    setForm(formFromWarranty(warranty.data ?? null));
-  }, [warranty.data]);
+    if (metadata === undefined) return;
+    const values = JSON.parse(metadata) as WarrantyForm;
+    // Read dirty state when applying the update, so a late refetch cannot erase edits.
+    setEditor((currentEditor) => currentEditor.dirty ? currentEditor : { values, initialized: true, dirty: false });
+  }, [metadata]);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey });
@@ -63,64 +66,39 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
   };
 
   const save = useMutation({
-    mutationFn: () => saveWarranty(hostKind, hostId, payloadFromForm(form)),
-    onSuccess: (updated) => {
+    mutationFn: ({ action, payload }: { action: AuthAction; payload: WarrantyPayload }) => {
+      if (!owner.isCurrent(action)) throw new Error("This warranty edit is no longer current.");
+      return saveWarranty(hostKind, hostId, payload);
+    },
+    onSuccess: (updated, { action }) => {
+      if (!owner.isCurrent(action)) return;
+      setEditor({ values: formFromWarranty(updated), initialized: true, dirty: false });
       queryClient.setQueryData(queryKey, updated);
       queryClient.invalidateQueries({ queryKey: ["warranties"] });
       showToast("Warranty saved.", { tone: "success" });
     },
-    onError: (err) => showToast(errorText(err, "Could not save warranty."), { tone: "error" }),
-  });
-
-  const upload = useMutation({
-    mutationFn: async (files: File[]) => {
-      if (!warranty.data) throw new Error("Save warranty details first to attach documents.");
-      for (const file of files) {
-        await uploadWarrantyDocument(warranty.data.id, file);
-      }
-      return files.length;
+    onError: (err, { action }) => {
+      if (owner.isCurrent(action)) showToast(errorText(err, "Could not save warranty."), { tone: "error" });
     },
-    onSuccess: (count) => {
-      setDocumentError("");
-      if (inputRef.current) inputRef.current.value = "";
-      invalidate();
-      showToast(count === 1 ? "Document attached." : `${count} documents attached.`, { tone: "success" });
-    },
-    onError: (err) => {
-      // Files uploaded before the failing one are attached already; show them.
-      if (inputRef.current) inputRef.current.value = "";
-      invalidate();
-      const message = errorText(err, "Upload failed.");
-      setDocumentError(message);
-      showToast(message, { tone: "error" });
-    },
-  });
-
-  const remove = useMutation({
-    mutationFn: deleteWarrantyDocument,
-    onSuccess: () => {
-      setRemoveTarget(null);
-      invalidate();
-      showToast("Document removed.", { tone: "success" });
-    },
-    onError: (err) => showToast(errorText(err, "Could not remove document."), { tone: "error" }),
+    onSettled: (_result, _error, { action }) => { owner.finish(action); },
   });
 
   const current = warranty.data;
-  const documents = current?.documents ?? [];
-  const fieldsDisabled = disabled || save.isPending;
-  const setField = (field: keyof WarrantyForm) => (value: string) => setForm((currentForm) => ({ ...currentForm, [field]: value }));
-
-  async function openDocument(documentId: number) {
-    setDocumentError("");
-    try {
-      const { url } = await getWarrantyDocumentUrl(documentId);
-      window.open(url, "_blank", "noopener");
-    } catch (err) {
-      const message = errorText(err, "Could not open document.");
-      setDocumentError(message);
-      showToast(message, { tone: "error" });
-    }
+  const saving = owner.isCurrent(save.variables?.action ?? null) && save.isPending;
+  const saveError = owner.isCurrent(save.variables?.action ?? null) ? save.error : null;
+  const formReady = editor.initialized && warranty.data !== undefined;
+  const fieldsDisabled = disabled || saving || !formReady;
+  const setField = (field: keyof WarrantyForm) => (value: string) => {
+    if (fieldsDisabled || !owner.isIntentCurrent() || owner.isPending()) return;
+    setEditor((currentEditor) => ({
+      ...currentEditor, values: { ...currentEditor.values, [field]: value }, dirty: true,
+    }));
+  };
+  function submitSave() {
+    if (fieldsDisabled || !owner.isIntentCurrent() || owner.isPending()) return;
+    const payload = payloadFromForm(form);
+    const action = owner.begin();
+    if (action) save.mutate({ action, payload });
   }
 
   return (
@@ -132,6 +110,13 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
 
       {warranty.isLoading ? <Skeleton className="h-24 w-full" /> : null}
       {warranty.error ? <ErrorText message={errorText(warranty.error, "Could not load the warranty.")} /> : null}
+      {warranty.error && warranty.data === undefined ? (
+        <div>
+          <Button size="sm" variant="quiet" disabled={warranty.isFetching} onClick={() => {
+            if (owner.isIntentCurrent() && !owner.isPending() && !warranty.isFetching) void warranty.refetch();
+          }}>Retry</Button>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <WarrantyInput label="Purchased" type="date" value={form.purchased_on} disabled={fieldsDisabled} onChange={setField("purchased_on")} />
@@ -143,75 +128,17 @@ export function WarrantySection({ hostKind, hostId, disabled = false }: Warranty
       {!disabled ? (
         <div className="grid gap-2">
           <div>
-            <Button variant="primary" size="sm" loading={save.isPending} loadingLabel="Saving…" onClick={() => save.mutate()}>
+            <Button variant="primary" size="sm" disabled={fieldsDisabled} loading={saving} loadingLabel="Saving…" onClick={submitSave}>
               {current ? "Save warranty" : "Create warranty"}
             </Button>
           </div>
-          {save.error ? <ErrorText message={errorText(save.error, "Could not save warranty.")} /> : null}
+          {saveError ? <ErrorText message={errorText(saveError, "Could not save warranty.")} /> : null}
         </div>
       ) : null}
 
-      <div className="grid gap-3 border-t border-line pt-4">
-        <h4 className="text-label text-ink">Documents</h4>
-        {documents.length ? (
-          <ul className="grid gap-2">
-            {documents.map((document) => (
-              <li key={document.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border border-line bg-canvas px-3 py-2">
-                <span className="min-w-0 flex-1 break-words text-body-ui text-ink">{document.original_filename}</span>
-                <span className="text-caption tabular-nums text-ink-muted">{formatBytes(document.size_bytes)}</span>
-                <Button size="sm" variant="quiet" onClick={() => openDocument(document.id)}>View</Button>
-                {!disabled ? (
-                  <Button size="sm" variant="danger-quiet" disabled={remove.isPending} onClick={() => setRemoveTarget(document)}>
-                    Remove…
-                  </Button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-body-ui text-ink-muted">No documents attached.</p>
-        )}
+      {current ? <WarrantyDocuments key={current.id} warrantyId={current.id} documents={current.documents} disabled={disabled} onChanged={invalidate} />
+        : <p className="text-caption text-ink-muted">Save warranty details first to attach documents.</p>}
 
-        {!disabled ? (
-          current ? (
-            <div className="flex flex-wrap items-center gap-3">
-              {/* The button opens this picker; the input itself stays out of the tab order. */}
-              <input
-                ref={inputRef}
-                type="file"
-                multiple
-                tabIndex={-1}
-                aria-hidden="true"
-                accept={acceptedDocumentTypes}
-                disabled={upload.isPending}
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? []);
-                  if (files.length) upload.mutate(files);
-                }}
-                className="sr-only"
-              />
-              <Button size="sm" startIcon={<Upload />} loading={upload.isPending} loadingLabel="Uploading…" onClick={() => inputRef.current?.click()}>
-                Add warranty documents
-              </Button>
-              <span className="text-caption text-ink-muted">PDF, JPEG, PNG or WebP</span>
-            </div>
-          ) : (
-            <p className="text-caption text-ink-muted">Save warranty details first to attach documents.</p>
-          )
-        ) : null}
-        <ErrorText message={documentError} />
-        {remove.error ? <ErrorText message={errorText(remove.error, "Could not remove document.")} /> : null}
-      </div>
-      <ConfirmDialog
-        open={Boolean(removeTarget)}
-        title="Remove this document?"
-        message={removeTarget ? `${removeTarget.original_filename} will be detached from this warranty.` : ""}
-        confirmLabel="Remove document"
-        tone="danger"
-        pending={remove.isPending}
-        onCancel={() => setRemoveTarget(null)}
-        onConfirm={() => { if (removeTarget) remove.mutate(removeTarget.id); }}
-      />
     </section>
   );
 }
@@ -253,10 +180,4 @@ function payloadFromForm(form: WarrantyForm): WarrantyPayload {
     vendor_name: form.vendor_name.trim(),
     vendor_contact: form.vendor_contact.trim(),
   };
-}
-
-function formatBytes(value: number) {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
 }

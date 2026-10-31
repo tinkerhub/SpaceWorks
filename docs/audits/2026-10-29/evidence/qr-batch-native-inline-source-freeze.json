@@ -1,0 +1,12 @@
+{
+  "format": "spaceworks-qr-batch-native-inline-source-freeze-v1",
+  "status": "Whole208-line context read; separate Stage3 native-detail tests active/root runtime pending",
+  "files": [
+    {
+      "path": "backend/apps/operations/admin.py",
+      "lines": 208,
+      "sha256": "b1ba899456ae32711e780a9974b9e5999e6e8190f3931b128529da0b0cd88aee",
+      "prior_sha256": "58b3a701ee35376f032635cc5df0cf4eab91ecfb9558bd3b621d241ea3081309"
+    }
+  ]
+}

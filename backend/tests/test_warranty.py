@@ -1,4 +1,6 @@
-﻿from datetime import timedelta
+from copy import deepcopy
+from io import BytesIO
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -15,6 +17,7 @@ from apps.accounts.models import User
 from apps.audit.models import AuditLog
 from apps.inventory.models import InventoryAsset
 from apps.machines.models import Machine, MachineOperator, MachineType
+from apps.machines.printer_capabilities import PRINTER_CONFIG
 from apps.makerspaces.models import MakerspaceMembership
 from apps.warranty.models import Warranty, WarrantyDocument
 from apps.warranty.status import warranty_status
@@ -45,10 +48,16 @@ def make_printer(makerspace, *, name="Printer 1", model="Ender 3"):
 
 def make_machine(makerspace, *, name="Machine 1", machine_type=None):
     enable_modules(makerspace, "machines")
-    machine_type = machine_type or MachineType.objects.get(
-        makerspace__isnull=True,
+    machine_type = machine_type or MachineType.objects.get_or_create(
+        makerspace=None,
         slug="3d_printer",
-    )
+        defaults={
+            "name": "3D Printer",
+            "is_builtin": True,
+            "managing_action": "manage_printing",
+            "capability_config": deepcopy(PRINTER_CONFIG),
+        },
+    )[0]
     return Machine.objects.create(
         makerspace=makerspace,
         machine_type=machine_type,
@@ -114,7 +123,7 @@ def mock_warranty_storage(monkeypatch, *, size=123, content_type="application/pd
             "fields": {"key": object_key, "Content-Type": content_type},
         },
     )
-    monkeypatch.setattr("apps.warranty.storage.finalize_upload", lambda object_key, max_bytes: size)
+    monkeypatch.setattr("apps.warranty.storage.prepare_upload", lambda object_key: SimpleNamespace(size=size, content_type=content_type))
     monkeypatch.setattr(
         "apps.warranty.storage.validate_warranty_object",
         lambda object_key: SimpleNamespace(size=size, content_type=content_type),
@@ -220,6 +229,7 @@ def test_printer_warranty_upsert_read_update_and_audit():
     ]
 
 
+@pytest.mark.django_db(transaction=True)
 def test_machine_warranty_upsert_and_generic_document_endpoints(
     monkeypatch, django_capture_on_commit_callbacks
 ):
@@ -404,6 +414,7 @@ def test_machine_warranty_operator_type_manager_tenant_and_module_contract():
     assert authenticated_client(operate).get(url).status_code == 403
 
 
+@pytest.mark.django_db(transaction=True)
 def test_warranty_documents_presign_finalize_url_delete_and_guards(
     monkeypatch, django_capture_on_commit_callbacks
 ):
@@ -473,7 +484,8 @@ def test_warranty_documents_presign_finalize_url_delete_and_guards(
     assert document.object_key == object_key
     assert url_response.status_code == 200
     assert url_response.data == {"url": "https://signed"}
-    assert duplicate.status_code == 400
+    assert duplicate.status_code == 201
+    assert duplicate.data["id"] == document.id
     assert wrong_prefix.status_code == 400
     assert print_denied.status_code == 403
     assert cross_tenant.status_code == 404
@@ -489,18 +501,11 @@ def test_warranty_documents_presign_finalize_url_delete_and_guards(
 def test_validate_warranty_object_sniffs_pdf_and_rejects_html(monkeypatch):
     from apps.warranty import storage
 
-    class FakeBody:
-        def __init__(self, data):
-            self.data = data
-
-        def read(self, _size):
-            return self.data
-
     class FakeWarrantyClient:
         data = b"%PDF-1.5 warranty document"
 
         def get_object(self, Bucket, Key):
-            return {"Body": FakeBody(self.data)}
+            return {"Body": BytesIO(self.data), "ContentType": "application/pdf"}
 
     fake_client = FakeWarrantyClient()
     monkeypatch.setattr("apps.warranty.storage._client", lambda: fake_client)
@@ -837,6 +842,7 @@ def test_warranty_document_keys_are_collected_for_makerspace_purge():
     assert document.object_key in keys
 
 
+@pytest.mark.django_db(transaction=True)
 def test_cascade_delete_of_host_removes_warranty_document_object(
     monkeypatch, django_capture_on_commit_callbacks
 ):
@@ -854,10 +860,11 @@ def test_cascade_delete_of_host_removes_warranty_document_object(
         size_bytes=1024,
     )
 
-    # Deleting the host asset CASCADEs to Warranty -> WarrantyDocument; the post_delete
-    # signal must still clean up the private object even though no view ran. The signal
-    # defers the storage call to on_commit, so the callbacks are executed here.
-    with django_capture_on_commit_callbacks(execute=True):
+    # Supported explicit cascades acquire ownership before Django's collector
+    # opens its deletion transaction; the origin passes it to the document signal.
+    from apps.object_storage_lifecycle import storage_lifecycle
+    with storage_lifecycle(makerspace.pk) as guard:
+        asset._storage_guard = guard
         asset.delete()
 
     assert not WarrantyDocument.objects.filter(object_key=object_key).exists()

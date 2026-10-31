@@ -38,6 +38,18 @@ class CanViewHandoverQueue(BasePermission):
         return bool(rbac.makerspaces_for_action(user, rbac.Action.ISSUE_REQUEST))
 
 
+class CanViewAcceptedRequestQueue(BasePermission):
+    """Reviewers may cancel accepted requests without gaining active-loan access."""
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+        if not _active_authenticated(user) or not staff_origin_scope_allows(request, view):
+            return False
+        return bool(rbac.makerspaces_for_actions(
+            user, rbac.Action.ISSUE_REQUEST, rbac.Action.REJECT_REQUEST,
+        ))
+
+
 class CanAssignBox(BasePermission):
     def has_permission(self, request, view):
         user = getattr(request, "user", None)

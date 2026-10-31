@@ -1,0 +1,38 @@
+{
+  "status": "actual-backup-pass-restore-preflight-refusal-before-effects",
+  "production_touched": false,
+  "backup_available": true,
+  "restore_sql_executed": false,
+  "restoration_or_quarantine_or_resume_proven": false,
+  "recovery_source_files": 64,
+  "captured_runtime_files": 2019,
+  "failure": "Compose normalized entrypoint:null means inherit the already verified image entrypoint; host admission incorrectly rejects it through dict.get default semantics.",
+  "read_only_actual_config_observation": {
+    "backend": {
+      "command_prefix": [
+        "--role",
+        "backend"
+      ],
+      "entrypoint": null
+    },
+    "worker": {
+      "command_prefix": [
+        "--role",
+        "worker"
+      ],
+      "entrypoint": null
+    },
+    "beat": {
+      "command_prefix": [
+        "--role",
+        "beat"
+      ],
+      "entrypoint": null
+    }
+  },
+  "actual_container_entrypoint": [
+    "python",
+    "/app/scripts/spaceworks_entrypoint.py"
+  ],
+  "next": "Correct only inherited-null normalization while retaining explicit overrides and real image/container checks; verify full actual topology admission before rebuilt-artifact drill retry."
+}

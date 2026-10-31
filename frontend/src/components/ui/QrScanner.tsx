@@ -257,7 +257,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
         {error ? (
           <div className="grid gap-3">
             <p role="alert" className="text-sm text-danger">{error}</p>
-            <TypedCodeForm onSubmit={(code) => onScanRef.current(code)} />
+            <TypedCodeForm key="typed-code" onSubmit={(code) => onScanRef.current(code)} />
             <button ref={closeButtonRef} className="desk-button w-full" type="button" onClick={close}>
               Close
             </button>
@@ -277,7 +277,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
               ) : null}
             </div>
             <p className="text-center text-sm text-muted">Point the camera at a QR code</p>
-            <TypedCodeForm onSubmit={(code) => onScanRef.current(code)} />
+            <TypedCodeForm key="typed-code" onSubmit={(code) => onScanRef.current(code)} />
             <button className="desk-button-primary w-full" type="button" onClick={close}>
               Done
             </button>

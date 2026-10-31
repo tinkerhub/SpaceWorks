@@ -1,0 +1,31 @@
+{
+  "scope": "Stage3 test-only static correction",
+  "files": {
+    "backend/tests/accounts/test_social_auth.py": {
+      "before_sha256": "cab149542bc6e4055851d4966aa4f4238658decc544477dc1493927157988012",
+      "after_sha256": "39b3406fe0d2e7b755ff6000b4f2906ab85ebd85161cdc3af6f7112bceabe020"
+    },
+    "backend/tests/accounts/test_login_methods_p10.py": {
+      "before_sha256": "626cb6144a852d117fa691e9dafe8ecdc69b03b15097827532327755c0325092",
+      "after_sha256": "4efe9491dbcafa3cff4f97c40c290d77894eac9a8acb1950acaa1a017a29f6c8"
+    },
+    "backend/tests/box_checkout_guard_helpers.py": {
+      "before_sha256": "289ad4ca3c4872a0b60a9c9393f127a6a8c46f8c3e07b1cea47f76ee90db2700",
+      "after_sha256": "0ec609b20f836eda529e64b1d1688002f89eb0334ac94481875e3612e3231490"
+    }
+  },
+  "functions": {
+    "backend/tests/accounts/test_social_auth.py::register_social_member_origin": {
+      "after_sha256": "ea0040c909fc17a0e3fac98f69b0a3475b3d2517af66f0af526bdd868c6cc517"
+    },
+    "backend/tests/box_checkout_guard_helpers.py::resolve_actions": {
+      "before_sha256": "edb0035ffd2c2b8a09a6567dfbf0cfb6cfe2c9c5c4d021b70526af61af953a9c",
+      "after_sha256": "2608598a16dfa74100459f23b086c5590d302ab621ac99408ecf83481cfbf782"
+    }
+  },
+  "runtime": "not run; 72 box / 10 social failures remain unclassified",
+  "unchanged_decorated_test_functions": {
+    "count": 33,
+    "source_and_ast_sha256": "ceecaef294f570da3ed3e3e40a52975db2937962aa8face3db257c93af292122"
+  }
+}

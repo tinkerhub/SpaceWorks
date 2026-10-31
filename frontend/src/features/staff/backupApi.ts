@@ -5,7 +5,17 @@ export type BackupArchive = {
   scope: "deployment" | "makerspace";
   makerspace: number | null;
   status: "pending" | "running" | "promoting" | "available" | "failed" | "expired";
-  manifest: { snapshot_at?: string; postgres?: { source_server_major?: number } };
+  manifest: {
+    format?: string;
+    protocol_version?: string;
+    archive_signature?: unknown;
+    partial?: boolean;
+    source_partition_proof?: unknown;
+    main_component?: unknown;
+    slice_components?: unknown;
+    snapshot_at?: string;
+    postgres?: { source_server_major?: number };
+  };
   size_bytes: number;
   age_encrypted: boolean;
   failure_detail: string;
@@ -57,3 +67,16 @@ export const requestRestore = (archive: string, kind: RestoreOperation["kind"]) 
 export const getRestore = (restoreId: string) => staffRequest<RestoreOperation>(`/admin/platform/restores/${restoreId}`);
 export const decideRestore = (restoreId: string, decision: "proceed" | "reset" | "abort") =>
   staffRequest<RestoreOperation>(`/admin/platform/restores/${restoreId}/decision`, { method: "POST", body: JSON.stringify({ decision }) });
+
+/** Match the server's explicit routing; an absent partial flag cannot identify B1. */
+export function backupFormat(archive: BackupArchive): "full" | "compound" | "legacy" | "unknown" {
+  const manifest = archive.manifest;
+  if (manifest.format === "spaceworks-deployment-full-v1") return "full";
+  if (manifest.protocol_version?.startsWith("spaceworks-lane-e-b1-")
+    || manifest.format === "spaceworks-lane-e-e3-compound-v1") return "compound";
+  if (["spaceworks-phase5a-v1", "spaceworks-phase5a-v2", "spaceworks-phase5a-v3"].includes(manifest.format ?? "")
+    && !("protocol_version" in manifest) && !("archive_signature" in manifest)
+    && !("source_partition_proof" in manifest) && !("main_component" in manifest)
+    && !("slice_components" in manifest) && (manifest.partial ?? false) === false) return "legacy";
+  return "unknown";
+}

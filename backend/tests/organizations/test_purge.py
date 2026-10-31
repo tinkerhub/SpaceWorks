@@ -5,10 +5,11 @@ from apps.accounts.models import User
 from apps.makerspaces import lifecycle
 from apps.makerspaces.models import Makerspace
 from apps.organizations.models import Organization, OrganizationMakerspace
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 
 @pytest.mark.django_db(transaction=True)
-def test_purge_removes_only_the_purged_makerspace_links(monkeypatch):
+def test_purge_removes_only_the_purged_makerspace_links(purge_store, purge_clock):
     actor = User.objects.create_user(
         username="organization-purge-superadmin",
         is_staff=True,
@@ -40,9 +41,7 @@ def test_purge_removes_only_the_purged_makerspace_links(monkeypatch):
         relationship=OrganizationMakerspace.Relationship.MANAGER,
         created_by=actor,
     )
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda _keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda _keys: None)
-
+    arm(purged_space, actor, purge_clock)
     lifecycle.purge(purged_space, actor)
 
     assert not Makerspace.objects.filter(pk=purged_space.pk).exists()
@@ -50,4 +49,3 @@ def test_purge_removes_only_the_purged_makerspace_links(monkeypatch):
     assert Organization.objects.filter(pk=organization.pk).exists()
     assert OrganizationMakerspace.objects.filter(pk=surviving_link.pk).exists()
     assert organization.makerspaces.get() == surviving_space
-

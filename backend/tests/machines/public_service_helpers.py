@@ -52,12 +52,38 @@ def object_io(monkeypatch, settings):
     settings.STORAGE_PRESIGN_METHOD = "post"
     objects = {}
     storage = Mock()
-    storage.list_object_versions.return_value = {"Versions": [], "DeleteMarkers": [], "IsTruncated": False}
-    storage.delete_object.side_effect = lambda **kw: objects.pop(kw["Key"], None)
-    storage.head_object.side_effect = lambda **kw: {"ContentLength": len(objects[kw["Key"]][0])}
-    storage.get_object.side_effect = lambda **kw: {
-        "Body": BytesIO(objects[kw["Key"]][0]), "ContentType": objects[kw["Key"]][1],
+    from tests.atomic_publication.store import error
+
+    def get(**kwargs):
+        if kwargs["Key"] not in objects:
+            raise error()
+        data, mime = objects[kwargs["Key"]]
+        return {"Body": BytesIO(data), "ContentType": mime}
+
+    def put(**kwargs):
+        assert kwargs["IfNoneMatch"] == "*"
+        if kwargs["Key"] in objects:
+            raise error("PreconditionFailed", 412)
+        objects[kwargs["Key"]] = (kwargs["Body"].read(), kwargs["ContentType"])
+        return {}
+
+    def remove(**kwargs):
+        for item in kwargs["Delete"]["Objects"]:
+            objects.pop(item["Key"], None)
+        return {}
+
+    storage.get_object.side_effect = get
+    storage.put_object.side_effect = put
+    storage.get_bucket_versioning.return_value = {"Status": "Enabled"}
+    storage.list_object_versions.side_effect = lambda **kw: {
+        "IsTruncated": False, "Versions": [
+            {"Key": key, "VersionId": "snapshot-v1"} for key in objects if key.startswith(kw["Prefix"])
+        ],
     }
+    storage.delete_objects.side_effect = remove
+    storage.delete_object.side_effect = AssertionError("No bare delete fallback")
+    storage.copy_object.side_effect = AssertionError("No unconditional COPY fallback")
+    storage.head_object.side_effect = lambda **kw: {"ContentLength": len(objects[kw["Key"]][0])}
     public = Mock()
     public.generate_presigned_post.return_value = {"url": "https://objects.example/upload", "fields": {}}
     monkeypatch.setattr(service_storage, "_client", lambda: storage)

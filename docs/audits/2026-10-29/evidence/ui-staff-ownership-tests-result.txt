@@ -1,0 +1,5 @@
+Added **131 cases across 13 new test files and 3 helpers**, all below 300 lines.
+
+[Handoff with exact counts, adapter notes, and the root Node 20 tests + TSC command](/tmp/spaceworks-ui-followup/staff-ownership-tests-result.txt).
+
+Frozen source remains unchanged. No tests, TSC, builds, runtime, staging, or commits performed. Runtime validation remains pending.

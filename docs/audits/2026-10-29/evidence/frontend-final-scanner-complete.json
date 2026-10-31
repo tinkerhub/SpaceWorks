@@ -1,0 +1,25 @@
+{
+  "status": "passed-current-frontend",
+  "test_files": 230,
+  "tests_passed": 1991,
+  "failed": 0,
+  "test_seconds": 544.77,
+  "typescript_exit_code": 0,
+  "production_build_exit_code": 0,
+  "build_seconds": 4.34,
+  "runtime": "Node20 in existing spaceworks-fix-ui",
+  "workers": 2,
+  "log": "frontend-final-scanner-complete.log",
+  "log_sha256": "619e4834cf4e2be392a7de8a9c1cb75078a7cde430079a2c4c6cdb8d6aed6b0e",
+  "files": {
+    "frontend/src/components/ui/QrScanner.tsx": "147e1ca33768157e8a7ceac97229e717e9be1f77a574bfb12a431cdddcabc6b7",
+    "frontend/src/components/ui/QrScanner.draft.test.tsx": "530672056c8f42e4c9752adfc956ff5151daaa0146897a40ad83a5cb54fd2cec",
+    "frontend/openapi-schema.json": "bb980d5595ce9d778afc93190ff852db1bba568cedd6f51dfd4f0039a77e2c75",
+    "frontend/src/generated/api.ts": "6845da32b2fb2c890131d69ef86304a384880268b708b0892239ad96cbbac91f"
+  },
+  "limits": [
+    "Production provider behavior and remaining backend fixes require separate proof.",
+    "Generated API will change after the OIDC source-gate annotation is regenerated; rerun typecheck after that generated-only change."
+  ],
+  "advisory": "Existing large-chunk advisory; production bundle completed."
+}

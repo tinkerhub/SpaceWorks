@@ -1,3 +1,4 @@
+import { getSessionGeneration } from "../../lib/apiSession";
 import { publicV1Request } from "../../lib/api";
 
 export type SocialProvider = "google" | "apple";
@@ -20,6 +21,15 @@ type OidcStartResult = {
   state: string;
   nonce: string;
 };
+
+type OwnershipCheck = () => boolean;
+function ownershipCheck(isOwned: OwnershipCheck = () => true) {
+  const epoch = getSessionGeneration();
+  return () => epoch === getSessionGeneration() && isOwned();
+}
+function requireOwnership(isOwned: OwnershipCheck) {
+  if (!isOwned()) throw new Error("Sign-in is no longer active. Please try again.");
+}
 
 const OIDC_NONCE_PREFIX = "spaceworks.oidc.nonce.";
 
@@ -93,19 +103,31 @@ export async function mountGoogleButton(
   surface: SocialSurface,
   onSuccess: (result: SocialLoginResult) => void,
   onError: (error: Error) => void,
+  isOwned?: OwnershipCheck,
 ) {
+  const current = ownershipCheck(isOwned);
+  requireOwnership(current);
   const { nonce } = await requestNonce("google", surface);
+  requireOwnership(current);
   await loadScript("https://accounts.google.com/gsi/client");
+  requireOwnership(current);
   if (!window.google) throw new Error("Google sign-in is unavailable.");
+  let exchanging = false;
   window.google.accounts.id.initialize({
     client_id: clientId,
     nonce,
     callback: async ({ credential }: { credential?: string }) => {
+      if (!current() || exchanging) return;
       if (!credential) return onError(new Error("Google sign-in was cancelled."));
       try {
-        onSuccess(await complete("google", surface, credential, nonce));
+        exchanging = true;
+        requireOwnership(current);
+        const result = await complete("google", surface, credential, nonce);
+        if (current()) onSuccess(result);
       } catch (error) {
-        onError(error instanceof Error ? error : new Error("Google sign-in failed."));
+        if (current()) onError(error instanceof Error ? error : new Error("Google sign-in failed."));
+      } finally {
+        exchanging = false;
       }
     },
   });
@@ -117,9 +139,13 @@ export async function mountGoogleButton(
   });
 }
 
-export async function signInWithApple(serviceId: string, surface: SocialSurface) {
+export async function signInWithApple(serviceId: string, surface: SocialSurface, isOwned?: OwnershipCheck) {
+  const current = ownershipCheck(isOwned);
+  requireOwnership(current);
   const { nonce } = await requestNonce("apple", surface);
+  requireOwnership(current);
   await loadScript("https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js");
+  requireOwnership(current);
   if (!window.AppleID) throw new Error("Apple sign-in is unavailable.");
   window.AppleID.auth.init({
     clientId: serviceId,
@@ -129,15 +155,21 @@ export async function signInWithApple(serviceId: string, surface: SocialSurface)
     nonce,
   });
   const result = await window.AppleID.auth.signIn();
+  requireOwnership(current);
   const name = [result.user?.name?.firstName, result.user?.name?.lastName].filter(Boolean).join(" ");
-  return complete("apple", surface, result.authorization.id_token, nonce, name);
+  const completed = await complete("apple", surface, result.authorization.id_token, nonce, name);
+  requireOwnership(current);
+  return completed;
 }
 
 export async function beginOidcBrowser(
   slug: string,
   email: string,
   makerspaceSlug: string,
+  isOwned?: OwnershipCheck,
 ) {
+  const current = ownershipCheck(isOwned);
+  requireOwnership(current);
   const redirectUri = `${window.location.origin}${window.location.pathname}`;
   const started = await publicV1Request<OidcStartResult>(
     `/auth/social/oidc/${encodeURIComponent(slug)}/authorize`,
@@ -150,15 +182,19 @@ export async function beginOidcBrowser(
       }),
     },
   );
+  requireOwnership(current);
   try {
     window.sessionStorage.setItem(`${OIDC_NONCE_PREFIX}${started.state}`, started.nonce);
   } catch {
     throw new Error("Browser storage is required for secure identity-provider sign-in.");
   }
+  requireOwnership(current);
   window.location.assign(started.authorization_url);
 }
 
-export async function completeOidcBrowserCallback(): Promise<SocialLoginResult | null> {
+export async function completeOidcBrowserCallback(isOwned?: OwnershipCheck): Promise<SocialLoginResult | null> {
+  const current = ownershipCheck(isOwned);
+  requireOwnership(current);
   const query = new URLSearchParams(window.location.search);
   const code = query.get("code")?.trim() ?? "";
   const state = query.get("state")?.trim() ?? "";
@@ -176,11 +212,14 @@ export async function completeOidcBrowserCallback(): Promise<SocialLoginResult |
   }
   clearOidcQuery();
   if (!nonce) throw new Error("Identity-provider sign-in expired. Please try again.");
-  return publicV1Request<SocialLoginResult>("/auth/social/oidc/callback", {
+  requireOwnership(current);
+  const result = await publicV1Request<SocialLoginResult>("/auth/social/oidc/callback", {
     method: "POST",
     credentials: "include",
     body: JSON.stringify({ code, state, nonce }),
   });
+  requireOwnership(current);
+  return result;
 }
 
 function clearOidcQuery() {

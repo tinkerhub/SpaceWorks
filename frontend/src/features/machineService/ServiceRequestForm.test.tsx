@@ -28,6 +28,7 @@ function pickFilament() {
 }
 
 beforeEach(() => {
+  window.localStorage.clear();
   vi.clearAllMocks();
   presignServiceUpload.mockReset().mockResolvedValue({ queue_id: 8, file_id: 17, upload: { url: "https://objects.example", fields: {} } });
   uploadToStorage.mockReset().mockResolvedValue(undefined);
@@ -49,7 +50,7 @@ describe("uniform service form", () => {
     expect(body).toMatchObject({ machine_type_id: 11, title: "Enclosure", description: "Cut plywood panels", source_link: "https://example.test/design", file_ids: [] });
     for (const field of ["machine_id", "project_brief", "quantity", "material", "consumable_pool_id", "preferred_settings", "capability_payload"]) expect(body).not.toHaveProperty(field);
     expect(presignServiceUpload).not.toHaveBeenCalled();
-    await waitFor(() => expect(view.onSuccess).toHaveBeenCalledWith("private-token"));
+    await waitFor(() => expect(view.onSuccess).toHaveBeenCalledWith("private-token", { saved: true, records: [{ kind: "machine", token: "private-token", saved_at: expect.any(Number) }] }));
     expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
   });
 
@@ -156,7 +157,7 @@ describe("uniform service form", () => {
       machine_type_id: printerType.id, title: "Enclosure", consumable_pool_id: null, file_ids: [17], queue_id: 8,
     });
     expect(uploadToStorage).toHaveBeenCalledOnce();
-    await waitFor(() => expect(view.onSuccess).toHaveBeenCalledWith("private-token"));
+    await waitFor(() => expect(view.onSuccess).toHaveBeenCalledWith("private-token", { saved: true, records: [{ kind: "machine", token: "private-token", saved_at: expect.any(Number) }] }));
   });
 
   it.each(["presign", "bytes", "submit"])("keeps drafts and reports %s failures without claiming success", async (failure) => {
@@ -186,13 +187,15 @@ describe("uniform service form", () => {
     attach(/^attachments/i, new File(["%PDF-"], "plan.pdf", { type: "application/pdf" }));
     submit();
     await waitFor(() => expect(uploadToStorage).toHaveBeenCalledOnce());
+    expect(view.onPendingChange).toHaveBeenCalledWith(true, expect.any(Object));
+    const admittedAction = view.onPendingChange.mock.calls[0][1];
     expect(screen.getByLabelText(/^title$/i)).toBeDisabled();
     expect(submitServiceRequest).not.toHaveBeenCalled();
     await act(async () => bytes.resolve());
     await waitFor(() => expect(submitServiceRequest).toHaveBeenCalledOnce());
     expect(screen.getByLabelText(/^title$/i)).toBeDisabled();
     await act(async () => request.resolve({ public_token: "saved", status: "pending" }));
-    await waitFor(() => expect(view.onPendingChange).toHaveBeenLastCalledWith(false));
+    await waitFor(() => expect(view.onPendingChange).toHaveBeenLastCalledWith(false, admittedAction));
     expect(screen.getByLabelText(/^title$/i)).toBeEnabled();
   });
 });

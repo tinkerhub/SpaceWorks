@@ -1,0 +1,38 @@
+**APPROVED — bounded Stage 1 plan only.** The retained-reference approach addresses the actual OIDC/raw-lock and native/tracked-lock callers.
+
+Implementation must preserve these details:
+
+- Verify dedicated-reference continuity on **tracked reuse too**, including nested assertions. Resolve raw reuse before the application-atomic acquisition branch. SQL-owned contexts keep their existing transaction behavior.
+- Verification failure must still allow the original reference’s rollback/close cleanup. Do not copy the exclusive verifier’s `acquired=False` behavior into shared verification: shared `release()` would skip cleanup.
+- A registered but released/lost reference must fail closed, never fall through to acquisition. Retained raw holders must also prevent exclusive upgrade before connection creation.
+- Reject the entire lower-new-key case **before acquiring any new N**. Held Origin keys affect ordering only; required admission remains the DB-derived membership set. Exclude P=0.
+- Preserve the exact Membership→User OIDC correction and hook-only `of=("self",)` change. The inspected OIDC snapshot still has User first; finish and reread the policy writer before source implementation.
+
+The reviewed guards do not require registry changes for this delta. Preserve independent raw-reference cleanup, SQL-owner retention through outer commit, and exclusive counter-owner tests. Stage 3 must demonstrate the queued-exclusive case using the **same retained PID, transaction and exact key**, alongside loss/refusal and actual-transition rollback cases.
+
+One caller limitation: [admin_user_control.py:177](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/accounts/admin_user_control.py:177) replaces gate exceptions with generic “retry shortly” text. A readable central-origin exception will reach OIDC’s gate response, but currently will not appear in the native admin message. Do not claim otherwise or expand this source writer’s scope.
+
+Suggested upgrade wording:
+
+> Converting a walk-in record into an account is temporarily blocked when any linked makerspace is frozen, including links through inactive or revoked memberships. Rare multi-makerspace attempts from a dedicated origin may require retrying from the central origin to preserve lock order.
+
+SHA-256 of inspected source, paths relative to `backend/apps/`:
+
+```text
+tenant_migration/gate_locks.py
+e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815
+tenant_migration/gate_runtime.py
+f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60
+accounts/claim_transition_gate.py
+b6e0ea497353739bebb022f795c4ab668e341a3a872a4a84209f1a47fd0bc9fb
+accounts/services_claim.py
+2006ca311d33d0d10c26f53947b48d5c9c63a6a5509a8bf2024f379239cb2491
+accounts/oidc_browser_resolution.py
+9a029eddfeac7793089652c038ccef585eb094a0db2df57d19f27892ed856c0a
+accounts/admin_user_control.py
+78489b4b6b4ac7850b4afaeefbd41e01cdb7cc8bb22401a6a8d3e613d7c6a3ff
+accounts/transition_services.py
+744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b
+```
+
+Read-only source review completed. No edits, application runtime, imports, tests, or builds.

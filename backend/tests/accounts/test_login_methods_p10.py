@@ -21,6 +21,7 @@ from tests.accounts.test_social_auth import (
     login as social_login,
     mock_claims,
     nonce,
+    register_social_member_origin,  # noqa: F401 -- shared autouse fixture
 )
 
 pytestmark = pytest.mark.django_db

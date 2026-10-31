@@ -1,0 +1,3 @@
+# Bounded Stage2 path screening correction
+
+Parent approved the existing path-safety verification delta. _plain_members now tracks regular paths and implied parent paths and rejects a regular file plus its descendant in either archive order. Legitimate explicit directory entries and implied parents remain legal, including the PAX safe-value correction. Previously full extraction failed inside its fresh private tree before configuration, services or SQL; no escape or live-target corruption was demonstrated. Only host_restore_files.py, its exact restore.sh digest and the current combined source/copy freeze changed. Historical records remain unchanged. No runtime was executed; strict separate Stage3 cases follow.

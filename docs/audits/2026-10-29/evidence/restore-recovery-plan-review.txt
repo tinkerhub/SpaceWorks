@@ -1,0 +1,25 @@
+**Required deltas — not yet APPROVED.** Durable refusal/manual recovery is acceptable. A target-owned queue generation is a suitably small correction for the admitted single-queue topology.
+
+1. **Bind the actual SQL transport to the verified target.** The shell dumps/restores `$POSTGRES_DB` inside `db`, while application commands use the pointer. Before effects, independently prove both select the same endpoint/database/OID/UUID. Refuse mismatches rather than adding a new topology adapter. See [restore.sh](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/restore.sh:197).
+
+2. **Verify effective configuration, beyond file hashes.** `configuration_facts()` fingerprints files; the wrapper removes only two inherited variables. Shell overrides can still replace continuity keys, task generation, images or host mounts. Specify a scrubbed launch environment and verify the resolved configuration for every admitted producer/consumer. See [wrapper](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/spaceworks-compose.sh:87).
+
+3. **Complete the different-key preflight sequence.** Changing archive registration alone is insufficient: restore preflight still requires installed-environment compatibility, including its subsequent settings check. Explicitly define prospective admission under OLD settings through claim/quiescence, then strict installed-env admission under NEW settings before SQL. Keep ordinary callers strict. See [backup_control_preflight.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/backup_control_preflight.py:90).
+
+4. **Place the diff decision before backend shutdown.** The existing decision window depends on the console. Preserve the quiesced backend until proceed/reset/abort is durably recorded, then install the blocked state and prove shutdown before configuration or SQL effects. Define the untouched abort path explicitly. See [restore.sh](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/restore.sh:203).
+
+5. **Specify every successful host transition and its recovery transport.**
+   - Define checked `restore-blocked → normal/acknowledged-normal` for successful non-reset restore; A currently describes only advancement to quarantine.
+   - Use dependency-free startup: ordinary backend startup depends on orchestration/migration services that quarantine refuses.
+   - Name the fixed transport for `recover_superadmin`; quarantine admits backend only, so a new management-role container is refused.
+   - Distinguish acknowledgement resume from non-reset completion: the latter clears `active_restore`.
+   
+   See [host transitions](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/host_supervisor.py:135), [Compose dependencies](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/docker-compose.prod.yml:217), and [completion](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/restore_services.py:163).
+
+6. **Replace “existing DB/object validation” with a concrete proof.** Current restored-state validation checks application/configuration readiness, not restored object bytes; object replacement lacks final digest readback. Specify complete object-set verification against the admitted ledger before successful release, including expired-object absence. Failure recovery remains blocked when no independent rollback proof exists. See [validation](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/restore_control_records.py:140) and [object restore](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/object_restore.py:22).
+
+7. **Resolve historical operation identity explicitly.** Historical manifests lack `capture_id`, but the proposed blocked marker requires exact `OperationIdentity`. Define a durable, explicitly local legacy binding without implying signed capture provenance, or refuse those formats before effects. See [historical manifest shape](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/archive_payload.py:106).
+
+Stage 3 should cover these paths plus queue consumption/redelivery isolation for queued, unacked and ETA messages—not merely queue-setting assertions.
+
+No files changed, tests run, credentials inspected or runtime actions performed.

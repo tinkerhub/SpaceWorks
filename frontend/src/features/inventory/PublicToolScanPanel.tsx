@@ -1,17 +1,14 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 
 import { QrCode } from "lucide-react";
 
-import { Button, Callout, Card, CheckboxField, ErrorText, Field, Textarea, useToast } from "../../components/ui";
+import { Button, Callout, Card, CheckboxField, ErrorText, Field, Textarea } from "../../components/ui";
 import QrScanner from "../../components/ui/QrScanner";
 import type { PublicToolLoan } from "../../types/inventory";
-import { invalidatePublicInventory } from "../staff/queryInvalidation";
-import {
-  publicToolCheckout,
-  publicToolReturn,
-  type CheckinMatch,
-} from "./api";
+import { getSessionGeneration } from "../../lib/apiSession";
+import { useAuthActionOwner, type AuthAction } from "../auth/useAuthActionOwner";
+import { usePublicToolOperation } from "./usePublicToolOperation";
+import type { CheckinMatch } from "./api";
 import { CheckinIdentityStep } from "./CheckinIdentityStep";
 import { PendingToolCheckoutControls } from "./PendingToolCheckoutControls";
 import { PublicEvidenceUpload } from "./PublicEvidenceUpload";
@@ -42,19 +39,32 @@ function LoanResult({ loan }: { loan: PublicToolLoan }) {
   );
 }
 
-export function PublicToolScanPanel({
-  makerspaceSlug,
-  requiresCheckin = false,
-}: PublicToolScanPanelProps) {
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
-  const [confirmedCheckin, setConfirmedCheckin] = useState<CheckinMatch | null>(
-    null,
-  );
+export function PublicToolScanPanel(props: PublicToolScanPanelProps) {
+  const scope = JSON.stringify([props.makerspaceSlug, props.requiresCheckin, getSessionGeneration()]);
+  return <PublicToolScanDesk key={scope} {...props} />;
+}
+
+function PublicToolScanDesk({ makerspaceSlug, requiresCheckin = false }: PublicToolScanPanelProps) {
+  const [confirmed, setConfirmed] = useState<CheckinMatch | null>(null);
+  const [visit, setVisit] = useState(0);
+  const owner = useAuthActionOwner(JSON.stringify([makerspaceSlug, visit, confirmed?.mid, confirmed?.name]));
+  return <PublicToolScanContent key={visit} makerspaceSlug={makerspaceSlug} requiresCheckin={requiresCheckin}
+    confirmedCheckin={confirmed} owner={owner} onConfirm={(match) => {
+      const transition = owner.begin();
+      if (!transition) return;
+      if (confirmed?.mid === match?.mid && confirmed?.name === match?.name) { owner.finish(transition); return; }
+      setConfirmed(match); setVisit((current) => current + 1);
+    }} />;
+}
+
+function PublicToolScanContent({ makerspaceSlug, requiresCheckin, confirmedCheckin, owner, onConfirm }: {
+  makerspaceSlug: string; requiresCheckin: boolean; confirmedCheckin: CheckinMatch | null;
+  owner: ReturnType<typeof useAuthActionOwner>; onConfirm: (match: CheckinMatch | null) => void;
+}) {
   const [pendingPayloads, setPendingPayloads] = useState<string[]>([]);
   const [returnPayload, setReturnPayload] = useState("");
-  const [scannerTarget, setScannerTarget] = useState<"both" | "checkout">("both");
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const activeScanner = useRef<AuthAction | null>(null);
+  const [scanner, setScanner] = useState<{ action: AuthAction; target: "both" | "checkout" } | null>(null);
   const [issueEvidenceId, setIssueEvidenceId] = useState<number | null>(null);
   const [returnEvidenceId, setReturnEvidenceId] = useState<number | null>(null);
   const [returnRemark, setReturnRemark] = useState("");
@@ -67,60 +77,34 @@ export function PublicToolScanPanel({
     requiresCheckin && confirmedCheckin
       ? { name: confirmedCheckin.name, checkin_mid: confirmedCheckin.mid }
       : {};
-  const checkout = useMutation({
-    mutationFn: () =>
-      publicToolCheckout(makerspaceSlug, {
-        ...(pendingPayloads.length === 1
-          ? { payload: pendingPayloads[0] }
-          : { qr_payloads: pendingPayloads }),
-        evidence_id: issueEvidenceId as number,
-        ...checkinPayload,
-      }),
-    onSuccess: () => {
-      invalidatePublicInventory(queryClient, makerspaceSlug);
-      setPendingPayloads([]);
-      setIssueEvidenceId(null);
-      setUploadKey((key) => key + 1);
-      showToast("Tool checked out", { tone: "success" });
-    },
-    onError: () => showToast("Checkout failed", { tone: "error" }),
-  });
-  const returnTool = useMutation({
-    mutationFn: (payload: string) =>
-      publicToolReturn(makerspaceSlug, {
-        payload,
-        evidence_id: returnEvidenceId as number,
-        remark: returnRemark.trim(),
-        report_problem: reportProblem,
-        problem_note: reportProblem ? problemNote.trim() : "",
-        ...checkinPayload,
-      }),
-    onSuccess: (_, payload) => {
-      invalidatePublicInventory(queryClient, makerspaceSlug);
+  const loan = usePublicToolOperation(makerspaceSlug, owner, (input) => {
+    if (input.operation === "checkout") {
+      setPendingPayloads([]); setIssueEvidenceId(null);
+    } else {
       setReturnPayload("");
-      // A tool scanned for both desks is back, so it must not go out again on this checkout.
-      setPendingPayloads((current) => current.filter((item) => item !== payload));
-      setReturnEvidenceId(null);
-      setReturnRemark("");
-      setReportProblem(false);
-      setProblemNote("");
-      setUploadKey((key) => key + 1);
-      showToast("Tool returned", { tone: "success" });
-    },
-    onError: () => showToast("Return failed", { tone: "error" }),
+      setPendingPayloads((current) => current.filter((item) => item !== input.body.payload));
+      setReturnEvidenceId(null); setReturnRemark(""); setReportProblem(false); setProblemNote("");
+    }
+    setIssueEvidenceId(null); setReturnEvidenceId(null);
+    setUploadKey((key) => key + 1);
   });
+  const canEdit = () => owner.isContextCurrent() && !owner.isPending();
+  function openScanner(target: "both" | "checkout") {
+    if (!canEdit() || !identityReady) return;
+    const action = owner.capture();
+    if (action) { activeScanner.current = action; setScanner({ action, target }); }
+  }
   const checkoutDisabled =
-    !identityReady ||
+    !identityReady || loan.pending ||
     pendingPayloads.length === 0 ||
     issueEvidenceId === null;
   const returnDisabled =
-    !identityReady ||
+    !identityReady || loan.pending ||
     !effectiveReturnPayload ||
     returnEvidenceId === null ||
     !returnRemark.trim() ||
     (reportProblem && !problemNote.trim());
-  const error = checkout.error?.message ?? returnTool.error?.message;
-  const result = checkout.data ?? returnTool.data;
+  const { error, result } = loan;
 
   return (
     <Card className="@container">
@@ -134,13 +118,8 @@ export function PublicToolScanPanel({
           <CheckinIdentityStep
             makerspaceSlug={makerspaceSlug}
             confirmed={confirmedCheckin}
-            onConfirm={(match) => {
-              setConfirmedCheckin(match);
-              setIssueEvidenceId(null);
-              setReturnEvidenceId(null);
-              setUploadKey((key) => key + 1);
-            }}
-            disabled={checkout.isPending || returnTool.isPending}
+            onConfirm={onConfirm}
+            disabled={loan.pending}
           />
         </div>
       ) : null}
@@ -148,18 +127,15 @@ export function PublicToolScanPanel({
         className="mt-4"
         fullWidth
         startIcon={<QrCode />}
-        disabled={!identityReady || checkout.isPending || returnTool.isPending}
-        onClick={() => {
-          setScannerTarget("both");
-          setScannerOpen(true);
-        }}
+        disabled={!identityReady || loan.pending}
+        onClick={() => openScanner("both")}
       >
         Scan QR with camera
       </Button>
       {returnPayload ? (
         <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-success-bg py-0.5 pl-3 pr-1 text-sm font-semibold text-success-fg">
           Scanned OK
-          <Button variant="quiet" size="sm" className="text-success-fg hover:text-success-fg" onClick={() => setReturnPayload("")}>
+          <Button variant="quiet" size="sm" className="text-success-fg hover:text-success-fg" disabled={loan.pending} onClick={() => { if (canEdit()) setReturnPayload(""); }}>
             Clear
           </Button>
         </p>
@@ -169,20 +145,16 @@ export function PublicToolScanPanel({
           <h3 className="text-title text-ink">Check out</h3>
           <PendingToolCheckoutControls
             payloads={pendingPayloads}
-            isPending={checkout.isPending}
+            isPending={loan.pending}
             submitDisabled={checkoutDisabled}
-            onRemove={(payload) =>
-              setPendingPayloads((current) =>
-                current.filter((item) => item !== payload),
-              )
-            }
-            onScanAnother={() => {
-              setScannerTarget("checkout");
-              setScannerOpen(true);
-            }}
+            onRemove={(payload) => { if (canEdit()) setPendingPayloads((current) => current.filter((item) => item !== payload)); }}
+            onScanAnother={() => openScanner("checkout")}
             onSubmit={() => {
-              returnTool.reset();
-              checkout.mutate();
+              if (checkoutDisabled) return;
+              loan.submit({ operation: "checkout", body: {
+                ...(pendingPayloads.length === 1 ? { payload: pendingPayloads[0] } : { qr_payloads: [...pendingPayloads] }),
+                evidence_id: issueEvidenceId as number, ...checkinPayload,
+              } });
             }}
           >
             <div className="mt-3">
@@ -193,8 +165,8 @@ export function PublicToolScanPanel({
                 checkinIdentity={
                   requiresCheckin ? confirmedCheckin ?? undefined : undefined
                 }
-                disabled={!identityReady || checkout.isPending}
-                onUploaded={setIssueEvidenceId}
+                disabled={!identityReady || loan.pending}
+                onUploaded={(id) => { if (canEdit()) setIssueEvidenceId(id); }}
               />
             </div>
           </PendingToolCheckoutControls>
@@ -208,25 +180,28 @@ export function PublicToolScanPanel({
             checkinIdentity={
               requiresCheckin ? confirmedCheckin ?? undefined : undefined
             }
-            disabled={!identityReady || returnTool.isPending}
-            onUploaded={setReturnEvidenceId}
+            disabled={!identityReady || loan.pending}
+            onUploaded={(id) => { if (canEdit()) setReturnEvidenceId(id); }}
           />
           <Field label="Return condition notes">
-            <Textarea rows={3} className="min-h-20" value={returnRemark} onChange={(event) => setReturnRemark(event.target.value)} />
+            <Textarea rows={3} className="min-h-20" disabled={loan.pending} value={returnRemark} onChange={(event) => { if (canEdit()) setReturnRemark(event.target.value); }} />
           </Field>
           <CheckboxField
             label="Report a problem with this tool"
-            checked={reportProblem}
-            onCheckedChange={(checked) => setReportProblem(checked === true)}
+            checked={reportProblem} disabled={loan.pending}
+            onCheckedChange={(checked) => { if (canEdit()) setReportProblem(checked === true); }}
           />
           {reportProblem ? (
             <Field label="What's wrong?" helperText="Staff will review it.">
-              <Textarea rows={2} className="min-h-16" value={problemNote} onChange={(event) => setProblemNote(event.target.value)} />
+              <Textarea rows={2} className="min-h-16" disabled={loan.pending} value={problemNote} onChange={(event) => { if (canEdit()) setProblemNote(event.target.value); }} />
             </Field>
           ) : null}
-          <Button fullWidth disabled={returnDisabled} loading={returnTool.isPending} loadingLabel="Returning…" onClick={() => {
-            checkout.reset();
-            returnTool.mutate(effectiveReturnPayload);
+          <Button fullWidth disabled={returnDisabled} loading={loan.pending} loadingLabel="Returning…" onClick={() => {
+            if (returnDisabled) return;
+            loan.submit({ operation: "return", body: {
+              payload: effectiveReturnPayload, evidence_id: returnEvidenceId as number, remark: returnRemark.trim(),
+              report_problem: reportProblem, problem_note: reportProblem ? problemNote.trim() : "", ...checkinPayload,
+            } });
           }}>
             Return
           </Button>
@@ -238,19 +213,24 @@ export function PublicToolScanPanel({
           <LoanResult loan={result} />
         </div>
       ) : null}
-      {scannerOpen ? (
+      {scanner && owner.isCurrent(scanner.action) ? (
         <QrScanner
-          onClose={() => setScannerOpen(false)}
+          onClose={() => {
+            if (owner.isCurrent(scanner.action) && activeScanner.current === scanner.action) {
+              activeScanner.current = null; setScanner(null);
+            }
+          }}
           onScan={(scanned) => {
+            if (!owner.isCurrent(scanner.action) || activeScanner.current !== scanner.action || !canEdit()) return;
             const normalized = scanned.trim();
             if (!normalized) return;
             setPendingPayloads((current) =>
               current.includes(normalized) ? current : [...current, normalized],
             );
-            if (scannerTarget === "both") {
+            if (scanner.target === "both") {
               setReturnPayload(normalized);
             }
-            setScannerOpen(false);
+            activeScanner.current = null; setScanner(null);
           }}
         />
       ) : null}

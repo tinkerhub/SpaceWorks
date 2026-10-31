@@ -2,6 +2,7 @@
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -100,8 +101,16 @@ def create_event(
     return _refresh(event)
 
 
-@transaction.atomic
 def update_event(event, *, actor, inherit_fields=(), **changes):
+    if "image_key" not in inherit_fields:
+        return _update_event(event, actor=actor, inherit_fields=inherit_fields, **changes)
+    with storage_lifecycle(event.makerspace_id) as guard:
+        guard.verify()
+        return _update_event(event, actor=actor, inherit_fields=inherit_fields, guard=guard, **changes)
+
+
+@transaction.atomic
+def _update_event(event, *, actor, inherit_fields=(), guard=None, **changes):
     from apps.events.services_calendar import CALENDAR_EVENT_FIELDS, calendar_event_changed
 
     locked = _locked_event(event.pk)
@@ -187,7 +196,7 @@ def update_event(event, *, actor, inherit_fields=(), **changes):
             from apps.inventory import public_image_storage
 
             public_image_storage.release_public_image_on_commit(
-                locked.makerspace, old_image_key
+                locked.makerspace, old_image_key, guard=guard
             )
     meta = {"changed_fields": sorted(changes)}
     if inherit_fields:

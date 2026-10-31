@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
 
 import { Button, ConfirmDialog, ErrorText, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
 import { errorText } from "./shared";
+
+import { useAuthActionOwner } from "../../auth/useAuthActionOwner";
+import { getSessionGeneration } from "../../../lib/apiSession";
+import { admitUpload, uploadBytes, type UploadGuard } from "../../../lib/uploadProtocol";
 
 export type ToBuyReceipt = {
   id: number;
@@ -25,60 +28,90 @@ type UploadResponse = {
 
 const acceptedReceiptTypes = "application/pdf,image/jpeg,image/png,image/webp";
 
-export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: number; receipts: ToBuyReceipt[]; onChanged: () => void }) {
+type Props = { itemId: number; receipts: ToBuyReceipt[]; onChanged: () => void };
+export function ProcurementReceipts(props: Props) {
+  return <OwnedProcurementReceipts key={`${props.itemId}:${getSessionGeneration()}`} {...props} />;
+}
+function OwnedProcurementReceipts({ itemId, receipts, onChanged }: Props) {
+  const uploadOwner = useAuthActionOwner(itemId);
+  const removeOwner = useAuthActionOwner(itemId);
+  const viewOwner = useAuthActionOwner(itemId);
+  const [uploading, setUploading] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<ToBuyReceipt | null>(null);
   const { showToast } = useToast();
 
-  const upload = useMutation({
-    mutationFn: async (files: File[]) => {
-      for (const file of files) {
-        await uploadReceipt(itemId, file);
-      }
-      return files.length;
-    },
-    onSuccess: (count) => {
-      setError("");
-      if (inputRef.current) inputRef.current.value = "";
-      onChanged();
-      showToast(count === 1 ? "Receipt added." : `${count} receipts added.`, { tone: "success" });
-    },
-    onError: (err) => {
-      // Files uploaded before the failure are already attached, so refresh either way.
-      if (inputRef.current) inputRef.current.value = "";
-      onChanged();
+  async function upload(files: File[]) {
+    if (!uploadOwner.isIntentCurrent()) return;
+    const action = uploadOwner.begin();
+    if (!action) return;
+    const guard = admitUpload(() => uploadOwner.isCurrent(action));
+    const batch = [...files];
+    setUploading(true);
+    setError("");
+    try {
+      for (const file of batch) await uploadReceipt(itemId, file, guard);
+      guard.assertCurrent();
+      showToast(batch.length === 1 ? "Receipt added." : `${batch.length} receipts added.`, { tone: "success" });
+    } catch (err) {
+      if (!uploadOwner.isCurrent(action)) return;
       const message = errorText(err, "Upload failed.");
       setError(message);
       showToast(message, { tone: "error" });
-    },
-  });
-
-  const remove = useMutation({
-    mutationFn: (receiptId: number) => staffRequest<void>(`/procurement/to-buy/receipts/${receiptId}`, { method: "DELETE" }),
-    onSuccess: () => {
+    } finally {
+      if (uploadOwner.isCurrent(action)) {
+        if (inputRef.current) inputRef.current.value = "";
+        // Earlier files may have attached even if a later file failed.
+        setUploading(false);
+        onChanged();
+      }
+      uploadOwner.finish(action);
+    }
+  }
+  async function remove() {
+    if (!deleteTarget || !removeOwner.isIntentCurrent()) return;
+    const action = removeOwner.begin();
+    if (!action) return;
+    const id = deleteTarget.id;
+    setRemoving(true);
+    setError("");
+    try {
+      await staffRequest<void>(`/procurement/to-buy/receipts/${id}`, { method: "DELETE" });
+      if (!removeOwner.isCurrent(action)) return;
       setDeleteTarget(null);
       onChanged();
       showToast("Receipt deleted.", { tone: "success" });
-    },
-    onError: (err) => {
+    } catch (err) {
+      if (!removeOwner.isCurrent(action)) return;
       const message = errorText(err, "Could not delete receipt.");
       setError(message);
       showToast(message, { tone: "error" });
-    },
-  });
-
+    } finally {
+      if (removeOwner.isCurrent(action)) setRemoving(false);
+      removeOwner.finish(action);
+    }
+  }
   async function openReceipt(receiptId: number) {
+    if (!viewOwner.isIntentCurrent()) return;
+    const action = viewOwner.begin();
+    if (!action) return;
     setError("");
     try {
       const { url } = await staffRequest<{ url: string }>(`/procurement/to-buy/receipts/${receiptId}/url`);
-      window.open(url, "_blank", "noopener");
+      if (viewOwner.isCurrent(action)) window.open(url, "_blank", "noopener");
     } catch (err) {
+      if (!viewOwner.isCurrent(action)) return;
       const message = errorText(err, "Could not open receipt.");
       setError(message);
       showToast(message, { tone: "error" });
+    } finally {
+      viewOwner.finish(action);
     }
   }
+  const canSelect = () => uploadOwner.isIntentCurrent() && !uploadOwner.isPending();
+  const canRemove = () => removeOwner.isIntentCurrent() && !removeOwner.isPending();
 
   return (
     <div className="grid gap-3">
@@ -91,7 +124,7 @@ export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: n
                 {receipt.uploaded_by_username ? <span className="text-ink-muted"> · {receipt.uploaded_by_username}</span> : null}
               </span>
               <Button size="sm" variant="quiet" onClick={() => openReceipt(receipt.id)}>View</Button>
-              <Button size="sm" variant="danger-quiet" disabled={remove.isPending} onClick={() => setDeleteTarget(receipt)}>Delete…</Button>
+              <Button size="sm" variant="danger-quiet" disabled={removing} onClick={() => { if (canRemove()) setDeleteTarget(receipt); }}>Delete…</Button>
             </li>
           ))}
         </ul>
@@ -105,14 +138,14 @@ export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: n
           type="file"
           multiple
           accept={acceptedReceiptTypes}
-          disabled={upload.isPending}
+          disabled={uploading}
           onChange={(event) => {
             const files = Array.from(event.target.files ?? []);
-            if (files.length) upload.mutate(files);
+            if (files.length && canSelect()) void upload(files);
           }}
           className="sr-only"
         />
-        <Button size="sm" startIcon={<Upload />} loading={upload.isPending} loadingLabel="Uploading…" onClick={() => inputRef.current?.click()}>
+        <Button size="sm" startIcon={<Upload />} loading={uploading} loadingLabel="Uploading…" onClick={() => { if (canSelect()) inputRef.current?.click(); }}>
           Add receipt
         </Button>
         <span className="text-caption text-ink-muted">PDF, JPEG, PNG or WebP</span>
@@ -124,15 +157,16 @@ export function ProcurementReceipts({ itemId, receipts, onChanged }: { itemId: n
         message={deleteTarget ? `The receipt added ${formatDateTime(deleteTarget.created_at)} will be removed.` : ""}
         confirmLabel="Delete receipt"
         tone="danger"
-        pending={remove.isPending}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); }}
+        pending={removing}
+        onCancel={() => { if (canRemove()) setDeleteTarget(null); }}
+        onConfirm={() => { void remove(); }}
       />
     </div>
   );
 }
 
-async function uploadReceipt(itemId: number, file: File) {
+async function uploadReceipt(itemId: number, file: File, guard: UploadGuard = admitUpload()) {
+  guard.assertCurrent();
   const presigned = await staffRequest<UploadResponse>(`/procurement/to-buy/${itemId}/receipts/presign`, {
     method: "POST",
     body: JSON.stringify({
@@ -141,25 +175,15 @@ async function uploadReceipt(itemId: number, file: File) {
     }),
   });
 
-  if (presigned.upload.method === "PUT") {
-    const response = await fetch(presigned.upload.url, {
-      method: "PUT",
-      body: file,
-      headers: presigned.upload.headers,
-    });
-    if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
-  } else {
-    const formData = new FormData();
-    Object.entries(presigned.upload.fields ?? {}).forEach(([key, value]) => formData.append(key, value));
-    formData.append("file", file);
-    const response = await fetch(presigned.upload.url, { method: "POST", body: formData });
-    if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
-  }
+  await uploadBytes(file, presigned.upload, guard);
+  guard.assertCurrent();
 
-  return staffRequest(`/procurement/to-buy/${itemId}/receipts`, {
+  const receipt = await staffRequest(`/procurement/to-buy/${itemId}/receipts`, {
     method: "POST",
     body: JSON.stringify({ object_key: presigned.object_key }),
   });
+  guard.assertCurrent();
+  return receipt;
 }
 
 function formatDateTime(value: string) {

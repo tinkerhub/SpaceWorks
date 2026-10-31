@@ -30,6 +30,43 @@ ask_request_access() {
   esac
 }
 
+ask_setup_identity() {
+  if [[ "${REQUEST_ACCESS:-accounts}" == checked_in ]]; then
+    ADMINEMAIL=''
+    GOOGLE_WEB_CLIENT_ID=''
+    read -r -p "Admin login username [admin]: "                             ADMINUSER; ADMINUSER="${ADMINUSER:-admin}"
+    read -r -s -p "Admin password (leave blank to auto-generate): "         ADMINPASS; echo
+    GEN_PASS=0
+    if [ -z "$ADMINPASS" ]; then ADMINPASS="$(rand_key 16)"; GEN_PASS=1; fi
+    return 0
+  fi
+  read -r -p "Admin login username [admin]: "                             ADMINUSER; ADMINUSER="${ADMINUSER:-admin}"
+  read -r -p "Admin email [admin@example.com]: "                          ADMINEMAIL; ADMINEMAIL="${ADMINEMAIL:-admin@example.com}"
+  read -r -s -p "Admin password (leave blank to auto-generate): "         ADMINPASS; echo
+  GEN_PASS=0
+  if [ -z "$ADMINPASS" ]; then ADMINPASS="$(rand_key 16)"; GEN_PASS=1; fi
+  # Google sign-in is GUIDED, never automatic. Client IDs are issued by Google against
+  # a specific origin, so no credential can ship in the box and "works out of the box"
+  # is impossible here -- guided is the ceiling. Skipping leaves username/password
+  # login fully working, which is the only login a fresh install has either way.
+  echo
+  echo "Optional: Google sign-in. To enable it you need a Google OAuth client ID:"
+  echo "  1. Open https://console.cloud.google.com/apis/credentials"
+  echo "  2. Create Credentials -> OAuth client ID -> Web application"
+  echo "  3. Add this to 'Authorised JavaScript origins':  http://${WEBHOST}"
+  echo "  4. Copy the Client ID (it ends in .apps.googleusercontent.com)"
+  echo "Leave blank to skip — you can add it later in Platform settings."
+  read -r -p "Google Web client ID (optional): " GOOGLE_WEB_CLIENT_ID
+  GOOGLE_WEB_CLIENT_ID="$(printf '%s' "$GOOGLE_WEB_CLIENT_ID" | tr -d '[:space:]')"
+  if [ -n "$GOOGLE_WEB_CLIENT_ID" ] && [[ "$GOOGLE_WEB_CLIENT_ID" != *.apps.googleusercontent.com ]]; then
+    # Caught here rather than at first login: a wrong value makes the Google button
+    # appear and then fail token verification for every user, with nothing on screen
+    # explaining why.
+    warn "That does not look like a Google client ID; skipping Google sign-in."
+    GOOGLE_WEB_CLIENT_ID=""
+  fi
+}
+
 ask_checkin_settings() {
   local url space_id purpose reason=""
   local url_pattern='^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._~/?&=%:+-]*)?$'

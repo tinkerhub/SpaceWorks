@@ -1,0 +1,2376 @@
+{
+  "status": "passed within the frozen cancellation/backend compatibility scope; final whole-branch review and owner QA remain separate",
+  "feature": "Staff with existing REJECT_REQUEST authority can cancel an accepted wholly unissued hardware request, releasing only its attributable reservation and preserving approval and immutable history.",
+  "source": {
+    "approved_source_files": 4840,
+    "approved_source_inventory_sha256": "1d05894c5f7f0a58873c80e1895f17b0f8476d6d349d59bfd019fb70bdd88ef9",
+    "source_frame_construction": "Pre-cancellation old52 complete dependency frame plus exactly34 root-reviewed cancellation source/doc overlays. Unrelated later own-history/notification source is deliberately outside this functional frame.",
+    "initial_current_files": 4847,
+    "initial_current_inventory_sha256": "9c178e1e1425af4bbeceb23c9c510f63adf99cdb2873facd6de61a481f6c229d",
+    "final_current_files": 4847,
+    "final_current_inventory_sha256": "fcb0d02c469a27d43b039508f0e265b9a468c3ee62a94c8b879fc12bba143255",
+    "final_frame_delta": "Only two root-approved fixture-line repairs; all production code, other tests, modes, environment and deadlines unchanged.",
+    "reviewed_source_paths": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "e547b982d5e1153a73a444fa71eb6fb0b8ebb0cef292843743ee49972f858ca0",
+        "mode": 420
+      },
+      {
+        "path": "CLAUDE.md",
+        "sha256": "e547b982d5e1153a73a444fa71eb6fb0b8ebb0cef292843743ee49972f858ca0",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/data_export/classification.py",
+        "sha256": "7d5b683f473f7b2e706e278175ee1c9b8516ad30d9389367b958446636ab50cc",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/encryption/migrations/0009_request_cancellation_pii_fence.py",
+        "sha256": "0d4a41e1c10efa3697de7301652ad38a5ba4617edaa0a1cbab218c8b73c0eaf7",
+        "mode": 384
+      },
+      {
+        "path": "backend/apps/encryption/registry.py",
+        "sha256": "88010db726db578bd627acc59d7bd3e68920390c39b1d9d305ce8c657871993c",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/admin_request_review.py",
+        "sha256": "ff63803f37e006e7b37c9f0ffc4f4a034b514dd5c085cda2119b2db85d7f6b33",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/admin_requests.py",
+        "sha256": "af6ac8c4f1543a96a0fecfabb3f59b9dc74a326d2e1b31d3193fdcfe0b271592",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/cancellation_workflow.py",
+        "sha256": "16263ba9f7b9f07c376c935ed52f533eeb0aa9e75c208097c4f7381fb0864cb4",
+        "mode": 384
+      },
+      {
+        "path": "backend/apps/hardware_requests/handover_workflow.py",
+        "sha256": "f7dc3756e7322fc6b1ce220be055f22cb120da9e55ba0a97cad34cc497bbb675",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/migrations/0026_request_cancellation.py",
+        "sha256": "c45bb8cc35ff2430bc6fb3b45df77f7b13a1fe2aeafc3c178f1c515ae7d41dff",
+        "mode": 384
+      },
+      {
+        "path": "backend/apps/hardware_requests/models.py",
+        "sha256": "54108b49ff97e6c4e4b66cc8775030b75de788a1c33f9cf538d118963d62ce5d",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/notifications.py",
+        "sha256": "0f2db55c0fee4bc45385f83346ff058a6287b746a532d3bd360e81d158cfe097",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/permissions.py",
+        "sha256": "6fc837b67544b2aea5344b221af22d9f9b8b8acbd17a6150b4a9e6ab5a747505",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/queue_views.py",
+        "sha256": "00854de0c4ee52d3788f724b11d1b736679034f90d8b681ae40f68ae6a6a28d7",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/review_views.py",
+        "sha256": "cf741af0746af47a27954400327a71fa66be004f2d6e5cc6b35267e0840ae410",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/serializers.py",
+        "sha256": "0a5ef36f83abc228c83cc1cb4821afdacc8f43d13f9ad0f1a9b05cd0843b143c",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/serializers_admin.py",
+        "sha256": "44ad21f3ee77327c4659834a54a8d3665180ffb1a2afe87f36aa311249fa23dd",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/timeline_service_requests.py",
+        "sha256": "a822385ebd803a7b9e42ff8c803a5880c2446cacd99f0fafd03004ebdcbf4bb7",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/urls.py",
+        "sha256": "d10db07b3d4fb8275b54bd40665ad036732c0f2433f8407fb7d551e08d40a76c",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/views.py",
+        "sha256": "e65d62d0c444304ef427c006576d2a537642d3241da8fc5614a8be6cea00d6b0",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/hardware_requests/workflow.py",
+        "sha256": "7fb978af3d7b3f6b4494238b71e4c6eb9530a64fd21af1e32d2e15e870ea7693",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/integrations/email_templates_registry.py",
+        "sha256": "7535edbc378a6287d6b9c6ae26679f52292314c8c044735b6e1ab3313a854b40",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/integrations/email_templates_registry_defaults.py",
+        "sha256": "3c1294801f4de241409074ceffcd65a17b6308ecbd7c980fd22e6aae1fb0b1e0",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/integrations/notification_catalog.py",
+        "sha256": "427d749a1b941b8932ebdd230201b93756d02eae5b73cc5eb75c4a23984bd6d4",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/inventory/availability.py",
+        "sha256": "fdfd1b5f99c837b912dda4087a209c05f128d36ba71462c46a10b9738ba56060",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/inventory/availability_reservations.py",
+        "sha256": "08e0315b562143edb49266c0de3abb3798bbdf0c4370589af396e87cfbb753ae",
+        "mode": 384
+      },
+      {
+        "path": "backend/apps/makerspaces/origin_scope_routes.py",
+        "sha256": "747e0d9f1f4399e2c8e95f49a498113b69d95094817420cf42a8cae3577ff395",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/tenant_migration/audit_references_meta.py",
+        "sha256": "e060cc22af8eebe3063000dd899cb46d2b8db5ae21d37e8975d46084f190cd2e",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/tenant_migration/tenant_dump_catalog.py",
+        "sha256": "5e0f0fc30be14704ff98b7a57ae34366ebadaeb55cbc48fa5f6439cf557f7175",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/tenant_migration/tenant_dump_field_snapshot.py",
+        "sha256": "37a7e56a5559aec75c72f22dea6dbb5d6f5be1ee9f36def3198adf6820d1baa0",
+        "mode": 420
+      },
+      {
+        "path": "backend/templates/admin/hardware_requests/review.html",
+        "sha256": "59673e7212bea639670ae4d0ebf11fd4461ba4e254140dc85dd6ccfba6a1a861",
+        "mode": 420
+      },
+      {
+        "path": "docs/INVARIANTS.md",
+        "sha256": "e207c308c4a7da51be2314132e08357df452f6c553f5726b0b79c37c5e3d1f32",
+        "mode": 420
+      },
+      {
+        "path": "docs/SOURCE-MAP.md",
+        "sha256": "8bb658bafe0631bb3f4d75b95cff6720eaa23555abd75cdd44a552d907b374f2",
+        "mode": 420
+      },
+      {
+        "path": "docs/staff-roles.md",
+        "sha256": "0578059c856addae6c49522c346f1e59df7c761e8ee5aa6533c55eab91a5bbed",
+        "mode": 420
+      }
+    ],
+    "critical_current_checkout_files_still_match_tested_frame": [
+      "backend/apps/hardware_requests/cancellation_workflow.py",
+      "backend/apps/inventory/availability_reservations.py",
+      "backend/apps/hardware_requests/models.py",
+      "backend/apps/hardware_requests/review_views.py",
+      "backend/apps/hardware_requests/permissions.py",
+      "backend/apps/hardware_requests/queue_views.py",
+      "backend/apps/encryption/registry.py",
+      "backend/apps/hardware_requests/migrations/0026_request_cancellation.py",
+      "backend/apps/encryption/migrations/0009_request_cancellation_pii_fence.py",
+      "backend/apps/tenant_migration/tenant_dump_catalog.py",
+      "backend/apps/tenant_migration/tenant_dump_field_snapshot.py"
+    ],
+    "later_core_notification_implementation_not_claimed_tested_here": true,
+    "old_source_red_files": 4837,
+    "old_source_red_inventory_sha256": "437944b15d7f596c0bb711743e0d209c1354277e8e1f8174b000c0308e9fd72c",
+    "old_red_overlay": "Only unchanged61-line portable API positive added; cancellation source and0026/0009 migrations absent.",
+    "portable_api_test_sha256": "39ac7c1719e7d331f980d2e4d29ad4893153fddb44eae23e1b5fa91fc29a9d06"
+  },
+  "gates": {
+    "stage1": "Pinned independent review approved v2 after five explicit blockers were resolved; root independently approved full revised scope.",
+    "stage2": "Separate pinned source author; root read all32 initial paths and exact fresh-actor, event-catalog and single catalog-pin corrections.",
+    "stage3": "Fresh independent pinned test author60 cases plus fresh bounded actual portable-transfer case; root read all seven files and approved exact test-only count/fixture corrections.",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "stage4_and_QA": "Root owns final mandatory whole-branch review and owner QA; not claimed complete."
+  },
+  "runtime": {
+    "old_source_red": {
+      "cases": 1,
+      "passed": 0,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 9.804,
+      "pytest_seconds": 5.142,
+      "collection_sha256": "507c6e894f19351cbf4b3ef52c9b5bbd8ca061d81c9824859295ecbad664eabb",
+      "frozen_input_sha256": "9df951a68cfc3c39d7dc7ed11c301cff51fa416de022427682526d3e80c05d67",
+      "raw_private_xml_sha256": "83fa8cbc7c16ee9d50f2413346e6bf7cf8e5174a006cc9542f4683ecead72438",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "runtime_collection_exactly_matches_collected_ids": true,
+      "sanitized_xml": "accepted-cancellation-old-source-red-20261031.xml",
+      "sanitized_xml_sha256": "70a27ad61a4f90f3d58d3b91a8a27ff179cfd60a02ec181ae957203adccaeb45",
+      "outcomes": [
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_api",
+          "name": "test_real_accept_then_cancel_releases_only_the_approved_reservation",
+          "outcome": "failures"
+        }
+      ]
+    },
+    "initial_current": {
+      "cases": 184,
+      "passed": 181,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 117.16,
+      "pytest_seconds": 108.252,
+      "collection_sha256": "4263d38c31bfa5272f4fca3aaf27321fd4d13ef23d8335ae859ea095b00c37b6",
+      "frozen_input_sha256": "14168c3ffec657491706584ee2a67f3b9b9460b6a7c47359363089d77211b2be",
+      "raw_private_xml_sha256": "d4e8636cbdd0eb04aa944e44bbf7806d8df73bb963f93f430aea953763cf64a6",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "runtime_collection_exactly_matches_collected_ids": true,
+      "sanitized_xml": "accepted-cancellation-initial-fixture-failures-20261031.xml",
+      "sanitized_xml_sha256": "4d4b08c92017e2ed4a0603e9711ce26e1c1fe60df1857358ffdc1254a4cd8a42",
+      "outcomes": [
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_api",
+          "name": "test_real_accept_then_cancel_releases_only_the_approved_reservation",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_reject_only_reviewer_can_cancel_and_read_only_decision_history",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_public_and_other_action_grants_cannot_cancel",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_superuser]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_active]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[access_status]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[must_change_password]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_tenant_dump_stub]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[membership]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role_grants]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_forged_actor_pk_does_not_replace_original_authentication",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_fresh_actor_preserves_claim_audit_attribution",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_foreign_origin_cannot_cancel_even_for_a_global_superadmin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_authoritative_cancel_route_resolves_and_obeys_source_quiescence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes0]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes1]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_core_review_cancellation_does_not_depend_on_optional_handover",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_missing_core_review_module_refuses_legacy_configuration",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[quantity-0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_every_nonaccepted_state_refuses_without_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[returned_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[damaged_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[missing_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[needs_fix_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_at]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_by]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issue_evidence]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[return_event]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[accountability]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[asset_link]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[public_loan]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[pooled_shortage]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[surplus]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_request]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_product]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_asset]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[quantity_assets]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[individual_bucket]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_box]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_later_product_drift_rolls_back_assignment_and_all_earlier_products",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_duplicate_cancel_has_one_credit_and_one_event",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_audit_failure_rolls_back_reason_box_stock_and_callbacks",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_reason_is_encrypted_at_rest_staff_readable_and_absent_from_public_bearer",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_forward_reverse_trigger_sql_preserves_all_five_existing_column_guards",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_closed_fence_refuses_before_any_request_row_lock",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_stale_request_tenant_refuses_without_acquiring_a_different_tenant_fence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_catalog_and_real_reference_guards_classify_reason_and_typed_box_edge",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_invalid_reason_returns_400_without_any_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_reason_boundary_is_measured_after_trimming[1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_reason_boundary_is_measured_after_trimming[500]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_control_review_requires_reason_confirmation_and_keeps_durable_history",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_registry_matches_the_post_b7c_source_and_secondary_allowlists",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_flag_off_is_byte_for_byte_plaintext",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_enabled_save_encrypts_and_round_trips_with_row_bound_aad",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_enabled_mapped_bulk_writes_are_rejected",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_checkin_hash_sync_is_noop_when_encryption_is_disabled",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_checkin_save_rehashes_after_rotation_and_resolver_reuses_principal",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_restricted_requester_cannot_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_suspended_requester_cannot_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_successful_submission_creates_pending_request_items_audit_and_notifies",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[requester_name]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[contact_email]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[contact_phone]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_sends_confirmation_email_to_contact",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_duplicate_product_lines_in_one_submission_return_400",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[private-product_overrides0-False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[archived-product_overrides1-False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[other-space-product_overrides2-True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_public_status_by_token_returns_strict_allowlist_and_unknown_token_404",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_request_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_contact_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_history_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_empty_public_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_admin_accept_reserves_inventory_and_writes_audit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_pending_requests_search_filters_by_requester_identity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_and_reject_send_contact_email",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_email_uses_admin_configured_template",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_return_policy_requires_space_manager_and_inventory_can_set_due_time",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_with_insufficient_stock_rolls_back_and_returns_409",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_individual_request_requires_available_assets_and_returns_409",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_individual_request_counts_outstanding_reservations",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_cross_tenant_accept_returns_404_without_leaking_request_existence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_wrong_action_accept_in_own_makerspace_returns_403_for_guest_and_requester",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_guest_admin_cannot_reject_but_can_get_accepted_queue_not_pending_queue",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_reject_requires_reason_and_valid_reason_rejects_without_inventory_change",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_availability_never_goes_below_zero_for_sequential_accepts",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_superadmin_can_accept_across_makerspaces_without_membership",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_submit_throttle_returns_429_on_second_rapid_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_suspended_staff_cannot_view_accepted_queue",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_history_lists_only_terminal_statuses_with_item_metadata",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_history_is_tenant_scoped",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_admin_request_serializer_exposes_issue_and_return_evidence_ids",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_direct_handout_refuses_container_issued_on_reviewed_request[issued]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_direct_handout_refuses_container_issued_on_reviewed_request[partially_returned]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_box_qr_checkout_refuses_box_issued_on_reviewed_request",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_box_returned_on_reviewed_request_can_be_handed_out_again",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_active_loans_queue_lists_only_reviewed_request_loans",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_bulk_accept_and_reject_actions_no_longer_exist",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_accepts_one_request",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_honours_a_lowered_accepted_quantity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_a_quantity_above_what_was_requested",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_a_non_numeric_quantity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_rejects_with_a_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_to_reject_without_a_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_is_closed_to_a_non_superadmin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_write_fence",
+          "name": "test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_write_fence",
+          "name": "test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deleted_document_history_is_source_local[added-history-after-document-deletion]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deleted_document_history_is_source_local[removed-history-after-document-deletion]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deployment_local_purge_receipt_history_is_source_local",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_blocked_routes_are_refused_on_a_tenant_origin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_new_tenant_routes_resolve_on_their_own_origin_and_are_refused_elsewhere",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_null_tenant_rows_are_refused_on_every_tenant_origin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_staff_manager_lists_collapse_to_the_origin_tenant",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_registry_has_no_urlconf_drift",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_each_protected_prefix_is_covered_independently[/api/public/]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_each_protected_prefix_is_covered_independently[/api/v1/public/]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[makerspaces/-public-makerspaces-v1:public-makerspaces]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/-public-inventory-v1:public-inventory]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/stats/-public-makerspace-stats-v1:public-makerspace-stats]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/categories/-public-inventory-categories-v1:public-inventory-categories]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/1/-public-inventory-detail-v1:public-inventory-detail]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_resolve_target_distinguishes_global_valid_and_unknown_slugs",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_resolve_target_handles_both_opaque_status_tokens",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_empty_scope_issue_is_rejected",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_registry_exception_fails_closed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_undetectable_methods_on_a_protected_route_count_as_drift",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_a_dropped_method_leaves_a_stale_registry_entry",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_a_route_leaving_the_protected_prefix_is_stale",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_unknown_feature_and_event_are_suppressed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_async_registers_one_callback_and_sync_returns_counts",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_rollback_drops_delivery",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[email]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[telegram]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[slack]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[mattermost]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[discord]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[native_push]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_build_runs_once_for_all_enabled_channels",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_raising_build_and_dispatch_never_escape",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_hardware_submitted_adapter_calls_one_fanout_and_carries_no_buttons",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_same_request_serializes_issue_and_cancel_with_one_winner[issue]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_same_request_serializes_issue_and_cancel_with_one_winner[cancel]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_distinct_requests_share_box_and_product_without_lock_inversion",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_portable_cancelled_request_preserves_history_and_rebinds_private_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_scoped_refusal_never_becomes_a_deployment_wide_423",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_late_service_guard_refusal_is_rendered_as_typed_423",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_login_and_refresh_remain_available_while_one_tenant_is_closed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_unknown_public_tenant_does_not_replace_the_view_outcome",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_stale_or_expired_owner_has_no_authority",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_same_owner_claim_resumes_without_bumping_fence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_complete_registry_is_valid",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_field_disposition_guard_detects_missing_field",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_source_path_must_resolve_against_real_model_graph",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_derived_column_cannot_launder_forbidden_source[PORTABLE-makerspace/config.csv-smtp_password-launders omitted]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_derived_column_cannot_launder_forbidden_source[REDACTED-audit/audit_log.csv-meta-launders redacted]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_many_to_many_source_is_rejected_structurally",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_every_relationship_hop_requires_permission",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_external_routing_hop_remains_forbidden_even_if_added_to_allowlist",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_paths_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_column_names_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_source_paths_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_forward_coverage_detects_exported_model_without_dataset",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_reverse_coverage_detects_unconsumed_output_promise",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_keyset_rejects_nullable_or_non_unique_members[keyset0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_keyset_rejects_nullable_or_non_unique_members[keyset1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_user_edge_completeness_detects_silent_edge",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_user_edge_discovery_includes_many_to_many_and_through_fk",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_semantic_reference_completeness_detects_silent_json_key",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_global_user_projection_is_a_literal_non_growing_set",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_every_field_in_the_live_model_graph_has_a_disposition",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_unclassified_authority_field_fails_the_registry_guard",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_new_authority_bearing_m2m_is_not_hidden_by_concrete_field_filtering",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_owner_decision_22_is_an_explicit_preserve_for_every_assignment_field",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_user_group_and_direct_permission_m2ms_are_explicitly_dropped",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_every_admin_route_is_classified_exactly_once",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_registry_names_real_routes_and_each_declared_kwarg_exists",
+          "outcome": "passed"
+        }
+      ]
+    },
+    "final_current": {
+      "cases": 184,
+      "passed": 184,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 0,
+      "driver_seconds": 130.819,
+      "pytest_seconds": 122.914,
+      "collection_sha256": "4263d38c31bfa5272f4fca3aaf27321fd4d13ef23d8335ae859ea095b00c37b6",
+      "frozen_input_sha256": "17a5c509a4de28db33f556e31ff0d5ccca2151033ea4d92545fe605f7ebdef02",
+      "raw_private_xml_sha256": "8fffeee19410d72c273546d1174fc008232723998fdee03aa74723ba65230a1f",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "runtime_collection_exactly_matches_collected_ids": true,
+      "sanitized_xml": "accepted-cancellation-current-20261031.xml",
+      "sanitized_xml_sha256": "6482c6002aa5a89fe5b62c0482ee8a1a2b2365a57145bf905a8d682d40ef9845",
+      "outcomes": [
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_api",
+          "name": "test_real_accept_then_cancel_releases_only_the_approved_reservation",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_reject_only_reviewer_can_cancel_and_read_only_decision_history",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_public_and_other_action_grants_cannot_cancel",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_superuser]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_active]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[access_status]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[must_change_password]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_tenant_dump_stub]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[membership]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role_grants]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_forged_actor_pk_does_not_replace_original_authentication",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_fresh_actor_preserves_claim_audit_attribution",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_foreign_origin_cannot_cancel_even_for_a_global_superadmin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_authoritative_cancel_route_resolves_and_obeys_source_quiescence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_core_review_cancellation_does_not_depend_on_optional_handover",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_authority",
+          "name": "test_missing_core_review_module_refuses_legacy_configuration",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[quantity-0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_every_nonaccepted_state_refuses_without_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[returned_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[damaged_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[missing_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[needs_fix_quantity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_at]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_by]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[issue_evidence]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[return_event]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[accountability]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[asset_link]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_any_handover_trace_refuses_even_with_zeroed_other_counters[public_loan]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[pooled_shortage]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[surplus]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_request]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_product]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_asset]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[quantity_assets]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[individual_bucket]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_box]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_later_product_drift_rolls_back_assignment_and_all_earlier_products",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_duplicate_cancel_has_one_credit_and_one_event",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_integrity",
+          "name": "test_audit_failure_rolls_back_reason_box_stock_and_callbacks",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_reason_is_encrypted_at_rest_staff_readable_and_absent_from_public_bearer",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_forward_reverse_trigger_sql_preserves_all_five_existing_column_guards",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_closed_fence_refuses_before_any_request_row_lock",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_stale_request_tenant_refuses_without_acquiring_a_different_tenant_fence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_encryption",
+          "name": "test_catalog_and_real_reference_guards_classify_reason_and_typed_box_edge",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_invalid_reason_returns_400_without_any_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_reason_boundary_is_measured_after_trimming[1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_reason_boundary_is_measured_after_trimming[500]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_control_review_requires_reason_confirmation_and_keeps_durable_history",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_registry_matches_the_post_b7c_source_and_secondary_allowlists",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_flag_off_is_byte_for_byte_plaintext",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_enabled_save_encrypts_and_round_trips_with_row_bound_aad",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_enabled_mapped_bulk_writes_are_rejected",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_checkin_hash_sync_is_noop_when_encryption_is_disabled",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_mappers",
+          "name": "test_checkin_save_rehashes_after_rotation_and_resolver_reuses_principal",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_restricted_requester_cannot_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_suspended_requester_cannot_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_successful_submission_creates_pending_request_items_audit_and_notifies",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[requester_name]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[contact_email]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_requires_name_email_and_phone[contact_phone]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_submission_sends_confirmation_email_to_contact",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_duplicate_product_lines_in_one_submission_return_400",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[private-product_overrides0-False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[archived-product_overrides1-False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_unrequestable_product_returns_400_and_creates_no_request[other-space-product_overrides2-True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_public_status_by_token_returns_strict_allowlist_and_unknown_token_404",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_request_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_contact_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_public_history_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_legacy_empty_public_lookup_is_retired",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_admin_accept_reserves_inventory_and_writes_audit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_pending_requests_search_filters_by_requester_identity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_and_reject_send_contact_email",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_email_uses_admin_configured_template",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_return_policy_requires_space_manager_and_inventory_can_set_due_time",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_with_insufficient_stock_rolls_back_and_returns_409",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_individual_request_requires_available_assets_and_returns_409",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_accept_individual_request_counts_outstanding_reservations",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_cross_tenant_accept_returns_404_without_leaking_request_existence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_wrong_action_accept_in_own_makerspace_returns_403_for_guest_and_requester",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_guest_admin_cannot_reject_but_can_get_accepted_queue_not_pending_queue",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_reject_requires_reason_and_valid_reason_rejects_without_inventory_change",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_availability_never_goes_below_zero_for_sequential_accepts",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_superadmin_can_accept_across_makerspaces_without_membership",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_submit_throttle_returns_429_on_second_rapid_submit",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_suspended_staff_cannot_view_accepted_queue",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_history_lists_only_terminal_statuses_with_item_metadata",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_request_history_is_tenant_scoped",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_request_workflow",
+          "name": "test_admin_request_serializer_exposes_issue_and_return_evidence_ids",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_direct_handout_refuses_container_issued_on_reviewed_request[issued]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_direct_handout_refuses_container_issued_on_reviewed_request[partially_returned]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_box_qr_checkout_refuses_box_issued_on_reviewed_request",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_box_returned_on_reviewed_request_can_be_handed_out_again",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_handout_box_and_queue_guards",
+          "name": "test_active_loans_queue_lists_only_reviewed_request_loans",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_bulk_accept_and_reject_actions_no_longer_exist",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_accepts_one_request",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_honours_a_lowered_accepted_quantity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_a_quantity_above_what_was_requested",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_a_non_numeric_quantity",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_rejects_with_a_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_refuses_to_reject_without_a_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_hardware_admin_actions",
+          "name": "test_the_review_page_is_closed_to_a_non_superadmin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_write_fence",
+          "name": "test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[False]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.encryption.test_write_fence",
+          "name": "test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[True]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deleted_document_history_is_source_local[added-history-after-document-deletion]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deleted_document_history_is_source_local[removed-history-after-document-deletion]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_audit_cleanup_reference_dispositions",
+          "name": "test_deployment_local_purge_receipt_history_is_source_local",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_blocked_routes_are_refused_on_a_tenant_origin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_new_tenant_routes_resolve_on_their_own_origin_and_are_refused_elsewhere",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_null_tenant_rows_are_refused_on_every_tenant_origin",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_staff_manager_lists_collapse_to_the_origin_tenant",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_registry_has_no_urlconf_drift",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_each_protected_prefix_is_covered_independently[/api/public/]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_each_protected_prefix_is_covered_independently[/api/v1/public/]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[makerspaces/-public-makerspaces-v1:public-makerspaces]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/-public-inventory-v1:public-inventory]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/stats/-public-makerspace-stats-v1:public-makerspace-stats]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/categories/-public-inventory-categories-v1:public-inventory-categories]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/1/-public-inventory-detail-v1:public-inventory-detail]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_resolve_target_distinguishes_global_valid_and_unknown_slugs",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_resolve_target_handles_both_opaque_status_tokens",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_empty_scope_issue_is_rejected",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_registry_exception_fails_closed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_undetectable_methods_on_a_protected_route_count_as_drift",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_a_dropped_method_leaves_a_stale_registry_entry",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_apiclient_scope_registry",
+          "name": "test_a_route_leaving_the_protected_prefix_is_stale",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_unknown_feature_and_event_are_suppressed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_async_registers_one_callback_and_sync_returns_counts",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_rollback_drops_delivery",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[email]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[telegram]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[slack]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[mattermost]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[discord]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_each_matrix_cell_only_dispatches_its_channel[native_push]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_build_runs_once_for_all_enabled_channels",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_raising_build_and_dispatch_never_escape",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_notification_fanout",
+          "name": "test_hardware_submitted_adapter_calls_one_fanout_and_carries_no_buttons",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_same_request_serializes_issue_and_cancel_with_one_winner[issue]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_same_request_serializes_issue_and_cancel_with_one_winner[cancel]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_concurrency",
+          "name": "test_distinct_requests_share_box_and_product_without_lock_inversion",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.hardware_requests.test_accepted_cancellation_surfaces",
+          "name": "test_portable_cancelled_request_preserves_history_and_rebinds_private_reason",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_scoped_refusal_never_becomes_a_deployment_wide_423",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_late_service_guard_refusal_is_rendered_as_typed_423",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_login_and_refresh_remain_available_while_one_tenant_is_closed",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_unknown_public_tenant_does_not_replace_the_view_outcome",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_stale_or_expired_owner_has_no_authority",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_source_gate",
+          "name": "test_same_owner_claim_resumes_without_bumping_fence",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_complete_registry_is_valid",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_field_disposition_guard_detects_missing_field",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_source_path_must_resolve_against_real_model_graph",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_derived_column_cannot_launder_forbidden_source[PORTABLE-makerspace/config.csv-smtp_password-launders omitted]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_derived_column_cannot_launder_forbidden_source[REDACTED-audit/audit_log.csv-meta-launders redacted]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_many_to_many_source_is_rejected_structurally",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_every_relationship_hop_requires_permission",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_external_routing_hop_remains_forbidden_even_if_added_to_allowlist",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_paths_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_column_names_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_dataset_source_paths_are_unique",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_forward_coverage_detects_exported_model_without_dataset",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_reverse_coverage_detects_unconsumed_output_promise",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_keyset_rejects_nullable_or_non_unique_members[keyset0]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_keyset_rejects_nullable_or_non_unique_members[keyset1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_user_edge_completeness_detects_silent_edge",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_user_edge_discovery_includes_many_to_many_and_through_fk",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_semantic_reference_completeness_detects_silent_json_key",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.data_export.test_registry_guards",
+          "name": "test_global_user_projection_is_a_literal_non_growing_set",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_every_field_in_the_live_model_graph_has_a_disposition",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_unclassified_authority_field_fails_the_registry_guard",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_new_authority_bearing_m2m_is_not_hidden_by_concrete_field_filtering",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_owner_decision_22_is_an_explicit_preserve_for_every_assignment_field",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.tenant_migration.test_tenant_dump_catalog_d1",
+          "name": "test_user_group_and_direct_permission_m2ms_are_explicitly_dropped",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_every_admin_route_is_classified_exactly_once",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.makerspaces.test_origin_scope_d3",
+          "name": "test_registry_names_real_routes_and_each_declared_kwarg_exists",
+          "outcome": "passed"
+        }
+      ]
+    }
+  },
+  "final_selected_scope": {
+    "cases": 184,
+    "new_cancellation_cases": 61,
+    "affected_compatibility_cases": 123,
+    "selectors": 18,
+    "duplicates": 0,
+    "collected_node_ids": [
+      "tests/hardware_requests/test_accepted_cancellation_api.py::test_real_accept_then_cancel_releases_only_the_approved_reservation",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_reject_only_reviewer_can_cancel_and_read_only_decision_history",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_public_and_other_action_grants_cannot_cancel",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_superuser]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_active]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[access_status]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[must_change_password]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[is_tenant_dump_stub]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[membership]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_stale_concrete_actor_is_rechecked_without_refreshing_the_caller[role_grants]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_forged_actor_pk_does_not_replace_original_authentication",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_fresh_actor_preserves_claim_audit_attribution",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_foreign_origin_cannot_cancel_even_for_a_global_superadmin",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_authoritative_cancel_route_resolves_and_obeys_source_quiescence",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes0]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_valid_hmac_does_not_grant_unknown_staff_cancel_route[scopes1]",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_core_review_cancellation_does_not_depend_on_optional_handover",
+      "tests/hardware_requests/test_accepted_cancellation_authority.py::test_missing_core_review_module_refuses_legacy_configuration",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[quantity-0]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-0]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_partial_duplicate_lines_release_own_demand_and_preserve_physical_stock[individual-1]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_every_nonaccepted_state_refuses_without_effects",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_quantity]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[returned_quantity]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[damaged_quantity]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[missing_quantity]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[needs_fix_quantity]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_at]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[issued_by]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[issue_evidence]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[return_event]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[accountability]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[asset_link]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_any_handover_trace_refuses_even_with_zeroed_other_counters[public_loan]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[pooled_shortage]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[surplus]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_request]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_product]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_asset]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[quantity_assets]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[individual_bucket]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_ambiguous_reservations_refuse_entire_transaction_without_repair[foreign_box]",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_later_product_drift_rolls_back_assignment_and_all_earlier_products",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_duplicate_cancel_has_one_credit_and_one_event",
+      "tests/hardware_requests/test_accepted_cancellation_integrity.py::test_audit_failure_rolls_back_reason_box_stock_and_callbacks",
+      "tests/hardware_requests/test_accepted_cancellation_encryption.py::test_reason_is_encrypted_at_rest_staff_readable_and_absent_from_public_bearer",
+      "tests/hardware_requests/test_accepted_cancellation_encryption.py::test_forward_reverse_trigger_sql_preserves_all_five_existing_column_guards",
+      "tests/hardware_requests/test_accepted_cancellation_encryption.py::test_closed_fence_refuses_before_any_request_row_lock",
+      "tests/hardware_requests/test_accepted_cancellation_encryption.py::test_stale_request_tenant_refuses_without_acquiring_a_different_tenant_fence",
+      "tests/hardware_requests/test_accepted_cancellation_encryption.py::test_catalog_and_real_reference_guards_classify_reason_and_typed_box_edge",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_invalid_reason_returns_400_without_any_effects",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_reason_boundary_is_measured_after_trimming[1]",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_reason_boundary_is_measured_after_trimming[500]",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_control_review_requires_reason_confirmation_and_keeps_durable_history",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[True]",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_generic_cancel_notification_is_deferred_and_guards_unverified_contact[False]",
+      "tests/encryption/test_mappers.py::test_registry_matches_the_post_b7c_source_and_secondary_allowlists",
+      "tests/encryption/test_mappers.py::test_flag_off_is_byte_for_byte_plaintext",
+      "tests/encryption/test_mappers.py::test_enabled_save_encrypts_and_round_trips_with_row_bound_aad",
+      "tests/encryption/test_mappers.py::test_enabled_mapped_bulk_writes_are_rejected",
+      "tests/encryption/test_mappers.py::test_checkin_hash_sync_is_noop_when_encryption_is_disabled",
+      "tests/encryption/test_mappers.py::test_checkin_save_rehashes_after_rotation_and_resolver_reuses_principal",
+      "tests/test_request_workflow.py::test_restricted_requester_cannot_submit",
+      "tests/test_request_workflow.py::test_suspended_requester_cannot_submit",
+      "tests/test_request_workflow.py::test_successful_submission_creates_pending_request_items_audit_and_notifies",
+      "tests/test_request_workflow.py::test_submission_requires_name_email_and_phone[requester_name]",
+      "tests/test_request_workflow.py::test_submission_requires_name_email_and_phone[contact_email]",
+      "tests/test_request_workflow.py::test_submission_requires_name_email_and_phone[contact_phone]",
+      "tests/test_request_workflow.py::test_submission_sends_confirmation_email_to_contact",
+      "tests/test_request_workflow.py::test_duplicate_product_lines_in_one_submission_return_400",
+      "tests/test_request_workflow.py::test_unrequestable_product_returns_400_and_creates_no_request[private-product_overrides0-False]",
+      "tests/test_request_workflow.py::test_unrequestable_product_returns_400_and_creates_no_request[archived-product_overrides1-False]",
+      "tests/test_request_workflow.py::test_unrequestable_product_returns_400_and_creates_no_request[other-space-product_overrides2-True]",
+      "tests/test_request_workflow.py::test_public_status_by_token_returns_strict_allowlist_and_unknown_token_404",
+      "tests/test_request_workflow.py::test_legacy_public_request_lookup_is_retired",
+      "tests/test_request_workflow.py::test_legacy_public_contact_lookup_is_retired",
+      "tests/test_request_workflow.py::test_legacy_public_history_lookup_is_retired",
+      "tests/test_request_workflow.py::test_legacy_empty_public_lookup_is_retired",
+      "tests/test_request_workflow.py::test_admin_accept_reserves_inventory_and_writes_audit",
+      "tests/test_request_workflow.py::test_pending_requests_search_filters_by_requester_identity",
+      "tests/test_request_workflow.py::test_accept_and_reject_send_contact_email",
+      "tests/test_request_workflow.py::test_accept_email_uses_admin_configured_template",
+      "tests/test_request_workflow.py::test_return_policy_requires_space_manager_and_inventory_can_set_due_time",
+      "tests/test_request_workflow.py::test_accept_with_insufficient_stock_rolls_back_and_returns_409",
+      "tests/test_request_workflow.py::test_accept_individual_request_requires_available_assets_and_returns_409",
+      "tests/test_request_workflow.py::test_accept_individual_request_counts_outstanding_reservations",
+      "tests/test_request_workflow.py::test_cross_tenant_accept_returns_404_without_leaking_request_existence",
+      "tests/test_request_workflow.py::test_wrong_action_accept_in_own_makerspace_returns_403_for_guest_and_requester",
+      "tests/test_request_workflow.py::test_guest_admin_cannot_reject_but_can_get_accepted_queue_not_pending_queue",
+      "tests/test_request_workflow.py::test_reject_requires_reason_and_valid_reason_rejects_without_inventory_change",
+      "tests/test_request_workflow.py::test_availability_never_goes_below_zero_for_sequential_accepts",
+      "tests/test_request_workflow.py::test_superadmin_can_accept_across_makerspaces_without_membership",
+      "tests/test_request_workflow.py::test_request_submit_throttle_returns_429_on_second_rapid_submit",
+      "tests/test_request_workflow.py::test_suspended_staff_cannot_view_accepted_queue",
+      "tests/test_request_workflow.py::test_request_history_lists_only_terminal_statuses_with_item_metadata",
+      "tests/test_request_workflow.py::test_request_history_is_tenant_scoped",
+      "tests/test_request_workflow.py::test_admin_request_serializer_exposes_issue_and_return_evidence_ids",
+      "tests/hardware_requests/test_handout_box_and_queue_guards.py::test_direct_handout_refuses_container_issued_on_reviewed_request[issued]",
+      "tests/hardware_requests/test_handout_box_and_queue_guards.py::test_direct_handout_refuses_container_issued_on_reviewed_request[partially_returned]",
+      "tests/hardware_requests/test_handout_box_and_queue_guards.py::test_box_qr_checkout_refuses_box_issued_on_reviewed_request",
+      "tests/hardware_requests/test_handout_box_and_queue_guards.py::test_box_returned_on_reviewed_request_can_be_handed_out_again",
+      "tests/hardware_requests/test_handout_box_and_queue_guards.py::test_active_loans_queue_lists_only_reviewed_request_loans",
+      "tests/test_hardware_admin_actions.py::test_the_bulk_accept_and_reject_actions_no_longer_exist",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_accepts_one_request",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_honours_a_lowered_accepted_quantity",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_refuses_a_quantity_above_what_was_requested",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_refuses_a_non_numeric_quantity",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_rejects_with_a_reason",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_refuses_to_reject_without_a_reason",
+      "tests/test_hardware_admin_actions.py::test_the_review_page_is_closed_to_a_non_superadmin",
+      "tests/encryption/test_write_fence.py::test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[False]",
+      "tests/encryption/test_write_fence.py::test_all_mapped_table_triggers_refuse_orm_raw_and_bulk_when_closed[True]",
+      "tests/tenant_migration/test_audit_cleanup_reference_dispositions.py::test_deleted_document_history_is_source_local[added-history-after-document-deletion]",
+      "tests/tenant_migration/test_audit_cleanup_reference_dispositions.py::test_deleted_document_history_is_source_local[removed-history-after-document-deletion]",
+      "tests/tenant_migration/test_audit_cleanup_reference_dispositions.py::test_deployment_local_purge_receipt_history_is_source_local",
+      "tests/makerspaces/test_origin_scope_d3.py::test_blocked_routes_are_refused_on_a_tenant_origin",
+      "tests/makerspaces/test_origin_scope_d3.py::test_new_tenant_routes_resolve_on_their_own_origin_and_are_refused_elsewhere",
+      "tests/makerspaces/test_origin_scope_d3.py::test_null_tenant_rows_are_refused_on_every_tenant_origin",
+      "tests/makerspaces/test_origin_scope_d3.py::test_staff_manager_lists_collapse_to_the_origin_tenant",
+      "tests/test_apiclient_scope_registry.py::test_registry_has_no_urlconf_drift",
+      "tests/test_apiclient_scope_registry.py::test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded",
+      "tests/test_apiclient_scope_registry.py::test_each_protected_prefix_is_covered_independently[/api/public/]",
+      "tests/test_apiclient_scope_registry.py::test_each_protected_prefix_is_covered_independently[/api/v1/public/]",
+      "tests/test_apiclient_scope_registry.py::test_duplicate_inventory_routes_use_distinct_namespaced_keys[makerspaces/-public-makerspaces-v1:public-makerspaces]",
+      "tests/test_apiclient_scope_registry.py::test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/-public-inventory-v1:public-inventory]",
+      "tests/test_apiclient_scope_registry.py::test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/stats/-public-makerspace-stats-v1:public-makerspace-stats]",
+      "tests/test_apiclient_scope_registry.py::test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/categories/-public-inventory-categories-v1:public-inventory-categories]",
+      "tests/test_apiclient_scope_registry.py::test_duplicate_inventory_routes_use_distinct_namespaced_keys[alpha/inventory/1/-public-inventory-detail-v1:public-inventory-detail]",
+      "tests/test_apiclient_scope_registry.py::test_resolve_target_distinguishes_global_valid_and_unknown_slugs",
+      "tests/test_apiclient_scope_registry.py::test_resolve_target_handles_both_opaque_status_tokens",
+      "tests/test_apiclient_scope_registry.py::test_empty_scope_issue_is_rejected",
+      "tests/test_apiclient_scope_registry.py::test_registry_exception_fails_closed",
+      "tests/test_apiclient_scope_registry.py::test_undetectable_methods_on_a_protected_route_count_as_drift",
+      "tests/test_apiclient_scope_registry.py::test_a_dropped_method_leaves_a_stale_registry_entry",
+      "tests/test_apiclient_scope_registry.py::test_a_route_leaving_the_protected_prefix_is_stale",
+      "tests/test_notification_fanout.py::test_unknown_feature_and_event_are_suppressed",
+      "tests/test_notification_fanout.py::test_async_registers_one_callback_and_sync_returns_counts",
+      "tests/test_notification_fanout.py::test_rollback_drops_delivery",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[email]",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[telegram]",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[slack]",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[mattermost]",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[discord]",
+      "tests/test_notification_fanout.py::test_each_matrix_cell_only_dispatches_its_channel[native_push]",
+      "tests/test_notification_fanout.py::test_build_runs_once_for_all_enabled_channels",
+      "tests/test_notification_fanout.py::test_raising_build_and_dispatch_never_escape",
+      "tests/test_notification_fanout.py::test_hardware_submitted_adapter_calls_one_fanout_and_carries_no_buttons",
+      "tests/hardware_requests/test_accepted_cancellation_concurrency.py::test_same_request_serializes_issue_and_cancel_with_one_winner[issue]",
+      "tests/hardware_requests/test_accepted_cancellation_concurrency.py::test_same_request_serializes_issue_and_cancel_with_one_winner[cancel]",
+      "tests/hardware_requests/test_accepted_cancellation_concurrency.py::test_distinct_requests_share_box_and_product_without_lock_inversion",
+      "tests/hardware_requests/test_accepted_cancellation_surfaces.py::test_portable_cancelled_request_preserves_history_and_rebinds_private_reason",
+      "tests/tenant_migration/test_source_gate.py::test_scoped_refusal_never_becomes_a_deployment_wide_423",
+      "tests/tenant_migration/test_source_gate.py::test_late_service_guard_refusal_is_rendered_as_typed_423",
+      "tests/tenant_migration/test_source_gate.py::test_login_and_refresh_remain_available_while_one_tenant_is_closed",
+      "tests/tenant_migration/test_source_gate.py::test_unknown_public_tenant_does_not_replace_the_view_outcome",
+      "tests/tenant_migration/test_source_gate.py::test_stale_or_expired_owner_has_no_authority",
+      "tests/tenant_migration/test_source_gate.py::test_same_owner_claim_resumes_without_bumping_fence",
+      "tests/data_export/test_registry_guards.py::test_complete_registry_is_valid",
+      "tests/data_export/test_registry_guards.py::test_field_disposition_guard_detects_missing_field",
+      "tests/data_export/test_registry_guards.py::test_source_path_must_resolve_against_real_model_graph",
+      "tests/data_export/test_registry_guards.py::test_derived_column_cannot_launder_forbidden_source[PORTABLE-makerspace/config.csv-smtp_password-launders omitted]",
+      "tests/data_export/test_registry_guards.py::test_derived_column_cannot_launder_forbidden_source[REDACTED-audit/audit_log.csv-meta-launders redacted]",
+      "tests/data_export/test_registry_guards.py::test_many_to_many_source_is_rejected_structurally",
+      "tests/data_export/test_registry_guards.py::test_every_relationship_hop_requires_permission",
+      "tests/data_export/test_registry_guards.py::test_external_routing_hop_remains_forbidden_even_if_added_to_allowlist",
+      "tests/data_export/test_registry_guards.py::test_dataset_paths_are_unique",
+      "tests/data_export/test_registry_guards.py::test_dataset_column_names_are_unique",
+      "tests/data_export/test_registry_guards.py::test_dataset_source_paths_are_unique",
+      "tests/data_export/test_registry_guards.py::test_forward_coverage_detects_exported_model_without_dataset",
+      "tests/data_export/test_registry_guards.py::test_reverse_coverage_detects_unconsumed_output_promise",
+      "tests/data_export/test_registry_guards.py::test_keyset_rejects_nullable_or_non_unique_members[keyset0]",
+      "tests/data_export/test_registry_guards.py::test_keyset_rejects_nullable_or_non_unique_members[keyset1]",
+      "tests/data_export/test_registry_guards.py::test_user_edge_completeness_detects_silent_edge",
+      "tests/data_export/test_registry_guards.py::test_user_edge_discovery_includes_many_to_many_and_through_fk",
+      "tests/data_export/test_registry_guards.py::test_semantic_reference_completeness_detects_silent_json_key",
+      "tests/data_export/test_registry_guards.py::test_global_user_projection_is_a_literal_non_growing_set",
+      "tests/tenant_migration/test_tenant_dump_catalog_d1.py::test_every_field_in_the_live_model_graph_has_a_disposition",
+      "tests/tenant_migration/test_tenant_dump_catalog_d1.py::test_unclassified_authority_field_fails_the_registry_guard",
+      "tests/tenant_migration/test_tenant_dump_catalog_d1.py::test_new_authority_bearing_m2m_is_not_hidden_by_concrete_field_filtering",
+      "tests/tenant_migration/test_tenant_dump_catalog_d1.py::test_owner_decision_22_is_an_explicit_preserve_for_every_assignment_field",
+      "tests/tenant_migration/test_tenant_dump_catalog_d1.py::test_user_group_and_direct_permission_m2ms_are_explicitly_dropped",
+      "tests/makerspaces/test_origin_scope_d3.py::test_every_admin_route_is_classified_exactly_once",
+      "tests/makerspaces/test_origin_scope_d3.py::test_registry_names_real_routes_and_each_declared_kwarg_exists"
+    ]
+  },
+  "fixture_repairs": {
+    "initial_history_preserved": true,
+    "production_changes_for_failures": false,
+    "all_assertions_unchanged": true,
+    "repairs": [
+      {
+        "path": "backend/tests/hardware_requests/test_accepted_cancellation_authority.py",
+        "before_sha256": "597fff7b60667efc2951dd0b4c8f59c4451bf1d3eb0f91fe498552abee0973c8",
+        "sha256": "93b2ccd9a81ebb8cd68577b6b3e5c1519b495458789bcd953255a9c088b32cd6"
+      },
+      {
+        "path": "backend/tests/hardware_requests/test_accepted_cancellation_integrity.py",
+        "before_sha256": "d4a16fa86e65fb0c263c6e04d0aa945f851090a7dec080dc026eb85d3a78660d",
+        "sha256": "07732838eaa2c7580078d6d99211ff30ca31199ba60bce9b27662f44fd649174"
+      }
+    ],
+    "meaning": "Supply a valid server-client allowed-origin list; construct a DB-valid product bucket total that still contains the intended extra unattributable reservation."
+  },
+  "explicit_new_PII_contract": {
+    "source_fields": 23,
+    "secondary_fields": 4,
+    "all_fields": 27,
+    "test_mappers_sha256": "fe79b2cb34b7021c9f6c02a7b2ef71ae27b10e09791b813b857f8a9babef7357",
+    "only_expected_count_change_and_new_field_membership_assertion": true,
+    "catalog_before_digest": "f81364471c9c6d0eb75b710d9623c83336a98a411c68138a2652ea313ae13065",
+    "catalog_after_digest": "7b8c74e664c41d6c9ae49c02e065ac3c0e2554cd4fa8ebf0151e8878a49be059",
+    "model_graph_delta": "204 models unchanged; only HardwareRequest.cancellation_reason field added. Root compared both actual graphs before authorizing the one pin change.",
+    "full_reason_in_append_only_audit": false
+  },
+  "controls": [
+    "Actual acceptAPI\u2192cancelAPI releases partial/duplicate/shared quantity and individual reservations while preserving other accepted demand and independent asset reservations.",
+    "Pooled shortage/surplus/foreign binding/physical bucket ambiguity refuses without repair or partial mutation.",
+    "All issued/returned/damaged/missing/needs-fix counters, request issue fields and immutable loan/return/asset/accountability records prevent cancellation.",
+    "Only active exact-tenant REJECT authority; eight stale-authority demotions rechecked against concrete User state, with no actor row-lock inversion.",
+    "Real PostgreSQL verifies both common-request issue/cancel winner orders and shared Box/Product lock order across distinct requests.",
+    "Only external transports are doubled; real versioned evidence finalization and durable promotion occur in concurrency tests.",
+    "Reason encryption is checked against rawSQL, authorized staff reads and minimal public bearer responses; forward/reverse PostgreSQL trigger guards and fence-before-row-lock behavior pass.",
+    "Actual portable archive export/import retains cancelled status and approval quantities, keeps the reason ciphertext-only and rebinds target AAD; wrong source bindings fail authentication.",
+    "Control-panel confirmation, rejection-only queue/history scope, no double credit, audit-insert rollback, typed Box references and deferred privacy-safe notification payloads pass."
+  ],
+  "environment": {
+    "platform": "Linux immutable audit dependency image",
+    "database_port": 55433,
+    "cache_database": 12,
+    "broker_database": 14,
+    "one_pytest_per_database": true,
+    "real_PostgreSQL": true,
+    "provider_transports": "Truthful existing versioned in-memory object transport and fake outbound email/chat transports.",
+    "live_provider_or_production_request_mutations": false,
+    "daemon_socket_mounted": false,
+    "source_mounts_read_only": true,
+    "bytecode_disabled": true,
+    "per_test_deadlines_unchanged": true
+  },
+  "shared_API_contract": {
+    "evidence": "requests-api-contract-generation-20261031.json",
+    "sha256": "570b856603a433932c59e0ba2d0bde4c2840f6f1fdd544675e1cc0d391d97775",
+    "paths": 469,
+    "scope": "Combined approved cancellation and accountless own-history API metadata; generated with no database/network access. Functional own-history tests are separate core-owned proof."
+  },
+  "limits": [
+    "Finite184-case cancellation/compatibility group; no fresh full-suite claim.",
+    "Initial181-pass/3-invalid-fixture-failure run and genuine pre-feature HTTP404 failure remain preserved.",
+    "The source frame predates separately owned notification/history implementation changes; its exact tested bytes are listed.",
+    "The original actual seventh restore image/source capture/success were not rebuilt or re-executed for this feature. No hybrid restore or current-image claim.",
+    "No staging, commit, push, deployment or live staff-request cancellation was performed."
+  ]
+}

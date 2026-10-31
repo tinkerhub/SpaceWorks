@@ -1,0 +1,11 @@
+{
+  "status": "read-only bounded text pattern check passed",
+  "scope": "audit md/json/xml/txt/csv at recorded date; not a proof that every possible secret encoding is absent",
+  "jwt_like_matches": 0,
+  "django_password_hash_matches": 0,
+  "credential_urls": {
+    "matches": 18,
+    "all": "Documented disposable Docker makerspace database example atdb:5432; no production value."
+  },
+  "raw_private_runtime_logs_env_and_SQL_not_published": true
+}

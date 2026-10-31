@@ -12,41 +12,24 @@ from apps.backup.slice_merge_database import (
 )
 from apps.inventory.models import Category
 from apps.makerspaces.models import Makerspace
+from tests.backup.x07_installation_test_helpers import (
+    fence, finish_installation, operation, prepared,
+)
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def _merging_component():
-    operation_id = uuid.uuid4()
-    artifact_id = uuid.uuid4()
-    capture_id = uuid.uuid4()
-    operation = B1RestoreOperationState.objects.create(
-        operation_id=operation_id, artifact_id=artifact_id, capture_id=capture_id,
-        main_component_id=uuid.uuid4(), outer_ciphertext_sha256="a" * 64,
-        outer_manifest_sha256="b" * 64, source_proof_sha256="c" * 64,
-        sibling_database_name="e8_role_test", sibling_database_oid=88,
-        sibling_server_identity="postgresql:e8-test",
-    )
-    for stage in (
-        B1RestoreOperationState.Stage.MAIN_RESTORED,
-        B1RestoreOperationState.Stage.ROLES_RECREATED,
-        B1RestoreOperationState.Stage.STATE_REHYDRATED,
-        B1RestoreOperationState.Stage.ENFORCEMENT_INSTALLED,
-        B1RestoreOperationState.Stage.CATALOG_VERIFIED,
-        B1RestoreOperationState.Stage.OBJECTS_VERIFIED,
-        B1RestoreOperationState.Stage.QUARANTINE_VERIFIED,
-        B1RestoreOperationState.Stage.CUTOVER_READY,
-    ):
-        B1RestoreOperationState.objects.filter(pk=operation.pk).update(stage=stage)
-    component = B1RestoreComponentState.objects.create(
-        operation_id=operation_id, artifact_id=artifact_id, capture_id=capture_id,
-        component_id=uuid.uuid4(), makerspace_id_snapshot=800008,
-        ciphertext_sha256="d" * 64, state=B1RestoreComponentState.State.PENDING,
-    )
+    case = prepared([("broad_fence", fence(
+        [uuid.uuid4()], table="inventory_inventoryproduct",
+    ))], makerspace_id=800008)
+    finish_installation(case)
+    current_operation = operation(case)
+    component = B1RestoreComponentState.objects.get(operation_id=current_operation.pk)
     B1RestoreComponentState.objects.filter(pk=component.pk).update(state="merging")
     component.refresh_from_db()
-    return operation, component
+    return current_operation, component
 
 
 def _stage_context(operation, component, category):

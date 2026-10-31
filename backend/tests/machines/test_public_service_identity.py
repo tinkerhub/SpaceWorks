@@ -15,7 +15,7 @@ from apps.presence import services as presence
 from tests.checkin.test_machine_service_views import _entry
 from tests.machines.public_service_helpers import endpoint, object_io, service_lab
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def body(kind, action):

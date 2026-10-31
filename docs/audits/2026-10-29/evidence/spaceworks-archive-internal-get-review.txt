@@ -1,0 +1,5 @@
+APPROVED.
+
+The one-line `open_archive()` change to `client()` correctly uses the internal endpoint for both backend callers. It preserves the bucket/key, streaming body, exception wrapper, and download-token checks. Browser presigning remains separate and unchanged.
+
+The bounded test design is sufficient. Static review only; no edits or prohibited execution performed.

@@ -1,0 +1,13 @@
+Implemented only [WarrantySection.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/WarrantySection.tsx).
+
+- Fields and Save stay disabled until hydration; loaded `null` is valid.
+- Initial load errors show Retry.
+- Refetches preserve dirty edits; current successful saves synchronize returned metadata.
+- Existing host/session action guards remain.
+
+Source inspection and `git diff --check` passed. No tests, runtime, TSC, builds, staging, or commits.
+
+183 lines. SHA-256:
+```text
+0fcb33bf4cd9e048a232fadf94ea25e3d3271d1005308dc4fcfe8a9b198226a7
+```

@@ -1,4 +1,5 @@
 from apps.accounts import rbac
+from apps.boxes.contents import box_requires_separate_contents
 from apps.boxes.models import Box, QrCode
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 from apps.makerspaces.platform import feature_enabled, module_enabled
@@ -78,6 +79,9 @@ def _asset_checkout_eligible(asset, *, require_public):
 
 def _box_checkout_eligible(qr, *, require_public):
     from apps.hardware_requests.models import PublicToolLoan
+    from apps.hardware_requests.self_checkout_helpers import (
+        _reviewed_request_holds_box,
+    )
 
     box = Box.objects.filter(pk=qr.target_id, makerspace=qr.makerspace).first()
     if box is None or not box.is_active:
@@ -86,32 +90,19 @@ def _box_checkout_eligible(qr, *, require_public):
         makerspace=qr.makerspace,
         container=box,
         status=PublicToolLoan.Status.CHECKED_OUT,
-    ).exists():
+    ).exists() or _reviewed_request_holds_box(box):
         return False
-    asset_filters = {
-        "box": box,
-        "status": InventoryAsset.Status.AVAILABLE,
-        "product__is_archived": False,
-        "product__available_quantity__gte": 1,
-    }
+    if box_requires_separate_contents(box):
+        return False
     product_filters = {
         "box": box,
         "is_archived": False,
         "available_quantity__gte": 1,
     }
     if require_public:
-        asset_filters.update(
-            {
-                "public_self_checkout_enabled": True,
-                "product__is_public": True,
-                "product__public_self_checkout_enabled": True,
-            }
-        )
         product_filters.update(
             {"is_public": True, "public_self_checkout_enabled": True}
         )
-    if InventoryAsset.objects.filter(**asset_filters).exists():
-        return True
     products = InventoryProduct.objects.filter(**product_filters)
     if products.filter(tracking_mode=TrackingMode.INDIVIDUAL).exists():
         return False

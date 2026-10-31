@@ -26,6 +26,7 @@ from apps.hardware_requests.models import HardwareRequest
 from apps.integrations.models import EmailLog
 from apps.makerspaces.models import Makerspace
 from apps.machines.models import Machine, MachineServiceRequest, MachineType, ServiceBucket
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 
 pytestmark = pytest.mark.django_db
@@ -161,16 +162,17 @@ def test_matching_operation_guc_permits_only_its_closed_fence():
             request.save(update_fields=["requester_name"])
 
 
-def test_provisioning_creates_and_purge_removes_the_tenant_fence(monkeypatch):
+@pytest.mark.django_db(transaction=True)
+def test_provisioning_creates_and_purge_removes_the_tenant_fence(purge_store, purge_clock):
     from apps.makerspaces import lifecycle
 
     actor = get_user_model().objects.create_user(
-        username=f"fence-purge-{uuid.uuid4().hex[:8]}", is_superuser=True
+        username=f"fence-purge-{uuid.uuid4().hex[:8]}", is_superuser=True, is_staff=True
     )
     space = Makerspace.objects.create(name="Fence Purge", slug=f"fence-purge-{uuid.uuid4().hex[:8]}")
     assert PiiMakerspaceWriteFence.objects.filter(makerspace=space).exists()
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
     space = lifecycle.archive(space, actor)
+    arm(space, actor, purge_clock)
     lifecycle.purge(space, actor)
     assert not PiiMakerspaceWriteFence.objects.filter(makerspace_id=space.id).exists()
 

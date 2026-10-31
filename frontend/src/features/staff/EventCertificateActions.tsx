@@ -11,6 +11,7 @@ import { eventErrorText, eventStatusLabel } from "./eventUi";
 const CERTIFICATE_TONES: Record<string, StatusTone> = {
   active: "success",
   pending: "info",
+  rendering: "info",
   failed: "danger",
   revoked: "neutral",
 };
@@ -28,6 +29,7 @@ export function EventCertificateActions({ certificate, eventId, makerspaceId }: 
   const failed = (cause: unknown) => showToast(eventErrorText(cause), { tone: "error" });
   const error = download.error || revoke.error || reissue.error;
   const downloadLabel = certificate.status === "active" ? "Download" : "Prepare certificate";
+  const preparing = certificate.status === "rendering";
   return (
     <div className="mt-3 grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -36,7 +38,7 @@ export function EventCertificateActions({ certificate, eventId, makerspaceId }: 
         {certificate.status === "active" || certificate.status === "pending" || certificate.status === "failed" ? (
           <Button size="sm" loading={download.isPending} onClick={() => download.mutate(certificate.id, { onSuccess: (result) => window.location.assign(result.url), onError: failed })}>{downloadLabel}</Button>
         ) : null}
-        {certificate.status === "active" ? <Button size="sm" variant="danger-quiet" disabled={revoke.isPending} onClick={() => setConfirmRevoke(true)}>Revoke…</Button> : null}
+        {certificate.status !== "revoked" ? <Button size="sm" variant="danger-quiet" disabled={revoke.isPending} onClick={() => setConfirmRevoke(true)}>{preparing ? "Stop preparation…" : "Revoke…"}</Button> : null}
         {certificate.status === "revoked" ? (
           <Button size="sm" variant="success" loading={reissue.isPending} onClick={() => reissue.mutate(certificate.id, { onSuccess: () => showToast("Certificate reissued", { tone: "success" }), onError: failed })}>Reissue</Button>
         ) : null}
@@ -44,9 +46,9 @@ export function EventCertificateActions({ certificate, eventId, makerspaceId }: 
       {error ? <ErrorText message={eventErrorText(error)} /> : null}
       <ConfirmDialog
         open={confirmRevoke}
-        title="Revoke certificate?"
-        message="This attendee loses the certificate. You can reissue it later."
-        confirmLabel="Revoke"
+        title={preparing ? "Stop certificate preparation?" : "Revoke certificate?"}
+        message={preparing ? "This revokes the current preparation, including any work still in progress. Reissue afterward to prepare a new certificate." : "This attendee loses the certificate. You can reissue it later."}
+        confirmLabel={preparing ? "Stop preparation" : "Revoke"}
         tone="danger"
         pending={revoke.isPending}
         onCancel={() => setConfirmRevoke(false)}

@@ -1,0 +1,19 @@
+{
+  "status": "actual-read-only-configuration-and-inventory-pass",
+  "oci_digest": "sha256:e5a18175fdf1de14354b82148bf858d28fa55db15320cc3bbcdc71103649d543",
+  "image_id": "sha256:e5a18175fdf1de14354b82148bf858d28fa55db15320cc3bbcdc71103649d543",
+  "roles": [
+    "backend",
+    "beat",
+    "db",
+    "minio",
+    "redis",
+    "worker"
+  ],
+  "held_existing_root_host_lock": true,
+  "limits": [
+    "No database identity probe or SQL",
+    "No restore/control/quiesce/service change",
+    "No new image or successful restore claim"
+  ]
+}

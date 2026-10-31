@@ -74,6 +74,8 @@ class AdminRequestSerializer(serializers.Serializer):
     status = serializers.CharField(read_only=True)
     requested_for = serializers.CharField(read_only=True)
     rejection_reason = serializers.CharField(read_only=True)
+    cancellation_reason = serializers.CharField(read_only=True)
+    assigned_box_id = serializers.IntegerField(read_only=True, allow_null=True)
     assigned_box_label = serializers.CharField(
         source="assigned_box.label",
         read_only=True,
@@ -85,6 +87,7 @@ class AdminRequestSerializer(serializers.Serializer):
     issued_at = serializers.DateTimeField(read_only=True)
     return_due_at = serializers.DateTimeField(read_only=True)
     return_reminder_sent_at = serializers.DateTimeField(read_only=True)
+    closed_by = AdminRequestActorSerializer(read_only=True, allow_null=True)
     closed_at = serializers.DateTimeField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -101,6 +104,10 @@ class AdminRequestSerializer(serializers.Serializer):
 
     def get_requester_display(self, obj) -> str:
         return requester_label(obj)
+
+
+class CancelRequestSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=500, allow_blank=False, trim_whitespace=True)
 
 
 class AcceptQuantitySerializer(serializers.Serializer):
@@ -175,7 +182,7 @@ class ReturnItemResolutionSerializer(serializers.Serializer):
 
 class ReturnRequestSerializer(serializers.Serializer):
     evidence_id = serializers.IntegerField()
-    box_code = serializers.CharField()
+    box_code = serializers.CharField(required=False, allow_blank=True, default="")
     remark = serializers.CharField(allow_blank=False, trim_whitespace=True)
     resolutions = ReturnItemResolutionSerializer(many=True, allow_empty=False)
 

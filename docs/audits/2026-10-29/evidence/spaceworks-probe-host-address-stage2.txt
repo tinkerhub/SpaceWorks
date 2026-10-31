@@ -1,0 +1,13 @@
+Applied and statically reviewed: APPROVED. Only `backend/scripts/restore_database_probe.py:24` changed; all remaining bytes are identical.
+
+```diff
+-            cursor.execute("SELECT inet_server_addr()::text, inet_server_port(), "
++            cursor.execute("SELECT host(inet_server_addr()), inet_server_port(), "
+```
+
+SHA-256:
+```text
+a53b6588c953fcf770e765c38bd60cf0ff9000861dfe8f43969b30d48262120c
+```
+
+AST validation passed. No target imports/execution, tests, Docker, DB, staging, or commits.

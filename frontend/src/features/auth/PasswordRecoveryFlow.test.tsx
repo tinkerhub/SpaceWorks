@@ -45,7 +45,7 @@ async function reachConfirmation() {
 }
 
 describe("password recovery", () => {
-  beforeEach(() => publicV1Request.mockReset());
+  beforeEach(() => { publicV1Request.mockReset(); });
 
   afterEach(() => vi.useRealTimers());
 

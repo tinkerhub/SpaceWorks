@@ -1,0 +1,79 @@
+{
+  "status": "CONFIRMED actual PostgreSQL40P01: unchanged-production same-actor regression red; both unchanged original ordering controls passed.",
+  "counts": {
+    "failed": 1,
+    "passed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "pytest_seconds": 242.52,
+    "driver_seconds": 269.3
+  },
+  "observed_wait_edges_before_release": [
+    {
+      "waiter": 18784,
+      "blocker": 18780
+    }
+  ],
+  "postgres_deadlock_cycle": {
+    "issuer_pid": 18784,
+    "native_pid": 18780,
+    "both_directions_in_actual_PostgreSQL_deadlock_detail": true
+  },
+  "actual_audit_actor_fk": [
+    {
+      "name": "audit_auditlog_actor_id_20e70a27_fk_accounts_user_id",
+      "deferrable": true,
+      "initially_deferred": true
+    }
+  ],
+  "workers": {
+    "native": {
+      "pid": 18780,
+      "settled": true,
+      "result_type": "HttpResponseRedirect",
+      "response_status": 302,
+      "exception_chain": [],
+      "actor_lock_modes": []
+    },
+    "issuer": {
+      "pid": 18784,
+      "settled": true,
+      "result_type": "NoneType",
+      "response_status": null,
+      "exception_chain": [
+        {
+          "type": "OperationalError",
+          "sqlstate": null
+        },
+        {
+          "type": "DeadlockDetected",
+          "sqlstate": "40P01"
+        }
+      ],
+      "actor_lock_modes": [
+        "FOR UPDATE"
+      ]
+    }
+  },
+  "production_patch_before_reproduction": false,
+  "no_deadlock_retry_skip_xfail_or_success_conversion": true,
+  "target_user_full_FOR_UPDATE_observed": true,
+  "fresh_complete_capture": {
+    "file_count": 4715,
+    "frozen_inputs_sha256": "8884511ac066f470e165d30f4efba60a8484ae7c5a3601172a7ca761ef159f22",
+    "source_inventory_sha256": "99c41556f01084cc5f9d292a05ca0a54414bf2de0cd67a25d2212c2282657919"
+  },
+  "source_sha256_before_patch": {
+    "backend/apps/makerspaces/staff_authority.py": "c6ea7cdab5410417e496099859e83c042ecce44ea71eacd8d100886e8fc15646",
+    "backend/apps/accounts/services_claim.py": "f2d09749e57d5f084acab1ed247e80921259f89e8d4f307bfea97be358968368",
+    "backend/apps/accounts/transition_services.py": "744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b",
+    "backend/tests/claim_source_safety/test_issue_ordering.py": "ba37a1b4ba3ec5233e4a9d56406d022da213a50f779096080b1c95885b4fdfb3",
+    "backend/tests/claim_source_safety/test_same_actor_issue_ordering.py": "5264f17994700d39afbbce9140a2a866886c61f151ea7cad93aa1c2a44ef65b3"
+  },
+  "private_raw_junit_sha256": "21482e6388d021de558fb5db945a3512e389148c4357c15dc9aaf372cdd710b3",
+  "diagnostic_handling": "Raw red JUnit remains private: unchanged original controls emit SQL parameters. This artifact contains no raw parameters, environment values, passwords or bearer tokens.",
+  "freeze_membership": {
+    "staff_authority_in_recovery_source65_guard25_copy59": false,
+    "existing_shared_freeze_modified": false
+  }
+}

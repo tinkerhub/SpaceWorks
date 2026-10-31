@@ -1,0 +1,1081 @@
+{
+  "format": "spaceworks-actual-same-host-restore-proof-v1",
+  "status": "actual-same-host-drill-pass",
+  "route": {
+    "archive_format": "spaceworks-deployment-full-v1",
+    "protocol_version": "spaceworks-deployment-full-v1",
+    "kind": "registered same-host disaster restore",
+    "isolated_test_only": true,
+    "official_release_attestation": false,
+    "production_deployment": false,
+    "cross_target_import_exercised": false
+  },
+  "actual_artifact": {
+    "archive_id": "30d36e1e-1a09-4d5e-beb5-9d89c312ff38",
+    "restore_id": "44b7d8df-b81f-4d85-891a-4bf9f920688d",
+    "archive_bytes": 1239528,
+    "age_encrypted": true,
+    "oci_repository_digest": "sha256:25eec473f6fa5a149064d3349d92d78f26b45f5af2948c42027f94bdc8c24f08",
+    "image_id": "sha256:25eec473f6fa5a149064d3349d92d78f26b45f5af2948c42027f94bdc8c24f08",
+    "genuine_local_oci_build_and_registry_push": true
+  },
+  "phase_assertions": {
+    "fresh_named_volume_same_linux_daemon_path_verified": true,
+    "protected_root_owned_linux_host_bundle_executed": true,
+    "pre_backup_target_identity_inspection_passed": true,
+    "real_celery_signed_full_archive_available": true,
+    "sql_and_public_object_changed_after_archive": true,
+    "mandatory_presign_drain_and_real_sql_preview_completed": true,
+    "real_quiesced_api_reset_decision_used": true,
+    "actual_sql_replacement_and_both_s3_object_classes_restored": true,
+    "original_durable_target_database_identity_retained": true,
+    "quarantine_marker_and_database_mode_agreed": true,
+    "quarantine_actual_services": {
+      "backend": true,
+      "beat": false,
+      "worker": false
+    },
+    "out_of_band_root_principal_recovery_used": true,
+    "recovered_principal_authenticated_and_exact_api_residual_risk_acknowledged": true,
+    "host_resume_executed": true,
+    "final_host_state": "acknowledged-normal",
+    "final_recovery_mode": "normal",
+    "final_actual_services": {
+      "backend": true,
+      "worker": true,
+      "beat": true
+    }
+  },
+  "restored_synthetic_data": {
+    "description": "before-archive",
+    "object_sha256": {
+      "public_image": "4b45339784ecb4acb2639753a123f90a3205501d63a8ba6e83bf488f4ad9a4aa",
+      "private": "5f00c9a9ab5b6c917de61ed932c92e8487a5b4d80d57bb064100ae9bc1903b7e"
+    },
+    "new_generation_queue": "spaceworks-fc74dd6a-54cb-4aa4-919b-900814d3fbea"
+  },
+  "source_bounds": {
+    "focused_source_count": 65,
+    "guarded_host_dependency_count": 25,
+    "pinned_runtime_copy_count": 59,
+    "captured_runtime_count": 2023,
+    "drill_source_freeze_sha256": "d8a279c325d2981576df52635e4d372356dbee8f227b6491db6fd5273758ecc7",
+    "drill_source_tar_sha256": "a396e37b8d910b88a6196fb73c4ec4474bf13c63600248bff94dbfae445d3ca5",
+    "drill_runtime_inputs_sha256": "aa4683004071935979b3ffddc440c00bf3657fce71dc53d5373080d74871ccd4",
+    "drill_runtime_copy_digest": "08d61f6e6a751df803c3d861a71198439a9bebbe6d82aebd4a0040c91718684e",
+    "current_focused_source_freeze_sha256": "c88b5933e00ec6356ddd39fa72b032e2e95dd4ba8866ca5cf3dde90c73fc4935",
+    "post_drill_runtime_source_changes": [
+      {
+        "path": "backend/apps/accounts/claim_routes_public.py",
+        "drill_sha256": "4a6e0e56679c820c85c587f3b1de91e3fba8d7e8317e5614dc1b46f1d606a0fd",
+        "current_sha256": "04a3a5cb21acbf67a18d453eeeb65fd8d99f423e542006aefa57c2f18594925c",
+        "classification": "authenticated account ownership and capability history projection"
+      },
+      {
+        "path": "backend/apps/apiclients/scope_registry_routes.py",
+        "drill_sha256": "ae84f24c98ad92d1a35e739ad81c1210389475fd7fafdf17ee557a22570346a9",
+        "current_sha256": "20aebebadc729339c86446d152c02e2e8090e25c607af0dba79e8f212f04ce35",
+        "classification": "protected API route scope registry"
+      },
+      {
+        "path": "backend/apps/backup/archive_payload.py",
+        "drill_sha256": "a5817836393d8a565aabf306a8170355671cd1ef498841e1ff85a89d5dfea102",
+        "current_sha256": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f",
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/backup/full_capture.py",
+        "drill_sha256": "f84a843a7788a8f2428aef5d3cd9c3ff5b088efb23d215e7a8425b0c9f57710e",
+        "current_sha256": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "drill_sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+        "current_sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/backup/producer_capability.py",
+        "drill_sha256": "e5d9b126319b668979e645b2ab57f36581461f55a08d486f1db3fb4588b08f05",
+        "current_sha256": "2d7488c938ab5fc6bbbe8cd55ed6c7320cc4e6bd017415e523a7e04216641994",
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/backup/settings_policy.py",
+        "drill_sha256": "74b7aeb23c75767d5f90a8a1d891992c03d331a17c1958e210ea75bee572ce13",
+        "current_sha256": "e5109f9aa10332a85c587b1f248f1ee192c8bf0b553a0c71e687909175065ed8",
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/boxes/admin_qr_lifecycle.py",
+        "drill_sha256": "412bea74180f9bcddce1b5376a8ea441a2a58e0434c73eae0ef6d38ffa22ea20",
+        "current_sha256": "7f557177cc7eeaa3c45bf43b78887d90f06d3753d43dff76f1a16bb609e5fc3f",
+        "classification": "native QR lifecycle error handling"
+      },
+      {
+        "path": "backend/apps/data_export/classification.py",
+        "drill_sha256": "928a170eaace3e46d06c7662e863f89a99a425dbe602c482461c5b0ce2ea69c7",
+        "current_sha256": "7d5b683f473f7b2e706e278175ee1c9b8516ad30d9389367b958446636ab50cc",
+        "classification": "portable tenant field classification"
+      },
+      {
+        "path": "backend/apps/encryption/registry.py",
+        "drill_sha256": "17e6a00bdea57e945f72220b429a1bbf5d6985880d1d4f8c1fc6f32faa2c3e12",
+        "current_sha256": "88010db726db578bd627acc59d7bd3e68920390c39b1d9d305ce8c657871993c",
+        "classification": "scoped PII field registration"
+      },
+      {
+        "path": "backend/apps/hardware_requests/admin_request_review.py",
+        "drill_sha256": "e6455aa6bdf150d30ab0705f26a72817d06c5bd0cc074643c927d04028a31972",
+        "current_sha256": "ff63803f37e006e7b37c9f0ffc4f4a034b514dd5c085cda2119b2db85d7f6b33",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/admin_requests.py",
+        "drill_sha256": "57c4be4f91ee3f54c221d2a033274909197280d5403b86d2a269c0688839a419",
+        "current_sha256": "af6ac8c4f1543a96a0fecfabb3f59b9dc74a326d2e1b31d3193fdcfe0b271592",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/handover_workflow.py",
+        "drill_sha256": "0fd29e429bdbc1d8c0b0e8f09dab97d39194aedcee790b40c7e7ab62200a36d5",
+        "current_sha256": "f7dc3756e7322fc6b1ce220be055f22cb120da9e55ba0a97cad34cc497bbb675",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/models.py",
+        "drill_sha256": "b695734206a45807ff4cb3153affc4b887df3860200c580737fcbe3f0af02fa5",
+        "current_sha256": "54108b49ff97e6c4e4b66cc8775030b75de788a1c33f9cf538d118963d62ce5d",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/notifications.py",
+        "drill_sha256": "47d32d0619b4ef79f01849cff49b85025070f0179db0c8c3729070a68e0c4131",
+        "current_sha256": "270291e04af657c6b9634ed0b57794af337a15ee36d389ebd4ec46be74eb931e",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/permissions.py",
+        "drill_sha256": "11465c8abf39263d184bffeaf32d8864a8907e231b0eae670235e5faf5009702",
+        "current_sha256": "6fc837b67544b2aea5344b221af22d9f9b8b8acbd17a6150b4a9e6ab5a747505",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/queue_views.py",
+        "drill_sha256": "58f576784d6118ba3af173da7cb07befebf3533be75a1a589a86ff626114e277",
+        "current_sha256": "00854de0c4ee52d3788f724b11d1b736679034f90d8b681ae40f68ae6a6a28d7",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/request_workflow.py",
+        "drill_sha256": "435cd4abd0be7d70f08890d18f85f167113122a3a4005e72d3a08a1a6ad30e04",
+        "current_sha256": "bfd845aa7995515da9fab15dd4a306ce34f32270e73d917a05b522ae4c68bbb7",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/review_views.py",
+        "drill_sha256": "208cd310e2eebfbd7064872ea60ccf194eab32b1ba517a426187e9607703fa83",
+        "current_sha256": "cf741af0746af47a27954400327a71fa66be004f2d6e5cc6b35267e0840ae410",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/serializers.py",
+        "drill_sha256": "fe83c5dfeaf6e650f435144427deb199d3504fad494f9514ecd0204bf76ceebd",
+        "current_sha256": "0a5ef36f83abc228c83cc1cb4821afdacc8f43d13f9ad0f1a9b05cd0843b143c",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/serializers_admin.py",
+        "drill_sha256": "f147fab27acd091f6d5ca434994948ccb4fb8e7181958f9a12e58a8d614b711c",
+        "current_sha256": "44ad21f3ee77327c4659834a54a8d3665180ffb1a2afe87f36aa311249fa23dd",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/serializers_public.py",
+        "drill_sha256": "9a7af7dee5b7431d687465b6883f8edcc3feaeaf2d9b7ab83a615f20254974a9",
+        "current_sha256": "df4a31273ca3d9bf21d1ca6a2f8b2b1bf7661a2112fb70e2ffafdeaf51bd3507",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/timeline_service_requests.py",
+        "drill_sha256": "1c21c3c153b82ec5ba8f6f3d15d4f8d4bf344aaf0df01530df9c6882587e1dd6",
+        "current_sha256": "a822385ebd803a7b9e42ff8c803a5880c2446cacd99f0fafd03004ebdcbf4bb7",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/urls.py",
+        "drill_sha256": "22c7a7a72e305aa1681cc6be4c2c3e899cc3d6526361a0e75bf4f12af7963439",
+        "current_sha256": "0b6be7124ad3f363f332c565529f485eef1df35b6e2982e0cd9b3e44aef7eb51",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/views.py",
+        "drill_sha256": "3f1387bf93dba379cfc63794b287aab21ae818bd762d4cf3b6151fef459c996a",
+        "current_sha256": "e65d62d0c444304ef427c006576d2a537642d3241da8fc5614a8be6cea00d6b0",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/workflow.py",
+        "drill_sha256": "df7e9f79c9e9221fb777b29d71582a8e95769373042199e271d0566f8f73e5e7",
+        "current_sha256": "7fb978af3d7b3f6b4494238b71e4c6eb9530a64fd21af1e32d2e15e870ea7693",
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/integrations/email_templates_registry.py",
+        "drill_sha256": "202bfcf32a911acc1176a810c470f5055327b9553b1372f9c427e9162552d7ad",
+        "current_sha256": "7535edbc378a6287d6b9c6ae26679f52292314c8c044735b6e1ab3313a854b40",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/integrations/email_templates_registry_defaults.py",
+        "drill_sha256": "e9dc991f28ff3e24aeaf2ceebb5754e5c5090f2c5369e2975582185a955d988c",
+        "current_sha256": "3c1294801f4de241409074ceffcd65a17b6308ecbd7c980fd22e6aae1fb0b1e0",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/integrations/notification_catalog.py",
+        "drill_sha256": "fd944521722612b138807682f0db8687825b1143d5cd31c9a35566fa0fedf00f",
+        "current_sha256": "f65410bd6522e1f2639bb401d2e3d5c5e1b01fea1bc36949d19e0d20ba6ce18a",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/integrations/notification_enums.py",
+        "drill_sha256": "fe5613af5d8c8c7930e742a5480fb6a1a57623e85b9bdfc5a30a11c2f4253060",
+        "current_sha256": "e1cad26cc337ebd7ab6d2f096a3b0de5e55f19bce5f494c7e9808b02996f267e",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/integrations/recipients_selection.py",
+        "drill_sha256": "4397ca91f1b7ebca821653dda393f53dc27c4536a022a8ec98757cfcce7be045",
+        "current_sha256": "7ffdf4ff92b21fae099e128ff8698c8c1c1654d90ed8d65b5f6d529116927d75",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/integrations/staff_notifications.py",
+        "drill_sha256": "9306d798c2659a70fc76fb5664751b65fe06fda68cfa40aec009bbb2cab9789a",
+        "current_sha256": "703d683c7ac69ded4362b89341348e924d844efbef680c6126224db3b775be68",
+        "classification": "outbound notifications, feature catalog and recipient selection"
+      },
+      {
+        "path": "backend/apps/inventory/availability.py",
+        "drill_sha256": "f0d0c6cbd84ef7b8e6f29d4950da230716d34841627fa3b5ae94acd3b1529937",
+        "current_sha256": "fdfd1b5f99c837b912dda4087a209c05f128d36ba71462c46a10b9738ba56060",
+        "classification": "inventory availability and attributable reservation ownership"
+      },
+      {
+        "path": "backend/apps/machines/service_emails.py",
+        "drill_sha256": "26ff20153ba8f1d54d2c891fdc63ce50bdbe75bb50d9ef6eab1ab0522b489c0d",
+        "current_sha256": "2a7df43fbc07c091368effc326a0a842953f5ee7aeac8a35a02491345b51ceee",
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/machines/service_workflow_followups.py",
+        "drill_sha256": "ba9095d7209ea765c3396f36a3b7a18df7314886d0943b6ac9d1cdbbfe7e60eb",
+        "current_sha256": "cb5674c341a688a8c9e1472384275416fe84195b92dfb5888241765341ed1581",
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/machines/service_workflow_helpers.py",
+        "drill_sha256": "82a560490b6f14df8d6976f5eb3d0bf45217722f16b102cb63468d8dc58ac24b",
+        "current_sha256": "06f83e97263a5402d52d701669a19389c55dff7fc6aadb892e256d93d78a2d86",
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/machines/urls.py",
+        "drill_sha256": "16fb861b8fd3c388b7c8418d74c1e75ebb8212540ba139aebbe14ace3c17497b",
+        "current_sha256": "aa38fddbb7366d8305f5a39bd458fa07e7dda67657c755eabe79efe87a8126fb",
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+        "drill_sha256": "7606ddad0c8f59dcba622cad504b9080591f9339408db318cd0164110fc30825",
+        "current_sha256": "f037327d6277a9b476fe35aede7757fa7e7db31a789bd5e277d38cc778c14b1c",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/module_purge_accounting.py",
+        "drill_sha256": "d30335b4ef912565cbeb7d32b864eebc67e3e2bb57b948f94f20a58eb13e6c62",
+        "current_sha256": "6524dce675b504fad605daf8b1e6d628ffb06b6ff4c0608c9372408383b2276c",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/module_purge_graph.py",
+        "drill_sha256": "d4c7f99047830c21e59cd5989e5baa7a4a0b90e30d29c0071c94504bce91a3a8",
+        "current_sha256": "f57ff084a2bb24b581f695fd6224d258356526bc15ff61a941df9ca7f4061110",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/module_purge_receipt_authority.py",
+        "drill_sha256": "e150c90e3c4a3f1ce92cc446a8c71ff1ccfc28c8247b3cd5f63557040be5d8df",
+        "current_sha256": "eea4434899bd3bb3271e57b7872384d274a3575570a6d902a7335f7d642c1ad0",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/module_purge_receipts.py",
+        "drill_sha256": "0b7a62c6d2ff90fc65b45008ce5a0476d8efb1f8d57d4c2c69b99f2af6d58c96",
+        "current_sha256": "10ece16f4d23e0330296fe078a9ef91905558ae077ef74d6854c628ba4b8d353",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/module_purge_sites.py",
+        "drill_sha256": "a71025552d0a060442b8f1e3c2b4d98bc6c32572c3e5ad018e3d779dd053b302",
+        "current_sha256": "e8fb9c6fa047f853fe4724efdd5c5d63ff2e220785e9669c9ae96e1cfcf12ac9",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/origin_scope_routes.py",
+        "drill_sha256": "9689c32cd0df988be87fffdb6f84cd98e810b196865df39c75384eaf81e69f20",
+        "current_sha256": "abc5aff5c30808b83445431ae953b75eaac55a024d80cc83fa2b294aa727a1fd",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/makerspaces/staff_authority.py",
+        "drill_sha256": "c6ea7cdab5410417e496099859e83c042ecce44ea71eacd8d100886e8fc15646",
+        "current_sha256": "9a98797917bc2e69f363eb751912774c556ed4ce5c71d1d0e0509e91fbbc9102",
+        "classification": "tenant authority, origin routing, module cleanup and quota reconciliation"
+      },
+      {
+        "path": "backend/apps/object_storage.py",
+        "drill_sha256": "419af3b605f5d4b32144c45f89013f71fd33dbe48f6622e08d2f090bd2a34177",
+        "current_sha256": "eb81a748ab60ef5c4e2f7989ad91dc7546dd2468c97a3bae7a1484dab40ab7dd",
+        "classification": "shared document storage charge and deletion accounting"
+      },
+      {
+        "path": "backend/apps/payments/amounts.py",
+        "drill_sha256": "e7184185e81f8e8926d01996f074f6082a1e5583fbe56dd8d6a13ae4537d3b4a",
+        "current_sha256": "83349dbb4397ac58e302c404e9663beeccc7d92fcc37f8bb948a067eb02f3c75",
+        "classification": "provider currency units and amount catalog"
+      },
+      {
+        "path": "backend/apps/procurement/signals.py",
+        "drill_sha256": "aebd020a15d3b4be99f6c1a60e2c81c22c983928cda90fcf912c00961581217e",
+        "current_sha256": "9a427fbf674a0b5012b221705f5f835894200e3df68da29e6f2f8beffb11e96d",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/apps/procurement/storage.py",
+        "drill_sha256": "1db299b27cd97daefa9e001249a807e14f105bcbf815d320178c6c19b57da66c",
+        "current_sha256": "2326fb3efb61ca92306dbb5a938b9e20141e426eca9809e40ef30820efcf1a9f",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/apps/procurement/views_receipts.py",
+        "drill_sha256": "5c022e3256c910500805c5d379dd67d9606b38ce6db6978d683cc85b415bed80",
+        "current_sha256": "66c71de0fe0c420cfbfa3810aa80c2649fdeab3ad3a8e32d071c06383489602f",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/apps/tenant_migration/audit_references_meta.py",
+        "drill_sha256": "64a7eb1260116ecae6a1b0c051ce1ca00a6ad68f70519230db2ea1119337b1f4",
+        "current_sha256": "e060cc22af8eebe3063000dd899cb46d2b8db5ae21d37e8975d46084f190cd2e",
+        "classification": "portable tenant schema, field and audit reference projection"
+      },
+      {
+        "path": "backend/apps/tenant_migration/audit_references_meta_source_local.py",
+        "drill_sha256": "24f9848eb5a6ad38ec91452e4709d73068b917200a33e3c0b6e7b837e82c1529",
+        "current_sha256": "13739a7bf6d46083fd57d0727cd87bc5053c5448a194113005a943fb5285f8fb",
+        "classification": "portable tenant schema, field and audit reference projection"
+      },
+      {
+        "path": "backend/apps/tenant_migration/tenant_dump_catalog.py",
+        "drill_sha256": "5117ca036f64debddb987b2544bf48e17dc6d39f44d23e9122450d04efc3e176",
+        "current_sha256": "5e0f0fc30be14704ff98b7a57ae34366ebadaeb55cbc48fa5f6439cf557f7175",
+        "classification": "portable tenant schema, field and audit reference projection"
+      },
+      {
+        "path": "backend/apps/tenant_migration/tenant_dump_field_snapshot.py",
+        "drill_sha256": "2213658f6f6924104f8303c8825ded12e9443f75b1bed1ceaf6b102a37e51a6e",
+        "current_sha256": "37a7e56a5559aec75c72f22dea6dbb5d6f5be1ee9f36def3198adf6820d1baa0",
+        "classification": "portable tenant schema, field and audit reference projection"
+      },
+      {
+        "path": "backend/apps/warranty/signals.py",
+        "drill_sha256": "d4e4d70a089056b1a0dc191447cf15935cceec047c3e2e808000cf9b314c2f37",
+        "current_sha256": "ef3eaf03b853160bfbbd2708dd6d6191ad351fe284580b8197fd20b68be54d9a",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/apps/warranty/storage.py",
+        "drill_sha256": "1aeda0dfa6a90e9749259a7a961dc553fa24dfa8b6b3a9a5ba67620e51b40f8a",
+        "current_sha256": "cbb911ca41d06b9ae7553009d5625ba24c640c07952daa25930225c6aa553595",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/apps/warranty/views_documents.py",
+        "drill_sha256": "16e3e50eb73454b51e0cdf4a7415719165c37a4e2978689eed1576499f66390b",
+        "current_sha256": "2aa94d171d16ad72fbee351de068e7fd21d51ed691b636b30109d1dcdbe085a4",
+        "classification": "document charge provenance and deletion accounting"
+      },
+      {
+        "path": "backend/templates/admin/hardware_requests/review.html",
+        "drill_sha256": "341eea5505d41947407892f7e656585fb3ea51be24899ad33956f564893bbfbe",
+        "current_sha256": "59673e7212bea639670ae4d0ebf11fd4461ba4e254140dc85dd6ccfba6a1a861",
+        "classification": "protected staff request review template"
+      },
+      {
+        "path": "docker-compose.cloud.yml",
+        "drill_sha256": "d272a6b6ae421cd18b6b5737b039ed5d12d16ac9cf4919c665f57ae4bb40043b",
+        "current_sha256": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+        "classification": "deployment backend process command configuration"
+      },
+      {
+        "path": "docker-compose.prod.yml",
+        "drill_sha256": "a88a0db72fd5c6222bf6e2105b2659f8d2415f132758d46b2d1054edac62ab75",
+        "current_sha256": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+        "classification": "deployment backend process command configuration"
+      },
+      {
+        "path": "docker-compose.yml",
+        "drill_sha256": "2d020f77297db1941e03c91a0646c50118b979e020e9100ce5e380bfb18b6ecc",
+        "current_sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+        "classification": "deployment backend process command configuration"
+      },
+      {
+        "path": "scripts/install-host-bundle.sh",
+        "drill_sha256": "a34e6467928ff6420ebbf3147a2739488c0bb291db414159edf3fe30089dc1d6",
+        "current_sha256": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/request-access-selection.sh",
+        "drill_sha256": "95a247c0a233c75f94084a46128b8530adf5173d8ccc3802bf01dbe755ff526e",
+        "current_sha256": "97e994cedfadefe9595167ec2afc4792ea414b9df94a57baf0f233f8689f2fd5",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/restore.sh",
+        "drill_sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+        "current_sha256": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/retire-update-tombstone.sh",
+        "drill_sha256": "536ab0f0c0a62921331a9423f88801b8616d97b16c2b23201b1e6551624cbcdf",
+        "current_sha256": "419d97374101a72f1b330566e06a4fccab9ac7f37285d92d97448bef7c997a3f",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/setup-host-orchestration.sh",
+        "drill_sha256": "44e29d6a19a9602a374fc7aa3d2dc693ab540c8a79bed8791d51484ae3acf3ad",
+        "current_sha256": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/update.sh",
+        "drill_sha256": "75f3b1b33036f05eb748db20c1dd6ae5fd67f0868f5fd540b3f160fffbea3168",
+        "current_sha256": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "setup.sh",
+        "drill_sha256": "0836c4827e77f191745d631f2eb63bcf0239163c3474c58ebfec0abdde827d6d",
+        "current_sha256": "34bf8e0987ae238854a5f73fa357224428c4b663170b6731625a50b7fa6bfde4",
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      }
+    ],
+    "post_drill_change_limits": "The original 2023-file restore image and historical 59-file host bundle retain their captured bytes. The current unchanged selector contains 2041 files: 68 original files modified, 18 added and none missing. Later separately reviewed work includes source-install cold-cache handling, staff cancellation of wholly unissued accepted requests, protected cancellation PII, exact-owner request history and lifecycle notifications. Prior audit corrections and their historical validation records remain below. Current focused metadata describes 65 source files, 25 guarded dependencies and a 60-file copy bundle. These changes were not baked into the original image. No fresh, hybrid or current-image restore is claimed. Each linked runtime proof retains its own immutable source, collection, environment and provider boundaries; this comparison is not combined runtime proof.",
+    "current_runtime_copy_digest": "c46e4791e341d98fc0c41e351052d2b31720ce1a710a70738716e0b052e9a761",
+    "post_drill_setup_runtime_evidence": "checkin-setup-identity-runtime-20261030.json",
+    "post_drill_added_runtime_source_files": [
+      {
+        "path": "backend/apps/accounts/request_history.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "46b4ba59211d3f9f7e2569ff1f55e72d1ad341d1b882375a620d9e7eb1ff124f",
+        "drill_sha256": null,
+        "classification": "authenticated account ownership and capability history projection"
+      },
+      {
+        "path": "backend/apps/backup/migration_fingerprint.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "c7234b307420e08cc50826184ef19b5a4a8b034142c2fe765213bf47ed3862d2",
+        "drill_sha256": null,
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/backup/runtime_image_identity.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+        "drill_sha256": null,
+        "classification": "backup producer/admission/settings and immutable migration fingerprint"
+      },
+      {
+        "path": "backend/apps/document_storage_charge.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "61129ae2f851f2792b47188613c74b7584ae696b661cf6bf4142d9db8ea49eec",
+        "drill_sha256": null,
+        "classification": "shared document storage charge and deletion accounting"
+      },
+      {
+        "path": "backend/apps/document_storage_quota.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "7ce0b14b12de1f726653907ac2e4686461877f6a881bd47726e45e1b4b62e5fc",
+        "drill_sha256": null,
+        "classification": "shared document storage charge and deletion accounting"
+      },
+      {
+        "path": "backend/apps/encryption/migrations/0009_request_cancellation_pii_fence.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "0d4a41e1c10efa3697de7301652ad38a5ba4617edaa0a1cbab218c8b73c0eaf7",
+        "drill_sha256": null,
+        "classification": "encryption installed database schema or immutable field-fence migration"
+      },
+      {
+        "path": "backend/apps/hardware_requests/cancellation_workflow.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "16263ba9f7b9f07c376c935ed52f533eeb0aa9e75c208097c4f7381fb0864cb4",
+        "drill_sha256": null,
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/hardware_requests/migrations/0026_request_cancellation.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "c45bb8cc35ff2430bc6fb3b45df77f7b13a1fe2aeafc3c178f1c515ae7d41dff",
+        "drill_sha256": null,
+        "classification": "hardware_requests installed database schema or immutable field-fence migration"
+      },
+      {
+        "path": "backend/apps/hardware_requests/own_request_history.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "f0c80144fea336eec47031f55df613b3a7642ae12e1988c79866d42687b95750",
+        "drill_sha256": null,
+        "classification": "hardware workflow, authority, quantities, scoped history and notifications"
+      },
+      {
+        "path": "backend/apps/integrations/migrations/0025_machine_service_notification_feature.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "1f7c47756cfa80c7348fedb2aa9c6ce9623c385dbed9ed716245b4bccb94a319",
+        "drill_sha256": null,
+        "classification": "integrations installed database schema or immutable field-fence migration"
+      },
+      {
+        "path": "backend/apps/inventory/availability_reservations.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "08e0315b562143edb49266c0de3abb3798bbdf0c4370589af396e87cfbb753ae",
+        "drill_sha256": null,
+        "classification": "inventory availability and attributable reservation ownership"
+      },
+      {
+        "path": "backend/apps/machines/own_request_history.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "9c485af597fdfdee64987fdb906b1b171f359c377a8be1f87ad305dbd3761577",
+        "drill_sha256": null,
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/machines/service_notifications.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "0e2048100a8c76f93fceeccb21821992c8197d81d76b8394c617ee884262aa83",
+        "drill_sha256": null,
+        "classification": "machine request lifecycle notifications and exact-owner history"
+      },
+      {
+        "path": "backend/apps/payments/currency_rules.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "9680966afb1c121928f429b873ecf9516f992a81345baae7d2322332b9247490",
+        "drill_sha256": null,
+        "classification": "provider currency units and amount catalog"
+      },
+      {
+        "path": "scripts/provision-runtime-image.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+        "drill_sha256": null,
+        "classification": "host installer/operator lifecycle and runtime identity orchestration"
+      },
+      {
+        "path": "scripts/tests/backend_process_inputs.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "b0575bd70629332fc3149e7c5c14a7339319c42e5bfe08596cb919e33d2eba9f",
+        "drill_sha256": null,
+        "classification": "standalone backend process lifecycle test probe helper"
+      },
+      {
+        "path": "scripts/tests/backend_process_lifecycle.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "e7e5a0cb2b745438e07b7742aacc0dc44a02e4d4a4558e9183db6caf09d2938e",
+        "drill_sha256": null,
+        "classification": "standalone backend process lifecycle test probe helper"
+      },
+      {
+        "path": "scripts/tests/backend_process_runtime.py",
+        "present_in_drill_capture": false,
+        "current_sha256": "bdb4b531f3f934d5ffcd71d72a5544b74d39e6b153bdf9bed1b4c5a9ec7401c7",
+        "drill_sha256": null,
+        "classification": "standalone backend process lifecycle test probe helper"
+      }
+    ],
+    "current_runtime_source_file_count": 2041,
+    "post_drill_currency_validation": {
+      "evidence": "payment-currency-catalogue-runtime.json",
+      "evidence_sha256": "f146c509425eefa1469a258bebc1cb57a96e40b5513611293f9a5b342a6873e0",
+      "sanitized_runtime_xml": "payment-currency-catalogue-current-round1.xml",
+      "sanitized_runtime_xml_sha256": "d62cbb849da5fed548c6f3d948c210ba53181ad334ed9af05e6cb7640011c01d",
+      "passed": 567,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "tested_source_inventory_sha256": "a98a992fdf0f5a9ff4788fb19da729198d6482731516375b1c917694eaab0582",
+      "tested_capture_files": 4738,
+      "both_currency_files_outside_source65_guard25_and_copy59": true,
+      "focused_freeze_refreshed_for_currency_fix": false,
+      "baked_into_original_drill": false
+    },
+    "post_drill_current_selector_counts": {
+      "captured": 2023,
+      "current": 2041,
+      "modified_captured": 68,
+      "missing_captured": 0,
+      "added_application_source": 14,
+      "added_host_operator_source": 1,
+      "added_test_probe_helpers": 3,
+      "selector": "Exact read-only reconstruction of retained private prepare_snapshot.py selector using current reviewed copy60 membership; the same recursive application/script selection includes the new helpers. No capture/build/restore performed."
+    },
+    "post_drill_lifecycle_validation": {
+      "evidence": "backend-process-and-restore-admission-runtime.json",
+      "evidence_sha256": "ccb87a25e3a9bc54806c61e2aa9bcd273a5651f832ab8ac3896ae20bf63bc5b8",
+      "sanitized_runtime_xml": "backend-process-and-restore-admission-current-round1.xml",
+      "sanitized_runtime_xml_sha256": "955ef3b5bb1fd238c90ff5882fc3c6a880bf9c187b6ce664c2b69b01edb3343e",
+      "pytest_passed": 266,
+      "pytest_failures": 0,
+      "pytest_errors": 0,
+      "pytest_skipped": 0,
+      "real_process_evidence": "backend-process-lifecycle-runtime.json",
+      "real_process_evidence_sha256": "3c6b2dabf6cade3a5d606c5c9515294aab5dd268e04570da0573bafcb1154b07",
+      "real_process_cases_passed": 9,
+      "guard_frame_tested_candidate_sha256": "ad70db08429000b377d046838ba045ab189cb4d5c08d97b20b21dee3e10246ae",
+      "public_source65_copy59_guard25_refreshed_entries": [
+        5,
+        5,
+        1
+      ],
+      "guard_bundle_and_preflight_passed": 27,
+      "baked_into_original_drill": false,
+      "limits": [
+        "Process probes use exact real Compose-decoded shell bodies and real Gunicorn with a fixed synthetic WSGI app, no init, no ports, network none, and readonly temporary source. They do not invoke application entrypoint admission or establish full application shutdown/restore correctness.",
+        "Functional239 and protected25 run Linux UID0 with network none and no Docker daemon socket; actual Compose rendering is local only.",
+        "Strict preflight2 uses normal Django/conftest, private primary environment, audit cache10/broker11. Application initialization can consult the primary database; lifecycle SQL/Docker transport is synthetic and no real restore is performed."
+      ]
+    },
+    "current_runtime_source_vector_sha256": "c5ccc1dfc31adc673ee4f988877fb4ba4b69e3f0c102cc43ebb7fac9cc0b2dc8",
+    "post_drill_document_quota_validation": {
+      "evidence": "document-quota-final-runtime.json",
+      "evidence_sha256": "fcf20e03541ddda0aede7c9c8f3f7f8d295e57f59914130bb7d9fb86b4a54d2a",
+      "final_snapshot_inventory_sha256": "b164ec6abcd9baa6c92903d5a37f52e3a1bf00aae815b3257b6870d82a235bb6",
+      "final_snapshot_files": 4789,
+      "selected_runtime_count": 2029,
+      "selected_runtime_vector_sha256": "d8184d5aa0c3024d9f8a7d66f8f5ba5c2a327620783c755b37b1039ee8655803",
+      "all_selected_bytes_and_modes_match_final_frame_and_current_checkout": true,
+      "quota_paths": [
+        {
+          "path": "backend/apps/document_storage_charge.py",
+          "drill_sha256": null,
+          "current_sha256": "61129ae2f851f2792b47188613c74b7584ae696b661cf6bf4142d9db8ea49eec",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/document_storage_quota.py",
+          "drill_sha256": null,
+          "current_sha256": "7ce0b14b12de1f726653907ac2e4686461877f6a881bd47726e45e1b4b62e5fc",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+          "drill_sha256": "7606ddad0c8f59dcba622cad504b9080591f9339408db318cd0164110fc30825",
+          "current_sha256": "f037327d6277a9b476fe35aede7757fa7e7db31a789bd5e277d38cc778c14b1c",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/module_purge_accounting.py",
+          "drill_sha256": "d30335b4ef912565cbeb7d32b864eebc67e3e2bb57b948f94f20a58eb13e6c62",
+          "current_sha256": "6524dce675b504fad605daf8b1e6d628ffb06b6ff4c0608c9372408383b2276c",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/module_purge_graph.py",
+          "drill_sha256": "d4c7f99047830c21e59cd5989e5baa7a4a0b90e30d29c0071c94504bce91a3a8",
+          "current_sha256": "f57ff084a2bb24b581f695fd6224d258356526bc15ff61a941df9ca7f4061110",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/module_purge_receipt_authority.py",
+          "drill_sha256": "e150c90e3c4a3f1ce92cc446a8c71ff1ccfc28c8247b3cd5f63557040be5d8df",
+          "current_sha256": "eea4434899bd3bb3271e57b7872384d274a3575570a6d902a7335f7d642c1ad0",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/module_purge_receipts.py",
+          "drill_sha256": "0b7a62c6d2ff90fc65b45008ce5a0476d8efb1f8d57d4c2c69b99f2af6d58c96",
+          "current_sha256": "10ece16f4d23e0330296fe078a9ef91905558ae077ef74d6854c628ba4b8d353",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/makerspaces/module_purge_sites.py",
+          "drill_sha256": "a71025552d0a060442b8f1e3c2b4d98bc6c32572c3e5ad018e3d779dd053b302",
+          "current_sha256": "e8fb9c6fa047f853fe4724efdd5c5d63ff2e220785e9669c9ae96e1cfcf12ac9",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/object_storage.py",
+          "drill_sha256": "419af3b605f5d4b32144c45f89013f71fd33dbe48f6622e08d2f090bd2a34177",
+          "current_sha256": "eb81a748ab60ef5c4e2f7989ad91dc7546dd2468c97a3bae7a1484dab40ab7dd",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/procurement/signals.py",
+          "drill_sha256": "aebd020a15d3b4be99f6c1a60e2c81c22c983928cda90fcf912c00961581217e",
+          "current_sha256": "9a427fbf674a0b5012b221705f5f835894200e3df68da29e6f2f8beffb11e96d",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/procurement/storage.py",
+          "drill_sha256": "1db299b27cd97daefa9e001249a807e14f105bcbf815d320178c6c19b57da66c",
+          "current_sha256": "2326fb3efb61ca92306dbb5a938b9e20141e426eca9809e40ef30820efcf1a9f",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/procurement/views_receipts.py",
+          "drill_sha256": "5c022e3256c910500805c5d379dd67d9606b38ce6db6978d683cc85b415bed80",
+          "current_sha256": "66c71de0fe0c420cfbfa3810aa80c2649fdeab3ad3a8e32d071c06383489602f",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/tenant_migration/audit_references_meta_source_local.py",
+          "drill_sha256": "24f9848eb5a6ad38ec91452e4709d73068b917200a33e3c0b6e7b837e82c1529",
+          "current_sha256": "13739a7bf6d46083fd57d0727cd87bc5053c5448a194113005a943fb5285f8fb",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/warranty/signals.py",
+          "drill_sha256": "d4e4d70a089056b1a0dc191447cf15935cceec047c3e2e808000cf9b314c2f37",
+          "current_sha256": "ef3eaf03b853160bfbbd2708dd6d6191ad351fe284580b8197fd20b68be54d9a",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/warranty/storage.py",
+          "drill_sha256": "1aeda0dfa6a90e9749259a7a961dc553fa24dfa8b6b3a9a5ba67620e51b40f8a",
+          "current_sha256": "cbb911ca41d06b9ae7553009d5625ba24c640c07952daa25930225c6aa553595",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/warranty/views_documents.py",
+          "drill_sha256": "16e3e50eb73454b51e0cdf4a7415719165c37a4e2978689eed1576499f66390b",
+          "current_sha256": "2aa94d171d16ad72fbee351de068e7fd21d51ed691b636b30109d1dcdbe085a4",
+          "source65": false,
+          "copy59": false,
+          "guard25": false
+        }
+      ],
+      "quota_existing_modified_files": 14,
+      "quota_added_application_helpers": 2,
+      "all_quota_paths_outside_source65_copy59_guard25": true,
+      "focused_pins_refreshed_for_quota_fix": false,
+      "pre_ledger_red_actual_counter_failures": 3,
+      "original_frozen_history": {
+        "cases": 517,
+        "passed": 511,
+        "failed": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      "final_focused": {
+        "cases": 61,
+        "passed": 61,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "disjoint_lanes": [
+          30,
+          31
+        ],
+        "all_six_original_failures_retested_passed": true
+      },
+      "complete517_case_rerun_against_last_refinement_claimed": false,
+      "sanitized_xml": [
+        {
+          "file": "document-quota-pre-ledger-public-api-red.xml",
+          "sha256": "72dab116e13f6c869ea0d5181023879dc6433ada10b89ce2f2a3c4e017f3759d",
+          "cases": 3
+        },
+        {
+          "file": "document-quota-original-current-history.xml",
+          "sha256": "e975273fc617af32e146cda6f094c0c9babfa4306689985924e0d7cb050ae722",
+          "cases": 189
+        },
+        {
+          "file": "document-quota-original-compat-history.xml",
+          "sha256": "a4f64232f8098d6ecfea9b576ca1f0216048a3ee8c4663ef9d26c1df50672f11",
+          "cases": 328
+        },
+        {
+          "file": "document-quota-final-secondary.xml",
+          "sha256": "f0924aa25fe0504691364aa8accf0defc832d5c5c03cc5bc96fad9302cd5f474",
+          "cases": 30
+        },
+        {
+          "file": "document-quota-final-primary.xml",
+          "sha256": "c44d256e11d110aee530d897c1f63db9f9f1bdc162f0d08f90c4524922118dba",
+          "cases": 31
+        }
+      ],
+      "proof_boundaries": {
+        "real_postgresql_and_real_source_storage_exclusion": true,
+        "provider_transport_replaced_by_versioned_doubles": true,
+        "legacy_declared_sizes_never_authorize_credit": true,
+        "ordinary_credit_requires_confirmed_nonempty_data_version_deletion": true,
+        "module_purge_uses_validated_frozen_provenance_and_confirmed_absence": true,
+        "actual_restore7_not_reexecuted_for_this_document_quota_delta": true,
+        "lost_on_commit_callback_is_not_automatically_retried_by_a_new_queue": true,
+        "raw_logs_xml_and_private_env_remain_private": true
+      },
+      "baked_into_original_drill": false
+    },
+    "current_focused_source_count": 65,
+    "current_guarded_host_dependency_count": 25,
+    "current_pinned_runtime_copy_count": 60,
+    "current_runtime_source_vector_digest_construction": "sha256(json.dumps(sorted path/sha256/mode rows, sort_keys=True, separators=(\",\", \":\")).encode(\"utf-8\")); no trailing newline",
+    "post_drill_runtime_image_validation": {
+      "backend_evidence": "runtime-image-backend-runtime-20261031.json",
+      "backend_evidence_sha256": "0fde07e940d7ea632e19f64bb76e5656a90663c8dfa4cbd2f387434b57098347",
+      "backend_unique_case_ids_resolved": 65,
+      "backend_initial_observed_passes": 62,
+      "backend_initial_live_provider_environment_failures": 3,
+      "backend_initial_postrun_inventory_guard_passed": false,
+      "backend_initial_postrun_refusal": "One native Python3.14 helper cache was added after the host49 run. Original frame/cache and refusal are retained; all4829 expected bytes/modes unchanged.",
+      "backend_exact_clean_retries_passed": 3,
+      "backend_retry_driver_seconds": 329.591,
+      "backend_boundary": "Exact three failed IDs retried against a clean expected-entry clone with identical application bytes, assertions and environment. Both guards closed. This is not a fresh65 rerun or an initially closed65 driver.",
+      "host_evidence": "runtime-image-host-provisioning-runtime-20261031.json",
+      "host_evidence_sha256": "12f85b0dc711d6c87115d984cf5a9a7edd8f0bad91b3fdef7100bbf275872522",
+      "host_current_passed": 49,
+      "host_initial_oracle_failures_preserved": 4,
+      "strict_copy_evidence": "runtime-image-copy60-runtime-20261031.json",
+      "strict_copy_evidence_sha256": "65600e3a3319d17992b0e0ed8520bb9a1b307259d9a4747a360f786b6453eb2a",
+      "strict_copy_current_passed": 25,
+      "strict_copy_initial_fixture_failures_preserved": 2,
+      "actual_cached_docker_evidence": "runtime-image-cached-docker-positive-20261031.json",
+      "actual_cached_docker_evidence_sha256": "08c54b9e8b41be6973ae7c7af1ebc661c12c7b5b5e647aff3a1524b1b87d903d",
+      "clean_actual_cached_docker_probe_passed": true,
+      "clean_docker_probe_scope": "Read-only inspect plus newly private helper-copy/tempdotenv persistence. No pull/build/tag/remove/container start or original recovery-state changes. Initial source-snapshot cache side effect is explicitly disclosed.",
+      "production_paths": [
+        {
+          "path": "backend/apps/backup/archive_payload.py",
+          "sha256": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f",
+          "mode": 420,
+          "source65": false,
+          "copy60": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/backup/full_capture.py",
+          "sha256": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+          "mode": 420,
+          "source65": false,
+          "copy60": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/backup/runtime_image_identity.py",
+          "sha256": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+          "mode": 384,
+          "source65": false,
+          "copy60": false,
+          "guard25": false
+        },
+        {
+          "path": "scripts/provision-runtime-image.py",
+          "sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+          "mode": 384,
+          "source65": false,
+          "copy60": true,
+          "guard25": false
+        },
+        {
+          "path": "scripts/setup-host-orchestration.sh",
+          "sha256": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+          "mode": 420,
+          "source65": false,
+          "copy60": true,
+          "guard25": false
+        },
+        {
+          "path": "scripts/update.sh",
+          "sha256": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+          "mode": 420,
+          "source65": false,
+          "copy60": true,
+          "guard25": false
+        },
+        {
+          "path": "scripts/install-host-bundle.sh",
+          "sha256": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+          "mode": 420,
+          "source65": true,
+          "copy60": true,
+          "guard25": false
+        },
+        {
+          "path": "setup.sh",
+          "sha256": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31",
+          "mode": 420,
+          "source65": false,
+          "copy60": true,
+          "guard25": false
+        }
+      ],
+      "all_P1_test_processes_ended": true,
+      "original_drill_bundle_count": 59,
+      "current_reviewed_bundle_count": 60,
+      "current_focused_manifest_sha256": "572cf97beadbb8e4e35d0cd3006398dce21a7c2430cd81d929446118c4fbf895",
+      "baked_into_original_drill": false
+    },
+    "post_drill_migration_fingerprint_validation": {
+      "evidence": "migration-fingerprint-runtime-20261031.json",
+      "evidence_sha256": "eb90d0a55c13be09929a580bf751b236fc79da05c980133c199b8c89989a2ef5",
+      "current_passed": 76,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pre_fix_genuine_assertion_failures": 12,
+      "pre_fix_import_or_setup_errors": 0,
+      "production_paths": [
+        {
+          "path": "backend/apps/backup/producer_capability.py",
+          "sha256": "2d7488c938ab5fc6bbbe8cd55ed6c7320cc4e6bd017415e523a7e04216641994",
+          "mode": 420,
+          "source65": false,
+          "copy60": false,
+          "guard25": false
+        },
+        {
+          "path": "backend/apps/backup/migration_fingerprint.py",
+          "sha256": "c7234b307420e08cc50826184ef19b5a4a8b034142c2fe765213bf47ed3862d2",
+          "mode": 420,
+          "source65": false,
+          "copy60": false,
+          "guard25": false
+        }
+      ],
+      "format_compatibility_only": "The public callable/re-export and marker format remain stable; changed fingerprints require explicit trusted installed-marker refresh through normal operator flow. No automatic blessing.",
+      "all_P2_production_paths_outside_focused_maps": true,
+      "baked_into_original_drill": false
+    },
+    "current_source_comparison_validation": {
+      "candidate_sha256": "f2ecb9b95492e4bdfdbeda9b1d7c27dc6a90f40650d966ad4025936fff1a057d",
+      "selected_frame_inventory_sha256": "53f33bb08943a2822be72bd02e46d135b65dd72a343ffd93fde2fae86d2c3c44",
+      "selected_frame_files": 2041,
+      "inventory_scope": "Selected runtime only, two equal complete byte/mode passes",
+      "selected_count": 2041,
+      "all_selected_bytes_modes_match_frame_and_current_checkout": true,
+      "missing_captured_files": 0,
+      "focused_map_drift": 0,
+      "comparison_only_no_new_restore": true
+    },
+    "post_drill_source_coldcache_validation": {
+      "evidence": "source-setup-coldcache-runtime-20261031.json",
+      "evidence_sha256": "50b219933e909994ec39f81ecbade92590dc5ce0cce981dd3dbe4c6840d21223",
+      "current_unique_cases_resolved": 6,
+      "initial_observed_passes": 4,
+      "unchanged_exact_retries_passed": 2,
+      "fresh_full_six_rerun_claimed": false,
+      "initial_two_deadline_failures_retained": true,
+      "scope": "Actual client-only Compose config and controlled daemon transport; no actual daemon pull/build/start.",
+      "setup_sha256": "34bf8e0987ae238854a5f73fa357224428c4b663170b6731625a50b7fa6bfde4",
+      "baked_into_original_drill": false
+    },
+    "post_drill_accepted_cancellation_validation": {
+      "evidence": "accepted-request-cancellation-runtime-20261031.json",
+      "evidence_sha256": "8943228d561d36bd2e5561c48ec0426f82ce811d12d7cffd38e7fd4ba43e061c",
+      "current_passed": 184,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "genuine_old_source_404_case": 1,
+      "initial_181_passes_three_fixture_failures_retained": true,
+      "scope": "Frozen cancellation source plus finite affected compatibility. Real PostgreSQL, PII and portable tenant materialization checks; versioned object transport doubles. Later shared notification refinements are bound separately by the own-history followup evidence.",
+      "baked_into_original_drill": false
+    },
+    "post_drill_own_history_notification_validation": {
+      "evidence": "own-requests-notification-runtime-20261031.json",
+      "evidence_sha256": "05e8efd5d719cea54654d6b96ce907b9a53c6f883042d8f90885e3b023e184fc",
+      "scope": "Use the linked final reviewed proof for exact case coverage, causal failures, immutable source vectors and provider boundaries. No fresh full suite or restore assertion is inferred here.",
+      "baked_into_original_drill": false
+    }
+  },
+  "retained_private_proof_sha256": {
+    "success.json": "e410048de07814a1fe50a7eb3ad7354408ea501a158ead5b2d55c5f91411350d",
+    "quarantine-proof.json": "e9b8810a0f816046aacf145214d1992402685f68d0919735fd5746e617476cc3",
+    "pre-backup-target-identity.json": "b187bf7e580d666cc413f8d472b5b11d7079ce6433f91f1cbd19e7054bd5ed1a",
+    "feasibility.json": "868a369f1b70de33b0315c1563e9463bfbcaf0a79b46182291e2d04ae12ba8bf",
+    "capture-proof.json": "1053e1e0555200c79c2f01eb1a01732e900d210166e79357b9cf55ba74f3486a"
+  },
+  "timing": {
+    "runner_exit_code": 0,
+    "runner_seconds": 683.91
+  },
+  "limits": [
+    "Local built OCI artifact; not official release attestation",
+    "Live queued/unacked/ETA generation isolation separately tested",
+    "Cross-target import not exercised",
+    "No production deployment performed",
+    "The completed drill does not establish continuous readiness. A later worker timeout/replacement and subsequent readiness HTTP 200 are documented separately; its memory cause is unproven.",
+    "The original drill containers were later deliberately removed after verified graceful master shutdown; retained data and image artifacts do not imply a running service. Later exec process probes establish only their stated synthetic command/process scope.",
+    "Document quota verification used real PostgreSQL/exclusion with versioned provider doubles. Original 517-case history retains six failures resolved by 61 final focused passes; the complete 517 cases were not rerun against the last refinement. This quota delta did not re-execute the actual restore."
+  ],
+  "privacy": {
+    "raw_private_evidence_retained": true,
+    "credentials_tokens_private_keys_and_private_paths_omitted": true
+  },
+  "late_health_followup": {
+    "evidence": "actual-same-host-restore-late-health-20261030.json",
+    "sha256": "2b9d814d2db14ecad015fe98413d516d4a5b0657f89436a19e6aacbc38bf8fa3",
+    "scope": "Later read-only observation, separate from the earlier completed restore.",
+    "confirmed": "Gunicorn worker timeout, SIGKILL and automatic worker replacement; later health checks and actual readiness HTTP 200.",
+    "container_restarts": 0,
+    "recovery_bypass_or_manual_restart_applied": false,
+    "continuous_uptime_proven": false,
+    "memory_or_oom_cause_proven": false,
+    "later_recovery_mode": "normal",
+    "later_host_marker_state": "acknowledged-normal"
+  },
+  "later_authorized_cleanup": {
+    "evidence": "actual-same-host-restore-late-graceful-cleanup-20261030.json",
+    "sha256": "8d5acc9bbe23c37bbfeed23610d75dcad3aa8f99d73fa500380c17fc9843f386",
+    "scope": "Later deliberate cleanup, after original successful restore and bounded late-health observation.",
+    "verified_master_SIGTERM_then_container_exit_code": 0,
+    "container_restarts": 0,
+    "recovery_or_data_mutation_applied": false,
+    "container_removal_record": "spaceworks-audit-container-cleanup-20261030.json",
+    "retained_drill_volumes_images_and_authority_evidence": true
+  }
+}

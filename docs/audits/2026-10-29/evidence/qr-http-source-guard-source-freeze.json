@@ -1,0 +1,146 @@
+{
+  "at_utc": "2026-10-30T04:19:24.578327+00:00",
+  "files": {
+    "backend/apps/tenant_migration/source_gate_api_owned_bindings.py": {
+      "lexical_owners": [
+        {
+          "end_line": 40,
+          "line": 35,
+          "name": "same"
+        },
+        {
+          "end_line": 45,
+          "line": 43,
+          "name": "require"
+        },
+        {
+          "end_line": 51,
+          "line": 48,
+          "name": "unique"
+        },
+        {
+          "end_line": 56,
+          "line": 54,
+          "name": "source_tree"
+        },
+        {
+          "end_line": 66,
+          "line": 59,
+          "name": "require_local_owner"
+        },
+        {
+          "end_line": 109,
+          "line": 69,
+          "name": "require_binding"
+        },
+        {
+          "end_line": 131,
+          "line": 112,
+          "name": "validate_declaration"
+        },
+        {
+          "end_line": 189,
+          "line": 134,
+          "name": "validate_routes"
+        },
+        {
+          "end_line": 197,
+          "line": 192,
+          "name": "_within"
+        },
+        {
+          "end_line": 268,
+          "line": 200,
+          "name": "validate_admission"
+        }
+      ],
+      "lines": 268,
+      "sha256": "2860ea6766eeb4cf71b3eb46fa9a304dcd9500acf87ab469650cb38c9b21fd04"
+    },
+    "backend/apps/tenant_migration/source_gate_api_owned_http_guards.py": {
+      "lexical_owners": [
+        {
+          "end_line": 16,
+          "line": 14,
+          "name": "_body"
+        },
+        {
+          "end_line": 22,
+          "line": 19,
+          "name": "_assignment"
+        },
+        {
+          "end_line": 29,
+          "line": 25,
+          "name": "_refusal"
+        },
+        {
+          "end_line": 34,
+          "line": 32,
+          "name": "_return"
+        },
+        {
+          "end_line": 79,
+          "line": 37,
+          "name": "_runtime_owner"
+        },
+        {
+          "end_line": 100,
+          "line": 82,
+          "name": "_runtime_post"
+        },
+        {
+          "end_line": 126,
+          "line": 103,
+          "name": "_runtime_callback"
+        },
+        {
+          "end_line": 167,
+          "line": 129,
+          "name": "_middleware"
+        },
+        {
+          "end_line": 198,
+          "line": 170,
+          "name": "_late_guard"
+        },
+        {
+          "end_line": 214,
+          "line": 201,
+          "name": "validate_api_owned_http_boundaries"
+        }
+      ],
+      "lines": 214,
+      "sha256": "ff66a18e7a33cd2e3e905070b498ae2500bb5d0ef67390079145a65ecfdca900"
+    },
+    "backend/apps/tenant_migration/source_gate_http_guards.py": {
+      "lexical_owners": [
+        {
+          "end_line": 39,
+          "line": 13,
+          "name": "validate_authenticated_http_boundary"
+        },
+        {
+          "end_line": 71,
+          "line": 42,
+          "name": "_validate_view_class"
+        },
+        {
+          "end_line": 90,
+          "line": 74,
+          "name": "_validate_function_view"
+        }
+      ],
+      "lines": 90,
+      "sha256": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770"
+    },
+    "docs/SOURCE-MAP.md": {
+      "lines": 367,
+      "sha256": "0f30b175cd3338427646d96b4b1e60b02300c6fe270fa8360c9519cb81d4e390"
+    }
+  },
+  "reviewer": "/root/audit_backend_finish",
+  "scope": "Bounded static source guard for exact eight API-owned QR POST routes; original purge guard API and minimal copied fixtures unchanged.",
+  "status": "source independently read;270 static tests authored and frozen; root runtime pending",
+  "verification_correction": "Added audit.record attribute to protected writes so moving audit alone outside retained source context is refused. No runtime ownership source changes."
+}

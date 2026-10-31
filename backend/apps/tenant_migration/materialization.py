@@ -60,6 +60,9 @@ class MaterializationResult:
     objects_promoted: int
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def materialize_tenant(
     archive_directory,
     job,

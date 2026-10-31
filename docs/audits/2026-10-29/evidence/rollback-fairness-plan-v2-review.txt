@@ -1,0 +1,5 @@
+APPROVED.
+
+The revision resolves both prior findings: shared progress storage without lock or deployment changes, and truthful late-failure reporting without a zero-effect promise. The bounded cursor sweep and proposed tests preserve the existing deletion and settlement safeguards.
+
+No files edited or tests run.

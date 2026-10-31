@@ -1,0 +1,49 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory
+
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx (8 tests) 2875ms
+     ✓ old maker success cannot render, clear fresh scans/evidence or unlock the current checkout  772ms
+     ✓ old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout  519ms
+     ✓ old session success cannot render, clear fresh scans/evidence or unlock the current checkout  421ms
+     ✓ old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout  378ms
+ ✓ src/features/inventory/PublicRequestPanelAccountLess.test.tsx (15 tests) 1123ms
+     ✓ collects contact details and sends them with an idempotency key  301ms
+ ✓ src/features/inventory/PublicInventoryPage.ownership.test.tsx (4 tests) 1135ms
+     ✓ reusing /m/:slug removes A cart and open details synchronously on warm A to cold B  612ms
+ ✓ src/features/inventory/PublicSelfCheckoutPage.test.tsx (5 tests) 381ms
+ ✓ src/features/inventory/PublicRequestPanelFlow.test.tsx (2 tests) 485ms
+     ✓ ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow  393ms
+ ✓ src/features/inventory/PublicToolScanPanel.ownership.test.tsx (14 tests) 3888ms
+     ✓ checkout admits first and blocks the reverse operation in the same tick  429ms
+     ✓ old 'maker' 'checkout' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state  330ms
+     ✓ old 'maker' 'return' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state  355ms
+     ✓ old 'maker' 'checkout' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state  327ms
+ ✓ src/features/inventory/PublicEvidenceUpload.ownership.test.tsx (20 tests) 1645ms
+ ✓ src/features/inventory/PublicBorrowRequest.ownership.test.tsx (8 tests) 1381ms
+     ✓ deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys  372ms
+ ✓ src/features/inventory/CheckinIdentityStep.races.test.tsx (6 tests) 884ms
+ ✓ src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx (7 tests) 1105ms
+     ✓ gates evidence and sends the confirmed identity through checkout and return  586ms
+ ✓ src/features/inventory/PublicIdentityTenantScope.test.tsx (3 tests) 757ms
+     ✓ PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name  377ms
+ ✓ src/features/inventory/PublicRequestPanelCheckedIn.test.tsx (14 tests) 588ms
+ ✓ src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx (8 tests) 528ms
+ ✓ src/features/inventory/PublicMachinesPage.test.tsx (4 tests) 423ms
+ ✓ src/features/inventory/PublicRequestStatusPage.test.tsx (3 tests) 453ms
+ ✓ src/features/inventory/ProductCard.test.tsx (5 tests) 344ms
+ ✓ src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx (2 tests) 190ms
+ ✓ src/features/inventory/usePublicSession.ownership.test.tsx (4 tests) 159ms
+ ✓ src/features/inventory/EventRegistrationForm.test.tsx (2 tests) 133ms
+ ✓ src/features/inventory/RequestCartBar.test.tsx (3 tests) 127ms
+ ✓ src/features/inventory/publicSelfCheckoutApi.test.ts (2 tests) 7ms
+ ✓ src/features/inventory/PublicRequestHeader.test.ts (5 tests) 5ms
+
+ Test Files  22 passed (22)
+      Tests  144 passed (144)
+   Start at  19:57:30
+   Duration  58.80s (transform 2.38s, setup 5.04s, import 10.77s, tests 18.62s, environment 20.70s)
+

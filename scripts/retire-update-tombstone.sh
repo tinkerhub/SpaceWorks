@@ -20,7 +20,7 @@ retire_update_tombstone() {
     cleaned="$(without_update_tombstone "$value")"
     if [[ "$value" != "$cleaned" ]]; then
       temporary="$(mktemp "$(dirname "$file")/.retired-app-env.XXXXXX")"
-      sed '/^[[:space:]]*\(export[[:space:]]\+\)\?TOMBSTONED_APPS=/d' "$file" > "$temporary"
+      sed -E '/^[[:space:]]*(export[[:space:]]+)?TOMBSTONED_APPS=/d' "$file" > "$temporary"
       printf '\nTOMBSTONED_APPS=%s\n' "$cleaned" >> "$temporary"
       chmod 600 "$temporary"
       mv -f -- "$temporary" "$file"

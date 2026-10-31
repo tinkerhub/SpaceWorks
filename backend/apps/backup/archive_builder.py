@@ -29,11 +29,12 @@ from apps.backup.archive_payload import (
     _write_continuity_keys,
     _write_json,
 )
-from apps.backup.compound_archive import CompoundCapture, add_slice_metadata
+from apps.backup.compound_archive import add_slice_metadata
+from apps.backup.full_capture import DeploymentCapture
+from apps.backup.full_format import FULL_FORMAT, MANIFEST_MAX_BYTES, CONTINUITY_MAX_BYTES
 from apps.backup.digests import build_content_ledger, sha256_file
 from apps.backup.models import BackupArchive, DeploymentRecoveryState
 from apps.backup.not_restored import assert_deployment_fully_restored, assert_restored
-from apps.backup.outer_manifest import build_outer_manifest
 from apps.backup.postgres_client import (
     PostgresClientUnavailable,
     client_binary,
@@ -79,7 +80,7 @@ def build_archive(archive):
             compound_capture = None
             modes = _storage_modes()
             if archive.scope == BackupArchive.Scope.DEPLOYMENT:
-                compound_capture = CompoundCapture(
+                compound_capture = DeploymentCapture(
                     archive=archive,
                     root=root,
                     modes=modes,
@@ -105,25 +106,25 @@ def build_archive(archive):
                     compound_capture=compound_capture,
                 )
                 manifest = compound_capture.project_readable_main(manifest)
-                manifest = add_slice_metadata(
-                    manifest,
-                    slices=compound_capture.slice_entries,
-                    recipients=selected_recipients,
-                )
+                if not compound_capture.is_full:
+                    manifest = add_slice_metadata(
+                        manifest, slices=compound_capture.slice_entries,
+                        recipients=selected_recipients,
+                    )
             manifest["contents"] = build_content_ledger(root)
             promotion_snapshot = None
             if compound_capture is not None:
                 try:
-                    manifest = build_outer_manifest(
-                        archive=archive,
-                        capture=compound_capture,
-                        detailed_manifest=manifest,
-                        root=root,
-                    )
+                    manifest = compound_capture.build_manifest(manifest)
                     promotion_snapshot = compound_capture.promotion_snapshot()
                 finally:
                     compound_capture.cleanup_verifier_material()
             _write_json(root / "manifest.json", manifest)
+            if manifest.get("format") == FULL_FORMAT and (
+                (root / "manifest.json").stat().st_size > MANIFEST_MAX_BYTES
+                or (root / "keys/env.json").stat().st_size > CONTINUITY_MAX_BYTES
+            ):
+                raise BackupBuildError("Full archive metadata exceeds the installed receiver's fixed byte limits.")
             encrypted = Path(tempdir.name, f"{archive.id}.tar.age")
             plain = Path(tempdir.name, f"{archive.id}.tar")
             with tarfile.open(plain, "w") as bundle:

@@ -146,11 +146,21 @@ def issue_items(request, rejects_by_item=None):
         item.save(update_fields=["issued_quantity", "needs_fix_quantity"])
 
 
+def _require_quantity_fix_action(product):
+    if product.tracking_mode == TrackingMode.INDIVIDUAL:
+        raise InsufficientStock(
+            "Individual stock is derived from unit assets. Open the inventory item's "
+            "individual units to change their status; quantity-based repair, shelve "
+            "and scrap actions are unavailable."
+        )
+
+
 def repair_from_needs_fix(product, quantity):
     """Move repaired units off the to-be-fixed shelf back into available stock."""
     if not connection.in_atomic_block:
         raise RuntimeError("repair_from_needs_fix must be called inside transaction.atomic().")
     locked = InventoryProduct.objects.select_for_update().get(pk=product.pk)
+    _require_quantity_fix_action(locked)
     if quantity <= 0 or locked.needs_fix_quantity < quantity:
         raise InsufficientStock(
             f"Cannot repair {quantity}: only {locked.needs_fix_quantity} on the shelf."
@@ -165,6 +175,7 @@ def move_available_to_needs_fix(product, quantity):
     if not connection.in_atomic_block:
         raise RuntimeError("move_available_to_needs_fix must be called inside transaction.atomic().")
     locked = InventoryProduct.objects.select_for_update().get(pk=product.pk)
+    _require_quantity_fix_action(locked)
     if quantity <= 0 or locked.available_quantity < quantity:
         raise InsufficientStock(
             f"Cannot move {quantity}: only {locked.available_quantity} available."
@@ -179,6 +190,7 @@ def scrap_from_needs_fix(product, quantity):
     if not connection.in_atomic_block:
         raise RuntimeError("scrap_from_needs_fix must be called inside transaction.atomic().")
     locked = InventoryProduct.objects.select_for_update().get(pk=product.pk)
+    _require_quantity_fix_action(locked)
     if quantity <= 0 or locked.needs_fix_quantity < quantity:
         raise InsufficientStock(
             f"Cannot scrap {quantity}: only {locked.needs_fix_quantity} on the shelf."

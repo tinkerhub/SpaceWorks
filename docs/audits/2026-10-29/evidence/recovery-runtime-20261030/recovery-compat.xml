@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="2.118" timestamp="2026-10-29T22:38:49.710833+00:00" hostname="28d4e6f3437b"><testcase classname="tests.backup.test_signed_full_host" name="test_import_refusal_precedes_env_services_intent_and_grants" time="0.113" /><testcase classname="tests.backup.test_signed_full_host" name="test_import_success_checks_prospective_before_env_then_installed_before_supervisor" time="0.418"><failure message="AssertionError: assert 'sql-restore' in [('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('ps', '-q', '--filter', 'label=com.docker.compose.project=...t', 'app:fixed')), ('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('image', 'inspect', 'postgres:16')), ...]&#10;[+1 more line; full report in element text]">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_import_success_checks_pro0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffffa76e1e50&gt;
+
+    def test_import_success_checks_prospective_before_env_then_installed_before_supervisor(tmp_path, monkeypatch):
+        fixture = make_full_fixture(tmp_path)
+        with host_case(tmp_path, monkeypatch, fixture) as (rig, t):
+            before = t.static_env.read_bytes()
+            # Stop at the first SQL-stage management call, after real blocked config
+            # installation and strict installed-key validation, before replacement SQL.
+            t.failure = "control:stage"
+            with pytest.raises(RestoreHostError, match="synthetic transport failure"):
+                run_controller(monkeypatch, t, "import", fixture.encrypted, "superadmin",
+                               fixture.kwargs()["expected_sha256"])
+            rows = t.trace
+            static, registered, described = [index(rows, name) for name in (
+                "preflight_backup_import", "import_backup_archive", "control:describe")]
+            preflights = [i for i, row in enumerate(rows) if row["name"] == "control:preflight"]
+            assert len(preflights) == 3
+            assert static &lt; registered &lt; described &lt; preflights[0] &lt; index(rows, "control:claim")
+            assert index(rows, "control:claim") &lt; preflights[1] &lt; index(rows, "control:quiesce") &lt; preflights[2]
+            stopped = next(i for i, row in enumerate(rows) if row["name"] == "compose:stop"
+                           and row["args"] == ("stop", "backend", "worker", "beat"))
+            assert rows[stopped]["environment"] == before
+            assert rows[stopped]["marker"] == MarkerState.RESTORE_BLOCKED
+            assert index(rows, "control:quiesce") &lt; stopped &lt; preflights[2]
+            assert all(row["environment"] == before for row in rows[:stopped + 1])
+            assert all(row["environment"] == before and row["marker"] == MarkerState.NORMAL
+                       for row in rows[:registered + 1])
+            registered_args = rows[registered]["args"]
+            assert "--restore-id" not in registered_args and "--prospective-record" in registered_args
+            assert all("--prospective-record" in rows[i]["args"] for i in preflights[:2])
+            installed = rows[preflights[2]]
+            assert "--prospective-record" not in installed["args"]
+            assert installed["marker"] == MarkerState.RESTORE_BLOCKED
+            assert not installed["running"] &amp; {"backend", "worker", "beat"}
+            assert all(row["marker"] == MarkerState.RESTORE_BLOCKED and
+                       not row["running"] &amp; {"backend", "worker", "beat"}
+                       for row in rows if row["environment"] != before)
+            assert installed["environment"] == t.static_env.read_bytes() != before
+            assert "TARGET_ONLY=keep\n" in t.static_env.read_text()
+            for role in ("backend", "worker", "beat"):
+                assert all(t.config["services"][role]["environment"][key] == value
+                           for key, value in fixture.secrets.items())
+            private = next(t.ops.glob("private/inplace-*/configuration.json")).parent
+            assert (private / "environment-before.env").read_bytes() == before
+            assert (private / "environment.old").read_bytes() == before
+            assert (private / "environment.new").read_bytes() == t.static_env.read_bytes()
+            assert (private / "bundle/database.dump").read_bytes() == fixture.members["database.dump"]
+            assert json.loads((private / "input.json").read_bytes())["restore_id"] == RESTORE_ID
+            assert read_marker(rig.marker).state == MarkerState.RESTORE_BLOCKED
+&gt;           assert "sql-restore" in t.events  # Preview only; replacement never starts.
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: assert 'sql-restore' in [('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('ps', '-q', '--filter', 'label=com.docker.compose.project=...t', 'app:fixed')), ('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('image', 'inspect', 'postgres:16')), ...]
+E            +  where [('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('ps', '-q', '--filter', 'label=com.docker.compose.project=...t', 'app:fixed')), ('docker', ('image', 'inspect', 'app:fixed')), ('docker', ('image', 'inspect', 'postgres:16')), ...] = &lt;tests.backup.full_backup_host_helpers.HostTransport object at 0xffffa76e5af0&gt;.events
+
+tests/backup/test_signed_full_host.py:94: AssertionError</failure></testcase><testcase classname="tests.backup.test_signed_full_host" name="test_full_supervisor_bootstraps_identity_before_any_postreplacement_management" time="0.834" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[preflight-ok]" time="0.167" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[unknown]" time="0.155" /><testcase classname="tests.backup.test_signed_full_host" name="test_changed_or_unsupported_supervisor_token_refuses_before_destructive_work[compound-coordinator-ready]" time="0.159" /></testsuite></testsuites>

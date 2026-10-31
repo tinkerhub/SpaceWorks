@@ -1,0 +1,127 @@
+{
+  "scope_note": "Pure no-conftest run uses short classnames; exact unique module filename plus unchanged test/parameter name maps baseline package-prefixed classnames. No parameter names normalized.",
+  "baseline_source_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+  "baseline_failures": 4,
+  "baseline_errors": 13,
+  "resolved_cases": [
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_audit_scope",
+      "current_classname": "test_source_primitive_audit_scope",
+      "name": "test_executables_and_unknown_files_inside_dated_audit_folder_still_need_review",
+      "baseline": "failure",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_derived",
+      "current_classname": "test_source_primitive_derived",
+      "name": "test_reviewed_output_exclusion_does_not_exclude_generator_source",
+      "baseline": "failure",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_actual_mjs_imports_meta_env_generator_and_private_output_are_discovered",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_typescript_recovered_ast_diagnostics_still_refuse",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_dynamic_js_callee_is_opaque_and_needs_exact_explicit_review",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_literal_inline_programs_are_scanned_in_actual_language[sh -c \"psql -c 'DELETE FROM x'\"\\n-raw_sql-psql]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_literal_inline_programs_are_scanned_in_actual_language[python3 -c \"from adapter import cursor; cursor.execute('DELETE FROM x')\"\\n-raw_sql-adapter.cursor.execute]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_literal_inline_programs_are_scanned_in_actual_language[node -e \"import {db} from 'sql'; db.query('DELETE FROM x')\"\\n-raw_sql-sql.db.query]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_heredoc_programs_use_sql_python_or_actual_js_parser[psql <<'SQL'\\nUPDATE x SET a=1;\\nSQL\\n-raw_sql-None]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_heredoc_programs_use_sql_python_or_actual_js_parser[python3 <<'PY'\\nfrom adapter import s3\\ns3.copy_object(Bucket='b', Key='k')\\nPY\\n-object_storage-adapter.s3.copy_object]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_heredoc_programs_use_sql_python_or_actual_js_parser[node <<'JS'\\nimport {db} from 'sql';\\ndb.query('DELETE FROM x');\\nJS\\n-raw_sql-sql.db.query]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_shell_branch_has_whole_file_opaque_obligation_and_context_binding",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_runtime_container_yaml_commands_are_obligations[Dockerfile.runtime-RUN psql -c 'DELETE FROM x'\\n-container_whole_context_review_required]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_runtime_container_yaml_commands_are_obligations[runtime.yaml-services:\\n  worker:\\n    command: psql -c 'DELETE FROM x'\\n-yaml_whole_context_review_required]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_foreign",
+      "current_classname": "test_source_primitive_foreign",
+      "name": "test_runtime_container_yaml_commands_are_obligations[runtime.yaml-source2-yaml_whole_context_review_required]",
+      "baseline": "error",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_registry",
+      "current_classname": "test_source_primitive_registry",
+      "name": "test_drafting_reviewed_derived_census_clears_all_approval_fields_without_mutating_input",
+      "baseline": "failure",
+      "current_passed": true
+    },
+    {
+      "baseline_classname": "tests.backup.test_source_primitive_scope",
+      "current_classname": "test_source_primitive_scope",
+      "name": "test_gitignored_new_shell_and_typescript_still_enter_source_scope",
+      "baseline": "failure",
+      "current_passed": true
+    }
+  ]
+}

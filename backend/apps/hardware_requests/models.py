@@ -11,6 +11,7 @@ class HardwareRequest(ScopedPiiModelMixin, models.Model):
         PENDING_APPROVAL = "pending_approval", "Pending Approval"
         REJECTED = "rejected", "Rejected"
         ACCEPTED = "accepted", "Accepted"
+        CANCELLED = "cancelled", "Cancelled"
         ISSUED = "issued", "Issued"
         PARTIALLY_RETURNED = "partially_returned", "Partially Returned"
         RETURNED = "returned", "Returned"
@@ -66,6 +67,7 @@ class HardwareRequest(ScopedPiiModelMixin, models.Model):
     )
     requested_for = models.TextField(blank=True)
     rejection_reason = models.TextField(blank=True)
+    cancellation_reason = models.TextField(blank=True, default="")
     accepted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,

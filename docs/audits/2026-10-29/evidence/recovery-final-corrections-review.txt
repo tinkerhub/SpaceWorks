@@ -1,0 +1,9 @@
+Required deltas:
+
+1. **Carry the registered restore UUID through static preflight.** The [preflight command](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/management/commands/preflight_backup_import.py:9) has no `--restore-id`, but registered prospective records include it. [Delegation validation](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/restore_prospective.py:33) rejects that record unless the caller supplies the UUID. Explicitly include this command in scope, add a UUID-validated optional argument, and forward it to `validate_import_preflight`. Pass it for registered FULL disaster admission; preserve exact record validation and strict rollback admission.
+
+2. **Expose the registered format facts the plan requires.** [`backup_control describe`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/management/commands/backup_control.py:154) currently returns no format/routing facts. Include this command in scope and return the minimal registered format/protocol facts needed to refuse compound/unsupported routing before extraction. Preserve the later exact registered-manifest preflight.
+
+The bounded tar screening, serialized metadata caps, narrow Redis exception with persisted identity, and packaging refresh are otherwise acceptable as written. No generic framework or relaxed root/trust checks are needed.
+
+Read-only source review only; no edits, tests, runtime inspection, or credential access.

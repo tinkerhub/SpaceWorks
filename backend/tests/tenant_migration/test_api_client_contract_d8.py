@@ -18,6 +18,8 @@ from apps.tenant_migration.tenant_dump_source_projection import project_makerspa
 from apps.tenant_migration.tenant_restore_types import TenantRestoreRefused
 
 
+from tests.tenant_migration.x13_proof_helpers import DEPLOYMENT
+
 pytestmark = pytest.mark.django_db
 def _catalog_entry(**overrides):
     entry = {
@@ -38,9 +40,10 @@ def _catalog_entry(**overrides):
     return entry
 
 
-def _catalog(entry=None):
+def _catalog(entry=None, *, capture_id):
     entries = [entry or _catalog_entry()]
-    return {"entries": entries, "sha256": restore_clients._digest(entries)}
+    return {"version": 1, "capture_id": str(capture_id), "source_deployment_id": DEPLOYMENT,
+            "source_makerspace_id": 7, "entries": entries, "sha256": restore_clients._digest(entries)}
 def _approval(catalog, *, capture_id, artifact_sha256="a" * 64, **overrides):
     source = catalog["entries"][0]
     now = timezone.now()
@@ -76,7 +79,6 @@ def _parse(catalog, records, capture_id):
     )
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC BUG: backend/apps/tenant_migration/tenant_dump_api_clients.py:1 is absent, so Lane D has no source API-client catalog producer.")
 def test_source_catalog_exactly_covers_tenant_clients_and_contains_no_secrets():
     source_catalog = importlib.import_module(
         "apps.tenant_migration.tenant_dump_api_clients"
@@ -131,7 +133,7 @@ def test_source_catalog_exactly_covers_tenant_clients_and_contains_no_secrets():
 @pytest.mark.parametrize("case", ("unknown", "duplicate", "ineligible"))
 def test_approval_refuses_unknown_duplicate_and_ineligible_source_refs(case):
     capture_id = uuid.uuid4()
-    catalog = _catalog()
+    catalog = _catalog(capture_id=capture_id)
     record = _approval(catalog, capture_id=capture_id)
     if case == "unknown":
         record["source_client_ref"] = "2" * 64
@@ -142,7 +144,7 @@ def test_approval_refuses_unknown_duplicate_and_ineligible_source_refs(case):
     elif case == "duplicate":
         records = [record, deepcopy(record)]
     else:
-        catalog = _catalog(_catalog_entry(eligible_for_reissue=False, ineligibility_reason="invalid_scopes"))
+        catalog = _catalog(_catalog_entry(stored_scopes=["invalid:scope"], canonical_scopes=[], eligible_for_reissue=False, ineligibility_reason="invalid_scopes"), capture_id=capture_id)
         records = [_approval(catalog, capture_id=capture_id)]
     with pytest.raises(TenantRestoreRefused, match="ineligible|duplicated"):
         _parse(catalog, records, capture_id)
@@ -151,13 +153,13 @@ def test_approval_refuses_unknown_duplicate_and_ineligible_source_refs(case):
 @pytest.mark.parametrize("case", ("entry", "catalog"))
 def test_approval_refuses_altered_source_or_catalog_digest(case):
     capture_id = uuid.uuid4()
-    catalog = _catalog()
+    catalog = _catalog(capture_id=capture_id)
     record = _approval(catalog, capture_id=capture_id)
     if case == "entry":
         catalog["entries"][0]["label"] = "altered"
     else:
         catalog["sha256"] = "f" * 64
-    with pytest.raises(TenantRestoreRefused, match="digest"):
+    with pytest.raises(TenantRestoreRefused, match="invalid or changed"):
         _parse(catalog, [record], capture_id)
 
 
@@ -168,7 +170,7 @@ def test_approval_refuses_altered_source_or_catalog_digest(case):
 ))
 def test_approval_refuses_source_metadata_mismatch(field, value):
     capture_id = uuid.uuid4()
-    catalog = _catalog()
+    catalog = _catalog(capture_id=capture_id)
     record = _approval(catalog, capture_id=capture_id, **{field: value})
     with pytest.raises(TenantRestoreRefused, match="conflicts"):
         _parse(catalog, [record], capture_id)
@@ -176,7 +178,7 @@ def test_approval_refuses_source_metadata_mismatch(field, value):
 
 def test_approval_refuses_scope_widening_and_noncanonical_origin():
     capture_id = uuid.uuid4()
-    catalog = _catalog()
+    catalog = _catalog(capture_id=capture_id)
     widened = _approval(catalog, capture_id=capture_id, target_scopes=[PUBLIC_WRITE])
     bad_origin = _approval(
         catalog, capture_id=capture_id, target_origins=["https://target.example.test/path"]
@@ -193,7 +195,7 @@ def test_privileged_scope_validation_uses_only_explicit_approval_bit(
     monkeypatch, approved, accepted
 ):
     capture_id = uuid.uuid4()
-    catalog = _catalog(_catalog_entry(canonical_scopes=[ADMIN_READ]))
+    catalog = _catalog(_catalog_entry(stored_scopes=[ADMIN_READ], canonical_scopes=[ADMIN_READ]), capture_id=capture_id)
     record = _approval(
         catalog,
         capture_id=capture_id,
@@ -220,7 +222,7 @@ def test_privileged_scope_validation_uses_only_explicit_approval_bit(
 def test_reissue_conflict_refuses_and_secret_acknowledgement_is_one_way(tmp_path):
     space = Makerspace.objects.create(name="D8 API target", slug="d8-api-target")
     capture_id = uuid.uuid4()
-    catalog = _catalog()
+    catalog = _catalog(capture_id=capture_id)
     record = _parse(
         catalog, [_approval(catalog, capture_id=capture_id)], capture_id
     )[0]

@@ -1,0 +1,71 @@
+{
+  "scope": "bounded frontend public-lending corrective group",
+  "runtime_status": "pending coordinator verification",
+  "files": [
+    {
+      "path": "frontend/src/features/inventory/PublicInventoryPage.tsx",
+      "lines": 170,
+      "sha256": "fdeea37806caa2b391bd7db13020c54573af1e67321d268df26fb7926e442689"
+    },
+    {
+      "path": "frontend/src/features/inventory/usePublicInventory.ts",
+      "lines": 51,
+      "sha256": "bd8dc81182e649e72ceda1bc72b7692065fab225a066823eb0c3275ebeb61042"
+    },
+    {
+      "path": "frontend/src/features/inventory/usePublicSession.ts",
+      "lines": 27,
+      "sha256": "7df6be18230eaeb29539ab8d95e23bd2168993dbc3c790c409e7e724853c6793"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicRequestPanel.tsx",
+      "lines": 105,
+      "sha256": "fd16535bba20dea7ff9e54247f91f7d3757fc8e7d52ab94a327ea901594d3f93"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicSelfCheckoutPage.tsx",
+      "lines": 77,
+      "sha256": "9910b39a564caa8c26fc133f5ef585ce69f74737552254732777eb958dfa8153"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicToolScanPanel.tsx",
+      "lines": 239,
+      "sha256": "19c569bf2cbf14df006f49d7724d44102a6f34f8b1adbda8a6038e5e86bd6ee9"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicEvidenceUpload.tsx",
+      "lines": 141,
+      "sha256": "477ef5ca633c29f988c093af6ce48a6128dada46bad069107496c61f8e783b8f"
+    },
+    {
+      "path": "frontend/src/features/inventory/BorrowRequestCard.tsx",
+      "lines": 188,
+      "sha256": "964fdd1addc81af2ab3c7c272836687b9bc0f64316990127c6390bb7579f0d52"
+    },
+    {
+      "path": "frontend/src/features/inventory/PendingToolCheckoutControls.tsx",
+      "lines": 65,
+      "sha256": "c6bd9c7d6bbd04a1eda61605070de284bea2a0e3731e66cf37a2ec31616a2019"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicBorrowRequest.tsx",
+      "lines": 89,
+      "sha256": "8149ecb71d8fe6d6ed692ab950e1271408bc22d662ef60f4006a293e62fda6c3"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicBorrowRequestForm.tsx",
+      "lines": 130,
+      "sha256": "76a9fbd1a4eca4bd18ba5fe248fc9e6795d199befbb8fe7746b60eac323974f4"
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicSelfCheckoutView.tsx",
+      "lines": 124,
+      "sha256": "5da6aa9aa9e2941cf1f89a2ccb15c6007e43893f952253ef297025457fa77735"
+    },
+    {
+      "path": "frontend/src/features/inventory/usePublicToolOperation.ts",
+      "lines": 65,
+      "sha256": "819045a47cc1bd465a96028ca74dbeefc22b6d0e793c5c5c752760cbfd08d3ac"
+    }
+  ]
+}

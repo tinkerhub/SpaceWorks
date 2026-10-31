@@ -1,0 +1,5 @@
+APPROVED.
+
+The `oid::bigint` cast matches `database_identity`’s integer OID and the existing 0026 migration precedent. Limit Stage2 to that SQL cast and its hash in `scripts/restore.sh`; preserve strict system equality and existing probe checks. The separate finite PostgreSQL tests cover the regression and the two specified mismatch refusals.
+
+Static review only; no execution or private environment reads.

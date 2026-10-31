@@ -49,8 +49,8 @@ LEGACY_MODULE_WORKFLOWS = {
     "procurement": ["procurement"],
     "evidence_uploads": ["evidence_uploads"],
 }
-# Owner-approved core set (plan 3.3). The Hard Rules require a box QR scan AND an
-# issue photo to hand hardware over, so evidence/QR/scanner cannot be optional.
+# Owner-approved core set (plan 3.3). Issue photos are required, and QR supports
+# tracked units and container-based handovers, so evidence/QR/scanner remain core.
 APPROVED_CORE = {
     "public_inventory", "request_workflow", "staff_admin",
     "evidence_uploads", "qr_management", "scanner",

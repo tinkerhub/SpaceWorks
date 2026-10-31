@@ -1,0 +1,15 @@
+Created only [frontend/src/components/ui/QrScanner.draft.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/components/ui/QrScanner.draft.test.tsx): **71 lines, 1 case**.
+
+Covers held permission rejection, identical input node/value, enabled submission, Close focus/click, exactly one trimmed scan callback, expected facingMode, and descriptor/React cleanup.
+
+Final file read; static type reasoning and whitespace check only. No tests collected or executed. This controlled rejection establishes no camera availability or Stocktake causality.
+
+Test SHA-256: `530672056c8f42e4c9752adfc956ff5151daaa0146897a40ad83a5cb54fd2cec`
+
+Source hash unchanged: `147e1ca33768157e8a7ceac97229e717e9be1f77a574bfb12a431cdddcabc6b7`
+
+Parent command, from `frontend/` with **Node 20 active**:
+
+```sh
+npx vitest run src/components/ui/QrScanner.draft.test.tsx src/components/ui/QrScanner.test.tsx src/components/ui/dialogStack.test.tsx && npx tsc -b
+```

@@ -1,6 +1,7 @@
 from apps.boxes.models import BoxScan, QrScanEvent
 from apps.hardware_requests.display import requester_label
 from apps.hardware_requests.models import (
+    HardwareRequest,
     PublicProblemReport,
     PublicToolLoan,
     RequesterAccountability,
@@ -12,6 +13,7 @@ MAX_LIMIT = 500
 _KIND_ORDER = {
     "request_submitted": 10,
     "request_accepted": 20,
+    "request_cancelled": 25,
     "box_assigned": 30,
     "issue_evidence": 40,
     "box_scan": 50,
@@ -37,6 +39,11 @@ def build_request_timeline(hardware_request, *, limit=DEFAULT_LIMIT):
     ]
     if hardware_request.accepted_at:
         events.append(_event("request_accepted", hardware_request.accepted_at, hardware_request.accepted_by, hardware_request.pk, {"request_id": hardware_request.pk}))
+    if hardware_request.status == HardwareRequest.Status.CANCELLED:
+        events.append(_event(
+            "request_cancelled", hardware_request.closed_at, hardware_request.closed_by,
+            hardware_request.pk, {"request_id": hardware_request.pk, "reason_recorded": True},
+        ))
     if hardware_request.assigned_box_id:
         events.append(
             _event(

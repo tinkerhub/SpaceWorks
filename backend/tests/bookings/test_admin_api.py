@@ -239,9 +239,12 @@ def test_booking_control_admins_are_read_only():
         }
 
 
+@pytest.mark.django_db(transaction=True)
 def test_duplicate_finalize_loser_preserves_winner_object_and_accounting(
     monkeypatch,
 ):
+    from tests.atomic_publication.store import Store, png
+
     makerspace = tenant(
         'booking-finalize-race',
         resource_limit_overrides={'storage': 1000},
@@ -253,19 +256,17 @@ def test_duplicate_finalize_loser_preserves_winner_object_and_accounting(
         f'spaces/{makerspace.pk}/{target.pk}/images/concurrent.png'
     )
     staging_key = storage.staging_key(object_key)
-    live_objects = {object_key, staging_key}
+    image = png()
+    store = Store()
+    store.seed(staging_key, image, 'image/png')
     original_set_space_image = services.set_space_image
 
     monkeypatch.setattr(limits, 'is_self_host', lambda: False)
-    monkeypatch.setattr(
-        storage,
-        'finalize_upload',
-        lambda key: storage.FinalizeResult('ok', 25),
-    )
-    monkeypatch.setattr(storage, 'sniff_is_valid_image', lambda key: True)
-    monkeypatch.setattr(storage, 'delete_object', live_objects.discard)
+    monkeypatch.setattr(storage, '_client', lambda: store)
 
     def winner_attaches_before_loser(*args, **kwargs):
+        # Commit a winner through the real service, then simulate the loser's
+        # rejection. This is deliberately sequential, not a two-thread race.
         original_set_space_image(*args, **kwargs)
         raise ValidationError(
             {'object_key': 'This image was attached by another request.'}
@@ -289,9 +290,16 @@ def test_duplicate_finalize_loser_preserves_winner_object_and_accounting(
     makerspace.refresh_from_db()
     assert response.status_code == 400
     assert target.image_key == object_key
-    assert object_key in live_objects
-    assert staging_key not in live_objects
-    assert makerspace.storage_bytes_used == 25
+    assert store.objects[object_key][:2] == (image, 'image/png')
+    assert store.versions[object_key] == {
+        store.objects[object_key][2]: (image, 'image/png'),
+    }
+    assert staging_key not in store.objects
+    assert store.versions[staging_key] == {}
+    assert makerspace.storage_bytes_used == len(image)
+    puts = [kwargs for operation, kwargs in store.calls if operation == 'put']
+    assert len(puts) == 1 and puts[0]['IfNoneMatch'] == '*'
+    assert all(body.closed for body in store.streams + store.put_bodies)
 
 
 def test_booking_list_is_space_scoped_and_lifecycle_is_typed():

@@ -1,0 +1,519 @@
+{
+  "stage": "Stage 2 SOURCE-only bounded retained shared-reference fix",
+  "status": "source_frozen; independent read next; root runtime pending",
+  "approved_contract": "/tmp/spaceworks-claim-retained-source-stage1.txt",
+  "approved_contract_sha256": "cb83a2f2ab90aae3cd3bbf24e717b0f0179e549d351e80eaff721b8a38bea0c8",
+  "files": [
+    {
+      "path": "backend/apps/tenant_migration/gate_locks.py",
+      "before_sha256": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "sha256": "6373a633d6673b8297f42d1e52e4a13ed8f2c7bfcdf420e80c8608bf47d786d3",
+      "line_count": 280,
+      "ast_parse": "passed",
+      "changed_lexical_functions": [
+        "shared_boundary",
+        "_retained_shared_lock_keys",
+        "_reuse_shared_boundary",
+        "_BoundarySharedLock.__init__",
+        "_BoundarySharedLock.acquire",
+        "_BoundarySharedLock.verify",
+        "_BoundarySharedLock._verify"
+      ],
+      "lexical_functions": [
+        {
+          "name": "acquire_shared",
+          "start_line": 19,
+          "definition_line": 19,
+          "end_line": 20,
+          "lexical_sha256": "6414a4e36db89153f1e306238ff2c2f65db5d62b3533828e1218ade22d337aef",
+          "ast_sha256": "74f38175eaa07a77cd749b4e99f3d2f35d223a8beba891beaba8cc62a4dec93e"
+        },
+        {
+          "name": "acquire_exclusive",
+          "start_line": 23,
+          "definition_line": 23,
+          "end_line": 24,
+          "lexical_sha256": "bd68f65a4e116b58e8893f8e1e4087e0d177b56a49e904422957632e8eb2d4d4",
+          "ast_sha256": "427fc2455518fc2be290520be304f53321e3cebbfff3c64347344c9344f936f6"
+        },
+        {
+          "name": "acquire_unscoped_writer_shared",
+          "start_line": 27,
+          "definition_line": 27,
+          "end_line": 30,
+          "lexical_sha256": "efe460370c3115f489f879bd9044d5b74d3723168d9780f526ecffe76be53666",
+          "ast_sha256": "17295598750c38e5d419e77a90a679783577cb77058b089ff46d04acb406b764"
+        },
+        {
+          "name": "acquire_unscoped_writer_exclusive",
+          "start_line": 33,
+          "definition_line": 33,
+          "end_line": 34,
+          "lexical_sha256": "884c2db4a1d292766d23c3b2ae8e1454f64d55efdeef160f5da7ba08504cfdc7",
+          "ast_sha256": "afeedf828a1b8a825bb8f6df0bda8df5d559454ed905ec01230699907f488bf7"
+        },
+        {
+          "name": "try_acquire_exclusive",
+          "start_line": 37,
+          "definition_line": 37,
+          "end_line": 43,
+          "lexical_sha256": "81adc38554c82671a7bd2118f0b581b9128c82f5e4de0f8712ade759ce48c3fe",
+          "ast_sha256": "b960240cdab6cd376e3cfb20927b6d02bb81e3360177a1812e2ea92cbd6d5a6b"
+        },
+        {
+          "name": "_execute_transaction",
+          "start_line": 46,
+          "definition_line": 46,
+          "end_line": 49,
+          "lexical_sha256": "aad5a82847e2a6f8c77af7e586394d8eb3370ad5601d69483761305f7dcff739",
+          "ast_sha256": "498501c0ce5415bcd19e22a1dc5d6be00ca969d443553c862bdeb1148a1c4c10"
+        },
+        {
+          "name": "_execute",
+          "start_line": 52,
+          "definition_line": 52,
+          "end_line": 57,
+          "lexical_sha256": "0cb24c8e01ae990c0d93540eecf1b9950c47979368e06ab767dc8bfd4e8ad40e",
+          "ast_sha256": "d9fdb2cd51eef4c9217ab4bf5e92c821a4bd9febbc89ec3ff8c4077b18ba0765"
+        },
+        {
+          "name": "shared_boundary",
+          "start_line": 60,
+          "definition_line": 61,
+          "end_line": 72,
+          "lexical_sha256": "0a8799742f9c9e26646098a43dacb45fed75cdb7ce4db91d4d0314ecfc57257f",
+          "ast_sha256": "1cb374cc978433fdc7c3019da3b0ba0bd78b650a2aa936613557a0cb1ebfe557"
+        },
+        {
+          "name": "_retained_shared_lock_keys",
+          "start_line": 75,
+          "definition_line": 75,
+          "end_line": 79,
+          "lexical_sha256": "305daaa8c28445ae7f1ad91b3880062389929d7ef2adeee83cd9bcbff185dd9f",
+          "ast_sha256": "424adaea3161c5197d56343bc437aafc6373aa827f7faad7a7073416633733eb"
+        },
+        {
+          "name": "_reuse_shared_boundary",
+          "start_line": 82,
+          "definition_line": 82,
+          "end_line": 88,
+          "lexical_sha256": "7d2cd8e6cc199180b04b0141970f3df2951a21ed51c96a9085c739ed20318066",
+          "ast_sha256": "fa7cc1ca563665149e888827d16a740b10fc7994a2514646f22a3a814d8e3b6b"
+        },
+        {
+          "name": "_BoundarySharedLock.__init__",
+          "start_line": 94,
+          "definition_line": 94,
+          "end_line": 99,
+          "lexical_sha256": "21b9e846c71e9d9e710fab7f8c1049409d858f67583d796b5638ca46d30f3288",
+          "ast_sha256": "1e5d49bd2b47d92f67f7e94173630f3b7155276dc7eaca2b075f8d68af5a1521"
+        },
+        {
+          "name": "_BoundarySharedLock.acquire",
+          "start_line": 101,
+          "definition_line": 101,
+          "end_line": 129,
+          "lexical_sha256": "858d87f89af907e481f6a9f27c77b088a56d03b7f0a475b0d4b16505774de9d8",
+          "ast_sha256": "346868576e9e4c8e86f9320de488a7c1ea5a736f1487ad18cf0a43a8cf5eb389"
+        },
+        {
+          "name": "_BoundarySharedLock.verify",
+          "start_line": 131,
+          "definition_line": 131,
+          "end_line": 134,
+          "lexical_sha256": "ab80b9106e08155f44e743fa687904770e4a3cea63f8483c49a4f8130f0271a0",
+          "ast_sha256": "ff387cf0bc0fc84e0e3f446e9920537bffac3ab26a78cd21b090eed64927d046"
+        },
+        {
+          "name": "_BoundarySharedLock._verify",
+          "start_line": 136,
+          "definition_line": 136,
+          "end_line": 155,
+          "lexical_sha256": "bd190ed5ead3f3098cba46e6dcd4a3a9af35cb1f5dd56857de4332e7a0372b90",
+          "ast_sha256": "e929b3c15d53c4c45523ce2ea3b3dfa5b91979581a828328bfd6cc31c54cca64"
+        },
+        {
+          "name": "_BoundarySharedLock.release",
+          "start_line": 157,
+          "definition_line": 157,
+          "end_line": 176,
+          "lexical_sha256": "7d5d39e6edcee5fd7b2c87ca325f1a35a3662f45eb5a33bfc93d53c3b24ef859",
+          "ast_sha256": "9cb4e1d9b20e69c6d744c64d036884fc7209f99ed6b7d30405c66340815aa285"
+        },
+        {
+          "name": "_new_lock_connection",
+          "start_line": 179,
+          "definition_line": 179,
+          "end_line": 184,
+          "lexical_sha256": "45ff89dae400e9bce93c135dbfe5dedc5c9fcc918f0045c5184306ed7e90063b",
+          "ast_sha256": "b21050f669073c722192a552487c17dffba4b15f8f4f402b4520ca61542ddb16"
+        },
+        {
+          "name": "exclusive_boundary",
+          "start_line": 187,
+          "definition_line": 188,
+          "end_line": 205,
+          "lexical_sha256": "1cc21553dd83439eabcd00d4b24d809f0069f3f21ca0a4264cd95a6161e95da2",
+          "ast_sha256": "25a6af4ddcb69fe20ba5defe277177ca2730c1df207233973e3fc8c1101e9a1d"
+        },
+        {
+          "name": "_BoundaryExclusiveLock.__init__",
+          "start_line": 209,
+          "definition_line": 209,
+          "end_line": 216,
+          "lexical_sha256": "dafa0149d160f7e10e67d225bef9888d6bed6effb36ef4ae574c60cb553b3468",
+          "ast_sha256": "b5428f63af5a2203c681d904bf8cb8f908509c556ace8ac234e77958497c2633"
+        },
+        {
+          "name": "_BoundaryExclusiveLock.acquire",
+          "start_line": 218,
+          "definition_line": 218,
+          "end_line": 233,
+          "lexical_sha256": "adcbec7ed7f0ecd96295bab491a7eea83417eba88aa26370d6a46286023e8288",
+          "ast_sha256": "828ff2ce584efca4f54b26c09b6d726a728f81098af938df126775e2c67510a7"
+        },
+        {
+          "name": "_BoundaryExclusiveLock.verified_connection",
+          "start_line": 235,
+          "definition_line": 235,
+          "end_line": 239,
+          "lexical_sha256": "2355aa6e6880a38c01454d4426aadacf8fb1e9cc5d71c641f6228b6ed86fad81",
+          "ast_sha256": "307df23d46f97aea24f16ea5a8b9bdf827f0e3ac3cfcab4240d43389272fe386"
+        },
+        {
+          "name": "_BoundaryExclusiveLock._verify",
+          "start_line": 241,
+          "definition_line": 241,
+          "end_line": 260,
+          "lexical_sha256": "412ce4eae93fb8a5dc17f33a5dac2713a863806936f8764faacc8ab73ba8aa8b",
+          "ast_sha256": "ca3c2ab773faddda632216eb62fe9250c4b5ab7fd080f5413dd1dfba9c0bb304"
+        },
+        {
+          "name": "unscoped_writer_shared_boundary",
+          "start_line": 263,
+          "definition_line": 264,
+          "end_line": 273,
+          "lexical_sha256": "efda444c08d11a68c04a4901a0dded16cb1f9fe3776301ac7d3126aedac060cc",
+          "ast_sha256": "fd9ae6423aaa432c78b0f0810787f6dd0cb0c937f92e56d7dc8b392eabe035d6"
+        },
+        {
+          "name": "shared_transaction",
+          "start_line": 276,
+          "definition_line": 277,
+          "end_line": 280,
+          "lexical_sha256": "19808979a413a6c6b5b138dbd115db53f9f63828980d051828ac7a2f9bf29dd9",
+          "ast_sha256": "370a7cd59e2834ca78eb0a18f23fbd73421b8f6092c5ae2479aa711709adbcb5"
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/tenant_migration/gate_runtime.py",
+      "before_sha256": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+      "sha256": "3cab13fd351ebde0ce5cc147f482a7b3897a9f2097506daba8b607ca0978f269",
+      "line_count": 217,
+      "ast_parse": "passed",
+      "changed_lexical_functions": [
+        "assert_write_allowed",
+        "boundary_tenant_write",
+        "assert_boundary_held"
+      ],
+      "lexical_functions": [
+        {
+          "name": "assert_write_allowed",
+          "start_line": 23,
+          "definition_line": 23,
+          "end_line": 38,
+          "lexical_sha256": "426de35cadb6539b09bdf89220117a857a6c2c6d6f6978a9215e6734653cdda9",
+          "ast_sha256": "5737e76d13f874bded8df8f22222bb93e075aaced64c2367a754b2b3b4d97a6f"
+        },
+        {
+          "name": "_assert_gate_state",
+          "start_line": 41,
+          "definition_line": 41,
+          "end_line": 64,
+          "lexical_sha256": "51ce8f1e843b6dd4bb982facce04adddfdf3d79b2b5272f18cba06891e59d2e3",
+          "ast_sha256": "a9d283c501b36137febddab490b751d054b47714115a99efaf55f6eef00db572"
+        },
+        {
+          "name": "boundary_tenant_write",
+          "start_line": 67,
+          "definition_line": 68,
+          "end_line": 110,
+          "lexical_sha256": "8ce51534189f933ab209e7e7ea05b195fe5c7f10352ab629444b1e51c5276418",
+          "ast_sha256": "6d93d496ab67ec328edb22a863b104d32b8403291d30a80dd32e18ac764db0d1"
+        },
+        {
+          "name": "fanout_tenant_write",
+          "start_line": 113,
+          "definition_line": 114,
+          "end_line": 128,
+          "lexical_sha256": "753171a60f8ff19d888a4de0009af898b8e2eecff62ae4e639c7ee03f0f33ce3",
+          "ast_sha256": "f0404ebf9adb8a43dc89660ebe4bfeb23ee4d278e905e59eb0832e96cda4f375"
+        },
+        {
+          "name": "_exclusive_boundary_connection",
+          "start_line": 131,
+          "definition_line": 131,
+          "end_line": 138,
+          "lexical_sha256": "2fada2c437b69a27acdeff9ff2837f5117022be0306a032418ce4c59182138a8",
+          "ast_sha256": "63558ed92d70061d3dcf7c226d7a77726004ebe1685c14212b94f7f5a9ccb68f"
+        },
+        {
+          "name": "assert_request_write_allowed",
+          "start_line": 141,
+          "definition_line": 141,
+          "end_line": 177,
+          "lexical_sha256": "da6f783f123ccb19806120527d7f36fba5fa56ab5143bd90e21f3d36b502af4f",
+          "ast_sha256": "c45dcbc70209040449cef131d587338e970d5cd8dcff92909fd15e8e5b7cb856"
+        },
+        {
+          "name": "tenant_write",
+          "start_line": 180,
+          "definition_line": 181,
+          "end_line": 185,
+          "lexical_sha256": "35516028f91eb3085b399d48c8e62800076dd6a5a86ced2c61d8415689f98e34",
+          "ast_sha256": "e38e3b772b87b89e38fcb5722e3b9b9fc801650efc2eb8b45e1b685e5394ad54"
+        },
+        {
+          "name": "source_archive_write",
+          "start_line": 188,
+          "definition_line": 189,
+          "end_line": 197,
+          "lexical_sha256": "2316b5e43a181bb049803b23c0347e9849ed1f2f9dca3d0cddee72e3f1a64328",
+          "ast_sha256": "b0fedce5575ee387522e0bbe37cef340891cd69a1a53bd8a26df5dac43df82d2"
+        },
+        {
+          "name": "source_archive_boundary",
+          "start_line": 200,
+          "definition_line": 201,
+          "end_line": 207,
+          "lexical_sha256": "bc5fc121ceef467453a80b4ea138cc99816aaf1882c442b14a5b51a0be1bba18",
+          "ast_sha256": "c4d8f5f53e2fc32d79d4a2a935c0be3be30f4c52bbc561219879b46c6eb418e7"
+        },
+        {
+          "name": "assert_boundary_held",
+          "start_line": 210,
+          "definition_line": 210,
+          "end_line": 217,
+          "lexical_sha256": "05ce09cac2a0d0158a54821dfa48d1374db58097b954cb2ac5ffa520b11f4bd9",
+          "ast_sha256": "d7fda8aef5cf6f15495b6c21b709a95ace716206eb1d08eb40333cd951b70a51"
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/accounts/claim_transition_gate.py",
+      "before_sha256": "b6e0ea497353739bebb022f795c4ab668e341a3a872a4a84209f1a47fd0bc9fb",
+      "sha256": "64b9f6a8504fe7d1619da7ebcea3fc432a49475e62f25f1d1deae4f258c93a74",
+      "line_count": 76,
+      "ast_parse": "passed",
+      "changed_lexical_functions": [
+        "claim_transition_gate"
+      ],
+      "lexical_functions": [
+        {
+          "name": "_membership_makerspace_ids",
+          "start_line": 22,
+          "definition_line": 22,
+          "end_line": 27,
+          "lexical_sha256": "c37b55efb3a7e39161220e0d5df324cf51e6aa27b50393dfb643d84f350f4049",
+          "ast_sha256": "6e69f8d3e2ca270093f351ffa2c0459f0b7b74f7831c93ae203c7ea3ab95698c"
+        },
+        {
+          "name": "claim_transition_gate",
+          "start_line": 30,
+          "definition_line": 31,
+          "end_line": 63,
+          "lexical_sha256": "28b9fa6eaa62040a9c22aeb84f252ced14efd0d1b8738d5aa7dde71490abbcaa",
+          "ast_sha256": "cb05c89e365b0e16b0eeffdf20e4a2f8bbaa82dbda44d156b65cd9bd98f80af7"
+        },
+        {
+          "name": "assert_claim_transition_scope",
+          "start_line": 66,
+          "definition_line": 66,
+          "end_line": 76,
+          "lexical_sha256": "6e6310e6c58536de7d5da02067d21c4f0f1891bba066fbe475df39640b95af7b",
+          "ast_sha256": "ca095fe6489d8760e4025ccd02048930e7614e82e407790b7938caa1057a7923"
+        }
+      ]
+    }
+  ],
+  "source_changes": [
+    "Register actual dedicated shared references only after successful acquisition; reset the reference ContextVar before finally releasing. Preserve independent idempotent rollback/close.",
+    "Capture the original dedicated PID and PG transaction identity; acquisition and every matching reuse verify own PID, transaction, exact namespace/key, objsubid=2, granted ShareLock. Verification does not clear acquired; repeat acquire verifies continuity and released references cannot reconnect.",
+    "Reuse raw same-key references before the application atomic branch, verify tracked reuse and cached assertions, recheck live gate state and set runtime bookkeeping during reuse yield. SQL-owned context semantics remain unchanged.",
+    "Refuse exclusive runtime boundaries under any retained raw reference including P=0 before dedicated exclusive connection creation; preserve exclusive owner and counter semantics.",
+    "Before new tenant admission, combine verified actual raw keys with existing runtime keys, excluding P=0. Refuse all lower-new-key cases before acquiring any new N and provide a central administration origin retry hint. Continue sorted admission and live state checks for every DB-derived membership regardless of status."
+  ],
+  "static_validation": {
+    "application_imports": false,
+    "runtime": false,
+    "tests": false,
+    "test_collection": false,
+    "build": false,
+    "staged": false,
+    "committed": false,
+    "all_owned_sources_ast_parse": true,
+    "all_owned_sources_at_most_300_lines": true,
+    "shared_release_ast_unchanged_from_HEAD": true,
+    "sql_lock_primitives_and_new_lock_connection_ast_unchanged_from_HEAD": true,
+    "shared_verifier_does_not_assign_acquired": true,
+    "validation_method": "stdlib AST and SHA-256 only; source reads and repository diff inspection"
+  },
+  "unowned_snapshot": {
+    "baseline": "/tmp/spaceworks-claim-retained-source-stage2-before.json",
+    "files_hashed": 4620,
+    "action": "Observed concurrent changes retained; no unowned file edited or reverted by this writer.",
+    "concurrent_changes_observed": [
+      {
+        "path": "backend/apps/tenant_migration/authority_guards.py",
+        "before_sha256": "a0d960eed02e9f9bcc75202459703e76b3fdcdd914df1ceb014342e7452eab99",
+        "after_sha256": "ad8c2657a1d9f7135fba348fb75107e318d18559cd6c8b6c828c78334173c507"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/callers.py",
+        "before_sha256": "1a90accd5bea413050891fffd84b1a724f4e7583b51a300a552054c7e406f69e",
+        "after_sha256": "5cc214f5f018b5855cb18c0a70a7598cbfa3a6aae6a78d2361c75a6dcd73b113"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/conftest.py",
+        "before_sha256": "208d1f374d7d99101c06f8dd57d0b67041a2ec3c27544218199bf39604f66216",
+        "after_sha256": "e5b66f9d5f074629f88be956bb80093eb72ec0d69011c56c45c63662a25536f2"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/observations.py",
+        "before_sha256": null,
+        "after_sha256": "3de4e32ef98e1aa690c99fb840a1b816f6cd92c29caabe9cd17beecc3bdc988b"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/opaque.py",
+        "before_sha256": null,
+        "after_sha256": "cbf5de7609b318ddd10c9c9fcb85bf6814a86dd3f5ecb155d9a1b061577e09fe"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/test_oidc_precedence.py",
+        "before_sha256": null,
+        "after_sha256": "2e6eb873bfff3499a7713f041564cf9e980663e25468ce8edd571b19f6cf16bb"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/test_opaque.py",
+        "before_sha256": null,
+        "after_sha256": "379b0a472496a60dcd3aec977e2703d40c2ad0c4b39d199bdad373016ace4e39"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/test_transitions.py",
+        "before_sha256": null,
+        "after_sha256": "843b3deb76dc56c80065bdc7fe4efbcf7f5bcf6f631ed12782abc6ddfadfdb06"
+      },
+      {
+        "path": "backend/tests/claim_source_safety/test_wait_winners.py",
+        "before_sha256": null,
+        "after_sha256": "fce09c8ee2777ee025cc788d2c65ae5f95db33d104bd6529e0a06ac5902a4cdc"
+      },
+      {
+        "path": "backend/tests/qr_http_ownership_safety/auth_setup.py",
+        "before_sha256": "3b8b8c52ae7506034e79d993ff7db1729b04dda6e3ff8225575d73d369c82bac",
+        "after_sha256": "2f25a6889d0eb0019314abdcb3cd9c580ecb5db80e3a9da564717790aafae1f2"
+      },
+      {
+        "path": "backend/tests/qr_http_ownership_safety/p_protocol.py",
+        "before_sha256": "816fe88bb0945a053fce17e31e43b58c72168fbb01791d26c5fc7462ce8e462e",
+        "after_sha256": "16146d1acd8ff725227a489fe4091710bc0450c97069a366a256f057f602876d"
+      },
+      {
+        "path": "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py",
+        "before_sha256": "b6e6635147c33dd8c00b6288566a4abd832d6f8ac18999a0cedeb93e0856cdfe",
+        "after_sha256": "334ed4efe588cb3c303b9dd6d037601095d6ab79e89db1e339c5a2f59c53ddf6"
+      },
+      {
+        "path": "docs/SOURCE-MAP.md",
+        "before_sha256": "0f30b175cd3338427646d96b4b1e60b02300c6fe270fa8360c9519cb81d4e390",
+        "after_sha256": "e18026f061c2d5932c2b0d8bda7d63348ca8365cf5f6453cf309ba92256646e8"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-retained-source-stage1.txt",
+        "before_sha256": null,
+        "after_sha256": "cb83a2f2ab90aae3cd3bbf24e717b0f0179e549d351e80eaff721b8a38bea0c8"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-lock-order-stage1.txt",
+        "before_sha256": null,
+        "after_sha256": "8e7f84e3e499ed89a320fd637b76a35906a9ef8c3cbde5847b7f181302ade971"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-lock-order-stage2-freeze.json",
+        "before_sha256": null,
+        "after_sha256": "880e6e8c13b8c3f43d3bf096022ee630da0d4619d00e7589415bd4d19bea293b"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-lock-order-stage2.txt",
+        "before_sha256": null,
+        "after_sha256": "835ebca84e06818d8a5349d8a7b75ffeb290a77824fa5b5b7ac912a0e6795338"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-operator-notes.md",
+        "before_sha256": null,
+        "after_sha256": "696c9c19f3d3e0ab29cb06b13ad0ae415dd8232dca093ef7daa3e31237b49390"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-policy-stage1.txt",
+        "before_sha256": null,
+        "after_sha256": "9c7f3be1c93b540b9010280271e5519e577c8f6d6d09d7eb9a400ab6cdf6fb4e"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-policy-stage2-freeze.json",
+        "before_sha256": null,
+        "after_sha256": "a9d6236c1f26dfd37c859807243989e0e911c37b4cc13f40ee57dff5a6c6e003"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-policy-stage2.txt",
+        "before_sha256": null,
+        "after_sha256": "080f2bad8f8eb90a15dcacaf23041cafcfed40315bdaab9bd3f5064668d953cc"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-stage2-freeze.json",
+        "before_sha256": null,
+        "after_sha256": "0712582cde41746269199ff8658e54ba3a4e589c51c4fdc3b1a6f2dd70c8d21b"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/claim-source-stage2.txt",
+        "before_sha256": null,
+        "after_sha256": "ccc79611ddc994afe3c42d00ebd66ef571bf6e2971cd813db6105d18e1758100"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/qr-api-source-contract-corrected-round2.xml",
+        "before_sha256": null,
+        "after_sha256": "0750e027ac278570d18d36e2a86474b256e464568c3515238a90d7375b37f758"
+      },
+      {
+        "path": "docs/audits/2026-10-29/evidence/qr-scanner-draft-followup.md",
+        "before_sha256": "709cdf14f236be1a363bd0e00f88da2ed375d29cb82b6fc1933691a4414743be",
+        "after_sha256": "96aeb13026aa8edd04803d6e64035fc7ab17ed3d56e1f656779f5590b7d3adc1"
+      },
+      {
+        "path": "docs/self-hosting.md",
+        "before_sha256": "e236185cbe7e8ec6b13ad4d975c683e47262b66beb42f020d6392165788c9ee7",
+        "after_sha256": "f038b6c7f0f45e5db0fd50e155dc2528230eb5521cb67ea1d4a79e71d9a771e8"
+      }
+    ]
+  },
+  "separate_policy_writer_source_observation": {
+    "oidc_browser_resolution.py": "Read actual Membership FOR UPDATE before User FOR UPDATE, followed by assert_claim_transition_scope. Not edited.",
+    "services_claim.py": "Read hook-only select_for_update(of=(\"self\",)) in _revoke_transition_claim_state. Not edited."
+  },
+  "preserved_scope": [
+    "No route exemption or OIDC disable",
+    "No new module or static guard registry/hash update",
+    "No application atomic around external I/O",
+    "No session advisory unlock",
+    "Original P unscoped-writer ownership protocol",
+    "Exclusive XID owner/storage counter semantics",
+    "Exact nested same-user admission/different-user refusal and fresh post-User scope check"
+  ],
+  "risks_and_pending": [
+    "Independent source review and root runtime validation pending, including queued-exclusive PID/XID/key continuity, lost/released reference refusal, transaction-pooler behavior and actual transition rollback.",
+    "New PID/XID verification SELECT shapes require real PostgreSQL validation and any old fake cursor fixtures to match the new shape; no tests run in this source-only stage.",
+    "Native admin catch still replaces source errors with generic retry text; central administration retry wording is not asserted visible there.",
+    "Root owns final schema, guard hashes, census, host capture and reconciliation with concurrent test/order/doc changes."
+  ],
+  "operator_wording_evidence_only": "Converting a walk-in record into an account is temporarily blocked when any linked makerspace is frozen, including inactive/revoked memberships. Rare multi-makerspace dedicated-origin attempts may require central-origin retry to preserve lock order."
+}

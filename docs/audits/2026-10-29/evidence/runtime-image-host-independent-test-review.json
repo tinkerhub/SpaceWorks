@@ -1,0 +1,97 @@
+{
+  "status": "independent-root-source-test-read-with-verified-focused-runtime",
+  "test_files": [
+    {
+      "path": "backend/tests/runtime_image_provisioning_support.py",
+      "sha256": "a5b2b391b46c0ec762781ea15d8695f3bb95c4b816c6c7f9492db2fe3030fee0",
+      "lines": 190,
+      "estimated_new_cases": 0
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_atomic_failures.py",
+      "sha256": "1f56cf251e90d13320b48eadab0ee9d142e907ec9f320bf0b02178289404781c",
+      "lines": 86,
+      "estimated_new_cases": 3
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_bundle.py",
+      "sha256": "68144ef72852fe7001668bb76e3b970104cc8afea88bd65a2254aa572117af41",
+      "lines": 123,
+      "estimated_new_cases": 2
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_default_regression.py",
+      "sha256": "59afc218a8f55a4c52cd8079d30276e05a6f8ff71a97e2c541b760ed65b21f80",
+      "lines": 77,
+      "estimated_new_cases": 1
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_helper.py",
+      "sha256": "fc96e4d32bac192ac22a98f88adfc60190374671456545a08188a1bd20f2d68d",
+      "lines": 196,
+      "estimated_new_cases": 25
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_pull_policy.py",
+      "sha256": "6d511e1f8c75d873aca833642cde195acaac81f237a2368d5229e27826bb57a9",
+      "lines": 94,
+      "estimated_new_cases": 2
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_setup.py",
+      "sha256": "4a692d0cb3a37bbe0f1d3eb918a34c6db7d7bd1dbf07ad2635d8702b753982e4",
+      "lines": 76,
+      "estimated_new_cases": 2
+    },
+    {
+      "path": "backend/tests/test_runtime_image_provisioning_update.py",
+      "sha256": "7853010438971cfd0398480ebde77fc709a477196a86d9c79c7f76fc185657a6",
+      "lines": 115,
+      "estimated_new_cases": 4,
+      "initial_sha256": "107295612fc19d7a0a481b4434e0afb0af36bb997950197c31cabe9c1a971e5f"
+    },
+    {
+      "path": "backend/tests/test_platform_update_scripts.py",
+      "sha256": "c5f2413078c65234a6be8a1d92c6b6cf823239b4d4b98886b3150f0777af87f5",
+      "lines": 229,
+      "estimated_new_cases": 0
+    }
+  ],
+  "new_cases_static": 39,
+  "existing_platform_cases": 10,
+  "expected_current_total": 49,
+  "root_independently_read_all_nine_files": true,
+  "original_platform_six_test_functions_and_all_assertions_byte_exact": true,
+  "legacy_mock_projection_scope": "Only adjacent startup --pull never removed for old formatted log; raw argv preserved and independently required by new flow tests.",
+  "verified_test_intent": [
+    "Real default prepare leaves blank identity on old source, without missing-import oracle",
+    "Raw setup second pull and all six record profiles bind actual transport digest",
+    "Actual 60-file bundle install and missing-helper refusal preserve private data/authority",
+    "Atomic pre/post-replace failure outcomes and private temporary cleanup",
+    "Rollback restores exact old proof and refuses startup if old identity/record refresh fails",
+    "Missing cached post-provision helper image refuses instead of implicit pull"
+  ],
+  "runtime_pending": false,
+  "production_approval": false,
+  "oracle_correction": {
+    "initial_current": {
+      "passed": 45,
+      "failures": 4,
+      "errors": 0,
+      "skips": 0
+    },
+    "reason": "Init runs in a child process; persisted B supplies Compose dotenv while cleared parent ambient OCI stays absent/empty in raw transport observation. Successful rollback runs its refresh in the parent and still inherits A.",
+    "exact_change": "Two new chained assertions became explicit persisted B plus empty raw-parent inheritance assertions; existing platform test bodies/assertions unchanged.",
+    "one_test_path_overlay_only": true,
+    "source_unchanged": true,
+    "independent_root_diff_read": true
+  },
+  "runtime_result": "runtime-image-host-provisioning-runtime-20261031.json",
+  "runtime_result_sha256": "3e121e67f9e40461d7b6a87f5e5559f977424f79bbc242838c21a857504980b9",
+  "final_current": {
+    "passed": 49,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  }
+}

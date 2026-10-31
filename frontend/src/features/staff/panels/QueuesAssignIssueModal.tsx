@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { QrCode, X } from "lucide-react";
 
-import { Button, Chip, Dropdown, ErrorText, Field, Input, Modal, SectionHeading, Textarea } from "../../../components/ui";
+import { Button, CheckboxField, Chip, Dropdown, ErrorText, Field, Input, Modal, SectionHeading, Textarea } from "../../../components/ui";
 import QrScanner from "../../../components/ui/QrScanner";
 import { staffRequest } from "../../../lib/api";
 import { isQrNotRecognised, QR_NOT_RECOGNISED } from "../evidenceUi";
+import { useHardwareQrVisit } from "../useHardwareQrVisit";
 import { EvidenceUpload } from "./EvidenceUpload";
 import { BoxCodeField, FormFooter, ShelfLine, submitForm } from "./QueuesModalShared";
 import type { AssignIssueValues, FormModalProps } from "./QueuesModalTypes";
@@ -13,7 +14,11 @@ type ScannedAsset = { payload: string; label: string };
 type Disposition = "needs_fix" | "remove";
 type RejectState = Record<number, { broken: number; disposition: Disposition }>;
 
-export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit, makerspaceId }: FormModalProps<AssignIssueValues> & { makerspaceId: number }) {
+export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit, makerspaceId, assignedContainerCode = "", canEdit = () => !pending }: FormModalProps<AssignIssueValues> & { makerspaceId: number; assignedContainerCode?: string; canEdit?: () => boolean }) {
+  const rowHasContainer = row?.assigned_box_id != null || (row?.assigned_box_id === undefined && Boolean(row?.assigned_box_label || row?.assigned_box));
+  const hasAssignedContainer = rowHasContainer || Boolean(assignedContainerCode);
+  const [useContainer, setUseContainer] = useState(rowHasContainer);
+  const containerSelected = hasAssignedContainer || useContainer;
   const [boxCode, setBoxCode] = useState(row?.assigned_box?.code ?? "");
   const [evidenceId, setEvidenceId] = useState<number | null>(null);
   const [remark, setRemark] = useState("Issued from staff app.");
@@ -24,19 +29,13 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
 
   const requiredScans = (row?.items ?? []).filter((item) => item.requires_asset_qr).reduce((sum, item) => sum + item.accepted_quantity, 0);
 
-  useEffect(() => {
-    if (open) {
-      setBoxCode(row?.assigned_box?.code ?? "");
-      setEvidenceId(null);
-      setRemark("Issued from staff app.");
-      setRejects({});
-      setScanned([]);
-      setShowScanner(false);
-      setValidationError("");
-    }
-  }, [open, row]);
+  const qr = useHardwareQrVisit(`${makerspaceId}:${row?.id}:${open}`, () => open && !pending && canEdit());
+  const cameraVisit = qr.cameraVisit;
+  const closeScanner = () => { if (qr.canEdit() && qr.cameraCurrent(cameraVisit)) { qr.closeCamera(); setShowScanner(false); } };
 
-  const handleScan = async (payload: string) => {
+  const handleScan = async (payload: string, camera?: number) => {
+    const scan = qr.capture(camera);
+    if (!scan) return;
     const clean = payload.trim();
     if (!clean || scanned.some((item) => item.payload === clean)) return;
     let label = "Scanned QR";
@@ -45,19 +44,22 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
         method: "POST",
         body: JSON.stringify({ payload: clean }),
       });
+      if (!qr.current(scan)) return;
       label = result.target.product || result.target.asset_tag || "Scanned QR";
     } catch (error) {
+      if (!qr.current(scan)) return;
       // A tenant-origin 403 means the same as a 404: not a code of this site.
       label = isQrNotRecognised(error) ? QR_NOT_RECOGNISED : "Unrecognised QR";
     }
+    if (!qr.current(scan)) return;
     setScanned((items) => (items.some((item) => item.payload === clean) ? items : [...items, { payload: clean, label }]));
   };
 
-  const setBroken = (itemId: number, broken: number) => setRejects((current) => ({
+  const setBroken = (itemId: number, broken: number) => qr.canEdit() && setRejects((current) => ({
     ...current,
     [itemId]: { broken: Math.max(0, broken || 0), disposition: current[itemId]?.disposition ?? "needs_fix" },
   }));
-  const setDisposition = (itemId: number, disposition: Disposition) => setRejects((current) => ({
+  const setDisposition = (itemId: number, disposition: Disposition) => qr.canEdit() && setRejects((current) => ({
     ...current,
     [itemId]: { broken: current[itemId]?.broken ?? 0, disposition },
   }));
@@ -67,44 +69,53 @@ export function AssignIssueModal({ row, open, pending, error, onClose, onSubmit,
       open={open}
       onClose={onClose}
       size="lg"
-      title={row ? `Assign and issue request #${row.id}` : "Assign and issue"}
-      description="Scan the box, take the issue photo, then hand the items over."
-      footer={<FormFooter formId="assign-issue-form" pending={pending} submitLabel="Assign + issue" onCancel={onClose} />}
+      title={row ? `Issue request #${row.id}` : "Issue request"}
+      description="Take the issue photo and scan each individually tracked unit. Use a container if needed."
+      footer={<FormFooter formId="assign-issue-form" pending={pending} submitLabel="Issue" onCancel={onClose} />}
     >
       <form id="assign-issue-form" className="grid gap-5" onSubmit={(event) => submitForm(event, () => submitAssign())}>
-        {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Box: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
-        <BoxCodeField value={boxCode} onChange={(code) => { setBoxCode(code); setValidationError(""); }} makerspaceId={makerspaceId} pending={pending} />
-        <EvidenceUpload makerspaceId={makerspaceId} evidenceType="issue" label="Issue photo" disabled={pending} onUploaded={setEvidenceId} />
+        <CheckboxField label="Use a container" checked={containerSelected} disabled={pending || hasAssignedContainer} onCheckedChange={(checked) => { if (!qr.canEdit()) return; setUseContainer(checked === true); setValidationError(""); }} description={hasAssignedContainer ? "A container is already assigned to this request." : "Optional. Scan or choose a container to carry the items."} />
+        {assignedContainerCode ? (
+          <p className="text-caption text-ink-muted">Assigned container: <span className="font-mono text-ink">{assignedContainerCode}</span></p>
+        ) : containerSelected ? (
+          <>
+            {row?.assigned_box_label ? <p className="text-caption text-ink-muted">Assigned container: <span className="font-semibold text-ink">{row.assigned_box_label}</span></p> : null}
+            <BoxCodeField value={boxCode} canEdit={qr.canEdit} onChange={(code) => { if (!qr.canEdit()) return; setBoxCode(code); setValidationError(""); }} makerspaceId={makerspaceId} pending={pending} />
+          </>
+        ) : null}
+        <EvidenceUpload resourceContext={row?.id} makerspaceId={makerspaceId} evidenceType="issue" label="Issue photo" disabled={pending} onUploaded={(id) => { if (qr.canEdit()) setEvidenceId(id); }} />
         <Field label="Remark">
-          <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => setRemark(event.target.value)} />
+          <Textarea rows={3} value={remark} disabled={pending} onChange={(event) => { if (qr.canEdit()) setRemark(event.target.value); }} />
         </Field>
-        {requiredScans > 0 ? <AssetScanList scanned={scanned} requiredScans={requiredScans} pending={pending} onScan={() => setShowScanner(true)} onManual={(payload) => void handleScan(payload)} onRemove={(payload) => setScanned((items) => items.filter((item) => item.payload !== payload))} /> : null}
+        {requiredScans > 0 ? <AssetScanList canEdit={qr.canEdit} scanned={scanned} requiredScans={requiredScans} pending={pending} onScan={() => { if (qr.canEdit()) { qr.openCamera(); setShowScanner(true); } }} onManual={(payload) => void handleScan(payload)} onRemove={(payload) => { if (qr.canEdit()) setScanned((items) => items.filter((item) => item.payload !== payload)); }} /> : null}
         <IssueItems row={row} pending={pending} rejects={rejects} setBroken={setBroken} setDisposition={setDisposition} />
-        {showScanner ? <QrScanner onScan={handleScan} onClose={() => setShowScanner(false)} /> : null}
+        {showScanner ? <QrScanner onScan={(payload) => handleScan(payload, cameraVisit)} onClose={closeScanner} /> : null}
         <ErrorText message={validationError || error} />
       </form>
     </Modal>
   );
 
   function submitAssign() {
-    if (!boxCode.trim()) return setValidationError("Scan or choose a container before issuing.");
+    if (!qr.canEdit()) return;
+    const selectedCode = containerSelected ? (assignedContainerCode || boxCode).trim() : "";
+    if (containerSelected && !selectedCode) return setValidationError("Scan or choose a container before issuing.");
     if (evidenceId === null) return setValidationError("Upload an issue photo before issuing.");
     const overflow = (row?.items ?? []).find((item) => (rejects[item.id]?.broken ?? 0) > item.accepted_quantity);
     if (overflow) return setValidationError(`Can't reject more than ${overflow.accepted_quantity} of ${overflow.product_name}.`);
     if (scanned.length !== requiredScans) return setValidationError(`Scan exactly ${requiredScans} asset QR code(s) for the individually-tracked items (scanned ${scanned.length}).`);
     const rejectList = Object.entries(rejects).filter(([, value]) => value.broken > 0).map(([itemId, value]) => ({ item_id: Number(itemId), broken: value.broken, disposition: value.disposition }));
     setValidationError("");
-    onSubmit({ boxCode: boxCode.trim(), evidenceId, remark, rejects: rejectList, assetQrPayloads: scanned.map((item) => item.payload) });
+    onSubmit({ boxCode: selectedCode, evidenceId, remark, rejects: rejectList, assetQrPayloads: scanned.map((item) => item.payload) });
   }
 }
 
 // A handheld (keyboard-wedge) scanner types the payload into a field: the fallback for a desk
 // without a camera, as the container field and the direct-handout form already offer. It
 // resolves exactly like a camera scan.
-function AssetScanList({ scanned, requiredScans, pending, onScan, onManual, onRemove }: { scanned: ScannedAsset[]; requiredScans: number; pending: boolean; onScan: () => void; onManual: (payload: string) => void; onRemove: (payload: string) => void }) {
+function AssetScanList({ scanned, requiredScans, pending, canEdit, onScan, onManual, onRemove }: { canEdit: () => boolean; scanned: ScannedAsset[]; requiredScans: number; pending: boolean; onScan: () => void; onManual: (payload: string) => void; onRemove: (payload: string) => void }) {
   const [manual, setManual] = useState("");
   const addManual = () => {
-    if (!manual.trim()) return;
+    if (!canEdit() || !manual.trim()) return;
     onManual(manual);
     setManual("");
   };
@@ -136,7 +147,7 @@ function AssetScanList({ scanned, requiredScans, pending, onScan, onManual, onRe
       ) : null}
       <div className="flex items-start gap-2">
         <Field label="Asset QR code" optional helperText="No camera? Scan into this field with a handheld scanner." className="min-w-0 flex-1">
-          <Input className="font-mono" value={manual} disabled={pending} onChange={(event) => setManual(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addManual(); } }} />
+          <Input className="font-mono" value={manual} disabled={pending} onChange={(event) => { if (canEdit()) setManual(event.target.value); }} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addManual(); } }} />
         </Field>
         <Button className="mt-[26px]" disabled={pending || !manual.trim()} onClick={addManual}>Add code</Button>
       </div>

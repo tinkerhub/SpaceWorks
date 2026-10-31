@@ -1,0 +1,21 @@
+{
+  "status": "independently-read-source-and-fixture-runtime-followup-pending",
+  "sources": {
+    "backend/apps/document_storage_charge.py": {
+      "before_sha256": "a49c375c706a43f7cdb30c21a5d87e085d57d427341f2dce6fbd8297854a97b3",
+      "after_sha256": "61129ae2f851f2792b47188613c74b7584ae696b661cf6bf4142d9db8ea49eec"
+    },
+    "backend/apps/procurement/views_receipts.py": {
+      "before_sha256": "5edd43306fed1630b829c125fdfca72223fb75836fad2f61e5e3d56b0b94c507",
+      "after_sha256": "66c71de0fe0c420cfbfa3810aa80c2649fdeab3ad3a8e32d071c06383489602f"
+    },
+    "backend/apps/warranty/views_documents.py": {
+      "before_sha256": "097b49cfbf33f9b5d19a8a5b0a10c3f4f94e42103eb375a492173aa12b1b9ff7",
+      "after_sha256": "2aa94d171d16ad72fbee351de068e7fd21d51ed691b636b30109d1dcdbe085a4"
+    }
+  },
+  "source_delta": "Exact exception subtype declaration/raise in proof helper, direct subtype import+ONLYouter atomic catches in two finalizers. All old upload BaseException catches, guard calls, conditions, row locks and accounting behavior byte-unchanged. Original guard error contract evidence_storage_unavailable503 retained; new proof failure route storage_unavailable503 retained.",
+  "fixture_delta": "Exactly existing DeploymentDatabaseIdentity import+get_or_create in atomic setup helper, preserving allassertions/managedlimits/guards/clients; production migration normally seeds identity but transaction-test flush removes it.",
+  "original_transfer_oracle_changed": false,
+  "runtime_pending": true
+}

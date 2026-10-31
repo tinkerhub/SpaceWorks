@@ -49,11 +49,14 @@ def make_request(space, requester):
 def test_registry_matches_the_post_b7c_source_and_secondary_allowlists():
     # 18 at B7c, plus the two post-event source fields (EventFeedbackResponse.answers_snapshot
     # and EventAttendanceCertificate.recipient_name), plus the two the check-in gate added
-    # (HardwareRequest.checkin_project_name and CheckinIdentity.mid).
+    # (HardwareRequest.checkin_project_name and CheckinIdentity.mid), then cancellation_reason.
     # The counts are asserted so that encrypting a new column is a visible decision here.
-    assert len(SOURCE_FIELDS) == 22
+    assert len(SOURCE_FIELDS) == 23
     assert len(SECONDARY_FIELDS) == 4
-    assert len(ALL_FIELDS) == 26
+    assert ("hardware_requests.HardwareRequest", "cancellation_reason") in {
+        (item.model_label, item.field_name) for item in SOURCE_FIELDS
+    }
+    assert len(ALL_FIELDS) == 27
     assert {item.model_label for item in SECONDARY_FIELDS} == {"integrations.EmailLog"}
 
 

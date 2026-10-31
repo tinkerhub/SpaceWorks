@@ -109,50 +109,37 @@ def _evidence(makerspace, user, evidence_type):
     )
 
 @override_settings(API_CLIENT_AUTH_REQUIRED=False)
-def test_public_box_checkout_issues_mixed_asset_and_quantity_contents():
+def test_public_box_checkout_refuses_mixed_asset_and_quantity_contents(monkeypatch, settings):
+    from types import SimpleNamespace
+
+    from apps.operations.services_qr_assets import generate_assets_with_qr
+    from tests.box_checkout_guard_helpers import assert_refusal
+    from tests.inventory_lending_evidence_helpers import uploaded_images
+
     makerspace = make_space("box-mixed-public")
     member = eligible_member(makerspace)
+    admin = make_admin(makerspace)
     box = Box.objects.create(makerspace=makerspace, label="Mixed Box")
     individual_product = make_product(
         makerspace,
         name="Serialized Meter",
         box=box,
         tracking_mode=TrackingMode.INDIVIDUAL,
-        total_quantity=1,
-        available_quantity=1,
+        total_quantity=0,
+        available_quantity=0,
     )
-    asset = InventoryAsset.objects.create(
-        makerspace=makerspace,
-        product=individual_product,
-        box=box,
-        asset_tag="MIXED-ASSET-1",
-        public_self_checkout_enabled=True,
-    )
-    quantity_product = make_product(makerspace, name="Cable Kit", box=box)
+    generated, _ = generate_assets_with_qr(admin, individual_product, {"count": 1})
+    asset = generated[0]["asset"]
+    asset.public_self_checkout_enabled = True
+    asset.save(update_fields=["public_self_checkout_enabled"])
+    make_product(makerspace, name="Cable Kit", box=box)
     qr = make_box_qr(makerspace, box)
-
-    response = member_client(member).post(
-        public_checkout_url(makerspace),
-        checkout_payload(makerspace, member, qr.payload),
-        format="json",
+    lab = SimpleNamespace(
+        space=makerspace, actor=admin, borrower=member, public=member_client(member),
+        store=uploaded_images(monkeypatch, settings),
     )
 
-    assert response.status_code == 201
-    assert sorted(item["product_name"] for item in response.data["items"]) == [
-        "Cable Kit",
-        "Serialized Meter",
-    ]
-    loan = PublicToolLoan.objects.get()
-    assert loan.container == box
-    assert loan.asset_ids == [asset.id]
-    asset.refresh_from_db()
-    individual_product.refresh_from_db()
-    quantity_product.refresh_from_db()
-    assert asset.status == InventoryAsset.Status.ISSUED
-    assert individual_product.available_quantity == 0
-    assert individual_product.issued_quantity == 1
-    assert quantity_product.available_quantity == 1
-    assert quantity_product.issued_quantity == 1
+    assert_refusal(lab, "public", qr)
 
 
 @override_settings(API_CLIENT_AUTH_REQUIRED=False)

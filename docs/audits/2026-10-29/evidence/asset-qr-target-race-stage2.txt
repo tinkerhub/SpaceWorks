@@ -1,0 +1,9 @@
+Implemented the approved Stage 2 change.
+
+- Changed only [views_qr_batches.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:15): import at line 15; AssetQrView schema at 173; `post` at 181–214.
+- Added source admission → Maker `NO KEY UPDATE` → active QR lock → fresh tenant-pinned asset lock → actor/`MANAGE_QR` recheck. Moved/deleted assets reach scoped 404 before writes. Added typed 423/503 responses.
+- Static AST checks confirmed `asset_units` alone, creation fields, created-only audit, audit-free reuse and DTO preservation. Other view classes and 35 protected files stayed unchanged, including parent, print code and generated API artifacts. Callers remain unchanged: [re-export](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views.py:66), [route](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/urls.py:15).
+
+Parallel read-only print review found a separate stale-QR rebind race in [add_qr_to_batch](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:33). No print-owner edits made.
+
+No tests, project imports, runtime checks, builds, staging or commits performed.

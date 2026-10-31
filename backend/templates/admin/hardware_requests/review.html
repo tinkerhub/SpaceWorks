@@ -67,6 +67,32 @@
     <input type="submit" name="reject" value="Reject this request" class="deletelink">
   </div>
 </form>
+{% elif is_accepted %}
+<form method="post" action="{{ request.path }}">
+  {% csrf_token %}
+  <fieldset class="module aligned">
+    <h2>Cancel accepted request</h2>
+    <p><strong>This permanently closes the request and releases its reserved stock.</strong>
+      Cancellation is allowed only before any handover. Approval quantities and scan history remain recorded.</p>
+    <table>
+      <thead><tr><th>Product</th><th>Accepted</th></tr></thead>
+      <tbody>{% for item in items %}
+        <tr><td>{{ item.product.name }}</td><td>{{ item.accepted_quantity }}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+    <div class="form-row">
+      <label for="id_cancellation_reason">Cancellation reason (required):</label>
+      <textarea id="id_cancellation_reason" name="cancellation_reason" rows="4" maxlength="500" required></textarea>
+    </div>
+    <div class="form-row">
+      <label><input type="checkbox" name="confirm_cancel" value="yes" required>
+        I confirm this request should be cancelled and its reservation released.</label>
+    </div>
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" name="cancel" value="Cancel this request" class="deletelink">
+  </div>
+</form>
 {% else %}
 <p class="module aligned">
   This request is <strong>{{ hardware_request.status }}</strong>, so there is nothing left

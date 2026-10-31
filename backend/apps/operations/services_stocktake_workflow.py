@@ -1,4 +1,5 @@
 from django.db import IntegrityError, transaction
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
@@ -24,6 +25,7 @@ from apps.operations.services_stocktake_helpers import (
     _validate_line_container,
     _validate_line_fresh,
     _validate_line_scope,
+    _validate_product_count,
 )
 
 
@@ -61,10 +63,13 @@ def resolve_scan_target(actor, stocktake, payload):
     if qr.makerspace_id != stocktake.makerspace_id:
         raise ValidationError("QR belongs to a different makerspace.")
     if qr.target_type == QrCode.TargetType.BOX:
-        box = Box.objects.get(pk=qr.target_id)
+        box = get_object_or_404(Box, pk=qr.target_id, makerspace_id=stocktake.makerspace_id)
         return {"type": "box", "container_id": box.id, "label": box.label, "code": box.code}
     if qr.target_type == QrCode.TargetType.ASSET:
-        asset = InventoryAsset.objects.select_related("product").get(pk=qr.target_id)
+        asset = get_object_or_404(
+            InventoryAsset.objects.select_related("product"),
+            pk=qr.target_id, makerspace_id=stocktake.makerspace_id,
+        )
         return {
             "type": "asset",
             "asset_id": asset.id,
@@ -73,7 +78,9 @@ def resolve_scan_target(actor, stocktake, payload):
             "product": asset.product.name,
             "status": asset.status,
         }
-    product = InventoryProduct.objects.get(pk=qr.target_id)
+    product = get_object_or_404(
+        InventoryProduct, pk=qr.target_id, makerspace_id=stocktake.makerspace_id
+    )
     return {"type": "product", "product_id": product.id, "name": product.name}
 
 
@@ -89,12 +96,17 @@ def add_stocktake_line(actor, stocktake, data):
         container = _container(data.get("container_id"), locked.makerspace_id)
         _validate_line_container(locked, container)
         if data.get("asset_id"):
-            asset = InventoryAsset.objects.get(pk=data["asset_id"], makerspace=locked.makerspace)
+            asset = get_object_or_404(
+                InventoryAsset, pk=data["asset_id"], makerspace_id=locked.makerspace_id
+            )
             _validate_asset_count(asset, data["counted_quantity"])
             _validate_item_container(locked, container, asset=asset)
             expected = 1 if _asset_bucket(asset.status) == condition else 0
         else:
-            product = InventoryProduct.objects.get(pk=data["product_id"], makerspace=locked.makerspace)
+            product = get_object_or_404(
+                InventoryProduct, pk=data["product_id"], makerspace_id=locked.makerspace_id
+            )
+            _validate_product_count(product)
             _validate_item_container(locked, container, product=product)
             expected = _product_expected(product, condition)
         _reject_duplicate_line(locked, product, asset, condition, container)

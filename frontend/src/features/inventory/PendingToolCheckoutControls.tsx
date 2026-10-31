@@ -36,7 +36,7 @@ export function PendingToolCheckoutControls({
                 <span className="block text-label text-ink">Tool {index + 1}</span>
                 <span className="block truncate font-mono text-xs text-ink-muted">{payload}</span>
               </span>
-              <Button variant="quiet" size="sm" aria-label={`Remove tool ${index + 1}`} onClick={() => onRemove(payload)}>
+              <Button variant="quiet" size="sm" aria-label={`Remove tool ${index + 1}`} disabled={isPending} onClick={() => onRemove(payload)}>
                 Remove
               </Button>
             </li>
@@ -53,7 +53,7 @@ export function PendingToolCheckoutControls({
         className="mt-3"
         variant="primary"
         fullWidth
-        disabled={submitDisabled}
+        disabled={submitDisabled || isPending}
         loading={isPending}
         loadingLabel={pendingLabel}
         onClick={onSubmit}

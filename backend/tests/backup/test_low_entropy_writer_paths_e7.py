@@ -13,13 +13,14 @@ from tests.backup.e7_reservation_test_helpers import (
     digest,
     persist_active_reservation,
 )
+from tests.backup.x07_installation_test_helpers import seal_fence
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def _reservation_fact(component_id):
-    return {
+    return seal_fence({
         "version": "b1-broad-unique-fence-v1",
         "constraint_identity": digest("writer-path-rule"),
         "schema": "public",
@@ -27,8 +28,7 @@ def _reservation_fact(component_id):
         "columns": ["name"],
         "operations": ["insert", "update"],
         "component_ids": [str(component_id)],
-        "definition_sha256": digest("writer-path-fence"),
-    }
+    })
 
 
 def _raw_delete(reservation_id):

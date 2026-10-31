@@ -1,0 +1,49 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [32m✓[39m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2875[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker success cannot render, clear fresh scans/evidence or unlock the current checkout [33m 772[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout [33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m old session success cannot render, clear fresh scans/evidence or unlock the current checkout [33m 421[2mms[22m[39m
+     [33m[2m✓[22m[39m old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout [33m 378[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelAccountLess.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1123[2mms[22m[39m
+     [33m[2m✓[22m[39m collects contact details and sends them with an idempotency key [33m 301[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicInventoryPage.ownership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1135[2mms[22m[39m
+     [33m[2m✓[22m[39m reusing /m/:slug removes A cart and open details synchronously on warm A to cold B [33m 612[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicSelfCheckoutPage.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 381[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelFlow.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 485[2mms[22m[39m
+     [33m[2m✓[22m[39m ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow [33m 393[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanel.ownership.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 3888[2mms[22m[39m
+     [33m[2m✓[22m[39m checkout admits first and blocks the reverse operation in the same tick [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'checkout' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 330[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'return' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'checkout' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 327[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.ownership.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1645[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicBorrowRequest.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1381[2mms[22m[39m
+     [33m[2m✓[22m[39m deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys [33m 372[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.races.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 884[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1105[2mms[22m[39m
+     [33m[2m✓[22m[39m gates evidence and sends the confirmed identity through checkout and return [33m 586[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicIdentityTenantScope.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 757[2mms[22m[39m
+     [33m[2m✓[22m[39m PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name [33m 377[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelCheckedIn.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 588[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicMachinesPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 423[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestStatusPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 453[2mms[22m[39m
+ [32m✓[39m src/features/inventory/ProductCard.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 344[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 190[2mms[22m[39m
+ [32m✓[39m src/features/inventory/usePublicSession.ownership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 159[2mms[22m[39m
+ [32m✓[39m src/features/inventory/EventRegistrationForm.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+ [32m✓[39m src/features/inventory/RequestCartBar.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m src/features/inventory/publicSelfCheckoutApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestHeader.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m      Tests [22m [1m[32m144 passed[39m[22m[90m (144)[39m
+[2m   Start at [22m 19:57:30
+[2m   Duration [22m 58.80s[2m (transform 2.38s, setup 5.04s, import 10.77s, tests 18.62s, environment 20.70s)[22m
+

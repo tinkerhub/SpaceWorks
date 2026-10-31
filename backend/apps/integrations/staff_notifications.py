@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 _FEATURE_ACTIONS = {
     "hardware_requests": rbac.Action.ACCEPT_REQUEST,
     "printing": rbac.Action.MANAGE_PRINTING,
+    "machine_service": rbac.Action.MANAGE_MACHINES,
     "events": rbac.Action.MANAGE_EVENTS,
     "bookings": rbac.Action.MANAGE_BOOKINGS,
     "maintenance": rbac.Action.MANAGE_MACHINES,

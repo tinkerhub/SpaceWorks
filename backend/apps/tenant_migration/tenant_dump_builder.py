@@ -10,11 +10,9 @@ from django.apps import apps
 from django.db import connections, transaction
 
 from apps.backup.raw_projection import no_decrypt_guard
-from apps.data_export.datasets import DATASET_SPECS
+from apps.backup.digests import sha256_file
 
-from .tenant_dump_bootstrap import seed_default_roles
 from .tenant_dump_catalog import validate_catalog, validate_unowned_tables
-from .tenant_dump_cross_tenant import project_cross_tenant_values
 from .tenant_dump_database import (
     dump_scratch_database,
     empty_verification_database,
@@ -24,28 +22,34 @@ from .tenant_dump_database import (
 from .tenant_dump_errors import TenantDumpVerificationError
 from .tenant_dump_graph import plan_row_load
 from .tenant_dump_machine_types import resolve_machine_types
-from .tenant_dump_model_catalog import FIRST_PARTY_MODEL_RULES
 from .tenant_dump_pii import verify_ciphertext_aad_identities
 from .tenant_dump_raw import (
-    SanitizedRow,
     mapped_raw_digest,
     projected_raw_digest,
-    sanitize_record,
     validate_raw_column_allowlists,
 )
 from .tenant_dump_sql import (
     apply_deferred_foreign_keys,
     delete_portable_rows,
     empty_source_disposition_tables,
-    insert_closed_tenant_fence,
     insert_rows,
-    serialize_open_tenant_fence,
     verify_source_disposition_tables_empty,
     verify_tables_empty,
 )
 from .tenant_dump_sequences import normalize_sequences
-from .tenant_dump_types import ModelDisposition
 from .tenant_dump_verification import verify_projection_database
+from .tenant_dump_projection_load import (
+    _portable_models, _sanitize_rows, _split_bootstrap_roots,
+    _remap_member_roles, _mapped_identities, _final_rows, expected_projected_rows,
+)
+
+from .tenant_dump_projection_expectations import validate_source_expectations, verify_planned_identities
+from .tenant_dump_projection_bootstrap import (
+    capture_bootstrap_baseline, seed_projection_roles, close_projection_fence,
+    open_projection_fence, bootstrap_sha256,
+)
+from .tenant_dump_projection_rows import expected_target_identities
+from .tenant_dump_projection_proof import build_projection_record, canonical_digest
 
 
 @dataclass(frozen=True)
@@ -54,12 +58,14 @@ class TenantDumpBuildResult:
     mapped_raw_sha256: str
     sequence_state: dict
     used_two_pass: bool
+    projection_verification: dict
 
 
 def build_tenant_dump(
-    projection, destination, *, run_id, source_pii_mode, database=None
+    projection, destination, *, run_id, source_pii_mode, expectations, database=None
 ):
     """Build one target-compatible dump exclusively from a frozen D1 projection."""
+    validate_source_expectations(projection, expectations, run_id)
     makerspace_id = int(projection.makerspace_id)
     operation_id = UUID(str(run_id))
     destination = Path(destination)
@@ -88,6 +94,7 @@ def build_tenant_dump(
                     cursor.execute("SET LOCAL app.allow_immutable_delete = 'on'")
                 delete_portable_rows(using, makerspace_id, models)
                 verify_tables_empty(using, {"spaceworks_cache"})
+                baseline = capture_bootstrap_baseline(using)
                 source_rows = {
                     label: tuple(rows) for label, rows in projection.rows.items()
                 }
@@ -99,17 +106,22 @@ def build_tenant_dump(
                 )
                 source_rows["machines.MachineType"] = custom_types
                 sanitized = _sanitize_rows(source_rows, makerspace_id)
+                verify_planned_identities(sanitized, expectations)
                 roots, remainder = _split_bootstrap_roots(sanitized)
                 root_plan = plan_row_load(roots, resolved_pks=resolved_pks)
                 if root_plan.used_two_pass:
                     raise TenantDumpVerificationError(
                         "User/makerspace bootstrap unexpectedly requires a nullable cycle."
                     )
+                verify_planned_identities((*root_plan.rows, *remainder), expectations)
                 insert_rows(using, root_plan.rows)
-                insert_closed_tenant_fence(using, makerspace_id, operation_id)
-                role_ids = seed_default_roles(using, makerspace_id)
+                fence = close_projection_fence(using, makerspace_id, operation_id)
+                role_ids, generated = seed_projection_roles(using, makerspace_id, baseline)
                 remainder = _remap_member_roles(remainder, role_ids["member"])
+                expected_rows = expected_projected_rows((*roots, *remainder), resolved_pks)
+                projected_digest = projected_raw_digest(expected_rows)
                 plan = plan_row_load(remainder, resolved_pks=resolved_pks)
+                verify_planned_identities((*root_plan.rows, *plan.rows), expectations)
                 insert_rows(using, plan.rows)
                 apply_deferred_foreign_keys(
                     using,
@@ -118,7 +130,7 @@ def build_tenant_dump(
                 )
                 used_two_pass = plan.used_two_pass
                 empty_source_disposition_tables(using)
-                serialize_open_tenant_fence(using, makerspace_id, operation_id)
+                generated["encryption.PiiMakerspaceWriteFence"] = open_projection_fence(using, fence)
                 sequence_state = normalize_sequences(using)
                 final_rows = _final_rows(
                     (*root_plan.rows, *plan.rows), plan.deferred_foreign_keys
@@ -129,49 +141,56 @@ def build_tenant_dump(
                     makerspace_id,
                     mode=source_pii_mode,
                 )
-                projected_digest = projected_raw_digest(final_rows)
-                projected_identities = {
-                    label: tuple(row[apps.get_model(label)._meta.pk.attname] for row in rows)
-                    for label, rows in final_rows.items()
-                }
-            verify_projection_database(
-                using,
-                makerspace_id,
-                expected_mapped_digest=expected_digest,
-                mapped_identities=mapped_identities,
-                expected_projected_digest=projected_digest,
-                projected_identities=projected_identities,
-                expected_sequence_state=sequence_state,
-                capture_id=run_id,
-                expected_user_closure_digest=projection.user_closure.digest,
-            )
+                if projected_raw_digest(final_rows) != projected_digest:
+                    raise TenantDumpVerificationError("The planned row content changed its frozen input projection.")
+                projected_identities = expected_target_identities(expectations, baseline)
+                row_counts = {label: len(pks) for label, pks in projected_identities.items()}
+                verification = dict(
+                    expected_mapped_digest=expected_digest, mapped_identities=mapped_identities,
+                    expected_projected_digest=projected_digest, projected_identities=projected_identities,
+                    expected_row_counts=row_counts,
+                    expected_cross_tenant_lost_edges=expectations.expected_cross_tenant_lost_edges,
+                    expected_semantic_references=expectations.expected_semantic_references,
+                    source_expectations=expectations, bootstrap_baseline=baseline,
+                    bootstrap_generated=generated, resolved_pks=resolved_pks,
+                    expected_sequence_state=sequence_state, capture_id=run_id,
+                    expected_user_closure_digest=expectations.user_closure_sha256,
+                )
+            verify_projection_database(using, makerspace_id, **verification)
+            scratch_projected_sha256 = projected_digest
             # Keep this adjacent to pg_dump: future verification code cannot make
             # runtime cache state accidentally portable.
             verify_tables_empty(using, {"spaceworks_cache"})
             verify_source_disposition_tables_empty(using)
             dump_scratch_database(database_name, candidate, database=database)
+            if not candidate.is_file() or candidate.stat().st_size <= 0:
+                raise TenantDumpVerificationError("The Lane D database dump is empty.")
+            candidate_sha256 = sha256_file(candidate)
 
         with empty_verification_database(
             makerspace_id, run_id, database=database
         ) as (using, database_name):
             restore_scratch_dump(candidate, database_name, database=database)
-            restored_digest = verify_projection_database(
-                using,
-                makerspace_id,
-                expected_mapped_digest=expected_digest,
-                mapped_identities=mapped_identities,
-                expected_projected_digest=projected_digest,
-                projected_identities=projected_identities,
-                expected_sequence_state=sequence_state,
-                capture_id=run_id,
-                expected_user_closure_digest=projection.user_closure.digest,
-            )
+            restored_digest = verify_projection_database(using, makerspace_id, **verification)
+            restored_projected_sha256 = projected_digest
             if restored_digest != expected_digest:
                 raise TenantDumpVerificationError(
                     "The custom dump changed a mapped raw value."
                 )
         if not candidate.is_file() or candidate.stat().st_size <= 0:
             raise TenantDumpVerificationError("The verified Lane D database dump is empty.")
+        if sha256_file(candidate) != candidate_sha256:
+            raise TenantDumpVerificationError("The candidate dump bytes changed across verification.")
+        proof = build_projection_record(
+            expectations, database_member_sha256=candidate_sha256, row_counts=row_counts,
+            row_identity_sha256=canonical_digest({
+                label: [str(pk) for pk in pks] for label, pks in projected_identities.items()
+            }),
+            bootstrap_sha256=bootstrap_sha256(baseline, generated),
+            mapped_raw_sha256=expected_digest, projected_raw_sha256=projected_digest,
+            scratch_projected_sha256=scratch_projected_sha256,
+            restored_projected_sha256=restored_projected_sha256,
+        )
         candidate.chmod(0o600)
         os.replace(candidate, destination)
     return TenantDumpBuildResult(
@@ -179,95 +198,5 @@ def build_tenant_dump(
         mapped_raw_sha256=expected_digest,
         sequence_state=sequence_state,
         used_two_pass=used_two_pass,
+        projection_verification=proof,
     )
-
-
-def _portable_models():
-    return tuple(
-        apps.get_model(label)
-        for label in DATASET_SPECS
-        if FIRST_PARTY_MODEL_RULES[label].disposition
-        in {ModelDisposition.PROJECT, ModelDisposition.PRESERVE_LIVE}
-    )
-
-
-def _sanitize_rows(rows_by_label, makerspace_id):
-    result = []
-    for label, rows in sorted(rows_by_label.items()):
-        rule = FIRST_PARTY_MODEL_RULES[label]
-        if rule.disposition not in {
-            ModelDisposition.PROJECT,
-            ModelDisposition.PRESERVE_LIVE,
-        }:
-            continue
-        model = apps.get_model(label)
-        result.extend(
-            _apply_contextual_dispositions(
-                sanitize_record(model, row), row, makerspace_id
-            )
-            for row in rows
-        )
-    return result
-
-
-def _apply_contextual_dispositions(row, source, makerspace_id):
-    """Apply row-context rules whose result cannot be a table-wide field label."""
-    values = dict(row.values)
-    label = row.model._meta.label
-    values = project_cross_tenant_values(
-        row.model, values, source, makerspace_id
-    )
-    if label == "events.EventRegistration":
-        # Search generations and their blind-index rows are target-derived and empty
-        # in the scratch bootstrap; ciphertext itself remains byte-identical.
-        values[row.model._meta.get_field("email_exact_hash").column] = None
-        values[row.model._meta.get_field("email_hash_generation").column] = None
-    return SanitizedRow(row.model, row.source_pk, values)
-
-
-def _split_bootstrap_roots(rows):
-    root_labels = {"accounts.User", "makerspaces.Makerspace"}
-    return (
-        [row for row in rows if row.model._meta.label in root_labels],
-        [row for row in rows if row.model._meta.label not in root_labels],
-    )
-
-
-def _remap_member_roles(rows, member_role_id):
-    result = []
-    labels = {"makerspaces.MakerspaceMembership", "makerspaces.MembershipRequest"}
-    for row in rows:
-        if row.model._meta.label not in labels:
-            result.append(row)
-            continue
-        field = row.model._meta.get_field("assigned_role")
-        values = dict(row.values)
-        values[field.column] = member_role_id
-        result.append(SanitizedRow(row.model, row.source_pk, values))
-    return result
-
-
-def _mapped_identities(rows_by_label):
-    result = {}
-    for label, rows in rows_by_label.items():
-        model = apps.get_model(label)
-        from apps.encryption.registry import fields_for
-
-        if fields_for(model):
-            result[label] = tuple(row[model._meta.pk.attname] for row in rows)
-    return result
-
-
-def _final_rows(rows, deferred):
-    by_identity = {row.identity: row for row in rows}
-    final_values = {identity: dict(row.values) for identity, row in by_identity.items()}
-    for update in deferred:
-        final_values[update.identity][update.column] = update.value
-    result = {}
-    for identity, row in by_identity.items():
-        record = {
-            field.attname: final_values[identity][field.column]
-            for field in row.model._meta.concrete_fields
-        }
-        result.setdefault(row.model._meta.label, []).append(record)
-    return {label: tuple(values) for label, values in result.items()}

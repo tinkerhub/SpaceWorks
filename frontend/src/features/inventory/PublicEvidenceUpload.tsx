@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { Camera } from "lucide-react";
 
@@ -8,61 +8,80 @@ import {
   uploadPublicEvidenceFile,
 } from "./selfCheckoutApi";
 import type { CheckinMatch } from "./api";
+import { getSessionGeneration } from "../../lib/apiSession";
+import { useAuthActionOwner, type AuthAction } from "../auth/useAuthActionOwner";
 
-export function PublicEvidenceUpload({
-  slug,
-  evidenceType,
-  checkinIdentity,
-  disabled = false,
-  onUploaded,
-}: {
+type Props = {
   slug: string;
   evidenceType: "issue" | "return";
   checkinIdentity?: Pick<CheckinMatch, "mid" | "name">;
   disabled?: boolean;
   onUploaded: (evidenceId: number | null) => void;
-}) {
+};
+
+export function PublicEvidenceUpload(props: Props) {
+  const scope = JSON.stringify([props.slug, props.evidenceType, props.checkinIdentity?.mid,
+    props.checkinIdentity?.name, getSessionGeneration()]);
+  // Remount native file/camera state before any new semantic context can paint.
+  return <OwnedEvidenceUpload key={scope} {...props} scope={scope} />;
+}
+
+function OwnedEvidenceUpload({ slug, evidenceType, checkinIdentity, disabled = false, onUploaded, scope }: Props & { scope: string }) {
+  const owner = useAuthActionOwner(scope);
+  const latest = useRef({ disabled, onUploaded });
+  latest.current = { disabled, onUploaded };
   const [status, setStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const activeCamera = useRef<AuthAction | null>(null);
+  const [cameraAction, setCameraAction] = useState<AuthAction | null>(null);
+  const cameraOpen = cameraAction !== null && owner.isCurrent(cameraAction);
   const [cameraSupported] = useState(
     () => typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia,
   );
   const label = evidenceType === "issue" ? "Issue photo" : "Return photo";
 
-  useEffect(() => {
-    setStatus("idle");
-    setError("");
-    setFileName("");
-    setCameraOpen(false);
-    onUploaded(null);
-  }, [evidenceType, onUploaded]);
+  useLayoutEffect(() => {
+    if (owner.isContextCurrent()) latest.current.onUploaded(null);
+    // A callback change is not a new evidence context. Unmount never clears a parent.
+  }, [owner.context]);
 
-  async function handleFile(file: File) {
-    setStatus("uploading");
-    setError("");
-    setFileName(file.name);
-    onUploaded(null);
-    try {
-      const presigned = await requestPublicEvidenceUpload(slug, {
+  async function handleFile(file: File, camera?: AuthAction | null) {
+    if (latest.current.disabled || (camera !== undefined &&
+      (!owner.isCurrent(camera) || activeCamera.current !== camera))) return;
+    const action = owner.begin();
+    if (!action) return;
+    const input = {
+      slug, file,
+      body: {
         evidence_type: evidenceType,
         content_type: file.type,
         size_bytes: file.size,
-        ...(checkinIdentity
-          ? {
-              checkin_mid: checkinIdentity.mid,
-              name: checkinIdentity.name,
-            }
-          : {}),
-      });
-      await uploadPublicEvidenceFile(presigned, file);
+        ...(checkinIdentity ? { checkin_mid: checkinIdentity.mid, name: checkinIdentity.name } : {}),
+      },
+    };
+    activeCamera.current = null;
+    setCameraAction(null);
+    setStatus("uploading");
+    setError("");
+    setFileName(file.name);
+    latest.current.onUploaded(null);
+    try {
+      if (!owner.isCurrent(action)) return;
+      const presigned = await requestPublicEvidenceUpload(input.slug, input.body);
+      if (!owner.isCurrent(action)) return;
+      // Already-admitted storage bytes may finish; obsolete work cannot publish evidence.
+      await uploadPublicEvidenceFile(presigned, input.file);
+      if (!owner.isCurrent(action)) return;
       setStatus("done");
-      onUploaded(presigned.evidence_id);
+      latest.current.onUploaded(presigned.evidence_id);
     } catch (err) {
+      if (!owner.isCurrent(action)) return;
       setStatus("error");
       setError(err instanceof Error ? err.message : "Upload failed.");
-      onUploaded(null);
+      latest.current.onUploaded(null);
+    } finally {
+      owner.finish(action);
     }
   }
 
@@ -84,12 +103,23 @@ export function PublicEvidenceUpload({
           />
         </label>
         {cameraSupported ? (
-          <Button className="shrink-0" aria-label={`Take ${label}`} startIcon={<Camera />} disabled={disabled || status === "uploading"} onClick={() => setCameraOpen(true)}>
+          <Button className="shrink-0" aria-label={`Take ${label}`} startIcon={<Camera />} disabled={disabled || status === "uploading"} onClick={() => {
+            if (latest.current.disabled || owner.isPending()) return;
+            const action = owner.capture();
+            if (!action) return;
+            activeCamera.current = action; setCameraAction(action);
+          }}>
             Camera
           </Button>
         ) : null}
       </div>
-      <CameraCapture open={cameraOpen} onClose={() => setCameraOpen(false)} onCapture={(file) => { void handleFile(file); }} label={label} />
+      <CameraCapture open={cameraOpen}
+        onClose={() => {
+          if (owner.isCurrent(cameraAction) && activeCamera.current === cameraAction) {
+            activeCamera.current = null; setCameraAction(null);
+          }
+        }}
+        onCapture={(file) => { void handleFile(file, cameraAction); }} label={label} />
       {/* ONE persistent live region, not three conditional ones: a role="status" element that is
           inserted at the same moment its text appears is frequently not announced, because the
           region was not in the DOM for the screen reader to observe changing. */}

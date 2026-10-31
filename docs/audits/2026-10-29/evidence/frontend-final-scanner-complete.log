@@ -1,0 +1,1267 @@
+
+> test
+> vitest run --maxWorkers=2
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mcurrent direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after actor departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mpaused return does not dispatch after unmount departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mpaused issue never dispatches after visit departure
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue success/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return success/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mold actual issue error/finally cannot clear or unlock a new actor's pending form
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcurrent error keeps the complete draft for retry, then refreshes the normal loan/inventory caches
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mcontainers module off keeps a photo-required counted handout usable without container reads
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mold return error/finally cannot close or unlock B's return dialog
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mretained closed native return callback cannot write into a new loan visit
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mretained closed native return callback cannot write into a new loan visit
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mindividually tracked direct handout uses scanned unit QR rather than a counted manual line
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2mretained closed native return callback cannot write into a new loan visit
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR success cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx[2m > [22m[2ma current return marked scan-optional remains photo/notes-required and submits without a QR
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/DirectLoanReturn.hardwareOwnership.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 9234[2mms[22m[39m
+   [33m[2m✓[22m[39m current direct return requires photo/notes/scan/all outcomes and freezes its complete DTO before a pause [33m 4156[2mms[22m[39m
+   [33m[2m✓[22m[39m paused return does not dispatch after actor departure [33m 936[2mms[22m[39m
+   [33m[2m✓[22m[39m paused return does not dispatch after unmount departure [33m 680[2mms[22m[39m
+   [33m[2m✓[22m[39m old return success/finally cannot close or unlock B's return dialog [33m 1371[2mms[22m[39m
+   [33m[2m✓[22m[39m old return error/finally cannot close or unlock B's return dialog [33m 1300[2mms[22m[39m
+   [33m[2m✓[22m[39m retained closed native return callback cannot write into a new loan visit [33m 451[2mms[22m[39m
+   [33m[2m✓[22m[39m a current return marked scan-optional remains photo/notes-required and submits without a QR [33m 337[2mms[22m[39m
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.hardwareOwnership.test.tsx[2m > [22m[2mheld old QR error cannot append into the actual post-issue remount
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/DirectLoans.hardwareOwnership.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 9531[2mms[22m[39m
+   [33m[2m✓[22m[39m paused actual issue captures borrower/items/QR/container/evidence/remark and fences all same-tick edits [33m 4163[2mms[22m[39m
+   [33m[2m✓[22m[39m paused issue never dispatches after actor departure [33m 785[2mms[22m[39m
+   [33m[2m✓[22m[39m paused issue never dispatches after unmount departure [33m 327[2mms[22m[39m
+   [33m[2m✓[22m[39m paused issue never dispatches after visit departure [33m 519[2mms[22m[39m
+   [33m[2m✓[22m[39m old actual issue success/finally cannot clear or unlock a new actor's pending form [33m 931[2mms[22m[39m
+   [33m[2m✓[22m[39m old actual issue error/finally cannot clear or unlock a new actor's pending form [33m 659[2mms[22m[39m
+   [33m[2m✓[22m[39m current error keeps the complete draft for retry, then refreshes the normal loan/inventory caches [33m 370[2mms[22m[39m
+   [33m[2m✓[22m[39m containers module off keeps a photo-required counted handout usable without container reads [33m 418[2mms[22m[39m
+   [33m[2m✓[22m[39m individually tracked direct handout uses scanned unit QR rather than a counted manual line [33m 492[2mms[22m[39m
+   [33m[2m✓[22m[39m held old QR success cannot append into the actual post-issue remount [33m 443[2mms[22m[39m
+   [33m[2m✓[22m[39m held old QR error cannot append into the actual post-issue remount [33m 421[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 3944[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker success cannot render, clear fresh scans/evidence or unlock the current checkout [33m 1328[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout [33m 733[2mms[22m[39m
+     [33m[2m✓[22m[39m old session success cannot render, clear fresh scans/evidence or unlock the current checkout [33m 520[2mms[22m[39m
+     [33m[2m✓[22m[39m old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout [33m 407[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanel.ownership.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 5396[2mms[22m[39m
+     [33m[2m✓[22m[39m checkout admits first and blocks the reverse operation in the same tick [33m 925[2mms[22m[39m
+     [33m[2m✓[22m[39m return admits first and blocks the reverse operation in the same tick [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'checkout' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 522[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'return' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 498[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'checkout' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 384[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'maker' 'return' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 306[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'session' 'checkout' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 340[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'session' 'return' 'success' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 378[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'session' 'checkout' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 322[2mms[22m[39m
+     [33m[2m✓[22m[39m old 'session' 'return' 'rejection' cannot render, toast, clear current evidence/scans, or unlock current pending state [33m 384[2mms[22m[39m
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout borrower-choice retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/panels/machine/ServiceConsoleContracts.ownership.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[33m 4024[2mms[22m[39m
+     [33m[2m✓[22m[39m accept preserves immutable job/action identity and quantity/grams contract [33m 572[2mms[22m[39m
+     [33m[2m✓[22m[39m start preserves immutable job/action identity and quantity/grams contract [33m 347[2mms[22m[39m
+     [33m[2m✓[22m[39m current manual error survives finish and explicit retry preserves its price/percent input [33m 425[2mms[22m[39m
+     [33m[2m✓[22m[39m accept preserves immutable job/action identity and quantity/grams contract [33m 312[2mms[22m[39m
+     [33m[2m✓[22m[39m start preserves immutable job/action identity and quantity/grams contract [33m 368[2mms[22m[39m
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout handout-intent retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout navigation retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout navigation retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout navigation retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout navigation retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx[2m > [22m[2mactual handout navigation retires a held selection retry without undoing creation
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 3439[2mms[22m[39m
+   [33m[2m✓[22m[39m cancel/reopen after failed selection clears committed contacts and cannot offer a disguised POST retry [33m 608[2mms[22m[39m
+   [33m[2m✓[22m[39m actual handout borrower-choice retires a held selection retry without undoing creation [33m 671[2mms[22m[39m
+   [33m[2m✓[22m[39m actual handout handout-intent retires a held selection retry without undoing creation [33m 761[2mms[22m[39m
+   [33m[2m✓[22m[39m actual handout navigation retires a held selection retry without undoing creation [33m 446[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.workflows.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 3106[2mms[22m[39m
+     [33m[2m✓[22m[39m creates consumables from a type page with that type scope [33m 628[2mms[22m[39m
+     [33m[2m✓[22m[39m offers shared pools plus only the selected machine's bound pool [33m 1096[2mms[22m[39m
+     [33m[2m✓[22m[39m moves machine creation off the multi-type index and onto an authorized type page [33m 360[2mms[22m[39m
+     [33m[2m✓[22m[39m pre-scopes printer creation, preserves its model, and refreshes the machine list [33m 353[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a service action draft across navigation to the index and back [33m 474[2mms[22m[39m
+ [32m✓[39m src/features/staff/StaffUsersScope.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 4642[2mms[22m[39m
+     [33m[2m✓[22m[39m reads Demo staff, roles and capabilities despite Alpha being first, with no second makerspace chooser [33m 1493[2mms[22m[39m
+     [33m[2m✓[22m[39m adds staff to Demo through the real modal and refreshes the actor's authority [33m 637[2mms[22m[39m
+     [33m[2m✓[22m[39m remounts Users on an active-space change, clearing drafts, filters and descendant role targets [33m 1625[2mms[22m[39m
+     [33m[2m✓[22m[39m creates a global makerspace without switching Demo, invalidates list generations, and hides creation from managers [33m 882[2mms[22m[39m
+ [32m✓[39m src/features/staff/TenantMigrationPanel.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 5103[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the exact closure and approves its exact digest and per-person decision [33m 570[2mms[22m[39m
+     [33m[2m✓[22m[39m submits an explicit resolution and membership disposition per person [33m 699[2mms[22m[39m
+     [33m[2m✓[22m[39m submits the prefilled target identity unchanged without age_recipient [33m 313[2mms[22m[39m
+     [33m[2m✓[22m[39m requires tenant-naming confirmations for every destructive cutover action [33m 932[2mms[22m[39m
+     [33m[2m✓[22m[39m quiesces only after the dialog is confirmed [33m 541[2mms[22m[39m
+     [33m[2m✓[22m[39m shows Importing before cutover and Active only after a typed confirmation [33m 524[2mms[22m[39m
+     [33m[2m✓[22m[39m shows Aborted distinctly and exposes the target abort receipt [33m 817[2mms[22m[39m
+ [32m✓[39m src/features/machineService/PublicServiceVisitOwnership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 5222[2mms[22m[39m
+     [33m[2m✓[22m[39m resets canonical check-in, private draft/files and lookup results before paint on A→B→A [33m 769[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps check-in typing mounted while changing a confirmed person clears private details [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves a current draft across stable catalog object refreshes but resets on a type round trip [33m 758[2mms[22m[39m
+     [33m[2m✓[22m[39m creates fresh visits for changed request policy and real auth epochs [33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m treats defaultPrinter changes as visits even when the selected catalog id stays the same [33m 401[2mms[22m[39m
+     [33m[2m✓[22m[39m releases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B [33m 1094[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps unpublished types and off modules gated, including cached printer types [33m 886[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a successful token/banner after internal field reset and finish; old completion cannot replace B [33m 497[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2770[2mms[22m[39m
+     [33m[2m✓[22m[39m paused queue/manual keep click-time bodies, synchronous edit/duplicate guards, and independent owners [33m 983[2mms[22m[39m
+   [33m[2m✓[22m[39m already-dispatched A queue success/finally cannot clear B or unlock B pending action [33m 360[2mms[22m[39m
+   [33m[2m✓[22m[39m already-dispatched A queue error/finally cannot clear B or unlock B pending action [33m 316[2mms[22m[39m
+ [32m✓[39m src/features/machineService/PublicMachineServicePage.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 3618[2mms[22m[39m
+     [33m[2m✓[22m[39m selects types by id and submits a successful generic proposal with a private tracker [33m 1204[2mms[22m[39m
+     [33m[2m✓[22m[39m honors Machines type preselection and the /print wrapper defaults to the printer [33m 309[2mms[22m[39m
+     [33m[2m✓[22m[39m resets printer fields, files and submission errors when the selected type changes [33m 379[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/Queues.qrOwnership.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 2325[2mms[22m[39m
+   [33m[2m✓[22m[39m held A resolution cannot publish into B with the same product and line ID [33m 702[2mms[22m[39m
+   [33m[2m✓[22m[39m held A resolution cannot publish into A-again with the same product and line ID [33m 466[2mms[22m[39m
+   [33m[2m✓[22m[39m ordinary same-row refetch preserves the current draft, uploaded photo and concurrent unit scans [33m 357[2mms[22m[39m
+   [33m[2m✓[22m[39m closed native scanner callbacks cannot dispatch in a later opening or row visit [33m 406[2mms[22m[39m
+   [33m[2m✓[22m[39m exact unit count and photo remain required when no container is selected [33m 394[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/Queues.handoverContracts.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2454[2mms[22m[39m
+   [33m[2m✓[22m[39m held list populated during a failed assignment re-enables with options without another GET [33m 751[2mms[22m[39m
+   [33m[2m✓[22m[39m assigned container, photo, scans and remark survive failed issue; explicit retry issues once without reassignment [33m 788[2mms[22m[39m
+   [33m[2m✓[22m[39m an existing assigned container still requires its code and issue evidence [33m 464[2mms[22m[39m
+   [33m[2m✓[22m[39m current reviewed return preserves photo, remark, matching-container and per-unit outcome requirements [33m 449[2mms[22m[39m
+ [32m✓[39m src/features/staff/WalkInMemberForm.rosterPause.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 3407[2mms[22m[39m
+   [33m[2m✓[22m[39m initially paused real roster releases creation pending; old shared success is not selection proof [33m 1038[2mms[22m[39m
+   [33m[2m✓[22m[39m pause after failed fetch uses production retry:1; retired shared success cannot publish [33m 1167[2mms[22m[39m
+   [33m[2m✓[22m[39m pause after failed fetch uses production retry:1; retired shared rejection cannot publish [33m 1199[2mms[22m[39m
+ [32m✓[39m src/features/staff/consoleModuleGating.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 2700[2mms[22m[39m
+     [33m[2m✓[22m[39m treats a notifications bookmark as stale and lands on the dashboard [33m 478[2mms[22m[39m
+     [33m[2m✓[22m[39m serves a gated tab once its module is on [33m 518[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.routes.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 2805[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps an explicit missing Calicut URL unavailable when the allowed API list contains only Kochi [33m 325[2mms[22m[39m
+     [33m[2m✓[22m[39m switches a valid machine tab to Calicut without carrying Kochi machine type 12 [32m 300[2mms[22m[39m
+     [33m[2m✓[22m[39m Back and Forward supersede chooser intent without stale workspace redirects or a permanent loader [33m 348[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/StocktakeCountSection.auditB.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 3059[2mms[22m[39m
+     [33m[2m✓[22m[39m hides individual products from the Product dropdown [33m 655[2mms[22m[39m
+     [33m[2m✓[22m[39m offers individual products in Asset mode and submits the selected physical unit [33m 693[2mms[22m[39m
+     [33m[2m✓[22m[39m routes an individual product QR to Asset mode with guidance and blocks aggregate submission [33m 645[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a quantity product QR countable after switching from Asset mode [33m 611[2mms[22m[39m
+     [33m[2m✓[22m[39m clears incompatible product and asset selections when toggling count mode [33m 452[2mms[22m[39m
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; current owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; current owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; current owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; current owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-borrower owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-borrower owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-borrower owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-borrower owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-borrower owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; new-visit owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx[2m > [22m[2mcommitted creation waits for held roster; issue-pending owns any eventual selection
+[22m[39mEncountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2260[2mms[22m[39m
+   [33m[2m✓[22m[39m paused creation snapshots identity and prevents same-tick edits/duplicates; current creation selects once [33m 402[2mms[22m[39m
+   [33m[2m✓[22m[39m committed creation waits for held roster; current owns any eventual selection [33m 470[2mms[22m[39m
+   [33m[2m✓[22m[39m committed creation waits for held roster; new-borrower owns any eventual selection [33m 344[2mms[22m[39m
+   [33m[2m✓[22m[39m committed creation waits for held roster; new-visit owns any eventual selection [33m 338[2mms[22m[39m
+   [33m[2m✓[22m[39m committed creation waits for held roster; issue-pending owns any eventual selection [33m 471[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.ownership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 3392[2mms[22m[39m
+   [33m[2m✓[22m[39m direct type A→B→A navigation preserves container service drafts and resets consumable fields and mutation error [33m 2248[2mms[22m[39m
+   [33m[2m✓[22m[39m type-local pending state resets while old A settlement cannot clear B or erase preserved A drafts [33m 1143[2mms[22m[39m
+ [32m✓[39m src/features/staff/StaffAttachmentBatches.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 2737[2mms[22m[39m
+     [33m[2m✓[22m[39m current view and delete use the actual document/receipt ID [33m 449[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicBorrowRequest.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 2974[2mms[22m[39m
+     [33m[2m✓[22m[39m deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys [33m 1208[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker success cannot publish a token, clear B cart/draft or toast, or unlock B's pending request [33m 425[2mms[22m[39m
+     [33m[2m✓[22m[39m old maker rejection cannot publish a token, clear B cart/draft or toast, or unlock B's pending request [33m 449[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.login.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1983[2mms[22m[39m
+     [33m[2m✓[22m[39m password login from /admin ignores the saved Kochi hint and opens the central picker [33m 553[2mms[22m[39m
+     [33m[2m✓[22m[39m late logout network and offline cleanup resolve cannot clear a newly logged-in user, cache or selection [33m 344[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1940[2mms[22m[39m
+   [33m[2m✓[22m[39m raw upload cannot finalize under the new resource or clear its selected file/type [33m 737[2mms[22m[39m
+   [33m[2m✓[22m[39m raw upload cannot finalize under the new actor or clear its selected file/type [33m 377[2mms[22m[39m
+   [33m[2m✓[22m[39m current upload retries, snapshots type, refreshes documents, views and deletes actual document ID [33m 332[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachinesPanel.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 2952[2mms[22m[39m
+     [33m[2m✓[22m[39m shows delegated maintenance recipients only when the switch is enabled [33m 319[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the sole reachable type inline without hiding the index controls [33m 419[2mms[22m[39m
+     [33m[2m✓[22m[39m renders a zero-machine reachable type and its service queue [33m 303[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps service content mounted when the status filter removes every row [33m 338[2mms[22m[39m
+     [33m[2m✓[22m[39m shows a bound pool only on its machine's type page [33m 396[2mms[22m[39m
+     [33m[2m✓[22m[39m shows type-wide pools on their machine-type page [33m 381[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesHandoverModals.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 2839[2mms[22m[39m
+     [33m[2m✓[22m[39m asks for the loan's container instead of sending a blank box code [33m 687[2mms[22m[39m
+     [33m[2m✓[22m[39m hides the container for a containerless return but requires photo and remark before submitting outcomes [33m 340[2mms[22m[39m
+     [33m[2m✓[22m[39m submits exact individual outcomes without a container, leaving pending units on loan [33m 560[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestForm.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 2835[2mms[22m[39m
+     [33m[2m✓[22m[39m uploads model and screenshot in order, pins every later call and submits the returned file ids [33m 379[2mms[22m[39m
+     [33m[2m✓[22m[39m makes a removed filament choice an explicit choose-again error before uploading [33m 552[2mms[22m[39m
+     [33m[2m✓[22m[39m lets the requester explicitly clear vanished filament when every pool disappears [33m 728[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MachineTypesPanel.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 3045[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects blank and case-insensitive duplicate entries before creation [33m 1456[2mms[22m[39m
+     [33m[2m✓[22m[39m omits a preset key when the custom type list is emptied [33m 346[2mms[22m[39m
+     [33m[2m✓[22m[39m cannot save before the stored pricing has loaded [33m 321[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps prices for manual usage but drops online charging and the booking flag [33m 606[2mms[22m[39m
+ [32m✓[39m src/features/staff/MembersPanel.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1445[2mms[22m[39m
+     [33m[2m✓[22m[39m offers waiver, referral and verification controls (the tab renders only with membership on) [33m 449[2mms[22m[39m
+     [33m[2m✓[22m[39m offers only assignable roles and hides Revoke on a manage_makerspace row for a Space Manager [33m 502[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSession.completion.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1637[2mms[22m[39m
+     [33m[2m✓[22m[39m shows a current failed logout in the real LoginPanel after local identity and token cleanup [33m 753[2mms[22m[39m
+     [33m[2m✓[22m[39m a new password submit invalidates an old logout warning in the same act before any new token is installed [33m 483[2mms[22m[39m
+     [33m[2m✓[22m[39m a late failed logout cannot publish a warning or clear a completed new login's cache and selection [33m 398[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.ownership.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 2329[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesIssueFlow.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2179[2mms[22m[39m
+     [33m[2m✓[22m[39m skips assignment when no container is chosen (selected then cleared: false) [33m 606[2mms[22m[39m
+     [33m[2m✓[22m[39m skips assignment when no container is chosen (selected then cleared: true) [33m 652[2mms[22m[39m
+     [33m[2m✓[22m[39m locks a successful container assignment and preserves photo, scans and remark for issue retry [33m 918[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.cache.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 3417[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores warmed legacy cache and shares one generation-keyed request across the real session and module hooks [33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m prefix invalidation refreshes both route authorization and the machine module consumer [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m a previous-generation deferred list cannot publish into the new login or either list consumer [33m 973[2mms[22m[39m
+     [33m[2m✓[22m[39m removes the stale operational panel until identity AND list finish, then denies a withdrawn explicit target [33m 305[2mms[22m[39m
+     [33m[2m✓[22m[39m authorization identity refresh errors fail closed and Retry rechecks both before restoring a panel [33m 497[2mms[22m[39m
+     [33m[2m✓[22m[39m authorization list refresh errors fail closed and Retry rechecks both before restoring a panel [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m withdrawn explicit guest choice becomes unavailable without falling back or staying in a loader [33m 499[2mms[22m[39m
+ [32m✓[39m src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2661[2mms[22m[39m
+     [33m[2m✓[22m[39m gates the form and sends identity with every presign and submission [33m 1405[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the same checked-in identity for generic attachments and the shared typed POST [33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m lets quantity be cleared while typing, clamps it, and resets the form after submitting [33m 459[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.authority.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 7215[2mms[22m[39m
+     [33m[2m✓[22m[39m global user with override flag false keeps only explicit limited membership authority [33m 897[2mms[22m[39m
+     [33m[2m✓[22m[39m affirmative override grants full operational access to a global user without a membership [33m 332[2mms[22m[39m
+     [33m[2m✓[22m[39m choosing a target with narrower access replaces a forbidden settings tab with its allowed default [33m 2750[2mms[22m[39m
+     [33m[2m✓[22m[39m single-tenant restore fixes Kochi and hides every chooser even from route /admin/settings and a saved Calicut hint [33m 946[2mms[22m[39m
+     [33m[2m✓[22m[39m single-tenant restore fixes Kochi and hides every chooser even from route /m/calicut/admin/settings and a saved Calicut hint [33m 774[2mms[22m[39m
+     [33m[2m✓[22m[39m single-tenant missing fixed row fails closed instead of adopting another allowed space [33m 302[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolCreateForm.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2564[2mms[22m[39m
+     [33m[2m✓[22m[39m selects a named tile and submits its most recent pool hex separately [33m 1644[2mms[22m[39m
+     [33m[2m✓[22m[39m appends a custom colour to accepted_colours and selects its name and hex [33m 416[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MaintenanceDocuments.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1007[2mms[22m[39m
+   [33m[2m✓[22m[39m owns pending across raw bytes, blocks duplicate/file edits, and retries only finalization with the same key [33m 428[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicInventoryPage.ownership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1367[2mms[22m[39m
+     [33m[2m✓[22m[39m reusing /m/:slug removes A cart and open details synchronously on warm A to cold B [33m 647[2mms[22m[39m
+     [33m[2m✓[22m[39m successful borrow keeps a cart changed after admission and submits the original quantities [33m 395[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelCheckedIn.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 1537[2mms[22m[39m
+     [33m[2m✓[22m[39m describes the account-less roster path [33m 384[2mms[22m[39m
+ [32m✓[39m src/features/staff/settingsModuleGating.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1550[2mms[22m[39m
+     [33m[2m✓[22m[39m mounts no card for a switched-off module [33m 393[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceSubmissionContracts.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 2016[2mms[22m[39m
+     [33m[2m✓[22m[39m captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue [33m 507[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a refreshed printer draft but validates its vanished pool before upload [33m 582[2mms[22m[39m
+ [32m✓[39m src/features/staff/shell/StaffShell.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 4600[2mms[22m[39m
+     [33m[2m✓[22m[39m renders exactly the allowed tabs, grouped, and marks the active one as the current page [33m 1392[2mms[22m[39m
+     [33m[2m✓[22m[39m folds to the icon rail and remembers it across visits [33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m opens the same navigation in a sheet on small screens and closes it [33m 641[2mms[22m[39m
+     [33m[2m✓[22m[39m opens the account dialog from the account card [33m 596[2mms[22m[39m
+     [33m[2m✓[22m[39m switches the colour mode and signs out [33m 966[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAuthPanel.verificationOwnership.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1505[2mms[22m[39m
+     [33m[2m✓[22m[39m MV01 accepts only its own verification token, then confirms exactly once [33m 344[2mms[22m[39m
+ [32m✓[39m src/features/staff/ApiClientsPanel.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2047[2mms[22m[39m
+     [33m[2m✓[22m[39m requires an explicit scope and sends it on create [33m 776[2mms[22m[39m
+     [33m[2m✓[22m[39m warns about legacy access and sends an explicit replacement PATCH [33m 438[2mms[22m[39m
+     [33m[2m✓[22m[39m locks browser-incompatible scopes and PATCHes only selectable scopes [33m 321[2mms[22m[39m
+ [32m✓[39m src/features/account/ChangePasswordForm.ownership.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 2149[2mms[22m[39m
+     [33m[2m✓[22m[39m CP05 current rotation clears fields and advances exactly once (StrictMode=false) [33m 456[2mms[22m[39m
+ [32m✓[39m src/features/organizations/OrganizationInvitationRedeemPage.ownership.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 913[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAuthPanel.ownership.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[33m 1710[2mms[22m[39m
+ [32m✓[39m src/features/auth/SocialSignInButtons.providerOwnership.test.tsx [2m([22m[2m28 tests[22m[2m)[22m[33m 1575[2mms[22m[39m
+ [32m✓[39m src/features/staff/shell/StaffShellResponsive.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1217[2mms[22m[39m
+     [33m[2m✓[22m[39m 800→1200 unmounts the sheet, releases Radix isolation and restores main focus; 800 again stays closed and can reopen [33m 678[2mms[22m[39m
+     [33m[2m✓[22m[39m hands Account from the mobile sheet through the real menu cleanup into the account dialog [33m 348[2mms[22m[39m
+ [32m✓[39m src/features/auth/LegacyPasswordResetForm.ownership.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[33m 2964[2mms[22m[39m
+     [33m[2m✓[22m[39m clears secrets and a current error before paint when uid only changes on the same path [33m 454[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps B pending when obsolete A settles with reject [33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps fresh A pending when obsolete A settles with resolve [33m 371[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps fresh A pending when obsolete A settles with reject [33m 579[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/OperationsReportsOffstate.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 3366[2mms[22m[39m
+     [33m[2m✓[22m[39m describes the FabLab health card by the modules that are on [33m 845[2mms[22m[39m
+     [33m[2m✓[22m[39m drops catalog entries the server marks unavailable instead of listing them disabled [33m 2517[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/OperationsReportsModuleGating.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1931[2mms[22m[39m
+     [33m[2m✓[22m[39m renders no panel, health tile or catalog entry for a switched-off module [33m 1227[2mms[22m[39m
+     [33m[2m✓[22m[39m brings each panel back with its module [33m 702[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/BuiltinTypeRow.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1304[2mms[22m[39m
+     [33m[2m✓[22m[39m lets a space manager change a built-in for this makerspace only, sending only what differs [33m 752[2mms[22m[39m
+     [33m[2m✓[22m[39m sends an explicit off when a minutes built-in moves to a unit with consumables switched off [33m 321[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicIdentityTenantScope.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1307[2mms[22m[39m
+     [33m[2m✓[22m[39m PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name [33m 676[2mms[22m[39m
+     [33m[2m✓[22m[39m self-checkout parent blocks B evidence/loan readiness until a fresh B lookup and resets uploaded evidence on identity edits [33m 331[2mms[22m[39m
+ [32m✓[39m src/features/staff/IntegrationHealthDestinations.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 3193[2mms[22m[39m
+     [33m[2m✓[22m[39m queries health and diagnoses actual rooms for all four enabled chat channels [33m 2268[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 2308[2mms[22m[39m
+     [33m[2m✓[22m[39m gates evidence and sends the confirmed identity through checkout and return [33m 1107[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/InventoryRoleAlignment.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 2012[2mms[22m[39m
+     [33m[2m✓[22m[39m gives a view-only role a read-only panel [33m 983[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps every control for an inventory editor [33m 557[2mms[22m[39m
+     [33m[2m✓[22m[39m shows To Buy only when procurement is on [33m 302[2mms[22m[39m
+ [32m✓[39m src/features/staff/DirectLoanItems.hardwareOwnership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1787[2mms[22m[39m
+   [33m[2m✓[22m[39m old item QR success cannot append through stable parent setter after remount [33m 526[2mms[22m[39m
+   [33m[2m✓[22m[39m old item QR error cannot append through stable parent setter after remount [33m 628[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/UsersInvitations.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 963[2mms[22m[39m
+     [33m[2m✓[22m[39m is absent when member accounts are off: nobody could sign in to claim one [33m 309[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.races.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1054[2mms[22m[39m
+ [32m✓[39m src/features/staff/ImageUploader.ownership.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1256[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/OverviewTab.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1748[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a status draft through unrelated refreshes and blocks both details click and submit [33m 955[2mms[22m[39m
+     [33m[2m✓[22m[39m sends the requested status, adopts the authoritative result and refreshes all machine caches [33m 622[2mms[22m[39m
+ [32m✓[39m src/features/staff/WalkInMemberForm.rosterRead.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1662[2mms[22m[39m
+   [33m[2m✓[22m[39m a committed POST followed by real 503 keeps a receipt and retries only the canonical GET [33m 447[2mms[22m[39m
+ [32m✓[39m src/features/auth/PasswordRecoveryFlow.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 2618[2mms[22m[39m
+     [33m[2m✓[22m[39m advances through all three steps while carrying email outside the URL [33m 1135[2mms[22m[39m
+ [32m✓[39m src/features/staff/StaffTabContent.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1033[2mms[22m[39m
+     [33m[2m✓[22m[39m scopes the audit log to the active makerspace [33m 354[2mms[22m[39m
+     [33m[2m✓[22m[39m mentions payouts on Platform settings only when the payouts panel renders [33m 338[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps payouts in the description when platform hosting shows the payouts panel [33m 338[2mms[22m[39m
+ [32m✓[39m src/features/staff/EventRegisterMember.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 947[2mms[22m[39m
+     [33m[2m✓[22m[39m reveals the email field from the field-keyed error body, not the message [33m 622[2mms[22m[39m
+     [33m[2m✓[22m[39m clears a fallback contact when the selected member changes [33m 323[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelAccountLess.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1150[2mms[22m[39m
+     [33m[2m✓[22m[39m collects contact details and sends them with an idempotency key [33m 316[2mms[22m[39m
+ [32m✓[39m src/features/staff/PaymentsPanel.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2867[2mms[22m[39m
+     [33m[2m✓[22m[39m renders all four subject filter choices [33m 1018[2mms[22m[39m
+     [33m[2m✓[22m[39m runs a single action and invalidates every payment view after success [33m 578[2mms[22m[39m
+     [33m[2m✓[22m[39m runs a bulk action with the selected payment ids [33m 744[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the visible list, reports a 409 conflict, and refetches [33m 523[2mms[22m[39m
+ [32m✓[39m src/features/staff/WarrantySection.ownership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1227[2mms[22m[39m
+   [33m[2m✓[22m[39m holds every metadata field and prevents upsert PUT until the initial GET hydrates existing data [33m 443[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAccountSection.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 930[2mms[22m[39m
+     [33m[2m✓[22m[39m replaces the whole member area until the password is rotated [33m 660[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/useQueueActions.hardwareOwnership.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 734[2mms[22m[39m
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans without the membership modules[2m > [22m[2mnames a borrower, not a member, and offers no waiver or claim codes
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans without the membership modules[2m > [22m[2mshows who holds each open handout
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans without the membership modules[2m > [22m[2mshows who holds each open handout
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans with the membership modules[2m > [22m[2mkeeps the member wording and the claim-code card
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans and the containers module[2m > [22m[2moffers no container picker and never asks for containers while the module is off
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans and the containers module[2m > [22m[2mkeeps the container picker with the module on
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[90mstderr[2m | src/features/staff/DirectLoans.test.tsx[2m > [22m[2mDirectLoans with member accounts but no membership[2m > [22m[2mcalls the claim code an account code, not a membership
+[22m[39mEncountered two children with the same key, `0`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/features/staff/DirectLoans.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 926[2mms[22m[39m
+     [33m[2m✓[22m[39m names a borrower, not a member, and offers no waiver or claim codes [33m 358[2mms[22m[39m
+ [32m✓[39m src/features/staff/BackupArchiveFormat.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 1745[2mms[22m[39m
+     [33m[2m✓[22m[39m shows privileged supervisor instruction safely for unsafe; do-not-execute [33m 309[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/EvidenceUpload.ownership.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 1093[2mms[22m[39m
+ [32m✓[39m src/features/staff/shell/StaffSidebarNav.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 2207[2mms[22m[39m
+     [33m[2m✓[22m[39m starts every group folded, unfolds one from its heading and remembers it [33m 835[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps single-row groups and the icon rail without fold controls [33m 463[2mms[22m[39m
+     [33m[2m✓[22m[39m marks the index when no type is open, and folds Machines like any group [33m 364[2mms[22m[39m
+ [32m✓[39m src/components/ui/Dropdown.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1092[2mms[22m[39m
+     [33m[2m✓[22m[39m posts its default value through the hidden native select [33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m updates the posted value and fires onChange when an option is picked [33m 446[2mms[22m[39m
+ [32m✓[39m src/features/staff/AccountDialog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 878[2mms[22m[39m
+     [33m[2m✓[22m[39m lets a Space Manager open their account and change their own password [33m 688[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestReferenceOwnership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 942[2mms[22m[39m
+     [33m[2m✓[22m[39m immediately replaces an edited reference when the URL token changes, before paint [33m 347[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1146[2mms[22m[39m
+     [33m[2m✓[22m[39m external disabled blocks lookup and selection of existing matches [33m 416[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/NeedsFixShelf.quantity.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1232[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the full shelf count only for an untouched input and enables both actions [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m scraps exactly the valid quantity through the real confirmation and resets after success [33m 495[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/HandoverEvidence.ownership.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1097[2mms[22m[39m
+   [33m[2m✓[22m[39m actual unkeyed issue dialog reuse fences a held presign and requires B's own photo [33m 634[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/Categories.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1167[2mms[22m[39m
+     [33m[2m✓[22m[39m shows each category's code and the classification guide with this makerspace's prefix [33m 734[2mms[22m[39m
+     [33m[2m✓[22m[39m sends the code in capitals when adding a category [33m 430[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSocialRecovery.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 793[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps ownership while typing, blocks the old callback during password login, and recovers into the central picker [33m 791[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/OperationsReportsSingleTenant.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1202[2mms[22m[39m
+     [33m[2m✓[22m[39m hides the all-makerspaces switch and only calls per-makerspace routes [33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m does not switch to the aggregate when a saved all-makerspaces view is applied [33m 322[2mms[22m[39m
+     [33m[2m✓[22m[39m offers the all-makerspaces switch to a superadmin on a multi-tenant site [33m 513[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/RoleManager.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1482[2mms[22m[39m
+     [33m[2m✓[22m[39m edits an existing role against its role-scoped catalog, keeping off-module grants visible [33m 1132[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/BoxCodeField.hardwareOwnership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1882[2mms[22m[39m
+   [33m[2m✓[22m[39m held old container QR success cannot replace a newer row's choice [33m 859[2mms[22m[39m
+   [33m[2m✓[22m[39m held old container QR error cannot replace a newer row's choice [33m 399[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineDrawer.consumables.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 997[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes type stock alongside the local ledger without creating a second stock balance [33m 776[2mms[22m[39m
+ [32m✓[39m src/features/auth/PasswordRecoveryFlow.ownership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1189[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps B pending through obsolete A's resolve/finally, then confirms exactly B's request [33m 602[2mms[22m[39m
+ [32m✓[39m src/features/staff/DirectLoanBorrower.hardwareOwnership.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 730[2mms[22m[39m
+   [33m[2m✓[22m[39m current waiver captures membership A, blocks duplicates/borrower edits, and invalidates its member data [33m 363[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceRequestOwnership.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 786[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspaceCheckinSettings.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1036[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the roster fields with the deployment defaults as placeholders [33m 418[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/InventoryItemModal.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1168[2mms[22m[39m
+     [33m[2m✓[22m[39m hides quantities for individual creation and restores the typed quantities when switched back [33m 1037[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterQueueAuthority.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1031[2mms[22m[39m
+     [33m[2m✓[22m[39m offers setup only when the server explicitly grants queue management [33m 612[2mms[22m[39m
+ [32m✓[39m src/features/staff/shell/staffSidebarAccess.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1071[2mms[22m[39m
+     [33m[2m✓[22m[39m lists only what the role allows, even when the module is on [33m 531[2mms[22m[39m
+     [33m[2m✓[22m[39m lists only what the modules allow, even for a superadmin [33m 329[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicMachinesPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1241[2mms[22m[39m
+     [33m[2m✓[22m[39m walks all machine pages and groups same-name different types by id with separate CTAs [33m 815[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PrinterServiceConsole.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1386[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the printer-specific report response without crashing the staff console [33m 714[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspacePaymentSettings.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 911[2mms[22m[39m
+     [33m[2m✓[22m[39m disables payment actions while settings are loading [33m 422[2mms[22m[39m
+ [32m✓[39m src/features/staff/BackupRestorePanel.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1142[2mms[22m[39m
+     [33m[2m✓[22m[39m states the purge boundary and shows an all-table restore report [33m 720[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/maintenanceHooks.ownership.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 821[2mms[22m[39m
+ [32m✓[39m src/features/account/ChangePasswordForm.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1590[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps submit disabled while the confirmation is empty [33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m shows a mismatch message and blocks submit when confirmation differs [33m 340[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/manualPrice.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 742[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the price input and column [33m 391[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/StocktakePanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 892[2mms[22m[39m
+     [33m[2m✓[22m[39m shows Approve and Apply only where the server says the user may act [33m 389[2mms[22m[39m
+     [33m[2m✓[22m[39m starts a stocktake with the notes from the dialog [33m 307[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.acknowledgement.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1139[2mms[22m[39m
+     [33m[2m✓[22m[39m a fresh superadmin login masks the old scoped workspace and picker until /admin commits, then chooses Calicut's dashboard [33m 1059[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1395[2mms[22m[39m
+     [33m[2m✓[22m[39m uses its fixed machine type without rendering a type selector [33m 847[2mms[22m[39m
+ [32m✓[39m src/components/ui/dialogStack.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 607[2mms[22m[39m
+ [32m✓[39m src/features/machineService/ServiceStatusOwnership.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 862[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/NeedsFixShelf.units.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 921[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps aggregate controls on quantity rows and never offers them on individual rows [33m 524[2mms[22m[39m
+ [32m✓[39m src/AppRoutes.moduleGating.test.tsx [2m([22m[2m18 tests[22m[2m)[22m[33m 985[2mms[22m[39m
+ [32m✓[39m src/features/staff/PlatformStripeConnectPanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1196[2mms[22m[39m
+     [33m[2m✓[22m[39m submits a new publishable key without rendering a stored value [33m 797[2mms[22m[39m
+ [32m✓[39m src/features/staff/EventFormFields.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1324[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the two cutoff modes mutually exclusive [33m 1174[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelFlow.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1351[2mms[22m[39m
+     [33m[2m✓[22m[39m ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow [33m 751[2mms[22m[39m
+     [33m[2m✓[22m[39m BorrowRequestCard preserves clear, edit, submit and token/status actions without a capped selected list [33m 592[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffSelection.callbacks.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1419[2mms[22m[39m
+     [33m[2m✓[22m[39m StrictMode restore ignores the disposed effect and renders only the exact explicit space [33m 1030[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.dispatch.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 568[2mms[22m[39m
+     [33m[2m✓[22m[39m dispatches and confirms a still-current queued lookup after reconnect [33m 330[2mms[22m[39m
+ [32m✓[39m src/features/staff/Track3Payments.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 790[2mms[22m[39m
+     [33m[2m✓[22m[39m submits a booking price from the bookable-space editor [33m 623[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicSelfCheckoutPage.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 530[2mms[22m[39m
+ [32m✓[39m src/features/organizations/OrganizationInvitationRedeemPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAreaAccountsOff.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 562[2mms[22m[39m
+ [32m✓[39m src/features/staff/queryInvalidation.stats.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 687[2mms[22m[39m
+     [33m[2m✓[22m[39m real tool checkout and return refresh visible warm A stats before 30s while warm B stays untouched [33m 669[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineServiceConsoleInvalidation.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 534[2mms[22m[39m
+     [33m[2m✓[22m[39m refreshes the Operations reports and every payment view after recording a payment [33m 533[2mms[22m[39m
+ [32m✓[39m src/features/auth/SocialSignInButtons.oidcOwnership.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 660[2mms[22m[39m
+ [32m✓[39m src/components/chrome/SiteHeaderResponsive.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 844[2mms[22m[39m
+     [33m[2m✓[22m[39m 800→1200 unmounts the modal and releases Radix isolation/focus; 800 again stays closed and can reopen [33m 551[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAreaModuleGating.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 827[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps payments and invitations but drops the membership card, presence and events sections [33m 456[2mms[22m[39m
+     [33m[2m✓[22m[39m mounts the membership and events sections when those modules are on [33m 369[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffUploadProtocol.ownership.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 423[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/MemberMachineScopeModal.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 513[2mms[22m[39m
+     [33m[2m✓[22m[39m locks the role's types and saves only the personal selection [33m 436[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/RoleEditor.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 797[2mms[22m[39m
+     [33m[2m✓[22m[39m does not save an untouched role [33m 331[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/HandoverConsole.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 946[2mms[22m[39m
+     [33m[2m✓[22m[39m lets collect-only staff settle a manual debt before handover [33m 598[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestStatusPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 558[2mms[22m[39m
+     [33m[2m✓[22m[39m looks up a typed reference and says when nothing matches [33m 305[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/ScannerPanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 608[2mms[22m[39m
+     [33m[2m✓[22m[39m shows a tenant-origin 403 as an unrecognised code, not a permission error [33m 319[2mms[22m[39m
+ [32m✓[39m src/features/staff/EventSeriesForm.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 579[2mms[22m[39m
+     [33m[2m✓[22m[39m previews cadence as a local wall-clock schedule [33m 567[2mms[22m[39m
+ [32m✓[39m src/features/staff/MemberClaimCodes.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 624[2mms[22m[39m
+     [33m[2m✓[22m[39m offers only walk-ins and renders the one-time code, QR, and expiry [33m 623[2mms[22m[39m
+ [32m✓[39m src/components/ui/Tabs.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 418[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/NotificationInbox.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 478[2mms[22m[39m
+ [32m✓[39m src/components/chrome/PublicHeaders.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 348[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAuthPanel.providerIntent.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 420[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineCreateForm.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 401[2mms[22m[39m
+ [32m✓[39m src/features/staff/ApiClientsTelegramSettings.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 560[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAuthPanel.installation.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 488[2mms[22m[39m
+     [33m[2m✓[22m[39m owns the installation error after begin invalidates the provider's host intent [33m 303[2mms[22m[39m
+ [32m✓[39m src/components/NotFoundPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 483[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/UsersTable.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1499[2mms[22m[39m
+     [33m[2m✓[22m[39m hides actions a Space Manager cannot perform [33m 1096[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspaceArchiveRequestPanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1561[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the empty state and files a bounded reason [33m 1224[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ServicePaymentGating.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 597[2mms[22m[39m
+     [33m[2m✓[22m[39m shows no payment chip or column when the payments module is off [33m 544[2mms[22m[39m
+ [32m✓[39m src/features/staff/ChangePasswordGate.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 696[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks the console until the password is rotated [33m 633[2mms[22m[39m
+ [32m✓[39m src/features/AboutPage.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 327[2mms[22m[39m
+     [33m[2m✓[22m[39m routes usage to Labs, contribution to this fork, and both license links to the Labs AGPL [33m 304[2mms[22m[39m
+ [32m✓[39m src/features/account/ChangePasswordForm.installation.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 344[2mms[22m[39m
+ [32m✓[39m src/components/ui/CameraCapture.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 444[2mms[22m[39m
+ [32m✓[39m src/features/organizations/OrganizationInvitationRedeemPage.installation.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 556[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves one durable redemption and the member session on staff installation failure, then clears cache and navigates once on retry [33m 479[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/ConsumablePoolList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 910[2mms[22m[39m
+     [33m[2m✓[22m[39m shows danger, warning and success stock states with proportions and labelled colours [33m 736[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAreaArchivedLink.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+     [33m[2m✓[22m[39m still offers the recovery link when the tenant cannot be bootstrapped [33m 420[2mms[22m[39m
+ [32m✓[39m src/features/staff/EvidenceRetentionPanel.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+ [32m✓[39m src/features/staff/EventCertificateActions.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 347[2mms[22m[39m
+ [32m✓[39m src/components/ui/QrScanner.draft.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 399[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the typed input through permission denial and submits one trimmed code [33m 397[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QrToolsBatch.projection.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 453[2mms[22m[39m
+ [32m✓[39m src/features/members/ArchivedPayments.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 272[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberCalendarActions.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 305[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/MachineTypeConsumables.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 417[2mms[22m[39m
+     [33m[2m✓[22m[39m shows matching type, own-machine and legacy space stock using their existing balances [33m 374[2mms[22m[39m
+ [32m✓[39m src/features/staff/PlatformApps.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 387[2mms[22m[39m
+ [32m✓[39m src/features/forms/FeedbackFormControls.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 268[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAuthPanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 283[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspaceEmailTestSettings.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 424[2mms[22m[39m
+ [32m✓[39m src/components/chrome/AuthLayout.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 570[2mms[22m[39m
+ [32m✓[39m src/components/ui/Toast.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 515[2mms[22m[39m
+     [33m[2m✓[22m[39m announces the message politely and dismisses it after four seconds [33m 302[2mms[22m[39m
+ [32m✓[39m src/features/printing/PublicPrintRequestForm.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 383[2mms[22m[39m
+     [33m[2m✓[22m[39m shows an actionable empty state when no public filament can be selected [33m 381[2mms[22m[39m
+ [32m✓[39m src/components/ui/ConfirmDialog.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 718[2mms[22m[39m
+     [33m[2m✓[22m[39m is an alert dialog that acts only when the confirm button is pressed [33m 433[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/PublicPrinterQueueSetup.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 349[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberReferrals.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/DashboardPanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32m✓[39m src/components/ui/Field.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+ [32m✓[39m src/features/inventory/ProductCard.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 281[2mms[22m[39m
+ [32m✓[39m src/components/ui/QrScanner.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 324[2mms[22m[39m
+     [33m[2m✓[22m[39m explains a denied camera, focuses Close and accepts a typed code [33m 301[2mms[22m[39m
+ [32m✓[39m src/features/staff/PaymentReconcileActions.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 290[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationDownload.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/features/staff/ApiClientScopePicker.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 311[2mms[22m[39m
+ [32m✓[39m src/components/ui/CollapsibleSection.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 256[2mms[22m[39m
+ [32m✓[39m src/features/staff/PlatformSocialAuthPanel.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 291[2mms[22m[39m
+ [32m✓[39m src/features/staff/DataExportsPanel.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 303[2mms[22m[39m
+ [32m✓[39m src/features/staff/NotificationScopePicker.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 178[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspacePublicStatsSettings.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 298[2mms[22m[39m
+ [32m✓[39m src/components/AppErrorBoundary.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 279[2mms[22m[39m
+ [32m✓[39m src/features/members/JoinMembershipCta.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/QueuesList.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 233[2mms[22m[39m
+ [32m✓[39m src/features/members/MemberAreaSections.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 431[2mms[22m[39m
+     [33m[2m✓[22m[39m a stale native camera callback after maker change cannot start a presign or publish evidence [33m 397[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/OperationsReportCharts.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 184[2mms[22m[39m
+ [32m✓[39m src/features/auth/SocialSignInButtons.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 200[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspaceItemCodeSettings.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 185[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/ContainerLabels.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/AuditLog.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m src/features/inventory/EventRegistrationForm.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 183[2mms[22m[39m
+ [32m✓[39m src/features/inventory/RequestCartBar.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m src/App.centralMemberRoute.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 187[2mms[22m[39m
+ [32m✓[39m src/features/inventory/usePublicSession.ownership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+ [32m✓[39m src/features/staff/EventCheckInOperator.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 179[2mms[22m[39m
+ [32m✓[39m src/features/staff/imageUploadConfig.ownership.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 132[2mms[22m[39m
+ [32m✓[39m src/features/staff/MakerspaceCustomDomainSettings.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m src/components/ui/dialogFocus.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 195[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/EmailTemplateTypeSelector.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+ [32m✓[39m src/features/staff/makerspaceCurrency.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationExpiry.test.ts [2m([22m[2m72 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationRetry.test.ts [2m([22m[2m104 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/OperationsReportsMembers.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationBody.test.ts [2m([22m[2m80 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m src/features/staff/useStaffSession.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m src/lib/apiSessionRefreshPin.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationFailure.test.ts [2m([22m[2m127 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m src/lib/sessionIntent.test.ts [2m([22m[2m74 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m src/lib/apiRequestSessionRace.test.ts [2m([22m[2m68 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m src/lib/apiSessionPinStorage.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/lib/apiDownloadRecovery.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/lib/apiSessionLogoutStorage.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationFetch.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/ProcurementPanel.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/features/staff/staleViewInvalidation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m src/lib/apiResponsePublicationBootstrap.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffTabs.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/lib/apiRequestDispatchRace.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/lib/apiSessionRace.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/features/auth/socialSdk.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/features/machineService/publicApi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/features/auth/passwordRecovery.returnPath.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/features/staff/evidenceUi.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/features/inventory/publicSelfCheckoutApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/apiRequests.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/features/printing/publicApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/apiSession.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/features/members/geolocation.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/lib/apiTenantCredentialRevisit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/features/staff/panels/machine/typeConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/features/staff/staffRoleAlignment.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestHeader.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/lib/modules.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m230 passed[39m[22m[90m (230)[39m
+[2m      Tests [22m [1m[32m1991 passed[39m[22m[90m (1991)[39m
+[2m   Start at [22m 04:54:10
+[2m   Duration [22m 544.77s[2m (transform 22.80s, setup 101.03s, import 205.62s, tests 273.81s, environment 435.63s)[22m
+
+
+> build
+> tsc -b && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 2499 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                          1.93 kB │ gzip:   0.66 kB
+dist/assets/jetbrains-mono-greek-400-normal-C190GLew.woff2               4.22 kB
+dist/assets/jetbrains-mono-greek-500-normal-JpySY46c.woff2               4.28 kB
+dist/assets/jetbrains-mono-greek-700-normal-C6CZE3T8.woff2               4.30 kB
+dist/assets/jetbrains-mono-cyrillic-400-normal-BEIGL1Tu.woff2            5.32 kB
+dist/assets/jetbrains-mono-cyrillic-700-normal-BWTpRfYl.woff2            5.33 kB
+dist/assets/jetbrains-mono-cyrillic-500-normal-DmUKJPL_.woff2            5.35 kB
+dist/assets/jetbrains-mono-vietnamese-400-normal-CqNFfHCs.woff           5.37 kB
+dist/assets/jetbrains-mono-vietnamese-700-normal-BDLVIk2r.woff           5.45 kB
+dist/assets/jetbrains-mono-vietnamese-500-normal-DNRqzVM1.woff           5.47 kB
+dist/assets/jetbrains-mono-greek-400-normal-B9oWc5Lo.woff                5.66 kB
+dist/assets/jetbrains-mono-greek-700-normal-DEigVDxa.woff                5.69 kB
+dist/assets/jetbrains-mono-greek-500-normal-D7SFKleX.woff                5.72 kB
+dist/assets/jetbrains-mono-cyrillic-400-normal-ugxPyKxw.woff             6.97 kB
+dist/assets/jetbrains-mono-cyrillic-700-normal-CEoEElIJ.woff             7.01 kB
+dist/assets/jetbrains-mono-cyrillic-500-normal-DJqRU3vO.woff             7.02 kB
+dist/assets/jetbrains-mono-latin-ext-400-normal-Bc8Ftmh3.woff2           7.33 kB
+dist/assets/jetbrains-mono-latin-ext-700-normal-CZipNAKV.woff2           7.47 kB
+dist/assets/jetbrains-mono-latin-ext-500-normal-Cut-4mMH.woff2           7.52 kB
+dist/assets/bricolage-grotesque-vietnamese-wght-normal-BUzh504Q.woff2    8.60 kB
+dist/assets/jetbrains-mono-latin-ext-400-normal-fXTG6kC5.woff           10.12 kB
+dist/assets/figtree-latin-ext-wght-normal-DCwSJGxG.woff2                10.28 kB
+dist/assets/jetbrains-mono-latin-ext-700-normal-CxPITLHs.woff           10.30 kB
+dist/assets/jetbrains-mono-latin-ext-500-normal-ckzbgY84.woff           10.33 kB
+dist/assets/bricolage-grotesque-latin-ext-wght-normal-CcLUaPy7.woff2    18.66 kB
+dist/assets/figtree-latin-wght-normal-D_ZTVpCC.woff2                    20.15 kB
+dist/assets/jetbrains-mono-latin-400-normal-V6pRDFza.woff2              21.16 kB
+dist/assets/jetbrains-mono-latin-500-normal-BWZEU5yA.woff2              21.83 kB
+dist/assets/jetbrains-mono-latin-700-normal-BYuf6tUa.woff2              21.90 kB
+dist/assets/jetbrains-mono-latin-400-normal-6-qcROiO.woff               27.49 kB
+dist/assets/jetbrains-mono-latin-500-normal-CJOVTJB7.woff               28.20 kB
+dist/assets/jetbrains-mono-latin-700-normal-D3wTyLJW.woff               28.20 kB
+dist/assets/bricolage-grotesque-latin-wght-normal-DLoelf7F.woff2        41.34 kB
+dist/assets/zxing_reader-BCjuyud6.wasm                                 946.86 kB │ gzip: 414.30 kB
+dist/assets/index-CxkdeUID.css                                         140.26 kB │ gzip:  39.26 kB
+dist/assets/useDebouncedValue-DvwftaZK.js                                0.23 kB │ gzip:   0.18 kB
+dist/assets/user-plus-DKBdQOGI.js                                        0.34 kB │ gzip:   0.25 kB
+dist/assets/usePaginatedQuery-Dzgw62S4.js                                0.58 kB │ gzip:   0.42 kB
+dist/assets/StaffPanels-Cp9l43JD.js                                      0.58 kB │ gzip:   0.32 kB
+dist/assets/QrImage-DiHPZVXv.js                                          0.87 kB │ gzip:   0.51 kB
+dist/assets/StaffLogParts-DUM5R5ay.js                                    1.32 kB │ gzip:   0.71 kB
+dist/assets/PaymentReconcileActions-d3yWPSsr.js                          1.55 kB │ gzip:   0.84 kB
+dist/assets/uploadProtocol-CMgIBr48.js                                   1.84 kB │ gzip:   0.84 kB
+dist/assets/rolesApi-Cn3dr0PT.js                                         1.88 kB │ gzip:   0.61 kB
+dist/assets/DashboardPanel-Cm7TKSFy.js                                   2.69 kB │ gzip:   1.16 kB
+dist/assets/AuditLog-Dak9A3iW.js                                         2.75 kB │ gzip:   1.19 kB
+dist/assets/HandoverConsole-BK5dj9o6.js                                  3.69 kB │ gzip:   1.52 kB
+dist/assets/EmailLogPanel-WjBP4II1.js                                    3.69 kB │ gzip:   1.59 kB
+dist/assets/EvidenceUpload-inCno70z.js                                   3.77 kB │ gzip:   1.75 kB
+dist/assets/PlatformSocialAuthPanel-CplQE2oA.js                          3.87 kB │ gzip:   1.55 kB
+dist/assets/PaymentsPanel-CbUSd2Uq.js                                    3.91 kB │ gzip:   1.68 kB
+dist/assets/LoanTimeline-DavWf-X1.js                                     4.00 kB │ gzip:   1.57 kB
+dist/assets/PlatformEmailPanel-Bgcgia2u.js                               4.04 kB │ gzip:   1.58 kB
+dist/assets/NotificationInbox-numiFlpO.js                                4.18 kB │ gzip:   1.79 kB
+dist/assets/CustomFormBuilder-C4YAvjVH.js                                4.29 kB │ gzip:   1.67 kB
+dist/assets/NeedsFixShelf-DmyfV8gd.js                                    4.41 kB │ gzip:   1.89 kB
+dist/assets/PlatformStripeConnectPanel-BzHF0R6g.js                       4.44 kB │ gzip:   1.75 kB
+dist/assets/WarrantyPanel-h9zaD8HI.js                                    4.55 kB │ gzip:   1.89 kB
+dist/assets/DataExportsPanel-DeVpTlJX.js                                 4.69 kB │ gzip:   1.99 kB
+dist/assets/ImageUploader-B7IlUnIj.js                                    5.48 kB │ gzip:   2.39 kB
+dist/assets/Categories-NxsUV-31.js                                       6.29 kB │ gzip:   2.18 kB
+dist/assets/ModulesPanel-BaeFv6Xz.js                                     6.41 kB │ gzip:   2.28 kB
+dist/assets/CategoryGuide-fNumxzIg.js                                    6.52 kB │ gzip:   2.46 kB
+dist/assets/Ledger-UWEJ4Frf.js                                           7.71 kB │ gzip:   2.95 kB
+dist/assets/WarrantySection-CDEq90eh.js                                  8.17 kB │ gzip:   2.99 kB
+dist/assets/InventoryAssets-CH0d3LAv.js                                  8.34 kB │ gzip:   2.89 kB
+dist/assets/NotificationRecipientPicker-m4J-smuw.js                      8.35 kB │ gzip:   3.06 kB
+dist/assets/ServiceQueue-Bdsca10D.js                                     8.81 kB │ gzip:   3.18 kB
+dist/assets/StockTransferPanel-ogUseJho.js                               9.03 kB │ gzip:   3.30 kB
+dist/assets/QrTools-BzIVDPDX.js                                          9.66 kB │ gzip:   3.31 kB
+dist/assets/ContainersPanel-CobBgBwK.js                                  9.83 kB │ gzip:   3.27 kB
+dist/assets/ScannerPanel-BPJjoyGL.js                                    10.31 kB │ gzip:   3.56 kB
+dist/assets/AccountabilityPanel-ChzE43XC.js                             10.67 kB │ gzip:   3.40 kB
+dist/assets/BulkImport-DltXtO-w.js                                      10.75 kB │ gzip:   4.16 kB
+dist/assets/StocktakePanel-CKV8shYR.js                                  11.05 kB │ gzip:   3.52 kB
+dist/assets/BackupRestorePanel-CpHeqtkQ.js                              12.29 kB │ gzip:   4.29 kB
+dist/assets/EmailTemplatesPanel-DWKFLoFe.js                             12.37 kB │ gzip:   4.13 kB
+dist/assets/MembersPanel-D-qSWqna.js                                    12.71 kB │ gzip:   4.00 kB
+dist/assets/ApiClientsPanel-CvVXIhEb.js                                 14.67 kB │ gzip:   4.78 kB
+dist/assets/BookingsPanel-BdoM14n3.js                                   15.43 kB │ gzip:   4.74 kB
+dist/assets/Inventory-BD13dhqa.js                                       21.85 kB │ gzip:   6.55 kB
+dist/assets/ProcurementPanel-BAHDWkSg.js                                28.11 kB │ gzip:   8.10 kB
+dist/assets/DirectLoans-D6YFtbG9.js                                     31.16 kB │ gzip:   9.79 kB
+dist/assets/Users-C-SQFD9X.js                                           35.28 kB │ gzip:   9.76 kB
+dist/assets/TenantMigrationPanel-BejnncoB.js                            37.51 kB │ gzip:  10.08 kB
+dist/assets/reader-DyrVvlhq.js                                          37.72 kB │ gzip:  13.44 kB
+dist/assets/RequestsPanel-Bm32dWou.js                                   38.52 kB │ gzip:  10.76 kB
+dist/assets/OperationsReports-DVuUF0zR.js                               42.55 kB │ gzip:  11.53 kB
+dist/assets/EventsPanel-BaXNcmIc.js                                     68.68 kB │ gzip:  17.24 kB
+dist/assets/MakerspaceSettingsPanel-BpvX1Cly.js                         95.79 kB │ gzip:  23.38 kB
+dist/assets/MachinesPanel-B0a6-nAE.js                                  110.43 kB │ gzip:  26.82 kB
+dist/assets/shared-Bs3SRnfo.js                                         301.14 kB │ gzip:  94.84 kB
+dist/assets/xlsx-BhFS8cqY.js                                           491.99 kB │ gzip: 160.33 kB
+dist/assets/index-BvlRCjQ3.js                                          551.58 kB │ gzip: 160.64 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 4.34s

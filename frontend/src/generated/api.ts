@@ -3,7 +3,7 @@
 
 export const openApiInfo = {
   "title": "Space Works API",
-  "version": "0.8.5"
+  "version": "0.9.0"
 } as const;
 
 export const openApiTags = [
@@ -388,6 +388,7 @@ export const openApiPaths = [
   "/api/v1/admin/reports/{report_key}/export",
   "/api/v1/admin/requests/{id}/accept",
   "/api/v1/admin/requests/{id}/assign-box",
+  "/api/v1/admin/requests/{id}/cancel",
   "/api/v1/admin/requests/{id}/issue",
   "/api/v1/admin/requests/{id}/reject",
   "/api/v1/admin/requests/{id}/return",
@@ -519,6 +520,7 @@ export const openApiPaths = [
   "/api/v1/public/{makerspace_slug}/inventory/categories/",
   "/api/v1/public/{makerspace_slug}/inventory/{id}/",
   "/api/v1/public/{makerspace_slug}/machine-service-requests",
+  "/api/v1/public/{makerspace_slug}/machine-service-requests/mine",
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/consumable-pools",
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/queues",
   "/api/v1/public/{makerspace_slug}/machine-service/3d-printer/requests",
@@ -531,6 +533,7 @@ export const openApiPaths = [
   "/api/v1/public/{makerspace_slug}/presence-sessions/current",
   "/api/v1/public/{makerspace_slug}/presence-sessions/current/end",
   "/api/v1/public/{makerspace_slug}/requests",
+  "/api/v1/public/{makerspace_slug}/requests/mine",
   "/api/v1/public/{makerspace_slug}/spaces/",
   "/api/v1/public/{makerspace_slug}/spaces/{public_token}/availability/",
   "/api/v1/public/{makerspace_slug}/spaces/{public_token}/book/",
@@ -620,6 +623,8 @@ export type AdminRequest = {
   "status": string;
   "requested_for": string;
   "rejection_reason": string;
+  "cancellation_reason": string;
+  "assigned_box_id": number | null;
   "assigned_box_label": string | null;
   "accepted_by": AdminRequestActor | null;
   "issued_by": AdminRequestActor | null;
@@ -627,6 +632,7 @@ export type AdminRequest = {
   "issued_at": string;
   "return_due_at": string;
   "return_reminder_sent_at": string;
+  "closed_by": AdminRequestActor | null;
   "closed_at": string;
   "created_at": string;
   "updated_at": string;
@@ -1129,6 +1135,10 @@ export type BulkImportPreview = {
   [key: string]: unknown;
 }>;
   "mapping"?: unknown;
+};
+
+export type CancelRequest = {
+  "reason": string;
 };
 
 export type Capability = {
@@ -2105,7 +2115,7 @@ export type FabLabHealthRow = {
 
 export type FailureCodeEnum = "deadline_exceeded" | "integrity_error" | "storage_error" | "quota_exceeded" | "internal_error";
 
-export type FeatureEnum = "hardware_requests" | "printing" | "events" | "bookings" | "maintenance" | "members";
+export type FeatureEnum = "hardware_requests" | "printing" | "machine_service" | "events" | "bookings" | "maintenance" | "members";
 
 export type FeedbackForm = {
   "event": {
@@ -2284,6 +2294,13 @@ export type ImportRun = {
 
 export type InheritFieldsEnum = "capacity" | "custom_form" | "description" | "ends_at" | "image_key" | "is_public" | "location" | "location_kind" | "payment_amount" | "registration_cutoff_at" | "registration_cutoff_lead_minutes" | "registration_requires_approval" | "starts_at" | "title";
 
+export type IntegrationChatDestinationsHealth = {
+  "status"?: Status83eEnum;
+  "detail"?: string;
+  "destinations"?: Array<IntegrationDestinationHealth>;
+  "legacy_channels"?: IntegrationLegacyChannels;
+};
+
 export type IntegrationConfiguredHealth = {
   "status"?: Status83eEnum;
   "detail"?: string;
@@ -2296,6 +2313,24 @@ export type IntegrationDeliveriesByStream = {
   "hardware"?: string | null;
   "printing"?: string | null;
 };
+
+export type IntegrationDestinationFailure = {
+  "at": string;
+  "error": string;
+};
+
+export type IntegrationDestinationHealth = {
+  "id": number;
+  "channel": IntegrationDestinationHealthChannelEnum;
+  "label": string;
+  "is_active": boolean;
+  "configured": boolean;
+  "last_sent_at": string | null;
+  "failed": number;
+  "last_failure": IntegrationDestinationFailure | null;
+};
+
+export type IntegrationDestinationHealthChannelEnum = "telegram" | "slack" | "mattermost" | "discord";
 
 export type IntegrationEmailHealth = {
   "status"?: Status83eEnum;
@@ -2314,6 +2349,7 @@ export type IntegrationHealth = {
   "deliveries_by_stream": IntegrationDeliveriesByStream;
   "smtp": IntegrationConfiguredHealth;
   "telegram": IntegrationTelegramHealth;
+  "chat_destinations"?: IntegrationChatDestinationsHealth;
   "worker": IntegrationWorkerHealth;
 };
 
@@ -2324,6 +2360,13 @@ export type IntegrationLastFailure = {
   "subject": string;
   "error": string;
   "stream": string;
+};
+
+export type IntegrationLegacyChannels = {
+  "telegram"?: boolean;
+  "slack"?: boolean;
+  "mattermost"?: boolean;
+  "discord"?: boolean;
 };
 
 export type IntegrationTelegramFailure = {
@@ -2477,9 +2520,9 @@ export type IssueRequest = {
   "rejects"?: Array<IssueReject>;
 };
 
-export type KeyCbbEnum = "email" | "telegram" | "slack" | "mattermost" | "discord" | "native_push";
+export type Key923Enum = "hardware_requests" | "printing" | "machine_service" | "events" | "bookings" | "maintenance" | "members";
 
-export type KeyD07Enum = "hardware_requests" | "printing" | "events" | "bookings" | "maintenance" | "members";
+export type KeyCbbEnum = "email" | "telegram" | "slack" | "mattermost" | "discord" | "native_push";
 
 export type Kind3bfEnum = "dev_room" | "bench" | "meeting" | "other";
 
@@ -3519,7 +3562,7 @@ export type NotificationDestinationWrite = {
 };
 
 export type NotificationFeature = {
-  "key": KeyD07Enum;
+  "key": Key923Enum;
   "label": string;
   "events": Array<string>;
 };
@@ -3817,6 +3860,13 @@ export type OtpResetPasswordConfirm = {
   "new_password": string;
 };
 
+export type OwnRequestStatus = {
+  "status": string;
+  "created_at": string;
+  "items": Array<PublicRequestItemStatus>;
+  "public_token": string;
+};
+
 export type PaginatedAdminMembershipList = {
   "count": number;
   "next"?: string | null;
@@ -3915,11 +3965,25 @@ export type PaginatedNotificationList = {
   "results": Array<Notification>;
 };
 
+export type PaginatedOwnRequestStatusList = {
+  "count": number;
+  "next"?: string | null;
+  "previous"?: string | null;
+  "results": Array<OwnRequestStatus>;
+};
+
 export type PaginatedPublicMachineList = {
   "count": number;
   "next"?: string | null;
   "previous"?: string | null;
   "results": Array<PublicMachine>;
+};
+
+export type PaginatedPublicMachineServiceStatusList = {
+  "count": number;
+  "next"?: string | null;
+  "previous"?: string | null;
+  "results": Array<PublicMachineServiceStatus>;
 };
 
 export type PaginatedPublicMachineServiceTypeList = {
@@ -5109,6 +5173,9 @@ export type PublicProduct = {
 export type PublicRequestItemStatus = {
   "product_name": string;
   "requested_quantity": number;
+  "accepted_quantity": number;
+  "issued_quantity": number;
+  "returned_quantity": number;
 };
 
 export type PublicRequestModeEnum = "disabled" | "checked_in" | "anyone";
@@ -5355,7 +5422,7 @@ export type QrPrintBatchDetail = {
 
 export type QrPrintBatchItem = {
   "id": number;
-  "qr_code": QrCode;
+  "qr_code": QrCode | null;
   "label_text": string;
   "target_type": string;
   "target_id": number;
@@ -5600,6 +5667,14 @@ export type ReportError = {
 
 export type RequestAccessEnum = "anyone" | "checked_in";
 
+export type RequestHistoryError = {
+  "detail": string;
+};
+
+export type RequestHistoryModuleError = {
+  "module": Array<string>;
+};
+
 export type RequestItemInput = {
   "product_id": number;
   "quantity": number;
@@ -5708,7 +5783,7 @@ export type ReturnReminderCronResponse = {
 
 export type ReturnRequest = {
   "evidence_id": number;
-  "box_code": string;
+  "box_code"?: string;
   "remark": string;
   "resolutions": Array<ReturnItemResolution>;
 };

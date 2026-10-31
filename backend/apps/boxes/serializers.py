@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.boxes.models import Box, QrCode, QrScanEvent
-from apps.inventory.models import InventoryAsset, InventoryProduct
+from apps.boxes.targets import qr_target
 
 
 class BoxSerializer(serializers.ModelSerializer):
@@ -64,8 +64,8 @@ class QrCodeSerializer(serializers.ModelSerializer):
 
 class CreateBoxQrSerializer(serializers.Serializer):
     makerspace_id = serializers.IntegerField()
-    label = serializers.CharField()
-    location = serializers.CharField(required=False, allow_blank=True)
+    label = serializers.CharField(max_length=200)
+    location = serializers.CharField(max_length=200, required=False, allow_blank=True)
     description = serializers.CharField(required=False, allow_blank=True)
     parent_id = serializers.IntegerField(required=False, allow_null=True)
 
@@ -125,17 +125,15 @@ class QrRebindResultSerializer(serializers.Serializer):
 
 
 def qr_target_payload(qr):
+    target = qr_target(qr)
     if qr.target_type == QrCode.TargetType.BOX:
-        box = Box.objects.get(pk=qr.target_id)
-        return {"type": "box", "id": box.id, "label": box.label, "code": box.code}
+        return {"type": "box", "id": target.id, "label": target.label, "code": target.code}
     if qr.target_type == QrCode.TargetType.ASSET:
-        asset = InventoryAsset.objects.select_related("product").get(pk=qr.target_id)
         return {
             "type": "asset",
-            "id": asset.id,
-            "asset_tag": asset.asset_tag,
-            "product": asset.product.name,
-            "status": asset.status,
+            "id": target.id,
+            "asset_tag": target.asset_tag,
+            "product": target.product.name,
+            "status": target.status,
         }
-    product = InventoryProduct.objects.get(pk=qr.target_id)
-    return {"type": "product", "id": product.id, "name": product.name}
+    return {"type": "product", "id": target.id, "name": target.name}

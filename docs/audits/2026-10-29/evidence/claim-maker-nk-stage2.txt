@@ -1,0 +1,5 @@
+Changed only the Makerspace query to `select_for_update(no_key=True)`. All other source bytes preserved.
+
+Exact diff verified; stdlib AST passed; 70 lines.
+
+SHA-256 saved to [freeze JSON](/tmp/spaceworks-claim-maker-nk-stage2-freeze.json).

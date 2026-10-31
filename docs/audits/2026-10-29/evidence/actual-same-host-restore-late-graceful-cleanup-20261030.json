@@ -1,0 +1,41 @@
+{
+  "format": "spaceworks-actual-restore-late-graceful-cleanup-v1",
+  "status": "verified-graceful-master-exit-then-authorized-container-removal",
+  "scope": "Later authorized container cleanup, separate from completed same-host restore and from later synthetic lifecycle probes.",
+  "observed_legacy_process_tree": {
+    "pid1_comm": "sh",
+    "direct_child_master_comm": "gunicorn",
+    "container_master_pid": 8,
+    "master_parent_pid": 1,
+    "container_TERM_did_not_finish_within_seconds": 30
+  },
+  "authorized_action": {
+    "root_explicit_go_ahead": true,
+    "exact_container_and_namespace_and_master_start_time_revalidated": true,
+    "signal": "SIGTERM",
+    "signal_sent_inside_container_to_verified_master_only": true,
+    "signals_sent": 1,
+    "host_pid_signalled": false,
+    "SIGKILL_or_force_used": false
+  },
+  "observed_result": {
+    "master_and_shell_exited": true,
+    "container_exit_code": 0,
+    "container_restarts": 0,
+    "container_finish_utc": "2026-10-30T16:54:38.99149522Z",
+    "normal_stopped_before_removal": true
+  },
+  "preserved": {
+    "recovery_marker_and_database_state_not_changed": true,
+    "no_automatic_unblock_or_rollback": true,
+    "all_volumes_images_and_networks_retained": true,
+    "private_authority_and_raw_evidence_retained": true
+  },
+  "container_cleanup_record": "spaceworks-audit-container-cleanup-20261030.json",
+  "source_fix_limits": "The original drill used the legacy shell command. The later exec command and exact legacy-or-exec admission support were verified separately; no new image was substituted into the completed restore.",
+  "private_evidence_sha256": {
+    "master_readonly_identification": "fde1d0e891f4c84b3e0cc3a437fde3e8c803f877664abfe9c41110e8f5a70065",
+    "master_graceful_term_result": "41658648faa575769e4556fb23e3fd29cba5f7debec84205d50953b277b33faf"
+  },
+  "privacy": "Credentials, private paths, host PIDs and raw logs omitted."
+}

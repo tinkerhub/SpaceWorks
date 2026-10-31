@@ -56,9 +56,15 @@ def _manifest(restore, *, format_name="spaceworks-phase5a-v2", contents=None):
         # fail in Docker, where /app/BUILD_INFO.json carries a real hash.
         "build": {"source_hash": _build_info()["source_hash"]},
         "settings": {},
+        "storage": {
+            "consistency": {"private": "versioned", "public_image": "versioned"},
+            "objects": [],
+        },
     }
     if contents is not None:
         manifest["contents"] = contents
+    restore.archive.manifest = manifest
+    restore.archive.save(update_fields=("manifest",))
     return manifest
 
 
@@ -275,20 +281,16 @@ def test_import_rejects_mismatched_expected_digest_before_storage(
     monkeypatch, tmp_path
 ):
     actor = User.objects.create_superuser(username="digest-import", password="secret")
-    encrypted = tmp_path / "archive.tar.age"
-    encrypted.write_bytes(b"encrypted archive")
-    manifest = {
-        "format": "spaceworks-phase5a-v2",
-        "archive_id": str(uuid.uuid4()),
-        "scope": BackupArchive.Scope.DEPLOYMENT,
-        "age_encrypted": True,
-    }
+    from tests.backup.full_backup_fixture_helpers import make_full_fixture
+    fixture = make_full_fixture(tmp_path)
     uploads = []
     monkeypatch.setattr(storage, "upload_archive", lambda *args: uploads.append(args))
 
-    with pytest.raises(ValidationError, match="expected digest"):
+    with pytest.raises(ValidationError, match="outer_digest_mismatch"):
         import_disaster_archive(
-            actor, encrypted, manifest, expected_sha256="0" * 64
+            actor, fixture.encrypted, fixture.manifest, expected_sha256="0" * 64,
+            bundle=fixture.bundle, manifest_file=fixture.manifest_file,
+            continuity_secrets_file=fixture.secrets_file,
         )
 
     assert uploads == []

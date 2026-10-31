@@ -249,10 +249,14 @@ def test_successful_submission_creates_pending_request_items_audit_and_notifies(
     monkeypatch,
     django_capture_on_commit_callbacks,
 ):
+    from apps.hardware_requests import notifications
+    from apps.notifications.models import Notification
+
     makerspace = make_space("successful-submit")
     product = make_product(makerspace, name="Logic Analyzer")
     requester = make_present_member("successful-member", makerspace)
-    notify = Mock()
+    notify = Mock(wraps=notifications.notify_request_submitted)
+    monkeypatch.setattr(notifications, "notify_lifecycle", Mock())
     monkeypatch.setattr(
         "apps.hardware_requests.notifications.notify_request_submitted",
         notify,
@@ -274,6 +278,7 @@ def test_successful_submission_creates_pending_request_items_audit_and_notifies(
     assert [callback.__qualname__ for callback in callbacks] == [
         "emit_notification.<locals>._create"
     ]
+    assert Notification.objects.filter(makerspace=makerspace, event="request.submitted").count() == 1
     hardware_request = HardwareRequest.objects.get()
     assert str(hardware_request.public_token) == response.data["public_token"]
     assert hardware_request.status == HardwareRequest.Status.PENDING_APPROVAL
@@ -425,7 +430,10 @@ def test_public_status_by_token_returns_strict_allowlist_and_unknown_token_404()
         "items",
     }
     assert len(response.data["items"]) == 1
-    assert set(response.data["items"][0]) == {"product_name", "requested_quantity"}
+    assert set(response.data["items"][0]) == {
+        "product_name", "requested_quantity", "accepted_quantity",
+        "issued_quantity", "returned_quantity",
+    }
     all_keys = json_keys(response.data)
     for forbidden_key in {
         "id",
@@ -438,8 +446,6 @@ def test_public_status_by_token_returns_strict_allowlist_and_unknown_token_404()
         "requester_username",
         "email",
         "phone",
-        "accepted_quantity",
-        "issued_quantity",
         "public_token",
     }:
         assert forbidden_key not in all_keys

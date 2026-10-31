@@ -14,6 +14,16 @@ _DIGEST = re.compile(r"[0-9a-f]{64}")
 
 
 def validate_bundle(bundle_path, manifest, manifest_file, secrets_file):
+    from apps.backup.full_format import FULL_FORMAT
+
+    if manifest.get("format") == FULL_FORMAT:
+        from apps.backup.full_bundle import verify_full_bundle
+        from apps.backup.errors import BackupBuildError
+
+        try:
+            return verify_full_bundle(bundle_path, manifest, manifest_file, secrets_file)
+        except BackupBuildError as exc:
+            raise ImportPreflightError("component_policy", str(exc)) from exc
     try:
         with tarfile.open(bundle_path, mode="r:*") as archive:
             members = _regular_members(archive)

@@ -1,0 +1,15 @@
+APPROVED.
+
+Confirmed: password submission increments `authLifetime`, making the retained Google callback stale. Google’s effect excludes `onSuccess`, and LoginPanel currently supplies neither ownership scope nor disabled state, so later Google completions keep reaching that stale callback and are discarded.
+
+The proposed LoginPanel-only fix is valid:
+
+- `ownershipScope` and `disabled` are supported props.
+- Memoizing scope by `[onSocialSuccess]` invalidates the previous SDK owner when the callback changes.
+- `disabled={isPending}` prevents exchange while the password attempt is pending; clearing pending mounts a fresh callback.
+- Typing changes only LoginPanel state, preserving ownership and avoiding nonce requests per keystroke.
+- Recovery requests one fresh nonce per enabled SDK initialization; scope and disabled changes do not cause duplicate initialization within a render.
+
+The proposed tests cover the relevant behavior. Keep the real ownership and exchange logic, mock Google’s SDK and transports, and assert both exchange counts and the published staff identity.
+
+No required corrections. No edits or tests run; backend nonce limits were outside this bounded review.

@@ -1,0 +1,11 @@
+**APPROVED**, with one Stage 3 setup clarification.
+
+- **F1:** Rejecting `INDIVIDUAL` immediately after each helper’s product lock closes both API and `/control/` paths before counts or audits change. Existing exception handling is sufficient. I found no legitimate individual caller requiring these three aggregate helpers; `issue_items`, `return_items`, and asset-backed movements remain necessary and untouched.
+- **UI:** Reusing `IndividualAssets` in the shelf modal is appropriate. The existing wrapper requires edit permission, the serializer already exposes `tracking_mode`, and existing invalidation covers staff/public inventory. With `asset_units` disabled, disable management and avoid mounting/fetching units. Individual scrapping will remain unavailable through this aggregate surface.
+- **F2:** Reusing a pure validator before and after the fresh asset lock correctly rejects stale shelve **and repair** actions before movement or audit. Keep these eligibility rules out of generic `move_asset_status`; its other callers serve different lifecycle operations.
+
+The **locking change is necessary in both PATCH and POST**. Currently, fix can hold makerspace `FOR UPDATE` while waiting for an issue-held asset; issue can then need makerspace FK `KEY SHARE`, creating a cycle. `no_key=True` permits those FK checks while still conflicting with module configuration writes. Asset `select_for_update(of=("self",))` also prevents joined product/makerspace locks from undermining that change, leaving explicit asset→product ordering. This matches [PostgreSQL’s lock compatibility rules](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS).
+
+For Stage 3, ensure the observed wait is **on the asset**, rather than an earlier makerspace lock. The existing real POST-evidence transport fixture suits this: managed PUT evidence charging can acquire a makerspace lock before issue reaches the asset. Preserve real validators and assert the stale-status rejection, unchanged loan, absent fix audit, and successful return as planned.
+
+No edits or tests performed.

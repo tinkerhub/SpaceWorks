@@ -1,0 +1,719 @@
+{
+  "format": "spaceworks-documentation-closeout-ledger-v1",
+  "status": "OWNER_QA_COMPLETE_DEV_PUSH_MAIN_MERGE_AUTHORIZED",
+  "purpose": "Documentation/version/link/gallery reconciliation only; no canonical source or release approval",
+  "version": "0.9.0",
+  "project_links": {
+    "general_use_and_license": "https://github.com/SpaceWorks-Labs/SpaceWorks",
+    "custom_edition_contributions": "https://github.com/tinkerhub/SpaceWorks"
+  },
+  "gallery": {
+    "manifest_entries": 76,
+    "indexed_images": 76,
+    "byte_and_sha256_mismatches": 0,
+    "manifest_sha256": "07a44f498bab66945a06bbfbc7213146c15da6e3c1570abfad3382e6dd35b59f",
+    "independently_rechecked": true,
+    "unindexed_images": 0,
+    "index_missing_images": 0,
+    "jpeg_APP1_APP13_COM_metadata_segments": 0
+  },
+  "completed_root_proof": {
+    "full_frontend_before_scanner_keys": {
+      "passed": 1990,
+      "files": 229,
+      "seconds": 360.46,
+      "tsc_exit": 0,
+      "build_exit": 0,
+      "build_seconds": 2.2
+    },
+    "scanner_focused": {
+      "passed": 9,
+      "files": 3,
+      "seconds": 4.66,
+      "tsc_exit": "root_confirmation_pending_child_cannot_poll_session",
+      "typescript_proof": "Current full-frontend command exit0 against same scanner source; earlier child session polling limitation is historical"
+    },
+    "host_address_redis": {
+      "passed": 38,
+      "seconds": 5.45
+    },
+    "actual_sdk_publication": {
+      "passed": 58,
+      "seconds": 150.76
+    },
+    "compose_inheritance": {
+      "passed": 22,
+      "seconds": 0.59
+    },
+    "qr_http_ownership": {
+      "passed": 97,
+      "seconds": 198.82
+    },
+    "source_guard": {
+      "passed": 280,
+      "new_source_contract_cases": 270,
+      "compatibility_cases": 10,
+      "compatibility_functions_parameterization": [
+        6,
+        4
+      ],
+      "seconds": 191.52,
+      "guard_changed_for_fixture_correction": false
+    },
+    "native_authority_registry": {
+      "passed": 17,
+      "seconds": 7.7,
+      "source_freeze_files": 64,
+      "changed_registry_files": 1,
+      "guarded_paths_unchanged": 25,
+      "installed_paths_unchanged": 59
+    },
+    "generated_artifacts": {
+      "openapi_errors": 0,
+      "openapi_warnings": 35,
+      "paths": 469,
+      "oidc_schema_regenerated": true,
+      "client_regenerated": true,
+      "typescript_repeat_exit": 0,
+      "migration_check": "no changes",
+      "latest_bound_proof": "requests-api-contract-generation-20261031.json",
+      "added_paths": [
+        "cancel accepted hardware request",
+        "own hardware history",
+        "own machine service history"
+      ]
+    },
+    "archive_server_endpoint": {
+      "passed": 4,
+      "seconds": 0.96,
+      "database_used": false,
+      "actual_sdk_readback": true,
+      "post_full_suite_snapshot_delta": true
+    },
+    "claim_and_qr_http": {
+      "passed": 523,
+      "seconds": 1293.96,
+      "new_claim_conversion_cases": 50,
+      "http_owner_cases": 473,
+      "result": "claim-and-qr-http-current-runtime.json"
+    },
+    "core_current_failure_resolution": {
+      "passed": 269,
+      "original_core_owned_failures_covered": 94,
+      "new_security_cases": 8,
+      "seconds": 179.03,
+      "result": "core-current-residual-and-native-controls-runtime.json"
+    },
+    "actual_git_privileged_modes": {
+      "passed": 5,
+      "seconds": 0.299,
+      "index_unchanged": true,
+      "result": "privileged-script-real-git-runtime.json"
+    },
+    "source_primitive_actual_locked_parser": {
+      "passed": 214,
+      "seconds": 8.72,
+      "files": 10,
+      "real_node20": true,
+      "readonly_locked_typescript": true,
+      "canonical_site_ledger_approved": false,
+      "result": "source-primitive-locked-parser-runtime.json"
+    },
+    "host_environment_minio_bootstrap": {
+      "passed": 71,
+      "seconds": 61.1,
+      "database_used": false,
+      "daemon_socket_mounted": false,
+      "public_evidence_pending": false,
+      "public_resolution_record": "backup-residual-baseline-resolution-20261030.json",
+      "raw_xml_private_retained": true
+    },
+    "source_admission_structural_controls": {
+      "passed": 94,
+      "seconds": 29.81,
+      "new_negative_cases": 85,
+      "existing_cases": 9,
+      "database_used": false,
+      "public_evidence_pending": false,
+      "public_resolution_record": "backup-residual-baseline-resolution-20261030.json",
+      "raw_xml_private_retained": true
+    },
+    "actual_same_host_restore": {
+      "passed": true,
+      "attempt": 7,
+      "exit_code": 0,
+      "seconds": 683.91,
+      "real_sql_and_object_restore": true,
+      "quarantine_acknowledgement_resume": true,
+      "isolated_synthetic_only": true,
+      "result": "actual-same-host-restore-20261030.json",
+      "source_boundary_note": "Original2023 successful image and59-copy host bundle unchanged. The final current2032 selector has32modified captured files,9added,0missing; every byte/mode and source vector matches current checkout. Current host bundle separately verifies65/25/60. No hybrid image or new actual restore claimed."
+    },
+    "backup_current_failure_resolution": {
+      "unique_current_passing_cases": 397,
+      "original_backup_failures_resolved": 51,
+      "original_core_host_environment_failures_resolved": 4,
+      "exact_backup_case_names": 47,
+      "explicit_installed_contract_remaps": 4,
+      "result": "backup-residual-baseline-resolution-20261030.json"
+    },
+    "checkin_accounts_off_staff_auth": {
+      "passed": 36,
+      "files": 5,
+      "seconds": 50.25,
+      "driver_seconds": 53.13,
+      "all_766_frontend_hashes_unchanged": true,
+      "max_workers": 1,
+      "test_timeout_unchanged": true,
+      "result": "checkin-simple-auth-current-runtime.json",
+      "prior_parallel_deadline_failures_retained": 2
+    },
+    "same_actor_claim_authority": {
+      "passed": 78,
+      "seconds": 254.29,
+      "real_40P01_reproduced_before_fix": true,
+      "actor_updates_serialize_and_permissions_reread": true,
+      "result": "same-actor-claim-and-authority-current-runtime.json"
+    },
+    "checkin_setup_identity_portability": {
+      "native_macos_passed": 101,
+      "native_seconds": 5.52,
+      "linux_passed": 101,
+      "linux_seconds": 2.46,
+      "same_frozen_source": true,
+      "new_identity_cases": 60,
+      "new_portability_cases": 5,
+      "result": "checkin-setup-identity-runtime-20261030.json"
+    },
+    "current_local_browser": {
+      "result": "final-local-preview-verification-round4.json",
+      "staff_session_and_accountfree_public_form_loaded": true,
+      "limits": "No upstream check-in verification or production readiness inferred; host-run development preview lacks installed marker."
+    },
+    "payment_currency_review_fix": {
+      "passed": 567,
+      "seconds": 478.34,
+      "new_cases": 351,
+      "compatibility_cases": 216,
+      "stripe_codes": 139,
+      "razorpay_codes": 128,
+      "live_payment_actions": false,
+      "result": "payment-currency-catalogue-runtime.json"
+    },
+    "independent_review_round2": {
+      "status": "passed-before-later-shutdown-correction",
+      "seconds": 589.651,
+      "targeted_checks": 71,
+      "result": "final-independent-review-round2.json"
+    },
+    "docker_cleanup": {
+      "obsolete_containers_removed": 80,
+      "volumes_preserved": 52,
+      "other_projects_untouched": true,
+      "result": "spaceworks-audit-container-cleanup-20261030.json"
+    },
+    "backend_process_shutdown": {
+      "pytest_passed": 266,
+      "real_container_cases_passed": 9,
+      "result": "backend-process-and-restore-admission-runtime.json"
+    },
+    "inventory_badge_copy": {
+      "existing_tests_passed": 4,
+      "source_lines_changed": 1,
+      "result": "inventory-badge-copy-closeout.json",
+      "separate_trivial_exception": true
+    },
+    "independent_review_round3": {
+      "status": "completed-with-P2-not-passed",
+      "seconds": 508.072,
+      "result": "final-independent-review-round3.json"
+    },
+    "document_quota_followup": {
+      "original_unique_cases": 517,
+      "original_passed": 511,
+      "original_failures": 6,
+      "all_original_failures_resolved": true,
+      "final_focused_passed": 61,
+      "final_errors": 0,
+      "final_skips": 0,
+      "final_source_frame_sha256": "b164ec6abcd9baa6c92903d5a37f52e3a1bf00aae815b3257b6870d82a235bb6",
+      "result": "document-quota-final-runtime.json",
+      "not_a_complete_517_case_final_refinement_rerun": true
+    },
+    "runtime_image_host_provisioning": {
+      "passed": 49,
+      "new_cases": 39,
+      "existing_cases": 10,
+      "seconds": 73.227,
+      "driver_seconds": 153.528,
+      "initial_passed": 45,
+      "initial_new_test_failures": 4,
+      "new_expectation_replacements": 2,
+      "production_and_original_platform_assertions_unchanged": true,
+      "genuine_old_default_regression_failures": 1,
+      "result": "runtime-image-host-provisioning-runtime-20261031.json",
+      "result_sha256": "12f85b0dc711d6c87115d984cf5a9a7edd8f0bad91b3fdef7100bbf275872522"
+    },
+    "runtime_image_cached_actual_Docker": {
+      "status": "PASS_CLEAN_REPEAT",
+      "helper_exit": 0,
+      "actual_repository_digest_and_entrypoint_checked": true,
+      "temporary_private_config_only": true,
+      "no_pull_build_tag_remove_or_container_start": true,
+      "clean_helper_copy_bytecode_disabled_inventory_exact": true,
+      "initial_python314_extra_cache_retained": true,
+      "expected_4829_source_bytes_modes_unchanged": true,
+      "original_primary_postrun_guard_refused_extra_cache": true,
+      "result": "runtime-image-cached-docker-positive-20261031.json",
+      "result_sha256": "08c54b9e8b41be6973ae7c7af1ebc661c12c7b5b5e647aff3a1524b1b87d903d"
+    },
+    "runtime_image_copy60": {
+      "passed": 25,
+      "seconds": 115.745,
+      "driver_seconds": 126.72,
+      "initial_passed": 23,
+      "initial_fixture_failures": 2,
+      "initial_history_preserved": true,
+      "source_files": 65,
+      "guard_dependencies": 25,
+      "installed_copies": 60,
+      "new_helper": "scripts/provision-runtime-image.py",
+      "new_helper_installed_mode": "0644",
+      "exact_three_fixture_contract_files": true,
+      "later_controlled_directory_constructor_lines_added": 3,
+      "all_other_assertions_guards_private_paths_umask_deadlines_preserved": true,
+      "tested_descriptor_sha256": "3c9cf63c561b9a83c15f1ce75b3972c44ae11b8e35d29bf406f3a7064ba35d57",
+      "current_descriptor_sha256": "572cf97beadbb8e4e35d0cd3006398dce21a7c2430cd81d929446118c4fbf895",
+      "evidence_only_refresh_maps_and_modes_identical": true,
+      "result": "runtime-image-copy60-runtime-20261031.json",
+      "result_sha256": "65600e3a3319d17992b0e0ed8520bb9a1b307259d9a4747a360f786b6453eb2a"
+    },
+    "final_preview_refresh": {
+      "result": "final-local-preview-verification-round5.json",
+      "backend_current": true,
+      "original_environment_values_preserved": 77,
+      "screenshots": {
+        "final-checkin-account-free-preview-round5.jpg": "748f6eb04416e7b727d5c2b4045a9701b013d0755f0a84db173537333fd4e767",
+        "final-staff-requests-preview-round5.jpg": "f67745b8282bb171be76c95f8c979a60084eb82be6eff8f5bd9b411be4ebd28c"
+      },
+      "no_hardware_submission_or_production_setting_change": true
+    },
+    "accepted_request_cancellation": {
+      "passed": 184,
+      "new": 61,
+      "compatibility": 123,
+      "pytest_seconds": 122.92,
+      "driver_seconds": 130.819,
+      "proof": "accepted-request-cancellation-runtime-20261031.json",
+      "scope": "Frozen cancellation implementation before later core history/notification source; combined integration separately verified.",
+      "genuine_pre_fix_red": 1,
+      "initial_current": {
+        "passed": 181,
+        "failed": 3,
+        "reason": "two invalid new fixture lines, exact corrected full184 rerun green"
+      }
+    },
+    "request_status_gallery": {
+      "proof": "final-request-status-gallery-20261031.json",
+      "actual_new_views": 4,
+      "local_preview_migrations_exit": 0,
+      "no_production_changes": true
+    },
+    "full_frontend_before_request_status": {
+      "passed": 1991,
+      "files": 230,
+      "seconds": 544.77,
+      "source": "after two scanner form keys",
+      "tsc_exit": 0,
+      "build_exit": 0,
+      "build_seconds": 4.34,
+      "result": "frontend-final-scanner-complete.json"
+    },
+    "full_frontend_current": {
+      "status": "FULL2103_RED_FOUR_IDS_LATER_PASS_UNCHANGED_BUILD_GREEN_CAUSE_UNPROVEN",
+      "cases": 2103,
+      "files": 248,
+      "initial_passed": 2099,
+      "initial_failed": 4,
+      "errors": 0,
+      "initial_skips": 0,
+      "seconds": 1011.617,
+      "all112new_cases_passed": true,
+      "source_files": 794,
+      "source_manifest_sha256": "dfc378f8fab43c1de644b4c508697497ba20a0f18f408d21bf68161288c01e68",
+      "unchanged_diagnostic21": {
+        "passed": 20,
+        "failed": 1
+      },
+      "unchanged_final_machine_file2": {
+        "passed": 2,
+        "failed": 0
+      },
+      "all_four_original_ids_later_pass": true,
+      "fresh_full2103_green_claimed": false,
+      "cause_proven": false,
+      "tsc_exit": 0,
+      "build_exit": 0,
+      "build_seconds": 97.995,
+      "proof": "my-requests-ui-complete-runtime-20261031.json"
+    },
+    "own_history_notifications": {
+      "original_cases": 244,
+      "initial_passed": 232,
+      "initial_failed": 12,
+      "unchanged_passes_outside_rerun": 162,
+      "final_rerun": 82,
+      "final_passed": 82,
+      "all12_original_failure_ids_resolved": true,
+      "new_cases": 80,
+      "causal_old_failures": {
+        "reprint": 2,
+        "committed_callback_HTTP500": 1
+      },
+      "fresh244_green_claimed": false,
+      "proof": "own-requests-notification-runtime-20261031.json"
+    },
+    "actual_restore_current_source_comparison": {
+      "captured_runtime": 2023,
+      "current_runtime": 2041,
+      "modified_captured": 68,
+      "added": 18,
+      "missing": 0,
+      "original_image_and_all_private_proofs_unchanged": true,
+      "new_current_restore_claimed": false,
+      "current_record_sha256": "7300189b827bbe121c1564bf5e3fb76be90b8cef40ab01e21bfdfa05ecf17449",
+      "proof": "actual-same-host-restore-20261030.json"
+    }
+  },
+  "running_unclaimed": [
+    "authorized commit and push to dev, then main merge after required checks"
+  ],
+  "open": [
+    "Deployment-specific production conditions in CHANGE-REPORT.md remain separate from local verification."
+  ],
+  "current_recovery_source_boundary": {
+    "source_files": 65,
+    "guarded_dependencies": 25,
+    "host_copy_files": 60,
+    "storage_module_delivery": "baked application image",
+    "restore_success_proved": true,
+    "restore_scope": "actual isolated same-host signed FULL capture, SQL/object replacement, quarantine, recovery, acknowledgement and resume",
+    "current_image_delta": "Original2023 successful image and59-copy bundle unchanged. Current2041 selector:68modified captured files,18added,0missing. Every byte/mode and vector rechecked by root;65/25/60 metadata matches. Later affected-source corrections are separately bound; no fresh or hybrid restore.",
+    "quota_followup_verified": {
+      "current_runtime_files": 2029,
+      "modified_captured_files": 26,
+      "added_files": 6,
+      "missing_files": 0,
+      "proof": "document-quota-final-runtime.json",
+      "scope": "Historical quota-only closed2029 source comparison; final OCI/fingerprint comparison is separately closed2032."
+    },
+    "current_host_descriptor_sha256": "c88b5933e00ec6356ddd39fa72b032e2e95dd4ba8866ca5cf3dde90c73fc4935",
+    "strict_copy60_tested_descriptor_sha256": "3c9cf63c561b9a83c15f1ce75b3972c44ae11b8e35d29bf406f3a7064ba35d57",
+    "host_copy60_verification": "Historical HOST49 and strict25 passed. Later descriptor changes only setup.sh copyhash for separately verified six cold-cache cases; no fresh25 rerun against that later setup is claimed.",
+    "backend_65_ID_resolution_verified": true,
+    "final_backend_result_sha256": "0fde07e940d7ea632e19f64bb76e5656a90663c8dfa4cbd2f387434b57098347",
+    "actual_restore_result_sha256": "7300189b827bbe121c1564bf5e3fb76be90b8cef40ab01e21bfdfa05ecf17449",
+    "current_runtime_source_files": 2041,
+    "modified_captured_files": 68,
+    "added_files": 18,
+    "missing_files": 0,
+    "current_runtime_vector_sha256": "c5ccc1dfc31adc673ee4f988877fb4ba4b69e3f0c102cc43ebb7fac9cc0b2dc8",
+    "frame_status": "CURRENT_SOURCE_COMPARISON_RECONCILED_AFFECTED_RUNTIME_PROOFS_BOUND_NO_FRESH_RESTORE"
+  },
+  "operator_format_clarification": {
+    "signed_full": "complete signed deployment route; external import requires pinned trust",
+    "historical": "registered same-host legacy only",
+    "compound": "capture/static validation protocol 2 does not provide installed host restore coordinator",
+    "manual_volume_copies": "not a supervised signed deployment archive"
+  },
+  "complete_frozen_backend_baseline": {
+    "manifest_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+    "files": 4675,
+    "cases": 11695,
+    "passed": 11510,
+    "failed": 158,
+    "errors": 13,
+    "skipped": 14,
+    "new_skip_or_xfail": false,
+    "partitions": {
+      "core": {
+        "passed": 8127,
+        "failed": 103,
+        "errors": 0,
+        "skipped": 14
+      },
+      "backup_tenant_migration": {
+        "passed": 3344,
+        "failed": 55,
+        "errors": 13,
+        "skipped": 0
+      },
+      "security_settings": {
+        "passed": 39,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "not_a_green_release_run": true
+  },
+  "release_boundary": {
+    "staged": false,
+    "committed": false,
+    "pushed": false,
+    "merged_to_main": false,
+    "deployed": false,
+    "final_independent_review_passed": true,
+    "owner_QA_for_this_audit_batch": false,
+    "canonical_opt_in_source_registry": "UNREVIEWED",
+    "application_code_pushed": false,
+    "remote_merged_branch_deleted": true,
+    "pushed_note": "Only the authorized obsolete remote fix reference was deleted; no audit application code was pushed.",
+    "recorded_before_owner_QA": true
+  },
+  "public_evidence_privacy": {
+    "record": "public-evidence-credential-sanitization.json",
+    "artifacts_sanitized": 4,
+    "synthetic_jwt_occurrences": 3,
+    "synthetic_password_hash_occurrences": 2,
+    "synthetic_credential_URL_occurrences": 4,
+    "deterministic_fixture_key_echoes": 5,
+    "raw_preserved_private_0600": true,
+    "outcomes_unchanged": true,
+    "last_scan_text_file_count": 630,
+    "remaining_jwt_key_password_hash_pattern_files": {
+      "JWT": [],
+      "Fernet-shaped": [],
+      "password_hash": []
+    }
+  },
+  "complete_original_failure_resolution": {
+    "original_failures": 158,
+    "original_errors": 13,
+    "total": 171,
+    "resolved": 171,
+    "missing": 0,
+    "extra": 0,
+    "explicit_installed_contract_remaps": 4,
+    "result": "complete-backend-baseline-resolution.json",
+    "not_a_new_full_green_run": true
+  },
+  "document_quota_current_capture": {
+    "files": 4789,
+    "inventory_sha256": "e7bccbe97776583cb271bdcf7197fdfa421ac8514fe77cf909c99331054a9d2f",
+    "old_red_files": 4752,
+    "old_original_files": 4751,
+    "old_paths_modified": 0,
+    "old_red_only_addition": "backend/tests/document_safety/test_public_quota_refund_regression.py",
+    "old_red_inventory_sha256": "fba3eef115abb6a0ba2dd9d03cb9aead0d776b671da1b5f07b952f8d65d1393b",
+    "runtime_status": "HISTORICAL_INITIAL_RUN_PLUS_CLOSED_FINAL61_PROOF",
+    "one_pytest_per_db": true,
+    "maximum_heavy_jobs": 2,
+    "old_red_result": {
+      "cases": 3,
+      "expected_counter_assertion_failures": 3,
+      "setup_errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 13.91,
+      "driver_seconds": 22.137,
+      "actual_successful_204_row_and_version_deletion_before_failure": true,
+      "test_file_sha256": "dbefca80289c38ee756c3726d7054664905675010ec745c27f1b7520f83b4a32"
+    },
+    "latest_incomplete_progress": {
+      "primary_markers": 106,
+      "primary_collected": 189,
+      "primary_observed_failures": 3,
+      "secondary_markers": 270,
+      "secondary_collected": 328,
+      "secondary_observed_failures": 3,
+      "observed_setup_errors": 0,
+      "final": false,
+      "historical_only_superseded_by": "document-quota-final-runtime.json"
+    },
+    "completed_initial_current_results": {
+      "primary": {
+        "cases": 189,
+        "passed": 186,
+        "failures": 3,
+        "errors": 0,
+        "skips": 0,
+        "actual_exit": 1
+      },
+      "secondary": {
+        "cases": 328,
+        "passed": 325,
+        "failures": 3,
+        "errors": 0,
+        "skips": 0,
+        "actual_exit": 1
+      },
+      "unique_cases": 517,
+      "overlap": 0,
+      "same_process_after_outer_watchdog": true,
+      "original_outer_watchdog_seconds": 2400,
+      "per_test_deadlines_and_frozen_inputs_unchanged": true
+    },
+    "final_followup": {
+      "source_inventory_sha256": "b164ec6abcd9baa6c92903d5a37f52e3a1bf00aae815b3257b6870d82a235bb6",
+      "overlay_count": 6,
+      "app_source_overlay_count": 3,
+      "test_overlay_count": 3,
+      "cases": 61,
+      "primary": 31,
+      "secondary": 30,
+      "overlap": 0,
+      "all_six_original_failed_IDs_included": true,
+      "status": "ALL61_PASSED_ZERO_FAILURES_ERRORS_SKIPS"
+    }
+  },
+  "independent_review_round4": {
+    "status": "completed-with-P1-and-P2-findings-not-passed",
+    "seconds": 460.371,
+    "result": "final-independent-review-round4.json",
+    "actionable_findings": 2,
+    "passed": false
+  },
+  "migration_fingerprint_followup": {
+    "status": "verified-focused-pass",
+    "current_passed": 76,
+    "new_cases": 45,
+    "existing_cases": 31,
+    "pre_fix_regression_failures": 12,
+    "errors": 0,
+    "skips": 0,
+    "result": "migration-fingerprint-runtime-20261031.json",
+    "result_sha256": "eb90d0a55c13be09929a580bf751b236fc79da05c980133c199b8c89989a2ef5",
+    "not_a_whole_backend_or_new_restore_rerun": true,
+    "pytest_seconds": 53.572,
+    "driver_seconds": 58.379
+  },
+  "runtime_image_backend_followup": {
+    "status": "VERIFIED_INITIAL65_PLUS_EXACT3_CLEAN_RETRY_ALL65_IDS_RESOLVED",
+    "initial_frozen_files": 4829,
+    "initial_inventory_sha256": "6a3de5d932823bfba1bf4ba7083b07159f113e756d32c361c6faffb949281ad5",
+    "initial_cases": 65,
+    "initial_passed": 62,
+    "initial_failures": 3,
+    "initial_errors": 0,
+    "initial_skips": 0,
+    "initial_driver_postrun_guard": "FAILED_ONLY_ADDED_PYTHON314_CACHE_FROM_NATIVE_PROBE",
+    "all_expected_source_bytes_modes_unchanged": true,
+    "original_snapshot_cache_and_failed_run_retained": true,
+    "dedicated_test_MinIO_was_stopped_for_original_live_cases": true,
+    "exact_retry_passed": 3,
+    "exact_retry_failures": 0,
+    "exact_retry_errors": 0,
+    "exact_retry_skips": 0,
+    "exact_retry_driver_exit": 0,
+    "exact_retry_driver_seconds": 329.591,
+    "exact_retry_fresh_clean_4829_source_input_env_CLI_guards_closed": true,
+    "code_assertions_env_values_deadlines_unchanged_for_retry": true,
+    "all_65_case_ids_resolved": true,
+    "not_a_fresh_65_case_green_run": true,
+    "not_a_closed_original_driver_claim": true,
+    "root_reported_result_sanitized_proof_pending": false,
+    "result": "runtime-image-backend-runtime-20261031.json",
+    "result_sha256": "0fde07e940d7ea632e19f64bb76e5656a90663c8dfa4cbd2f387434b57098347",
+    "new_cases": 17,
+    "existing_cases": 48,
+    "all_case_XML_IDs_equal_frozen_collections": true,
+    "initial_seconds": 907.725,
+    "clean_retry_inventory_sha256": "8ccdd6c54e4907f850e3ba5410fbad288dfe013ce1904e8cb7588df7b422da5a",
+    "original_failed_driver_and_extra_cache_retained": true
+  },
+  "independent_review_round5": {
+    "status": "completed-with-P1-finding-not-passed",
+    "exit_code": 0,
+    "seconds": 341.941,
+    "actionable_findings": 1,
+    "passed": false,
+    "finding": "fresh source installation can lack infrastructure images while startup forbids pulls",
+    "result_publication_pending": false,
+    "scope_note": "Command completion is not release approval; correction, focused checks and review six remain."
+  },
+  "fresh_source_install_followup": {
+    "status": "FOCUSED_COVERAGE_PASSED_FINAL_REVIEW6_PASSED",
+    "change": "Explicitly pull nonbuildable infrastructure before no-pull source build/start, optional Caddy included.",
+    "proof": "source-setup-coldcache-runtime-20261031.json",
+    "proof_sha256": "50b219933e909994ec39f81ecbade92590dc5ce0cce981dd3dbe4c6840d21223",
+    "current_cases_covered": 6,
+    "initial_passed": 4,
+    "initial_watchdog_failed": 2,
+    "unchanged_retry_passed": 2,
+    "pre_fix_genuine_failures": 3,
+    "fresh_full_six_claimed": false,
+    "protected_copy_only_setup_hash_refreshed": true
+  },
+  "accepted_request_cancellation_followup": {
+    "status": "184_BACKEND_PASS_35_NEW_UI_CASES_PASS_FINAL_REVIEW6_PASSED",
+    "intended_actor": "authorized scoped staff",
+    "intended_state": "accepted and not issued",
+    "required_boundaries": [
+      "shared request workflow",
+      "inventory availability reservation release",
+      "permissions and tenant scoping",
+      "audit history",
+      "repeat submission",
+      "issue/cancel concurrency"
+    ],
+    "implemented_or_verified_claim": "Implemented and verified within frozen source scopes;184 backend cases passed. Shared integration is separately bound.",
+    "proof": "accepted-request-cancellation-runtime-20261031.json"
+  },
+  "requester_history_notifications_followup": {
+    "status": "ALL80_NEW_BACKEND_AND77_NEW_UI_CASES_PASS_FINAL_REVIEW6_PASSED",
+    "account_free_authority": "saved private request capabilities; check-in name is presence, not history authentication",
+    "authenticated_authority": "exact real-account principal in tenant; no membership requirement; no legacy staff requester fallback",
+    "backend_proof": "own-requests-notification-runtime-20261031.json",
+    "frontend_proof": "my-requests-ui-complete-runtime-20261031.json",
+    "scope": "Initial244232P12fixture/spyoracleF; final82P resolves all12,162 untouched original passes retained. No fresh244 green claim; frontend failed full history retained."
+  },
+  "previous_closed_recovery_boundary_before_requests": {
+    "source_files": 65,
+    "guarded_dependencies": 25,
+    "host_copy_files": 60,
+    "storage_module_delivery": "baked application image",
+    "restore_success_proved": true,
+    "restore_scope": "actual isolated same-host signed FULL capture, SQL/object replacement, quarantine, recovery, acknowledgement and resume",
+    "current_image_delta": "Original2023 successful image and59-copy host bundle unchanged. The final current2032 selector has32modified captured files,9added,0missing; every byte/mode and source vector matches current checkout. Current host bundle separately verifies65/25/60. No hybrid image or new actual restore claimed.",
+    "quota_followup_verified": {
+      "current_runtime_files": 2029,
+      "modified_captured_files": 26,
+      "added_files": 6,
+      "missing_files": 0,
+      "proof": "document-quota-final-runtime.json",
+      "scope": "Historical quota-only closed2029 source comparison; final OCI/fingerprint comparison is separately closed2032."
+    },
+    "current_host_descriptor_sha256": "572cf97beadbb8e4e35d0cd3006398dce21a7c2430cd81d929446118c4fbf895",
+    "strict_copy60_tested_descriptor_sha256": "3c9cf63c561b9a83c15f1ce75b3972c44ae11b8e35d29bf406f3a7064ba35d57",
+    "host_copy60_verification": "HOST49 and strict copied-runtime25 passed. Evidence-only descriptor refresh preserves exact tested65/25/60 maps and modes.",
+    "backend_65_ID_resolution_verified": true,
+    "final_backend_result_sha256": "0fde07e940d7ea632e19f64bb76e5656a90663c8dfa4cbd2f387434b57098347",
+    "actual_restore_result_sha256": "94dacf41aa5a05f07d75afa274ec978b657eb1b42141ba7268083683b2e60548",
+    "current_runtime_source_files": 2032,
+    "modified_captured_files": 32,
+    "added_files": 9,
+    "missing_files": 0,
+    "current_runtime_vector_sha256": "2a63823b26e82e8ec28077b255ca45270e94580981a940d1cd046ba068c13fe7",
+    "frame_status": "LAST_CLOSED_FRAME_BEFORE_PENDING_REVIEW5_SOURCE_INSTALL_AND_CANCELLATION_FOLLOWUPS"
+  },
+  "independent_review_round6": {
+    "status": "passed_with_explicit_environment_limits",
+    "seconds": 324.347,
+    "actionable_regressions_confirmed": 0,
+    "application_source_unchanged": true,
+    "proof": "final-independent-review-round6.json"
+  },
+  "final_cleanup": {
+    "manually_removed_containers_total": 83,
+    "volumes_preserved": 52,
+    "other_containers_preserved": 27,
+    "preview_services_running": 4,
+    "remote_fix_deleted": true,
+    "protected_main_dev_unchanged": true,
+    "proofs": [
+      "final-test-infrastructure-cleanup-20261031.json",
+      "remote-merged-branch-cleanup-20261031.json"
+    ]
+  },
+  "later_owner_QA_and_delivery_authorization": "owner-qa-approval-20261031.json"
+}

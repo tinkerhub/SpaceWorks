@@ -31,10 +31,11 @@ def lock_and_validate_staff_authority(
     if not connection.in_atomic_block:
         raise RuntimeError("Staff authority must be validated inside transaction.atomic().")
 
-    makerspace = Makerspace.objects.select_for_update().filter(pk=makerspace_id).first()
+    makerspace = Makerspace.objects.select_for_update(no_key=True).filter(pk=makerspace_id).first()
     if makerspace is None:
         raise PermissionDenied()
-    locked_actor = User.objects.select_for_update().filter(pk=actor.pk).first()
+    # Serialize actor authority updates/deletes while allowing audit FK references from concurrent target holders.
+    locked_actor = User.objects.select_for_update(no_key=True).filter(pk=actor.pk).first()
     if locked_actor is None:
         raise PermissionDenied()
     if (

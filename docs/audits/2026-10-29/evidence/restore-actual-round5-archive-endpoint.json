@@ -1,0 +1,29 @@
+{
+  "expected_size": 1239528,
+  "restore_stage": "requested",
+  "archive_status": "available",
+  "internal_endpoint_is_loopback": false,
+  "public_endpoint_is_loopback": true,
+  "endpoints_equal": false,
+  "production_open_archive": {
+    "read_success": false,
+    "error_classes": [
+      "BackupStorageError",
+      "EndpointConnectionError"
+    ]
+  },
+  "internal_client_get": {
+    "read_success": true,
+    "size_match": true,
+    "sha256_match": true
+  },
+  "status": "actual-existing-archive-readonly-endpoint-comparison",
+  "host_marker_unchanged_normal": true,
+  "effects": [
+    "One fixed management oneoff: SELECT existing archive metadata and bounded existing-object GETs; tracked cleanup"
+  ],
+  "limits": [
+    "No object/file export, provider writes, decryption, preflight, control mutation, grants, quiescence, restore or unblock",
+    "No endpoint URL, object key, encrypted bytes, credentials or raw error message retained in proof"
+  ]
+}

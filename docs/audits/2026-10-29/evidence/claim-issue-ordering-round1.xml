@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.234" timestamp="2026-10-30T05:09:15.697032+00:00" hostname="f22f21d1d5ca"><testcase classname="" name="tests.claim_source_safety.test_issue_ordering" time="0.000"><error message="collection failure">ImportError while importing test module '/repo/backend/tests/claim_source_safety/test_issue_ordering.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/claim_source_safety/test_issue_ordering.py:13: in &lt;module&gt;
+    from .observations import NProof
+tests/claim_source_safety/observations.py:10: in &lt;module&gt;
+    from tests.qr_http_ownership_safety.p_observations import identity, source_locks
+E   ModuleNotFoundError: No module named 'tests.qr_http_ownership_safety'</error></testcase></testsuite></testsuites>

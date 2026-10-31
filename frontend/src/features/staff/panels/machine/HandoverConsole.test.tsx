@@ -1,18 +1,25 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ToastProvider } from "../../../../components/ui";
 import { HandoverConsole } from "./HandoverConsole";
+import { isolateMachineTestSession, machineConsoleTestClient, machineTestMakerspaces } from "./machineConsoleTestUtils";
+
+isolateMachineTestSession();
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
-vi.mock("../../../../lib/api", () => ({ staffRequest }));
+vi.mock("../../../../lib/api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../../../lib/api")>(),
+  staffRequest,
+}));
 
 describe("HandoverConsole", () => {
   beforeEach(() => {
     staffRequest.mockReset();
-    staffRequest.mockImplementation(async (_path: string, options?: RequestInit) => {
+    staffRequest.mockImplementation(async (path: string, options?: RequestInit) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces(3);
       if (options?.method === "POST") return {};
       return [
         {
@@ -42,9 +49,7 @@ describe("HandoverConsole", () => {
   });
 
   it("lets collect-only staff settle a manual debt before handover", async () => {
-    const client = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    });
+    const client = machineConsoleTestClient(3);
     render(
       <QueryClientProvider client={client}>
         <HandoverConsole makerspaceId={3} enabled />
@@ -66,9 +71,7 @@ describe("HandoverConsole", () => {
   });
 
   it("refreshes every payment view after recording a payment", async () => {
-    const client = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    });
+    const client = machineConsoleTestClient(3);
     const invalidate = vi.spyOn(client, "invalidateQueries");
     render(
       <QueryClientProvider client={client}>
@@ -87,9 +90,7 @@ describe("HandoverConsole", () => {
       if (options?.method === "POST") throw new Error("You do not have permission to perform this action.");
       return list(path, options);
     });
-    const client = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    });
+    const client = machineConsoleTestClient(3);
     render(
       <QueryClientProvider client={client}>
         <ToastProvider><HandoverConsole makerspaceId={3} enabled /></ToastProvider>

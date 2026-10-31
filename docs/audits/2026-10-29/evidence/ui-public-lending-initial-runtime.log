@@ -1,0 +1,2621 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/app[39m
+
+ [31m❯[39m src/features/inventory/PublicRequestPanelAccountLess.test.tsx [2m([22m[2m15 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1606[2mms[22m[39m
+     [32m✓[39m collects contact details and sends them with an idempotency key[32m 186[2mms[22m[39m
+     [32m✓[39m keeps submit disabled until a name and an email are given[32m 55[2mms[22m[39m
+     [32m✓[39m shows the request token afterwards, the only handle an account-less visitor has[32m 42[2mms[22m[39m
+     [32m✓[39m sends the honeypot field so autofill bots get the decoy response[32m 44[2mms[22m[39m
+     [32m✓[39m gives a signed-in member the member form even on an opted-in space[32m 8[2mms[22m[39m
+     [32m✓[39m offers no scan tab where self-checkout cannot work[32m 19[2mms[22m[39m
+     [32m✓[39m keeps the member scan tab on a members space with self-checkout on[32m 36[2mms[22m[39m
+     [32m✓[39m describes an accounts-only space without membership, waiver or presence[32m 10[2mms[22m[39m
+     [32m✓[39m asks a members-only space for no contact details and sends no key[32m 29[2mms[22m[39m
+     [32m✓[39m keeps submit disabled while the session probe is still pending[32m 24[2mms[22m[39m
+     [32m✓[39m drops the previous token as soon as another attempt starts[32m 55[2mms[22m[39m
+     [32m✓[39m points a signed-out visitor at member sign-in instead of letting the submit 401[32m 23[2mms[22m[39m
+     [32m✓[39m keeps the member rules and adds sign-in on a members space[32m 15[2mms[22m[39m
+     [32m✓[39m sends a visitor to the desk when the space has no member accounts to sign in with[32m 24[2mms[22m[39m
+[31m     [31m×[31m restores a reloaded session from the refresh cookie and files the request under it[39m[33m 1034[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestPanelCheckedIn.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 614[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicBorrowRequest.ownership.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1640[2mms[22m[39m
+     [33m[2m✓[22m[39m deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys [33m 557[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanel.ownership.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 3155[2mms[22m[39m
+     [33m[2m✓[22m[39m checkout admits first and blocks the reverse operation in the same tick [33m 362[2mms[22m[39m
+ [31m❯[39m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx [2m([22m[2m8 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[33m 3663[2mms[22m[39m
+[31m     [31m×[31m old maker success cannot render, clear fresh scans/evidence or unlock the current checkout[39m[33m 716[2mms[22m[39m
+[31m     [31m×[31m old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout[39m[33m 559[2mms[22m[39m
+[31m     [31m×[31m old session success cannot render, clear fresh scans/evidence or unlock the current checkout[39m[33m 374[2mms[22m[39m
+[31m     [31m×[31m old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout[39m[33m 336[2mms[22m[39m
+[31m     [31m×[31m captures a multi-tool body once, deduplicates same-tick submit, and blocks mode/person edits until it settles[39m[32m 221[2mms[22m[39m
+[31m     [31m×[31m return needs a fresh photo, notes and scan; a stale checkout camera callback cannot enqueue or submit[39m[32m 90[2mms[22m[39m
+[31m     [31m×[31m a new mode hides the previous dedicated result/error and cannot reuse evidence[39m[33m 1107[2mms[22m[39m
+     [32m✓[39m a new person hides the previous dedicated result/error and cannot reuse evidence[32m 259[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.ownership.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1825[2mms[22m[39m
+ [31m❯[39m src/features/inventory/PublicInventoryPage.ownership.test.tsx [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 755[2mms[22m[39m
+     [33m[2m✓[22m[39m reusing /m/:slug removes A cart and open details synchronously on warm A to cold B [33m 364[2mms[22m[39m
+     [32m✓[39m same-maker sign-in preserves the public cart and open product[32m 136[2mms[22m[39m
+[31m     [31m×[31m successful borrow keeps a cart changed after admission and submits the original quantities[39m[32m 199[2mms[22m[39m
+     [32m✓[39m a reused inventory observer keeps same-maker placeholders but never carries warm A into cold B[32m 55[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.races.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 874[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 828[2mms[22m[39m
+     [33m[2m✓[22m[39m gates evidence and sends the confirmed identity through checkout and return [33m 407[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicIdentityTenantScope.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 694[2mms[22m[39m
+     [33m[2m✓[22m[39m PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name [33m 314[2mms[22m[39m
+ [32m✓[39m src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 556[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicMachinesPage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 386[2mms[22m[39m
+ [31m❯[39m src/features/inventory/PublicRequestPanelFlow.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 271[2mms[22m[39m
+[31m     [31m×[31m ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow[39m[32m 187[2mms[22m[39m
+     [32m✓[39m BorrowRequestCard preserves clear, edit, submit and token/status actions without a capped selected list[32m 83[2mms[22m[39m
+ [32m✓[39m src/features/inventory/usePublicSession.ownership.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 154[2mms[22m[39m
+ [31m❯[39m src/features/inventory/PublicSelfCheckoutPage.test.tsx [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 321[2mms[22m[39m
+     [32m✓[39m serves the roster form on a checked-in space with membership off[32m 81[2mms[22m[39m
+     [32m✓[39m is unavailable with membership off and no check-in policy[32m 87[2mms[22m[39m
+     [32m✓[39m serves members when the membership module is on[32m 22[2mms[22m[39m
+[31m     [31m×[31m restores a reloaded member's session before showing the form[39m[32m 53[2mms[22m[39m
+     [32m✓[39m asks a signed-out visitor to sign in before the form[32m 78[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestStatusPage.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m src/features/inventory/ProductCard.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 184[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicRequestHeader.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+ [32m✓[39m src/features/inventory/RequestCartBar.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m src/features/inventory/EventRegistrationForm.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 148[2mms[22m[39m
+ [32m✓[39m src/features/inventory/publicSelfCheckoutApi.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 11 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicInventoryPage.ownership.test.tsx[2m > [22mpublic inventory route and selection ownership[2m > [22msuccessful borrow keeps a cart changed after admission and submits the original quantities
+[31m[1mTypeError[22m: categories.map is not a function[39m
+[36m [2m❯[22m CatalogFilters src/features/inventory/PublicInventoryParts.tsx:[2m85:21[22m[39m
+    [90m 83|[39m         [33m<[39m[33m/[39m[33mChip[39m[33m>[39m
+    [90m 84|[39m         {categories.length > 0 ? <span aria-hidden="true" className="m…
+    [90m 85|[39m         [33m{[39mcategories[33m.[39m[34mmap[39m((category) [33m=>[39m {
+    [90m   |[39m                     [31m^[39m
+    [90m 86|[39m           const active = view.kind === "category" && view.slug === cat…
+    [90m 87|[39m           [35mreturn[39m (
+[90m [2m❯[22m Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:[2m28571:20[22m[39m
+[90m [2m❯[22m renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:[2m8030:22[22m[39m
+[90m [2m❯[22m updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:[2m10569:19[22m[39m
+[90m [2m❯[22m beginWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m12205:18[22m[39m
+[90m [2m❯[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:[2m1048:13[22m[39m
+[90m [2m❯[22m performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m19176:22[22m[39m
+[90m [2m❯[22m workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:[2m19004:41[22m[39m
+[90m [2m❯[22m renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:[2m18985:11[22m[39m
+[90m [2m❯[22m performWorkOnRoot node_modules/react-dom/cjs/react-dom-client.development.js:[2m18094:35[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicRequestPanelAccountLess.test.tsx[2m > [22maccount-required policies with nobody signed in[2m > [22mrestores a reloaded session from the refresh cookie and files the request under it
+[31m[1mError[22m[39m: [2mexpect([22m[31melement[39m[2m).toBeEnabled()[22m
+
+Received element is not enabled:
+  [31m<button
+  class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full"
+  disabled=""
+  type="button"
+/>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"min-w-0 space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5 shrink-0"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-body-ui text-ink-muted"[39m
+          [36m>[39m
+            [0mRequest desk[0m
+          [36m</p>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"mt-1 text-h4 text-ink"[39m
+          [36m>[39m
+            [0mBorrow at the desk[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"mt-2 max-w-[65ch] text-body-ui text-ink-secondary"[39m
+          [36m>[39m
+            [0mRequests here are filed under an account, and this makerspace offers no public sign-up. Ask staff at the desk to lend you what you need.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mid[39m=[32m"public-request-borrow-panel"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-start justify-between gap-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"min-w-0"[39m
+                  [36m>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"text-body-ui text-ink-muted"[39m
+                    [36m>[39m
+                      [0mBorrow request[0m
+                    [36m</p>[39m
+                    [36m<h2[39m
+                      [33mclass[39m=[32m"mt-1 text-h4 text-ink"[39m
+                    [36m>[39m
+                      [0mSelected equipment[0m
+                    [36m</h2>[39m
+                  [36m</div>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2.5 py-0.5 text-[13px] bg-secondary text-on-secondary tabular-nums"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 truncate"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mt-4 space-y-2"[39m
+                [36m>[39m
+                  [36m<ul[39m
+                    [33mclass[39m=[32m"divide-y divide-line rounded-md border border-line"[39m
+                  [36m>[39m
+                    [36m<li[39m
+                      [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                      [36m>[39m
+                        [0mLogic analyzer[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                      [36m>[39m
+                        [0m×[0m
+                        [0m1[0m
+                      [36m</span>[39m
+                    [36m</li>[39m
+                  [36m</ul>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"contents"[39m
+                    [36m>[39m
+                      [0mClear selection[0m
+                    [36m</span>[39m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mt-5 space-y-4"[39m
+                [36m>[39m
+                  [36m<label[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"absolute left-[-10000px] top-auto h-px w-px overflow-hidden"[39m
+                  [36m>[39m
+                    [0mWebsite[0m
+                    [36m<input[39m
+                      [33mautocomplete[39m=[32m"off"[39m
+                      [33mname[39m=[32m"website"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mvalue[39m=[32m""[39m
+                    [36m/>[39m
+                  [36m</label>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"[39m
+                  [36m>[39m
+                    [36m<label[39m
+                      [33mclass[39m=[32m"min-w-0"[39m
+                      [33mfor[39m=[32m"_r_1m_"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"text-label text-ink"[39m
+                      [36m>[39m
+                        [0mRequest purpose[0m
+                      [36m</span>[39m
+                    [36m</label>[39m
+                    [36m<textarea[39m
+                      [33mclass[39m=[32m"block w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle min-h-24 resize-y"[39m
+                      [33mid[39m=[32m"_r_1m_"[39m
+                      [33mplaceholder[39m=[32m"What do you need these items for?"[39m
+                      [33mrows[39m=[32m"4"[39m
+                    [36m>[39m
+                      [0mBench diagnostics[0m
+                    [36m</textarea>[39m
+                  [36m</div>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full"[39m
+                    [33mdisabled[39m=[32m""[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"contents"[39m
+                    [36m>[39m
+                      [0mSubmit request[0m
+                    [36m</span>[39m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[36m [2m❯[22m src/features/inventory/PublicRequestPanelAccountLess.test.tsx:[2m327:89[22m[39m
+    [90m325|[39m
+    [90m326|[39m     [34mfill[39m([36m/request purpose/i[39m[33m,[39m [32m"Bench diagnostics"[39m)[33m;[39m
+    [90m327|[39m     await waitFor(() => expect(screen.getByRole("button", { name: /sub…
+    [90m   |[39m                                                                                         [31m^[39m
+    [90m328|[39m     expect(screen.getByRole("heading", { name: "Borrow with your accou…
+    [90m329|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByRole[39m([32m"link"[39m[33m,[39m { name[33m:[39m [32m"Sign in"[39m }))[33m.[39m[34mtoBeNull[39m()[33m;[39m
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicRequestPanelFlow.test.tsx[2m > [22mborrow desk document flow[2m > [22mordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find a label with the text of: Your name
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<aside[39m
+      [33mclass[39m=[32m"min-w-0 space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5 shrink-0"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-body-ui text-ink-muted"[39m
+        [36m>[39m
+          [0mRequest desk[0m
+        [36m</p>[39m
+        [36m<h2[39m
+          [33mclass[39m=[32m"mt-1 text-h4 text-ink"[39m
+        [36m>[39m
+          [0mBorrow with your account[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"mt-2 max-w-[65ch] text-body-ui text-ink-secondary"[39m
+        [36m>[39m
+          [0mYou are signed in, so this request is filed against your account. Staff review it before anything is handed over.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"min-w-0"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mid[39m=[32m"public-request-borrow-panel"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex items-start justify-between gap-4"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"min-w-0"[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-body-ui text-ink-muted"[39m
+                  [36m>[39m
+                    [0mBorrow request[0m
+                  [36m</p>[39m
+                  [36m<h2[39m
+                    [33mclass[39m=[32m"mt-1 text-h4 text-ink"[39m
+                  [36m>[39m
+                    [0mSelected equipment[0m
+                  [36m</h2>[39m
+                [36m</div>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2.5 py-0.5 text-[13px] bg-secondary text-on-secondary tabular-nums"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 truncate"[39m
+                  [36m>[39m
+                    [0m35[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mt-4 space-y-2"[39m
+              [36m>[39m
+                [36m<ul[39m
+                  [33mclass[39m=[32m"divide-y divide-line rounded-md border border-line"[39m
+                [36m>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                    [36m>[39m
+                      [0mSelected equipment 1 with a long descriptive name[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                    [36m>[39m
+                      [0m×[0m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                    [36m>[39m
+                      [0mSelected equipment 2 with a long descriptive name[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                    [36m>[39m
+                      [0m×[0m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                    [36m>[39m
+                      [0mSelected equipment 3 with a long descriptive name[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                    [36m>[39m
+                      [0m×[0m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                    [36m>[39m
+                      [0mSelected equipment 4 with a long descriptive name[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                    [36m>[39m
+                      [0m×[0m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"[39m
+                    [36m>[39m
+                      [0mSelected equipment 5 with a long descriptive name[0m
+                    [36m</span>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"shrink-0 font-mono text-sm tabular-nums text-ink-muted"[39m
+                    [36m>[39m
+                      [0m×[0m
+                      [0m1[0m
+                    [36m</span>[39m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m111:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicRequestPanelFlow.test.tsx:[2m44:29[22m[39m
+    [90m 42|[39m     const submit = screen.getByRole("button", { name: "Submit request"…
+    [90m 43|[39m     [34mexpect[39m(submit)[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m 44|[39m     fireEvent.change(screen.getByLabelText("Your name"), { target: { v…
+    [90m   |[39m                             [31m^[39m
+    [90m 45|[39m     fireEvent.change(screen.getByLabelText("Email"), { target: { value…
+    [90m 46|[39m     [34mexpect[39m(submit)[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mold maker success cannot render, clear fresh scans/evidence or unlock the current checkout
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mold maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  [36m<button />[39m
+
+  Name "Visit B":
+  [36m<button />[39m
+
+  Name "New session":
+  [36m<button />[39m
+
+  Name "Switch to dark mode":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Switch to dark mode"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+    [33mtitle[39m=[32m"Switch to dark mode"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Open navigation menu":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-haspopup[39m=[32m"dialog"[39m
+    [33maria-label[39m=[32m"Open navigation menu"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mtitle[39m=[32m"Open navigation menu"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Not you?":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Remove tool 1":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Remove tool 1"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Scan another":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Submitting…":
+  [36m<button[39m
+    [33maria-busy[39m=[32m"true"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  [36m<a[39m
+    [33mclass[39m=[32m"skip-link"[39m
+    [33mhref[39m=[32m"#main-content"[39m
+  [36m/>[39m
+
+  Name "Lab b home":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Lab b home"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/b"[39m
+  [36m/>[39m
+
+  Name "Inventory":
+  [36m<a[39m
+    [33maria-current[39m=[32m"page"[39m
+    [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/b"[39m
+  [36m/>[39m
+
+  Name "Staff login":
+  [36m<a[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/admin"[39m
+  [36m/>[39m
+
+  Name "Open makerspace listing":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Open makerspace listing"[39m
+    [33mclass[39m=[32m"inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/"[39m
+  [36m/>[39m
+
+  Name "About":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/about"[39m
+  [36m/>[39m
+
+  Name "License(opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mhref[39m=[32m"https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Main navigation"[39m
+    [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Footer":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+  [36m/>[39m
+
+  Name "Pending tools":
+  [36m<ul[39m
+    [33maria-label[39m=[32m"Pending tools"[39m
+    [33mclass[39m=[32m"mt-3 divide-y divide-line rounded-md border border-line"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"flex flex-wrap gap-x-6 gap-y-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex min-w-0 flex-1 flex-col outline-none"[39m
+    [33mid[39m=[32m"main-content"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mb-1.5 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-2 max-w-[640px] text-body-ui text-ink-secondary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-label"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-caption opacity-90"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"border-t border-line pt-5 text-caption text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab b":
+  [36m<h1[39m
+    [33mclass[39m=[32m"text-h1 text-ink [overflow-wrap:anywhere]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Checkout mode"[39m
+    [33mclass[39m=[32m"max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mrole[39m=[32m"radiogroup"[39m
+    [33mstyle[39m=[32m"outline: none;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"on"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Return":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"off"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"break-words text-caption text-success-fg"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"mt-auto border-t border-line bg-canvas"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  [36m<img[39m
+    [33malt[39m=[32m""[39m
+    [33mclass[39m=[32m"shrink-0"[39m
+    [33mheight[39m=[32m"24"[39m
+    [33msrc[39m=[32m"/favicon.png"[39m
+    [33mwidth[39m=[32m"24"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0mVisit A[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mVisit B[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mNew session[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab b home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/b"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab b[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/b"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"hidden items-center...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:[2m64:19[22m[39m
+    [90m 62|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([32m"Issue photo"[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m 63|[39m     expect(screen.getByRole("button", { name: "Submitting…" })).toBeDi…
+    [90m 64|[39m     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+    [90m   |[39m                   [31m^[39m
+    [90m 65|[39m     expect(screen.queryByText(/Old private tool/)).not.toBeInTheDocume…
+    [90m 66|[39m     expect(screen.queryByText("Old dedicated failure")).not.toBeInTheD…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mold session success cannot render, clear fresh scans/evidence or unlock the current checkout
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mold session rejection cannot render, clear fresh scans/evidence or unlock the current checkout
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  [36m<button />[39m
+
+  Name "Visit B":
+  [36m<button />[39m
+
+  Name "New session":
+  [36m<button />[39m
+
+  Name "Switch to dark mode":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Switch to dark mode"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+    [33mtitle[39m=[32m"Switch to dark mode"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Open navigation menu":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-haspopup[39m=[32m"dialog"[39m
+    [33maria-label[39m=[32m"Open navigation menu"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mtitle[39m=[32m"Open navigation menu"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Not you?":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Remove tool 1":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Remove tool 1"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Scan another":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Submitting…":
+  [36m<button[39m
+    [33maria-busy[39m=[32m"true"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  [36m<a[39m
+    [33mclass[39m=[32m"skip-link"[39m
+    [33mhref[39m=[32m"#main-content"[39m
+  [36m/>[39m
+
+  Name "Lab a home":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Lab a home"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Inventory":
+  [36m<a[39m
+    [33maria-current[39m=[32m"page"[39m
+    [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Staff login":
+  [36m<a[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/admin"[39m
+  [36m/>[39m
+
+  Name "Open makerspace listing":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Open makerspace listing"[39m
+    [33mclass[39m=[32m"inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/"[39m
+  [36m/>[39m
+
+  Name "About":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/about"[39m
+  [36m/>[39m
+
+  Name "License(opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mhref[39m=[32m"https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Main navigation"[39m
+    [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Footer":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+  [36m/>[39m
+
+  Name "Pending tools":
+  [36m<ul[39m
+    [33maria-label[39m=[32m"Pending tools"[39m
+    [33mclass[39m=[32m"mt-3 divide-y divide-line rounded-md border border-line"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"flex flex-wrap gap-x-6 gap-y-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex min-w-0 flex-1 flex-col outline-none"[39m
+    [33mid[39m=[32m"main-content"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mb-1.5 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-2 max-w-[640px] text-body-ui text-ink-secondary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-label"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-caption opacity-90"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"border-t border-line pt-5 text-caption text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  [36m<h1[39m
+    [33mclass[39m=[32m"text-h1 text-ink [overflow-wrap:anywhere]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Checkout mode"[39m
+    [33mclass[39m=[32m"max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mrole[39m=[32m"radiogroup"[39m
+    [33mstyle[39m=[32m"outline: none;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"on"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Return":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"off"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"break-words text-caption text-success-fg"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"mt-auto border-t border-line bg-canvas"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  [36m<img[39m
+    [33malt[39m=[32m""[39m
+    [33mclass[39m=[32m"shrink-0"[39m
+    [33mheight[39m=[32m"24"[39m
+    [33msrc[39m=[32m"/favicon.png"[39m
+    [33mwidth[39m=[32m"24"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0mVisit A[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mVisit B[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mNew session[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab a home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/a"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab a[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"hidden items-center...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:[2m64:19[22m[39m
+    [90m 62|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByLabelText[39m([32m"Issue photo"[39m))[33m.[39m[34mtoBeDisabled[39m()[33m;[39m
+    [90m 63|[39m     expect(screen.getByRole("button", { name: "Submitting…" })).toBeDi…
+    [90m 64|[39m     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+    [90m   |[39m                   [31m^[39m
+    [90m 65|[39m     expect(screen.queryByText(/Old private tool/)).not.toBeInTheDocume…
+    [90m 66|[39m     expect(screen.queryByText("Old dedicated failure")).not.toBeInTheD…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mcaptures a multi-tool body once, deduplicates same-tick submit, and blocks mode/person edits until it settles
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  [36m<button />[39m
+
+  Name "Visit B":
+  [36m<button />[39m
+
+  Name "New session":
+  [36m<button />[39m
+
+  Name "Switch to dark mode":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Switch to dark mode"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+    [33mtitle[39m=[32m"Switch to dark mode"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Open navigation menu":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-haspopup[39m=[32m"dialog"[39m
+    [33maria-label[39m=[32m"Open navigation menu"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mtitle[39m=[32m"Open navigation menu"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Not you?":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Remove tool 1":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Remove tool 1"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Remove tool 2":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Remove tool 2"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Scan another":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Submitting…":
+  [36m<button[39m
+    [33maria-busy[39m=[32m"true"[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  [36m<a[39m
+    [33mclass[39m=[32m"skip-link"[39m
+    [33mhref[39m=[32m"#main-content"[39m
+  [36m/>[39m
+
+  Name "Lab a home":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Lab a home"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Inventory":
+  [36m<a[39m
+    [33maria-current[39m=[32m"page"[39m
+    [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Staff login":
+  [36m<a[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/admin"[39m
+  [36m/>[39m
+
+  Name "Open makerspace listing":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Open makerspace listing"[39m
+    [33mclass[39m=[32m"inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/"[39m
+  [36m/>[39m
+
+  Name "About":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/about"[39m
+  [36m/>[39m
+
+  Name "License(opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mhref[39m=[32m"https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Main navigation"[39m
+    [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Footer":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+  [36m/>[39m
+
+  Name "Pending tools":
+  [36m<ul[39m
+    [33maria-label[39m=[32m"Pending tools"[39m
+    [33mclass[39m=[32m"mt-3 divide-y divide-line rounded-md border border-line"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"flex flex-wrap gap-x-6 gap-y-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"flex items-center justify-between gap-3 px-3 py-2"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex min-w-0 flex-1 flex-col outline-none"[39m
+    [33mid[39m=[32m"main-content"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mb-1.5 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-2 max-w-[640px] text-body-ui text-ink-secondary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-label"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-caption opacity-90"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"border-t border-line pt-5 text-caption text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  [36m<h1[39m
+    [33mclass[39m=[32m"text-h1 text-ink [overflow-wrap:anywhere]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Checkout mode"[39m
+    [33mclass[39m=[32m"max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mrole[39m=[32m"radiogroup"[39m
+    [33mstyle[39m=[32m"outline: none;"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"on"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Return":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-disabled[39m=[32m""[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"off"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"break-words text-caption text-success-fg"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"mt-auto border-t border-line bg-canvas"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  [36m<img[39m
+    [33malt[39m=[32m""[39m
+    [33mclass[39m=[32m"shrink-0"[39m
+    [33mheight[39m=[32m"24"[39m
+    [33msrc[39m=[32m"/favicon.png"[39m
+    [33mwidth[39m=[32m"24"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0mVisit A[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mVisit B[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mNew session[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab a home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/a"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab a[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"hidden items-center...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:[2m88:19[22m[39m
+    [90m 86|[39m     [34mact[39m(() [33m=>[39m { fireEvent[33m.[39m[34mclick[39m(submit)[33m;[39m fireEvent[33m.[39m[34mclick[39m(submit)[33m;[39m })[33m;[39m
+    [90m 87|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(operations)[33m.[39m[34mtoHaveBeenCalledTimes[39m([34m1[39m))[33m;[39m
+    [90m 88|[39m     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+    [90m   |[39m                   [31m^[39m
+    [90m 89|[39m     expect(screen.getByRole("button", { name: "Not you?" })).toBeDisab…
+    [90m 90|[39m     [35mconst[39m body [33m=[39m operations[33m.[39mmock[33m.[39mcalls[[34m0[39m][[34m2[39m][33m.[39mbody[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22mreturn needs a fresh photo, notes and scan; a stale checkout camera callback cannot enqueue or submit
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  [36m<button />[39m
+
+  Name "Visit B":
+  [36m<button />[39m
+
+  Name "New session":
+  [36m<button />[39m
+
+  Name "Switch to dark mode":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Switch to dark mode"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+    [33mtitle[39m=[32m"Switch to dark mode"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Open navigation menu":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33maria-haspopup[39m=[32m"dialog"[39m
+    [33maria-label[39m=[32m"Open navigation menu"[39m
+    [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"[39m
+    [33mdata-state[39m=[32m"closed"[39m
+    [33mtitle[39m=[32m"Open navigation menu"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Not you?":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Scan QR":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Check out 0 tools":
+  [36m<button[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Read tool-a":
+  [36m<button />[39m
+
+  Name "Read tool-b":
+  [36m<button />[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  [36m<a[39m
+    [33mclass[39m=[32m"skip-link"[39m
+    [33mhref[39m=[32m"#main-content"[39m
+  [36m/>[39m
+
+  Name "Lab a home":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Lab a home"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Inventory":
+  [36m<a[39m
+    [33maria-current[39m=[32m"page"[39m
+    [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/m/a"[39m
+  [36m/>[39m
+
+  Name "Staff login":
+  [36m<a[39m
+    [33mclass[39m=[32m"relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/admin"[39m
+  [36m/>[39m
+
+  Name "Open makerspace listing":
+  [36m<a[39m
+    [33maria-label[39m=[32m"Open makerspace listing"[39m
+    [33mclass[39m=[32m"inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/"[39m
+  [36m/>[39m
+
+  Name "About":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mdata-discover[39m=[32m"true"[39m
+    [33mhref[39m=[32m"/about"[39m
+  [36m/>[39m
+
+  Name "License(opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+    [33mhref[39m=[32m"https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Main navigation"[39m
+    [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "Footer":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<ul[39m
+    [33mclass[39m=[32m"flex flex-wrap gap-x-6 gap-y-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  Name "":
+  [36m<li />[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"flex min-w-0 flex-1 flex-col outline-none"[39m
+    [33mid[39m=[32m"main-content"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mb-1.5 text-body-ui text-ink-muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-2 max-w-[640px] text-body-ui text-ink-secondary"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-label"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"break-words text-caption opacity-90"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"border-t border-line pt-5 text-caption text-ink-muted"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  [36m<h1[39m
+    [33mclass[39m=[32m"text-h1 text-ink [overflow-wrap:anywhere]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Checkout mode"[39m
+    [33mclass[39m=[32m"max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"[39m
+    [33mdir[39m=[32m"ltr"[39m
+    [33mrole[39m=[32m"radiogroup"[39m
+    [33mstyle[39m=[32m"outline: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"on"[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Return":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33mclass[39m=[32m"inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"[39m
+    [33mdata-radix-collection-item[39m=[32m""[39m
+    [33mdata-state[39m=[32m"off"[39m
+    [33mrole[39m=[32m"radio"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"break-words text-caption text-ink-muted"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"mt-auto border-t border-line bg-canvas"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  [36m<img[39m
+    [33malt[39m=[32m""[39m
+    [33mclass[39m=[32m"shrink-0"[39m
+    [33mheight[39m=[32m"24"[39m
+    [33msrc[39m=[32m"/favicon.png"[39m
+    [33mwidth[39m=[32m"24"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  [36m<div[39m
+    [33maria-live[39m=[32m"assertive"[39m
+    [33mclass[39m=[32m"flex w-full max-w-[460px] justify-center sm:justify-start"[39m
+    [33mrole[39m=[32m"alert"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0mVisit A[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mVisit B[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mNew session[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab a home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/a"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab a[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"hidden items-center...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:[2m108:28[22m[39m
+    [90m106|[39m     [35mconst[39m oldScan [33m=[39m native[33m.[39mscan[33m;[39m
+    [90m107|[39m     [34mexpect[39m(oldScan)[33m.[39m[34mtoBeTypeOf[39m([32m"function"[39m)[33m;[39m
+    [90m108|[39m     fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Return"[39m }))[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m109|[39m     expect(screen.getByRole("button", { name: "Scan QR" })).toBeDisabl…
+    [90m110|[39m     [34mact[39m(() [33m=>[39m { [34moldScan[39m[33m![39m([32m"old-checkout-tool"[39m)[33m;[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx[2m > [22mdedicated public checkout page ownership[2m > [22ma new mode hides the previous dedicated result/error and cannot reuse evidence
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find role="button" and name "Not you?"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button>[39m
+      [0mVisit A[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mVisit B[0m
+    [36m</button>[39m
+    [36m<button>[39m
+      [0mNew session[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+      [36m>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"min-w-0 shrink"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Lab a home"[39m
+              [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/m/a"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                [36m>[39m
+                  [0mLab a[0m
+                [36m</span>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<ul[39m
+            [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+          [36m>[39m
+            [36m<li>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [0mInventory[0m
+              [36m</a>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Switch to dark mode"[39m
+              [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+              [33mtitle[39m=[32m"Switch to dark mode"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"12"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"4"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 2v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M12 20v2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M2 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20 12h2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"hidden items-center...
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head>[39m
+    [36m<title>[39m
+      [0mTool checkout · Lab a · Space Works[0m
+    [36m</title>[39m
+  [36m</head>[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<button>[39m
+        [0mVisit A[0m
+      [36m</button>[39m
+      [36m<button>[39m
+        [0mVisit B[0m
+      [36m</button>[39m
+      [36m<button>[39m
+        [0mNew session[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"flex min-h-screen min-w-0 flex-col bg-bg text-ink"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"skip-link"[39m
+          [33mhref[39m=[32m"#main-content"[39m
+        [36m>[39m
+          [0mSkip to main content[0m
+        [36m</a>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"[39m
+        [36m>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Main navigation"[39m
+            [33mclass[39m=[32m"mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"min-w-0 shrink"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-label[39m=[32m"Lab a home"[39m
+                [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/m/a"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"inline-flex min-w-0 max-w-full items-center gap-3 "[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"[39m
+                  [36m>[39m
+                    [0mLab a[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+              [36m</a>[39m
+            [36m</div>[39m
+            [36m<ul[39m
+              [33mclass[39m=[32m"hidden items-center gap-1 md:flex"[39m
+            [36m>[39m
+              [36m<li>[39m
+                [36m<a[39m
+                  [33maria-current[39m=[32m"page"[39m
+                  [33mclass[39m=[32m"inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"[39m
+                  [33mdata-discover[39m=[32m"true"[39m
+                  [33mhref[39m=[32m"/m/a"[39m
+                [36m>[39m
+                  [0mInventory[0m
+                [36m</a>[39m
+              [36m</li>[39m
+            [36m</ul>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"ml-auto flex shrink-0 items-center gap-1.5"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Switch to dark mode"[39m
+                [33mclass[39m=[32m"inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"[39m
+                [33mtitle[39m=[32m"Switch to dark mode"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"relative inline-flex size-[18px]"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"12"[39m
+                      [33mcy[39m=[32m"12"[39m
+                      [33mr[39m=[32m"4"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 2v2"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M12 20v2"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m4.93 4.93 1.41 1.41"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m17.66 17.66 1.41 1.41"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M2 12h2"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M20 12h2"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m6.34 17.66-1.41 1.41"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m19.07 4.93-1.41 1.41"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"24"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"24"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                ...
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:[2m128:11[22m[39m
+    [90m126|[39m     fireEvent.click(screen.getByRole("button", { name: "Check out 1 to…
+    [90m127|[39m     await screen.findByText(transition === "mode" ? "Issued: Logic ana…
+    [90m128|[39m     await waitFor(() => expect(screen.getByRole("button", { name: "Not…
+    [90m   |[39m           [31m^[39m
+    [90m129|[39m     [35mif[39m (transition [33m===[39m [32m"mode"[39m) {
+    [90m130|[39m       fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByRole[39m([32m"button"[39m[33m,[39m { name[33m:[39m [32m"Return"[39m }))[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/inventory/PublicSelfCheckoutPage.test.tsx[2m > [22mpublic self-checkout availability[2m > [22mrestores a reloaded member's session before showing the form
+[31m[1mError[22m: [2mexpect([22m[31melement[31m[2m).toBeInTheDocument()[22m
+
+[31melement could not be found in the document[31m[39m
+[36m [2m❯[22m src/features/inventory/PublicSelfCheckoutPage.test.tsx:[2m90:82[22m[39m
+    [90m 88|[39m
+    [90m 89|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(refreshAccessToken)[33m.[39m[34mtoHaveBeenCalled[39m())[33m;[39m
+    [90m 90|[39m     expect(await screen.findByRole("button", { name: /scan another|sca…
+    [90m   |[39m                                                                                  [31m^[39m
+    [90m 91|[39m     expect(screen.queryByText(/sign in to continue/i)).not.toBeInTheDo…
+    [90m 92|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[90m (22)[39m
+[2m      Tests [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m133 passed[39m[22m[90m (144)[39m
+[2m   Start at [22m 19:53:39
+[2m   Duration [22m 48.72s[2m (transform 1.27s, setup 3.34s, import 8.30s, tests 18.23s, environment 15.82s)[22m
+

@@ -1,0 +1,17 @@
+{
+  "status": "both files independently read; runtime pending root; registered-delete-owner assertion must be reconciled after separately approved Box parent lifecycle wrapper exists",
+  "cases": "29 static cases; no childruntime",
+  "scope": "Canonical AuditLog+domain rollback; native Django LogEntry attempts are explicitly observed separately, not silently removed from fullrow guarantees",
+  "files": [
+    {
+      "path": "backend/tests/native_box_audit_helpers.py",
+      "sha256": "c6d6944bb31d6c2c00117a60e233c6e2078935a41bcc950d7dd262c1dc0f6dc2",
+      "lines": 133
+    },
+    {
+      "path": "backend/tests/test_native_box_audit.py",
+      "sha256": "8746c1f35a80c9a54bb03fd437c1e84adf1e98c7cc7cf7943a035c000d3f4c11",
+      "lines": 235
+    }
+  ]
+}

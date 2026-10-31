@@ -1,0 +1,9 @@
+**APPROVED — bounded EVID-S01 Stage 1 plan.**
+
+The gap is confirmed in [live reporting](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/reports.py:81) and [rollup snapshots](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/report_rollups.py:77). Existing ReportResult metadata and the API’s free-form `meta` support `object_count_basis` without schema changes.
+
+The proposed read overlay correctly reaches buckets older than seven days and avoids double subtraction after rerolling: always calculate from historical `created_count`, never stored `object_live_count`. Keep terminal-expiry aggregation tenant/date bounded and use local creation-day keys consistently.
+
+One semantic qualification must be explicit in metadata/docs and Stage 3 assertions: historical-deletion fallback preserves historical metadata metrics. Deleting an expired photo’s metadata also cascades its retention state; therefore retained-expired counts can fall and derived live counts rise. Those object counts cannot promise preservation of previous expiry snapshots or actual storage presence. `metadata_retained_count` likewise remains a snapshot.
+
+The requested sweep/report integration coverage remains necessary, including deletion **after expiry and rerolling**. ROOT runs it after writers freeze. No edits, tests, runtime checks, or unrelated audit review performed.

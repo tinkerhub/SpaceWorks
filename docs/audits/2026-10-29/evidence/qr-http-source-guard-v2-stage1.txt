@@ -1,0 +1,16 @@
+**APPROVE expanded modular source scope. No remaining mandatory revision.**
+
+Approved implementation scope:
+
+- New `source_gate_api_owned_http_guards.py` validator/orchestrator.
+- Optional new `source_gate_api_owned_bindings.py` for URL, barrel, POST, consumed-binding and admission checks.
+- `source_gate_http_guards.py`: import and call only inside its existing global `APPS_DIR` branch.
+- `docs/SOURCE-MAP.md`: small owner-description insertion naming the actual new paths; no document split.
+
+All seven algorithm requirements in [the Stage 1 review](/tmp/spaceworks-qr-http-source-guard-stage1.txt), as clarified in your follow-up, remain mandatory. Each new/touched Python module must stay ≤300 lines. Runtime ownership code and every other excluded surface remain untouched.
+
+The recursive SourcePrimitive census includes Python sources and import dependencies automatically. Root’s final reviewed census/hash records must include the new paths; no fabricated `UNREVIEWED` ledger approval or `AUTHORIZATION_SOURCES` edit.
+
+Separate Stage 3 must cover the unchanged-copy positive control and every specified mutation, using only the new static-contract test file and optional small fixture helper. Runtime callback tests remain with their separate writer. Preserve the purge table, public validator and both minimal fixtures unchanged; root retains runtime and purge-fixture verification.
+
+Read-only review completed. No edits, tests, Django imports, builds or staging performed.

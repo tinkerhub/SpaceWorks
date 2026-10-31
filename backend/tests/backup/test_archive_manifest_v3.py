@@ -53,11 +53,17 @@ def _manifest(restore, format_name, contents=None):
         # fail in Docker, where /app/BUILD_INFO.json carries a real hash.
         "build": {"source_hash": _build_info()["source_hash"]},
         "settings": {},
+        "storage": {
+            "objects": [],
+            "consistency": {"private": "versioned", "public_image": "versioned"},
+        },
     }
     if format_name == "spaceworks-phase5a-v3":
         value["partial"] = False
     if contents is not None:
         value["contents"] = contents
+    restore.archive.manifest = value
+    restore.archive.save(update_fields=("manifest",))
     return value
 
 
@@ -173,7 +179,7 @@ def test_legacy_preflight_refuses_compound_readable_main(tmp_path):
 
     with pytest.raises(
         CommandError,
-        match=r"scripts/restore\.sh legacy path cannot hand off this compound archive",
+        match="format_unsupported",
     ):
         call_command(
             "backup_control", "preflight", str(restore.pk),

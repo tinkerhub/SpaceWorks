@@ -1,0 +1,340 @@
+{
+  "status": "passed-bounded-current-source-coverage-with-retained-initial-history",
+  "scope": "Own real-account hardware and machine histories; private-token public quantities; Telegram preferences and mutually exclusive generic/printer adapters; staff in-app lifecycle; reprint callback and verified-origin admission; best-effort callback failure safety; bounded existing workflow, claim/API-client and combined cancellation compatibility.",
+  "source_manifest_sha256": "4656c4abe676cbfbb1a27e0d11f01363eb31cf457753033874d27e64c21145a9",
+  "source_paths": {
+    "backend/apps/accounts/request_history.py": {
+      "sha256": "46b4ba59211d3f9f7e2569ff1f55e72d1ad341d1b882375a620d9e7eb1ff124f",
+      "mode": 420,
+      "lines": 45
+    },
+    "backend/apps/hardware_requests/own_request_history.py": {
+      "sha256": "f0c80144fea336eec47031f55df613b3a7642ae12e1988c79866d42687b95750",
+      "mode": 420,
+      "lines": 54
+    },
+    "backend/apps/machines/own_request_history.py": {
+      "sha256": "9c485af597fdfdee64987fdb906b1b171f359c377a8be1f87ad305dbd3761577",
+      "mode": 420,
+      "lines": 61
+    },
+    "backend/apps/machines/service_notifications.py": {
+      "sha256": "0e2048100a8c76f93fceeccb21821992c8197d81d76b8394c617ee884262aa83",
+      "mode": 420,
+      "lines": 38
+    },
+    "backend/apps/hardware_requests/urls.py": {
+      "sha256": "0b6be7124ad3f363f332c565529f485eef1df35b6e2982e0cd9b3e44aef7eb51",
+      "mode": 420,
+      "lines": 135
+    },
+    "backend/apps/machines/urls.py": {
+      "sha256": "aa38fddbb7366d8305f5a39bd458fa07e7dda67657c755eabe79efe87a8126fb",
+      "mode": 420,
+      "lines": 39
+    },
+    "backend/apps/accounts/claim_routes_public.py": {
+      "sha256": "04a3a5cb21acbf67a18d453eeeb65fd8d99f423e542006aefa57c2f18594925c",
+      "mode": 420,
+      "lines": 102
+    },
+    "backend/apps/apiclients/scope_registry_routes.py": {
+      "sha256": "20aebebadc729339c86446d152c02e2e8090e25c607af0dba79e8f212f04ce35",
+      "mode": 420,
+      "lines": 124
+    },
+    "backend/apps/makerspaces/origin_scope_routes.py": {
+      "sha256": "abc5aff5c30808b83445431ae953b75eaac55a024d80cc83fa2b294aa727a1fd",
+      "mode": 420,
+      "lines": 269
+    },
+    "backend/apps/hardware_requests/serializers_public.py": {
+      "sha256": "df4a31273ca3d9bf21d1ca6a2f8b2b1bf7661a2112fb70e2ffafdeaf51bd3507",
+      "mode": 420,
+      "lines": 124
+    },
+    "backend/apps/hardware_requests/notifications.py": {
+      "sha256": "270291e04af657c6b9634ed0b57794af337a15ee36d389ebd4ec46be74eb931e",
+      "mode": 420,
+      "lines": 241
+    },
+    "backend/apps/hardware_requests/request_workflow.py": {
+      "sha256": "bfd845aa7995515da9fab15dd4a306ce34f32270e73d917a05b522ae4c68bbb7",
+      "mode": 420,
+      "lines": 227
+    },
+    "backend/apps/machines/service_emails.py": {
+      "sha256": "2a7df43fbc07c091368effc326a0a842953f5ee7aeac8a35a02491345b51ceee",
+      "mode": 420,
+      "lines": 53
+    },
+    "backend/apps/integrations/notification_enums.py": {
+      "sha256": "e1cad26cc337ebd7ab6d2f096a3b0de5e55f19bce5f494c7e9808b02996f267e",
+      "mode": 420,
+      "lines": 101
+    },
+    "backend/apps/integrations/notification_catalog.py": {
+      "sha256": "f65410bd6522e1f2639bb401d2e3d5c5e1b01fea1bc36949d19e0d20ba6ce18a",
+      "mode": 420,
+      "lines": 99
+    },
+    "backend/apps/integrations/recipients_selection.py": {
+      "sha256": "7ffdf4ff92b21fae099e128ff8698c8c1c1654d90ed8d65b5f6d529116927d75",
+      "mode": 420,
+      "lines": 151
+    },
+    "backend/apps/integrations/staff_notifications.py": {
+      "sha256": "703d683c7ac69ded4362b89341348e924d844efbef680c6126224db3b775be68",
+      "mode": 420,
+      "lines": 164
+    },
+    "backend/apps/integrations/migrations/0025_machine_service_notification_feature.py": {
+      "sha256": "1f7c47756cfa80c7348fedb2aa9c6ce9623c385dbed9ed716245b4bccb94a319",
+      "mode": 420,
+      "lines": 48
+    },
+    "docs/checkin-mode.md": {
+      "sha256": "724cf12efe8623005e28844df29bf7489540a93dbd719771c7ba775dd67cdd7c",
+      "mode": 420,
+      "lines": 216
+    },
+    "docs/notifications-setup.md": {
+      "sha256": "601331a14ff71d3e3fdcbcec14ca3a81b716d80ac83ef60eef10bf19ed467d8f",
+      "mode": 420,
+      "lines": 144
+    },
+    "backend/apps/machines/service_workflow_followups.py": {
+      "sha256": "cb5674c341a688a8c9e1472384275416fe84195b92dfb5888241765341ed1581",
+      "mode": 420,
+      "lines": 61
+    },
+    "backend/apps/machines/service_workflow_helpers.py": {
+      "sha256": "06f83e97263a5402d52d701669a19389c55dff7fc6aadb892e256d93d78a2d86",
+      "mode": 420,
+      "lines": 218
+    }
+  },
+  "all22_source_paths_unchanged_since_initial244": true,
+  "initial244": {
+    "counts": {
+      "passed": 232,
+      "failed": 12,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests": 244,
+    "actual_container_exit": 1,
+    "driver_seconds": 282.856,
+    "collection_sha256": "865469f46b758bbec1ed0489802eefd5adc7e7fe09e93e4223bf9d43926dd308",
+    "sanitized_xml": "docs/audits/2026-10-29/evidence/own-requests-initial244-runtime-20261031.xml",
+    "sanitized_xml_sha256": "5742499a5c8bab4c789d7dc7e3911165b6bae9afacf7a2290aad7c9bd3a8d49b",
+    "private_raw_xml_sha256": "a88ad23ff6afff90f242d3c3b8346b4b351ad3872ad46336483cf00cbde069b3",
+    "all_frozen_source_modes_inputs_env_and_cli_unchanged": true
+  },
+  "final82": {
+    "counts": {
+      "passed": 82,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests": 82,
+    "actual_container_exit": 0,
+    "driver_seconds": 109.424,
+    "collection_sha256": "0cffcf58ccd3c6672c4d775e0699f990b60a06c297125cb0792724ec7e3f44b9",
+    "sanitized_xml": "docs/audits/2026-10-29/evidence/own-requests-final82-runtime-20261031.xml",
+    "sanitized_xml_sha256": "604a96277d984f39174e43fc2d98f15fd1c51d6a5a85f246c2b65f1569c456b4",
+    "private_raw_xml_sha256": "bcc49e5917385f831f607c748cbae82d3261708df44ff4e472ee6f5b5266844d",
+    "all_frozen_source_modes_inputs_env_and_cli_unchanged": true
+  },
+  "causal_old_reprint2": {
+    "counts": {
+      "passed": 0,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests": 2,
+    "actual_container_exit": 1,
+    "driver_seconds": 12.499,
+    "collection_sha256": "fcbe297174411970b7bc3229e2406a7a192bcca082168ce85aa2037c2b572ffc",
+    "sanitized_xml": "docs/audits/2026-10-29/evidence/own-requests-reprint-old-red-runtime-20261031.xml",
+    "sanitized_xml_sha256": "5f066489f79bff1fcaf623f4575f8565c60c05902cfded6c0bccef26e5945b85",
+    "private_raw_xml_sha256": "7af630ad56c613350ea2bb2fe7abcf71af2694befbee71c2af4d917e8aa7e18d",
+    "all_frozen_source_modes_inputs_env_and_cli_unchanged": true
+  },
+  "causal_old_robust1": {
+    "counts": {
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests": 1,
+    "actual_container_exit": 1,
+    "driver_seconds": 11.89,
+    "collection_sha256": "dc810b966fd5fe7f74c49778154b8df3c927b32c160cf9b14c18ca5b1709487e",
+    "sanitized_xml": "docs/audits/2026-10-29/evidence/own-requests-robust-old-red-runtime-20261031.xml",
+    "sanitized_xml_sha256": "913d938e2ab7ac4284624ee26a9ab5b5f8cc88b74c5dbb74d1767fb39c33cc8b",
+    "private_raw_xml_sha256": "12aec01432a3b64e086343ca31953f6e9831d7ae43dc263fc12c534783da8a59",
+    "all_frozen_source_modes_inputs_env_and_cli_unchanged": true
+  },
+  "original_unique_cases": 244,
+  "rerun_cases": 82,
+  "unchanged_initial_passes_outside_rerun": 162,
+  "all12_original_failed_ids_resolved": [
+    "tests/own_requests/test_history_accounts.py::test_authenticated_history_does_not_fetch_a_current_checked_in_roster",
+    "tests/own_requests/test_history_accounts.py::test_browser_jwt_reads_without_membership_but_cannot_claim_native_header",
+    "tests/own_requests/test_history_tenant_boundaries.py::test_history_requires_exact_served_tenant_and_domain_module[not_restored]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-channel_module]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-default]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-explicit_off]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-feature_module]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-inactive_room]",
+    "tests/own_requests/test_notification_channel_boundaries.py::test_real_engine_keeps_printer_exclusive_and_respects_existing_gates[True-unconfigured]",
+    "tests/own_requests/test_notification_links_and_catalog.py::test_actual_staff_rows_link_to_existing_spa_routes[pending-laser]",
+    "tests/test_machine_service_workflow.py::test_allowed_edges_are_audited_and_notified_after_commit",
+    "tests/test_request_workflow.py::test_successful_submission_creates_pending_request_items_audit_and_notifies"
+  ],
+  "initial_failed_ids_covered_by_final82": true,
+  "no_fresh_full244_rerun_claim": true,
+  "test_only_corrections": {
+    "status": "test-only-static-reviewed-root-read-pending",
+    "source22_unchanged": true,
+    "files": {
+      "backend/tests/own_requests/test_history_accounts.py": {
+        "before_sha256": "438f75101b4ea0cd8b092d73a4a4533f5e43f65f379053649cd6d51f4a64ef32",
+        "sha256": "5856d1f1ce741489e8f96805ade9e606e51dc47ba8e0e333e89fe40cb25207fd",
+        "mode": 420,
+        "lines": 113
+      },
+      "backend/tests/own_requests/test_history_tenant_boundaries.py": {
+        "before_sha256": "4709f20f7c04c6d38e08f0d976dd74f53cddd317a41d1d08d234233405f2bfa9",
+        "sha256": "1f77fd0ed0db0c54262406243b079aedc66d9a325b4f81d261fc43e7f1d7c0b7",
+        "mode": 420,
+        "lines": 148
+      },
+      "backend/tests/own_requests/own_requests_support.py": {
+        "before_sha256": "ee132a4bff91f3bc8017cbcda285d0ea3cf951ac493adefa6752d41bf940839e",
+        "sha256": "0f170585ccce59d70a8724aaf5a9f398b1de9bedc12ed7893e3c8663eaed6714",
+        "mode": 420,
+        "lines": 142
+      },
+      "backend/tests/own_requests/test_notification_links_and_catalog.py": {
+        "before_sha256": "7a23b0587da71a505c9a48c824c224c9801b9250748d93c2f6e518b2f0c91134",
+        "sha256": "92ef3e3ff67b9aa59e00af9894a553fd9c0cf2463f49d749cf96d2b6920e4930",
+        "mode": 420,
+        "lines": 91
+      },
+      "backend/tests/test_request_workflow.py": {
+        "before_sha256": "95e9b4d740e6fbe0f95d87f634adb6f073e74428689d5937c273746fe365de57",
+        "sha256": "8e628d62c674e485c767f01cd6d5ae556f8a747405c049ab722be5ab8b89fd4e",
+        "mode": 420,
+        "lines": 1083
+      },
+      "backend/tests/test_machine_service_workflow.py": {
+        "before_sha256": "78302464da97c3723b58370e31cbef46c482e11275bf5cd7b7845800223a41e8",
+        "sha256": "588b47c2868823fb28d22cb69e966da14d635f45b861d1540718df3cfae12c42",
+        "mode": 420,
+        "lines": 291
+      }
+    },
+    "original244_history": "232P12F0E/S preserved, no assertion/deadline/guard weakening",
+    "proposed_current_rerun": "ALL80 own_requests plus exacttwo oldfailedcompatnodes; same244IDs subset, all12closed ifgreen"
+  },
+  "snapshot_current_initial_sha256": "9ff7e1289267519f5b3e69fbb993ddd5bb2bbfe2baa4b2a6f487e03f495808b2",
+  "snapshot_current_final_sha256": "625dd0fbc52cb039bfb748c554df8a849aae4fdc29467912b22e6fea0e808fda",
+  "provider_boundaries": "Configured transports mocked; no live Telegram/email/push/provider sends and no channel, preference or credential configuration changes.",
+  "database_port": 55432,
+  "cache_database": 10,
+  "broker_database": 11,
+  "daemon_socket_mounted": false,
+  "gates": "Separate pinned read-only/source/test CLI authors and root independent source/test review; final whole-uncommitted review and user QA remain root-owned and pending.",
+  "test_only_corrections_independently_approved_by_root_before_runtime": true,
+  "causal_old_reprint_expected_mechanism_verified": {
+    "expected_causal_failures": 2,
+    "errors": 0,
+    "skips": 0,
+    "mechanism": "missing reprint callback"
+  },
+  "causal_old_robust_expected_mechanism_verified": {
+    "expected_causal_failures": 1,
+    "errors": 0,
+    "skips": 0,
+    "mechanism": "unguarded callback returns HTTP500"
+  },
+  "causal_source_bounds": {
+    "reprint": {
+      "inventory_sha256": "b8a114bcaa00e3c0837016f47ff295d8a58c8b318a7931f224fb7587a71be625",
+      "exact_changed_paths_vs_final": {
+        "backend/apps/integrations/notification_catalog.py": {
+          "old": {
+            "sha256": "e3da88bf55c5efbfdd416ad1a511b7fa4242b584af808bb5f2bbc852155d3245",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "f65410bd6522e1f2639bb401d2e3d5c5e1b01fea1bc36949d19e0d20ba6ce18a",
+            "mode": 420
+          }
+        },
+        "backend/apps/machines/service_workflow_followups.py": {
+          "old": {
+            "sha256": "ba9095d7209ea765c3396f36a3b7a18df7314886d0943b6ac9d1cdbbfe7e60eb",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "cb5674c341a688a8c9e1472384275416fe84195b92dfb5888241765341ed1581",
+            "mode": 420
+          }
+        },
+        "backend/apps/machines/service_workflow_helpers.py": {
+          "old": {
+            "sha256": "82a560490b6f14df8d6976f5eb3d0bf45217722f16b102cb63468d8dc58ac24b",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "06f83e97263a5402d52d701669a19389c55dff7fc6aadb892e256d93d78a2d86",
+            "mode": 420
+          }
+        },
+        "backend/apps/makerspaces/origin_scope_routes.py": {
+          "old": {
+            "sha256": "b5079906931a89eb78126388054bf820c2979230c21030944b25fb840b6f0434",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "abc5aff5c30808b83445431ae953b75eaac55a024d80cc83fa2b294aa727a1fd",
+            "mode": 420
+          }
+        },
+        "docs/notifications-setup.md": {
+          "old": {
+            "sha256": "57904f20e53a2c149839728029241c47ccfbf1cc6694f29fbbbd51c7458fcc94",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "601331a14ff71d3e3fdcbcec14ca3a81b716d80ac83ef60eef10bf19ed467d8f",
+            "mode": 420
+          }
+        }
+      },
+      "all_tests_identical_to_final82": true
+    },
+    "robust": {
+      "inventory_sha256": "21762d766979e7400e41299c6cbd99a31e1344fa57d1b0a9b92690b673850362",
+      "exact_changed_paths_vs_final": {
+        "backend/apps/machines/service_workflow_helpers.py": {
+          "old": {
+            "sha256": "82a560490b6f14df8d6976f5eb3d0bf45217722f16b102cb63468d8dc58ac24b",
+            "mode": 420
+          },
+          "final": {
+            "sha256": "06f83e97263a5402d52d701669a19389c55dff7fc6aadb892e256d93d78a2d86",
+            "mode": 420
+          }
+        }
+      },
+      "all_tests_identical_to_final82": true
+    }
+  }
+}

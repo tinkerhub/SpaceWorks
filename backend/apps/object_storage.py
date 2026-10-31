@@ -21,9 +21,9 @@ UNSUPPORTED_LIST_OBJECT_VERSIONS_ERROR_CODES = frozenset(
 def delete_all_versions(client, *, bucket, key, require_version_listing=False):
     """Delete every retained version and delete marker for one exact key.
 
-    Some S3-compatible providers do not implement ``ListObjectVersions``. In that
-    case a normal delete remains the only available operation, so callers stay
-    runnable instead of turning a tenant purge into a permanent failure.
+    The default unsupported-listing fallback is for trusted terminal/restore
+    callers controlling key ownership. Ordinary cleanup must instead use
+    ``delete_accepted_object_versions``. A proven empty listing is always a no-op.
     """
     params = {"Bucket": bucket, "Prefix": key}
     try:
@@ -56,7 +56,6 @@ def delete_all_versions(client, *, bucket, key, require_version_listing=False):
         raise
 
     if not objects:
-        client.delete_object(Bucket=bucket, Key=key)
         return
 
     for start in range(0, len(objects), 1000):
@@ -76,6 +75,80 @@ def delete_all_versions(client, *, bucket, key, require_version_listing=False):
                 },
                 "DeleteObjects",
             )
+
+
+def delete_accepted_object_versions(client, *, bucket, key, report_data_versions=False):
+    """Delete only an exact version snapshot while bucket versioning is enabled.
+
+    Gather and validate the entire listing before any deletion. A later import
+    promotion gets a new version ID outside this snapshot, including when the
+    snapshot is empty. Legacy ``null`` IDs are safe only with current versioning
+    enabled; suspended/unversioned stores cannot prove this cleanup safe. Return
+    only DATA version IDs, frozen, after every deletion batch succeeds when
+    report_data_versions is requested. The default return remains None.
+    """
+    try:
+        versioning = client.get_bucket_versioning(Bucket=bucket)
+        if not isinstance(versioning, dict) or versioning.get("Status") != "Enabled":
+            raise _cleanup_refused("GetBucketVersioning")
+        objects, data_version_ids = _accepted_version_snapshot(client, bucket=bucket, key=key)
+        for start in range(0, len(objects), 1000):
+            response = client.delete_objects(
+                Bucket=bucket,
+                Delete={"Objects": list(objects[start : start + 1000]), "Quiet": True},
+            )
+            if not isinstance(response, dict):
+                raise _cleanup_refused("DeleteObjects")
+            errors = response.get("Errors", [])
+            if not isinstance(errors, list) or errors:
+                raise _cleanup_refused("DeleteObjects")
+        return data_version_ids if report_data_versions else None
+    except (BotoCoreError, ClientError):
+        # Provider messages may contain signed URLs or credentials. Keep the
+        # wrapper-visible payload and exception chain independent of those bytes.
+        raise _cleanup_refused("DeleteAcceptedObjectVersions") from None
+
+
+def _accepted_version_snapshot(client, *, bucket, key):
+    objects, version_ids, data_version_ids, markers = [], set(), set(), set()
+    params = {"Bucket": bucket, "Prefix": key}
+    while True:
+        page = client.list_object_versions(**params)
+        if not isinstance(page, dict) or type(page.get("IsTruncated")) is not bool:
+            raise _cleanup_refused("ListObjectVersions")
+        for name in ("Versions", "DeleteMarkers"):
+            group = page.get(name, [])
+            if not isinstance(group, list):
+                raise _cleanup_refused("ListObjectVersions")
+            for item in group:
+                if not isinstance(item, dict) or not isinstance(item.get("Key"), str):
+                    raise _cleanup_refused("ListObjectVersions")
+                if item["Key"] != key:
+                    continue
+                version_id = item.get("VersionId")
+                if (not isinstance(version_id, str) or not version_id.strip()
+                        or version_id in version_ids):
+                    raise _cleanup_refused("ListObjectVersions")
+                version_ids.add(version_id)
+                if name == "Versions":
+                    data_version_ids.add(version_id)
+                objects.append({"Key": key, "VersionId": version_id})
+        if not page["IsTruncated"]:
+            return tuple(objects), frozenset(data_version_ids)
+        marker = (page.get("NextKeyMarker"), page.get("NextVersionIdMarker"))
+        if (any(not isinstance(value, str) or not value for value in marker)
+                or marker in markers):
+            raise _cleanup_refused("ListObjectVersions")
+        markers.add(marker)
+        params.update(KeyMarker=marker[0], VersionIdMarker=marker[1])
+
+
+def _cleanup_refused(operation):
+    return ClientError(
+        {"Error": {"Code": "ObjectCleanupUnconfirmed",
+                   "Message": "Version-specific object cleanup could not be confirmed."}},
+        operation,
+    )
 
 
 def _listed_versions(client, *, bucket, key, first_page):

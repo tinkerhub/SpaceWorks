@@ -1,0 +1,37 @@
+{
+  "at_utc": "2026-10-30T04:27:21.996554+00:00",
+  "findings": [
+    {
+      "classification": "Defensive unguarded tenant writer; normal outstanding-row reachability not proven",
+      "id": "QR-CLAIM-CLEANUP-SCOPE",
+      "normal_history": "Canonical revoke/reissue/walk-in transition ends claim presence atomically under claim lock; canonical presence start locks valid claim and clamps presence expiry to claim absolute expiry. Natural expiry cleanup selects expires_at>now and therefore has no rows. The authored473 suite directly UPDATEs revoked_at/absolute_expires_at, so its16 cleanup cases must be identified as fault-injected inconsistent state, not a normal lifecycle proof.",
+      "smallest_defensive_option": "If required for restored/legacy inconsistent state, expire_claim_presence resolves makerspace from the authoritative DB claim membership (not request/body/token maker hints), takes retained boundary_tenant_write before claim/presence rowlocks, and defers cleanup on SourceMigrationGateClosed while authentication still returns401. Do not change end_sessions_for_claim lock order globally without caller analysis.",
+      "trace": "Authentication validates signed claim -> invalid row -> expire_claim_presence(session_id) -> end_sessions_for_claim -> tenant PresenceSession UPDATE and tenant Audit INSERT without N. PresenceSession is exported in presence/sessions.csv."
+    },
+    {
+      "classification": "Concrete reachable existing source-freeze violation pending gated fix",
+      "id": "CLAIM-TRANSITION-SOURCE",
+      "safety_requirement": "Admission for all affected tenant owners must precede existing User/membership/claim row locks and hold through outer transaction commit. An N acquisition dropped inside end_sessions_for_claim is too late and can introduce ordering inversion. Global credential-state omission does not exempt exported tenant presence.",
+      "scope_note": "Reported parent immediately; no automatic app expansion or source edits.",
+      "trace": "Native UserAdmin password POST or bound OIDC browser identity conversion -> transition_walk_in_to_account(User row lock) -> registered _revoke_transition_claim_state -> claims row locks -> _revoke_locked_claim -> end_sessions_for_claim -> exported tenant presence+audit writes. OIDC global auth exemption supplies P only and no per-maker gate state check."
+    }
+  ],
+  "mode": "read-only source assessment; no runtime or source edits",
+  "reviewer": "/root/audit_backend_finish",
+  "source_hashes": {
+    "backend/apps/accounts/admin_claim.py": "be19f138d3283ce88e69b6a1e741a04e67c10a157ff63df75f15d48cb2281f39",
+    "backend/apps/accounts/admin_user_control.py": "3f6753626f11d2fa2ed748b554e0d003f474e2c0ed1e8712d66d25c6172dc352",
+    "backend/apps/accounts/authentication.py": "4fafae6863cadd861fad03a13b4977459d687db3844e02f43552d0b0f37e7274",
+    "backend/apps/accounts/claim_sessions.py": "384c82fa990306da1a33205d4a156a472b87b11216f4c3017b472f4b1fc5dccb",
+    "backend/apps/accounts/claim_tokens.py": "7733ab1438d3c913a696d0e3aba9c13950c6be82fa6c38f0773a679d220b3c8a",
+    "backend/apps/accounts/oidc_browser_resolution.py": "47fde723df419889c52adba4dc94882e4e7bc80ff93d573fc60ad50c1c525bff",
+    "backend/apps/accounts/services_claim.py": "2006ca311d33d0d10c26f53947b48d5c9c63a6a5509a8bf2024f379239cb2491",
+    "backend/apps/accounts/transition_services.py": "f1d2e2b51f3d4f4b24d1f2a218bccf79b1cf516395e05165bbb60637ac40f464",
+    "backend/apps/data_export/classification.py": "928a170eaace3e46d06c7662e863f89a99a425dbe602c482461c5b0ce2ea69c7",
+    "backend/apps/data_export/datasets.py": "d2442e7f6bd6e72e991944f4663265aefa636aae61fbaaa58496790bbd16284c",
+    "backend/apps/presence/models.py": "9bbf4eceb3ba1a8848c8247150f8e156d3b5833e15a292cac01599f8dc36f68c",
+    "backend/apps/presence/services.py": "c9946e6e1dbda731553863a072c68f4f8b1969e3adc2c861a34eee03b26418d8",
+    "backend/apps/tenant_migration/gate_policy.py": "6cfdc459c29bfffa3b68582ed732b9c3dab9bc12f03f4be64bdd2ba45cfa9bdb",
+    "backend/apps/tenant_migration/source_gate.py": "9f3293d9ae9f4a8f1c47dcbc85e70b5c900dc2af684747d10f6baad4f6247a26"
+  }
+}

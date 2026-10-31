@@ -1,0 +1,11 @@
+{
+  "status": "confirmed-production-deadlock",
+  "tests_passed": 1,
+  "tests_failed": 1,
+  "seconds": 10.38,
+  "cause": "Native conversion holds User while canonical claim issuer holds makerspace/membership; deferred tenant audit FK and User wait form a real PostgreSQL deadlock.",
+  "correction_status": "Scoped Maker FOR NO KEY UPDATE delta undergoing Stage1; no pass claim.",
+  "sanitized_junit_sha256": "bd0db27763f4bc351d33e2522968905c73232dad8a172feea9e3fcbc7251c2a7",
+  "raw_junit_private": "/tmp/spaceworks-claim-issue-ordering-complete-round2.raw.xml",
+  "redaction": "Removed synthetic bearer token and fixture namespace representations only; assertions/trace/PID/SQL evidence preserved."
+}

@@ -21,12 +21,15 @@ C = NotificationChannel
 # document/status-only actions stay audit-only and are intentionally absent.
 FEATURE_EVENTS = {
     F.HARDWARE_REQUESTS: (
-        "submitted", "accepted", "rejected", "issued", "partially_returned",
+        "submitted", "accepted", "rejected", "cancelled", "issued", "partially_returned",
         "returned", "closed_with_issue", "return_reminder",
     ),
     F.PRINTING: (
         "submitted", "accepted", "started", "rejected", "completed", "failed",
         "collected", "reprinted",
+    ),
+    F.MACHINE_SERVICE: (
+        "submitted", "accepted", "rejected", "started", "completed", "failed", "collected", "reprinted",
     ),
     F.EVENTS: (
         "published", "cancelled", "completed", "registration_created",
@@ -46,14 +49,15 @@ FEATURE_EVENTS = {
     F.MEMBERS: ("request_pending", "member_joined"),
 }
 
-# Exact default on/off per (feature, channel). Preserves today's behavior: hardware/printing
-# email + hardware Telegram on; bookings email (Part J seam) + bookings Telegram on; Slack/
+# Exact default on/off per (feature, channel). Hardware/printing email and Telegram on;
+# generic machine-service Telegram on; bookings email + Telegram on; Slack/
 # Mattermost/Discord always opt-in; events/maintenance have no prior external behavior → off.
 # Discord is listed explicitly rather than relying on default_state's False fallback, so the
 # table stays a complete picture of every channel a reader can toggle.
 DEFAULT_CHANNEL_STATE = {
     F.HARDWARE_REQUESTS: {C.EMAIL: True, C.TELEGRAM: True, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
-    F.PRINTING: {C.EMAIL: True, C.TELEGRAM: False, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
+    F.PRINTING: {C.EMAIL: True, C.TELEGRAM: True, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
+    F.MACHINE_SERVICE: {C.EMAIL: False, C.TELEGRAM: True, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
     F.EVENTS: {C.EMAIL: False, C.TELEGRAM: False, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
     F.BOOKINGS: {C.EMAIL: True, C.TELEGRAM: True, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},
     F.MAINTENANCE: {C.EMAIL: False, C.TELEGRAM: False, C.SLACK: False, C.MATTERMOST: False, C.DISCORD: False, C.NATIVE_PUSH: False},

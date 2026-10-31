@@ -1,0 +1,16 @@
+Added only [staffSocialRecovery.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/staffSocialRecovery.test.tsx), 155 lines.
+
+One integration test: `keeps ownership while typing, blocks the old callback during password login, and recovers into the central picker`.
+
+It asserts two nonces total, exactly one real Google exchange with `surface: "staff"`, token/identity installation, central picker, and Calicut dashboard navigation.
+
+Dependencies: existing `staffSelectionHarness`, `fakeIdentitySdks`, root-owned `accessToken(label, overrides)`, session getters, and `staffMeKey`. No helper edits.
+
+Run later under Node 20:
+
+```bash
+cd frontend
+npm test -- src/features/staff/staffSocialRecovery.test.tsx
+```
+
+Source and whitespace reviewed only. No tests, runtime execution, build, staging, or commit performed.

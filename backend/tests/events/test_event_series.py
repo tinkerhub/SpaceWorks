@@ -149,6 +149,7 @@ def test_manual_extension_refills_the_bounded_window_idempotently(monkeypatch):
     assert AuditLog.objects.filter(action="event.series_extended").count() == 2
 
 
+@pytest.mark.django_db(transaction=True)
 def test_occurrence_override_survives_template_update_and_can_be_reset():
     space = make_space("series-overrides")
     actor = make_manager(space)

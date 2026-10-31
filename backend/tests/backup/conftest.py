@@ -46,3 +46,9 @@ def installed_producer_capability(
         "entrypoint": entrypoint,
         "migrations": migrations.parents[1],
     }
+
+
+@pytest.fixture(autouse=True)
+def isolated_backup_operation_directory(tmp_path, settings):
+    """Real reconcile operation locks must never use the host deployment mount."""
+    settings.BACKUP_OPS_DIR = str(tmp_path / "backup-operations" / "work")

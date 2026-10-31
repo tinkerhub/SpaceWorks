@@ -1,17 +1,19 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<form method="post">
+{% for outcome in outcomes %}<p role="status">{{ outcome }}</p>{% endfor %}
+{% if queryset %}
+<form method="post" action="{{ confirm_url }}">
   {% csrf_token %}
-  <input type="hidden" name="action" value="{{ action_name }}">
-  <input type="hidden" name="confirm_purge" value="1">
   {% for obj in queryset %}
-    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+    <input type="hidden" name="makerspace_id" value="{{ obj.pk }}">
   {% endfor %}
 
   <p>
     ALL data and the audit trail for the selected makerspaces will be permanently destroyed.
-    RETYPE each makerspace slug exactly to confirm purge.
+    Purge first commits an irreversible intent; the makerspace cannot be reopened.
+    Existing uploads must drain before a later explicit retry can finish.
+    RETYPE each makerspace slug exactly to confirm purge or retry.
   </p>
 
   <table>
@@ -37,7 +39,8 @@
 
   <div class="submit-row">
     <input type="submit" value="Purge makerspaces" class="default">
-    <a href=".">Cancel</a>
+    <a href="{{ changelist_url }}">Cancel</a>
   </div>
 </form>
+{% else %}<a href="{{ changelist_url }}">Return to makerspaces</a>{% endif %}
 {% endblock %}

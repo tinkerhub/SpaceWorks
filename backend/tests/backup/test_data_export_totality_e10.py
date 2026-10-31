@@ -40,14 +40,9 @@ def test_each_current_user_fk_or_o2o_edge_fails_independently_when_unclassified(
         guards.validate_user_edges(changed)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SPEC BUG: data_export.validate_user_edges ignores concrete=False "
-        "ManyToManyField edges to accounts.User"
-    ),
-)
 def test_new_many_to_many_user_edge_fails_until_classified(monkeypatch):
+    original_relational = frozenset(RELATIONAL_USER_FIELDS)
+    original_decisions = dict(USER_EDGES)
     user = apps.get_model("accounts.User")
     m2m = SimpleNamespace(
         name="watchers",
@@ -67,5 +62,10 @@ def test_new_many_to_many_user_edge_fails_until_classified(monkeypatch):
         guards, "internal_models", lambda: (*existing, synthetic)
     )
 
-    with pytest.raises(RegistryError, match="user-edge decisions"):
+    with pytest.raises(RegistryError, match="relational user edges") as refused:
         guards.validate_user_edges(USER_EDGES)
+
+    assert "e10.UnclassifiedM2M" in str(refused.value)
+    assert "watchers" in str(refused.value)
+    assert frozenset(RELATIONAL_USER_FIELDS) == original_relational
+    assert USER_EDGES == original_decisions

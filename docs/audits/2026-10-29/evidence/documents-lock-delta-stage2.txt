@@ -1,0 +1,9 @@
+Added `no_key=True` at exactly five sites:
+
+- [warranty/views.py:150](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views.py:150) — `require_module_locked`
+- [warranty/views_documents.py:114](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views_documents.py:114) — `require_module_locked`
+- [warranty/views_documents.py:129](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views_documents.py:129) — `limits.add_storage`
+- [procurement/views_receipts.py:143](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/views_receipts.py:143) — `require_module_locked`
+- [procurement/views_receipts.py:152](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/procurement/views_receipts.py:152) — `limits.add_storage`
+
+Static AST verification passed. All other source, authorizations, tenant-filtered fresh-host 404 lookup, and existing gate/command changes preserved. No tests, runtime checks, staging, or commits.

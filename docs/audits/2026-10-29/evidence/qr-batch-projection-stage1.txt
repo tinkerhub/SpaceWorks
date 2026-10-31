@@ -1,0 +1,9 @@
+**REQUIRED REVISIONS**
+
+1. Include [operations/admin.py:185](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/admin.py:185) in the bounded scope. Its download action also calls `build_batch_zip`; the proposed DRF `ValidationError` would escape Django admin and produce a 500. Catch it, display an admin error message, and return without downloading. Add Stage 3 coverage for empty/all-moved refusal and successful partial download.
+
+2. Make partial downloads explicit in [QrToolsBatch.tsx:31](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/panels/QrToolsBatch.tsx:31): show printable versus collected counts and use “Download available” when entries are omitted. Test that disclosure.
+
+Otherwise, the nullable batch-local projection, preserved snapshots, canonical transfers, and ownership of runtime/schema work are appropriately bounded.
+
+No edits, tests, imports, Docker, or runtime execution performed. The read-only filesystem policy prevented writing a result file.

@@ -15,6 +15,10 @@ from apps.hardware_requests.models import (
     PublicToolLoan,
     ReturnEvent,
 )
+from apps.hardware_requests.public_return_validation import (
+    preflight_public_return,
+    require_public_return_ledger,
+)
 from apps.hardware_requests.self_checkout_helpers import (
     _checkout_target,
     _issued_request,
@@ -69,12 +73,11 @@ def checkout_tool(
     )
     finalized = validate_evidence_upload(evidence, label="Issue")
     with transaction.atomic():
-        makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
-        makerspace = require_feature_locked(makerspace, "inventory.self_checkout")
+        _lock_unused_evidence(evidence, issue=True)
+        makerspace = require_feature_locked(makerspace, "inventory.self_checkout", no_key=True)
         if not is_servable(makerspace):
             raise RequestValidationError("Makerspace is not available.")
         due_at = timezone.now() + timedelta(days=(makerspace.default_loan_days or 7))
-        _lock_unused_evidence(evidence, issue=True)
         qrs = _locked_qrs_for_payloads(makerspace, payloads)
         if len({qr.id for qr in qrs}) != len(qrs):
             raise InvalidTransition("The same QR code was scanned more than once.")
@@ -82,7 +85,7 @@ def checkout_tool(
         if any(qr_has_active_loan(makerspace, qr) for qr in qrs):
             raise InvalidTransition("This QR code is already checked out.")
 
-        charge_storage_once(evidence, finalized.size)
+        charge_storage_once(evidence, finalized.size, no_key=True)
         product_quantities = Counter()
         asset_ids = []
         labels = []
@@ -164,20 +167,22 @@ def return_tool(
     # inside the transaction remains the authority.
     if not is_servable(Makerspace.objects.get(pk=makerspace.pk)):
         raise RequestValidationError("Makerspace is not available.")
+    preflight_public_return(makerspace, requester, payload)
     evidence = _public_evidence(
         makerspace, requester, evidence_id, EvidencePhoto.EvidenceType.RETURN
     )
     finalized = validate_evidence_upload(evidence, label="Return")
     with transaction.atomic():
-        makerspace = Makerspace.objects.select_for_update().get(pk=makerspace.pk)
+        _lock_unused_evidence(evidence, issue=False)
+        makerspace = Makerspace.objects.select_for_update(no_key=True).get(pk=makerspace.pk)
         if not is_servable(makerspace):
             raise RequestValidationError("Makerspace is not available.")
-        _lock_unused_evidence(evidence, issue=False)
         qr = _locked_qr(makerspace, payload)
         loan = (
             PublicToolLoan.objects.select_for_update()
             .select_related("request", "requester")
             .filter(
+                makerspace=makerspace,
                 status=PublicToolLoan.Status.CHECKED_OUT,
                 source=PublicToolLoan.Source.PUBLIC_SELF_CHECKOUT,
             )
@@ -188,9 +193,10 @@ def return_tool(
             raise InvalidTransition("This QR code is not currently checked out.")
         if loan.requester_id != requester.id:
             raise RequesterBlocked("This tool was checked out by a different user.")
+        require_public_return_ledger(loan, lock_items=True)
         assets = lock_loan_assets_for_return(loan, makerspace)
 
-        charge_storage_once(evidence, finalized.size)
+        charge_storage_once(evidence, finalized.size, no_key=True)
         _return_request_items(loan.request)
         if assets:
             InventoryAsset.objects.filter(pk__in=[asset.pk for asset in assets]).update(

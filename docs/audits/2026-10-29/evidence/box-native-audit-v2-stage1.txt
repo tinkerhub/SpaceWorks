@@ -1,0 +1,5 @@
+APPROVE — the explicit `@transaction.atomic` wrapper encloses all bulk-delete audits and deletion, resolving the previous mandatory finding.
+
+The revision preserves canonical creation, field-name-only updates, and no-op suppression. Planned Stage 3 checks cover later audit refusal rollback, successful two-box deletion auditing, and protected history.
+
+Read-only review only; no edits or tests run.

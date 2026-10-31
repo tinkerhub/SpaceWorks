@@ -14,18 +14,18 @@ def test_real_database_unowned_table_universe_matches_reviewed_catalog():
     validate_unowned_tables(connection.introspection.table_names())
 
 
-@pytest.mark.xfail(strict=True, reason="SPEC BUG: backend/apps/tenant_migration/tenant_dump_verification.py:75-86 omits manifest-bound row-count, lost-edge, and semantic-reference inputs.")
 def test_projection_verifier_accepts_exact_row_loss_and_semantic_expectations():
+    # Behavioral consumption at both real builder boundaries lives in
+    # test_x13_builder_boundaries.py; keep this as the narrow API contract.
     parameters = inspect.signature(verify_projection_database).parameters
-
-    assert {
+    for name in {
         "expected_row_counts",
         "expected_cross_tenant_lost_edges",
         "expected_semantic_references",
-    } <= set(parameters), (
-        "Scratch and restored verification must independently reconcile row counts, "
-        "lost edges, and semantic references against the manifest."
-    )
+    }:
+        parameter = parameters[name]
+        assert parameter.kind is inspect.Parameter.KEYWORD_ONLY
+        assert parameter.default is inspect.Parameter.empty
 
 
 def test_projection_verifier_pins_cache_emptiness_at_both_restore_boundaries():

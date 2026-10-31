@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="functional" tests="239" failures="0" errors="0" skipped="0" time="74.785">
+    <testcase classname="test_backend_compose_process" name="test_backend_collectstatic_conditionally_execs_exact_gunicorn_argv[docker-compose.yml]" time="0.023" />
+    <testcase classname="test_backend_compose_process" name="test_backend_collectstatic_conditionally_execs_exact_gunicorn_argv[docker-compose.prod.yml]" time="0.018" />
+    <testcase classname="test_backend_compose_process" name="test_backend_collectstatic_conditionally_execs_exact_gunicorn_argv[docker-compose.cloud.yml]" time="0.011" />
+    <testcase classname="test_backend_compose_process" name="test_candidate_backend_keeps_direct_gunicorn_without_collectstatic[docker-compose.yml]" time="0.013" />
+    <testcase classname="test_backend_compose_process" name="test_candidate_backend_keeps_direct_gunicorn_without_collectstatic[docker-compose.prod.yml]" time="0.027" />
+    <testcase classname="test_backend_compose_process" name="test_candidate_backend_keeps_direct_gunicorn_without_collectstatic[docker-compose.cloud.yml]" time="0.010" />
+    <testcase classname="test_backend_compose_process" name="test_image_default_keeps_direct_gunicorn" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_development_keeps_direct_runserver[backend]" time="0.003" />
+    <testcase classname="test_backend_compose_process" name="test_development_keeps_direct_runserver[candidate-backend]" time="0.004" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[None]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[sh -c gunicorn]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command2]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command3]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command4]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command5]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command6]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command7]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command8]" time="0.000" />
+    <testcase classname="test_backend_compose_process" name="test_shell_decoder_refuses_malformed_role_or_shell_argv[command9]" time="0.000" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[60-1-legacy]" time="1.619" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[60-1-exec]" time="0.002" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[60-3-legacy]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[60-3-exec]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[120-1-legacy]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[120-1-exec]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[120-3-legacy]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_legacy_and_exec_commands_reach_real_admission_and_inventory[120-3-exec]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_actual_producer_fixture_tracks_corrected_compose_independently" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-&amp;&amp; exec exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-python manage.py-exec python manage.py]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-&amp;&amp; exec  gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-&amp;&amp;  exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-; exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-|| exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-python manage.py collectstatic --noinput &amp;&amp; -]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-collectstatic --noinput-collectstatic]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-config.wsgi:application-configXwsgi:application]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-config.wsgi:application-other.wsgi:application]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---bind 0.0.0.0:8000---bind 127.0.0.1:8000]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---bind 0.0.0.0:8000---bind 0.0.0.0:8001]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---graceful-timeout 30---graceful-timeout 31]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---max-requests 1000---max-requests 1001]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---max-requests-jitter 100---max-requests-jitter 101]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---access-logfile ----access-logfile /tmp/access]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---error-logfile --]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---error-logfile ----error-logfile - --preload]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---workers 3 --timeout 60---timeout 60 --workers 3]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base---error-logfile ----error-logfile - ]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[legacy-base-&amp;&amp; exec gunicorn-&amp;&amp;\nexec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-&amp;&amp; exec exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-python manage.py-exec python manage.py]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-&amp;&amp; exec  gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-&amp;&amp;  exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-; exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-|| exec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-python manage.py collectstatic --noinput &amp;&amp; -]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-collectstatic --noinput-collectstatic]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-config.wsgi:application-configXwsgi:application]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-config.wsgi:application-other.wsgi:application]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---bind 0.0.0.0:8000---bind 127.0.0.1:8000]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---bind 0.0.0.0:8000---bind 0.0.0.0:8001]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---graceful-timeout 30---graceful-timeout 31]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---max-requests 1000---max-requests 1001]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---max-requests-jitter 100---max-requests-jitter 101]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---access-logfile ----access-logfile /tmp/access]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---error-logfile --]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---error-logfile ----error-logfile - --preload]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---workers 3 --timeout 60---timeout 60 --workers 3]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base---error-logfile ----error-logfile - ]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_shell_near_misses_refuse_real_admission[exec-base-&amp;&amp; exec gunicorn-&amp;&amp;\nexec gunicorn]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-0-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-0-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False--1-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False--1-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-+1-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-+1-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-01-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-01-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-1.5-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-1.5-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-abc-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-abc-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-1;true-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False-1;true-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False--workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[False--timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-0-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-0-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True--1-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True--1-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-+1-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-+1-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-01-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-01-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-1.5-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-1.5-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-abc-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-abc-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-1;true-workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True-1;true-timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True--workers]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_non_positive_or_non_decimal_limits_refuse_real_admission[True--timeout]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_wrong_role_or_argv_refuses_real_admission[role]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_wrong_role_or_argv_refuses_real_admission[shell]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_wrong_role_or_argv_refuses_real_admission[switch]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_wrong_role_or_argv_refuses_real_admission[extra-argument]" time="0.001" />
+    <testcase classname="backup.test_backend_exec_admission" name="test_wrong_role_or_argv_refuses_real_admission[direct]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_unmodified_actual_compose_json_reaches_both_production_admissions" time="0.354" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_null_app_entrypoints_inherit_image_for_all_three_roles" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_absent_app_entrypoints_inherit_image_for_all_three_roles" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_null_database_and_redis_argv_inherit_nonempty_image_defaults" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_exact_app_entrypoint_remains_supported" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_app_entrypoint_overrides_are_not_image_inheritance[empty-list]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_app_entrypoint_overrides_are_not_image_inheritance[empty-string]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_app_entrypoint_overrides_are_not_image_inheritance[custom-role-entrypoint]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_invalid_app_commands_refuse_topology_then_typed_role_admission[null]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_invalid_app_commands_refuse_topology_then_typed_role_admission[empty-list]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_invalid_app_commands_refuse_topology_then_typed_role_admission[mapping]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_independently_inspected_app_image_must_still_match[entrypoint]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_independently_inspected_app_image_must_still_match[oci-digest]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_independent_effective_container_argv_cannot_drift[Entrypoint]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_independent_effective_container_argv_cannot_drift[Cmd]" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_empty_inventory_values_are_literal_not_truthiness_fallback[command-empty-list]" time="0.002" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_explicit_empty_inventory_values_are_literal_not_truthiness_fallback[entrypoint-empty-list]" time="0.002" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_world_writable_host_authority_input_is_still_untrusted" time="0.003" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_topology_cannot_omit_the_actual_worker" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_actual_container_image_id_cannot_differ_from_inspected_image" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_host_mount_constraints_remain_in_configuration_and_inventory" time="0.001" />
+    <testcase classname="backup.test_recovery_compose_inheritance" name="test_pointer_generation_and_actual_environment_constraints_remain" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[backend-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[worker-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[beat-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[cron-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[migrate-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-restore-blocked]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-candidate-preparation]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-candidate-health]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-quarantined-after-cutover]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_every_marker_state_has_an_exact_role_matrix[management-acknowledged-normal]" time="0.000" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_health_refuses_non_backend_before_capability_parsing[worker]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_health_refuses_non_backend_before_capability_parsing[beat]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_health_refuses_non_backend_before_capability_parsing[cron]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_health_refuses_non_backend_before_capability_parsing[migrate]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_health_refuses_non_backend_before_capability_parsing[management]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_backend_passes_live_identity_to_capability_before_exec" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[backend-missing]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[backend-malformed]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[backend-unknown]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[backend-unreadable]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[worker-missing]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[worker-malformed]" time="0.003" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[worker-unknown]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[worker-unreadable]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[beat-missing]" time="0.003" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[beat-malformed]" time="0.003" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[beat-unknown]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[beat-unreadable]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[cron-missing]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[cron-malformed]" time="0.004" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[cron-unknown]" time="0.003" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[cron-unreadable]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[migrate-missing]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[migrate-malformed]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[migrate-unknown]" time="0.003" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[migrate-unreadable]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[management-missing]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[management-malformed]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[management-unknown]" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_bad_marker_fails_closed_for_every_role[management-unreadable]" time="0.002" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_marker_parser_rejects_unknown_fields" time="0.001" />
+    <testcase classname="backup.test_host_entrypoint_h1a" name="test_candidate_preparation_marker_must_name_a_non_routable_sibling" time="0.001" />
+    <testcase classname="test_compose_tombstones" name="test_every_django_service_receives_tombstoned_apps[docker-compose.yml]" time="0.017" />
+    <testcase classname="test_compose_tombstones" name="test_every_django_service_receives_tombstoned_apps[docker-compose.prod.yml]" time="0.014" />
+    <testcase classname="test_compose_tombstones" name="test_every_django_service_receives_tombstoned_apps[docker-compose.cloud.yml]" time="0.011" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[default-base]" time="5.777" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[default-prod]" time="4.320" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[default-cloud]" time="3.173" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[blank-base]" time="4.206" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[blank-prod]" time="3.535" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[blank-cloud]" time="3.640" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[configured-base]" time="4.676" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[configured-prod]" time="4.712" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[configured-cloud]" time="3.598" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[off_zero-base]" time="4.027" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[off_zero-prod]" time="4.077" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[off_zero-cloud]" time="3.764" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[kms-base]" time="4.020" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[kms-prod]" time="4.648" />
+    <testcase classname="test_security_env_forwarding" name="test_exact_forwarding_and_process_effective_settings[kms-cloud]" time="3.258" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[default-base]" time="0.002" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[default-prod]" time="0.001" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[default-cloud]" time="0.001" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[blank-base]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[blank-prod]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[blank-cloud]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[configured-base]" time="0.001" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[configured-prod]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[configured-cloud]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[off_zero-base]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[off_zero-prod]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[off_zero-cloud]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[kms-base]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[kms-prod]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_bootstrap_and_probe_environment_stays_minimal[kms-cloud]" time="0.000" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[missing_keys-expected_errors0-base]" time="1.135" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[missing_keys-expected_errors0-prod]" time="1.127" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[missing_keys-expected_errors0-cloud]" time="1.357" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[invalid_keys-expected_errors1-base]" time="1.204" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[invalid_keys-expected_errors1-prod]" time="1.092" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[invalid_keys-expected_errors1-cloud]" time="1.101" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[shared_keys-expected_errors2-base]" time="1.024" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[shared_keys-expected_errors2-prod]" time="1.155" />
+    <testcase classname="test_security_env_forwarding" name="test_enabled_local_wrapping_refuses_bad_keys[shared_keys-expected_errors2-cloud]" time="1.007" />
+  </testsuite>
+  <testsuite name="protected_bundle" tests="25" failures="0" errors="0" skipped="0" time="71.207">
+    <testcase classname="test_recovery_bundle_install" name="test_actual_installer_copies_exact_59_files_preserves_private_state_and_backups" time="1.665" />
+    <testcase classname="test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[missing]" time="10.408" />
+    <testcase classname="test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[symlink]" time="7.266" />
+    <testcase classname="test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[hardlink]" time="9.575" />
+    <testcase classname="test_recovery_bundle_install" name="test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[fifo]" time="6.009" />
+    <testcase classname="test_recovery_bundle_install" name="test_changed_guarded_source_or_broken_checker_refuses_before_backup_creation" time="3.888" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[duplicate]" time="0.138" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[traversal]" time="0.134" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[unknown]" time="0.275" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[nonliteral]" time="0.293" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[missing]" time="0.272" />
+    <testcase classname="test_recovery_bundle_install" name="test_guard_contract_is_data_and_cannot_expand_copy_set[digest]" time="0.206" />
+    <testcase classname="test_recovery_bundle_install" name="test_actual_nonroot_bundle_install_retains_caller_ownership_without_conversion" time="0.781" />
+    <testcase classname="test_recovery_installed_layout" name="test_correct_copied_layout_help_and_missing_environment_have_no_effects" time="1.489" />
+    <testcase classname="test_recovery_installed_layout" name="test_poisoned_valid_timestamp_bytecode_is_ignored_without_cache_writes" time="0.709" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[missing]" time="3.885" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[altered]" time="3.576" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[symlink]" time="3.905" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[hardlink]" time="3.404" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[fifo]" time="3.872" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[owner]" time="3.854" />
+    <testcase classname="test_recovery_installed_layout" name="test_each_guarded_dependency_refuses_before_controller_import[writable]" time="4.285" />
+    <testcase classname="test_recovery_installed_layout" name="test_real_nobody_process_cannot_use_otherwise_correct_root_bundle" time="0.169" />
+    <testcase classname="test_recovery_installed_layout" name="test_operator_owned_ancestor_refuses_even_when_invoked_by_root" time="0.137" />
+    <testcase classname="test_recovery_installed_layout" name="test_linked_code_directory_refuses_before_python_import" time="0.126" />
+  </testsuite>
+  <testsuite name="strict_preflight" tests="2" failures="0" errors="0" skipped="0" time="0.713">
+    <testcase classname="tests.backup.test_recovery_installed_preflight" name="test_new_installed_keys_must_pass_real_strict_preflight_before_sql[False]" time="0.185" />
+    <testcase classname="tests.backup.test_recovery_installed_preflight" name="test_new_installed_keys_must_pass_real_strict_preflight_before_sql[True]" time="0.124" />
+  </testsuite>
+</testsuites>

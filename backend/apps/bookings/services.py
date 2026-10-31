@@ -1,6 +1,7 @@
 '''Explicit service barrel for bookable spaces and bookings.'''
 
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
 
 from apps.audit import services as audit
 from apps.bookings import services_images, services_spaces, storage
@@ -74,25 +75,31 @@ def validate_space_image_key(space, object_key):
     services_images.validate_space_image_key(space, object_key, storage)
 
 
-@transaction.atomic
-def set_space_image(space, *, actor, object_key, size_bytes):
-    return services_images.set_space_image(
-        space,
-        actor=actor,
-        object_key=object_key,
-        size_bytes=size_bytes,
-        audit=audit,
-        limits=limits,
-        storage=storage,
-    )
+def set_space_image(space, *, actor, object_key, size_bytes, guard=None):
+    with storage_lifecycle(space.makerspace_id, guard=guard) as owned:
+        owned.verify()
+        with transaction.atomic():
+            return services_images.set_space_image(
+                space,
+                actor=actor,
+                object_key=object_key,
+                size_bytes=size_bytes,
+                audit=audit,
+                limits=limits,
+                storage=storage,
+                guard=owned,
+            )
 
 
-@transaction.atomic
-def remove_space_image(space, *, actor):
-    return services_images.remove_space_image(
-        space,
-        actor=actor,
-        audit=audit,
-        limits=limits,
-        storage=storage,
-    )
+def remove_space_image(space, *, actor, guard=None):
+    with storage_lifecycle(space.makerspace_id, guard=guard) as owned:
+        owned.verify()
+        with transaction.atomic():
+            return services_images.remove_space_image(
+                space,
+                actor=actor,
+                audit=audit,
+                limits=limits,
+                storage=storage,
+                guard=owned,
+            )

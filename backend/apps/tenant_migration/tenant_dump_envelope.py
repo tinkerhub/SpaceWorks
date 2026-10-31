@@ -1,5 +1,7 @@
 """Allowlisted payload ledger and readable outer envelope for Lane D."""
 
+import hashlib
+import io
 import json
 from pathlib import Path, PurePosixPath
 import stat
@@ -9,6 +11,7 @@ from uuid import uuid4
 
 from apps.backup.digests import sha256_file
 
+from .tenant_restore_artifact_files import read_inner_manifest_bytes
 from .tenant_dump_errors import TenantDumpBuildError, TenantDumpVerificationError
 from .tenant_dump_outer_artifact import (
     read_outer_manifest,  # noqa: F401  public pre-decryption reader
@@ -65,7 +68,13 @@ def seal_outer_bundle(
     destination = Path(destination)
     if destination.exists():
         raise TenantDumpBuildError("The Lane D outer artifact already exists.")
-    paths = _verified_sealing_paths(bundle)
+    manifest_bytes = read_inner_manifest_bytes(bundle.resolve() / INNER_MANIFEST_MEMBER)
+    paths = _verified_sealing_paths(bundle, manifest_bytes=manifest_bytes)
+    compatibility = dict(compatibility)
+    inner_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
+    if compatibility.get("inner_manifest_sha256", inner_sha256) != inner_sha256:
+        raise TenantDumpVerificationError("The inner manifest digest changed before sealing.")
+    compatibility["inner_manifest_sha256"] = inner_sha256
     payload = destination.with_name(f".{destination.name}.{uuid4().hex}.payload.age")
     process = None
     failed = False
@@ -81,11 +90,14 @@ def seal_outer_bundle(
             raise OSError
         with tarfile.open(fileobj=process.stdin, mode="w|") as archive:
             for path in paths:
-                archive.add(
-                    path,
-                    arcname=path.relative_to(bundle).as_posix(),
-                    recursive=False,
-                )
+                member = path.relative_to(bundle).as_posix()
+                if member == INNER_MANIFEST_MEMBER:
+                    info = tarfile.TarInfo(INNER_MANIFEST_MEMBER)
+                    info.size = len(manifest_bytes)
+                    info.mode = 0o600
+                    archive.addfile(info, io.BytesIO(manifest_bytes))
+                else:
+                    archive.add(path, arcname=member, recursive=False)
         process.stdin.close()
         if process.wait() != 0 or not payload.is_file() or payload.stat().st_size <= 0:
             raise OSError
@@ -123,12 +135,14 @@ def seal_outer_bundle(
         raise TenantDumpBuildError("The Lane D outer bundle could not be sealed.")
 
 
-def _verified_sealing_paths(bundle):
+def _verified_sealing_paths(bundle, *, manifest_bytes=None):
     manifest_path = Path(bundle, INNER_MANIFEST_MEMBER)
     try:
         if not stat.S_ISREG(manifest_path.lstat().st_mode):
             raise OSError
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest_bytes is None:
+            manifest_bytes = read_inner_manifest_bytes(manifest_path.resolve())
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
         source_pii_mode = manifest["source_pii_mode"]
         expected = manifest["contents"]
     except (KeyError, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -142,6 +156,18 @@ def _verified_sealing_paths(bundle):
         raise TenantDumpVerificationError(
             "The Lane D content ledger changed before sealing."
         )
+    from .tenant_dump_projection_proof import validate_projection_record
+    from .tenant_client_catalog import validate_client_catalog
+    from .tenant_restore_types import TenantRestoreRefused
+    validate_projection_record(manifest)
+    try:
+        validate_client_catalog(
+            manifest.get("api_client_catalog"), capture_id=manifest["capture_id"],
+            source_deployment_id=manifest["source"]["deployment_identity"]["deployment_id"],
+            source_makerspace_id=manifest["source"]["makerspace_id"],
+        )
+    except TenantRestoreRefused as exc:
+        raise TenantDumpVerificationError("The inner client catalog is invalid before sealing.") from exc
     return paths
 
 

@@ -1,0 +1,22 @@
+Added 30 focused cases; 135 total by static parametrization count. Edited only these test files, all under 300 lines:
+
+| File | Cases |
+|---|---:|
+| [test_source_primitive_scope.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_scope.py) | 40 |
+| [test_source_primitive_derived.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_derived.py) | 25 |
+| [test_source_primitive_registry.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_registry.py) | 54 |
+| [test_source_primitive_audit_scope.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_audit_scope.py) — new | 10 |
+| [test_source_primitive_input_scope.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_source_primitive_input_scope.py) — new | 6 |
+
+Coverage includes exact cache exclusion, dated-data boundaries, unread private sentinels, public-template/SVG hashing, actual derived-report bindings, and draft resets without census mutation.
+
+Commands for the primary-controlled Python 3.12 / Node 20 environment, **not run here**:
+
+```sh
+node --version
+python3.12 --version
+PYTHONPATH=backend python3.12 -m pytest --noconftest -c /dev/null -q \
+  backend/tests/backup/test_source_primitive_{scope,derived,registry,audit_scope,input_scope}.py
+```
+
+No production/frontend/ledger edits, test runs, census, builds, staging, commits, or pushes. Registry remains `UNREVIEWED`; the production integration pending gate is unchanged.

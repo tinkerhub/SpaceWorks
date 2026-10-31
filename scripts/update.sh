@@ -6,6 +6,8 @@ UPDATE_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="${SPACEWORKS_UPDATE_INSTALL_DIR:-$(cd "$UPDATE_SCRIPT_DIR/.." && pwd)}"
 cd "$ROOT"
 export SPACEWORKS_UPDATE_INSTALL_DIR="$ROOT"
+# Only the persistent, host-provisioned identity may reach the Compose wrapper.
+unset SPACEWORKS_OCI_DIGEST
 
 OPS_DIR="${SPACEWORKS_OPS_HOST_DIR:-/var/lib/spaceworks/ops}"
 COMPOSE=("$ROOT/scripts/spaceworks-compose.sh" bundled)
@@ -34,6 +36,7 @@ source "$UPDATE_SCRIPT_DIR/update-lock.sh"
 source "$UPDATE_SCRIPT_DIR/module-selection.sh"
 source "$UPDATE_SCRIPT_DIR/env-file.sh"
 source "$UPDATE_SCRIPT_DIR/host-image.sh"
+source "$UPDATE_SCRIPT_DIR/setup-host-orchestration.sh"
 REPOSITORY="$(resolve_spaceworks_repository "$ROOT")" || die "Invalid SPACEWORKS_REPOSITORY."
 export SPACEWORKS_REPOSITORY="$REPOSITORY"
 OPS_DIR="${SPACEWORKS_OPS_HOST_DIR:-$(env_file_get "$ROOT/.env" SPACEWORKS_OPS_HOST_DIR)}"
@@ -129,9 +132,9 @@ cleanup() {
         say "Could not refresh previous images; trying the host's cached copies."
       # Put back the previous proof byte-for-byte; forward database changes stay in place.
       # Regenerating it would run the OLD image's installer, which may predate its fix.
-      producer_marker 'if [ -f /p/.producer-capability.previous ]; then mv -f /p/.producer-capability.previous /p/producer-capability.json; fi' \
-        || say "Could not restore the previous producer proof."
-      if "${COMPOSE[@]}" up -d --no-deps backend worker beat frontend && wait_for_backend; then
+      if producer_marker 'if [ -f /p/.producer-capability.previous ]; then mv -f /p/.producer-capability.previous /p/producer-capability.json; else rm -f /p/producer-capability.json; fi' \
+        && refresh_old_image_identity_and_only_trusted_records \
+        && "${COMPOSE[@]}" up -d --pull never --no-deps backend worker beat frontend && wait_for_backend; then
         say "Rollback complete: $previous_version is healthy."
         failure_message="Update failed; application containers rolled back to $previous_version. The database backup was retained."
       else
@@ -251,7 +254,7 @@ docker pull "$FRONTEND_IMAGE:$version"
 retire_update_tombstone
 install_staged_host_bundle "$(cd "$UPDATE_SCRIPT_DIR/.." && pwd)"
 # From here the producer proof changes, so any failure must take the rollback path that
-# restores the previous proof. No further pull: both release images are already local.
+# restores the previous proof. Init binds the backend after its final pull; startup must not repull.
 producer_marker 'rm -f /p/.producer-capability.previous; if [ -f /p/producer-capability.json ]; then cp -p /p/producer-capability.json /p/.producer-capability.previous; fi' \
   || die "Could not save the current producer proof; update cancelled."
 deployment_started=1
@@ -260,7 +263,7 @@ bash "$ROOT/scripts/init-host-orchestration.sh"
 COMPOSE=("$ROOT/scripts/spaceworks-compose.sh" bundled)
 
 say "Running migrations and replacing application containers."
-"${COMPOSE[@]}" up -d
+"${COMPOSE[@]}" up -d --pull never
 
 wait_for_backend || die "Release $version did not become ready. The backup is backups/$backup_name."
 

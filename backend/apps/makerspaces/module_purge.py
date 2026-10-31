@@ -1,97 +1,55 @@
-"""Superadmin-only per-module data purge (plan A9).
+"""Explicit CLI module purge: retained byte-first authority under exclusive source locks."""
 
-This is NOT `lifecycle.purge()`. That deletes an entire archived makerspace; this
-deletes one module's rows while the makerspace stays live and every other module
-keeps working.
-
-The contract that makes it safe to offer at all:
-
-* **Uninstall first.** A module must already be uninstalled (tombstoned) before its
-  data can be purged. Uninstall is reversible and retains everything; purge is the
-  separate, explicit, irreversible second step. Requiring the order means no single
-  command can both hide and destroy.
-* **Superadmin only**, mirroring `lifecycle.purge()`.
-* **One transaction**, with immutability triggers bypassed for DELETE only, exactly
-  as the makerspace purge does -- `session_replication_role='replica'` on self-host,
-  the `app.allow_immutable_delete` GUC on managed Postgres where the replication role
-  is forbidden. Both are `SET LOCAL`, so a crash can never leave the append-only
-  guards durably disabled.
-* **Object storage last.** Keys are collected before the delete and removed after the
-  commit, best-effort: a failed S3 call must not roll back a completed purge.
-"""
-
-import logging
-
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db import connection, transaction
 
-from apps.audit import services as audit
 from apps.makerspaces.module_purge_plans import BY_KEY, NOT_SEPARABLE, PLANS
 from apps.makerspaces.module_registry import BY_KEY as MODULE_BY_KEY
-from apps.object_storage import delete_all_versions
-
-logger = logging.getLogger(__name__)
+from apps.makerspaces.models import Makerspace, ModulePurgeReceipt
+from apps.makerspaces.module_purge_receipt_authority import validate_receipt
+from apps.makerspaces.module_purge_state import require_source, validate_maker_id
+from apps.makerspaces.purge_intent import require_actor
+from apps.makerspaces.purge_locks import purge_boundary
 
 
 def purgeable_modules():
-    """Plans in registry order, for `list_modules` and the console."""
     return [{"key": plan.key, "summary": plan.summary} for plan in PLANS]
 
 
 def purge_module(makerspace, key, actor):
-    """Delete one module's data for one makerspace. Returns the row counts."""
-    plan = _resolve(makerspace, key, actor)
+    """Return the durable receipt and graph counts; completed calls only clean bytes."""
+    from . import purge_storage
+    from .module_purge_receipts import execute_cleanup, prepare_intent
 
-    meta = {
-        "makerspace_id": makerspace.pk,
-        "slug": makerspace.slug,
-        "module": plan.key,
-    }
-    audit.record(actor, "makerspace.module_purge_started", makerspace=None, target=None, meta=meta)
-
-    with transaction.atomic():
-        locked = makerspace.__class__.objects.select_for_update().get(pk=makerspace.pk)
-        # Re-check under the lock: an install could have committed since `_resolve`.
-        if plan.key in (locked.enabled_modules or []):
-            raise ValidationError(
-                f"{plan.key} was re-installed; uninstall it again before purging."
-            )
-        # Collect under the makerspace lock to narrow the attach/delete race. This does
-        # not eliminate it under READ COMMITTED: a row another transaction commits
-        # between this SELECT and the DELETE is invisible to the former and visible to
-        # the latter, and attach paths take this lock only in managed mode because
-        # `limits.add_storage` returns early on self-host.
-        private_keys = _collect_private_keys(locked, plan)
-        private_sizes = _collect_private_key_sizes(locked, plan)
-        public_keys = _collect_public_keys(locked, plan)
-        with connection.cursor() as cursor:
-            if settings.MANAGED_POSTGRES:
-                cursor.execute("SET LOCAL app.allow_immutable_delete = 'on'")
-            else:
-                cursor.execute("SET LOCAL session_replication_role = 'replica'")
-            counts = _purge(locked, plan, cursor)
-
-    audit.record(
-        actor,
-        "makerspace.module_purged",
-        makerspace=None,
-        target=None,
-        meta={**meta, "counts": counts},
-    )
-    # Both accounting paths run after commit and release quota only for objects the
-    # bucket confirmed are gone -- a failed delete must free nothing, or the makerspace
-    # stops being charged for storage it still holds.
-    _free_private_storage(makerspace, private_sizes, _delete_private_keys(private_keys))
-    # Storage HEADs cannot run inside the purge transaction: network failures must not
-    # roll back deleted rows or hold the makerspace lock across one round trip per key.
-    _delete_public_images_and_free_storage(makerspace, public_keys)
-    return counts
+    require_actor(actor)
+    validate_maker_id(makerspace.pk)
+    _resolve(makerspace, key, actor)
+    # Validate raw persisted authority before it can become a lock key.
+    existing = ModulePurgeReceipt.objects.filter(
+        source_makerspace_id=makerspace.pk, module_key=key, invalidated_at__isnull=True,
+    ).first()
+    if existing is not None:
+        validate_receipt(existing)
+    with purge_boundary(makerspace.pk, all_tenants=True) as verify:
+        actor = get_user_model().objects.get(pk=actor.pk)
+        require_actor(actor)
+        space = Makerspace._base_manager.get(pk=makerspace.pk)
+        if (space.public_code != makerspace.public_code or space.created_at != makerspace.created_at):
+            raise ValidationError("The makerspace incarnation changed; module purge refused.")
+        plan = _resolve(space, key, actor)
+        require_source(space)
+        receipt = ModulePurgeReceipt.objects.filter(
+            source_makerspace_id=space.pk, module_key=key, invalidated_at__isnull=True,
+        ).first()
+        if receipt is None:
+            receipt = prepare_intent(space, plan, actor, purge_storage.client(), verify)
+        return execute_cleanup(receipt, actor, verify)
 
 
 def _resolve(makerspace, key, actor):
-    if not getattr(actor, "is_superuser", False):
-        raise ValidationError("Only a superuser can purge module data.")
+    require_actor(actor)
+    if not isinstance(key, str) or not 0 < len(key) <= 40:
+        raise ValidationError("A bounded registered module key is required.")
     plan = BY_KEY.get(key)
     if plan is None:
         reason = NOT_SEPARABLE.get(key)
@@ -108,7 +66,7 @@ def _resolve(makerspace, key, actor):
     return plan
 
 
-def _purge(makerspace, plan, cursor):
+def _purge(makerspace, plan, cursor, *, verify):
     counts = {}
     # Payments are deliberately NOT deleted here, by any plan. Switching a module off and
     # then purging its rows is not a reason to destroy the financial record of money that
@@ -127,7 +85,9 @@ def _purge(makerspace, plan, cursor):
         ).delete()[0]
         if deleted:
             counts["pii_blind_index"] = deleted
-    outcome = plan.delete(makerspace, cursor)
+    verify()
+    outcome = (plan.delete(makerspace, cursor, guard=None) if plan.key in {"procurement", "membership"}
+               else plan.delete(makerspace, cursor))
     counts.update(outcome)
     # Derived facts follow their source module during an explicit destructive purge.
     # Automatic retention never reaches this path; preserving rollups there is the
@@ -166,115 +126,3 @@ def _delete_external_references(makerspace, target_model_labels):
         makerspace=makerspace,
         target_model_label__in=target_model_labels,
     ).delete()[0]
-
-
-def _collect_private_keys(makerspace, plan):
-    from apps.backup.models import RestoreRollbackObject
-
-    keys, seen = [], set()
-
-    def add(key):
-        if key and key not in seen:
-            seen.add(key)
-            keys.append(key)
-
-    if plan.private_keys is not None:
-        plan.private_keys(makerspace, add)
-    for key in RestoreRollbackObject.objects.filter(
-        makerspace=makerspace,
-        module_key=plan.key,
-        bucket_kind=RestoreRollbackObject.BucketKind.PRIVATE,
-    ).exclude(copy_key="").values_list("copy_key", flat=True):
-        add(key)
-    return keys
-
-
-def _collect_public_keys(makerspace, plan):
-    from apps.backup.models import RestoreRollbackObject
-
-    keys = list(plan.public_image_keys(makerspace)) if plan.public_image_keys is not None else []
-    keys.extend(
-        RestoreRollbackObject.objects.filter(
-            makerspace=makerspace,
-            module_key=plan.key,
-            bucket_kind=RestoreRollbackObject.BucketKind.PUBLIC_IMAGE,
-        ).exclude(copy_key="").values_list("copy_key", flat=True)
-    )
-    return [key for key in dict.fromkeys(keys) if key]
-
-
-def _delete_private_keys(keys):
-    """Best-effort delete of private objects; returns the keys the bucket confirmed gone.
-
-    The return value is what lets the caller release storage quota for those keys only.
-    A client that cannot even be constructed confirms nothing, so nothing is freed.
-    """
-    if not keys:
-        return set()
-    from apps.evidence import storage
-
-    try:
-        client = storage._client()
-    except Exception:
-        logger.exception("module_purge_storage_client_failed", extra={"keys": len(keys)})
-        return set()
-    deleted = set()
-    for key in keys:
-        try:
-            delete_all_versions(
-                client, bucket=settings.AWS_STORAGE_BUCKET_NAME, key=key
-            )
-        except Exception:
-            logger.exception("module_purge_storage_delete_failed: %s", key)
-        else:
-            deleted.add(key)
-    if deleted:
-        from apps.backup.models import RestoreRollbackObject
-
-        RestoreRollbackObject.objects.filter(copy_key__in=deleted).delete()
-    return deleted
-
-
-def _collect_private_key_sizes(makerspace, plan):
-    from apps.backup.models import RestoreRollbackObject
-
-    sizes = plan.private_key_sizes(makerspace) if plan.private_key_sizes is not None else {}
-    sizes.update({
-        key: size for key, size in RestoreRollbackObject.objects.filter(
-            makerspace=makerspace,
-            module_key=plan.key,
-            bucket_kind=RestoreRollbackObject.BucketKind.PRIVATE,
-        ).exclude(copy_key="").values_list("copy_key", "size_bytes")
-    })
-    return sizes
-
-
-def _free_private_storage(makerspace, sizes, deleted_keys):
-    """Release charged bytes for private objects that were confirmed deleted."""
-    if not sizes or not deleted_keys:
-        return
-    freed = sum(
-        size for key, size in sizes.items() if size and key in deleted_keys
-    )
-    if not freed:
-        return
-    from apps.makerspaces import limits
-
-    try:
-        limits.free_storage(makerspace, freed)
-    except Exception:
-        logger.exception("module_purge_private_accounting_failed", extra={"bytes": freed})
-
-
-def _delete_public_images_and_free_storage(makerspace, keys):
-    if not keys:
-        return
-    from apps.inventory import public_image_storage
-
-    # Freeing first when a best-effort delete silently failed makes the counter
-    # permanently wrong in the direction that grants free storage.
-    for key in keys:
-        public_image_storage.release_public_image(makerspace, key)
-        from apps.backup.models import RestoreRollbackObject
-
-        RestoreRollbackObject.objects.filter(copy_key=key).delete()

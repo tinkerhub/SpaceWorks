@@ -1,0 +1,86 @@
+{
+  "reviewer": "/root/audit_backend_finish",
+  "scope": "EVID-S02\u2013S07 approved corrections plus mechanical existing omission reason",
+  "runtime": "NOT RUN; independent source inspection complete; Stage3 next",
+  "files": [
+    {
+      "path": "backend/apps/evidence/services_retention.py",
+      "lines": 264,
+      "sha256": "5830d1076403af4a3e0a318bbd91795d8e591df8a1cb55eedb0bb76e4af47489"
+    },
+    {
+      "path": "backend/apps/evidence/views.py",
+      "lines": 201,
+      "sha256": "961f2983208b3fee79327ef65483f12135f7b9c9601de25865a4b65eefdd71f8"
+    },
+    {
+      "path": "backend/apps/evidence/serializers.py",
+      "lines": 75,
+      "sha256": "0c0235813c57dba44aa50ee833e9bfe317de455df94773990bfdf6e2d0b6e057"
+    },
+    {
+      "path": "backend/apps/evidence/finalization.py",
+      "lines": 218,
+      "sha256": "d8cb11e25cf7aa716b9dc131b5dfffb47a33faef57009c5b6b685765a7a7398f"
+    },
+    {
+      "path": "backend/apps/evidence/quota.py",
+      "lines": 61,
+      "sha256": "61ab9194f791bed98b6cf41beb6a4faaec544ec783ac922f9b6b8f1949c1f5bd"
+    },
+    {
+      "path": "backend/apps/evidence/retention_policy.py",
+      "lines": 113,
+      "sha256": "e8559a3d7d2a034deebf7472de56c7f7d128b5d9e75b69c6b47d01d8d2ccff10"
+    },
+    {
+      "path": "backend/apps/makerspaces/limits_usage.py",
+      "lines": 269,
+      "sha256": "6c8eeb25864861a4a4d5001bf702dbe25808aa14a0edc1e9a18c1f70e0993e3f"
+    },
+    {
+      "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+      "lines": 168,
+      "sha256": "ce005d939e85e62adc77a0b6f2f73e2d4d0eebdb4e5d3f6b99eb726b055f7b56"
+    },
+    {
+      "path": "backend/apps/tenant_migration/audit_references_meta_source_local.py",
+      "lines": 75,
+      "sha256": "24f9848eb5a6ad38ec91452e4709d73068b917200a33e3c0b6e7b837e82c1529"
+    },
+    {
+      "path": "backend/apps/data_export/classification.py",
+      "lines": 275,
+      "sha256": "928a170eaace3e46d06c7662e863f89a99a425dbe602c482461c5b0ce2ea69c7"
+    }
+  ],
+  "bounded_limitations": [
+    "POST charge behavior preserved; legacy/unknown/foreign proof receives zero automatic credit and may need reconciliation.",
+    "Whole-counter reconciliation concurrency remains outside this correction.",
+    "Same-deployment consistent full restore can preserve proof; UUID is deployment affinity, not new epoch per restore."
+  ],
+  "runtime_result": {
+    "executed_by": "root central runtime",
+    "junit": "docs/audits/2026-10-29/evidence/evidence-retention-round1.xml",
+    "junit_sha256": "04300764b0572dfc64c4469b816d9a9db3dc0c25b481d10fff142fa8d5b03990",
+    "group_result": "77 passed in 99.53 seconds per root execution; overlapping focused group, do not add as independent overall-suite coverage",
+    "root_log": "/tmp/spaceworks-evidence-retention-round1.log"
+  },
+  "runtime_binding": {
+    "matching_original_frozen_files": [
+      "backend/apps/evidence/services_retention.py",
+      "backend/apps/evidence/views.py",
+      "backend/apps/evidence/serializers.py",
+      "backend/apps/evidence/finalization.py",
+      "backend/apps/evidence/quota.py",
+      "backend/apps/evidence/retention_policy.py",
+      "backend/apps/makerspaces/limits_usage.py",
+      "backend/apps/tenant_migration/audit_references_meta_source_local.py",
+      "backend/apps/data_export/classification.py"
+    ],
+    "changed_since_original_freeze": [
+      "backend/apps/makerspaces/management/commands/recompute_storage.py"
+    ],
+    "note": "Original source digests remain unchanged as historical evidence. Root-owned recompute command changed separately; this record does not claim that command was covered by retention tests."
+  }
+}

@@ -1,0 +1,5 @@
+Updated only [WalkInMemberForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/WalkInMemberForm.tsx:94): name/email/phone now clear synchronously after the current successful POST receipt is admitted, before roster refresh. The server receipt remains available; failed POSTs retain fields.
+
+Exact one-line delta and whitespace check passed; 166 lines. No tests, TSC, build, runtime, staging, or commit performed.
+
+SHA-256: `00e692c3c04685a9e5edccd41d19630c4f70fe321995e7d8c562cc0ffe7c12f9`

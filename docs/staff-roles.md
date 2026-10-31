@@ -52,6 +52,19 @@ On top of the role, **a section whose module is off is not shown at all** (for e
 without `machines`, no Stocktake without `stocktake`, no Members without `membership`). Turning the
 module back on brings the section and its data back.
 
+## Cancelling an accepted hardware request
+
+Staff with `reject_request` in the request's makerspace can cancel an accepted request before any handover,
+with a required reason of up to 500 characters. Cancellation permanently closes the request, releases its
+accepted reservation and clears its optional container assignment. It keeps approval quantities, scans and
+history. There is no public cancellation action, and handover actions alone do not grant it. The
+`/control/` per-request review page requires explicit confirmation; there is no bulk cancellation.
+
+In the API, reject-only staff can read pending and accepted requests and rejected/cancelled history.
+Active loans still require `issue_request`; issue holders retain the full terminal history. A cancellation
+refuses inconsistent or ambiguous pooled stock without making repairs. The reason is protected staff data;
+audit history records who cancelled, when, and that a reason was recorded, without copying the reason.
+
 ## Which machines a person manages
 
 A role with the Machines capability manages only the machine types ticked for it: under
@@ -70,7 +83,7 @@ handout actions you want:
 | Action | Lets them |
 |---|---|
 | `view_inventory` | See the inventory |
-| `assign_box`, `issue_request` | Hand over accepted requests (box QR scan plus issue photo) |
+| `assign_box`, `issue_request` | Hand over accepted requests (issue photo always required; container optional, with its scan required if assigned; each individually tracked unit needs its own QR scan) |
 | `issue_direct_loan` | Make a direct handout without a request |
 | `return_request`, `upload_evidence` | Take returns with a photo and remark |
 | `collect_service_request` | Hand finished machine jobs to their owners |

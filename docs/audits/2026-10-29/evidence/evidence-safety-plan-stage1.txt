@@ -1,0 +1,34 @@
+**MANDATORY ADJUSTMENTS.** S02, S04 and S05 are sound as proposed. S03’s conservative release rule is sound, but the plan needs an explicit quota scope decision before approval.
+
+1. **Fix the precise claim order.** Use `EvidencePhoto → finalization → existing retention state → Makerspace NO KEY UPDATE`. Inspect fresh `PROMOTING` before creating any retention row. After terminal/active-claim checks, acquire the makerspace lock, read `effective_retention_days`, recheck eligibility, then create/update the claim. `update_policy` acquires no evidence locks, so this preserves attachment ordering without adding an opposing cycle.
+
+   Carry policy days and cutoff in `ExpiryClaim`; completion must use those values. Revalidate each newly issued claim token, including retries. A policy extension must leave an existing `EXPIRING` fence intact; an already committed claim may finish its provider work.
+
+2. **Keep deletion size separate from quota credit.** In [services_retention.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/services_retention.py:186), replace caller-size fallback with a positive validated size from a `FINALIZED` journal, otherwise zero. Completion may release only that journal’s validated size when `quota_charged=True`, independently of current transport and HEAD results.
+
+   Preserve token-checked, transactional terminal settlement and audit exactly once, after strict deletion of both keys and all versions. Recording `quota_released_bytes` separately would make the settlement auditable without changing parent-owned report semantics.
+
+3. **Explicit quota decision: preserve POST behavior in this bounded patch; do not claim complete quota correctness.** [charge_storage_once](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/finalization.py:60) currently skips POST, and existing lending tests explicitly expect POST journals and counters to remain uncharged. Charging POST now would change that established behavior and require separately coordinated scope.
+
+   Under the bounded correction, POST/legacy rows without a proven charged journal release **zero**, even if reconciliation previously included their bytes. That can conservatively retain usage until reconciliation; it must be documented and tested.
+
+   **The reconciler also needs a separately coordinated correction.** [recompute_storage.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/makerspaces/management/commands/recompute_storage.py:67) currently trusts missing-photo declarations, and `test_recompute_storage_sums_authoritative_evidence_sizes` explicitly asserts that behavior. The smallest proposed expansion is a local evidence-specific iterator in that command:
+
+   - Never use `EvidencePhoto.size_bytes` as fallback.
+   - Preserve validated journal bytes for finalized, explicitly charged rows until terminal expiry, so reconciliation does not erase the amount retention later credits.
+   - For unmarked/legacy rows, count observed final objects; missing objects contribute zero. Keep unattached staging outside row accounting.
+   - Preserve storage-error refusal, source/purge gates, and all other storage categories. Do not mark legacy journals charged.
+
+   This repairs the declaration trust boundary, but does **not** solve concurrent whole-counter reconciliation or establish charge provenance for legacy objects. Root must explicitly accept that bounded limitation or commission the broader accounting correction before calling quota correctness complete. No migration is needed for the safety patch.
+
+4. **Use `IsActiveStaff` exactly as proposed.** Retain upload action permission and detail queryset RBAC. The local `ActiveAuthenticatedPermission` has no other source callers and can be removed with its unused imports. Preserve originless admission and membership-only Inventory Manager access.
+
+   Clarify precedence in tests/docs: foreign-origin targets receive **403**; hidden/out-of-action-scope detail remains **404** when origin admission passes. Existing registry behavior also refuses unresolved detail targets on a tenant origin. Add accurate 401/403 OpenAPI descriptions; root should coordinate generated schema artifacts.
+
+5. **Stage 3 coverage is appropriate.** Add explicit assertions that journal bytes—not differing HEAD bytes or current transport—determine credit, and that a policy extension after partial failure never removes the existing fence. Restore real evidence validation helpers because the autouse fixture otherwise replaces validation. Keep PostgreSQL execution central and the frozen tests untouched.
+
+Suggested operator wording for parent integration:
+
+> Retention policy changes govern future expiry claims; an already committed claim may finish. Expiry preserves immutable evidence metadata and credits quota only for finalized uploads explicitly recorded as charged. POST and legacy uploads without that marker receive no automatic quota credit. Their accounting may require separately reviewed reconciliation; retention does not infer a charge from declared size or current upload configuration.
+
+Read-only review completed. No edits, tests, builds, migrations, or provider calls were performed. This is not Stage 4 or release approval.

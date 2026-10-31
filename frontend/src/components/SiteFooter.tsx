@@ -25,9 +25,9 @@ export function SiteFooter() {
               <li>
                 <a
                   className={linkClasses}
-                  href="https://github.com/SpaceWorks-HQ/SpaceWorks/blob/main/LICENSE"
+                  href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   License
                   <span className="sr-only"> (opens in a new tab)</span>

@@ -2,6 +2,7 @@ from collections import Counter
 
 from django.utils import timezone
 
+from apps.boxes.contents import box_requires_separate_contents
 from apps.boxes.models import Box, QrCode
 from apps.hardware_requests.models import HardwareRequest, HardwareRequestItem, PublicToolLoan
 from apps.hardware_requests.workflow_errors import InvalidTransition, RequestValidationError
@@ -86,47 +87,12 @@ def _checkout_box(qr, *, require_public=True):
         status=PublicToolLoan.Status.CHECKED_OUT,
     ).exists() or _reviewed_request_holds_box(box):
         raise RequestValidationError("This box is already checked out.")
-    asset_filters = {
-        "box": box,
-        "status": InventoryAsset.Status.AVAILABLE,
-        "product__is_archived": False,
-    }
-    if require_public:
-        asset_filters.update(
-            {
-                "public_self_checkout_enabled": True,
-                "product__is_public": True,
-                "product__public_self_checkout_enabled": True,
-            }
+    if box_requires_separate_contents(box):
+        raise RequestValidationError(
+            "This box requires separate contents selection. Scan individual units "
+            "using their own QR codes; for a staff handout, select the container "
+            "and contents separately."
         )
-    assets = list(
-        InventoryAsset.objects.select_for_update()
-        .select_related("product")
-        .filter(**asset_filters)
-    )
-    issued_quantities = Counter()
-    issued_asset_ids = []
-    if assets:
-        # The assets were loaded with select_related("product") but that does NOT lock
-        # the product rows. issue_available() requires the caller to hold a row lock, so
-        # re-fetch the distinct products with select_for_update (in pk order to avoid
-        # deadlocks) before mutating their quantity buckets.
-        product_ids = {asset.product_id for asset in assets}
-        locked_products = {
-            product.pk: product
-            for product in InventoryProduct.objects.select_for_update()
-            .filter(pk__in=product_ids)
-            .order_by("pk")
-        }
-        quantities = Counter(locked_products[asset.product_id] for asset in assets)
-        for product, quantity in quantities.items():
-            _issue_product(product, quantity)
-        issued_asset_ids = [asset.id for asset in assets]
-        InventoryAsset.objects.filter(pk__in=issued_asset_ids).update(
-            status=InventoryAsset.Status.ISSUED
-        )
-        issued_quantities.update(quantities)
-
     product_filters = {
         "box": box,
         "is_archived": False,
@@ -143,17 +109,16 @@ def _checkout_box(qr, *, require_public=True):
         InventoryProduct.objects.select_for_update().filter(**product_filters).order_by("pk")
     )
     if not products:
-        if issued_quantities:
-            return box.label, dict(issued_quantities), issued_asset_ids, box
         raise RequestValidationError("Box has no public self-checkout items.")
     if any(product.tracking_mode == TrackingMode.INDIVIDUAL for product in products):
         raise RequestValidationError(
             "Individual-tracked products require a scanned asset QR."
         )
+    issued_quantities = Counter()
     for product in products:
         _issue_product(product, 1)
         issued_quantities[product] += 1
-    return box.label, dict(issued_quantities), issued_asset_ids, box
+    return box.label, dict(issued_quantities), [], box
 
 
 def _reviewed_request_holds_box(box):
@@ -181,7 +146,7 @@ def _eligible_product(pk, makerspace, *, require_public=True):
 
 def _eligible_asset(pk, makerspace, *, require_public=True):
     asset = (
-        InventoryAsset.objects.select_for_update()
+        InventoryAsset.objects.select_for_update(of=("self",))
         .select_related("product")
         .filter(pk=pk, makerspace=makerspace)
         .first()

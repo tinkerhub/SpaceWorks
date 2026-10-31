@@ -263,6 +263,7 @@ def test_the_control_capability_matrix_audits_the_forced_policy_change():
         MakerspaceAdminForm,
         MakerspaceCapabilityAdminMixin,
     )
+    from apps.tenant_migration.gate_runtime import boundary_tenant_write
 
     class _CapabilityAdmin(MakerspaceCapabilityAdminMixin, ModelAdmin):
         """The mixin relies on `super().save_model`, so it needs a real ModelAdmin."""
@@ -277,7 +278,8 @@ def test_the_control_capability_matrix_audits_the_forced_policy_change():
     actor = User.objects.create_user(username="ra-control-actor", is_superuser=True)
     space.enabled_modules = [*CORE_PLUS, "membership", "member_accounts"]
     admin = _CapabilityAdmin(Makerspace, AdminSite())
-    admin.save_model(SimpleNamespace(user=actor), space, form, change=True)
+    with boundary_tenant_write(space.pk):
+        admin.save_model(SimpleNamespace(user=actor), space, form, change=True)
 
     space.refresh_from_db()
     assert space.public_request_mode == MODE_DISABLED

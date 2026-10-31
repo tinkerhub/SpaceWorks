@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
@@ -15,7 +16,7 @@ from apps.warranty.access import (
     resolve_machine_host,
 )
 from apps.audit import services as audit
-from apps.makerspaces.guards import require_module
+from apps.makerspaces.guards import require_module, require_module_locked
 from apps.machines import access as machine_access
 from apps.warranty.models import Warranty
 
@@ -58,15 +59,10 @@ class AssetWarrantyView(APIView):
         asset = self._asset(request, pk)
         serializer = WarrantyUpsertSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        warranty, created = _upsert_warranty(
+        warranty, _created = _upsert_warranty(
+            actor=request.user,
             asset=asset,
             data=serializer.validated_data,
-        )
-        audit.record(
-            request.user,
-            "warranty.created" if created else "warranty.updated",
-            makerspace=asset.makerspace,
-            target=warranty,
         )
         return Response(WarrantySerializer(_reload_warranty(warranty)).data)
 
@@ -107,15 +103,10 @@ class MachineWarrantyView(APIView):
         machine = self._machine(request, pk)
         serializer = WarrantyUpsertSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        warranty, created = _upsert_warranty(
+        warranty, _created = _upsert_warranty(
+            actor=request.user,
             machine=machine,
             data=serializer.validated_data,
-        )
-        audit.record(
-            request.user,
-            "warranty.created" if created else "warranty.updated",
-            makerspace=machine.makerspace,
-            target=warranty,
         )
         return Response(WarrantySerializer(_reload_warranty(warranty)).data)
 
@@ -147,7 +138,7 @@ def _reload_warranty(warranty):
 
 
 @transaction.atomic
-def _upsert_warranty(*, data, asset=None, machine=None):
+def _upsert_warranty(*, actor, data, asset=None, machine=None):
     hosts = {
         kind: host
         for kind, host in (("asset", asset), ("machine", machine))
@@ -156,11 +147,27 @@ def _upsert_warranty(*, data, asset=None, machine=None):
     if len(hosts) != 1:
         raise ValueError("Exactly one warranty host is required.")
     host_kind, host = next(iter(hosts.items()))
-    warranty, created = Warranty.objects.get_or_create(
-        **{host_kind: host},
-        defaults={"makerspace_id": host.makerspace_id},
+    makerspace = require_module_locked(
+        host.makerspace_id, "machines" if host_kind == "machine" else "staff_admin",
+        no_key=True,
     )
-    warranty.makerspace_id = host.makerspace_id
+    # Lock the concrete host even before a warranty exists, so two first PUTs
+    # serialize on the same row. Avoid locking nullable host joins on Warranty.
+    host = get_object_or_404(
+        type(host).objects.select_for_update(), pk=host.pk, makerspace=makerspace,
+    )
+    warranty = Warranty.objects.select_for_update().filter(**{host_kind: host}).first()
+    if host_kind == "machine":
+        host = resolve_machine_host(actor, host.pk)
+        if not machine_access.can_manage_machine(actor, host):
+            raise PermissionDenied()
+    else:
+        host = resolve_asset_host(actor, host.pk)
+        require_action(actor, rbac.Action.EDIT_INVENTORY, host.makerspace_id)
+    created = warranty is None
+    if created:
+        warranty = Warranty(makerspace=makerspace, **{host_kind: host})
+    warranty.makerspace = makerspace
     for field in ("purchased_on", "warranty_expires_on", "vendor_name", "vendor_contact"):
         if field in data:
             setattr(warranty, field, data[field])
@@ -169,6 +176,12 @@ def _upsert_warranty(*, data, asset=None, machine=None):
     except DjangoValidationError as exc:
         raise ValidationError(getattr(exc, "message_dict", exc.messages)) from exc
     warranty.save()
+    audit.record(
+        actor,
+        "warranty.created" if created else "warranty.updated",
+        makerspace=makerspace,
+        target=warranty,
+    )
     return warranty, created
 
 __all__ = [

@@ -1,0 +1,5 @@
+Added 16 new files: 38 test functions, 273 static parameter products. AST checks completed; no runtime, collection, Django imports, staging, or commits.
+
+[Freeze manifest](/tmp/spaceworks-qr-source-test-freeze.json) includes hashes, case products, root commands, and tradeoffs.
+
+Flagged static concerns: authorization-before-gate ordering, cross-maker Source N ordering, and stale generated OpenAPI responses. Existing files remain untouched.

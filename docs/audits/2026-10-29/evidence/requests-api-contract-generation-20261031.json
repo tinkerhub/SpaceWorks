@@ -1,0 +1,70 @@
+{
+  "status": "metadata generation passed; root independently approved bounded schema/client contract diff",
+  "schema_exit_code": 0,
+  "schema_seconds": 7.94,
+  "schema_warnings": 35,
+  "schema_errors": 0,
+  "node_exit_code": 0,
+  "node_seconds": 2.436,
+  "node_version": "20.20.2",
+  "node_image_id": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5",
+  "generator_sha256": "bef171b13dabeb1a84656d79b8217f7384713d4c6c3eb6a778fe64f1bd13a548",
+  "schema_paths_before": 466,
+  "schema_paths_after": 469,
+  "added_paths": [
+    "/api/v1/admin/requests/{id}/cancel",
+    "/api/v1/public/{makerspace_slug}/machine-service-requests/mine",
+    "/api/v1/public/{makerspace_slug}/requests/mine"
+  ],
+  "removed_paths": [],
+  "existing_path_change": "Only staff request-history summary now describes issue or review authority; methods/security/responses unchanged.",
+  "changed_existing_schemas": [
+    "AdminRequest",
+    "FeatureEnum",
+    "NotificationFeature",
+    "PublicRequestItemStatus"
+  ],
+  "enum_rename": "KeyD07Enum -> Key923Enum reflects only added machine_service choice.",
+  "added_schemas": [
+    "CancelRequest",
+    "Key923Enum",
+    "OwnRequestStatus",
+    "PaginatedOwnRequestStatusList",
+    "PaginatedPublicMachineServiceStatusList",
+    "RequestHistoryError",
+    "RequestHistoryModuleError"
+  ],
+  "source_inventory_sha256": "179746650daf76c8125a1308fd4ae41c97e6b9505e5ae8a2f22ffa40dac718a1",
+  "all_1994_selected_source_bytes_still_current": true,
+  "no_database_network_or_migrations": true,
+  "metadata_backend": "PostgreSQL backend metadata with unavailable127.0.0.1:9 URL inside network-none container; no PostgreSQL socket",
+  "prior_sqlite_attempt_preserved": "Private only; detected integer-bound drift and discarded before repository publication.",
+  "files": [
+    {
+      "path": "frontend/openapi-schema.json",
+      "before_sha256": "fd914090cf71bc5274534fb9679833fb16e2e4dabfcc4d3341a9ef8f27c994eb",
+      "sha256": "6e6be08583ca731c3e0f2458f19facbd9acc25568d480181fc2ca36be2652453"
+    },
+    {
+      "path": "frontend/src/generated/api.ts",
+      "before_sha256": "6845da32b2fb2c890131d69ef86304a384880268b708b0892239ad96cbbac91f",
+      "sha256": "af8e34cecc7ff3de8c96b029865d4bac6514d294cf1dc649d09570bf9716e93a"
+    }
+  ],
+  "root_independent_contract_review": {
+    "all_three_new_paths_reviewed": true,
+    "existing_path_methods_security_responses_unchanged": true,
+    "only_history_summary_changed": true,
+    "four_existing_schema_changes_reviewed": true,
+    "pagination_contracts_reviewed": true,
+    "generated_typescript_diff_reviewed": true,
+    "unrelated_integer_ranges_exactly_preserved": true
+  },
+  "raw_schema_generation_log_sha256": "70d28f6edaae0a13eba4b6fb9e7d03b9acfebd15f4a8f04a7f1e38a75aafe5cd",
+  "warnings_boundary": "35 drf-spectacular warnings (enum-name collisions/aliases and directory operation-ID collision); zero generation errors. Raw log retained privately.",
+  "limits": [
+    "Metadata generation only; backend behavior and frontend typecheck/build have separate runtime evidence.",
+    "No PostgreSQL/test database access, schema migrations, provider calls or live request mutations.",
+    "The actual seventh restore image and captured source were not rebuilt or changed by API generation."
+  ]
+}

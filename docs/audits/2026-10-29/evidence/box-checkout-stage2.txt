@@ -1,0 +1,22 @@
+Implemented bounded Stage 2 v3 and frozen source edits.
+
+Box scans now refuse AVAILABLE individual units, scanner eligibility matches, workflows use the approved evidence→fresh makerspace lock order, and QR revocation atomically rechecks and returns the fresh instance.
+
+Exact modified files and line counts:
+
+| File under `backend/apps/` | Lines |
+|---|---:|
+| `hardware_requests/self_checkout_helpers.py` | 265 |
+| `hardware_requests/self_checkout_workflow.py` | 296 |
+| `hardware_requests/direct_loan_workflow.py` | 258 |
+| `hardware_requests/handover_workflow.py` | 234 |
+| `hardware_requests/problem_report_workflow.py` | 192 |
+| `makerspaces/guards.py` | 86 |
+| `evidence/finalization.py` | 196 |
+| `boxes/api_views_eligibility.py` | 109 |
+| `boxes/services.py` | 22 |
+| `boxes/api_views_qr.py` | 289 |
+
+Static checks passed: Python syntax parsing, scoped `git diff --check`, trailing whitespace, and line ceilings. Protected parent files remain byte-identical.
+
+Runtime/tests/builds **NOT RUN**. No tests/docs edited; nothing staged, committed, or reset.

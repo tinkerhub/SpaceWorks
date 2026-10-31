@@ -58,24 +58,28 @@ type Props = Options & {
   pools: PrinterPool[];
   meta: (request: MachineServiceRequest) => ReactNode;
   pending: boolean;
+  canEdit?: () => boolean;
   onSubmit: (action: NonNullable<ServiceDraft["action"]>) => void;
 };
 
-export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft, machines, pools, meta, pending, onSubmit, ...options }: Props) {
+export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft, machines, pools, meta, pending, canEdit = () => !pending, onSubmit, ...options }: Props) {
+  const edit: Props["setDraft"] = (update) => {
+    if (canEdit()) setDraft((current) => canEdit() ? update(current) : current);
+  };
   const paymentsOn = useConsoleModule(makerspaceId, "payments");
   const choose = (request: MachineServiceRequest, name: ServiceActionName) =>
-    setDraft((current) => ({ ...current, action: { id: request.id, name } }));
+    edit((current) => ({ ...current, action: { id: request.id, name } }));
   const form = draft.action ? (
     <ServiceActionForm
       {...options}
       action={draft.action}
       values={draft.actionValues}
-      setValues={(actionValues) => setDraft((current) => ({ ...current, actionValues }))}
+      setValues={(actionValues) => edit((current) => ({ ...current, actionValues }))}
       machines={machines}
       pools={pools}
       pending={pending}
       onSubmit={onSubmit}
-      onCancel={() => setDraft((current) => ({ ...current, action: null }))}
+      onCancel={() => edit((current) => ({ ...current, action: null }))}
     />
   ) : null;
   const formIsInline = Boolean(draft.action && requests?.some((request) => request.id === draft.action?.id));
@@ -103,9 +107,9 @@ export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft,
             </span>
           </div>
           <p className="text-caption text-ink-muted">{meta(request)}</p>
-          <div className="flex flex-wrap gap-2">
+          <fieldset disabled={pending} className="flex flex-wrap gap-2">
             <ServiceActions request={request} allowReprint={options.allowReprint} onAction={(name) => choose(request, name)} />
-          </div>
+          </fieldset>
           {draft.action?.id === request.id ? form : null}
         </article>
       ))}
@@ -153,7 +157,7 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
       className="grid gap-3 rounded-lg border border-line bg-subtle p-4"
       onSubmit={(event) => { event.preventDefault(); onSubmit(action); }}
     >
-      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+      <fieldset disabled={pending} className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {name === "accept" ? <>{input("estimated_minutes", "Estimated minutes")}{plannedOnAccept ? planned : null}</> : null}
         {name === "start" ? (
           <>
@@ -183,7 +187,7 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
           </>
         ) : null}
         {name === "reject" ? input("reason", "Reason", false) : null}
-      </div>
+      </fieldset>
       {name === "record-manual-payment" || name === "collect" || name === "reprint" ? (
         <p className="text-body-ui text-ink-secondary">
           {name === "collect" ? "Confirm the requester has their finished job." : name === "reprint" ? "This creates a new, already accepted copy of the job, ready to start." : "Confirm the payment was taken at the desk."}

@@ -1,5 +1,5 @@
 import { moduleEnabled } from "../../../../lib/modules";
-import { useStaffGet, type Makerspace } from "../shared";
+import { useStaffMakerspaces } from "../../useStaffMakerspaces";
 
 /**
  * Whether a module is on for this makerspace, for machine surfaces that sit beside an
@@ -12,7 +12,8 @@ import { useStaffGet, type Makerspace } from "../shared";
  * than threading one more flag through every machine surface. Fails closed while loading.
  */
 export function useConsoleModule(makerspaceId: number, key: string): boolean {
-  const makerspaces = useStaffGet<Makerspace[]>(["staff", "makerspaces"], "/admin/makerspaces");
+  const makerspaces = useStaffMakerspaces();
+  if (makerspaces.isPending || makerspaces.isError) return false;
   const list = Array.isArray(makerspaces.data) ? makerspaces.data : [];
   return moduleEnabled(list.find((space) => space.id === makerspaceId)?.enabled_modules, key);
 }

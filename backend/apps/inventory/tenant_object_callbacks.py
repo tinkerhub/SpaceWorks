@@ -1,37 +1,20 @@
-"""Source-gated object mutations that run after a database commit."""
-
-import logging
-
-from apps.tenant_migration.gate_errors import SourceMigrationGateClosed
-from apps.tenant_migration.gate_runtime import tenant_write
+"""Synchronous post-commit cleanup under the lifecycle owner's explicit guard."""
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.object_storage_references import key_in_use
 
 
-logger = logging.getLogger(__name__)
-
-
-def release_public_image(makerspace, object_key, storage=None):
+def release_public_image(makerspace, object_key, storage=None, *, guard):
     from apps.inventory import public_image_storage
 
-    try:
-        with tenant_write(makerspace.pk):
-            public_image_storage.release_public_image(
-                makerspace, object_key, storage
-            )
-    except SourceMigrationGateClosed:
-        logger.info(
-            "public_image_release_skipped_closed_source_gate",
-            extra={"makerspace_id": makerspace.pk, "object_key": object_key},
-        )
+    with storage_lifecycle(makerspace.pk, guard=guard):
+        if object_key and not key_in_use("public_image", object_key):
+            public_image_storage.release_public_image(makerspace, object_key, storage, guard=guard)
 
 
-def delete_public_image(makerspace_id, object_key):
+def delete_public_image(makerspace_id, object_key, *, guard):
     from apps.inventory import public_image_storage
 
-    try:
-        with tenant_write(makerspace_id):
+    with storage_lifecycle(makerspace_id, guard=guard):
+        if object_key and not key_in_use("public_image", object_key):
+            guard.verify(makerspace_id)
             public_image_storage.delete_object(object_key)
-    except SourceMigrationGateClosed:
-        logger.info(
-            "public_image_delete_skipped_closed_source_gate",
-            extra={"makerspace_id": makerspace_id, "object_key": object_key},
-        )

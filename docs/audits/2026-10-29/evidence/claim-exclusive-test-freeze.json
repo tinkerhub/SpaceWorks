@@ -1,0 +1,23 @@
+{
+  "file": "/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/claim_source_safety/test_raw_boundaries.py",
+  "file_sha256": "84b8cef36908f8293002f69baacbd9a8169f5b50b508ed3d4ad0fd968bd0fa0e",
+  "file_lines": 225,
+  "original_bytes": 7003,
+  "original_sha256": "03030a5d16f1ba6f9e15bdccf6eba323b9f560ab9a70832aa1e573032fd7a711",
+  "original_prefix_unchanged": true,
+  "existing_ast_unchanged": true,
+  "new_function": {
+    "name": "test_retained_raw_shared_owner_refuses_exclusive_upgrade",
+    "start_line": 174,
+    "end_line": 225,
+    "sha256": "1d9361d4d5c150ad140f238acc5967e736d9cc5437fc5e7d760a268ca01bc80b",
+    "ast_sha256": "60e05c97140dd966c960181572b84fd6b9b8fbe4c07d2d56f92cab874775c53b",
+    "parameter": "key",
+    "products": [
+      0,
+      "actualMaker (claim_lab.spaces[0].pk)"
+    ],
+    "product_count": 2
+  },
+  "validation": "stdlib AST/hash only; no tests, collection, application imports, runtime, build, staging, or commit"
+}

@@ -16,6 +16,7 @@ from tests.accounts.test_device_auth import (
     mock_apple_provider,
 )
 from tests.device_helpers import make_native_app_registration
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 from tests.return_helpers import make_space, make_user
 
 
@@ -168,7 +169,8 @@ def test_challenge_registration_cannot_be_rebound_during_grant_creation(
     assert grant.registration_id != registration_b.pk
 
 
-def test_purging_a_makerspace_does_not_trip_protected_registrations(monkeypatch):
+@pytest.mark.django_db(transaction=True)
+def test_purging_a_makerspace_does_not_trip_protected_registrations(purge_store, purge_clock):
     """A tenant registration with a live grant must not block the purge.
 
     NativeAppRegistration.makerspace is CASCADE while DeviceGrant.registration and
@@ -181,9 +183,9 @@ def test_purging_a_makerspace_does_not_trip_protected_registrations(monkeypatch)
 
     actor = make_user("purge-native-super")
     actor.is_superuser = True
+    actor.is_staff = True
     actor.role = User.Role.SUPERADMIN
-    actor.save(update_fields=["is_superuser", "role"])
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
+    actor.save(update_fields=["is_superuser", "is_staff", "role"])
 
     makerspace = make_space("purge-native-space")
     tenant_registration = make_native_app_registration(makerspace=makerspace)
@@ -209,7 +211,9 @@ def test_purging_a_makerspace_does_not_trip_protected_registrations(monkeypatch)
         last_used_at=now,
     )
 
-    lifecycle.purge(lifecycle.archive(makerspace, actor), actor)
+    makerspace = lifecycle.archive(makerspace, actor)
+    arm(makerspace, actor, purge_clock)
+    lifecycle.purge(makerspace, actor)
 
     assert not NativeAppRegistration.objects.filter(pk=tenant_registration.pk).exists()
     assert not DeviceGrant.objects.filter(registration=tenant_registration).exists()

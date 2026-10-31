@@ -7,6 +7,7 @@ import json
 from django.conf import settings
 
 from apps.backup.compound_protocol import PROTOCOL_VERSION
+from apps.backup.source_capture_facts import require_source_capture_facts
 from apps.backup.outer_manifest_facts import (
     component_ciphertext_ledger,
     reservation_fence_ledger,
@@ -29,6 +30,7 @@ SIGNATURE_DOMAIN = b"spaceworks-lane-e-outer-manifest-v1\x00"
 
 
 def build_outer_manifest(*, archive, capture, detailed_manifest, root):
+    source_facts = require_source_capture_facts(capture)
     retained = tuple(capture.frozen_population_ids)
     sovereign = tuple(item.makerspace_id for item in capture.frozen_slices)
     readable = tuple(value for value in retained if value not in set(sovereign))
@@ -72,6 +74,7 @@ def build_outer_manifest(*, archive, capture, detailed_manifest, root):
         "protocol_version": PROTOCOL_VERSION,
         "artifact_id": str(archive.pk),
         "capture_id": str(capture.capture_id),
+        "source_capture": source_facts.as_dict(),
         "source_timestamp": detailed_manifest["snapshot_at"],
         "build_identity": {
             "build": detailed_manifest["build"],
@@ -142,7 +145,9 @@ def build_outer_manifest(*, archive, capture, detailed_manifest, root):
     if detailed_manifest.get("backup_run_id") is not None:
         manifest["backup_run_id"] = detailed_manifest["backup_run_id"]
     validate_unsigned_manifest(manifest, protocol_version=PROTOCOL_VERSION)
+    require_source_capture_facts(capture)
     manifest["archive_signature"] = _signature(manifest, component_ledger)
+    require_source_capture_facts(capture)
     return manifest
 
 

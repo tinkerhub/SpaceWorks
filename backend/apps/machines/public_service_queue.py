@@ -39,6 +39,19 @@ def lock_attachments(makerspace, actor, file_ids, queue):
     return files
 
 
+def validate_requested_queue(makerspace, machine_type, queue_id):
+    """Read-only preflight; authoritative queue resolution still happens under locks."""
+    if queue_id is None:
+        return
+    queue = ServiceQueue.objects.filter(
+        makerspace=makerspace, machine_type=machine_type, pk=queue_id,
+    ).first()
+    if queue is None:
+        raise ValidationError({"queue_id": "Queue is unavailable for this machine type."})
+    if not queue.is_active:
+        raise PublicServiceQueueConflict()
+
+
 def resolve_intake_queue(makerspace, machine_type, actor, *, queue_id=None):
     """Caller holds the PII fence and makerspace NO KEY UPDATE lock."""
     rows = ServiceQueue.objects.select_for_update().filter(

@@ -1,0 +1,24 @@
+Authored **60 cases** in seven new suites under `frontend/src/features/inventory/`:
+
+| File | Cases |
+|---|---:|
+| `PublicInventoryPage.ownership.test.tsx` | 4 |
+| `PublicBorrowRequest.ownership.test.tsx` | 8 |
+| `PublicToolScanPanel.ownership.test.tsx` | 14 |
+| `PublicSelfCheckoutPage.ownership.test.tsx` | 8 |
+| `usePublicSession.ownership.test.tsx` | 4 |
+| `PublicEvidenceUpload.ownership.test.tsx` | 20 |
+| `PublicEvidenceUpload.cameraOwnership.test.tsx` | 2 |
+
+Added `frontend/src/test/publicLendingHarness.tsx`. All eight files are below 300 lines. Existing tests and production source were untouched. No tests, builds, staging, or commits ran.
+
+Root’s targeted Node20 command:
+
+```sh
+docker run --rm -v "$PWD/frontend:/app" \
+  -v spaceworks-node20-test-deps:/app/node_modules \
+  -w /app node:20 sh -c \
+  'npx vitest run src/features/inventory/*.ownership.test.tsx src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx'
+```
+
+Residuals: the existing `PublicIdentityTenantScope.test.tsx` expects purpose persistence that conflicts with the approved draft reset. The reported delayed check-in lookup dispatch gap remains outside scope. Runtime validation is pending with root.

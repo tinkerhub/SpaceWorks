@@ -42,6 +42,7 @@ EXPECTED_TARGET_VALUES = {
     ("makerspaces.Makerspace", "hidden_from_central_directory"): False,
     ("makerspaces.Makerspace", "superadmin_access_enabled"): True,
     ("makerspaces.Makerspace", "archived_at"): None,
+    ("makerspaces.Makerspace", "purge_started_at"): None,
     ("makerspaces.Makerspace", "resource_limit_overrides"): {},
     ("makerspaces.Makerspace", "storage_bytes_used"): 0,
     ("makerspaces.Makerspace", "public_request_mode"): "disabled",

@@ -1,0 +1,7 @@
+REQUIRED REVISION: bulk deletion is not atomic.
+
+The two-line change correctly preserves canonical creation and adds field-name-only update auditing with no-op log suppression. Native single-object save/delete views are transactional, but Django’s `delete_selected` action calls `AdminAuditMixin.delete_queryset()` without an enclosing transaction. A later audit/deletion failure can leave committed deletion audits for boxes still present.
+
+Wrap `BoxAdmin.delete_queryset()` in the already-imported `transaction.atomic`, and include bulk-failure rollback in Stage 3.
+
+Read-only review completed; no edits or runtime checks.

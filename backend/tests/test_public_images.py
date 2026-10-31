@@ -6,10 +6,12 @@ from rest_framework.test import APIClient
 
 from apps.audit.models import AuditLog
 from apps.inventory.models import InventoryProduct
+from apps.inventory.public_image_storage import build_object_key, staging_key
 from apps.makerspaces import lifecycle
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 from tests.return_helpers import authenticated_client, make_member, make_product, make_space, make_user
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def image_url(product):
@@ -39,7 +41,8 @@ def mock_public_storage(monkeypatch, *, size=123):
         lambda object_key: public_image_storage._finalize_result(object_key, size),
     )
     monkeypatch.setattr("apps.inventory.public_image_storage.sniff_is_valid_image", lambda object_key: True)
-    delete = Mock()
+    monkeypatch.setattr("apps.inventory.public_image_storage.object_size", lambda key: size)
+    delete = Mock(return_value=True)
     monkeypatch.setattr("apps.inventory.public_image_storage.delete_object", delete)
     return delete
 
@@ -278,7 +281,7 @@ def test_makerspace_logo_delete_clears_key(
 
 
 @pytest.mark.django_db(transaction=True)
-def test_purge_deletes_public_image_keys(monkeypatch):
+def test_purge_deletes_public_image_keys(settings, purge_store, purge_clock):
     actor = make_user(
         "public-image-purge-super",
         role="superadmin",
@@ -287,23 +290,29 @@ def test_purge_deletes_public_image_keys(monkeypatch):
         is_superuser=True,
     )
     makerspace = make_space("public-image-purge")
-    product = make_product(makerspace, image_key=f"items/{makerspace.id}/product.png")
-    makerspace.logo_key = f"makerspace/{makerspace.id}/logo.png"
-    makerspace.cover_image_key = f"makerspace/{makerspace.id}/cover.png"
-    makerspace.save(update_fields=["logo_key", "cover_image_key"])
-    deleted = []
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
-    monkeypatch.setattr(
-        "apps.inventory.public_image_storage.delete_object",
-        lambda key: deleted.append(key),
+    product = make_product(
+        makerspace, image_key=build_object_key("items", makerspace.id, ".png")
     )
+    makerspace.logo_key = build_object_key("makerspace", makerspace.id, ".png")
+    makerspace.cover_image_key = build_object_key("makerspace", makerspace.id, ".png")
+    makerspace.save(update_fields=["logo_key", "cover_image_key"])
+    image_keys = {product.image_key, makerspace.logo_key, makerspace.cover_image_key}
+    stored_keys = image_keys | {staging_key(key) for key in image_keys}
+    versions = set()
+    for key in stored_keys:
+        versions.add(purge_store.put(settings.PUBLIC_IMAGE_BUCKET, key, b"old image"))
+        versions.add(purge_store.put(settings.PUBLIC_IMAGE_BUCKET, key, b"new image"))
+        versions.add(purge_store.put(settings.PUBLIC_IMAGE_BUCKET, key, marker=True))
 
     archived = lifecycle.archive(makerspace, actor)
+    arm(archived, actor, purge_clock)
     lifecycle.purge(archived, actor)
 
-    assert set(deleted) == {
-        product.image_key,
-        f"makerspace/{makerspace.id}/logo.png",
-        f"makerspace/{makerspace.id}/cover.png",
+    deleted = {
+        (batch["Bucket"], row["Key"], row["VersionId"])
+        for batch in purge_store.deletes for row in batch["Delete"]["Objects"]
     }
+    assert deleted == versions
+    assert {key for _, key, _ in deleted if not key.startswith("staging/")} == image_keys
+    assert not purge_store.objects
     assert InventoryProduct.objects.filter(pk=product.pk).count() == 0

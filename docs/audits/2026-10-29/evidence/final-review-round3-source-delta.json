@@ -1,0 +1,31 @@
+{
+  "comparison": "Clean review2 starting source to review3 current source; excludes tests/docs",
+  "changed_source": [
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "before": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+      "after": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e"
+    },
+    {
+      "path": "docker-compose.cloud.yml",
+      "before": "d272a6b6ae421cd18b6b5737b039ed5d12d16ac9cf4919c665f57ae4bb40043b",
+      "after": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae"
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "before": "a88a0db72fd5c6222bf6e2105b2659f8d2415f132758d46b2d1054edac62ab75",
+      "after": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597"
+    },
+    {
+      "path": "docker-compose.yml",
+      "before": "2d020f77297db1941e03c91a0646c50118b979e020e9100ce5e380bfb18b6ecc",
+      "after": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff"
+    },
+    {
+      "path": "scripts/restore.sh",
+      "before": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+      "after": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41"
+    }
+  ],
+  "limits": "Bare mandatory review3 reviews the complete uncommitted tree, not this filtered list."
+}

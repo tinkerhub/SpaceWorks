@@ -265,7 +265,7 @@ def _audit_redemption(claim, action: str, redemption_ip: str, outcome: str) -> N
 
 def _revoke_transition_claim_state(user: User, transitioned_at) -> None:
     claims = list(
-        MemberClaimCode.objects.select_for_update().filter(
+        MemberClaimCode.objects.select_for_update(of=("self",)).filter(
             membership__user=user, revoked_at__isnull=True
         )
     )

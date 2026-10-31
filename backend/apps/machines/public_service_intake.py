@@ -2,6 +2,9 @@
 from types import SimpleNamespace
 
 from django.db import transaction
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
+from apps.machines.service_file_lifecycle import prepare_files
 from rest_framework.exceptions import NotFound, ValidationError
 
 from apps.encryption.write_fence import assert_mapped_write_allowed
@@ -14,7 +17,7 @@ from apps.machines.public_service_catalog import (
     public_type_policy, resolve_public_service_type,
 )
 from apps.machines.public_service_queue import (
-    attachment_queue_id, lock_attachments, resolve_intake_queue,
+    attachment_queue_id, lock_attachments, resolve_intake_queue, validate_requested_queue,
 )
 from apps.machines.service_queue_position import queue_counts_for
 from apps.machines.service_storage import create_staged_queue_file, finalize_file, validate_upload_declaration
@@ -41,29 +44,44 @@ def _payload(machine_type, makerspace, data):
     return payload
 
 
-@transaction.atomic
 def submit_typed_request(makerspace, data, actor, *, supplied_printer_fields=()):
-    space = _locked_space(makerspace)
-    machine_type = resolve_public_service_type(space, data["machine_type_id"])
-    if not is_printer_type(machine_type) and supplied_printer_fields:
-        raise ValidationError("Printer fields require a printer machine type.")
-    payload = _payload(machine_type, space, data)
-    ids = data.get("file_ids", [])
-    queue_id = attachment_queue_id(space, actor, ids, data.get("queue_id"))
-    queue = resolve_intake_queue(space, machine_type, actor, queue_id=queue_id)
-    files = lock_attachments(space, actor, ids, queue)
-    if is_printer_type(machine_type):
-        limits.check_quota(space, "print", adding=1, no_key=True)
-    row = service_workflow.submit(
-        queue, actor, member=actor, actor=actor,
-        requester_name=actor.display_name or "", contact_email=actor.email or "",
-        contact_phone=actor.phone or "", title=data["title"],
-        description=data.get("description", ""), source_link=data.get("source_link", ""),
-        capability_payload=payload,
-    )
-    for file in files:
-        finalize_file(row, file_id=file.pk, actor=actor)
-    return row
+    ids = tuple(data.get("file_ids") or ())
+    context = storage_lifecycle(makerspace.pk) if ids else boundary_tenant_write(makerspace.pk)
+    with context as guard:
+        # Reject invalid input before publication, without creating or locking queues.
+        machine_type = resolve_public_service_type(makerspace, data["machine_type_id"])
+        if not is_printer_type(machine_type) and supplied_printer_fields:
+            raise ValidationError("Printer fields require a printer machine type.")
+        _payload(machine_type, makerspace, data)
+        queue_id = attachment_queue_id(makerspace, actor, ids, data.get("queue_id"))
+        validate_requested_queue(makerspace, machine_type, queue_id)
+        # Preparation cannot hold application row locks; metadata below repeats
+        # policy/queue/ownership checks before publishing the request.
+        prepared = {}
+        if ids:
+            prepared = prepare_files(makerspace.pk, ids, actor, guard)
+            guard.verify()
+        with transaction.atomic():
+            space = _locked_space(makerspace)
+            machine_type = resolve_public_service_type(space, data["machine_type_id"])
+            if not is_printer_type(machine_type) and supplied_printer_fields:
+                raise ValidationError("Printer fields require a printer machine type.")
+            payload = _payload(machine_type, space, data)
+            queue_id = attachment_queue_id(space, actor, ids, data.get("queue_id"))
+            queue = resolve_intake_queue(space, machine_type, actor, queue_id=queue_id)
+            files = lock_attachments(space, actor, ids, queue)
+            if is_printer_type(machine_type):
+                limits.check_quota(space, "print", adding=1, no_key=True)
+            row = service_workflow.submit(
+                queue, actor, member=actor, actor=actor,
+                requester_name=actor.display_name or "", contact_email=actor.email or "",
+                contact_phone=actor.phone or "", title=data["title"],
+                description=data.get("description", ""), source_link=data.get("source_link", ""),
+                capability_payload=payload,
+            )
+            for file in files:
+                finalize_file(row, file_id=file.pk, actor=actor, guard=guard, prepared=prepared[file.pk])
+            return row
 
 
 def validate_type_upload(machine_type, data):

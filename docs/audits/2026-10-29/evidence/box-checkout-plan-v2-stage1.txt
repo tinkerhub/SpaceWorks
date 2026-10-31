@@ -1,0 +1,24 @@
+**NOT APPROVED exactly as written.** The core approach is sound, but these additions are mandatory:
+
+1. **Preserve the revoke API response.** Once the service re-fetches the QR, [api_views_qr.py:258](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/api_views_qr.py:258) still serializes its original instance. Add this file to scope and assign `qr = revoke_qr_code(...)`. Otherwise a successful revoke can return `"active"`. Add a response regression test.
+
+2. **Record and bound the triage inversion.** The active caller is `ProblemReportTriageView → triage_problem_report`. [problem_report_workflow.py:36](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/problem_report_workflow.py:36) locks the joined makerspace before attachment evidence; its evidence lookup accepts issue photos. Therefore:
+   - Triage holds Maker `FOR UPDATE`, waits for evidence E.
+   - Revised checkout holds E, waits for Maker `NO KEY UPDATE`.
+
+   This can occur with POST too. Add a separately owned fix/dependency and concurrency case before claiming issuing-path deadlock safety. Changing only issuing locks to `no_key=True` does not resolve the opposing `FOR UPDATE`. Keep parent return ownership intact.
+
+3. **Make scanner parity explicit.** Besides refusing individual contents, [_box_checkout_eligible](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/api_views_eligibility.py:79) must check the existing reviewed-request occupancy guard. Currently it checks only `PublicToolLoan`, so it can advertise checkout/direct handout for an issued reviewed-request container.
+
+My implementation choices:
+
+- **Use inline serialization through the existing guards.** Public and direct issue use `require_feature_locked(..., no_key=True)`. Reviewed issue uses an explicit fresh Maker `NO KEY UPDATE`, assigned back to `locked.makerspace`. Its URL surfaces currently gate different modules, so adding an unconditional `request_workflow` prerequisite would change policy.
+- **Refuse every AVAILABLE individual asset assigned to the box**, including hidden, checkout-disabled, archived-product, zero-count-product, and no-QR units. Do not apply public eligibility filters to this refusal query. Preserve the existing quantity selection, standalone asset scans, selected-container direct handout with own asset scans, and overlap 409.
+- `_eligible_asset.select_for_update(of=("self",))` followed by the explicit product lock is correct. Remove the automatic individual issuance block and its inaccurate joined-lock comment.
+- The optional `no_key=False` additions and three issuing call-site opt-ins are appropriate. `NO KEY UPDATE` serializes these writers while permitting `KEY SHARE`; the non-key storage update preserves that compatibility. [PostgreSQL 16 locking documentation](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS)
+
+**Native revoke scope:** D’s per-QR service transaction is sufficient for the matching-QR checkout/revoke race: fresh locked status, fresh active-loan check, save, and audit together. No Maker lock or whole-selection transaction is needed. Its safety claim remains limited to the existing `PublicToolLoan` guard; this does not establish protection for every reviewed-request asset or container association.
+
+The remaining Stage 3 coverage is appropriate, including real blocking observations, both winner orders, finite-cap managed PUT, genuine image validation, and rollback assertions. This is no broader production-ledger approval.
+
+No edits, tests, or builds performed. Current `self_checkout_workflow.py` is **297 lines**; retain the source-write hold and recheck after the parent freezes.

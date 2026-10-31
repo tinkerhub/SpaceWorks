@@ -1,0 +1,7 @@
+**APPROVED — final read-only Stage 1.**
+
+Read the original plan, prior result, final plan, and applicable workflow instructions; verified the mechanism against current source and installed TanStack Query Core 5.105.0. No remaining minimum corrections.
+
+Scope remains `WalkInMemberForm.tsx` plus one optional focused adjacent helper, each ≤300 lines. All accepted ownership, receipt, actual-refresh proof, pause/cancellation, POST-replay prevention, and Stage 3 test constraints remain mandatory.
+
+No writes, tests, TSC, application runtime, staging, or commits performed.

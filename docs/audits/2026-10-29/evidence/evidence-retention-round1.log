@@ -1,0 +1,18 @@
+........................................................................ [ 93%]
+.....                                                                    [100%]
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+tests/evidence/test_object_retention.py::test_manager_can_set_preview_and_clear_object_retention
+tests/evidence/test_object_retention.py::test_non_makerspace_manager_cannot_change_policy
+tests/evidence/test_object_retention.py::test_retention_is_a_makerspace_setting_not_an_events_one
+tests/evidence/test_object_retention.py::test_expired_detail_returns_410_without_storage_access
+tests/evidence/test_claim_policy_safety.py::test_old_candidate_snapshot_cannot_claim_after_committed_extension[policy-PATCH]
+tests/evidence/test_promotion_retention_race.py::test_fresh_real_promotion_is_skipped_without_retention_blocker_then_issue_succeeds
+  /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+77 passed, 7 warnings in 99.53s (0:01:39)

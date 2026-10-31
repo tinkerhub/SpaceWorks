@@ -1,4 +1,8 @@
+from contextlib import nullcontext
+
 from django.db import IntegrityError, transaction
+from apps.object_storage_lifecycle import storage_lifecycle
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
 from django.utils.text import slugify
 
 from apps.admin_api.bulk_import_preview import preview_import
@@ -13,70 +17,92 @@ from apps.makerspaces import limits
 
 
 def apply_import(actor, makerspace, rows, mapping, progress_callback=None, allow_partial=False):
-    preview = preview_import(makerspace, rows, mapping, progress_callback)
-    if not preview["valid"] and not allow_partial:
-        return {**preview, "applied": False}
-    created = 0
-    updated = 0
-    with transaction.atomic():
-        import_names = {
-            item["data"]["name"]
+    with boundary_tenant_write(makerspace.pk):
+        preview = preview_import(makerspace, rows, mapping, progress_callback)
+        if not preview["valid"] and not allow_partial:
+            return {**preview, "applied": False}
+        context = storage_lifecycle(makerspace.pk) if any(
+            item["action"] != "error" and item["data"].get("image_key", "")
             for item in preview["rows"]
-            if item["action"] != "error"
-        }
-        existing_names = set(
-            InventoryProduct.objects.filter(
-                makerspace=makerspace,
-                name__in=import_names,
-            ).values_list("name", flat=True)
-        )
-        limits.check_quota(
-            makerspace,
-            "products",
-            adding=len(import_names - existing_names),
-        )
-        for item in preview["rows"]:
-            if item["action"] == "error":
-                continue
-            try:
-                with transaction.atomic():
-                    was_created = _apply_import_row(
-                        actor, makerspace, item, preview["mapping"]
+        ) else nullcontext(None)
+        with context as guard:
+            prepared = {}
+            for item in preview["rows"]:
+                key = item["data"].get("image_key", "")
+                if item["action"] == "error" or not key:
+                    continue
+                product = InventoryProduct.objects.filter(makerspace=makerspace, name=item["data"]["name"]).first()
+                try:
+                    prepared[item["row"]] = finalize_product_image(
+                        makerspace.pk, key, product_id=product.pk if product else None,
                     )
-            except IntegrityError as exc:
-                _record_row_error(preview, item, _short_db_message(exc))
-                continue
-            except (
-                availability.TrackingModeChangeRefused,
-                PublicImageRejected,
-            ) as exc:
-                _record_row_error(preview, item, str(exc))
-                continue
-            except StorageUnavailable:
-                _record_row_error(preview, item, "Image storage is unavailable.")
-                continue
-            if was_created:
-                created += 1
-            else:
-                updated += 1
-        audit.record(
-            actor,
-            "inventory.bulk_imported",
-            makerspace=makerspace,
-            target=makerspace,
-            meta={"created": created, "updated": updated},
-        )
-    _refresh_summary(preview)
-    return {
-        **preview,
-        "applied": True,
-        "partial": bool(preview["errors"]),
-        "created": created,
-        "updated": updated,
-    }
+                except (PublicImageRejected, StorageUnavailable) as exc:
+                    _record_row_error(preview, item, "Image storage is unavailable." if isinstance(exc, StorageUnavailable) else str(exc))
+            # Image preparation failures keep the existing per-row runtime-error policy.
+            # Only the initial parser preview above controls allow_partial admission.
+            created = 0
+            updated = 0
+            if guard is not None:
+                guard.verify()
+            with transaction.atomic():
+                import_names = {
+                    item["data"]["name"]
+                    for item in preview["rows"]
+                    if item["action"] != "error"
+                }
+                existing_names = set(
+                    InventoryProduct.objects.filter(
+                        makerspace=makerspace,
+                        name__in=import_names,
+                    ).values_list("name", flat=True)
+                )
+                limits.check_quota(
+                    makerspace,
+                    "products",
+                    adding=len(import_names - existing_names),
+                )
+                for item in preview["rows"]:
+                    if item["action"] == "error":
+                        continue
+                    try:
+                        with transaction.atomic():
+                            was_created = _apply_import_row(
+                                actor, makerspace, item, preview["mapping"], prepared.get(item["row"]), guard
+                            )
+                    except IntegrityError as exc:
+                        _record_row_error(preview, item, _short_db_message(exc))
+                        continue
+                    except (
+                        availability.TrackingModeChangeRefused,
+                        PublicImageRejected,
+                    ) as exc:
+                        _record_row_error(preview, item, str(exc))
+                        continue
+                    except StorageUnavailable:
+                        _record_row_error(preview, item, "Image storage is unavailable.")
+                        continue
+                    if was_created:
+                        created += 1
+                    else:
+                        updated += 1
+                audit.record(
+                    actor,
+                    "inventory.bulk_imported",
+                    makerspace=makerspace,
+                    target=makerspace,
+                    meta={"created": created, "updated": updated},
+                )
+            _refresh_summary(preview)
+            return {
+                **preview,
+                "applied": True,
+                "partial": bool(preview["errors"]),
+                "created": created,
+                "updated": updated,
+            }
 
 
-def _apply_import_row(actor, makerspace, item, mapping):
+def _apply_import_row(actor, makerspace, item, mapping, prepared_size, guard):
     data = dict(item["data"])
     box_id = data.pop("box_id", None)
     box = Box.objects.filter(makerspace=makerspace, pk=box_id).first() if box_id else None
@@ -98,7 +124,7 @@ def _apply_import_row(actor, makerspace, item, mapping):
         makerspace=makerspace, name=name, defaults={**data, "box": box}
     )
     if was_created:
-        _attach_image(makerspace, product, image_key)
+        _attach_image(makerspace, product, image_key, prepared_size, guard)
         return True
     tracking_mode = data.pop("tracking_mode")
     if mapping.get("tracking_mode"):
@@ -112,20 +138,23 @@ def _apply_import_row(actor, makerspace, item, mapping):
     for field, value in update_defaults.items():
         setattr(product, field, value)
     product.save(update_fields=[*update_defaults.keys(), "updated_at"])
-    _attach_image(makerspace, product, image_key)
+    _attach_image(makerspace, product, image_key, prepared_size, guard)
     return False
 
 
-def _attach_image(makerspace, product, image_key):
+def _attach_image(makerspace, product, image_key, prepared_size, guard):
     """Attach an imported key through the image endpoint's finalize/sniff pipeline.
 
     A blank cell keeps the current image instead of silently dropping it."""
     if not image_key or image_key == product.image_key:
         return
-    size = finalize_product_image(makerspace.id, image_key, product_id=product.pk)
+    if public_image_storage.public_image_key_in_use(makerspace.pk, image_key, product_id=product.pk):
+        raise PublicImageRejected("This image is already in use.")
+    guard.verify(makerspace.pk)
+    size = prepared_size
     limits.add_storage(makerspace, size)
     if product.image_key:
-        public_image_storage.release_public_image_on_commit(makerspace, product.image_key)
+        public_image_storage.release_public_image_on_commit(makerspace, product.image_key, guard=guard)
     product.image_key = image_key
     product.save(update_fields=["image_key", "updated_at"])
 

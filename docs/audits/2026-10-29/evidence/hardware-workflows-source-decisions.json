@@ -1,0 +1,1971 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex GPT-6.1-Sol high / hardware-workflows packet",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "packet": "/tmp/spaceworks-source-packets/hardware-workflows-files.txt",
+  "packet_sha256": "f919df5daecb2a28a4324fa3517a2aa11548dac3368a6d398fdb2caeed6e1230",
+  "result_file": null,
+  "selected_file_count": 19,
+  "observed_lexical_owner_count": 132,
+  "owner_census_method": "Parsed actual selected source with Python ast; enumerated module, class, function and method owners recursively, including nested classes. Decisions were made separately after reading source and relevant callers.",
+  "files": [
+    {
+      "path": "backend/apps/hardware_requests/workflow.py",
+      "file_sha256": "df7e9f79c9e9221fb777b29d71582a8e95769373042199e271d0566f8f73e5e7",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 41,
+          "purpose": "Expose the stable reviewed-request workflow import surface.",
+          "runtime_boundary": "Import-only barrel used by public, review and handover API views.",
+          "disposition": "Retain explicit service and exception re-exports; this decision covers the barrel declarations only.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-22 import actual split owners and lines 24-41 enumerate the exported names. No transition or quantity mutation occurs here.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/request_workflow.py",
+      "file_sha256": "435cd4abd0be7d70f08890d18f85f167113122a3a4005e72d3a08a1a6ad30e04",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 235,
+          "purpose": "Declare request creation and decision-service dependencies.",
+          "runtime_boundary": "Imports inventory availability, audit, notification adapters and the request-lock helper.",
+          "disposition": "Retain dependencies on the inventory and audit owners; no module-level mutation is present.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Imports at lines 3-20 route stock operations to availability and notifications to adapters. Child service decisions are recorded separately.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterSnapshot",
+          "line_start": 24,
+          "line_end": 37,
+          "purpose": "Carry captured contact and check-in provenance independently of the durable requester account.",
+          "runtime_boundary": "Frozen dataclass populated by RequestSubmitView or checkin_submit.snapshot.",
+          "disposition": "Retain the distinction between contact verification and roster provenance.",
+          "decision": "reviewed-no-finding",
+          "evidence": "public_views.py:203-230 supplies account-derived or explicitly unverified contact data; checkin_submit.py:89-113 deliberately sets contact_verified=False for roster matches.",
+          "findings": []
+        },
+        {
+          "owner": "submit_request",
+          "line_start": 40,
+          "line_end": 122,
+          "purpose": "Create a pending request with item rows, captured identity and submission audit.",
+          "runtime_boundary": "RequestSubmitView validates policy, principal and tenant products before calling; service uses an atomic transaction and locks the makerspace for unverified submissions.",
+          "disposition": "Accept this internal creation boundary with caller-owned authorization and validation; retain serialized anonymous replay and ceiling enforcement.",
+          "decision": "reviewed-no-finding",
+          "evidence": "public_views.py:106-247 resolves policy and scoped products before submission. Lines 54-66 fence mapped writes and serialize unverified creation; lines 84-95 create pending items without stock mutation; lines 103-121 emit audit and notifications. Roster identity is omitted from immutable audit metadata.",
+          "findings": []
+        },
+        {
+          "owner": "anonymous_idempotency_replay",
+          "line_start": 125,
+          "line_end": 138,
+          "purpose": "Return the original tenant request only when an idempotency key and payload fingerprint agree.",
+          "runtime_boundary": "Read helper used before upstream roster verification and again under the makerspace creation lock.",
+          "disposition": "Retain tenant-key matching and reject missing keys or changed payloads.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 128-131 include makerspace in lookup. public_views.py:165-194 checks replay before its roster call; checkin_submit.py:63-79 includes mid in the payload fingerprint.",
+          "findings": []
+        },
+        {
+          "owner": "_enforce_anonymous_outstanding_limit",
+          "line_start": 141,
+          "line_end": 151,
+          "purpose": "Bound outstanding pending submissions carrying anonymous idempotency keys.",
+          "runtime_boundary": "Internal helper called by submit_request while holding the tenant row lock.",
+          "disposition": "Retain the tenant-scoped pending ceiling and explicit refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "submit_request:58-66 serializes count and insertion. Lines 143-146 exclude ordinary authenticated requests with blank fingerprints.",
+          "findings": []
+        },
+        {
+          "owner": "accept_request",
+          "line_start": 154,
+          "line_end": 209,
+          "purpose": "Accept validated quantities on a pending request and reserve their stock.",
+          "runtime_boundary": "AcceptRequestView scopes by ACCEPT_REQUEST; control-plane review checks superuser change permission. Service locks the request and delegates reservation within one transaction.",
+          "disposition": "Retain pending-only acceptance, authoritative partial quantity maps and inventory-owned reservation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "review_views.py:30-49 and 74-78 provide action scoping. admin_request_review.py:58-67 and 100-108 provide the control-plane caller. Lines 157-188 reject invalid state, foreign items and all-zero acceptance; availability_requests.py:7-53 locks products and reserves aggregate quantities.",
+          "findings": []
+        },
+        {
+          "owner": "reject_request",
+          "line_start": 212,
+          "line_end": 235,
+          "purpose": "Reject a pending proposal with a mandatory reason.",
+          "runtime_boundary": "RejectRequestView scopes by REJECT_REQUEST; control-plane review checks change permission. Request status is rechecked under a row lock.",
+          "disposition": "Retain nonblank reasons, pending-only rejection and atomic audit creation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "review_views.py:62-78 scopes the API caller; admin_request_review.py:85-98 routes admin rejection through this service. Lines 213-226 validate reason and state before writing.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/handover_workflow.py",
+      "file_sha256": "08801177c11f2bf48c868c300f55ef75fe28a053c5080e95e02f65c9d8d27728",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 230,
+          "purpose": "Declare reviewed-handover dependencies and workflow error types.",
+          "runtime_boundary": "Imports evidence finalization, box models, individual-asset helpers and inventory availability.",
+          "disposition": "Retain explicit domain dependencies; module approval does not approve service children.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 7-27 use shared audit, evidence, inventory and locking owners rather than parallel implementations.",
+          "findings": []
+        },
+        {
+          "owner": "assign_box",
+          "line_start": 30,
+          "line_end": 79,
+          "purpose": "Assign an active tenant container to an accepted request and record its issue scan.",
+          "runtime_boundary": "AssignBoxView scopes ASSIGN_BOX; admin action is superuser-gated. Service locks request then scoped box.",
+          "disposition": "Retain accepted-only assignment, cross-flow occupancy checks and append-only scan/audit creation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:39-51 supplies scoped request input. Lines 38-54 scope and lock the box and check both reviewed and public loans; lines 58-78 create scan and audit records.",
+          "findings": []
+        },
+        {
+          "owner": "issue_request",
+          "line_start": 82,
+          "line_end": 188,
+          "purpose": "Issue accepted hardware after validating photo evidence, optional container scan and individual asset scans.",
+          "runtime_boundary": "IssueRequestView scopes ISSUE_REQUEST and validates input. Storage finalization precedes the transaction; request, evidence, optional box, QRs, assets and stock are then checked or locked.",
+          "disposition": "Retain evidence necessity, locked status recheck, optional-container rules and availability delegation for reviewed requests.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:69-84 supplies action-scoped input. Lines 94-128 validate tenant issue evidence and retention; lines 129-148 require assigned-container history and exact individual scans, then call availability.issue_items. Lines 149-187 attach evidence and audit issuance. Database uniqueness backs evidence and active reviewed-box conflicts.",
+          "findings": []
+        },
+        {
+          "owner": "set_return_due",
+          "line_start": 190,
+          "line_end": 213,
+          "purpose": "Change the due time on an accepted or outstanding request and reset its reminder marker.",
+          "runtime_boundary": "SetReturnDueView scopes ACCEPT_REQUEST and parses the timestamp; control-plane bulk action validates a datetime. Service locks the request.",
+          "disposition": "Retain allowed-state validation, explicit reminder reset and audit of the new timestamp.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:131-143 and admin_requests.py:179-191 validate callers and values. Lines 193-205 limit updates to accepted, issued or partially returned requests.",
+          "findings": []
+        },
+        {
+          "owner": "_active_public_container_loan_exists",
+          "line_start": 216,
+          "line_end": 221,
+          "purpose": "Detect an outstanding public/direct loan holding a container.",
+          "runtime_boundary": "Tenant-scoped occupancy predicate called while handover services hold the relevant box lock.",
+          "disposition": "Retain exact container, tenant and checked-out status matching.",
+          "decision": "reviewed-no-finding",
+          "evidence": "assign_box:38-54 and issue_request:136-138 call the predicate on their locked box.",
+          "findings": []
+        },
+        {
+          "owner": "_raise_issue_conflict",
+          "line_start": 224,
+          "line_end": 230,
+          "purpose": "Translate issue-save uniqueness conflicts into domain errors.",
+          "runtime_boundary": "Called after IntegrityError inside issue_request; the domain transaction then exits by exception.",
+          "disposition": "Retain explicit box/evidence conflict responses and conservative fallback conflict refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 225-230 inspect the PostgreSQL constraint name. exceptions.py:127-130, 212-215 and 227-230 map these errors to typed API responses.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/handover_issue_helpers.py",
+      "file_sha256": "5f373bca3729a624b4db7f5428a98c3192c3d5ca0ced6f9c9866c7f5c2f274fd",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 131,
+          "purpose": "Declare individual handout validation dependencies and its refusal message.",
+          "runtime_boundary": "Internal helpers imported by the reviewed issue service.",
+          "disposition": "Retain the explicit individual-QR error and shared asset/link/scan models.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-10 contain imports and INDIVIDUAL_HANDOUT_ERROR only.",
+          "findings": []
+        },
+        {
+          "owner": "validate_broken_rejects",
+          "line_start": 13,
+          "line_end": 40,
+          "purpose": "Validate broken units withheld from a reviewed handover.",
+          "runtime_boundary": "Called inside issue_request's locked transaction after DRF validates disposition choices.",
+          "disposition": "Retain quantity-mode-only broken rejection and refusal of a handover issuing zero units.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 17-30 reject foreign items, excess broken quantities and individual-mode abstraction. Lines 33-40 require a positive actual handout. serializers_admin.py:135-157 constrains API disposition values.",
+          "findings": []
+        },
+        {
+          "owner": "issue_individual_assets",
+          "line_start": 43,
+          "line_end": 131,
+          "purpose": "Bind each accepted individual unit to an eligible scanned asset and record issuance.",
+          "runtime_boundary": "Internal atomic helper called before product quantity issuance; locks tenant active QRs by pk, then available assets by pk.",
+          "disposition": "Retain exact scan cardinality, product matching, duplicate rejection and asset-link/scan/audit creation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 49-85 enforce counts and tenant/status eligibility. Lines 96-131 allocate per-product assets and refuse leftovers. boxes/models.py:147-153 declares one active QR per target. AGENTS.md requires individual QR scans regardless of container.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/return_workflow.py",
+      "file_sha256": "33b70e7836d538e930fe8b22e6101cd018cbb1a2ab6f2594418f52c3e070a552",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 153,
+          "purpose": "Declare reviewed-return evidence, inventory and immutable-event collaborators.",
+          "runtime_boundary": "Imports used by the staff reviewed-return service.",
+          "disposition": "Retain shared collaborators; the import of PublicToolLoan currently supports evidence reuse checks, not loan-source exclusion.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 4-27 import the actual shared services and models. Callable source validation is considered separately.",
+          "findings": []
+        },
+        {
+          "owner": "return_items",
+          "line_start": 30,
+          "line_end": 71,
+          "purpose": "Resolve a reviewed request's returned, damaged and missing quantities with evidence and audit.",
+          "runtime_boundary": "ReturnRequestView scopes RETURN_REQUEST but resolves any HardwareRequest by pk. Service checks status, locks request/evidence and delegates quantities.",
+          "disposition": "Retain photo, remark, retention and atomic inventory protections; refuse approval of the missing PublicToolLoan boundary.",
+          "decision": "finding-open",
+          "evidence": "handover_views.py:103-117 and 147-158 do not exclude PublicToolLoan-backed requests. Lines 35-70 accept such an issued request, update its inventory/request state and never update the related loan. queue_views.py:134-136 excludes these loans only from the list.",
+          "findings": [
+            "HW-001"
+          ]
+        },
+        {
+          "owner": "_return_evidence",
+          "line_start": 74,
+          "line_end": 82,
+          "purpose": "Resolve return-type evidence within the request's tenant.",
+          "runtime_boundary": "Read-only evidence lookup preceding storage finalization; staff authorization belongs to the caller.",
+          "disposition": "Retain tenant and evidence-type matching with explicit invalid-evidence refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 75-79 constrain pk, makerspace and RETURN type; return_items later serializes attachment and checks cross-table reuse.",
+          "findings": []
+        },
+        {
+          "owner": "_require_returnable",
+          "line_start": 85,
+          "line_end": 92,
+          "purpose": "Reject requests outside outstanding return states.",
+          "runtime_boundary": "Called on both the supplied request and its locked reload.",
+          "disposition": "Retain issued/partially-returned validation, but require a deliberate loan-source boundary before accepting this as the reviewed-return gate.",
+          "decision": "finding-open",
+          "evidence": "Lines 86-89 test status alone. PublicToolLoan-backed requests use the same ISSUED status, so this predicate admits them through the callable reviewed-return endpoint.",
+          "findings": [
+            "HW-001"
+          ]
+        },
+        {
+          "owner": "_matching_box",
+          "line_start": 95,
+          "line_end": 105,
+          "purpose": "Validate an optional reviewed-loan container scan.",
+          "runtime_boundary": "Called after locking the reviewed request; uses its assigned_box_id as authority.",
+          "disposition": "Retain blank-only input for containerless requests and exact tenant/container matching otherwise.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 96-104 implement the optional-container rule in docs/INVARIANTS.md:417-423. This helper does not claim to validate PublicToolLoan.container.",
+          "findings": []
+        },
+        {
+          "owner": "_record_scan",
+          "line_start": 108,
+          "line_end": 115,
+          "purpose": "Append the validated reviewed-container return scan.",
+          "runtime_boundary": "Called inside return_items only when _matching_box returned a matching box.",
+          "disposition": "Retain explicit request, tenant, actor and RETURN context binding.",
+          "decision": "reviewed-no-finding",
+          "evidence": "return_items:60-61 bypasses this helper for containerless returns. Lines 109-115 create a new scan rather than modifying history.",
+          "findings": []
+        },
+        {
+          "owner": "_create_event",
+          "line_start": 117,
+          "line_end": 128,
+          "purpose": "Append a reviewed physical-return event with its single-use evidence.",
+          "runtime_boundary": "Atomic workflow helper; unique evidence conflicts abort the surrounding return transaction.",
+          "disposition": "Retain new immutable-event creation and evidence-conflict refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 119-125 bind request, tenant, optional box, evidence, remark and actor. ReturnEvent.evidence is OneToOne and its mutation guards were inspected.",
+          "findings": []
+        },
+        {
+          "owner": "_audit_return",
+          "line_start": 131,
+          "line_end": 153,
+          "purpose": "Append request, evidence and optional container-scan audit entries.",
+          "runtime_boundary": "Called after all domain mutations in the same return transaction.",
+          "disposition": "Retain mandatory request/evidence entries and conditional box audit with null box metadata when absent.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 132-145 always audit request and evidence; lines 146-153 audit only an actual scan, matching the documented containerless return contract.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/return_helpers.py",
+      "file_sha256": "e98286fd59b7a5c85e163f25b4b57c284eb823600c6073fbbe5859dc3a40115b",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 255,
+          "purpose": "Declare return outcome mappings and shared resolution collaborators.",
+          "runtime_boundary": "Internal declarations consumed by reviewed and direct returns.",
+          "disposition": "Retain explicit returned/damaged/missing mappings; no child approval is implied.",
+          "decision": "reviewed-no-finding",
+          "evidence": "OUTCOME_MAP:16-20 maps missing to LOST and damaged to DAMAGED without product bucket mutation.",
+          "findings": []
+        },
+        {
+          "owner": "build_resolutions",
+          "line_start": 23,
+          "line_end": 67,
+          "purpose": "Validate item ownership and requested resolution counts.",
+          "runtime_boundary": "Internal helper under the caller's transaction; API serializers reject duplicate item ids before invocation.",
+          "disposition": "Retain request-item membership checks, nonnegative quantities and outstanding limits for validated unique entries.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 25-34 restrict items to locked.items; lines 40-66 validate quantities and a positive total. serializers_admin.py:183-205 and direct_loan_serializers.py:48-57 reject duplicate items at the actual API callers.",
+          "findings": []
+        },
+        {
+          "owner": "_individual_counts",
+          "line_start": 70,
+          "line_end": 83,
+          "purpose": "Derive counts from exact asset outcomes or permit an unambiguous full good return.",
+          "runtime_boundary": "Pure helper called by build_resolutions after serializer outcome validation.",
+          "disposition": "Retain exact-count agreement and require asset identity for damage, loss or partial individual returns.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 73-78 compare explicit counts to asset outcomes; lines 79-82 refuse ambiguous aggregate individual resolutions.",
+          "findings": []
+        },
+        {
+          "owner": "remaining_quantity",
+          "line_start": 86,
+          "line_end": 89,
+          "purpose": "Calculate an item's unresolved issued quantity.",
+          "runtime_boundary": "Pure request-item accounting helper; it does not mutate inventory buckets.",
+          "disposition": "Retain subtraction of all three resolved outcomes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 87-89 subtract returned, damaged and missing quantities. This is the complete resolution calculation used by reviewed and direct returns.",
+          "findings": []
+        },
+        {
+          "owner": "write_accountability",
+          "line_start": 92,
+          "line_end": 110,
+          "purpose": "Append damage and loss accountability for validated return resolutions.",
+          "runtime_boundary": "Internal helper called in reviewed/direct return transactions with request-bound resolutions.",
+          "disposition": "Retain separate damage and missing records and delegate zero handling to _write_issue.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 95-110 preserve the item, evidence and original requester context for each outcome. They do not directly change access_status.",
+          "findings": []
+        },
+        {
+          "owner": "flip_individual_asset_returns",
+          "line_start": 113,
+          "line_end": 131,
+          "purpose": "Dispatch individual asset returns to exact-identity or full-good-return handling.",
+          "runtime_boundary": "Called after availability.return_items within the reviewed-return transaction.",
+          "disposition": "Retain individual-only dispatch and the exact/full-return distinction.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 117-123 skip quantity products and dispatch explicit outcomes; lines 124-131 use only the full-good-return count admitted by _individual_counts.",
+          "findings": []
+        },
+        {
+          "owner": "_flip_exact_asset_links",
+          "line_start": 134,
+          "line_end": 161,
+          "purpose": "Resolve specifically identified issued asset links and append available QR scan records.",
+          "runtime_boundary": "Reviewed-return transaction; locks matching issued links and their nonnullable asset joins.",
+          "disposition": "Retain request-item ownership and cardinality checks before updating outcomes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 138-147 require each supplied asset to have an ISSUED link on this item. Lines 151-161 apply the validated outcome and create RETURN scan events where active asset QRs exist.",
+          "findings": []
+        },
+        {
+          "owner": "_active_asset_qrs",
+          "line_start": 164,
+          "line_end": 173,
+          "purpose": "Find active asset QR records for return-history attribution.",
+          "runtime_boundary": "Tenant-scoped lookup used after exact issued-link validation.",
+          "disposition": "Retain tenant, target type, target ids and active status restrictions.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 167-172 constrain all lookup dimensions. This lookup does not claim that a supplied QR payload was scanned.",
+          "findings": []
+        },
+        {
+          "owner": "_flip_asset_links",
+          "line_start": 176,
+          "line_end": 188,
+          "purpose": "Resolve all remaining linked assets on an aggregate full-good return.",
+          "runtime_boundary": "Reviewed-return transaction after _individual_counts admits a full good return.",
+          "disposition": "Retain ordered issued-link selection and exact linked-unit cardinality refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 179-186 restrict by request item and ISSUED outcome, order by asset_id and refuse a short set.",
+          "findings": []
+        },
+        {
+          "owner": "_set_link_outcome",
+          "line_start": 191,
+          "line_end": 197,
+          "purpose": "Update the asset state and link its resolution to the new immutable event.",
+          "runtime_boundary": "Internal mutation helper whose callers hold link/asset locks and have already delegated bucket math.",
+          "disposition": "Retain coordinated asset/link state changes without duplicating inventory quantity math.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 192-197 update asset status, outcome, returned_at and return_event only. return_workflow.py:64-66 performs bucket movement first within the same transaction.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_return_status",
+          "line_start": 200,
+          "line_end": 228,
+          "purpose": "Select partial, returned or closed-with-issue status from persisted item resolutions.",
+          "runtime_boundary": "Internal return-service helper; callers own request/loan serialization.",
+          "disposition": "Retain terminal issue preservation and close actor/time attribution.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 202-211 include returned, damaged and missing counts. Lines 213-228 keep unresolved requests partial and close fully resolved requests according to any recorded issue.",
+          "findings": []
+        },
+        {
+          "owner": "_write_issue",
+          "line_start": 231,
+          "line_end": 255,
+          "purpose": "Append one positive damage/loss accountability record and corresponding audit.",
+          "runtime_boundary": "Internal atomic helper supplied with a request-owned item and scoped evidence.",
+          "disposition": "Retain immutable insert-only accountability and original-requester attribution.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 235-243 bind requester, request, item, makerspace, evidence and actor. Lines 245-255 audit quantity and evidence without editing the requester account.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/workflow_utils.py",
+      "file_sha256": "a1c6019d22844fc08510143da1f2abecf8ed6d8b64f51c948a983859c3e10e90",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 18,
+          "purpose": "Declare the shared HardwareRequest locking dependency.",
+          "runtime_boundary": "Internal utility module imported by reviewed transition services.",
+          "disposition": "Retain the direct model import; no module-level query runs.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 1 is the only module-level executable dependency declaration.",
+          "findings": []
+        },
+        {
+          "owner": "constraint_name",
+          "line_start": 4,
+          "line_end": 6,
+          "purpose": "Safely extract the underlying database constraint name.",
+          "runtime_boundary": "Pure exception-inspection helper.",
+          "disposition": "Retain empty fallback when database diagnostics are absent.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Both cause and diag accesses use getattr defaults; handover_workflow._raise_issue_conflict handles the resulting empty name conservatively.",
+          "findings": []
+        },
+        {
+          "owner": "locked_request",
+          "line_start": 9,
+          "line_end": 18,
+          "purpose": "Reload and lock only the HardwareRequest row.",
+          "runtime_boundary": "Internal helper requiring an enclosing atomic transaction and an already authorized request object.",
+          "disposition": "Retain of=(self,) and nonnullable joins; do not treat the pk lookup as independent authorization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 15-17 avoid locking joined tenant/requester rows. Request, handover and reviewed-return services invoke this inside transaction.atomic; API callers perform action scoping first.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/workflow_errors.py",
+      "file_sha256": "0022fedc748e792e274432b08394fafebc716f567fa2a47093935f92cf9f2221",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 34,
+          "purpose": "Declare domain exception types without workflow side effects.",
+          "runtime_boundary": "Imported by services, the public barrel and the API exception handler.",
+          "disposition": "Retain distinct typed refusal declarations.",
+          "decision": "reviewed-no-finding",
+          "evidence": "The module contains only nine exception classes; exceptions.py maps their API outcomes.",
+          "findings": []
+        },
+        {
+          "owner": "InvalidTransition",
+          "line_start": 1,
+          "line_end": 2,
+          "purpose": "Represent a conflicting or disallowed workflow transition.",
+          "runtime_boundary": "Exception type translated by the API handler.",
+          "disposition": "Retain the transition conflict type.",
+          "decision": "reviewed-no-finding",
+          "evidence": "exceptions.py:127-130 maps it to HTTP 409 with invalid_transition.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterBlocked",
+          "line_start": 5,
+          "line_end": 6,
+          "purpose": "Represent refusal of a requester operation.",
+          "runtime_boundary": "Exception type used for nonowner self-checkout return.",
+          "disposition": "Retain a distinct permission refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "self_checkout_workflow.py:189-190 raises it on owner mismatch; exceptions.py:122-125 maps HTTP 403.",
+          "findings": []
+        },
+        {
+          "owner": "RequestValidationError",
+          "line_start": 9,
+          "line_end": 10,
+          "purpose": "Represent invalid request or handout input.",
+          "runtime_boundary": "Domain exception translated to a typed API validation response.",
+          "disposition": "Retain the request validation type.",
+          "decision": "reviewed-no-finding",
+          "evidence": "exceptions.py:212-215 maps HTTP 400 and validation_error.",
+          "findings": []
+        },
+        {
+          "owner": "AnonymousRequestIdempotencyConflict",
+          "line_start": 13,
+          "line_end": 14,
+          "purpose": "Represent a reused anonymous key with a changed payload.",
+          "runtime_boundary": "Raised by anonymous_idempotency_replay.",
+          "disposition": "Retain the distinct retry-conflict type.",
+          "decision": "reviewed-no-finding",
+          "evidence": "request_workflow.py:134-137 raises it; exceptions.py:61-65 maps HTTP 409.",
+          "findings": []
+        },
+        {
+          "owner": "AnonymousRequestOutstandingLimit",
+          "line_start": 17,
+          "line_end": 18,
+          "purpose": "Represent exhaustion of the anonymous pending-request ceiling.",
+          "runtime_boundary": "Raised by the serialized tenant ceiling helper.",
+          "disposition": "Retain the explicit capacity refusal type.",
+          "decision": "reviewed-no-finding",
+          "evidence": "request_workflow.py:147-151 raises it; exceptions.py:66-71 maps HTTP 429.",
+          "findings": []
+        },
+        {
+          "owner": "ReturnValidationError",
+          "line_start": 21,
+          "line_end": 22,
+          "purpose": "Represent invalid return resolution or evidence input.",
+          "runtime_boundary": "Domain exception shared by reviewed, public and direct returns.",
+          "disposition": "Retain the return-specific validation response.",
+          "decision": "reviewed-no-finding",
+          "evidence": "exceptions.py:217-221 maps HTTP 400 and return_validation_error.",
+          "findings": []
+        },
+        {
+          "owner": "BoxValidationError",
+          "line_start": 25,
+          "line_end": 26,
+          "purpose": "Represent an unknown or inactive handover box.",
+          "runtime_boundary": "Raised by reviewed box assignment.",
+          "disposition": "Retain invalid-box classification separately from occupancy conflict.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_workflow.py:43-44 raises it; exceptions.py:222-226 maps HTTP 400.",
+          "findings": []
+        },
+        {
+          "owner": "BoxUnavailable",
+          "line_start": 29,
+          "line_end": 30,
+          "purpose": "Represent a container already occupied by an active loan.",
+          "runtime_boundary": "Assignment/issue conflict type.",
+          "disposition": "Retain the container-occupancy conflict response.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_workflow.py checks occupancy and database conflicts; exceptions.py:227-231 maps HTTP 409.",
+          "findings": []
+        },
+        {
+          "owner": "EvidenceNotUploaded",
+          "line_start": 33,
+          "line_end": 34,
+          "purpose": "Represent a missing issue or return evidence object.",
+          "runtime_boundary": "Raised after storage finalization reports missing bytes.",
+          "disposition": "Retain separation from invalid image data and storage outages.",
+          "decision": "reviewed-no-finding",
+          "evidence": "direct_loan_returns.py:243-254 distinguishes missing upload from invalid content; exceptions.py:232-241 distinguishes HTTP 409 from StorageUnavailable HTTP 503.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/permissions.py",
+      "file_sha256": "11465c8abf39263d184bffeaf32d8864a8907e231b0eae670235e5faf5009702",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 78,
+          "purpose": "Declare DRF permission adapters over action-based makerspace RBAC.",
+          "runtime_boundary": "Permission classes are coarse admission checks; views still scope concrete resources.",
+          "disposition": "Retain shared RBAC and origin-scope dependencies without treating permission admission as object authorization.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-5 import BasePermission, rbac, User and staff_origin_scope_allows. Concrete view scoping was inspected separately.",
+          "findings": []
+        },
+        {
+          "owner": "_active_authenticated",
+          "line_start": 8,
+          "line_end": 13,
+          "purpose": "Refuse unauthenticated, access-restricted or forced-password-change staff actors.",
+          "runtime_boundary": "Pure predicate over the actor supplied by authentication.",
+          "disposition": "Retain the explicit access_status and password-rotation checks; authentication backend enforcement of is_active is outside this helper.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 10-12 require authentication, ACTIVE status and no forced password change. rbac._actor_refused does not supply these standing checks.",
+          "findings": []
+        },
+        {
+          "owner": "CanReviewRequest",
+          "line_start": 16,
+          "line_end": 25,
+          "purpose": "Provide DRF admission for request review actions.",
+          "runtime_boundary": "BasePermission adapter used by accept, reject, pending-list and due-time views.",
+          "disposition": "Retain coarse review admission with action-specific target checks in each view.",
+          "decision": "reviewed-no-finding",
+          "evidence": "review_views.py:31 and 63 scope the exact ACCEPT_REQUEST or REJECT_REQUEST action after this class admits the request.",
+          "findings": []
+        },
+        {
+          "owner": "CanReviewRequest.has_permission",
+          "line_start": 17,
+          "line_end": 25,
+          "purpose": "Admit active origin-compatible actors who can accept or reject somewhere.",
+          "runtime_boundary": "DRF permission evaluation before handler execution.",
+          "disposition": "Retain either-action discovery; do not interpret it as permission for both actions in every tenant.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 19-25 combine standing/origin checks with the two action scopes. Concrete handlers use scope_by_action.",
+          "findings": []
+        },
+        {
+          "owner": "CanViewHandoverQueue",
+          "line_start": 28,
+          "line_end": 38,
+          "purpose": "Provide admission to handover queues.",
+          "runtime_boundary": "Permission adapter for accepted, active and history list views.",
+          "disposition": "Retain issuer-based queue admission and separate tenant narrowing by the list handlers.",
+          "decision": "reviewed-no-finding",
+          "evidence": "queue_views.py:94-105, 122-139 and 160-175 validate the requested makerspace and filter rows explicitly.",
+          "findings": []
+        },
+        {
+          "owner": "CanViewHandoverQueue.has_permission",
+          "line_start": 34,
+          "line_end": 38,
+          "purpose": "Require active status, origin compatibility and some ISSUE_REQUEST authority.",
+          "runtime_boundary": "Coarse DRF list admission.",
+          "disposition": "Retain explicit active-status protection beyond rbac action discovery.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 36-38 enforce the documented standing check before testing ISSUE_REQUEST scope.",
+          "findings": []
+        },
+        {
+          "owner": "CanAssignBox",
+          "line_start": 41,
+          "line_end": 46,
+          "purpose": "Provide DRF admission to reviewed box assignment.",
+          "runtime_boundary": "Used by AssignBoxView.",
+          "disposition": "Retain ASSIGN_BOX-specific admission.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:30-51 also scopes the concrete request by ASSIGN_BOX.",
+          "findings": []
+        },
+        {
+          "owner": "CanAssignBox.has_permission",
+          "line_start": 42,
+          "line_end": 46,
+          "purpose": "Check actor standing, origin and available box-assignment authority.",
+          "runtime_boundary": "DRF permission evaluation.",
+          "disposition": "Retain all three admission conditions.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 44-46 combine _active_authenticated, staff_origin_scope_allows and makerspaces_for_action(ASSIGN_BOX).",
+          "findings": []
+        },
+        {
+          "owner": "CanIssueRequest",
+          "line_start": 49,
+          "line_end": 54,
+          "purpose": "Provide DRF admission to reviewed hardware issuance.",
+          "runtime_boundary": "Used by IssueRequestView.",
+          "disposition": "Retain ISSUE_REQUEST-specific admission.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:69-84 additionally scopes the concrete request by ISSUE_REQUEST before evidence processing.",
+          "findings": []
+        },
+        {
+          "owner": "CanIssueRequest.has_permission",
+          "line_start": 50,
+          "line_end": 54,
+          "purpose": "Check actor standing, origin and some reviewed-issue authority.",
+          "runtime_boundary": "DRF permission evaluation.",
+          "disposition": "Retain standing/origin checks before action-scope discovery.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 52-54 explicitly combine the required checks; resource scoping remains in the view.",
+          "findings": []
+        },
+        {
+          "owner": "CanIssueDirectLoan",
+          "line_start": 57,
+          "line_end": 62,
+          "purpose": "Provide DRF admission to direct handout surfaces.",
+          "runtime_boundary": "Used by direct-loan list/create and borrower-list views.",
+          "disposition": "Retain the distinct ISSUE_DIRECT_LOAN action.",
+          "decision": "reviewed-no-finding",
+          "evidence": "direct_loan_views.py:63-74 scopes makerspace authority and independently validates borrower membership.",
+          "findings": []
+        },
+        {
+          "owner": "CanIssueDirectLoan.has_permission",
+          "line_start": 58,
+          "line_end": 62,
+          "purpose": "Check active origin-compatible staff with some direct-handout authority.",
+          "runtime_boundary": "DRF permission evaluation.",
+          "disposition": "Retain direct-handout action discovery without granting request review authority.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 60-62 ask only ISSUE_DIRECT_LOAN; docs/INVARIANTS.md:1336-1359 preserves the handout/custom-role distinction.",
+          "findings": []
+        },
+        {
+          "owner": "CanReturnRequest",
+          "line_start": 65,
+          "line_end": 70,
+          "purpose": "Provide DRF admission to staff reviewed returns.",
+          "runtime_boundary": "Used by ReturnRequestView.",
+          "disposition": "Retain RETURN_REQUEST admission; this class does not resolve the loan-source defect in the service boundary.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_views.py:103-108 scopes concrete RETURN_REQUEST authority. HW-001 concerns which request kinds that authorized endpoint accepts.",
+          "findings": []
+        },
+        {
+          "owner": "CanReturnRequest.has_permission",
+          "line_start": 66,
+          "line_end": 70,
+          "purpose": "Check standing, origin and some return authority.",
+          "runtime_boundary": "DRF permission evaluation.",
+          "disposition": "Retain active and origin checks in addition to RETURN_REQUEST scope.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 68-70 implement all three conditions; no object lookup occurs here.",
+          "findings": []
+        },
+        {
+          "owner": "CanReturnDirectLoan",
+          "line_start": 73,
+          "line_end": 78,
+          "purpose": "Provide coarse admission to staff direct-loan returns.",
+          "runtime_boundary": "DirectLoanReturnView performs concrete loan, source, tenant and origin narrowing.",
+          "disposition": "Retain this class only as coarse admission; its caller owns origin filtering.",
+          "decision": "reviewed-no-finding",
+          "evidence": "direct_loan_views.py:94-111 restricts ADMIN_DIRECT source, intersects allowed makerspaces with resolved origin scope and checks the concrete return action.",
+          "findings": []
+        },
+        {
+          "owner": "CanReturnDirectLoan.has_permission",
+          "line_start": 74,
+          "line_end": 78,
+          "purpose": "Require active staff standing and some RETURN_REQUEST authority for direct returns.",
+          "runtime_boundary": "DRF admission before DirectLoanReturnView's explicit scoping.",
+          "disposition": "Retain actor/action checks while relying on the inspected view for concrete tenant narrowing.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 76-78 perform standing and action discovery; direct_loan_views.py:96-111 supplies the subsequent resource restrictions.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/models.py",
+      "file_sha256": "b695734206a45807ff4cb3153affc4b887df3860200c580737fcbe3f0af02fa5",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 201,
+          "purpose": "Declare request models and preserve imports of split related models.",
+          "runtime_boundary": "Django model import and registration.",
+          "disposition": "Retain explicit bottom re-exports and mapped-PII dependency; no service authorization is supplied by this module.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 193-201 explicitly import return, asset-link and self-checkout models so existing models imports resolve.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequest",
+          "line_start": 8,
+          "line_end": 161,
+          "purpose": "Store tenant request identity, lifecycle attribution, container and issue evidence.",
+          "runtime_boundary": "Persistent model; workflow services own status transitions and callers own permissions.",
+          "disposition": "Retain protected requester/evidence references, captured provenance and single-use issue evidence.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 19-50 retain tenant/requester/check-in provenance; lines 91-96 make issue evidence OneToOne and PROTECT. The shared status model does not itself distinguish reviewed and PublicToolLoan-backed requests.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequest.Status",
+          "line_start": 9,
+          "line_end": 17,
+          "purpose": "Enumerate request lifecycle status literals.",
+          "runtime_boundary": "Declarative TextChoices; allowed transitions are enforced in services.",
+          "disposition": "Retain draft, pending, reviewed and return terminal states without treating choices as transition enforcement.",
+          "decision": "reviewed-no-finding",
+          "evidence": "request_workflow checks pending decisions; handover_workflow checks accepted issuance; return_workflow checks outstanding states.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequest.Meta",
+          "line_start": 109,
+          "line_end": 161,
+          "purpose": "Declare request lookup indexes and conditional uniqueness constraints.",
+          "runtime_boundary": "Django schema declarations, not proof of installed database schema.",
+          "disposition": "Retain active reviewed-box uniqueness and tenant idempotency-key uniqueness.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 145-160 constrain active assigned_box and nonblank tenant idempotency fingerprints. Public/direct container occupancy additionally requires cross-table service checks.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequestItem",
+          "line_start": 164,
+          "line_end": 190,
+          "purpose": "Store requested, accepted, issued and resolved quantities per request product.",
+          "runtime_boundary": "Persistent item model mutated through request/inventory services.",
+          "disposition": "Retain separate lifecycle quantities and protected product references; accept service-owned consistency enforcement.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 170-182 declare product and outcome quantities. availability_requests.py owns bucket movement and item issuance/resolution updates.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequestItem.Meta",
+          "line_start": 184,
+          "line_end": 190,
+          "purpose": "Require a positive requested item quantity.",
+          "runtime_boundary": "Declarative database check.",
+          "disposition": "Retain requested_quantity>=1 as a persistence backstop.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 186-189 declare req_item_qty_positive; public serializers additionally bound positive submitted quantities.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/asset_link_models.py",
+      "file_sha256": "1d941c9ed60dc48f7cbe1dbef463936a6453044af6984c6ad7eed17e7b044c73",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 46,
+          "purpose": "Declare Django and timestamp dependencies for reviewed asset links.",
+          "runtime_boundary": "Model import only.",
+          "disposition": "Retain minimal declaration dependencies.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-2 import models and timezone; no import-time queries or mutations occur.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequestItemAsset",
+          "line_start": 5,
+          "line_end": 46,
+          "purpose": "Link a reviewed request item to each issued serialized asset and its return event.",
+          "runtime_boundary": "Mutable custody-link model; issue/return services serialize its changes.",
+          "disposition": "Retain protected asset references and explicit issue/return attribution.",
+          "decision": "reviewed-no-finding",
+          "evidence": "handover_issue_helpers.py:105-109 inserts links; return_helpers.py:191-197 resolves them and assigns the immutable ReturnEvent.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequestItemAsset.Outcome",
+          "line_start": 6,
+          "line_end": 10,
+          "purpose": "Enumerate issued, returned, damaged and lost asset-link outcomes.",
+          "runtime_boundary": "Declarative choices consumed by issue and return services.",
+          "disposition": "Retain loss distinct from damage and good return.",
+          "decision": "reviewed-no-finding",
+          "evidence": "return_helpers.OUTCOME_MAP maps missing input to LOST while preserving corresponding asset state.",
+          "findings": []
+        },
+        {
+          "owner": "HardwareRequestItemAsset.Meta",
+          "line_start": 37,
+          "line_end": 46,
+          "purpose": "Prevent duplicate links for the same request item and asset.",
+          "runtime_boundary": "Schema-level uniqueness and lookup index declarations.",
+          "disposition": "Retain pair uniqueness; do not infer a global active-asset-loan constraint from it.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 39-42 constrain request_item plus asset. Asset-status row locks in issuance supply the broader concurrent-use protection.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/return_models.py",
+      "file_sha256": "0a43a0e074b1b26fd890840d2d79f9ff32aebcbbb6ee23f075783e1ed82beb7b",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 90,
+          "purpose": "Declare immutable return and requester-accountability model dependencies.",
+          "runtime_boundary": "Django model declarations.",
+          "disposition": "Retain the settings/model imports with no module-level data access.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-2 are declarative dependencies; immutable model methods are decided separately.",
+          "findings": []
+        },
+        {
+          "owner": "ReturnEvent",
+          "line_start": 5,
+          "line_end": 41,
+          "purpose": "Preserve a physical return's request, evidence, remark and actor.",
+          "runtime_boundary": "Insert-only evidence record with model and declared PostgreSQL mutation guards.",
+          "disposition": "Retain mandatory evidence/remark attribution and optional box.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 8-33 protect request, tenant, evidence and actor; evidence is OneToOne. Migrations 0004 and 0014 define immutable triggers with the explicit purge-delete escape.",
+          "findings": []
+        },
+        {
+          "owner": "ReturnEvent.save",
+          "line_start": 35,
+          "line_end": 38,
+          "purpose": "Refuse ordinary updates to an existing return event.",
+          "runtime_boundary": "Django model save boundary.",
+          "disposition": "Retain existing-pk refusal; database triggers cover queryset update paths in the inspected migration source.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 36-38 allow creation only; migration 0004 attaches a BEFORE UPDATE trigger to the table.",
+          "findings": []
+        },
+        {
+          "owner": "ReturnEvent.delete",
+          "line_start": 40,
+          "line_end": 41,
+          "purpose": "Refuse ordinary model deletion of return history.",
+          "runtime_boundary": "Django instance deletion boundary.",
+          "disposition": "Retain unconditional refusal for ordinary model callers.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 41 raises; migration 0014 permits database deletion only under the explicit app.allow_immutable_delete setting.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterAccountability",
+          "line_start": 44,
+          "line_end": 90,
+          "purpose": "Preserve who was accountable for a quantity of damaged or missing hardware.",
+          "runtime_boundary": "Insert-only model written by return and problem-report services.",
+          "disposition": "Retain protected requester/request/item relationships and optional supporting evidence.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 51-81 preserve tenant, requester, item, issue, evidence and actor. return_helpers._write_issue and problem_report_workflow._write_accountability insert records rather than editing history.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterAccountability.IssueType",
+          "line_start": 47,
+          "line_end": 49,
+          "purpose": "Separate damage from missing-unit accountability.",
+          "runtime_boundary": "Declarative TextChoices.",
+          "disposition": "Retain the two explicit accountability categories.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Return resolution writes each category separately; problem triage maps needs_fix to damage accountability.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterAccountability.save",
+          "line_start": 84,
+          "line_end": 87,
+          "purpose": "Refuse updates to existing accountability records.",
+          "runtime_boundary": "Django model save boundary.",
+          "disposition": "Retain existing-pk refusal with the inspected database trigger backstop.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 85-87 reject resaves; migration 0004 defines the table's BEFORE UPDATE guard.",
+          "findings": []
+        },
+        {
+          "owner": "RequesterAccountability.delete",
+          "line_start": 89,
+          "line_end": 90,
+          "purpose": "Refuse ordinary deletion of accountability history.",
+          "runtime_boundary": "Django instance deletion boundary.",
+          "disposition": "Retain unconditional ordinary deletion refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 90 raises; migration 0014 retains the controlled purge-only database escape.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_models.py",
+      "file_sha256": "9462c69e2a0df3b91d6c2006c203565a73a4c3cd5e415c19e5b0ea82282ed4a6",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 146,
+          "purpose": "Declare public/direct loan and public problem-report models.",
+          "runtime_boundary": "Django model import.",
+          "disposition": "Retain settings/model dependencies; model declarations do not authorize callable workflows.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-2 import only model dependencies. Workflow source/source-kind checks are separate decisions.",
+          "findings": []
+        },
+        {
+          "owner": "PublicToolLoan",
+          "line_start": 5,
+          "line_end": 97,
+          "purpose": "Track a public or direct handout alongside its HardwareRequest, QRs, assets and return evidence.",
+          "runtime_boundary": "Persistent loan aggregate; workflow services must keep its status consistent with the request.",
+          "disposition": "Retain one-to-one request/evidence references and explicit multi-QR asset membership.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 33-49 store request, principal, asset_ids and qr_ids; lines 66-76 make return evidence single-use per loan. HW-001 is the callable workflow that can leave this model unsynchronized.",
+          "findings": []
+        },
+        {
+          "owner": "PublicToolLoan.Source",
+          "line_start": 6,
+          "line_end": 8,
+          "purpose": "Distinguish requester self-checkout from staff direct handout.",
+          "runtime_boundary": "Declarative source discriminator used by views and return services.",
+          "disposition": "Retain separate source literals.",
+          "decision": "reviewed-no-finding",
+          "evidence": "self_checkout_workflow.py:180-183 restricts public returns; direct_loan_views.py:104-106 restricts direct returns.",
+          "findings": []
+        },
+        {
+          "owner": "PublicToolLoan.Status",
+          "line_start": 10,
+          "line_end": 12,
+          "purpose": "Represent outstanding versus completed public/direct custody.",
+          "runtime_boundary": "Declarative loan state choices.",
+          "disposition": "Retain the two-state loan lifecycle alongside richer request outcomes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Direct return uses finalize_return_status for request damage/loss while setting the loan itself RETURNED.",
+          "findings": []
+        },
+        {
+          "owner": "PublicToolLoan.Meta",
+          "line_start": 79,
+          "line_end": 97,
+          "purpose": "Constrain active primary-QR and container occupancy.",
+          "runtime_boundary": "Conditional database uniqueness declarations; secondary QRs require service checks.",
+          "disposition": "Retain the database backstops without claiming they cover qr_ids or reviewed-request occupancy.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 81-91 constrain qr_code and container for checked_out rows; qr_has_active_loan explicitly checks the secondary qr_ids array.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProblemReport",
+          "line_start": 99,
+          "line_end": 146,
+          "purpose": "Store a borrower's post-return problem note and later staff triage decision.",
+          "runtime_boundary": "Created during public return and resolved by an authorized inventory triage caller.",
+          "disposition": "Retain protected loan/request/requester provenance and explicit staff resolution attribution.",
+          "decision": "reviewed-no-finding",
+          "evidence": "self_checkout_workflow.py:223-244 creates reports from the actual returned loan; operations/views_problem_reports.py:61-72 resolves tenant and EDIT_INVENTORY authority before triage.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProblemReport.Outcome",
+          "line_start": 100,
+          "line_end": 104,
+          "purpose": "Enumerate no issue, damage, loss and repair-shelf triage outcomes.",
+          "runtime_boundary": "Declarative choices mirrored by the inspected triage serializer.",
+          "disposition": "Retain no_issue separately from stock-moving outcomes.",
+          "decision": "reviewed-no-finding",
+          "evidence": "serializers_problem_reports.py:10-12 constrains API input; problem_report_workflow.py:50 bypasses stock movement only for NO_ISSUE.",
+          "findings": []
+        },
+        {
+          "owner": "PublicProblemReport.Meta",
+          "line_start": 145,
+          "line_end": 146,
+          "purpose": "Index unresolved problem reports within a makerspace.",
+          "runtime_boundary": "Schema lookup optimization only.",
+          "disposition": "Retain makerspace/resolved_at indexing without treating it as an authorization guard.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 146 declares the index; the triage view separately filters makerspace_id.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_helpers.py",
+      "file_sha256": "37a8f948ad27fb624a86a7a6f97a43cef081b63f8086171fa1602cbd2623f00c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 296,
+          "purpose": "Declare shared public/direct target-resolution and stock-operation dependencies.",
+          "runtime_boundary": "Internal helper module used by public checkout and staff direct handout.",
+          "disposition": "Retain shared availability imports; child eligibility and mutation decisions are independent.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 5-9 import the shared box, loan, error and inventory owners.",
+          "findings": []
+        },
+        {
+          "owner": "_locked_qr",
+          "line_start": 12,
+          "line_end": 20,
+          "purpose": "Resolve and lock one active QR in the specified tenant.",
+          "runtime_boundary": "Called inside public return's atomic transaction.",
+          "disposition": "Retain payload, tenant and active-status matching with explicit refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 14-19 lock only matching tenant active QR input; return_tool:176 calls it before loan lookup.",
+          "findings": []
+        },
+        {
+          "owner": "_locked_qrs_for_payloads",
+          "line_start": 23,
+          "line_end": 37,
+          "purpose": "Lock a batch of active tenant QRs in database pk order.",
+          "runtime_boundary": "Atomic checkout/direct-issue helper; callers reject duplicate returned QR ids.",
+          "disposition": "Retain ordered lock acquisition and complete payload resolution.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 27-35 lock matching QRs ordered by pk and reject incomplete sets. checkout_tool:79 and issue_direct_loan:132 reject duplicates.",
+          "findings": []
+        },
+        {
+          "owner": "_reject_overlapping_checkout_targets",
+          "line_start": 40,
+          "line_end": 54,
+          "purpose": "Refuse scanning an asset together with its containing box.",
+          "runtime_boundary": "Read-only overlap guard after QR resolution.",
+          "disposition": "Retain the duplicate-target refusal; the box-only individual-QR violation is recorded on _checkout_box.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 47-53 detect asset.box_id among scanned boxes within QR makerspaces. This guard prevents adding individual scans as a workaround for HW-002.",
+          "findings": []
+        },
+        {
+          "owner": "_checkout_target",
+          "line_start": 57,
+          "line_end": 76,
+          "purpose": "Issue a quantity product, exact asset or box contents according to a scanned QR.",
+          "runtime_boundary": "Atomic internal target dispatcher after tenant QR locking; require_public controls public eligibility.",
+          "disposition": "Retain exact-asset requirement for individual product QRs; refuse approval of delegated box issuance that skips individual scans.",
+          "decision": "finding-open",
+          "evidence": "Lines 62-65 correctly reject individual product QR issuance, but line 76 delegates box targets to _checkout_box, whose asset branch issues serialized units from a box QR alone.",
+          "findings": [
+            "HW-002"
+          ]
+        },
+        {
+          "owner": "_checkout_box",
+          "line_start": 79,
+          "line_end": 156,
+          "purpose": "Issue eligible available contents of a scanned box and assign the container.",
+          "runtime_boundary": "Called from public checkout and direct issue after QR locking; locks box, assets and products.",
+          "disposition": "Retain active-container and occupancy checks; refuse approval of bulk individual issuance without each asset QR.",
+          "decision": "finding-open",
+          "evidence": "Lines 89-128 select assets by box and bulk-mark them ISSUED without any asset payload validation. checkout_tool:131-138 and issue_direct_loan:204-210 record only supplied QRs. docs/INVARIANTS.md:417-421 requires each individual unit's QR regardless of container.",
+          "findings": [
+            "HW-002"
+          ]
+        },
+        {
+          "owner": "_reviewed_request_holds_box",
+          "line_start": 159,
+          "line_end": 168,
+          "purpose": "Detect a container currently held by a reviewed issued request.",
+          "runtime_boundary": "Occupancy read while checkout/direct issue holds the relevant box lock.",
+          "disposition": "Retain issued and partially-returned reviewed-request occupancy checks.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 162-168 match assigned_box and the two active statuses, complementing the public-loan container check.",
+          "findings": []
+        },
+        {
+          "owner": "_eligible_product",
+          "line_start": 171,
+          "line_end": 179,
+          "purpose": "Lock a same-tenant unarchived product and enforce public checkout flags when required.",
+          "runtime_boundary": "Atomic product eligibility helper; direct issue explicitly passes require_public=False.",
+          "disposition": "Retain tenant/archive restrictions on both branches and public flags on the public branch.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Line 172 scopes pk and makerspace under a row lock; lines 173-178 refuse archival and public ineligibility.",
+          "findings": []
+        },
+        {
+          "owner": "_eligible_asset",
+          "line_start": 182,
+          "line_end": 196,
+          "purpose": "Lock and validate an available exact asset and its product.",
+          "runtime_boundary": "Atomic helper invoked only for a resolved asset QR.",
+          "disposition": "Retain asset availability, tenant and public opt-in checks plus product eligibility revalidation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 184-195 lock the asset/product join, require AVAILABLE and public asset opt-in when applicable, and reload the product through _eligible_product.",
+          "findings": []
+        },
+        {
+          "owner": "_issue_product",
+          "line_start": 199,
+          "line_end": 204,
+          "purpose": "Translate inadequate available stock into a friendly refusal before delegated issuance.",
+          "runtime_boundary": "Internal helper requiring caller-held product lock and positive validated quantity.",
+          "disposition": "Retain delegation of all bucket mutation to availability.issue_available.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 202-204 inspect availability but do not compute bucket updates. availability_quantities.py:172-189 owns available-to-issued math.",
+          "findings": []
+        },
+        {
+          "owner": "_issued_request",
+          "line_start": 207,
+          "line_end": 231,
+          "purpose": "Supply default issuing actor and forward direct-issued request creation.",
+          "runtime_boundary": "Internal wrapper used inside the public/direct issue transactions.",
+          "disposition": "Retain explicit caller-supplied principal, contact snapshot and issuing actor forwarding.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 220-230 forward all provenance, with issued_by falling back to requester only for self-checkout.",
+          "findings": []
+        },
+        {
+          "owner": "_create_issued_request",
+          "line_start": 234,
+          "line_end": 272,
+          "purpose": "Create the request/item representation of hardware already issued by a no-reservation flow.",
+          "runtime_boundary": "Internal helper after availability issuance; enclosing caller transaction subsequently attaches issue evidence and creates the loan.",
+          "disposition": "Retain direct ISSUED creation for these authorized workflows and equal requested/accepted/issued quantities.",
+          "decision": "reviewed-no-finding",
+          "evidence": "checkout_tool:105-130 and issue_direct_loan:161-199 invoke this inside their transaction and attach validated evidence before commit. Lines 260-270 create item lifecycle counts without additional product bucket movement.",
+          "findings": []
+        },
+        {
+          "owner": "_return_request_items",
+          "line_start": 275,
+          "line_end": 296,
+          "purpose": "Credit all outstanding self-checkout item quantities back to available stock.",
+          "runtime_boundary": "Called by public return after loan ownership and asset checks; assumes the request has no prior damaged/missing resolutions.",
+          "disposition": "Retain inventory delegation and ordered product locks; refuse approval of the unresolved-count assumption while the reviewed endpoint can mutate these requests.",
+          "decision": "finding-open",
+          "evidence": "Lines 278-280 subtract only returned_quantity, unlike return_helpers.remaining_quantity. HW-001 permits reviewed returns to add damaged/missing quantities to a public loan's request; a later public return can therefore credit already-resolved quantities again.",
+          "findings": [
+            "HW-001"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_return_guards.py",
+      "file_sha256": "90ff90e69eb70d166a388e982733be5eba1e27bc70cf801d62f49169f91a81c2",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 29,
+          "purpose": "Declare the asset-return consistency guard dependencies.",
+          "runtime_boundary": "Internal helper module imported by public return.",
+          "disposition": "Retain the domain error and inventory asset model dependencies.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 1-2 contain only the two required imports.",
+          "findings": []
+        },
+        {
+          "owner": "lock_loan_assets_for_return",
+          "line_start": 5,
+          "line_end": 29,
+          "purpose": "Lock every serialized loan asset and refuse returns after its recorded state changed elsewhere.",
+          "runtime_boundary": "Public return transaction after loan ownership validation and before stock mutation.",
+          "disposition": "Retain same-tenant completeness and ISSUED-state validation to avoid resurrecting moved assets.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 17-24 lock assets ordered by pk and compare the complete unique id set. return_tool:191 calls this before _return_request_items or asset status updates.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_workflow.py",
+      "file_sha256": "872383624e136913bb9845aa231cbb3bf87a38e78879b0b8300c4ae7e24f979e",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 290,
+          "purpose": "Declare public checkout/return workflow collaborators.",
+          "runtime_boundary": "Imported by public API views and direct-loan QR occupancy checks.",
+          "disposition": "Retain shared evidence, feature, loan and inventory helper dependencies.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 8-38 import shared owners; RequesterBlocked and ReturnValidationError remain distinct domain refusals.",
+          "findings": []
+        },
+        {
+          "owner": "checkout_tool",
+          "line_start": 41,
+          "line_end": 146,
+          "purpose": "Create a self-checkout loan from eligible QRs and requester-owned uploaded evidence.",
+          "runtime_boundary": "PublicToolCheckoutView resolves active membership/presence or fresh roster principal. Service rechecks feature/servability under tenant lock and locks evidence then QRs.",
+          "disposition": "Retain identity/evidence/feature checks; refuse approval of box-based individual issuance and the box/QR order conflict with direct handout.",
+          "decision": "finding-open",
+          "evidence": "self_checkout_views.py:131-165 supplies the verified principal. Lines 64-85 gate stored tenant state and unused evidence. Line 91 reaches _checkout_box after QR locking, creating both the HW-002 path and the opposite side of HW-003.",
+          "findings": [
+            "HW-002",
+            "HW-003"
+          ]
+        },
+        {
+          "owner": "return_tool",
+          "line_start": 149,
+          "line_end": 245,
+          "purpose": "Return a requester's self-checkout loan with owned return evidence and optional problem report.",
+          "runtime_boundary": "PublicToolReturnView resolves the principal; service locks tenant, evidence, QR and loan/request joins, checks source and requester, then returns stock.",
+          "disposition": "Retain requester ownership and evidence protections; refuse approval of the item-state assumption exposed by the callable reviewed-return path.",
+          "decision": "finding-open",
+          "evidence": "Lines 180-190 require public source and exact owner; lines 191-208 guard assets and return items. However _return_request_items ignores prior damaged/missing quantities, which HW-001 allows another endpoint to write while this loan remains checked_out.",
+          "findings": [
+            "HW-001"
+          ]
+        },
+        {
+          "owner": "_public_evidence",
+          "line_start": 248,
+          "line_end": 257,
+          "purpose": "Resolve public evidence by tenant, type and uploading principal.",
+          "runtime_boundary": "Read helper before evidence finalization.",
+          "disposition": "Retain uploader ownership in addition to tenant/type restrictions.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 249-254 require uploaded_by=requester. Both checkout_tool and return_tool supply the verified principal and expected evidence type.",
+          "findings": []
+        },
+        {
+          "owner": "_lock_unused_evidence",
+          "line_start": 260,
+          "line_end": 272,
+          "purpose": "Serialize evidence attachment and refuse expired or already consumed evidence.",
+          "runtime_boundary": "Called inside public issue/return transactions after finalization.",
+          "disposition": "Retain retention lock ordering and cross-table return reuse checks.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 261-266 handle issue evidence; lines 268-272 check both PublicToolLoan.return_evidence and ReturnEvent.evidence. finalization.py:106-118 supplies photo/finalization/retention lock order.",
+          "findings": []
+        },
+        {
+          "owner": "qr_has_active_loan",
+          "line_start": 275,
+          "line_end": 290,
+          "purpose": "Detect active custody of a primary or bundled secondary QR.",
+          "runtime_boundary": "Tenant-scoped occupancy predicate whose callers hold relevant QR row locks.",
+          "disposition": "Retain both primary FK and secondary JSON-array membership checks.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 284-288 include makerspace, checked_out status and both QR representations. Public and direct issue callers lock QRs before checking.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_workflow.py",
+      "file_sha256": "b960cc5f8809b5c23ef27db6eadf684468663800e5c673add675de962aaa4de2",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 249,
+          "purpose": "Declare direct-handout services and preserve the direct-return import surface.",
+          "runtime_boundary": "Imported by staff direct-loan views.",
+          "disposition": "Retain shared checkout helpers, evidence services and explicit return re-export.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 13-22 share return/QR/target helpers rather than defining a parallel stock engine.",
+          "findings": []
+        },
+        {
+          "owner": "require_eligible_borrower",
+          "line_start": 32,
+          "line_end": 46,
+          "purpose": "Apply membership/waiver/presence requirements only when the membership module is enabled.",
+          "runtime_boundary": "issue_direct_loan precondition; DirectLoanListCreateView separately selects an active tenant borrower membership.",
+          "disposition": "Retain the documented membership-on versus active-account split.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 43-46 match docs/INVARIANTS.md:3050-3053. direct_loan_views.py:147-157 validates the actual borrower tenant membership; presence/guard.py:39-139 implements standing and presence checks.",
+          "findings": []
+        },
+        {
+          "owner": "issue_direct_loan",
+          "line_start": 49,
+          "line_end": 213,
+          "purpose": "Issue staff-selected or scanned hardware and an optional container directly to an eligible borrower.",
+          "runtime_boundary": "DirectLoanListCreateView scopes ISSUE_DIRECT_LOAN, feature and borrower; service finalizes evidence then atomically locks evidence, optional container, QRs and inventory.",
+          "disposition": "Retain evidence, borrower and tenant protections; refuse approval of box-only individual issuance and container-before-QR lock ordering.",
+          "decision": "finding-open",
+          "evidence": "direct_loan_views.py:62-80 validates caller and borrower. Lines 78-129 lock a selected Box before QrCode, while public checkout locks the same box QR before Box. Lines 142-144 delegate box contents to the individual-scan bypass.",
+          "findings": [
+            "HW-002",
+            "HW-003"
+          ]
+        },
+        {
+          "owner": "_container_subtree_ids",
+          "line_start": 216,
+          "line_end": 232,
+          "purpose": "Collect a selected container and same-tenant descendants for empty-vessel validation.",
+          "runtime_boundary": "Read helper called while the root container is locked; no independent authorization boundary.",
+          "disposition": "Retain tenant-restricted traversal and exclusion of previously visited ids.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 223-226 filter parent and makerspace and exclude collected ids, so even a cycle cannot produce endless revisits.",
+          "findings": []
+        },
+        {
+          "owner": "_manual_product",
+          "line_start": 235,
+          "line_end": 249,
+          "purpose": "Lock an unarchived quantity-mode product selected manually for direct handout.",
+          "runtime_boundary": "Atomic helper after staff tenant authorization; serializer supplies a positive quantity separately.",
+          "disposition": "Retain same-tenant/archive checks and refusal to hand out individual products without asset QR scans.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 236-247 scope and lock the product and reject INDIVIDUAL tracking. direct_loan_serializers.py:9-11 validates quantity>=1.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_returns.py",
+      "file_sha256": "d725142885ce8d7d25a6b313f71354c3cf5ee4eb8a134d856e3f535617ca5525",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 254,
+          "purpose": "Declare direct-return resolution, evidence and audit dependencies.",
+          "runtime_boundary": "Imported by direct loan workflow and shared public evidence validation.",
+          "disposition": "Retain shared resolution and availability services rather than duplicate stock math.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 12-26 import return helpers, domain errors and inventory availability.",
+          "findings": []
+        },
+        {
+          "owner": "return_direct_loan",
+          "line_start": 29,
+          "line_end": 125,
+          "purpose": "Fully resolve a direct handout, record its physical return and close the loan.",
+          "runtime_boundary": "DirectLoanReturnView restricts ADMIN_DIRECT source and RETURN_REQUEST tenant authority. Service locks only the loan row from a nullable-container join and serializes evidence attachment.",
+          "disposition": "Retain full-resolution, evidence reuse, notes, return-scan and atomic audit protections for this source-specific caller.",
+          "decision": "reviewed-no-finding",
+          "evidence": "direct_loan_views.py:94-120 supplies source-scoped input. Lines 54-67 use of=(self,) and reject consumed evidence; lines 75-89 require full resolution, delegate stock math and create an immutable ReturnEvent; lines 91-124 close and audit the loan.",
+          "findings": []
+        },
+        {
+          "owner": "_require_full_resolution",
+          "line_start": 128,
+          "line_end": 142,
+          "purpose": "Require every outstanding direct-loan item to be completely resolved in one return.",
+          "runtime_boundary": "Internal helper after build_resolutions; API serializer rejects duplicate item ids.",
+          "disposition": "Retain exact per-item remaining-count equality.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 135-142 compare each unresolved item to returned+damaged+missing. direct_loan_serializers.py:48-57 prevents last-entry-wins duplicate maps.",
+          "findings": []
+        },
+        {
+          "owner": "_flip_direct_loan_assets",
+          "line_start": 145,
+          "line_end": 180,
+          "purpose": "Apply direct-loan resolutions to its recorded issued assets.",
+          "runtime_boundary": "Direct-return transaction after full item resolution and inventory bucket delegation.",
+          "disposition": "Retain loan-id, tenant, product and ISSUED filtering plus duplicate/external asset refusal.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 146-163 validate exact asset membership and uniqueness; lines 173-177 validate sufficient issued assets for an aggregate full-good return.",
+          "findings": []
+        },
+        {
+          "owner": "_create_return_event",
+          "line_start": 183,
+          "line_end": 195,
+          "purpose": "Append an immutable direct-loan return event with evidence and notes.",
+          "runtime_boundary": "Nested savepoint inside the direct-return transaction.",
+          "disposition": "Retain immutable event creation and clean evidence-conflict translation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 185-193 create ReturnEvent with actual request, tenant, loan container, evidence, notes and actor; IntegrityError escapes as ReturnValidationError after the savepoint rolls back.",
+          "findings": []
+        },
+        {
+          "owner": "_return_scan_qr",
+          "line_start": 198,
+          "line_end": 240,
+          "purpose": "Validate a direct-loan return scan against recorded loan QRs or the selected container.",
+          "runtime_boundary": "Internal helper under the loan transaction; manual loans without known QR targets can return without a scan.",
+          "disposition": "Retain recorded-QR matching and required scans when expected ids exist; retain the explicit optional-scan manual branch.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 199-225 derive expected ids from qr_ids or an active container QR and require matching payloads. Lines 227-240 allow no scan only when no expected QR exists, or validate an optional active tenant QR.",
+          "findings": []
+        },
+        {
+          "owner": "validate_evidence_upload",
+          "line_start": 243,
+          "line_end": 254,
+          "purpose": "Finalize and validate evidence bytes with shared workflow error translation.",
+          "runtime_boundary": "Provider boundary called before the consuming domain transaction.",
+          "disposition": "Retain missing-upload versus invalid-content distinction and let StorageUnavailable reach the typed HTTP 503 handler.",
+          "decision": "reviewed-no-finding",
+          "evidence": "storage.py:100-107 translates concurrent finalization to StorageUnavailable; lines 245-253 translate validation/missing results. exceptions.py:237-241 maps provider failure to evidence_storage_unavailable.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/hardware_requests/problem_report_workflow.py",
+      "file_sha256": "a653e16654fc2c23283547308be402776cb063f79d9ae61f5c731b6fdd14d12f",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 187,
+          "purpose": "Declare triage outcome mappings and shared inventory/accountability dependencies.",
+          "runtime_boundary": "Internal staff triage service imported by the operations API.",
+          "disposition": "Retain explicit stock-state and accountability mappings for each nontrivial outcome.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 14-23 map damaged, missing and needs_fix to the intended accountability and asset states; no_issue is deliberately absent from mutation maps.",
+          "findings": []
+        },
+        {
+          "owner": "triage_problem_report",
+          "line_start": 26,
+          "line_end": 79,
+          "purpose": "Resolve a public problem report once and apply staff-confirmed stock/accountability corrections.",
+          "runtime_boundary": "ProblemReportTriageView requires active staff, scoped makerspace, EDIT_INVENTORY and reports module; serializer restricts outcome and duplicate item ids. Service finalizes optional evidence before locking the report and related nonnullable rows.",
+          "disposition": "Retain locked resolved-state recheck, atomic inventory/accountability updates and optional-evidence retention checks.",
+          "decision": "reviewed-no-finding",
+          "evidence": "operations/views_problem_reports.py:61-72 validates the callable entry. Lines 35-48 recheck state and serialize optional attachment; lines 50-78 apply corrections and audit once.",
+          "findings": []
+        },
+        {
+          "owner": "_evidence",
+          "line_start": 82,
+          "line_end": 95,
+          "purpose": "Resolve optional same-tenant triage evidence.",
+          "runtime_boundary": "Read-only helper before provider finalization.",
+          "disposition": "Retain optional evidence and tenant-scoped id validation; do not impose issue/return single-use semantics on this supporting-reference lookup.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 83-94 explicitly permit no evidence, parse ids and restrict makerspace. triage_problem_report checks upload validity and retention before using an actual supplied photo.",
+          "findings": []
+        },
+        {
+          "owner": "_validated_resolutions",
+          "line_start": 98,
+          "line_end": 123,
+          "purpose": "Validate positive triage quantities against items actually issued on the report's request.",
+          "runtime_boundary": "Internal atomic helper; the API serializer rejects duplicate item ids before calling.",
+          "disposition": "Retain request-item ownership, positive quantities and issued-quantity upper bounds.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 104-118 lock request items with product joins and enforce ownership/count limits. operations/serializers_problem_reports.py:19-29 rejects duplicates and missing non-no_issue resolutions.",
+          "findings": []
+        },
+        {
+          "owner": "_move_stock",
+          "line_start": 126,
+          "line_end": 138,
+          "purpose": "Delegate confirmed triage stock changes according to tracking mode.",
+          "runtime_boundary": "Called within the report transaction after validated outcome/resolutions.",
+          "disposition": "Retain inventory-owned quantity and asset-status mutation.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 129-138 call _move_individual_assets or availability.move_available_to_triage_bucket; availability_quantities.py:86-170 owns quantity corrections and adjustment audit.",
+          "findings": []
+        },
+        {
+          "owner": "_move_individual_assets",
+          "line_start": 141,
+          "line_end": 155,
+          "purpose": "Move returned assets belonging to the reported loan into the confirmed unavailable state.",
+          "runtime_boundary": "Report transaction; locks selected same-tenant loan assets currently AVAILABLE before availability.move_asset_status.",
+          "disposition": "Retain exact loan asset set, product matching and refusal when enough returned assets are no longer available.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 143-153 restrict loan.asset_ids, tenant, product and AVAILABLE state. availability_assets.py:67-97 owns product bucket reconciliation and status movement.",
+          "findings": []
+        },
+        {
+          "owner": "_write_accountability",
+          "line_start": 158,
+          "line_end": 187,
+          "purpose": "Append staff-confirmed problem-report accountability against the original borrower.",
+          "runtime_boundary": "Internal helper in the same transaction as triage stock correction.",
+          "disposition": "Retain immutable insert, original requester attribution and report/request audit linkage.",
+          "decision": "reviewed-no-finding",
+          "evidence": "Lines 164-173 create a new RequesterAccountability with report provenance; lines 175-187 append issue audit containing quantity and optional evidence id.",
+          "findings": []
+        }
+      ]
+    }
+  ],
+  "extra_context_files": [
+    {
+      "path": "/tmp/spaceworks-source-packets/hardware-workflows-files.txt",
+      "sha256": "f919df5daecb2a28a4324fa3517a2aa11548dac3368a6d398fdb2caeed6e1230",
+      "read_ranges": [[1, 19]]
+    },
+    {
+      "path": "/Users/shaanshoukath/.claude/CLAUDE.md",
+      "sha256": "7d89d0331a5f2b60a72620d31e540a25d3416ea133881499a3e297599063f8ed",
+      "read_ranges": [[1, 207]]
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "f1a04f4b84a8d6138f78c90900826908563c2129a569a779dc8342aa9e323c60",
+      "read_ranges": [[1, 411]]
+    },
+    {
+      "path": "docs/INVARIANTS.md",
+      "sha256": "2f4fad2d44763a9083a69922b45a94159601d97735686c80301d61694b12aeef",
+      "read_ranges": [[326, 360], [380, 429], [1336, 1359], [1978, 1993], [2790, 2879], [2920, 3053]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/view_helpers.py",
+      "sha256": "8a6d8fc0891d63a78650c45ed41f703c35f4f1808fabc02337567ee7172a61c6",
+      "read_ranges": [[1, 68]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/review_views.py",
+      "sha256": "208cd310e2eebfbd7064872ea60ccf194eab32b1ba517a426187e9607703fa83",
+      "read_ranges": [[1, 78]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/handover_views.py",
+      "sha256": "9af395b4fc6d92d2d37a36a48754fabf3dbd02e0a50b931ddf9116b0824f5b43",
+      "read_ranges": [[1, 158]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_views.py",
+      "sha256": "43fd88ce920dfbed68b0397a629b0704c8a3bfb116c62b84b88e6ec1a41a9ded",
+      "read_ranges": [[1, 174]]
+    },
+    {
+      "path": "backend/apps/operations/views_problem_reports.py",
+      "sha256": "700e39b1c35548050e306540c04e513a2477be5b25877ae569bad76935f1d89a",
+      "read_ranges": [[1, 79]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/public_views.py",
+      "sha256": "7b27bc2482e3d6060e738988a333717926810c0db6cfc356707abd0b3940b299",
+      "read_ranges": [[1, 275]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_views.py",
+      "sha256": "91bd600ba7f9a296eabd15425e2e0292f3cef1698624f163729d764fd3c679b6",
+      "read_ranges": [[1, 226]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/serializers_admin.py",
+      "sha256": "f147fab27acd091f6d5ca434994948ccb4fb8e7181958f9a12e58a8d614b711c",
+      "read_ranges": [[1, 205]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_serializers.py",
+      "sha256": "085295b27a0379d169d230c1d208419d7b5cbc5a75af9e59d92832ebf77a3f6b",
+      "read_ranges": [[1, 110]]
+    },
+    {
+      "path": "backend/apps/operations/serializers_problem_reports.py",
+      "sha256": "7d9abd61300c24c3b8eaff64bf5703bb7436425f4604c970b4509e33c84118a4",
+      "read_ranges": [[1, 36]]
+    },
+    {
+      "path": "backend/apps/inventory/availability_requests.py",
+      "sha256": "eb20a2e31179b40bfd85ae46a4d32701aafee67081cb83c2bb90f94de45c1953",
+      "read_ranges": [[1, 244]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/queue_views.py",
+      "sha256": "58f576784d6118ba3af173da7cb07befebf3533be75a1a589a86ff626114e277",
+      "read_ranges": [[1, 188]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/admin_request_review.py",
+      "sha256": "e6455aa6bdf150d30ab0705f26a72817d06c5bd0cc074643c927d04028a31972",
+      "read_ranges": [[1, 139]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/admin_requests.py",
+      "sha256": "57c4be4f91ee3f54c221d2a033274909197280d5403b86d2a269c0688839a419",
+      "read_ranges": [[1, 225]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/admin_workflow.py",
+      "sha256": "af6156aa607a86094f26ec639d8c826cc733bdb99dd4360aa5cb3eb926e46b78",
+      "read_ranges": [[1, 17]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/notifications.py",
+      "sha256": "47d32d0619b4ef79f01849cff49b85025070f0179db0c8c3729070a68e0c4131",
+      "read_ranges": [[1, 211]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/exceptions.py",
+      "sha256": "b91a744e8da7dac4d55b7df8131baa6ef653c2e464bbd07216dd6cac79828309",
+      "read_ranges": [[1, 269]]
+    },
+    {
+      "path": "backend/apps/inventory/availability.py",
+      "sha256": "f0d0c6cbd84ef7b8e6f29d4950da230716d34841627fa3b5ae94acd3b1529937",
+      "read_ranges": [[1, 32]]
+    },
+    {
+      "path": "backend/apps/inventory/availability_quantities.py",
+      "sha256": "788f2d3c76662ee51274311ca14e05378f57c3d080286c8325a6307bb1dcd72d",
+      "read_ranges": [[1, 284]]
+    },
+    {
+      "path": "backend/apps/evidence/finalization.py",
+      "sha256": "471eecb8392f9ddfb8c508bccdee4341260ed4df4f52cfdf277055272294cb72",
+      "read_ranges": [[1, 196]]
+    },
+    {
+      "path": "backend/apps/evidence/storage.py",
+      "sha256": "bb9bbcd88657e9aca22c807c708ca621609b7e47cd4cebff96d5edc11e7207f6",
+      "read_ranges": [[1, 212]]
+    },
+    {
+      "path": "backend/apps/integrations/notify.py",
+      "sha256": "ff5d178408fed99c7db015ed47f1a05d093c261303f4a755ffdfa5b9ac51399b",
+      "read_ranges": [[1, 220]]
+    },
+    {
+      "path": "backend/apps/notifications/emit.py",
+      "sha256": "b227b94b1ca30ce496689c4ffae2e372b60b6b638076439633ca2e407f4f02a1",
+      "read_ranges": [[1, 51]]
+    },
+    {
+      "path": "backend/apps/accounts/rbac.py",
+      "sha256": "7f64a57fc7dbfb83fed364bda06b1b88babffae5bb392d1ff9d99b451a6e3c2e",
+      "read_ranges": [[1, 256]]
+    },
+    {
+      "path": "backend/apps/makerspaces/origin_scope.py",
+      "sha256": "2220de34cbae8ebc8d293dbc7647fcaa940901ac64f7bcbbef5fd7f09990c257",
+      "read_ranges": [[1, 201]]
+    },
+    {
+      "path": "backend/apps/presence/guard.py",
+      "sha256": "cbb73319f4b690808da8d4c1560266b7bec20c36c010d1cc9ff6e1b8557ad47d",
+      "read_ranges": [[1, 139]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/checkin_submit.py",
+      "sha256": "7d812984c15799385e49841a760bba056986e4383d33831eb8013e817caf72e0",
+      "read_ranges": [[1, 113]]
+    },
+    {
+      "path": "backend/apps/checkin/principal.py",
+      "sha256": "cc3b806fc0e4d422052a6018846fdfe8e9be567ae848e97873d66d82e1b66263",
+      "read_ranges": [[1, 40]]
+    },
+    {
+      "path": "backend/apps/makerspaces/request_access.py",
+      "sha256": "cb9b32103a1aebc30dcf4be091a1dd443818851c4011f1e37f413dec2fa777e7",
+      "read_ranges": [[1, 145]]
+    },
+    {
+      "path": "backend/apps/makerspaces/limits.py",
+      "sha256": "96abf67396e926057a6b091d01bc0a6774361e30ba101389bb5d01a18308b596",
+      "read_ranges": [[1, 43]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/urls.py",
+      "sha256": "22c7a7a72e305aa1681cc6be4c2c3e899cc3d6526361a0e75bf4f12af7963439",
+      "read_ranges": [[1, 125]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/migrations/0004_return_records_immutable_triggers.py",
+      "sha256": "4af6c87df35c3303fa9cea22d4b7b42057f6c852dbdaed3393b93af5a1194823",
+      "read_ranges": [[1, 46]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/migrations/0014_return_records_purge_delete_guard.py",
+      "sha256": "f4901968a91c201809b9966a165d8a05962b94741ce72ea87a504dfaba3acf05",
+      "read_ranges": [[1, 36]]
+    },
+    {
+      "path": "backend/apps/inventory/availability_assets.py",
+      "sha256": "a131dc9b6164bc82485f3f66e3270854805ce609f070353f10186cf6376ce22a",
+      "read_ranges": [[1, 97]]
+    },
+    {
+      "path": "backend/apps/checkin/identity.py",
+      "sha256": "5033899125abe9355c5b714a8d36cb42720f9c97d2b9995ce81319fe4f7730fe",
+      "read_ranges": [[1, 160]]
+    },
+    {
+      "path": "backend/apps/checkin/verification.py",
+      "sha256": "f0caad3e9552bf71a3a120b6f9295ea07b58bcde35ada5b32a14af816b45521e",
+      "read_ranges": [[1, 97]]
+    },
+    {
+      "path": "backend/apps/evidence/models.py",
+      "sha256": "311a66b7fc4c9b6eb256498905a8edf17f978524b95722a34c8c4c04a7b175f4",
+      "read_ranges": [[1, 69]]
+    },
+    {
+      "path": "backend/apps/audit/services.py",
+      "sha256": "31a7371418b06e93dde0f4d7e0d88b72421dadc5318788e71c7a90a1f0bf50ec",
+      "read_ranges": [[1, 141]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/direct_loan_audit.py",
+      "sha256": "e46ca87ee68e153cf4d62494d204a4eb4d2ed35250af6131e830e0cfcfb28556",
+      "read_ranges": [[1, 34]]
+    },
+    {
+      "path": "backend/apps/makerspaces/limits_usage.py",
+      "sha256": "eea5927c129ecbd8a6b2d36822b75bffcb4581ee590d0ab2946c16b664a2487a",
+      "read_ranges": [[90, 215]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/public_view_helpers.py",
+      "sha256": "c4e933e2128b4c09f7a2b35fab14a1946ae64ce4a7d138e6d5c267d742fcc5e5",
+      "read_ranges": [[1, 105]]
+    },
+    {
+      "path": "backend/config/admin_access.py",
+      "sha256": "a3de0b6b78826ed1a656d2f785d78fa5e51d4ca345ce7b17d9a7b3e48ccace09",
+      "read_ranges": [[1, 215]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/serializers_public.py",
+      "sha256": "9a7af7dee5b7431d687465b6883f8edcc3feaeaf2d9b7ab83a615f20254974a9",
+      "read_ranges": [[1, 121]]
+    },
+    {
+      "path": "backend/apps/hardware_requests/self_checkout_serializers.py",
+      "sha256": "868c451d2d16169f4717901414cca2105689e8a96ccfb449787bbadbb6de6407",
+      "read_ranges": [[1, 98]]
+    },
+    {
+      "path": "backend/apps/inventory/models.py",
+      "sha256": "431a15f36582f260b97c5df1dd91084e46e110b4aff80752196ec61d14a2fb85",
+      "read_ranges": [[1, 125], [165, 279]]
+    },
+    {
+      "path": "backend/apps/boxes/models.py",
+      "sha256": "d09918dde5ccf1bbaa6808353b91fc6d0ffccb623fa8609dcd591a33b7f066b7",
+      "read_ranges": [[115, 213]]
+    },
+    {
+      "path": "backend/apps/admin_api/permissions.py",
+      "sha256": "a3fc316178a4e2385b79f38e926d949634be7c125a412534906ef12c8e8ce157",
+      "read_ranges": [[1, 88]]
+    },
+    {
+      "path": "backend/apps/operations/views_reports.py",
+      "sha256": "76a687a51f36e3f8ecbd8cf49168fdb33716c3bd37e5673b8369624cc2edbfa2",
+      "read_ranges": [[1, 100]]
+    },
+    {
+      "path": "backend/apps/operations/views_report_helpers.py",
+      "sha256": "02f8831c2498c3828c8efbdb471f6d71841b5fe2e4bb93a6b25976ccea86fcd4",
+      "read_ranges": [[1, 95]]
+    }
+  ],
+  "findings": [
+    {
+      "id": "HW-001",
+      "status": "finding-open",
+      "priority": "P1",
+      "path": "backend/apps/hardware_requests/return_workflow.py",
+      "line_start": 85,
+      "line_end": 92,
+      "owner": "_require_returnable",
+      "title": "Callable reviewed-return path admits PublicToolLoan-backed requests",
+      "trigger": "An active staff actor with RETURN_REQUEST for the tenant posts a quantity-mode direct or public loan's HardwareRequest id to admin/requests/<pk>/return with valid return evidence, a remark and resolutions. No container code is needed because these loan requests do not populate HardwareRequest.assigned_box.",
+      "reason": "The API's _scoped_action_request filters only action/tenant, and _require_returnable checks only issued/partially_returned status. return_items changes item quantities and HardwareRequest state but never changes the related PublicToolLoan. The queue exclusion does not protect the callable endpoint. This bypasses the loan-specific return QR/owner/source handling and leaves active loan/QR/container records outstanding.",
+      "consequence": "A fully resolved request can coexist with a checked_out loan. For a public quantity loan, resolving one unit as damaged/missing through this endpoint and later using the normal public return also reaches _return_request_items, which subtracts only returned_quantity. With sufficient product issued stock on other loans, it can credit an already damaged/missing unit back to available and debit another loan's issued bucket.",
+      "source_trace": [
+        "backend/apps/hardware_requests/urls.py:98-101",
+        "backend/apps/hardware_requests/handover_views.py:103-117",
+        "backend/apps/hardware_requests/handover_views.py:147-158",
+        "backend/apps/hardware_requests/return_workflow.py:48-71",
+        "backend/apps/hardware_requests/return_workflow.py:85-105",
+        "backend/apps/hardware_requests/queue_views.py:134-136",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:275-296",
+        "backend/apps/hardware_requests/self_checkout_workflow.py:177-208"
+      ],
+      "validation_basis": "Direct source trace; no runtime reproduction or tests performed."
+    },
+    {
+      "id": "HW-002",
+      "status": "finding-open",
+      "priority": "P1",
+      "path": "backend/apps/hardware_requests/self_checkout_helpers.py",
+      "line_start": 102,
+      "line_end": 128,
+      "owner": "_checkout_box",
+      "title": "Scanning a box can issue individual assets without their own QR scans",
+      "trigger": "A box contains an AVAILABLE individual asset whose product has available stock. For the public path, the asset and product have the public checkout flags enabled and the product itself need not be assigned to that box. Submit only the box QR with valid issue evidence through public checkout or staff direct handout.",
+      "reason": "_checkout_box selects assets using box membership and eligibility flags, delegates their quantities and bulk-updates their statuses to ISSUED. It neither resolves nor requires each asset's QR payload. The callers record scan events only for supplied QRs, so only the box scan is recorded. Supplying the box and contained asset QRs together is explicitly rejected by _reject_overlapping_checkout_targets.",
+      "consequence": "Individually tracked tools can leave custody without the per-unit QR proof required by AGENTS.md and docs/INVARIANTS.md:417-421, including tools with no active asset QR.",
+      "source_trace": [
+        "backend/apps/hardware_requests/self_checkout_helpers.py:40-54",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:79-128",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:145-156",
+        "backend/apps/hardware_requests/self_checkout_workflow.py:78-101",
+        "backend/apps/hardware_requests/self_checkout_workflow.py:131-138",
+        "backend/apps/hardware_requests/direct_loan_workflow.py:129-152",
+        "backend/apps/hardware_requests/direct_loan_workflow.py:204-210",
+        "backend/apps/inventory/models.py:79-85",
+        "backend/apps/inventory/models.py:238-244",
+        "docs/INVARIANTS.md:417-421"
+      ],
+      "validation_basis": "Direct source trace with model fields checked; no runtime reproduction or tests performed."
+    },
+    {
+      "id": "HW-003",
+      "status": "finding-open",
+      "priority": "P2",
+      "path": "backend/apps/hardware_requests/direct_loan_workflow.py",
+      "line_start": 78,
+      "line_end": 129,
+      "owner": "issue_direct_loan",
+      "title": "Selected-container direct issue reverses public checkout's QR/box lock order",
+      "trigger": "Concurrent valid public checkout and staff direct handout target the same free box QR. The direct request supplies both container_id=B and qr_payloads containing B's box QR; the two operations use different evidence rows.",
+      "reason": "The direct transaction locks Box B at lines 80-82 before attempting its QR lock at line 129. Public checkout locks that QrCode at self_checkout_workflow.py:78 before _checkout_box attempts Box B at self_checkout_helpers.py:80. If each transaction acquires its first row before the other, direct waits for the QR while public waits for the box. Direct issue does not share public checkout's initial tenant-row serialization.",
+      "consequence": "The wait cycle can cause PostgreSQL to abort one handout transaction for deadlock. The workflow exception mapping inspected does not translate database deadlock OperationalError into a domain conflict.",
+      "source_trace": [
+        "backend/apps/hardware_requests/direct_loan_views.py:62-80",
+        "backend/apps/hardware_requests/direct_loan_workflow.py:72-82",
+        "backend/apps/hardware_requests/direct_loan_workflow.py:125-144",
+        "backend/apps/hardware_requests/self_checkout_workflow.py:71-91",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:23-37",
+        "backend/apps/hardware_requests/self_checkout_helpers.py:79-80",
+        "backend/apps/hardware_requests/exceptions.py:250-269"
+      ],
+      "validation_basis": "Concrete source-level lock acquisition cycle; no concurrent runtime reproduction performed."
+    }
+  ],
+  "limitations": [
+    "The filesystem is read-only and approval escalation is unavailable. No final result file could be saved; this JSON is delivered directly in the final response.",
+    "This is the explicitly requested bounded source-owner review, not implementation, a final Stage 4 gate, runtime proof or a production-readiness approval.",
+    "All 19 selected files were read in full and all 132 observed lexical owners have explicit decisions. Selected-file hashes were rechecked after source reading and matched the initial census.",
+    "The lexical owner census and source hashes are observations. Exact-site census binding remains for the primary reviewer after final source freeze.",
+    "Extra context files are listed separately with bounded read ranges; they do not receive whole-file or owner approval through this report.",
+    "No tests, application execution, migrations, staging, commits, production reads or production ledger writes were performed. No source files were edited.",
+    "Database constraints and immutability triggers were assessed from model and migration source; their installation and behavior in a live database were not verified.",
+    "Provider failure handling was traced through evidence storage/finalization, API exception mapping and notification adapters. Actual object storage, roster, email and chat providers were not contacted.",
+    "Internal workflow functions generally rely on the inspected API/control-plane callers for authorization and validated input. These decisions do not authorize arbitrary new callers or certify every deeper RBAC, middleware, encryption, source-gate or provider implementation.",
+    "Existing domain reports were not used as substitutes for source review or as evidence that a bug was already fixed.",
+    "No separate PRD document was found by the bounded filename search; the supplied AGENTS.md and relevant INVARIANTS.md sections supplied the reviewed contracts."
+  ]
+}

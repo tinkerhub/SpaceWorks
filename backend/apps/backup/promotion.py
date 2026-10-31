@@ -8,6 +8,8 @@ from django.utils import timezone
 
 from apps.audit import services as audit
 from apps.backup.artifact_ledger import ArtifactLedgerMismatch
+from apps.backup.full_format import FULL_FORMAT
+from apps.backup.full_population import lock_full_publication, validate_full_population
 from apps.backup.models import (
     B1ActivationState,
     BackupArchive,
@@ -39,7 +41,8 @@ PROMOTION_LOCK_ORDER = (
 
 def promote_verified_artifact(artifact_id):
     facts = BackupArtifactLedger.objects.values(
-        "artifact_id", "frozen_promotion_snapshot", "predecessor_artifact_id_snapshot"
+        "artifact_id", "frozen_promotion_snapshot", "predecessor_artifact_id_snapshot",
+        "outer_manifest", "format", "archive_uuid_snapshot"
     ).get(pk=artifact_id)
     retained_ids = tuple(
         sorted(item["makerspace_id"] for item in facts["frozen_promotion_snapshot"]["retained"])
@@ -59,11 +62,12 @@ def promote_verified_artifact(artifact_id):
         },
         key=str,
     ))
-    return _promote_atomic(artifact_id, retained_ids, sovereign_ids, artifact_ids)
+    return _promote_atomic(artifact_id, retained_ids, sovereign_ids, artifact_ids, facts)
 
 
 @transaction.atomic
-def _promote_atomic(artifact_id, retained_ids, sovereign_ids, artifact_ids):
+def _promote_atomic(artifact_id, retained_ids, sovereign_ids, artifact_ids, facts):
+    locked_run = lock_full_publication(facts) if facts["format"] == FULL_FORMAT else None
     spaces = _lock_makerspaces(retained_ids)
     recipients = _lock_recipients(sovereign_ids)
     activations = _lock_activations(retained_ids)
@@ -100,6 +104,8 @@ def _promote_atomic(artifact_id, retained_ids, sovereign_ids, artifact_ids):
     validate_frozen_state(
         artifact, spaces, recipients, activations, settings_row, artifacts
     )
+    if artifact.format == FULL_FORMAT:
+        validate_full_population(artifact, archive, spaces, locked_run)
     validate_artifact_rows(artifact, archive, components, associations)
     closure_digest = independently_recomputed_user_closure_digest(artifact)
 

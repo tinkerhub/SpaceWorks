@@ -1,0 +1,14 @@
+APPROVED for the bounded test-only correction. No required deltas.
+
+Independent source inspection confirmed:
+
+- Exactly two current regex offenders: `host_restore_transport.py` and `host_restore_configuration.py`.
+- The seven operator modules have incoming imports only from one another and `scripts/restore-host.py` across the four specified source roots.
+- The controller’s transitive local import closure is exactly 25 files, matching both declared sets; all SHA-256 digests match.
+- Closure paths are canonical, regular, single-link files; package initializers are inert.
+- Wrapper privilege, ownership, mode, hash and isolated-launch checks precede controller execution. The controller’s Linux/UID-0 check precedes transport construction.
+- None of the seven Compose files contains `docker.sock`.
+
+The narrow exemptions, shared-helper mutation tests and explicit static-analysis limitations preserve the intended regression boundary.
+
+No edits, production imports, test collection/execution, Docker, database or build operations were performed.

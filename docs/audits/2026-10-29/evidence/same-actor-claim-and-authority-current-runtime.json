@@ -1,0 +1,153 @@
+{
+  "status": "PASS: same-actor40P01 reproduced before the exact actor-lock change; unchanged regression now passes and authority serialization/freshness remain proved.",
+  "first_red_evidence": "same-actor-claim-deadlock-reproduction.json",
+  "green": {
+    "selected_files": 10,
+    "selected_cases": 78,
+    "passed": 78,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 254.29,
+    "driver_seconds": 260.83,
+    "collection_and_runtime_exact": true,
+    "original_three_first_red_cases_preserved": true,
+    "new_actor_update_cases": 2
+  },
+  "source_delta": {
+    "file": "backend/apps/makerspaces/staff_authority.py",
+    "before_sha256": "c6ea7cdab5410417e496099859e83c042ecce44ea71eacd8d100886e8fc15646",
+    "after_sha256": "9a98797917bc2e69f363eb751912774c556ed4ce5c71d1d0e0509e91fbbc9102",
+    "change": "Only ActorUser select_for_update(no_key=True) plus one explanatory comment. Existing makerspace, target User, membership, role locks and all authorization checks unchanged.",
+    "only_backend_app_or_config_delta_from_first_red": "backend/apps/makerspaces/staff_authority.py"
+  },
+  "protected_source_and_test_hashes_unchanged_red_to_green": {
+    "backend/apps/accounts/services_claim.py": "f2d09749e57d5f084acab1ed247e80921259f89e8d4f307bfea97be358968368",
+    "backend/apps/accounts/transition_services.py": "744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b",
+    "backend/tests/claim_source_safety/test_same_actor_issue_ordering.py": "5264f17994700d39afbbce9140a2a866886c61f151ea7cad93aa1c2a44ef65b3",
+    "backend/tests/claim_source_safety/test_issue_ordering.py": "ba37a1b4ba3ec5233e4a9d56406d022da213a50f779096080b1c95885b4fdfb3"
+  },
+  "new_test": {
+    "file": "backend/tests/claim_source_safety/test_staff_actor_lock_compatibility.py",
+    "sha256": "374b7afd907224f539f7df972de2e4a8eeec5e76c15ad132607ddfc68a33c393"
+  },
+  "bounded_real_postgresql_proofs": {
+    "test_same_actor_native_winner_freshly_refuses_physical_issue": {
+      "observed_wait_edges": [
+        {
+          "waiter": 18945,
+          "blocker": 18941
+        }
+      ],
+      "workers": {
+        "native": {
+          "pid": 18941,
+          "settled": true,
+          "result_type": "HttpResponseRedirect",
+          "response_status": 302,
+          "exception_chain": [],
+          "actor_lock_modes": []
+        },
+        "issuer": {
+          "pid": 18945,
+          "settled": true,
+          "result_type": "ClaimCodeIneligible",
+          "response_status": null,
+          "exception_chain": [],
+          "actor_lock_modes": [
+            "FOR NO KEY UPDATE"
+          ]
+        }
+      }
+    },
+    "test_actor_deactivation_serializes_with_claim_issuance[issuance]": {
+      "observed_wait_edges": [
+        {
+          "waiter": 18973,
+          "blocker": 18972,
+          "template": "UPDATE \"accounts_user\" SET \"is_active\" = %s WHERE \"accounts_user\".\"id\" = %s",
+          "completed": false
+        }
+      ],
+      "workers": {
+        "issuer": {
+          "pid": 18972,
+          "settled": true,
+          "result_type": "IssuedClaimCode",
+          "exception_chain": [],
+          "refusal_chain": []
+        },
+        "writer": {
+          "pid": 18973,
+          "settled": true,
+          "result_type": "int",
+          "exception_chain": [],
+          "refusal_chain": []
+        }
+      }
+    },
+    "test_actor_deactivation_serializes_with_claim_issuance[writer]": {
+      "observed_wait_edges": [
+        {
+          "waiter": 18982,
+          "blocker": 18981,
+          "template": "SELECT \"accounts_user\".\"id\", \"accounts_user\".\"password\", \"accounts_user\".\"last_login\", \"accounts_user\".\"is_superuser\", \"accounts_user\".\"username\", \"accounts_user\".\"first_name\", \"accounts_user\".\"last_name\", \"accounts_user\".\"email\", \"accounts_user\".\"is_staff\", \"accounts_user\".\"is_active\", \"accounts_user\".\"date_joined\", \"accounts_user\".\"phone\", \"accounts_user\".\"phone_e164\", \"accounts_user\".\"phone_verified_at\", \"accounts_user\".\"display_name\", \"accounts_user\".\"email_verified_at\", \"accounts_user\".\"self_registered_at\", \"accounts_user\".\"external_checkin_user_id\", \"accounts_user\".\"telegram_user_id\", \"accounts_user\".\"must_change_password\", \"accounts_user\".\"is_walk_in\", \"accounts_user\".\"is_tenant_dump_stub\", \"accounts_user\".\"role\", \"accounts_user\".\"access_status\", \"accounts_user\".\"restriction_reason\" FROM \"accounts_user\" WHERE \"accounts_user\".\"id\" = %s ORDER BY \"accounts_user\".\"id\" ASC LIMIT 1 FOR NO KEY UPDATE",
+          "completed": false
+        }
+      ],
+      "workers": {
+        "writer": {
+          "pid": 18981,
+          "settled": true,
+          "result_type": "int",
+          "exception_chain": [],
+          "refusal_chain": []
+        },
+        "issuer": {
+          "pid": 18982,
+          "settled": true,
+          "result_type": "PermissionDenied",
+          "exception_chain": [],
+          "refusal_chain": [
+            {
+              "type": "PermissionDenied",
+              "sqlstate": null
+            }
+          ]
+        }
+      }
+    }
+  },
+  "runtime_freeze": {
+    "whole_source_files": 4721,
+    "source_inventory_sha256": "4178a7ed5137a05435159f1edcfaa1e020625d07e72c02bd931a7af062546764",
+    "frozen_inputs_sha256": "13d55c183475ef395058b329fee29c0b4e834b928d80a6880bc38ecf2b310654",
+    "before_after_source_input_bytes_modes_exact": true,
+    "private_env_unchanged": true,
+    "primary_port": 55432,
+    "cache_database": 10,
+    "broker_database": 11,
+    "daemon_socket_mounted": false
+  },
+  "sanitized_junit": {
+    "file": "same-actor-claim-and-authority-current-round1.xml",
+    "sha256": "bcb3ccc5900e258c9964825c1fd1e544840e13aa177c0590696e022356b07f5c",
+    "raw_private_sha256": "41fbeb0a756a21b0131d8635c02f74fa0f3dbd15fdacac03b3583deba482ae78",
+    "removed_diagnostic_elements": 24,
+    "reason": "Legacy existing controls emit SQL parameters; public JUnit retains every case/outcome/timing, with safe bounded proof metadata above."
+  },
+  "recovery_proof_boundary": {
+    "staff_authority_in_source65_guard25_copy59": false,
+    "shared_freeze_modified_by_this_work": false,
+    "post_actual_seventh_drill_application_delta": true,
+    "actual_restore_rerun_after_actor_change": false,
+    "scope": "The successful actual seventh restore remains evidence for its captured code. This later actor-lock correction has separate real PostgreSQL focused validation; no new baked-image or restore claim is made."
+  },
+  "stage_gates": {
+    "plan_review": "/tmp/spaceworks-same-actor-claim-fix-stage1.txt",
+    "implementation": "/tmp/spaceworks-same-actor-claim-fix-stage2.txt",
+    "separate_test_author": "/tmp/spaceworks-same-actor-claim-fix-stage3.txt",
+    "independent_orchestrator_review": "Exact two-line production delta and both test files read; all protected full target-lock services/red regression/control bodies verified byte-identical.",
+    "final_background_review": "Root-owned, not run here."
+  }
+}

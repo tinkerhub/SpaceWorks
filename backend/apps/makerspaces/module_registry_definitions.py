@@ -37,7 +37,7 @@ class GroupDefinition:
     description: str
     # Inventory is a permanent heading rather than a switch: it absorbs the six core
     # keys, and core exists because the Hard Rules make the loan spine *the system* --
-    # issuing hardware requires a box QR scan AND an issue photo.
+    # issue photos are required; QR supports tracked units and container-based handovers.
     always_on: bool = False
 
 
@@ -108,8 +108,8 @@ class ModuleDefinition:
     # operator chose. Core modules are always on and need not set this.
     default_enabled: bool = False
     # Core modules are not toggleable: the system is incoherent without them. The
-    # Hard Rules require a box QR scan AND an issue photo to hand hardware over, so
-    # evidence/QR/scanner are core alongside the catalogue, request flow and staff API.
+    # Hard Rules require issue photos and QR scans for tracked units/assigned containers,
+    # so evidence/QR/scanner stay core alongside the catalogue, request flow and staff API.
     is_core: bool = False
     # False => an internal master switch that must never appear in the bootstrap
     # `modules`/`workflows` arrays, or the byte-for-byte payload invariant breaks.

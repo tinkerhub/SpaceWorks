@@ -1,0 +1,65 @@
+{
+  "status": "independently-read-source-only-runtime-pending",
+  "files": [
+    {
+      "path": "backend/apps/makerspaces/module_purge_graph.py",
+      "sha256": "f57ff084a2bb24b581f695fd6224d258356526bc15ff61a941df9ca7f4061110",
+      "lines": 188,
+      "changed_function_owners": [
+        "snapshot"
+      ]
+    },
+    {
+      "path": "backend/apps/makerspaces/module_purge_accounting.py",
+      "sha256": "6524dce675b504fad605daf8b1e6d628ffb06b6ff4c0608c9372408383b2276c",
+      "lines": 122,
+      "changed_function_owners": [
+        "freeze_charges",
+        "settle"
+      ]
+    },
+    {
+      "path": "backend/apps/makerspaces/module_purge_sites.py",
+      "sha256": "e8fb9c6fa047f853fe4724efdd5c5d63ff2e220785e9669c9ae96e1cfcf12ac9",
+      "lines": 75,
+      "changed_function_owners": [
+        "validate_sites"
+      ]
+    },
+    {
+      "path": "backend/apps/makerspaces/module_purge_receipt_authority.py",
+      "sha256": "eea4434899bd3bb3271e57b7872384d274a3575570a6d902a7335f7d642c1ad0",
+      "lines": 209,
+      "changed_function_owners": [
+        "_validate_obligations",
+        "procurement_identity"
+      ]
+    },
+    {
+      "path": "backend/apps/makerspaces/module_purge_receipts.py",
+      "sha256": "10ece16f4d23e0330296fe078a9ef91905558ae077ef74d6854c628ba4b8d353",
+      "lines": 156,
+      "changed_function_owners": [
+        "execute_cleanup"
+      ]
+    },
+    {
+      "path": "docs/INVARIANTS.md",
+      "sha256": "e5d035cdd206b413fe4d330012fbb4a17080968660ca38654712b342b2e18992",
+      "lines": 3372
+    },
+    {
+      "path": "docs/SOURCE-MAP.md",
+      "sha256": "547d38a79faf9f94de229cfdbbd2a76623282b1476febbc5dd98bd266530f865",
+      "lines": 384
+    },
+    {
+      "path": "docs/self-hosting.md",
+      "sha256": "c0d8aca84b9049f20eca738b5af688d8a56872ea2734662fc43d51e2f2c5a31f",
+      "lines": 1091
+    }
+  ],
+  "review": "Exact procurement:<positive row PK>:<canonical nonnil UUID> grammar binds existing private typed holder and positive size; duplicate physical obligations refused; new proof facts only qualifying managed charges preserve all legacy graph shapes; source/storage verify reaches atomic graph settlement; proven docs excluded from generic sum and exact release helper failure aborts checkpoint; self-host context drift refused, new self-host graphs retain old zero-credit shape. Existing lookup/closure/admission logic unchanged except exact new obligation case.",
+  "runtime_pending": true,
+  "legacy_snapshot_source_check": "After removing exactly2new local imports,1procurement-label assignment and1new managed/proven-charge branch, original snapshot AST is identical. New branch appends nothing for legacy/unproven rows; runtime old pending receipt compatibility remains required."
+}

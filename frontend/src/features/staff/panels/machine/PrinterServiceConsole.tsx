@@ -1,6 +1,7 @@
+import { useServiceOperation } from "./useServiceOperation";
 import { PublicPrinterQueueSetup } from "./PublicPrinterQueueSetup";
 import { useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 import type { MachineServiceRequest, MachineTypeAccess, PrinterPool, PrinterServiceReport, TypedManualUsageResponse } from "../../../../generated/api";
 import { EmptyState, ErrorBlock, SectionHeading, Skeleton } from "../../../../components/ui";
@@ -82,41 +83,32 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
     queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
   ]);
   const manualPrice = useManualPrice(makerspaceId, machineType, draft.manual);
-  const submitManual = useMutation({
-    mutationFn: () => staffRequest(`/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage`, {
+  const scope = `${makerspaceId}:${machineType.id}`;
+  const submitManual = useServiceOperation<{ body: string; composition: string }>(`${scope}:manual:${draft.manual.machine_id}`, {
+    dispatch: ({ body }) => staffRequest(`/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage`, {
       method: "POST",
-      body: JSON.stringify({
-        machine_id: Number(draft.manual.machine_id),
-        consumable_pool_id: draft.manual.consumable_pool_id ? Number(draft.manual.consumable_pool_id) : null,
-        duration_minutes: Number(draft.manual.duration_minutes),
-        grams: draft.manual.quantity || undefined,
-        outcome: draft.manual.outcome,
-        percent_complete: Number(draft.manual.percent_complete),
-        reason: draft.manual.reason || undefined,
-        note: draft.manual.note || undefined,
-        price: draft.manual.price === "" ? undefined : draft.manual.price,
-      }),
+      body,
     }),
-    onSuccess: () => {
+    success: ({ composition }, isCurrent) => {
       notify.success("Print logged");
-      setDraft((current) => ({ ...current, manual: blankManualUsage }));
+      setDraft((current) => isCurrent() && JSON.stringify(current.manual) === composition ? { ...current, manual: blankManualUsage } : current);
       invalidate();
     },
-    onError: (error) => notify.failure("Couldn't log the print.", error),
+    failure: (error) => notify.failure("Couldn't log the print.", error),
   });
-  const runAction = useMutation({
-    mutationFn: (action: { id: number; name: ServiceActionName }) =>
+  const runAction = useServiceOperation<{ id: number; name: ServiceActionName; body: string; composition: string }>(`${scope}:queue:${draft.action?.id}:${draft.action?.name}:${draft.actionValues.machine_id}`, {
+    dispatch: (action) =>
       staffRequest(`/admin/machine-service/requests/${action.id}/${action.name}`, {
         method: "POST",
-        body: JSON.stringify(actionBody(action.name, draft.actionValues)),
+        body: action.body,
       }),
-    onSuccess: (_result, action) => {
+    success: (action, isCurrent) => {
       notify.success(SERVICE_ACTION_COPY[action.name].done);
-      setDraft(clearedActionDraft);
+      setDraft((current) => isCurrent() && JSON.stringify([current.action, current.actionValues]) === action.composition ? clearedActionDraft(current) : current);
       invalidate();
       if (action.name === "record-manual-payment") invalidatePaymentViews(queryClient, makerspaceId);
     },
-    onError: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
+    failure: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
   });
 
   if (!canManage) return null;
@@ -140,8 +132,9 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
             plannedOnAccept
             allowReprint
             meta={(request) => `Planned ${request.planned_grams}g`}
-            pending={runAction.isPending}
-            onSubmit={(action) => runAction.mutate(action)}
+            pending={runAction.pending}
+            canEdit={runAction.canEdit}
+            onSubmit={(action) => runAction.submit({ ...action, body: JSON.stringify(actionBody(action.name, draft.actionValues)), composition: JSON.stringify([draft.action, draft.actionValues]) })}
           />
         </section>
       ) : null}
@@ -155,8 +148,22 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
           machineNoun="Printer"
           unitLabel="g"
           hasPool
-          pending={submitManual.isPending}
-          onSubmit={() => submitManual.mutate()}
+          pending={submitManual.pending}
+          canEdit={submitManual.canEdit}
+          onSubmit={() => submitManual.submit({
+            body: JSON.stringify({
+              machine_id: Number(draft.manual.machine_id),
+              consumable_pool_id: draft.manual.consumable_pool_id ? Number(draft.manual.consumable_pool_id) : null,
+              duration_minutes: Number(draft.manual.duration_minutes),
+              grams: draft.manual.quantity || undefined,
+              outcome: draft.manual.outcome,
+              percent_complete: Number(draft.manual.percent_complete),
+              reason: draft.manual.reason || undefined,
+              note: draft.manual.note || undefined,
+              price: draft.manual.price === "" ? undefined : draft.manual.price,
+            }),
+            composition: JSON.stringify(draft.manual),
+          })}
           rows={printerUsage.map((entry) => ({
             id: entry.id,
             outcome: entry.outcome,

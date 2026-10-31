@@ -54,6 +54,34 @@ class IntegrationTelegramHealthSerializer(IntegrationConfiguredHealthSerializer)
     last_failure = IntegrationTelegramFailureSerializer(required=False, allow_null=True)
 
 
+class IntegrationDestinationFailureSerializer(serializers.Serializer):
+    at = serializers.DateTimeField()
+    error = serializers.CharField()
+
+
+class IntegrationDestinationHealthSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    channel = serializers.ChoiceField(choices=("telegram", "slack", "mattermost", "discord"))
+    label = serializers.CharField()
+    is_active = serializers.BooleanField()
+    configured = serializers.BooleanField()
+    last_sent_at = serializers.DateTimeField(allow_null=True)
+    failed = serializers.IntegerField()
+    last_failure = IntegrationDestinationFailureSerializer(allow_null=True)
+
+
+class IntegrationLegacyChannelsSerializer(serializers.Serializer):
+    telegram = serializers.BooleanField(required=False)
+    slack = serializers.BooleanField(required=False)
+    mattermost = serializers.BooleanField(required=False)
+    discord = serializers.BooleanField(required=False)
+
+
+class IntegrationChatDestinationsHealthSerializer(HealthStatusSerializer):
+    destinations = IntegrationDestinationHealthSerializer(many=True, required=False)
+    legacy_channels = IntegrationLegacyChannelsSerializer(required=False)
+
+
 class IntegrationWorkerHealthSerializer(HealthStatusSerializer):
     broker_configured = serializers.BooleanField(required=False)
     eager = serializers.BooleanField(required=False)
@@ -67,6 +95,7 @@ class IntegrationHealthSerializer(serializers.Serializer):
     deliveries_by_stream = IntegrationDeliveriesByStreamSerializer()
     smtp = IntegrationConfiguredHealthSerializer()
     telegram = IntegrationTelegramHealthSerializer()
+    chat_destinations = IntegrationChatDestinationsHealthSerializer(required=False)
     worker = IntegrationWorkerHealthSerializer()
 
 

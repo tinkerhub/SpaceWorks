@@ -1,0 +1,30 @@
+Implemented OPS-S01–S03 in only the three authorized files, preserving their existing dirty changes.
+
+- [serializers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/serializers.py:187): exact limits—title 200, label 255, each serial 100, explicit prefix 154.
+- [services_qr_assets.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:16): suffix-aware labels preserve full tags/numbers; generated titles retain `" unit QR labels"`. Oversized explicit service inputs raise DRF validation errors before mutations. Batch-item creation/update audits are atomic, use `target=item`, and omit reference metadata. Unchanged items produce no save/audit. Printing locks/checks the makerspace module before locking the batch.
+- [views_qr_batches.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:171): `qr.created` records only genuinely new asset QRs; reprints retain response 201.
+
+All three production callers now pass the required actor:
+
+- API: [views_qr_batches.py:101](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:101).
+- Existing-unit generation: [services_qr_assets.py:133](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:133).
+- New-unit generation: [services_qr_assets.py:151](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:151).
+
+Existing generic target registries cover both models; no registry changes. Aggregate generation audit, quota/reconciliation, and existing guards remain intact.
+
+Static AST and diff checks passed. Line counts: **224 / 173 / 183**. No runtime tests, builds, schema generation, staging, or commits performed.
+
+Stage 3 must update the untouched [test caller](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/data_export/test_portable_reference_provenance.py:87) to `add_qr_to_batch(actor, batch, qr)` and add boundary/rollback, full-suffix/default-label, audit/no-op, reprint, control-service refusal, and PostgreSQL module-toggle serialization coverage.
+
+Pending central command, after those test edits:
+
+```sh
+./scripts/dev-docker.sh exec -T backend sh -c '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest -q \
+    tests/test_operations_api.py \
+    tests/modules/test_offstate_d4_locked_mutations.py \
+    tests/data_export/test_portable_reference_provenance.py
+'
+```

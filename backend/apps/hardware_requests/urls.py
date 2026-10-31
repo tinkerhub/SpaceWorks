@@ -1,10 +1,16 @@
 from django.urls import path
 
 from apps.hardware_requests import cron_views, timeline_views, views
+from apps.hardware_requests.own_request_history import OwnRequestsView
 
 app_name = "hardware_requests"
 
 urlpatterns = [
+    path(
+        "public/<slug:makerspace_slug>/requests/mine",
+        OwnRequestsView.as_view(),
+        name="own-requests",
+    ),
     path(
         "internal/cron/return-reminders",
         cron_views.ReturnReminderCronView.as_view(),
@@ -81,6 +87,11 @@ urlpatterns = [
         name="request-reject",
     ),
     path(
+        "admin/requests/<int:pk>/cancel",
+        views.CancelRequestView.as_view(),
+        name="request-cancel",
+    ),
+    path(
         "admin/requests/<int:pk>/assign-box",
         views.AssignBoxView.as_view(),
         name="request-assign-box",
@@ -121,5 +132,4 @@ urlpatterns = [
         name="guest-admin-request-return",
     ),
 ]
-
 

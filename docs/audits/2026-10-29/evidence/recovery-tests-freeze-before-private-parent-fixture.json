@@ -1,0 +1,260 @@
+{
+  "format": "spaceworks-recovery-tests-v1",
+  "date": "2026-10-30",
+  "status": "stage3-writing-only-runtime-unverified",
+  "scope": "Separate Stage3 executor; new tests/private helpers only. Parent owns runtime, Stage4 and owner QA.",
+  "source_freeze": {
+    "path": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze.json",
+    "sha256": "47d6ece60b36f5ba67409ae8aecef9417e6000aa2c2377865b9974166dec8148",
+    "source_file_count": 60,
+    "pinned_copy_count": 59,
+    "guarded_python_count": 25
+  },
+  "initial_source_freeze_sha256": "ae0b33b91984817085ab414254d3ce3be7970b90c2c4ba921a5ad1cb07591c76",
+  "concurrent_refresh": "Compose security refresh and independent tar file/ancestor conflict correction were concurrently source-frozen. This executor edited neither production source nor source freeze; regression assertions were added after the correction.",
+  "test_file_count": 20,
+  "private_helper_count": 8,
+  "files": [
+    {
+      "path": "backend/tests/backup/recovery_bundle_support.py",
+      "lines": 74,
+      "sha256": "c6e42c5c806936017b782b83422c64a6c137facf549bbcf358722878bd13e0e7"
+    },
+    {
+      "path": "backend/tests/backup/recovery_fresh_install_support.py",
+      "lines": 92,
+      "sha256": "f7d94b47e96e57921d72ff22df903a2f4be6441c3d3e66839b618dad752712ab"
+    },
+    {
+      "path": "backend/tests/backup/recovery_input_support.py",
+      "lines": 108,
+      "sha256": "8ef61c03e1f232f437bc9b7d78ca867126def2505f03508bbe50f160b983fb06"
+    },
+    {
+      "path": "backend/tests/backup/recovery_live_support.py",
+      "lines": 94,
+      "sha256": "aadcda13c93a0d7b3dcfc9623b6a062301b47b6d5d6b5634c2be9e2a774fd2c3"
+    },
+    {
+      "path": "backend/tests/backup/recovery_live_tasks.py",
+      "lines": 92,
+      "sha256": "ad26521a69c8c797f4a22d810093c59853f0385d6ff2f2035bc98acebefb2a60"
+    },
+    {
+      "path": "backend/tests/backup/recovery_object_support.py",
+      "lines": 56,
+      "sha256": "af491664a7305dbe466fdb814bd71d58862daa7ad64d5435e19254d89ec7d63d"
+    },
+    {
+      "path": "backend/tests/backup/recovery_test_support.py",
+      "lines": 123,
+      "sha256": "7ab7f02af9626cb7df02ed2f5897a740f1e8715476afd3631527500725d17653"
+    },
+    {
+      "path": "backend/tests/backup/recovery_transport_support.py",
+      "lines": 198,
+      "sha256": "560a04b3c0e4aca6908adac551a8835417c635278e290fa8170ad7b4c9c8b165"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_acknowledgement_db.py",
+      "lines": 41,
+      "sha256": "996c7db6ec6e145366edd7e6f09cec487611efdf04399e094f20cb5550a9c96a"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_bundle_install.py",
+      "lines": 132,
+      "sha256": "c89ae4f07b2c5b539d624655e8437db8a1bca1741ce81fb6344a8478af7854e0"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_configuration_crashes.py",
+      "lines": 67,
+      "sha256": "54b56054948f9868c16be982453b0432fae7de48b2e6624ecdbd2f9ad606ffcc"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_controller_lock.py",
+      "lines": 146,
+      "sha256": "d7ff77d6161623a95117488a901590ec67e8f39caae908f604ee52db4395e5f8"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_fresh_install_synthetic.py",
+      "lines": 49,
+      "sha256": "d0907b70ef80f7030f7e07abdd4eb49948399a22213490bde8950ffdaef1fcb5"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_input_order.py",
+      "lines": 116,
+      "sha256": "010dfde858f26598cd23fd3d1ac9b84e9c8b463250ae023538d787d2e3fa5604"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_installed_layout.py",
+      "lines": 107,
+      "sha256": "5112cf21b9f6b0358db5ea574d93ab74645fd6eb322350370b7b10813de822d2"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_installed_preflight.py",
+      "lines": 54,
+      "sha256": "a8e446e8ee9b36cb987eb24c79581ffff4acc793cf53ad90d0146134ef2b7e3b"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_lifecycle_synthetic.py",
+      "lines": 155,
+      "sha256": "1f323e0a96b6631d4a51f964cc1b229df4cb5eb135f3ac9d4f0046e7de21a9e2"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_live_generation.py",
+      "lines": 100,
+      "sha256": "930bd1812d8ef5e88b33362b4dda05f475a709ac8eb5e8c8a160d3e3c878dc07"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_marker_authority.py",
+      "lines": 118,
+      "sha256": "a210e9831914c2817fb9c18a097e1948daff1f00294f7f775ba0e70ef35cbde3"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_object_closure_db.py",
+      "lines": 149,
+      "sha256": "0964363a62804a0eca877ac13e623e58bd00b3365d067d97ebd63f50cbac35b5"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_object_readback_s3.py",
+      "lines": 66,
+      "sha256": "28052d7328d9356b7d6f15da3d95d338a415d8579ae6dab2ab913d4e55fd7a7f"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_producer_caps.py",
+      "lines": 84,
+      "sha256": "d3da57d992fb4ab0e62f258e1a0732a24df55cb8cc5f06afdbb6b9c517fa7dbe"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_queue_and_command.py",
+      "lines": 102,
+      "sha256": "b882a88094ca9a045aabd25d1cdc697e77c4edc021ac9489dc8d2b128f357b9f"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_redis_admission.py",
+      "lines": 104,
+      "sha256": "197fce41e531986b32cc77c6ee14234eb762665e372a112d32d7258201630eb4"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_resume_synthetic.py",
+      "lines": 79,
+      "sha256": "a7495b65dca31c4afab034ec3f0696df6ee279aa3fd70c94f9cd888cbcb8f9c8"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_tar_screen.py",
+      "lines": 186,
+      "sha256": "cbd4786b812677726c29110a5d9b3cf6c512ca4fb40155b002622352483fbbe1"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_task_fence_db.py",
+      "lines": 98,
+      "sha256": "cc2f3d35e91fcb2e27470f14be61b70e67b13ec7ce335a350f96828fb7ff7d98"
+    },
+    {
+      "path": "backend/tests/backup/test_recovery_trusted_import_db.py",
+      "lines": 90,
+      "sha256": "63f4734b6a4856a7f40e1a2b7795f219c43c667ca1cdc767f1b655ef172650ec"
+    }
+  ],
+  "static_checks": {
+    "new_python_ast_parsed": 28,
+    "python_modules_imported": false,
+    "max_new_python_lines": 198,
+    "trailing_whitespace_and_final_newlines": true,
+    "skip_xfail_present": false,
+    "private_shell_snippets_bash_n": 5,
+    "existing_shell_bash_n": [
+      "scripts/restore.sh",
+      "scripts/import-backup.sh",
+      "scripts/install-host-bundle.sh",
+      "install.sh"
+    ],
+    "guard_ast_and_hashes_match": true,
+    "source_files_match": true,
+    "pinned_copy_files_match": true,
+    "agents_claude_byte_identical": true
+  },
+  "runtime": {
+    "collection": false,
+    "tests": false,
+    "django_import_setup": false,
+    "docker_db_broker_storage": false,
+    "checker_guard_wrapper": false,
+    "migrations_build": false
+  },
+  "blocked_assertions": [
+    "Arbitrary changed fixed/checker bytes are not digest-pinned by the checker; release authenticity governs those bytes, as approved."
+  ],
+  "report": "docs/audits/2026-10-29/evidence/recovery-stage3-tests.md",
+  "staged_or_committed": false,
+  "resolved_source_findings": [
+    "Parent/source-author independently added file/ancestor conflict screening in both tar orders; new tests cover refusal and valid explicit/implied directories. Source-only verification; runtime still unverified."
+  ],
+  "reviewed_followup_files": [
+    {
+      "path": "backend/tests/backup/test_signed_full_host.py",
+      "lines": 147,
+      "sha256": "a128a9245f41bfba623f0e1a77dbe8c0d0c49872f2db4ace6f9e47a23a9c274c"
+    },
+    {
+      "path": "backend/tests/backup/full_backup_host_helpers.py",
+      "lines": 163,
+      "sha256": "cb913135f4be18bac4786815ecd6e9b63a54147df753494d9cfccd6a50cbfe88"
+    },
+    {
+      "path": "backend/tests/backup/test_restore_tar_path_conflicts.py",
+      "lines": 104,
+      "sha256": "9420c9ad45d9f607051fca136c0114dc4ff1ce3c084536fee5aa0eafb8d3940e"
+    }
+  ],
+  "writer_source_freeze_sha256": "47d6ece60b36f5ba67409ae8aecef9417e6000aa2c2377865b9974166dec8148",
+  "independent_reconciliation": {
+    "status": "source-and-tests-frozen-runtime-unverified",
+    "python_paths_checked": 31,
+    "followups": "Parent-approved tar path-conflict screening and seven new tests; six legacy host cases rewritten for actual controller plus every transport phase independent flock/no cleanup proof. Historical original freezes preserved.",
+    "parent_runtime_matrix": "/tmp/spaceworks-run-recovery-tests.sh",
+    "parent_runtime_matrix_sha256": "df6513be6510db566e39baf6b554eae7545895e6d3f8144bc0e13895cb2e9f07",
+    "namespace": "Use disposable Linux UID0 with full /repo checkout and --tmpfs /run:rw,mode=755; no existing authority mount.",
+    "fixture_correction": "archive_row creates a valid AVAILABLE input once with actual expiry and unique object_key; no immutable trigger/DB guard disabled."
+  },
+  "runtime_fixture_round1": {
+    "historical_test_freeze": "docs/audits/2026-10-29/evidence/recovery-tests-freeze-before-runtime-fixtures.json",
+    "historical_sha256": "e6b8034952b2af24006a7664c4156e7b1c22ffc37529248ea5e8975ca99013d8",
+    "snapshot": "/tmp/spaceworks-recovery-runtime-snapshot-20261030",
+    "result": "243 passed,9 failed,2 deselected across finite eight lanes; nine failures traced to five fixture causes, no demonstrated production defect.",
+    "changed_test_paths": [
+      {
+        "path": "backend/tests/backup/recovery_bundle_support.py",
+        "before_sha256": "5b23ab001d44a029b43e15ad4c101b4a1d283309039637688f9412b77a1125e3",
+        "after_sha256": "c6e42c5c806936017b782b83422c64a6c137facf549bbcf358722878bd13e0e7"
+      },
+      {
+        "path": "backend/tests/backup/recovery_live_tasks.py",
+        "before_sha256": "5dd3a2bd57af9d58e2332b6177f00f490e1704c424603eaac3fdea64b78b6d35",
+        "after_sha256": "ad26521a69c8c797f4a22d810093c59853f0385d6ff2f2035bc98acebefb2a60"
+      },
+      {
+        "path": "backend/tests/backup/recovery_transport_support.py",
+        "before_sha256": "82c2bb963f48a2e4685974f55572c283f066778b66e1682f765a55b62ec30211",
+        "after_sha256": "560a04b3c0e4aca6908adac551a8835417c635278e290fa8170ad7b4c9c8b165"
+      },
+      {
+        "path": "backend/tests/backup/test_recovery_resume_synthetic.py",
+        "before_sha256": "ec23483be514ae50027d1154f19864f9da9edc97d18ad0ebe03767ae945e3b88",
+        "after_sha256": "a7495b65dca31c4afab034ec3f0696df6ee279aa3fd70c94f9cd888cbcb8f9c8"
+      },
+      {
+        "path": "backend/tests/backup/test_recovery_task_fence_db.py",
+        "before_sha256": "8da9ff43475bb0feb89c13cc9c8d8eecbc773e4d53a330db5f301eefa050e2da",
+        "after_sha256": "cc2f3d35e91fcb2e27470f14be61b70e67b13ec7ce335a350f96828fb7ff7d98"
+      },
+      {
+        "path": "backend/tests/backup/test_signed_full_host.py",
+        "before_sha256": "3c747b762d95b2d9c9df9ed039f865c45a3adeafe85835e4b2f3087ff8849fe1",
+        "after_sha256": "a128a9245f41bfba623f0e1a77dbe8c0d0c49872f2db4ace6f9e47a23a9c274c"
+      }
+    ],
+    "runtime_after_correction": "UNEXECUTED; parent owns rerun",
+    "production_sources_changed": false
+  }
+}

@@ -1,0 +1,26 @@
+**APPROVE** the bounded BOX-S03/04/05 plan with these exact production files:
+
+| File under `backend/apps/` | Change |
+|---|---|
+| `boxes/targets.py` — new | Canonical exact-enum lookup by `(pk, makerspace_id=qr.makerspace_id)`. Unknown, missing, or foreign target raises deterministic `Http404`. |
+| `boxes/serializers.py` | Use canonical lookup in `qr_target_payload`; preserve valid payload shapes and existing `max_length=200` limits. |
+| `boxes/api_views_qr.py` | Compute target payload before immutable scan insertion and return that same payload. Make scan+audit atomic; make tool get-or-create+audit atomic. Route box creation through the minimal shared creation service. Document print refusal responses. |
+| `boxes/services.py` | Add a small atomic Box+QR+audit creation service shared by API/native add. Recheck active actor, `MANAGE_QR`, and core `qr_management` against a freshly locked makerspace before writes; validate the Box. Preserve revocation code. |
+| `boxes/admin_forms.py` — new | Native add admission with request-bound actor, fresh makerspace checks, and ordinary ModelForm validation. Preserve parent validation and duplicate-label form errors. |
+| `boxes/admin.py` | Wire the form and add-only creation hook into Django’s existing changeform transaction. Existing edits must not mint/reactivate QR rows. Keep raw QR add disabled. |
+| `operations/services_qr_assets.py` | Canonical target validation **even with an explicit label**; preserve complete suffix fitting. Missing targets produce no batch-item or audit writes. |
+| `operations/views_qr_batches.py` | Validate canonical target before the existing kind restriction: orphan box → 404; valid box retains its existing 400 restriction. |
+
+Keep duplicate-label translation specific to that constraint; QR/audit integrity failures must not be mislabeled as duplicates. Native validation failures must appear through form admission, with no partial Box/QR/audit state.
+
+Stage 3 should add focused coverage in:
+
+- `backend/tests/test_qr_target_boundaries.py`
+- `backend/tests/test_qr_atomic_mutations.py`
+- `backend/tests/test_native_box_creation.py`
+
+Cover actual native add→scanner success; native unscanned deletion→orphan refusals; missing/foreign targets for all three kinds; unknown enum; explicit-label batch bypass; actual audit insertion failure rollback; permissions/origin/suspension/module/source-gate preservation; valid and invalid parents; unchanged revoked/history behavior.
+
+No model changes, migrations, deletion/revocation automation, oversized preparatory split, or doc/procurement/gate/command changes. Keep every touched production file ≤300 lines.
+
+Read-only review completed. No edits or runtime execution. The root-owned 127-test PASS remains reported evidence, not independently rerun here; central execution, schema generation, final review, and QA remain with root.

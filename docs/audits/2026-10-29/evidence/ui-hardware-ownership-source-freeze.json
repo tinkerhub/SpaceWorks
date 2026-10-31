@@ -1,0 +1,67 @@
+{
+  "format": "spaceworks-ui-hardware-source-freeze-v1",
+  "reviewer": "Codex /root/audit_ui_finish",
+  "status": "Final source contexts read; separate Stage3/root runtime pending",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/DirectLoanReturnModal.tsx",
+      "sha256": "b18e3cf8931c1bad04a465a7931dbc860b8f605c1655a933626b41fcc0f9a328",
+      "lines": 185
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesAssignIssueModal.tsx",
+      "sha256": "ea6433ba1bd5f6a1f503c815c699389a5dbc178358d5ab98957df40ad828bb44",
+      "lines": 194
+    },
+    {
+      "path": "frontend/src/features/staff/panels/Queues.tsx",
+      "sha256": "356a7420977efcc8a0df96826e67eb9b3e103dd7cd0bb7f1240e2fc344fdeed3",
+      "lines": 166
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoans.tsx",
+      "sha256": "5e1fc6ed48610039f258d8f9e7b2b8ad808997afd1528bf8504610694c7d6a96",
+      "lines": 207
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanItems.tsx",
+      "sha256": "d3a174b3292c81acdafcb1d5fb3ca71c6a83aa4089d1232b6fa63459cb1faea7",
+      "lines": 185
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesModalShared.tsx",
+      "sha256": "f8a796d284593bd9ee6d397f1dc0d7835dd56b907719797c0d6055da337f7d10",
+      "lines": 130
+    },
+    {
+      "path": "frontend/src/features/staff/DirectLoanBorrower.tsx",
+      "sha256": "35998ff869d15bf661b9546a3d6cd1370432e51b354e467cdb0ae062195bae5d",
+      "lines": 87
+    },
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.tsx",
+      "sha256": "04b91e4e5a0b980779aac3e4dd469f58d7bfea64da35223f14de9c48e7b39da7",
+      "lines": 101
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QueuesInvalidation.ts",
+      "sha256": "875c5f9eb25649333c337091537d9fbe1a2803883a7a4bd042d3f4d8c39bb5ea",
+      "lines": 42
+    },
+    {
+      "path": "frontend/src/features/staff/panels/useQueueActions.ts",
+      "sha256": "2ec3709659cc59232221914837824e2d741e80395e25d880b74afa003f57fc68",
+      "lines": 130
+    },
+    {
+      "path": "frontend/src/features/staff/useHardwareQrVisit.ts",
+      "sha256": "4fe4ee635350eebe905baf837de6549026fcabfe248b41ec9ec32cc5279c890b",
+      "lines": 37
+    },
+    {
+      "path": "frontend/src/features/staff/useDirectLoanMutation.ts",
+      "sha256": "d64e8b07b270afba90fdc61d8858e3478dc86fb2d8695084939d8f81cb63720c",
+      "lines": 49
+    }
+  ]
+}

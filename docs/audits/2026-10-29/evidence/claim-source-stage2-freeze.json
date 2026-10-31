@@ -1,0 +1,359 @@
+{
+  "stage": "Stage 2 workspace implementation only",
+  "workspace": "/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks",
+  "approved_plan_files": {
+    "/tmp/spaceworks-claim-source-v2-stage1.txt": "060ebe1d4b1e8169383e82153aaf1973a0e9114c02d50e3af258ef6a996ec202",
+    "/tmp/spaceworks-claim-source-stage1.txt": "eea5744bf8f9ef7a1e03d4d8e610babdbb3a51d226c04d3dee86d6a2475b5e91"
+  },
+  "owned_files": {
+    "backend/apps/accounts/claim_transition_gate.py": {
+      "sha256": "b6e0ea497353739bebb022f795c4ab668e341a3a872a4a84209f1a47fd0bc9fb",
+      "line_count": 66,
+      "functions": {
+        "_membership_makerspace_ids": {
+          "start_line": 21,
+          "end_line": 26,
+          "sha256": "c37b55efb3a7e39161220e0d5df324cf51e6aa27b50393dfb643d84f350f4049"
+        },
+        "claim_transition_gate": {
+          "start_line": 29,
+          "end_line": 53,
+          "sha256": "e11d25c53a169c4ebffdf41fe8fb1c4820b726df6f5254430c1508c375456cfd"
+        },
+        "assert_claim_transition_scope": {
+          "start_line": 56,
+          "end_line": 66,
+          "sha256": "6e6310e6c58536de7d5da02067d21c4f0f1891bba066fbe475df39640b95af7b"
+        }
+      },
+      "before_sha256": null
+    },
+    "backend/apps/accounts/transition_services.py": {
+      "sha256": "744b3f92efa2c280892f4e116c157ff3bffc229d9ebee5e7c2ea3039060fb22b",
+      "line_count": 86,
+      "functions": {
+        "register_walk_in_revocation_hook": {
+          "start_line": 26,
+          "end_line": 41,
+          "sha256": "0a65abd0dcdfb363f8dabefa8376548933a63ed5781d9543e580c1df95b76e67"
+        },
+        "unregister_walk_in_revocation_hook": {
+          "start_line": 44,
+          "end_line": 46,
+          "sha256": "d8e9e0490023ea019c471f32ba08bb62994627c3ec879fc62daa2d9c8a5686e3"
+        },
+        "transition_walk_in_to_account": {
+          "start_line": 49,
+          "end_line": 86,
+          "sha256": "55c0c6ea2cb684b7364389cf1b3726343875c69d21ed3faa7278b2c1f1d1f22a"
+        }
+      },
+      "before_sha256": "f1d2e2b51f3d4f4b24d1f2a218bccf79b1cf516395e05165bbb60637ac40f464",
+      "unchanged_functions": [
+        "register_walk_in_revocation_hook",
+        "unregister_walk_in_revocation_hook"
+      ]
+    },
+    "backend/apps/accounts/oidc_browser_resolution.py": {
+      "sha256": "3a2bd5ece761616a7609d17837a97e3f808f311594116ed1c2f128c44571d9ee",
+      "line_count": 119,
+      "functions": {
+        "resolve_browser_identity": {
+          "start_line": 27,
+          "end_line": 36,
+          "sha256": "9b549428e8309fbe5bb9c7eb4f6b95ec31a42e8abbd2506d8fe57f35a4b0b9f5"
+        },
+        "_transition_bound_walk_in": {
+          "start_line": 39,
+          "end_line": 119,
+          "sha256": "f96b1802db1d979d964f52b031f0f94571dbd15b71a912d914a56d315ee08fc8"
+        }
+      },
+      "before_sha256": "47fde723df419889c52adba4dc94882e4e7bc80ff93d573fc60ad50c1c525bff",
+      "unchanged_functions": [
+        "resolve_browser_identity"
+      ]
+    },
+    "backend/apps/accounts/admin_user_control.py": {
+      "sha256": "d23ab766708c313a2ab2b0a37fc46671c55290be3d818e26df44aa3116aa384d",
+      "line_count": 197,
+      "functions": {
+        "ControlUserChangeForm.clean": {
+          "start_line": 39,
+          "end_line": 68,
+          "sha256": "f1c3b473d1e9747d8319cc0def7195bc20b3e803ad7eb4ff2fba9da39846b85e"
+        },
+        "UserControlAdminMixin.get_form": {
+          "start_line": 72,
+          "end_line": 74,
+          "sha256": "2201ee068448b671efcb2e1755101e5f478846e860bd061fd5e22bc85ce0adee"
+        },
+        "UserControlAdminMixin.save_model": {
+          "start_line": 76,
+          "end_line": 111,
+          "sha256": "1c4c468c9aa1040533dd21afe1edbcf34da9284c69da810423e71b954b75aa17"
+        },
+        "UserControlAdminMixin.user_change_password": {
+          "start_line": 113,
+          "end_line": 125,
+          "sha256": "ecb348ceeed6679f303a0351265cb8f24d2466b5513f523c69966d673c76f268"
+        },
+        "UserControlAdminMixin._user_change_password": {
+          "start_line": 127,
+          "end_line": 181,
+          "sha256": "0edcc9e9ea8a14ea6c56e39b34d3903f940b4d391618850af0ffa9bcc3730b2b"
+        },
+        "UserControlAdminMixin._user_change_password.write_password": {
+          "start_line": 150,
+          "end_line": 152,
+          "sha256": "05b0a7bd7997d5fa7a6c6ed0a153eee012d69b63ba75664f357c15f3982048d9"
+        },
+        "_change_url": {
+          "start_line": 184,
+          "end_line": 188,
+          "sha256": "14118618ff64ff08f75c1186732223df3ed683068169957433b58a501a2edb1c"
+        },
+        "api_exception_message": {
+          "start_line": 191,
+          "end_line": 197,
+          "sha256": "d741ab95118f6f41a6b8295fac070e32942945d3e56a00097a981938b9261124"
+        }
+      },
+      "before_sha256": "3f6753626f11d2fa2ed748b554e0d003f474e2c0ed1e8712d66d25c6172dc352",
+      "unchanged_functions": [
+        "ControlUserChangeForm.clean",
+        "UserControlAdminMixin.get_form",
+        "UserControlAdminMixin.save_model",
+        "UserControlAdminMixin.user_change_password",
+        "UserControlAdminMixin._user_change_password.write_password",
+        "_change_url",
+        "api_exception_message"
+      ]
+    },
+    "backend/apps/presence/services.py": {
+      "sha256": "161ed10efb97742958023ba7d79a83ba7844896cf746ec06197f068e028c4c77",
+      "line_count": 239,
+      "functions": {
+        "_active_sessions": {
+          "start_line": 25,
+          "end_line": 34,
+          "sha256": "0a72e630ebea553fbbe0fe7ebded224c9125dde57d32daaa34615b2084bf3cd6"
+        },
+        "start_session": {
+          "start_line": 37,
+          "end_line": 97,
+          "sha256": "5807a7e3470634723d54f138646797f99b29d93cfa4e6862dd14628d9192fa31"
+        },
+        "current_session": {
+          "start_line": 100,
+          "end_line": 108,
+          "sha256": "ea9235cb641e1033f3b191b202e0e6f354327b20ac94b6ceb08239b5b8d147e2"
+        },
+        "end_session": {
+          "start_line": 111,
+          "end_line": 131,
+          "sha256": "3c25406de002dc292444bfd130112f8e6da14cba6789f8d04dd1525e9f70cd32"
+        },
+        "end_sessions_for_membership": {
+          "start_line": 134,
+          "end_line": 141,
+          "sha256": "f8e8bbb0b3ad3b18208c6382a0a1d8f0e627dc4d6cc102364f279b9185a2f5cd"
+        },
+        "end_sessions_for_claim": {
+          "start_line": 144,
+          "end_line": 204,
+          "sha256": "f68d6e053f206bf2e29095ab09ef9b08c4467744832bc6832941fc271b9f694e"
+        },
+        "expire_claim_presence": {
+          "start_line": 207,
+          "end_line": 231,
+          "sha256": "0428940387a894c672e75f5ea03c26fe53975e488ec4603551895b5af77c9e47"
+        },
+        "_validate_claim_scope": {
+          "start_line": 234,
+          "end_line": 239,
+          "sha256": "b486416d509d71a4cfb8721a23957beaacb56f28a2265e4550c1d131f1823ea8"
+        }
+      },
+      "before_sha256": "c9946e6e1dbda731553863a072c68f4f8b1969e3adc2c861a34eee03b26418d8",
+      "unchanged_functions": [
+        "_active_sessions",
+        "start_session",
+        "current_session",
+        "end_session",
+        "end_sessions_for_membership",
+        "_validate_claim_scope"
+      ]
+    },
+    "backend/apps/accounts/views_oidc_browser.py": {
+      "sha256": "625497fa023dfd72e9651bf17b831d8129f23bb7bff1e2dee98d60bdf6fff653",
+      "line_count": 185,
+      "functions": {
+        "_error": {
+          "start_line": 38,
+          "end_line": 50,
+          "sha256": "064c4bd00fbfb6fd8725d68182b18ed150ad6ba9d7e724f14a7885000c7eb474"
+        },
+        "OidcBrowserStartView.post": {
+          "start_line": 58,
+          "end_line": 90,
+          "sha256": "323d8eeee956aee4f2046272e57920ca888452c40756fa07a676f24b0e9083c0"
+        },
+        "OidcBrowserCallbackView.post": {
+          "start_line": 98,
+          "end_line": 174,
+          "sha256": "7c7a7837b1e4c22b36c4257bd27b6a613e68cddea32364442092ef5ed6795e94"
+        },
+        "_audit_failure": {
+          "start_line": 177,
+          "end_line": 185,
+          "sha256": "9b9a60dee83a7b98c527109eb65577a482ec974fa433c66af2e15058940ddd47"
+        }
+      },
+      "before_sha256": "93fbd43bc223f752bf31081fc05ec93cd23ceb4b0ce1802d54294609283ebc62",
+      "unchanged_functions": [
+        "_error",
+        "OidcBrowserStartView.post",
+        "_audit_failure"
+      ]
+    }
+  },
+  "function_hash_format": "SHA256 of exact UTF-8 file bytes from first decorator (or def) line through AST end_lineno inclusive, including final newline when present; qualified names include enclosing classes/functions.",
+  "source_only_checks": {
+    "all_owned_ast_parse": true,
+    "all_owned_at_most_300_lines": true,
+    "canonical_admission_before_atomic": true,
+    "canonical_scope_assert_immediately_after_user_lock": true,
+    "oidc_admission_before_outer_atomic": true,
+    "oidc_scope_assert_immediately_after_user_lock": true,
+    "oidc_post_unwind_local_handlers": [
+      "TenantNotRestored",
+      "ClaimTransitionScopeChanged",
+      "WalkInTransitionError",
+      "IntegrityError"
+    ],
+    "end_helper_acquires_no_source_boundary": true,
+    "callback_body_unchanged": true,
+    "no_blanket_runtime_error_handlers": true
+  },
+  "actual_outer_transactions": [
+    {
+      "entry": "UserControlAdminMixin._user_change_password POST",
+      "admission_owner": "transition_walk_in_to_account -> claim_transition_gate(user.pk)",
+      "first_row_lock": "transition_walk_in_to_account: User.select_for_update()",
+      "outer_transaction": "transition_walk_in_to_account transaction.atomic(); native custom password path has no surrounding atomic",
+      "commit_lifetime": "Admission entered first; service atomic commits before admission exits.",
+      "refusal": "Exact Closed/Unavailable/TenantNotRestored/ClaimTransitionScopeChanged caught by native admin only after service rollback; generic message and redirect, no inherited fallback. WalkInTransitionError retains existing winner fallback."
+    },
+    {
+      "entry": "OidcBrowserCallbackView.post -> resolve_browser_identity -> _transition_bound_walk_in",
+      "admission_owner": "_transition_bound_walk_in -> claim_transition_gate(attempt.intended_user_id)",
+      "first_row_lock": "_transition_bound_walk_in: target User.select_for_update(), followed by fresh scope assertion before Membership/SocialIdentity/email User locks",
+      "outer_transaction": "_transition_bound_walk_in transaction.atomic(); canonical service is a nested savepoint",
+      "commit_lifetime": "Outer admission surrounds OIDC atomic commit. Nested canonical admission reuses exact ContextVar tuple and never admits additional tenants.",
+      "refusal": "TenantNotRestored -> SocialResolutionError(tenant_not_restored,503); scope growth -> SocialResolutionError(identity_scope_changed,409), both after outer unwind. Closed/Unavailable propagate to existing middleware 423/503.",
+      "external_io": "Existing discover, exchange_code, verify_oidc_token stay in callback before identity resolution/transaction."
+    },
+    {
+      "entry": "Direct transition_walk_in_to_account caller",
+      "admission_owner": "claim_transition_gate(user.pk) before service atomic and first User lock",
+      "outer_transaction": "Service atomic if standalone; otherwise existing caller transaction",
+      "commit_lifetime": "Standalone dedicated source boundaries surround service commit. In an existing transaction boundary_tenant_write uses transaction advisory locks retained until actual caller commit/rollback.",
+      "contract": "Caller must enter admission before its own User/Membership/Claim locks, as the known OIDC caller now does; no generic lock framework added."
+    },
+    {
+      "entry": "authentication claim rejection -> expire_claim_presence",
+      "admission_owner": "Unlocked MemberClaimCode.select_related(membership) determines actual tenant; boundary_tenant_write(actual makerspace) before end_sessions_for_claim",
+      "outer_transaction": "end_sessions_for_claim transaction.atomic(); existing caller transaction, if any, retains transaction advisory locks",
+      "first_row_lock": "end_sessions_for_claim: Claim.select_for_update(of=self), then Presence rows",
+      "commit_lifetime": "Boundary surrounds helper commit, or transaction advisory locks survive through actual enclosing commit.",
+      "provenance": "After claim lock compare session ID, membership PK, membership user and admitted maker with preflight, and recheck revoked/expired. Presence query constrains claim/member/maker and cleanup checks membership PK before DML. Missing/changed rows defer; canonical strict missing/provenance behavior retained.",
+      "refusal": "Exact Closed/Unavailable/TenantNotRestored defer cleanup and preserve existing generic 401; no source/Presence/Audit DML on refusal."
+    }
+  ],
+  "protected_source_baseline_checks": {
+    "backend/apps/accounts/services_claim.py": {
+      "before_sha256": "2006ca311d33d0d10c26f53947b48d5c9c63a6a5509a8bf2024f379239cb2491",
+      "after_sha256": "2006ca311d33d0d10c26f53947b48d5c9c63a6a5509a8bf2024f379239cb2491",
+      "unchanged": true
+    },
+    "backend/apps/accounts/claim_sessions.py": {
+      "before_sha256": "384c82fa990306da1a33205d4a156a472b87b11216f4c3017b472f4b1fc5dccb",
+      "after_sha256": "384c82fa990306da1a33205d4a156a472b87b11216f4c3017b472f4b1fc5dccb",
+      "unchanged": true
+    },
+    "backend/apps/accounts/authentication.py": {
+      "before_sha256": "4fafae6863cadd861fad03a13b4977459d687db3844e02f43552d0b0f37e7274",
+      "after_sha256": "4fafae6863cadd861fad03a13b4977459d687db3844e02f43552d0b0f37e7274",
+      "unchanged": true
+    },
+    "backend/apps/makerspaces/admin_staff_membership.py": {
+      "before_sha256": "391752954abf32b5d666d9d44fffc54b05cdfc508ffb335d3a15747fabce7bab",
+      "after_sha256": "391752954abf32b5d666d9d44fffc54b05cdfc508ffb335d3a15747fabce7bab",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_http_ownership.py": {
+      "before_sha256": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+      "after_sha256": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_locks.py": {
+      "before_sha256": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "after_sha256": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_runtime.py": {
+      "before_sha256": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+      "after_sha256": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/gate_errors.py": {
+      "before_sha256": "bf4b9981cf8f9c6582556996bda74d26eb9e672a58c921eb574523011c25d6e2",
+      "after_sha256": "bf4b9981cf8f9c6582556996bda74d26eb9e672a58c921eb574523011c25d6e2",
+      "unchanged": true
+    },
+    "backend/apps/tenant_migration/middleware.py": {
+      "before_sha256": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+      "after_sha256": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+      "unchanged": true
+    },
+    "backend/apps/backup/not_restored.py": {
+      "before_sha256": "672ca9a3119a9a0781f6db727a03e7428450c8ce807d75b3f10fc07bbe57326e",
+      "after_sha256": "672ca9a3119a9a0781f6db727a03e7428450c8ce807d75b3f10fc07bbe57326e",
+      "unchanged": true
+    },
+    "backend/config/admin_source_gate.py": {
+      "before_sha256": "f876b2d72e6cfedf077611ba567fd3bb460b2dee9b0ae8db4929ea092dc79e9e",
+      "after_sha256": "f876b2d72e6cfedf077611ba567fd3bb460b2dee9b0ae8db4929ea092dc79e9e",
+      "unchanged": true
+    }
+  },
+  "unowned_backend_capture": {
+    "start": {
+      "path": "/tmp/spaceworks-claim-source-stage2-baseline.json",
+      "sha256": "f47437358f5370b1203f41f904515901d512ab95e22ef9bba69bde153acb6094",
+      "file_count": 23671
+    },
+    "end": {
+      "path": "/tmp/spaceworks-claim-source-stage2-backend-end.json",
+      "sha256": "7a42a1843aa27df1b40860f5061cb4d1852633c4da6ffcfb4fb717cdfee0e718",
+      "file_count": 23672
+    },
+    "unowned_start_count": 23666,
+    "unowned_end_count": 23666,
+    "changes": [],
+    "classification": "No unowned backend byte changes during Stage 2."
+  },
+  "write_scope": "Only six owned repository files edited. Metadata artifacts written under /tmp. No docs, schemas, static guards, gate ownership, lock primitives, models or migrations authored.",
+  "validation_limits": "stdlib AST and SHA256/source inspection only. No tests, collection, project imports, runtime, builds, staging or commits.",
+  "root_test_handoff": [
+    "Frozen tenant in any target membership, including revoked memberships: native password and OIDC refuse before credential/claim/presence/audit changes; wrong maker hints cannot redirect admission.",
+    "Unavailable gate and TenantNotRestored: native readable redirect without inherited fallback; OIDC typed 503 after rollback (middleware for unavailable, local mapping for not-restored).",
+    "Membership growth between unlocked admission and User lock: typed 409, no fallback or partial writes; shrinking succeeds; nested same-user context reuses exact set, different-user context 503.",
+    "Lock lifetime/concurrency: source exclusive freeze cannot pass until actual outer OIDC/direct service commit; no extra tenant N acquisition beneath identity row locks.",
+    "Happy native password/OIDC transition preserves password audit, Django LogEntry, social linking, revocation hooks, claim and presence provenance, token/device revocation and rollback behavior.",
+    "Fault-state stale expired/revoked presence cleanup: frozen/unavailable/not-restored defer without Presence/SourceRow/Audit DML and keep generic 401; open actual maker cleans only matching provenance, missing/changed claim harmlessly defers.",
+    "Existing normal deadline expiry needs no cleanup write; existing canonical end helper strict provenance errors remain strict.",
+    "Regenerate/review OpenAPI artifacts only in root-owned later stage; callback adds 423 ErrorSerializer annotation and retains existing 503."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "beat_task": {
+    "MAPPED": 20
+  },
+  "control_model": {
+    "MAPPED": 126
+  },
+  "feature": {
+    "MAPPED": 10
+  },
+  "frontend_app_route": {
+    "MAPPED": 44
+  },
+  "frontend_staff_alias": {
+    "MAPPED": 1
+  },
+  "frontend_staff_subroute": {
+    "MAPPED": 1
+  },
+  "frontend_staff_tab": {
+    "MAPPED": 35
+  },
+  "management_command": {
+    "MAPPED": 38
+  },
+  "module": {
+    "MAPPED": 31
+  },
+  "openapi_operation": {
+    "MAPPED": 582
+  },
+  "registered_api_endpoint": {
+    "N/A_DOCS": 4,
+    "MAPPED": 582
+  },
+  "registered_task": {
+    "MAPPED": 27
+  }
+}

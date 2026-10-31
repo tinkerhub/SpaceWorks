@@ -155,6 +155,7 @@ class InventoryProductAdmin(
                     request.user,
                     product,
                     serializer.validated_data,
+                    native=True,
                 )
             except (
                 DRFValidationError, DjangoValidationError, DRFPermissionDenied,

@@ -1,0 +1,9 @@
+**Required deltas — not yet APPROVED.** The superseding delta resolves all seven prior findings. Two bounded gaps remain:
+
+1. **Prove exclusion of actual running writers.** Resolved Compose configuration plus stopping backend/worker/beat does not exclude the committed [candidate-backend service](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/docker-compose.prod.yml:294). The [entrypoint gate](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/scripts/spaceworks_entrypoint.py:69) checks startup only; an existing process survives marker replacement. Explicitly inventory the admitted Compose project’s running containers, verify their actual image/command/environment/mount facts, and refuse unexpected writers—including candidate-backend and one-offs—before effects. Recheck exclusion before SQL. Cover this refusal in Stage 3.
+
+2. **Separate restored object closure from newly created recovery references.** The [ownership registry](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/object_ownership_registry.py:42) includes rollback copies. On the supported quiesced-storage path, [object restoration creates new copy references](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/object_restore.py:63) absent from the admitted manifest. Define closure-check timing and narrowly distinguish current-operation references using the bound journal. Preserve verification of archived rollback-copy entries; do not exclude the whole model or key prefix. Stage 3 must demonstrate successful complete readback with newly created rollback copies and refusal of unexplained extra references.
+
+Durable blocked/manual recovery and the single target-owned queue generation remain acceptable.
+
+No edits, tests, runtime actions, or credential inspection performed.

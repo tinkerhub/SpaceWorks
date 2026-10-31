@@ -4,7 +4,7 @@ from .tenant_dump_errors import TenantDumpVerificationError
 
 
 FORMAT = "spaceworks-tenant-dump-v1"
-VERSION = 1
+VERSION = 2
 PAYLOAD_MEMBER = "payload.age"
 OUTER_MANIFEST_FIELDS = frozenset({
     "format",
@@ -34,7 +34,8 @@ def validate_outer_manifest(manifest):
     try:
         if not isinstance(manifest, dict) or set(manifest) != OUTER_MANIFEST_FIELDS:
             raise ValueError
-        if manifest["format"] != FORMAT or manifest["version"] != VERSION:
+        if (manifest["format"] != FORMAT or type(manifest["version"]) is not int
+                or manifest["version"] not in {1, 2}):
             raise ValueError
         if any(
             not isinstance(manifest[name], str) or not manifest[name]
@@ -67,7 +68,7 @@ def validate_outer_manifest(manifest):
         postgres_major = manifest["postgres_major"]
         if type(postgres_major) is not int or not 10 <= postgres_major <= 99:
             raise ValueError
-        _validate_compatibility(manifest["compatibility"])
+        _validate_compatibility(manifest["compatibility"], version=manifest["version"])
     except (KeyError, TypeError, ValueError) as exc:
         raise TenantDumpVerificationError(
             "The Lane D outer manifest structure is invalid."
@@ -85,12 +86,15 @@ def _validate_fingerprints(values):
         raise ValueError
 
 
-def _validate_compatibility(value):
+def _validate_compatibility(value, *, version):
     if not isinstance(value, dict):
         raise ValueError
-    if not value:
+    if not value and version == 1:
         return
-    if set(value) != COMPATIBILITY_FIELDS:
+    fields = COMPATIBILITY_FIELDS | ({"inner_manifest_sha256"} if version == 2 else set())
+    if set(value) != fields:
+        raise ValueError
+    if version == 2 and not _is_sha256(value["inner_manifest_sha256"]):
         raise ValueError
     if (
         not _is_sha256(value["catalog_sha256"])

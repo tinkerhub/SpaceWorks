@@ -1,0 +1,721 @@
+{
+  "status": "passed",
+  "problem": "Published setup/update previously did not provision the actual local backend RepoDigest into trusted runtime configuration.",
+  "scope": "Host helper, published setup, final-pull binding, no-repull record/start ordering, update rollback, atomic dotenv failure handling and functional staged bundle installation. Backend FULL admission has separate core-owned proof.",
+  "gates": {
+    "stage1": "independent pinned read-only plan approved",
+    "stage2": "separate pinned source author plus approved six-site no-pull refinement; root independently read source",
+    "stage3": "fresh separate pinned host test authors; root independently read all nine files",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "fixture_correction": "Root independently approved exactly two new-test assertion replacements after preserved initial run; no production edits.",
+    "stage4": "Root owns mandatory final whole-branch review"
+  },
+  "source": {
+    "base_frozen_files": 4829,
+    "base_inventory_sha256": "6a3de5d932823bfba1bf4ba7083b07159f113e756d32c361c6faffb949281ad5",
+    "final_frozen_files": 4829,
+    "final_inventory_sha256": "b7fd0a0bc244b03cb711d1576e51eea0aa758baabb8fb78105ddfb89207c38ab",
+    "only_overlay_path": "backend/tests/test_runtime_image_provisioning_update.py",
+    "only_overlay_before_sha256": "107295612fc19d7a0a481b4434e0afb0af36bb997950197c31cabe9c1a971e5f",
+    "only_overlay_after_sha256": "7853010438971cfd0398480ebde77fc709a477196a86d9c79c7f76fc185657a6",
+    "all_production_and_other_file_bytes_modes_unchanged": true,
+    "production_files": [
+      {
+        "path": "scripts/provision-runtime-image.py",
+        "sha256": "1afc79d50397f6c26c1e4c60f489b3c6ca61a1cffe17d9df1108c3ff6cf9eb1b",
+        "mode": 384
+      },
+      {
+        "path": "scripts/setup-host-orchestration.sh",
+        "sha256": "cf93369be105aa0f62e8c8de4002fc0155c95b829624558f89d2626fdac74811",
+        "mode": 420
+      },
+      {
+        "path": "scripts/update.sh",
+        "sha256": "6764b8014c135461d5d3de791d0a8c36dbb79dcc6d469239e91b8f9ad69d30b5",
+        "mode": 420
+      },
+      {
+        "path": "scripts/install-host-bundle.sh",
+        "sha256": "bee2df244fa695151c5f5b3c741a7d3a906c9d7ad9e516df4c2ff8b400650c64",
+        "mode": 420
+      },
+      {
+        "path": "setup.sh",
+        "sha256": "6e0f8837871d0a695777225c9162d3b4c98b4fcb61468bcde46977570ee18e31",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/backup/runtime_image_identity.py",
+        "sha256": "a13142c7b5cec15461050b1600698fdc54d814c9387af225f30386ddb6ef8736",
+        "mode": 384
+      },
+      {
+        "path": "backend/apps/backup/full_capture.py",
+        "sha256": "df45fb5424fc0c17f8b5e6a998cef65deef755f69624b230894a82266aac8074",
+        "mode": 420
+      },
+      {
+        "path": "backend/apps/backup/archive_payload.py",
+        "sha256": "37b38314842ed13985904baee4c153a6a1de0b6e711be426c0b6717af60e5e7f",
+        "mode": 420
+      }
+    ],
+    "host_test_files": [
+      {
+        "path": "backend/tests/runtime_image_provisioning_support.py",
+        "sha256": "a5b2b391b46c0ec762781ea15d8695f3bb95c4b816c6c7f9492db2fe3030fee0",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_atomic_failures.py",
+        "sha256": "1f56cf251e90d13320b48eadab0ee9d142e907ec9f320bf0b02178289404781c",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_bundle.py",
+        "sha256": "68144ef72852fe7001668bb76e3b970104cc8afea88bd65a2254aa572117af41",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_default_regression.py",
+        "sha256": "59afc218a8f55a4c52cd8079d30276e05a6f8ff71a97e2c541b760ed65b21f80",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_helper.py",
+        "sha256": "fc96e4d32bac192ac22a98f88adfc60190374671456545a08188a1bd20f2d68d",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_pull_policy.py",
+        "sha256": "6d511e1f8c75d873aca833642cde195acaac81f237a2368d5229e27826bb57a9",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_setup.py",
+        "sha256": "4a692d0cb3a37bbe0f1d3eb918a34c6db7d7bd1dbf07ad2635d8702b753982e4",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_runtime_image_provisioning_update.py",
+        "sha256": "7853010438971cfd0398480ebde77fc709a477196a86d9c79c7f76fc185657a6",
+        "mode": 420
+      },
+      {
+        "path": "backend/tests/test_platform_update_scripts.py",
+        "sha256": "c5f2413078c65234a6be8a1d92c6b6cf823239b4d4b98886b3150f0777af87f5",
+        "mode": 420
+      }
+    ],
+    "host_source_and_tests_current_checkout_match_tested_frame": true,
+    "old_platform_test_functions_unchanged": 6,
+    "all_original_platform_assertions_unchanged": true,
+    "old_red_files": 4811,
+    "old_red_inventory_sha256": "d0155b477a56cddcafed513ad187807db03283f0eec4e9862d35cbd288639b56",
+    "old_red_overlay": "Pre-P1 4810-file snapshot plus only the unchanged standalone public default regression; both new P1 production helpers absent."
+  },
+  "runtime": {
+    "old_default_red": {
+      "cases": 1,
+      "passed": 0,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 5.203,
+      "pytest_seconds": 0.614,
+      "collection_sha256": "e6ebe7c8c0d95fae03eccfcfb8f0ab8ee63d0c1a5333d468e1f3b22a53647a00",
+      "frozen_inputs_sha256": "b76c085ca0ca2bf91ea0524fd10166e27d4fdf53f5eba59f4511ad979decead0",
+      "raw_private_xml_sha256": "f47b557fd80ad860e2b4b58ec40e5d83de032e307ebdc0b97670abb023f8f55b",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "sanitized_xml": "runtime-image-host-pre-fix-red-20261031.xml",
+      "sanitized_xml_sha256": "4898a94abbfd7cb2fd391d1792bd2c722fcc2fef1c5827fbca555edf917c8bd8",
+      "all_outcomes": [
+        {
+          "classname": "tests.test_runtime_image_provisioning_default_regression",
+          "name": "test_default_published_prepare_binds_actual_repository_digest",
+          "outcome": "failures"
+        }
+      ]
+    },
+    "initial_oracle_failures": {
+      "cases": 49,
+      "passed": 45,
+      "failures": 4,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 35.329,
+      "pytest_seconds": 27.183,
+      "collection_sha256": "92a39a9bd31a12fcd052b825c14de5e7f8fe11b11a545b6b2e270870474339d8",
+      "frozen_inputs_sha256": "cb01e71a6f080a286f94437938776079ff21d67cb9c6ca90a90752c80fa51bdb",
+      "raw_private_xml_sha256": "df3f65696003d45279528aa8f28d8d615b707879b3edbd49f764daa7fbd5664e",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "sanitized_xml": "runtime-image-host-initial-oracle-failures-20261031.xml",
+      "sanitized_xml_sha256": "7b5e3ba8db151bacf5ae76d2c86e61a2aa4b984f21907f83b39c103b758fc8f7",
+      "all_outcomes": [
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_file_fsync_failure_refuses_before_replace_preserving_original_inode",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_replace_failure_refuses_without_false_success_or_temporary_files",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_directory_fsync_failure_reports_replaced_complete_private_dotenv",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_bundle",
+          "name": "test_actual_bundle_installs_provisioner_and_all_60_files_preserving_private_state",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_bundle",
+          "name": "test_actual_bundle_refuses_only_missing_provisioner_before_any_destination_write",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_default_regression",
+          "name": "test_default_published_prepare_binds_actual_repository_digest",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_selects_repository_not_config_id_and_accepts_duplicate_candidate",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[registry.example:5443/team/backend:release-registry.example:5443/team/backend]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[ubuntu:latest-docker.io/library/ubuntu]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[index.docker.io/ubuntu:latest-docker.io/library/ubuntu]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[malformed]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[ambiguous]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[wrong-repo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[entrypoint]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[id]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[unpublished]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[registry.example:5443/team/backend]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[image1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[registry.example:70000/backend:tag]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_atomic_persistence_preserves_unrelated_bytes_and_fsyncs_private_replacement",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST=a\\nSPACEWORKS_OCI_DIGEST=b\\n]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST='first\\nsecond'\\n]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[config-id]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[repo-digest]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[dotenv]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[parent]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[permissions]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_clear_removes_previous_digest_without_inspecting_and_warns_full_unavailable",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_pull_policy",
+          "name": "test_setup_helper_docker_runs_and_application_start_explicitly_forbid_pulls",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_pull_policy",
+          "name": "test_cache_eviction_at_record_helper_refuses_before_any_application_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_source_setup_clears_stale_identity_before_records_and_raw_build_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_update_binds_new_tag_and_digest_before_raw_no_repull_start",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[deploy]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-identity]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-records]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_tls_overlay_does_not_reintroduce_a_compose_profile",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_tls_overlay_passes_the_storage_domain_to_caddy",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[different-version]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[already-installed]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[force-reinstall]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[untracked-install]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_failure_logs_without_update_control_and_keeps_previous_version[backup]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_failure_logs_without_update_control_and_keeps_previous_version[deploy]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_upgrade_retains_tls_layer_for_later_runner_updates",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_an_installer_pinned_release_wins_over_a_newer_latest",
+          "outcome": "passed"
+        }
+      ]
+    },
+    "final_current": {
+      "cases": 49,
+      "passed": 49,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 0,
+      "driver_seconds": 153.528,
+      "pytest_seconds": 73.227,
+      "collection_sha256": "92a39a9bd31a12fcd052b825c14de5e7f8fe11b11a545b6b2e270870474339d8",
+      "frozen_inputs_sha256": "580380ed9941a1c50a4b9374548cb2206c64d28fb165f60c6a112ef4bd368b2c",
+      "raw_private_xml_sha256": "a8ec022bf20b0f04b1aee0332e75f09cb3b6536d9a6a901e037be07604c97144",
+      "source_modes_inputs_env_cli_verified_before_after": true,
+      "sanitized_xml": "runtime-image-host-current-20261031.xml",
+      "sanitized_xml_sha256": "87c47cd576253c96953e58b9cf8258abc66ef6a07322330cdbf7f5d5580af10f",
+      "all_outcomes": [
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_file_fsync_failure_refuses_before_replace_preserving_original_inode",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_replace_failure_refuses_without_false_success_or_temporary_files",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_atomic_failures",
+          "name": "test_directory_fsync_failure_reports_replaced_complete_private_dotenv",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_bundle",
+          "name": "test_actual_bundle_installs_provisioner_and_all_60_files_preserving_private_state",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_bundle",
+          "name": "test_actual_bundle_refuses_only_missing_provisioner_before_any_destination_write",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_default_regression",
+          "name": "test_default_published_prepare_binds_actual_repository_digest",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_selects_repository_not_config_id_and_accepts_duplicate_candidate",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[registry.example:5443/team/backend:release-registry.example:5443/team/backend]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[ubuntu:latest-docker.io/library/ubuntu]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_selected_repository_parses_real_tag_and_registry_port[index.docker.io/ubuntu:latest-docker.io/library/ubuntu]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[malformed]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[ambiguous]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[wrong-repo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[entrypoint]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[id]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_cli_refuses_invalid_or_unpublished_inspection_without_changing_env[unpublished]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[registry.example:5443/team/backend]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[image1]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unusable_image_reference_refuses_before_inspection[registry.example:70000/backend:tag]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_atomic_persistence_preserves_unrelated_bytes_and_fsyncs_private_replacement",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST=a\\nSPACEWORKS_OCI_DIGEST=b\\n]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_duplicate_or_multiline_digest_assignment_refuses_unchanged[SPACEWORKS_OCI_DIGEST='first\\nsecond'\\n]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[config-id]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[repo-digest]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_second_inspection_or_dotenv_race_refuses_and_removes_temporary[dotenv]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[parent]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_unsafe_selected_file_or_parent_fails_closed[permissions]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_helper",
+          "name": "test_clear_removes_previous_digest_without_inspecting_and_warns_full_unavailable",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_pull_policy",
+          "name": "test_setup_helper_docker_runs_and_application_start_explicitly_forbid_pulls",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_pull_policy",
+          "name": "test_cache_eviction_at_record_helper_refuses_before_any_application_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_source_setup_clears_stale_identity_before_records_and_raw_build_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_update_binds_new_tag_and_digest_before_raw_no_repull_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[deploy]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-identity]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_update",
+          "name": "test_rollback_restores_proof_then_requires_old_identity_and_records_before_start[old-records]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_tls_overlay_does_not_reintroduce_a_compose_profile",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_tls_overlay_passes_the_storage_domain_to_caddy",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[different-version]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[already-installed]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[force-reinstall]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_host_version_and_force_decide_whether_to_apply[untracked-install]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_failure_logs_without_update_control_and_keeps_previous_version[backup]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_failure_logs_without_update_control_and_keeps_previous_version[deploy]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_upgrade_retains_tls_layer_for_later_runner_updates",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_platform_update_scripts",
+          "name": "test_an_installer_pinned_release_wins_over_a_newer_latest",
+          "outcome": "passed"
+        }
+      ]
+    }
+  },
+  "oracle_correction": {
+    "initial_failures": 4,
+    "reason": "The updater unsets ambient OCI, then runs init in a child bash that persists the new digest. Child exports cannot reach the updater parent. The real Compose wrapper supplies its .env via --env-file.",
+    "final_assertions": "Require persisted new digest B and empty raw parent OCI; preserve record helper inheritance B, successful rollback parent A, every old platform assertion, same exact 49 IDs.",
+    "production_change_required": false
+  },
+  "controls": [
+    "Real helper refuses malformed/ambiguous/retagged/entrypoint-mismatched image identities and unsafe dotenv paths.",
+    "Real atomic file-fsync/replace failures preserve old bytes; directory-fsync failure after replace reports rerun with complete new private bytes.",
+    "Actual setup final-pull rebinds new digest before six trusted records and raw startup --pull never.",
+    "All six Docker record/key/installer helpers require --pull=never; missing cache refuses before application start.",
+    "Actual updater preserves database backup and producer proof; rollback must refresh old identity and records before old startup.",
+    "Actual staged host bundle copies all 60 required files including the new helper; missing helper refuses before destination changes."
+  ],
+  "environment": {
+    "runtime_platform": "Linux Docker immutable audit image",
+    "daemon_socket_mounted": false,
+    "database_port": 55433,
+    "cache_database": 12,
+    "broker_database": 14,
+    "all_provider_transports_faked_in_pytest": true,
+    "actual_object_io_required": false,
+    "stopped_private_minio_unchanged": true,
+    "per_test_deadlines_unchanged": true
+  },
+  "actual_cached_docker_positive": {
+    "artifact": "runtime-image-cached-docker-positive-20261031.json",
+    "sha256": "08c54b9e8b41be6973ae7c7af1ebc661c12c7b5b5e647aff3a1524b1b87d903d",
+    "scope": "Actual read-only cached-image inspect and helper temporary private dotenv persistence; no pull/build/tag/remove/run/compose or original recovery state change.",
+    "clean_repeat_from_new_private_helper_copy": true,
+    "before_after_helper_inventory_exact": true
+  },
+  "limits": [
+    "No fresh full-suite claim. Exact finite 49 current host cases, one genuine pre-P1 default failure, and one real cached Docker helper positive.",
+    "Original seventh restore image/source capture/success phases remain unchanged; this is separate current-source evidence.",
+    "Focused source/copy/guard manifest and actual seventh canonical metadata were not refreshed by this publication.",
+    "The first native helper import created one Python3.14 cache in the original backend source snapshot after host49 had ended. The primary postrun inventory guard refused that extra file. All expected source bytes/modes remained exact. That original snapshot/cache and guard failure are retained; the clean Docker probe repeat used a separate private helper copy with bytecode disabled. The closed host49 frame was unaffected."
+  ],
+  "initial_native_probe_side_effect": {
+    "unexpected_frozen_frame_cache": "scripts/__pycache__/provision-runtime-image.cpython-314.pyc",
+    "cache_sha256": "b932e4ae84f0489992b828a09ac00dc6f3e1a6824c32b4e593bb3f941e748d87",
+    "cache_bytes": 15696,
+    "expected_4829_source_bytes_and_modes_unchanged": true,
+    "extra_cache_caused_primary_postrun_inventory_refusal": true,
+    "original_snapshot_and_cache_retained": true,
+    "original_snapshot_not_rebaselined_or_reused_as_closed_frame": true,
+    "cause": "Initial native Python3.14 helper import preceded the later child CLI -B; importlib wrote cache into the mounted source snapshot.",
+    "correction": "Repeat from a new private helper copy with Python -B and sys.dont_write_bytecode before import; exact helper inventory verified before/after.",
+    "host_final_round2_frame_unaffected": true,
+    "preserved_prior_host_proof_sha256": "3e121e67f9e40461d7b6a87f5e5559f977424f79bbc242838c21a857504980b9"
+  }
+}

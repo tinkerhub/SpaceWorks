@@ -1,0 +1,11 @@
+APPROVE — the shared-helper change is the smallest complete fix for canonical bulk-delete audit atomicity.
+
+- `@transaction.atomic` on `AdminAuditMixin.delete_queryset` encloses every `control.object_deleted` insert and the Collector deletion. Remove Box’s redundant wrapper; retain its mixin inheritance and existing add/edit behavior.
+- Actual consumers reveal no newly enclosed fresh `storage_lifecycle` acquisition. Warranty/ToBuy acquire guards before their outer transaction; the helper’s nested atomic block keeps `on_commit` cleanup within guard ownership.
+- Category, MachineType, role-scope and enabled platform-settings consumers have no storage acquisition on this path. InventoryProduct/Makerspace/Machine hard deletes remain disabled; image mixins affect change forms. ApiClient’s existing post-super origin sync remains outside the helper.
+
+The proposed Stage 3 coverage is appropriate: actual Box and Category bulk actions, a real first audit insert followed by later refusal, successful two-object auditing, and preservation of protected history, no-op and save behavior.
+
+This approval covers domain rows and canonical `AuditLog` entries. Django’s native `LogEntry` writes occur before `delete_queryset` and are outside this transaction.
+
+Read-only review only; no edits, runtime checks or tests run.

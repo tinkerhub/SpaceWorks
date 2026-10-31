@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServiceOperation } from "./useServiceOperation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import type { MachineServiceRequest, PrinterPool, TypedManualUsageResponse } from "../../../../generated/api";
 import { ErrorBlock, SectionHeading } from "../../../../components/ui";
@@ -67,42 +68,32 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
     queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) }),
   ]);
   const manualPrice = useManualPrice(makerspaceId, machineType, draft.manual);
-  const submitManual = useMutation({
-    mutationFn: () => staffRequest(`/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage`, {
+  const scope = `${makerspaceId}:${machineType.id}`;
+  const submitManual = useServiceOperation<{ body: string; composition: string }>(`${scope}:manual:${draft.manual.machine_id}`, {
+    dispatch: ({ body }) => staffRequest(`/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage`, {
       method: "POST",
-      body: JSON.stringify({
-        machine_id: Number(draft.manual.machine_id),
-        consumable_pool_id: poolUnit && draft.manual.consumable_pool_id ? Number(draft.manual.consumable_pool_id) : null,
-        duration_minutes: Number(draft.manual.duration_minutes),
-        quantity: quantityLabel && draft.manual.quantity ? draft.manual.quantity : undefined,
-        metering_unit: meteringUnit,
-        outcome: draft.manual.outcome,
-        percent_complete: Number(draft.manual.percent_complete),
-        reason: draft.manual.reason || undefined,
-        note: draft.manual.note || undefined,
-        price: draft.manual.price === "" ? undefined : draft.manual.price,
-      }),
+      body,
     }),
-    onSuccess: () => {
+    success: ({ composition }, isCurrent) => {
       notify.success("Usage logged");
-      setDraft((current) => ({ ...current, manual: blankManualUsage }));
+      setDraft((current) => isCurrent() && JSON.stringify(current.manual) === composition ? { ...current, manual: blankManualUsage } : current);
       invalidate();
     },
-    onError: (error) => notify.failure("Couldn't log usage.", error),
+    failure: (error) => notify.failure("Couldn't log usage.", error),
   });
-  const runAction = useMutation({
-    mutationFn: (action: { id: number; name: ServiceActionName }) =>
+  const runAction = useServiceOperation<{ id: number; name: ServiceActionName; body: string; composition: string }>(`${scope}:queue:${draft.action?.id}:${draft.action?.name}:${draft.actionValues.machine_id}`, {
+    dispatch: (action) =>
       staffRequest(`/admin/machine-service/requests/${action.id}/${action.name}`, {
         method: "POST",
-        body: JSON.stringify(actionBody(action.name, draft.actionValues, !!poolUnit, !!quantityLabel)),
+        body: action.body,
       }),
-    onSuccess: (_result, action) => {
+    success: (action, isCurrent) => {
       notify.success(SERVICE_ACTION_COPY[action.name].done);
-      setDraft(clearedActionDraft);
+      setDraft((current) => isCurrent() && JSON.stringify([current.action, current.actionValues]) === action.composition ? clearedActionDraft(current) : current);
       invalidate();
       if (action.name === "record-manual-payment") invalidatePaymentViews(queryClient, makerspaceId);
     },
-    onError: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
+    failure: (error, action) => notify.failure(SERVICE_ACTION_COPY[action.name].failed, error),
   });
 
   if (!canManage) return null;
@@ -125,8 +116,9 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           unitLabel={quantityLabel}
           hasPool={!!poolUnit}
           meta={(request) => `Planned ${request.planned_quantity ?? "0"} ${unitLabel} · actual ${request.actual_consumed_quantity ?? "0"} ${unitLabel}`}
-          pending={runAction.isPending}
-          onSubmit={(action) => runAction.mutate(action)}
+          pending={runAction.pending}
+          canEdit={runAction.canEdit}
+          onSubmit={(action) => runAction.submit({ ...action, body: JSON.stringify(actionBody(action.name, draft.actionValues, !!poolUnit, !!quantityLabel)), composition: JSON.stringify([draft.action, draft.actionValues]) })}
         />
       </section>
       <section className="grid gap-4">
@@ -139,8 +131,23 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           machineNoun="Machine"
           unitLabel={quantityLabel}
           hasPool={!!poolUnit}
-          pending={submitManual.isPending}
-          onSubmit={() => submitManual.mutate()}
+          pending={submitManual.pending}
+          canEdit={submitManual.canEdit}
+          onSubmit={() => submitManual.submit({
+            body: JSON.stringify({
+              machine_id: Number(draft.manual.machine_id),
+              consumable_pool_id: poolUnit && draft.manual.consumable_pool_id ? Number(draft.manual.consumable_pool_id) : null,
+              duration_minutes: Number(draft.manual.duration_minutes),
+              quantity: quantityLabel && draft.manual.quantity ? draft.manual.quantity : undefined,
+              metering_unit: meteringUnit,
+              outcome: draft.manual.outcome,
+              percent_complete: Number(draft.manual.percent_complete),
+              reason: draft.manual.reason || undefined,
+              note: draft.manual.note || undefined,
+              price: draft.manual.price === "" ? undefined : draft.manual.price,
+            }),
+            composition: JSON.stringify(draft.manual),
+          })}
           rows={(manualUsage.data ?? []).map((entry) => ({
             id: entry.id,
             outcome: entry.outcome,

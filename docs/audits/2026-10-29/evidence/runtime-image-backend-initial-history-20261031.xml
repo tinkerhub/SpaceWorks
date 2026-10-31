@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="runtime-image-backend-initial-history-20261031" tests="65" failures="3" errors="0" skipped="0">
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[absent]" time="4.840" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[empty-compose-default]" time="3.131" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[short]" time="5.346" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[uppercase]" time="3.696" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[repository-ref]" time="3.949" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[bare-config-id]" time="4.449" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_full_refuses_unprovisioned_digest_before_identity_dump_or_provider[unsafe-suffix]" time="3.592" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_empty_population_also_requires_full_runtime_identity" time="3.098" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_missing_digest_keeps_ordinary_makerspace_payload_available" time="6.138" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_missing_digest_preserves_opaque_compound_selection" time="2.728" />
+  <testcase classname="tests.backup.test_runtime_image_capture_admission" name="test_run_archive_persists_safe_operator_failure_without_publishing" time="5.024" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_full_payload_freezes_admitted_identity_and_signs_real_metadata[removed]" time="3.922" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_full_payload_freezes_admitted_identity_and_signs_real_metadata[malformed]" time="2.531" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_full_payload_freezes_admitted_identity_and_signs_real_metadata[different-valid]" time="3.376" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_explicit_full_manifest_digest_substitution_is_refused[projection]" time="3.885" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_explicit_full_manifest_digest_substitution_is_refused[signing]" time="2.471" />
+  <testcase classname="tests.backup.test_runtime_image_capture_freeze" name="test_signed_runtime_identity_cannot_be_rebound_with_matching_schema" time="2.484" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[0]" time="2.764" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[1]" time="2.793" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_actual_snapshot_payload_selects_full_before_dump_in_exported_transaction[3]" time="3.672" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_archived_retained_space_still_needs_consent_and_selects_actual_compound" time="4.553" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_missing_or_divergent_activation_refuses_instead_of_falling_back[missing]" time="2.425" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_missing_or_divergent_activation_refuses_instead_of_falling_back[divergent]" time="2.863" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_cohort_is_servable_only_and_facts_are_frozen" time="4.582" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags0]" time="3.490" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags1]" time="3.230" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags2]" time="3.974" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags3]" time="2.855" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_requires_exact_canonical_typed_flags[flags4]" time="2.485" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_cannot_include_archived_retained_space_or_missing_holder[archived-cohort]" time="3.334" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_run_cannot_include_archived_retained_space_or_missing_holder[missing-holder]" time="6.769" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_cached_run_relation_cannot_replace_persisted_binding" time="4.136" />
+  <testcase classname="tests.backup.test_signed_full_capture" name="test_capture_refuses_late_selection_and_mutated_source_references" time="3.726" />
+  <testcase classname="tests.backup.test_signed_full_concurrency" name="test_share_population_fence_blocks_insert_until_publication_commit" time="2.907" />
+  <testcase classname="tests.backup.test_signed_full_concurrency" name="test_insertion_committed_on_other_connection_before_fence_refuses" time="5.238" />
+  <testcase classname="tests.backup.test_signed_full_concurrency" name="test_real_failure_service_waits_for_run_lock_until_publish_commits" time="3.889" />
+  <testcase classname="tests.backup.test_signed_full_concurrency" name="test_failure_lock_acquired_first_blocks_promotion_then_refuses" time="4.102" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[insert]" time="3.888" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[access]" time="12.682" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[activation]" time="15.394" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[archived]" time="4.871" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[lifecycle]" time="5.014" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[purging]" time="17.450" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-holder]" time="13.619" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_publication_refuses_cohort_consent_lifecycle_and_run_drift[run-failed]" time="7.868" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_forbidden_drift_preserves_database_freeze_and_consistent_publication[delete]" time="9.611" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_forbidden_drift_preserves_database_freeze_and_consistent_publication[run-flags]" time="6.016" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_forbidden_drift_preserves_database_freeze_and_consistent_publication[run-bool-int]" time="18.065" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_forbidden_drift_preserves_database_freeze_and_consistent_publication[archive-run-binding]" time="15.532" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_signed_manifest_cannot_replace_independent_source_freeze" time="5.201" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_first_publication_independently_compares_signed_source_to_capture" time="6.342" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_full_promotes_with_one_component_and_no_fabricated_partition_proof" time="7.073" />
+  <testcase classname="tests.backup.test_signed_full_promotion" name="test_available_repromotion_is_idempotent_after_scheduled_run_complete" time="10.901" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_full_upload_reads_both_objects_before_publication_and_retains_custody" time="19.951" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[upload]" time="7.247" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[get-staging]" time="7.701" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[create-final]" time="42.856" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_transport_failure_does_not_publish_or_replace_previous_success[get-final]" time="18.533" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_conditional_final_race_reconciles_existing_verified_bytes_without_replacing" time="26.575" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_final_readback_retry_and_later_cleanup_keep_published_recipients" time="58.584" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_corrupt_racing_final_cannot_be_published" time="10.888" />
+  <testcase classname="tests.backup.test_signed_full_upload" name="test_failed_run_during_reconciliation_is_tombstoned_and_prior_success_preserved" time="11.929" />
+  <testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[normal]" time="22.614">
+    <failure type="HistoricalEnvironmentFailure" message="Private S3 was stopped; exact unchanged live case passed after genuine provider readiness restoration. No raw traceback published." />
+  </testcase>
+  <testcase classname="tests.backup.test_signed_full_roundtrip" name="test_real_full_artifact_operational_omission_target_identity_and_live_bytes[acknowledged-normal]" time="20.916">
+    <failure type="HistoricalEnvironmentFailure" message="Private S3 was stopped; exact unchanged live case passed after genuine provider readiness restoration. No raw traceback published." />
+  </testcase>
+  <testcase classname="tests.backup.test_signed_full_runtime_role_exact" name="test_real_signed_full_capture_and_restore_use_exact_runtime_login" time="328.769">
+    <failure type="HistoricalEnvironmentFailure" message="Private S3 was stopped; exact unchanged live case passed after genuine provider readiness restoration. No raw traceback published." />
+  </testcase>
+</testsuite>

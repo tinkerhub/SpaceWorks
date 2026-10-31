@@ -1,0 +1,10 @@
+Implemented only the approved delta:
+
+- Resolve captures the lookup scan and records exactly one `qr.scanned` audit using the admitted actor, inside the existing atomic transaction.
+- Six QR mutations use `QR_WRITE_ERRORS`; AssetGenerate adds only 423/503 annotations.
+
+Static AST preservation and diff checks passed. Print GET, explicit Scan, DTOs and unrelated AST remain unchanged.
+
+Line counts: `api_views_qr.py` **288**; `views_qr_batches.py` **187**.
+
+No runtime execution, Django imports, tests, builds, staging, commits or generated-artifact changes.

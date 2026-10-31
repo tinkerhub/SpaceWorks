@@ -9,6 +9,8 @@ from apps.makerspaces.models import Makerspace
 from apps.makerspaces.module_install import install_module, uninstall_module
 from apps.makerspaces.module_purge import purge_module
 from apps.tenant_migration.models import ExternalTenantReference
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
+from tests.makerspaces.module_cleanup_support import module_store
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -98,16 +100,14 @@ def test_invalid_snapshot_is_rejected_by_save(overrides):
         reference(makerspace, source_object_id="invalid", **overrides).save()
 
 
-def test_whole_makerspace_purge_explicitly_removes_provenance(monkeypatch):
+def test_whole_makerspace_purge_explicitly_removes_provenance(purge_store, purge_clock):
     makerspace = make_space("reference-whole-purge")
     actor = make_superadmin("reference-whole-purge-admin")
     reference(makerspace, source_object_id="whole-purge").save()
     makerspace.archived_at = timezone.now()
     makerspace.archived_by = actor
     makerspace.save(update_fields=("archived_at", "archived_by"))
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda keys: None)
-
+    arm(makerspace, actor, purge_clock)
     lifecycle.purge(makerspace, actor)
 
     assert not ExternalTenantReference.objects.filter(
@@ -115,7 +115,7 @@ def test_whole_makerspace_purge_explicitly_removes_provenance(monkeypatch):
     ).exists()
 
 
-def test_module_purge_removes_only_provenance_anchored_to_deleted_models():
+def test_module_purge_removes_only_provenance_anchored_to_deleted_models(module_store):
     makerspace = make_space("reference-module-purge")
     actor = make_superadmin("reference-module-purge-admin")
     install_module(makerspace, "events")

@@ -60,7 +60,8 @@ deploy jobs require `SPACEWORKS_DEPLOY_RUNNER=true` in repository variables. Pub
 runner risk even with approval required; see [deploy-ec2.md](deploy-ec2.md).
 **Follow-up:** the next release deletes `apps/updates` and drops `updates_platformupdatesettings`
 in the same change (its classification entries go with it); it is kept now only so this release's
-rollback and compound backups keep working.
+rollback and compound backup capture remain compatible. This retention does not install a compound
+host restore coordinator; see the [supported recovery formats](self-hosting.md#supported-recovery-formats).
 
 **Releases are titled `SpaceWorks <version>`** (owner convention, 2026-08-15), where the version is the
 git-tag form `v<semver>-<branch>.<n>.<sha>` — e.g. `SpaceWorks v0.5.1-main.12.a9cd82c0dd89`. **The

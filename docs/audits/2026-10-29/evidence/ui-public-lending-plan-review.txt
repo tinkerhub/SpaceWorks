@@ -1,0 +1,13 @@
+Required corrections before **APPROVED**:
+
+1. **Preserve the successful borrow reference.** [PublicRequestPanel.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/inventory/PublicRequestPanel.tsx:164) currently clears check-in confirmation on success. With an identity-keyed form, that would immediately unmount the newly published token. Retain completion until an explicit next-person transition, or place it in a separately owned completion boundary.
+
+2. **Coordinate checkout and return admission.** `PublicToolScanPanel` has two mutations sharing scans, upload resets and results. Use one admission owner across both operations. Resetting the opposite mutation does not cancel its request; React pending state alone cannot block same-tick dispatches.
+
+3. **Fence rendered mutation state too.** Guarding callbacks does not prevent TanStack from updating `data`, `error` and status. The scan panel currently renders these directly. Use remount boundaries or owner-tagged publication for results, errors and pending controls, including superseded actions within the same identity.
+
+4. **Define idempotency when an anonymous attempt changes.** Slug/policy/auth/check-in scope cannot distinguish changed account-less contact details. Reuse the key for an unchanged failed attempt; create a fresh key when its submitted body changes. Do not key/remount the form on every contact keystroke.
+
+The remaining approach fits the audited source and existing ownership hook. Keep uploader resets independent of callback identity, and require current generation plus cancellation checks for probe results.
+
+Read-only review completed; no edits or tests. Implementation and runtime approval remain pending.

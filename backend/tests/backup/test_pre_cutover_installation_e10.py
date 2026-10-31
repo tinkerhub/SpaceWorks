@@ -1,14 +1,20 @@
 """Lane E section 11 row 13: pre-cutover enforcement crash boundaries."""
 
 import hashlib
-import inspect
 import json
 import uuid
 
 import pytest
 
-from apps.backup import reservation_enforcement
+from django.db import connection
+
+from apps.backup import compound_restore_state, reservation_enforcement
 from apps.backup.models import B1FenceContinuity, B1ReservationEntry
+from apps.backup.compound_restore_target import DatabaseStateTarget
+from tests.backup.x07_installation_test_helpers import (
+    TABLE, OTHER_TABLE, fence, installation_tables, operation, prepared, trigger_oid,
+)
+from tests.backup.x07_assertion_test_helpers import snapshot
 from tests.backup.e7_reservation_test_helpers import persist_restore_state
 
 
@@ -30,7 +36,7 @@ def _fence(component_id):
         "version": "b1-broad-unique-fence-v1",
         "constraint_identity": "1" * 64,
         "schema": "public",
-        "table": "inventory_inventoryproduct",
+        "table": TABLE,
         "columns": ["name"],
         "operations": ["insert", "update"],
         "component_ids": [str(component_id)],
@@ -44,7 +50,7 @@ def _fence(component_id):
     ("before_reservation_row", "after_reservation_row", "after_continuity_row"),
 )
 def test_single_fence_install_rolls_back_at_each_internal_boundary(
-    boundary, monkeypatch
+    boundary, monkeypatch, installation_tables
 ):
     """The existing one-entry primitive must never leave half a fence behind."""
 
@@ -55,7 +61,7 @@ def test_single_fence_install_rolls_back_at_each_internal_boundary(
     if boundary == "before_reservation_row":
         monkeypatch.setattr(
             reservation_enforcement,
-            "_catalog_bound_payload",
+            "catalog_bound_payload",
             lambda *_args, **_kwargs: (_ for _ in ()).throw(
                 SimulatedInstallCrash(boundary)
             ),
@@ -89,19 +95,61 @@ def test_single_fence_install_rolls_back_at_each_internal_boundary(
     assert not B1FenceContinuity.objects.filter(operation_id=operation_id).exists()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SPEC GAP: Lane E has no whole pre-cutover enforcement installer or "
-        "resumable inter-entry crash boundary."
-    ),
-)
-def test_whole_install_exposes_resumable_boundaries_before_stage_advance():
-    """A future coordinator must expose the same crash-hook pattern as E5/E8."""
+def test_whole_install_commits_entries_then_resumes_without_duplicates(
+    installation_tables, monkeypatch,
+):
+    ids = [uuid.uuid4()]
+    case = prepared([
+        ("broad_fence", fence(ids, table=TABLE, label="first")),
+        ("broad_fence", fence(ids, table=OTHER_TABLE, label="second")),
+    ])
+    assert not connection.in_atomic_block
+    original = compound_restore_state.install_reservation_entry
+    calls = []
 
-    installer = getattr(
-        reservation_enforcement, "install_pre_cutover_enforcement", None
+    def crash_on_next_entry(**kwargs):
+        calls.append(kwargs["expected_entry"])
+        if len(calls) == 2:
+            first = calls[0]
+            persisted = B1ReservationEntry.objects.get(operation_id=case.inputs.run_id)
+            assert persisted.registry_identity == first["registry_identity"]
+            assert persisted.installed_at and persisted.catalog_verified_at is None
+            continuity = B1FenceContinuity.objects.get(operation_id=case.inputs.run_id)
+            assert continuity.trigger_oids == [trigger_oid(first["installed_payload"]["table"])]
+            raise SimulatedInstallCrash("next entry after a committed fence")
+        return original(**kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(compound_restore_state, "install_reservation_entry", crash_on_next_entry)
+        with pytest.raises(SimulatedInstallCrash, match="committed fence"):
+            compound_restore_state.install_manifest_enforcement(
+                inputs=case.inputs, manifest=case.manifest,
+            )
+    assert not connection.in_atomic_block
+    assert operation(case).stage == "state_rehydrated"
+    first_row = B1ReservationEntry.objects.get(operation_id=case.inputs.run_id)
+    first_stamp = first_row.installed_at
+    assert B1FenceContinuity.objects.filter(operation_id=case.inputs.run_id).count() == 1
+    trigger_oid(calls[0]["installed_payload"]["table"])
+
+    result = compound_restore_state.install_manifest_enforcement(
+        inputs=case.inputs, manifest=case.manifest,
     )
-    assert callable(installer)
-    parameters = inspect.signature(installer).parameters
-    assert {"operation_id", "manifest", "boundary_hook", "using"} <= set(parameters)
+    assert result["installed"] == 1
+    assert operation(case).stage == "enforcement_installed"
+    assert B1ReservationEntry.objects.filter(operation_id=case.inputs.run_id).count() == 2
+    assert B1FenceContinuity.objects.filter(operation_id=case.inputs.run_id).count() == 2
+    first_row.refresh_from_db()
+    assert first_row.installed_at == first_stamp
+    assert compound_restore_state.install_manifest_enforcement(
+        inputs=case.inputs, manifest=case.manifest,
+    )["installed"] == 0
+    target = DatabaseStateTarget(using="default", acknowledgement=None)
+    assert target.verify_catalog(case.sibling, case.inputs, case.manifest)["verified"]
+    verified = snapshot(case)
+    assert target.verify_catalog(case.sibling, case.inputs, case.manifest)["verified"]
+    assert snapshot(case) == verified
+    assert compound_restore_state.install_manifest_enforcement(
+        inputs=case.inputs, manifest=case.manifest,
+    )["installed"] == 0
+    assert snapshot(case) == verified

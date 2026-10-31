@@ -1,0 +1,73 @@
+Stage 3 TEST WRITING ONLY — separate durable handoff
+
+Completed: 27 NEW authored cases in 3 new test files, 1 new test-only helper, and the explicitly permitted fixture-only adapter in the existing 8-case WalkInMemberForm.hardwareOwnership.test.tsx. Existing hardware total remains 67. No test or runtime result is claimed.
+
+No production edits, tests, TSC, build, application/DB/browser runtime, staging, commits or pushes were performed. Parent/root owns all execution and later review/QA gates. codex doctor was rechecked: credentials are configured; restricted-environment DNS/reachability failed. This did not change the separate test-author scope.
+
+Read: AGENTS/global workflow and docs/DEV-WORKFLOW.md; original walkin-roster-plan.txt, walkin-roster-plan-result.txt, walkin-roster-plan-final.txt, independently APPROVED walkin-roster-plan-final-result.txt; walkin-roster-implement.txt and implement-result.txt; final walkin-roster-fields-repair-result.txt. The implementation result points to no longer source handoff. The task's informal initialresult/finalplan/finalAPPROVEDresult names resolve to those actual plan-result/plan-final/plan-final-result filenames.
+
+Exact files (SHA-256; static line/case counts):
+
+frontend/src/test/walkInRosterHarness.tsx
+  74 lines; 0 cases
+  a81501f9a8670d8756738878bbfba1dd6ad466728e831c29c1b6929f2be52718
+
+frontend/src/features/staff/WalkInMemberForm.rosterRead.test.tsx
+  155 lines; 10 cases
+  cf131f37cd928d3b97a0dad157707d55da74d23c43179cca915ed2c4ab021640
+
+frontend/src/features/staff/WalkInMemberForm.rosterPause.test.tsx
+  97 lines; 3 cases
+  77adaebb8f2774a859f6a30d0412128f07545bfc76b9762835b5f5b8d25802e9
+
+frontend/src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx
+  176 lines; 14 cases
+  a819ef73cf73acbc785f68d696dff21b7ddbf89b953eb97bcc859533664895b4
+
+frontend/src/features/staff/WalkInMemberForm.hardwareOwnership.test.tsx
+  137 lines; 8 cases
+  92897446c0e6901194bde5234bbf0d133eeca5ebf428a907987356c0ead8d6de
+
+Coverage:
+- rosterRead (10): actual person POST then actual canonical 503; transparent invalidateQueries spy confirms exact key/refetchType none/throwOnError true without replacing behavior; retained truthful receipt; forced same-tick Add and refresh duplicate guards; one POST across read retries; success selects once only after actual canonical DTO appears. Records request order, HTTP status/body and POST payloads. Separate capped-success-without-ID, cached-ID-but-failed-refresh, missing/inactive/disabled/static canonical query, query remove/replace during held read, genuine POST failure retaining all entered name/email/phone and identical retry body.
+- rosterPause (3): initially paused read, retry while still offline, shared old success updating cache without selection, explicit fresh successful retry; late pause after first failure with real retry:1 and real default retry delay; both eventual shared success and eventual rejection consumed before explicit retry. No fake timers, no mock invalidation, no policy edits. Cached ID exists in the actual initial mocked server response, never inserted manually.
+- rosterOwnership (14): failed/paused committed receipt cancel/reopen clears all submitted fields; actor change, captured parent predicate, latest parent predicate, navigation and unmount during held selection retry; returning to editable cannot revive receipt; old A completion cannot clear/unlock B's pending POST, then B selects only after B's independent canonical DTO is fetched; actual DirectLoans borrower change, pending handout and navigation during held retry; already-dispatched successful POST released after actor/parent/navigation departure cannot publish an old receipt or issue compensating writes. Actual handout case uploads real evidence before issue and verifies original borrower ID, frozen pending controls and blank reopened contacts.
+- Existing current hardware happy integration still waits for actual observed native Dropdown options and selects 13 only in the current handout, with all previous identity/body/pending/duplicate assertions retained.
+
+Fixture adapters:
+- New frontend/src/test/walkInRosterHarness.tsx imports the existing hardwareOwnershipHarness. CanonicalRoster is a real useQuery observer using exactly [direct-loan-members, 7] and canonical staffRequest GET /admin/makerspace/7/direct-loan-members?page_size=1000. It renders actual observer data for deterministic notification waits. Pause cases explicitly use retry:1, matching production. gcTime Infinity keeps inactive server data observable until hardware cleanup clears the client; no global query policy changes.
+- rosterHttp is only a response-recording HTTP leaf wrapping hardwareHttp, and clones held Response objects so repeat legitimate reads can consume independently. No owner/admission/selection/cache implementation is in this helper. POST receipts contain only user_id/display_name/username. Membership DTOs are explicit independent mocked GET records, never manufactured from receipt/cache append.
+- Existing WalkInMemberForm.hardwareOwnership.test.tsx: ONLY two standalone happy/POST-retry fixtures mount CanonicalRoster and respond to canonical GET with members before committed POST, roster after committed POST. The first awaits the actual initial observer response before going offline. All prior 8 case bodies/assertions are byte-preserved after reversing just these adapters; the exact original SHA-256 is recovered (c7e98d8452abbc555b6e99e4ca9aadc3659b48c870acee88cb39b5aca7f79f86). This adapter is expressly authorized by walkin-roster-tests.txt. No other existing hardware/staff suite or helper was edited.
+- Existing valid JWT/session fixture comes through startHardwareTest -> resetUploadSession -> login -> accessToken. No mock auth or refresh-success-without-token seam.
+- Existing cleanup unmounts providers, clears real clients (including retained query timers/subscriptions), restores mocks/globals/storage and onlineManager. Held retry promises are released and settled explicitly in the authored cases. No fake timers/subscriptions are installed by the fixture.
+
+Frozen checks (static only):
+- WalkInMemberForm.tsx remains 166 lines / 00e692c3c04685a9e5edccd41d19630c4f70fe321995e7d8c562cc0ffe7c12f9.
+- refreshWalkInRoster.ts remains 97 lines / b420ded198232fe30bcd3c38af94cd266944d1738a13b71236387f995b8aaabb.
+- /tmp/spaceworks-ui-followup/walkin-roster-stage3-before.json snapshots exactly 27 relevant existing source/test/helper/workflow paths. The only changed baseline path is the expressly permitted WalkInMemberForm.hardwareOwnership.test.tsx adapter. All other frozen hardware sources/tests/helper plus staffUploadHarness/queryClient/CLAUDE/AGENTS match. This manifest supersedes only the old pre-follow-on WalkIn source hash in hardware-stage2-source-manifest.json; all other source hashes are unchanged from that manifest.
+- Scoped git diff --check passed; explicit byte whitespace/line checks cover all new untracked tests too. All new/touched files <=176 lines. CLAUDE.md and AGENTS.md remain byte-identical. No broad dirty-tree diff or derived audit JSON was inspected.
+- Machine-readable final test manifest: /tmp/spaceworks-ui-followup/walkin-roster-stage3-test-manifest.json.
+
+No missing approved production boundary was identified in source readback. Compiler/behavioral results are pending ROOT ONLY; test author has not executed these cases.
+
+ROOT-ONLY Node 20 NEW tests command (documented, NOT executed), from repository root:
+
+docker run --rm -v "$PWD/frontend:/app" -v spaceworks-node20-test-deps:/app/node_modules -w /app node:20 sh -c '
+  npm ci && npx vitest run --maxWorkers=1 \
+    src/features/staff/WalkInMemberForm.rosterRead.test.tsx \
+    src/features/staff/WalkInMemberForm.rosterPause.test.tsx \
+    src/features/staff/WalkInMemberForm.rosterOwnership.test.tsx
+'
+
+ROOT-ONLY COMBINED prior staff 247 + hardware 67 + new 27 + TSC command (documented, NOT executed), from repository root:
+
+docker run --rm -v "$PWD/frontend:/app" -v spaceworks-node20-test-deps:/app/node_modules -w /app node:20 sh -c '
+  npm ci && npx tsc -b && npx vitest run --maxWorkers=1 \
+    staffUploadProtocol.ownership imageUploadConfig.ownership ImageUploader.ownership \
+    WarrantySection.ownership StaffAttachmentBatches.ownership panels/machine \
+    panels/MachinesPanel panels/Queues panels/EvidenceUpload.ownership \
+    panels/HandoverEvidence.ownership panels/ProcurementPanel.test DirectLoans.test evidenceUi.test \
+    hardwareOwnership Queues.qrOwnership Queues.handoverContracts WalkInMemberForm.roster
+'
+
+The prior staff filter list is taken from staff-round1-plain.log's exact invocation; prior 247 is the parent's baseline selection, not a rerun or pass claim by this author. Hardware filters include all 9 files from hardware-ownership-test-manifest.json; Vitest deduplicates overlapping filters. Expected authored selection is 247 + 67 + 27 = 341 cases if parent baseline files are otherwise unchanged. Root must report actual discovery/pass/failure counts and fix fixture issues only within approved scope. Source remains frozen.

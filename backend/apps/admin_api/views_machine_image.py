@@ -1,3 +1,4 @@
+from apps.object_storage_lifecycle import storage_lifecycle
 from django.db import transaction
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -81,50 +82,36 @@ class MachineImageView(APIView):
             503: OpenApiResponse(description="Public image storage is unavailable."),
         },
     )
-    @transaction.atomic
     def put(self, request, pk, *args, **kwargs):
         machine = self._machine(request, pk)
-        serializer = PublicImageAttachRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        object_key = serializer.validated_data["object_key"]
-        if not object_key.startswith(f"machine/{machine.makerspace_id}/"):
-            raise ValidationError(
-                {"object_key": "Image object key is outside this makerspace."}
-            )
-        if not public_image_storage.is_safe_object_key(object_key):
-            raise ValidationError({"object_key": "Invalid image object key."})
-        if object_key and public_image_storage.public_image_key_in_use(
-            machine.makerspace_id,
-            object_key,
-            machine_id=machine.pk,
-        ):
-            raise ValidationError({"object_key": "This image is already in use."})
-        try:
-            result = public_image_storage.finalize_upload(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if result.status != "ok":
-            if result.status in {"empty", "too_large"}:
-                public_image_storage.delete_object(object_key)
-                public_image_storage.delete_object(
-                    public_image_storage.staging_key(object_key)
+        with storage_lifecycle(machine.makerspace_id) as guard:
+            serializer = PublicImageAttachRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            object_key = serializer.validated_data["object_key"]
+            if not object_key.startswith(f"machine/{machine.makerspace_id}/"):
+                raise ValidationError(
+                    {"object_key": "Image object key is outside this makerspace."}
                 )
-            raise ValidationError(
-                {"object_key": public_image_storage.finalize_error_message(result)}
-            )
-        try:
-            is_valid_image = public_image_storage.sniff_is_valid_image(object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        if not is_valid_image:
-            public_image_storage.delete_object(object_key)
-            public_image_storage.delete_object(public_image_storage.staging_key(object_key))
-            raise ValidationError({"object_key": "Uploaded file is not a valid image."})
-        old_key = machine.image_key
-        if object_key != old_key:
-            add_storage(machine.makerspace, result.size)
-        machine = services.update_image(machine, request.user, object_key)
-        return self._response(request, machine)
+            if not public_image_storage.is_safe_object_key(object_key):
+                raise ValidationError({"object_key": "Invalid image object key."})
+            if object_key and public_image_storage.public_image_key_in_use(
+                machine.makerspace_id,
+                object_key,
+                machine_id=machine.pk,
+            ):
+                raise ValidationError({"object_key": "This image is already in use."})
+            try:
+                result = public_image_storage.finalize_upload(object_key)
+            except StorageUnavailable:
+                return storage_unavailable_response()
+            if result.status != "ok":
+                raise ValidationError(
+                    {"object_key": public_image_storage.finalize_error_message(result)}
+                )
+            guard.verify()
+            with transaction.atomic():
+                machine = services.update_image(machine, request.user, object_key, size_bytes=result.size, guard=guard)
+                return self._response(request, machine)
 
     @extend_schema(
         tags=["Admin machines"],
@@ -137,5 +124,6 @@ class MachineImageView(APIView):
     )
     def delete(self, request, pk, *args, **kwargs):
         machine = self._machine(request, pk)
-        machine = services.remove_image(machine, request.user)
-        return self._response(request, machine)
+        with storage_lifecycle(machine.makerspace_id) as guard:
+            machine = services.remove_image(machine, request.user, guard=guard)
+            return self._response(request, machine)

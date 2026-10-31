@@ -20,7 +20,10 @@ def upload_verify_and_promote(archive, build, size_bytes):
     )
     mark_staging_verified(ledger.artifact_id, staging_size, staging_sha256)
     storage.create_final_from_staging(
-        ledger.staging_locator, ledger.final_locator
+        ledger.staging_locator,
+        ledger.final_locator,
+        expected_size=ledger.expected_size_bytes,
+        expected_sha256=ledger.outer_sha256,
     )
     final_size, final_sha256 = storage.stream_verify(
         ledger.final_locator,

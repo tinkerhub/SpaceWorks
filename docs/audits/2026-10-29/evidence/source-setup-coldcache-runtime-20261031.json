@@ -1,0 +1,183 @@
+{
+  "status": "passed",
+  "scope": "Independent frozen host slice for source-setup cold image-cache regression. No claim about concurrently authored cancellation/history work. Actual client-only Compose config; stateful fake daemon transport, no real daemon image pull/build/start/prune.",
+  "source_files": {
+    "setup.sh": {
+      "sha256": "34bf8e0987ae238854a5f73fa357224428c4b663170b6731625a50b7fa6bfde4",
+      "mode": 420
+    },
+    "docs/self-hosting.md": {
+      "sha256": "e6744e38008397e945bcd2e4fc46722cad0df9eef5b9f2cd6af6afffeda55160",
+      "mode": 420
+    },
+    "backend/tests/runtime_image_provisioning_support.py": {
+      "sha256": "54814e462844b567e5e626cc1f4387006791043d53a8a427dec7f2c1960340db",
+      "mode": 420
+    },
+    "backend/tests/test_runtime_image_provisioning_setup.py": {
+      "sha256": "e570a93e40aaa8aca02572d2f33260416b3ac80e0c081b5e202712576052fc52",
+      "mode": 420
+    },
+    "backend/tests/test_source_setup_cold_cache.py": {
+      "sha256": "0d59ab766377be2f7815c5f340df98ca244611cf9abc5bac94be0f94ba25d1be",
+      "mode": 384
+    }
+  },
+  "stage1_explicit_approved": true,
+  "stage2_exit_code": 0,
+  "stage2_seconds": 52.538,
+  "stage3_separate_author_exit_code": 0,
+  "stage3_seconds": 291.781,
+  "root_source_and_test_independent_reads_approved": true,
+  "frame": {
+    "current": {
+      "path": "/tmp/spaceworks-source-coldcache-current-snapshot-20261031.json",
+      "sha256": "0fc98cf64f777c3b42bfd608f7d0371f28b80916754959e8c706bc6511f8f7b2",
+      "files": 4837,
+      "overlays": [
+        "setup.sh",
+        "docs/self-hosting.md",
+        "backend/tests/runtime_image_provisioning_support.py",
+        "backend/tests/test_runtime_image_provisioning_setup.py",
+        "backend/tests/test_source_setup_cold_cache.py"
+      ]
+    },
+    "red": {
+      "path": "/tmp/spaceworks-source-coldcache-red-snapshot-20261031.json",
+      "sha256": "e73c2752d0a7659be2b98aeeda3ea7cd0c64ddff3e8bd1cb9a6f113709010068",
+      "files": 4837,
+      "overlays": [
+        "backend/tests/test_source_setup_cold_cache.py"
+      ]
+    }
+  },
+  "runtime": {
+    "pre_fix_red": {
+      "cases": 3,
+      "passed": 0,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "driver_exit_code": 1,
+      "driver_seconds": 38.395,
+      "pytest_seconds": 5.119,
+      "case_ids_sha256": "4cbd5fea723a1a7fe10798422a8e2eb142ca4474b121baa2db46a32da4783775",
+      "input_frame_sha256": "604bf7cf8e087be6875f009b306d9d7e4031e83c0faee10b3bc498ad7a3dcb26",
+      "closed_source_modes_env_inputs_cli": true,
+      "private_original_xml_sha256": "d94d4de74f87a37115defb6af34efb17ee36792fcec5564d6ffc3d516ec01ddd",
+      "sanitized_xml": "source-setup-coldcache-old-red-20261031.xml",
+      "sanitized_xml_sha256": "d6f98ddd4362c151bc70f4167dcfa361dd8a4acf9ba82a51c5729f32e4a312e9",
+      "outcomes": [
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-tls]",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-saas]",
+          "outcome": "failures"
+        }
+      ]
+    },
+    "initial": {
+      "cases": 6,
+      "passed": 4,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "driver_exit_code": 1,
+      "driver_seconds": 118.828,
+      "pytest_seconds": 74.275,
+      "case_ids_sha256": "f19c8ca5387ea272d0dfcf79ee81095290248bf44c7e247a1ceb5dc633eca6ea",
+      "input_frame_sha256": "6368ad67c5bf17c480bcb5a5e3bc63f25cb5334cf9fad1b80d374b6db2153dec",
+      "closed_source_modes_env_inputs_cli": true,
+      "private_original_xml_sha256": "caf10bb52f517d381ffd51ce17e8ca3eb25c343fa3a8898a58cee8f1b2fc235a",
+      "sanitized_xml": "source-setup-coldcache-initial-20261031.xml",
+      "sanitized_xml_sha256": "1cfe5c4c95548edcb4572e768f8422b8f8636c4748822ca029537fe639850a84",
+      "outcomes": [
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-tls]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-saas]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_source_setup_cold_cache",
+          "name": "test_infrastructure_pull_failure_stops_source_setup_before_startup",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_source_setup_clears_stale_identity_before_records_and_raw_build_start",
+          "outcome": "failures"
+        }
+      ]
+    },
+    "exact_two_retry": {
+      "cases": 2,
+      "passed": 2,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "driver_exit_code": 0,
+      "driver_seconds": 6.666,
+      "pytest_seconds": 2.946,
+      "case_ids_sha256": "9c9f259a4db51ef99098f940ca3bb51260029948f08de223834c9dbeb791252e",
+      "input_frame_sha256": "b501af3038ccb1cffa6976fbc745e2bd43b63f34cc48bddd7ea7739fca0e2399",
+      "closed_source_modes_env_inputs_cli": true,
+      "private_original_xml_sha256": "2825cccda4f7ca1e5ebb6810fe2c1215affe1e11c6bd67feaa158fb2a2c6846e",
+      "sanitized_xml": "source-setup-coldcache-retry-20261031.xml",
+      "sanitized_xml_sha256": "c23897d701cd83dfe4df05f9fabe1441b7961df5a27c96a6a2c4e372da0c0476",
+      "outcomes": [
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_existing_setup_rebinds_final_pull_and_all_six_records_before_raw_start",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.test_runtime_image_provisioning_setup",
+          "name": "test_source_setup_clears_stale_identity_before_records_and_raw_build_start",
+          "outcome": "passed"
+        }
+      ]
+    },
+    "current_disjoint_covered_cases": 6,
+    "fresh_full_six_rerun_claimed": false,
+    "initial_history_retained": true,
+    "retry_source_env_deadlines_assertions_unchanged": true,
+    "retry_harness_only_changes": "Exact two failed IDs and private --basetemp output retention; original immutable inputs untouched.",
+    "timeout_cause": "Original unchanged 25-second subprocess watchdogs expired before startup; no source defect shown, exact cause unproven. Same source/assertions/env/25-second deadlines then passed both in2.94seconds."
+  },
+  "claims": [
+    "Source build pulls only nonbuildable infrastructure before no-pull startup for default/TLS/SaaS, including Caddy.",
+    "Eight buildable app images are not pulled.",
+    "Infrastructure pull failure blocks startup; no ignore-pull-failures.",
+    "Source OCI clearing and all six trusted config records, producer proof timing remain checked.",
+    "Published image pull and final RepoDigest refresh original assertions remain checked."
+  ],
+  "protected_descriptor": "Not updated by this proof. Existing 65/25/60 descriptor needs root-approved exact setup.sh copy digest refresh after green.",
+  "no_actual_daemon_socket_or_ops": true,
+  "secondary_database_port": 55433,
+  "cache_database": 12,
+  "broker_database": 14
+}

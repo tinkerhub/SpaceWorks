@@ -1,0 +1,8 @@
+{
+  "status": "runtime_pending",
+  "files": {
+    "frontend/src/features/staff/StaffTabContent.tsx": "183421111efd98159c572b5fc4cc640faee3ce39de306359f774eb2e57c0b60f",
+    "frontend/src/features/staff/StaffUsersScope.test.tsx": "8c9aca2836b11afcc8128e564a6b6ede2bab707ea214088189d9b9a6332ac7b4",
+    "frontend/src/test/staffUsersScopeHarness.tsx": "1020f5f248e3732a136dbdd81d773a26e8abc7635760484d945326b5f7c6ecc7"
+  }
+}

@@ -220,6 +220,7 @@ class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model)
     # separate boolean). Operational reachability also requires lifecycle_state=ACTIVE;
     # importing/aborted rows stay visible only to narrow import/recovery operations.
     archived_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    purge_started_at = models.DateTimeField(null=True, blank=True, editable=False)
     lifecycle_state = models.CharField(
         max_length=16,
         choices=LifecycleState.choices,
@@ -238,6 +239,10 @@ class Makerspace(MakerspaceSecretsMixin, MakerspaceLifecycleMixin, models.Model)
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                condition=Q(purge_started_at__isnull=True) | Q(archived_at__isnull=False),
+                name="makerspace_purge_requires_archive",
+            ),
             models.UniqueConstraint(
                 fields=["public_api_key"],
                 name="uniq_makerspace_public_api_key",

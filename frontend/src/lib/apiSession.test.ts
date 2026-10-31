@@ -1,3 +1,4 @@
+import { accessToken } from "../test/accessTokens";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getAccessToken, logout, LogoutIncompleteError, refreshAccessToken, setAccessToken } from "./apiSession";
@@ -11,9 +12,10 @@ function respond(status: number, body: unknown = {}) {
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.sessionStorage.clear();
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
-  setAccessToken("live-access");
+  setAccessToken(accessToken("live-access"));
 });
 
 afterEach(() => {
@@ -21,14 +23,15 @@ afterEach(() => {
 });
 
 describe("logout", () => {
-  it("clears the token and leaves refresh working after a confirmed logout", async () => {
+  it("clears the token and persists the refresh latch after a confirmed logout", async () => {
     fetchMock.mockImplementationOnce(() => respond(204));
     await expect(logout()).resolves.toBeUndefined();
     expect(getAccessToken()).toBe("");
+    expect(window.localStorage.getItem("makerspace.signed-out")).toBe("1");
 
     fetchMock.mockImplementationOnce(() => respond(401));
     await expect(refreshAccessToken()).resolves.toBe(false);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -41,7 +44,7 @@ describe("logout", () => {
 
     // A later refetch hits 401 and tries to refresh: the cookie may still be valid
     // server-side, so no request may go out and the session stays signed out.
-    fetchMock.mockImplementation(() => respond(200, { access: "resurrected" }));
+    fetchMock.mockImplementation(() => respond(200, { access: accessToken("resurrected") }));
     await expect(refreshAccessToken()).resolves.toBe(false);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(getAccessToken()).toBe("");
@@ -51,9 +54,9 @@ describe("logout", () => {
     fetchMock.mockImplementationOnce(() => respond(503));
     await expect(logout()).rejects.toBeInstanceOf(LogoutIncompleteError);
 
-    setAccessToken("signed-in-again");
-    fetchMock.mockImplementationOnce(() => respond(200, { access: "rotated" }));
+    setAccessToken(accessToken("signed-in-again"));
+    fetchMock.mockImplementationOnce(() => respond(200, { access: accessToken("rotated") }));
     await expect(refreshAccessToken()).resolves.toBe(true);
-    expect(getAccessToken()).toBe("rotated");
+    expect(getAccessToken()).toBe(accessToken("rotated"));
   });
 });

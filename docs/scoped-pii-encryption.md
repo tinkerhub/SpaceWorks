@@ -14,6 +14,18 @@ files below are an example protected sink for a self-hosted host.
 
 ## Configure secrets and a broker
 
+Base, production and cloud Compose forward all ten `PII_*` settings through their shared application
+environments, including migration and existing management-command consumers. The host `.env` supplies
+Compose interpolation; it is not implicitly inherited by containers. Earlier Compose versions omitted
+these settings, so a saved `PII_ENCRYPTION_ENABLED=True` may have been ignored and now becomes effective.
+Inspect existing flags before adopting the new Compose files or restarting any process. Activation
+**requires the complete [dual-read rollout sequence](#dual-read-rollout-sequence)** below; simply
+flipping a flag is unsafe. Keep the independent wrapping/search secrets and any previous wrapping key
+needed for rotation. After operator `.env` or Compose changes, follow
+[Host configuration changes](self-hosting.md#host-configuration-changes) to rebuild trusted records
+before the coordinated fleet switch. Minimal bootstrap/orchestration-ready environments receive no
+application secrets.
+
 Create independent 32-byte Fernet master and HMAC search secrets without
 printing them. The command text contains no secret and writes files readable
 only by root; replace this sink with your Vault/KMS/secret-manager write API

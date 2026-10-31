@@ -1,0 +1,12 @@
+Implement the independently APPROVED amended plan in /tmp/spaceworks-qr-batch-projection-plan.md; read /tmp/spaceworks-qr-batch-projection-stage1-final.txt. User explicitly authorized complete audit+fixes, parent expressly authorized this exact read projection including ZIP/native caller. Parent captured its immutable host-drill snapshot and released source hold. Follow AGENTS and existing invariants. Work current dirty dev; don't revert others. Check index empty, do not stage/commit/push. No tests writing/execution, app imports, Docker, builds, schema generation or new abstractions/framework. Only four source files may change:
+backend/apps/operations/serializers.py
+backend/apps/operations/qr_zip.py
+backend/apps/operations/admin.py
+frontend/src/features/staff/panels/QrToolsBatch.tsx
+
+- Serializer: nullable method field using explicit @extend_schema_field(QrCodeSerializer(allow_null=True)); keep live nested QR only when current qr maker equals item's batch maker. Preserve exact all stored snapshot fields; serialize same-maker QrCodeSerializer with context.
+- ZIP: include only current same-maker live QR entries from existing select_related query. No writes/locks/historical rewrite. Empty/allmoved raise DRF ValidationError clear message before ZIP. Partial output only owned labels, coherent numbering, same sanitization/SVG behavior. Add concise docstring about partial/empty behavior.
+- Native admin download action: catch that DRFValidationError via existing import, message_user ERROR and returnNone; successful MIME/filename and exactly-one validation unchanged.
+- UI: qr_code nullable local DTO, no image/get dispatch for null; keep historical label+target snapshot with neutral QR unavailable placeholder. Count printable vs collected when partial/allmoved; Download available (ZIP) when omitted entries, Download all (ZIP) for complete; disable zero printable. No broad lifecycle expansion.
+
+All source <=300 lines. Do not edit concurrently-owned views_qr_batches.py, services_qr_assets.py, generated OpenAPI/client or global registries/docs. Stage3 separate writer after current code readback. Silently inspect baseline as needed; never print full workspace census or file hash dump. Final concise source manifest exact four paths, linecounts and SHA256 plus behavior and no-runtime statement to -o output. No source beyond allowlist. Write changes rather than merely proposing.

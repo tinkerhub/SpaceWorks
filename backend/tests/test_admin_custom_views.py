@@ -1,12 +1,17 @@
+from io import BytesIO
+
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
+from PIL import Image
 
 from apps.accounts.models import User
 from apps.audit.models import AuditLog
+from apps.inventory import public_image_storage
 from apps.inventory.models import InventoryProduct, PublicAvailabilityMode, TrackingMode
 from apps.operations.models import StockTransfer, StocktakeLine, StocktakeSession
+from tests.atomic_publication.store import Store, png
 from tests.return_helpers import make_box, make_product, make_space, make_user
 
 pytestmark = pytest.mark.django_db
@@ -163,6 +168,7 @@ def test_stocktake_count_admin_uses_service_and_blocks_non_countable():
     assert StocktakeLine.objects.filter(stocktake=stocktake).count() == 1
 
 
+@pytest.mark.django_db(transaction=True)
 def test_inventory_bulk_import_admin_preview_apply_and_parse_error():
     user = make_superadmin("admin-bulk-import-super")
     space = make_space("admin-bulk-import")
@@ -217,10 +223,12 @@ def _product_admin_payload(product, **extra):
     return data
 
 
+@pytest.mark.django_db(transaction=True)
 def test_admin_product_image_upload_validates_and_deletes_old_after_save(
     monkeypatch, settings, django_capture_on_commit_callbacks
 ):
-    settings.PUBLIC_IMAGE_MAX_BYTES = 5
+    image = png()
+    settings.PUBLIC_IMAGE_MAX_BYTES = len(image)
     space = make_space("admin-image-product")
     product = make_product(
         space,
@@ -229,15 +237,22 @@ def test_admin_product_image_upload_validates_and_deletes_old_after_save(
     )
     events = []
     uploaded = {}
+    store = Store()
+    store.seed(product.image_key, png("red"), "image/png")
+    monkeypatch.setattr(public_image_storage, "_client", lambda: store)
+    real_delete = public_image_storage.delete_object
 
     def put_bytes(key, data, content_type):
         uploaded["key"] = key
         events.append(("put", key, data, content_type))
+        store.seed(key, data, content_type)
 
     def delete_object(key):
-        product.refresh_from_db()
-        assert product.image_key == uploaded["key"]
-        events.append(("delete", key))
+        if key == f"items/{space.id}/old.png":
+            product.refresh_from_db()
+            assert product.image_key == uploaded["key"].removeprefix("staging/")
+            events.append(("delete", key))
+        return real_delete(key)
 
     monkeypatch.setattr("apps.inventory.public_image_storage.put_bytes", put_bytes)
     monkeypatch.setattr("apps.inventory.public_image_storage.delete_object", delete_object)
@@ -250,56 +265,91 @@ def test_admin_product_image_upload_validates_and_deletes_old_after_save(
             reverse("admin:inventory_inventoryproduct_change", args=[product.pk]),
             _product_admin_payload(
                 product,
-                image_upload=SimpleUploadedFile("new.png", b"abc", content_type="image/png"),
+                image_upload=SimpleUploadedFile("new.png", image, content_type="image/png"),
                 _save="Save",
             ),
         )
 
     assert response.status_code == 302
     product.refresh_from_db()
-    assert product.image_key == uploaded["key"]
+    final_key = uploaded["key"].removeprefix("staging/")
+    assert uploaded["key"] == f"staging/{final_key}"
+    assert product.image_key == final_key
+    assert store.objects[final_key][:2] == (image, "image/png")
+    assert uploaded["key"] not in store.objects
+    assert f"items/{space.id}/old.png" not in store.objects
     assert events[0][0] == "put"
     assert events[1] == ("delete", f"items/{space.id}/old.png")
     assert AuditLog.objects.filter(action="inventory.image_attached").exists()
+    published = [kwargs for name, kwargs in store.calls if name == "put"]
+    assert len(published) == 1
+    assert published[0]["Key"] == final_key
+    assert published[0]["IfNoneMatch"] == "*"
+    successful_events = events.copy()
+    successful_calls = store.calls.copy()
+    oversized = image + b"x"
+    assert len(oversized) > settings.PUBLIC_IMAGE_MAX_BYTES
 
     response = admin_client(make_superadmin("admin-image-size-super")).post(
         reverse("admin:inventory_inventoryproduct_change", args=[product.pk]),
         _product_admin_payload(
             product,
-            image_upload=SimpleUploadedFile("huge.png", b"too-large", content_type="image/png"),
+            image_upload=SimpleUploadedFile("huge.png", oversized, content_type="image/png"),
             _save="Save",
         ),
     )
 
     assert response.status_code == 200
-    assert events == events[:2]
+    assert events == successful_events
+    assert store.calls == successful_calls
+    product.refresh_from_db()
+    assert product.image_key == final_key
+    assert store.objects[final_key][:2] == (image, "image/png")
 
     response = admin_client(make_superadmin("admin-image-mime-super")).post(
         reverse("admin:inventory_inventoryproduct_change", args=[product.pk]),
         _product_admin_payload(
             product,
-            image_upload=SimpleUploadedFile("bad.jpg", b"abc", content_type="image/png"),
+            image_upload=SimpleUploadedFile("bad.jpg", image, content_type="image/png"),
             _save="Save",
         ),
     )
 
     assert response.status_code == 200
-    assert events == events[:2]
+    assert events == successful_events
+    assert store.calls == successful_calls
+    product.refresh_from_db()
+    assert product.image_key == final_key
+    assert store.objects[final_key][:2] == (image, "image/png")
 
 
+@pytest.mark.django_db(transaction=True)
 def test_admin_image_clear(monkeypatch, django_capture_on_commit_callbacks):
     deleted = []
     stored = []
+    store = Store()
+    monkeypatch.setattr(public_image_storage, "_client", lambda: store)
+    real_delete = public_image_storage.delete_object
+
+    def put_bytes(key, data, content_type):
+        stored.append((key, data, content_type))
+        store.seed(key, data, content_type)
+
+    def delete_object(key):
+        deleted.append(key)
+        return real_delete(key)
+
     monkeypatch.setattr(
         "apps.inventory.public_image_storage.put_bytes",
-        lambda key, data, content_type: stored.append((key, data, content_type)),
+        put_bytes,
     )
     monkeypatch.setattr(
         "apps.inventory.public_image_storage.delete_object",
-        lambda key: deleted.append(key),
+        delete_object,
     )
     space = make_space("admin-image-clear")
     product = make_product(space, image_key=f"items/{space.id}/old.png")
+    store.seed(product.image_key, png(), "image/png")
     client = admin_client(make_superadmin("admin-image-clear-super"))
 
     # Cleared objects are deleted on_commit now, so the callbacks must run to observe it.
@@ -312,16 +362,26 @@ def test_admin_image_clear(monkeypatch, django_capture_on_commit_callbacks):
     product.refresh_from_db()
     assert product.image_key == ""
     assert deleted == [f"items/{space.id}/old.png"]
+    assert not stored
+    assert f"items/{space.id}/old.png" not in store.objects
     assert AuditLog.objects.filter(action="inventory.image_cleared").exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_admin_makerspace_logo_and_cover_upload(monkeypatch):
     stored = []
-    monkeypatch.setattr(
-        "apps.inventory.public_image_storage.put_bytes",
-        lambda key, data, content_type: stored.append((key, data, content_type)),
-    )
-    monkeypatch.setattr("apps.inventory.public_image_storage.delete_object", lambda key: None)
+    store = Store()
+    monkeypatch.setattr(public_image_storage, "_client", lambda: store)
+
+    def put_bytes(key, data, content_type):
+        stored.append((key, data, content_type))
+        store.seed(key, data, content_type)
+
+    monkeypatch.setattr(public_image_storage, "put_bytes", put_bytes)
+    logo = png()
+    cover_stream = BytesIO()
+    Image.new("RGB", (3, 3), "blue").save(cover_stream, format="JPEG")
+    cover = cover_stream.getvalue()
     space = make_space("admin-image-makerspace")
 
     response = admin_client(make_superadmin("admin-image-makerspace-super")).post(
@@ -334,8 +394,8 @@ def test_admin_makerspace_logo_and_cover_upload(monkeypatch):
             "public_inventory_enabled": "on",
             "frontend_domain": space.frontend_domain or "",
             "default_loan_days": space.default_loan_days,
-            "logo_upload": SimpleUploadedFile("logo.png", b"abc", content_type="image/png"),
-            "cover_upload": SimpleUploadedFile("cover.jpg", b"abc", content_type="image/jpeg"),
+            "logo_upload": SimpleUploadedFile("logo.png", logo, content_type="image/png"),
+            "cover_upload": SimpleUploadedFile("cover.jpg", cover, content_type="image/jpeg"),
             "memberships-TOTAL_FORMS": "0",
             "memberships-INITIAL_FORMS": "0",
             "memberships-MIN_NUM_FORMS": "0",
@@ -346,7 +406,14 @@ def test_admin_makerspace_logo_and_cover_upload(monkeypatch):
 
     assert response.status_code == 302
     space.refresh_from_db()
-    assert space.logo_key == stored[0][0]
-    assert space.cover_image_key == stored[1][0]
+    assert len(stored) == 2
+    assert stored[0] == (f"staging/{space.logo_key}", logo, "image/png")
+    assert stored[1] == (f"staging/{space.cover_image_key}", cover, "image/jpeg")
+    assert not space.logo_key.startswith("staging/")
+    assert not space.cover_image_key.startswith("staging/")
+    assert store.objects[space.logo_key][:2] == (logo, "image/png")
+    assert store.objects[space.cover_image_key][:2] == (cover, "image/jpeg")
+    assert stored[0][0] not in store.objects
+    assert stored[1][0] not in store.objects
     assert AuditLog.objects.filter(action="makerspace.logo_attached").exists()
     assert AuditLog.objects.filter(action="makerspace.cover_attached").exists()

@@ -32,6 +32,10 @@ class B1RestoreOperationState(models.Model):
     sibling_database_name = models.CharField(max_length=63, editable=False)
     sibling_database_oid = models.PositiveBigIntegerField(editable=False)
     sibling_server_identity = models.CharField(max_length=255, editable=False)
+    expected_installation = models.TextField(blank=True, default="", editable=False)
+    expected_installation_sha256 = models.CharField(
+        max_length=64, blank=True, default="", editable=False
+    )
     stage = models.CharField(
         max_length=32, choices=Stage.choices, default=Stage.VERIFIED
     )

@@ -1,0 +1,101 @@
+{
+  "format": "spaceworks-actual-restore-late-health-observation-v1",
+  "status": "later-readiness-observed-ready-after-worker-replacement",
+  "scope": "Read-only follow-up on the retained isolated seventh drill; this is separate from its earlier restore completion.",
+  "original_restore_proof": "actual-same-host-restore-20261030.json",
+  "earlier_unhealthy_status_reported": true,
+  "confirmed_worker_events": [
+    "[2026-10-30 16:19:05 +0000] [8] [CRITICAL] WORKER TIMEOUT (pid:14885)",
+    "[2026-10-30 16:20:42 +0000] [8] [ERROR] Worker (pid:14885) was sent SIGKILL! Perhaps out of memory?",
+    "[2026-10-30 16:20:51 +0000] [15151] [INFO] Booting worker with pid: 15151"
+  ],
+  "latest_docker_health": {
+    "status": "healthy",
+    "failing_streak": 0,
+    "container_restarts": 0,
+    "container_oom_killed": false,
+    "last_five_checks": [
+      {
+        "start": "2026-10-30T16:26:39.201923138Z",
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "start": "2026-10-30T16:26:50.381193587Z",
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "start": "2026-10-30T16:27:01.780588676Z",
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "start": "2026-10-30T16:27:18.825163253Z",
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "start": "2026-10-30T16:27:32.088226051Z",
+        "exit": 0,
+        "output": ""
+      }
+    ]
+  },
+  "actual_internal_readiness": {
+    "http_status": 200,
+    "body": {
+      "status": "ready",
+      "database": "ok",
+      "archive_custody": {
+        "below_floor_makerspaces": 0,
+        "zero_recipient_makerspaces": 0,
+        "undelivered_alarms": 0,
+        "alarms_with_no_operator_address": 0
+      }
+    }
+  },
+  "actual_marker": {
+    "state": "acknowledged-normal",
+    "stage": null,
+    "routing": "active",
+    "operation_bound": false,
+    "uid": 0,
+    "mode": "0o444"
+  },
+  "actual_recovery_gate": {
+    "recovery": {
+      "mode": "normal",
+      "active_restore_id": "44b7d8df-b81f-4d85-891a-4bf9f920688d",
+      "acknowledged_at": "2026-10-30 08:22:37.505141+00:00"
+    },
+    "operation": {
+      "stage": "restored_quarantined",
+      "decision": "reset"
+    }
+  },
+  "diagnostic_actions": {
+    "docker_inspect_and_filtered_logs": true,
+    "internal_get_readiness": true,
+    "root_owned_marker_read": true,
+    "sql_select_only_with_read_only_session_and_timeouts": true,
+    "service_restart": false,
+    "recovery_unblock_reset_rollback_or_bypass": false,
+    "container_or_volume_deletion": false
+  },
+  "interpretation": {
+    "confirmed": "Gunicorn recorded a worker timeout, terminated worker 14885 and booted replacement 15151. Later Docker health checks and the actual readiness endpoint succeeded while the host marker and recovery mode remained acknowledged-normal/normal.",
+    "unproven": [
+      "The timeout root cause and a memory-pressure/OOM diagnosis. The Gunicorn message suggests memory as one possibility; container OOMKilled is false.",
+      "The exact earlier failed Docker health-check output, which rotated out of the five retained health entries.",
+      "Continuous uptime or continuous readiness between original restore completion and this later check."
+    ],
+    "limits": "The original proof establishes its earlier completed restore phases and captured data checks. This follow-up establishes only the recorded worker events and later readiness/gate observations; no repair or bypass was applied."
+  },
+  "private_sanitized_diagnostic_sha256": {
+    "spaceworks-seventh-late-health-docker.json": "81c359a1858cdfddda5cb9295c4810403ba000a58a45ed27f2a3864da257d0b4",
+    "spaceworks-seventh-late-health-gate-readonly.json": "6b412c2876c4717b7ff4a8b6e98cf3285f6f819d615e0dd575345e7b93e472bf",
+    "spaceworks-seventh-late-health-filtered-logs.json": "614290ee98d12ba8dc88d9298660f1b8d3706297b2e130f760e1f2874d8ef0eb"
+  },
+  "sensitive_logs_credentials_and_private_paths_omitted": true
+}

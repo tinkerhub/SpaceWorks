@@ -1,0 +1,37 @@
+{
+  "status": "source-and-test-frozen-runtime-unverified",
+  "files": [
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+      "lines": 255
+    },
+    {
+      "path": "scripts/restore.sh",
+      "sha256": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3",
+      "lines": 72
+    }
+  ],
+  "private_probe": {
+    "path": "/tmp/spaceworks-actual-host-drill/probe_admission.py",
+    "sha256": "11210bf295ab8e367bb1de16532516f0985a0922211fef6cde34376439e6c518",
+    "lock_contract": "Existing root-owned single-link regular file, protected root-owned ops parent, held/current/original inode equality; no invented0600restriction. Source setup provisions0666 app-sharedflock; production hostlock does not requireprivatefilemode."
+  },
+  "scope": "Only absent/None image defaults at3comparisons; typed invalid app commands; no other guard changes. Exact25 wrapper digests all verified by source read. Parent owns64-source manifest refresh.",
+  "probe_limit": "Actual constructor/config/admission/inventory inspections only, held existingrootlock; no target_identity/control/SQL or managementoneoff; shipped full root/hash guard runs first via --help.",
+  "tests": [
+    {
+      "path": "backend/tests/backup/test_recovery_compose_inheritance.py",
+      "sha256": "e1548a8ec74b6d7a66138239b6d58d5bdd32ecbbea8ceaf4f84119c942fb8369",
+      "lines": 196
+    },
+    {
+      "path": "backend/tests/backup/recovery_compose_inheritance_support.py",
+      "sha256": "9722d7d8ebeb3d7052eee87657f4ff15f66a106a6e8262350d65aea5a61ff810",
+      "lines": 184
+    }
+  ],
+  "parent_command": "cd /repo/backend && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/repo/backend python -m pytest --noconftest -c /dev/null -p no:cacheprovider -q tests/backup/test_recovery_compose_inheritance.py",
+  "runtime_requirements": "Whole readonly checkout mounted at/repo, LinuxPython3.12 + pytest + installed DockerCLI/system Compose plugin; no daemon socket, Django startup, DB, provider or build. Test subprocess gets dedicated synthetic env and a nonexistent socket.",
+  "limits": "22 cases from static parametrization only, not collection or runtime. Actual Compose producer with explicitly synthetic image/container wire facts; actual protected root inventory probe and full restore remain separate parent proofs."
+}

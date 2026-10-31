@@ -1,0 +1,35 @@
+{
+  "snapshot": "/tmp/spaceworks-recovery-runtime-snapshot-round2-20261030",
+  "results": [
+    {
+      "lane": "fast",
+      "exit_code": 1,
+      "seconds": 11.34,
+      "junit": "recovery-fast.xml"
+    },
+    {
+      "lane": "db",
+      "exit_code": 0,
+      "seconds": 95.7,
+      "junit": "recovery-db.xml"
+    },
+    {
+      "lane": "installed",
+      "exit_code": 0,
+      "seconds": 48.22,
+      "junit": "recovery-installed.xml"
+    },
+    {
+      "lane": "compat",
+      "exit_code": 0,
+      "seconds": 4.9,
+      "junit": "recovery-compat.xml"
+    },
+    {
+      "lane": "live",
+      "exit_code": 0,
+      "seconds": 14.78,
+      "junit": "recovery-live.xml"
+    }
+  ]
+}

@@ -79,6 +79,8 @@ PAYMENT_CLEARED_VALUES = {
 }
 LOST_EDGE_REASON_CODES = frozenset(
     {
+        ("events.EventSeriesCollaborator", "series", "foreign_series_collaborator_dropped"),
+        ("events.EventSeriesCollaborator", "makerspace", "foreign_series_collaborator_dropped"),
         ("events.EventCollaborator", "event", "foreign_collaborator_dropped"),
         ("events.EventCollaborator", "makerspace", "foreign_collaborator_dropped"),
         ("operations.StockTransfer", "makerspace", "foreign_owned_transfer_dropped"),

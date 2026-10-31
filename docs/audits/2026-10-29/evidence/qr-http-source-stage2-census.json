@@ -1,0 +1,93 @@
+{
+  "changed_protected_files": [],
+  "files": [
+    {
+      "functions": {
+        "_within": 192,
+        "require": 43,
+        "require_binding": 69,
+        "require_local_owner": 59,
+        "same": 35,
+        "source_tree": 54,
+        "unique": 48,
+        "validate_admission": 200,
+        "validate_declaration": 112,
+        "validate_routes": 134
+      },
+      "imports": [
+        "import ast",
+        "from pathlib import Path",
+        "from .source_gate_ast import all_functions, parents, trees"
+      ],
+      "lines": 268,
+      "path": "backend/apps/tenant_migration/source_gate_api_owned_bindings.py",
+      "sha256": "cd2950ddc92e49ba74cc3594f5bbdd3209a2b74897171db8168c28212f1dc8bb"
+    },
+    {
+      "functions": {
+        "_assignment": 19,
+        "_body": 14,
+        "_late_guard": 170,
+        "_middleware": 129,
+        "_refusal": 25,
+        "_return": 32,
+        "_runtime_callback": 103,
+        "_runtime_owner": 37,
+        "_runtime_post": 82,
+        "validate_api_owned_http_boundaries": 201
+      },
+      "imports": [
+        "import ast",
+        "from .source_gate_api_owned_bindings import TENANT, require, require_binding, require_local_owner, same, source_tree, unique, validate_admission, validate_declaration, validate_routes"
+      ],
+      "lines": 214,
+      "path": "backend/apps/tenant_migration/source_gate_api_owned_http_guards.py",
+      "sha256": "ff66a18e7a33cd2e3e905070b498ae2500bb5d0ef67390079145a65ecfdca900"
+    },
+    {
+      "functions": {
+        "_validate_function_view": 74,
+        "_validate_view_class": 42,
+        "validate_authenticated_http_boundary": 13
+      },
+      "imports": [
+        "import ast",
+        "from pathlib import Path",
+        "from .source_gate_ast import APPS_DIR, calls_gate, trees",
+        "from .source_gate_api_owned_http_guards import validate_api_owned_http_boundaries",
+        "from .source_gate_owned_http_guards import validate_service_owned_http_boundaries",
+        "from .source_gate_service_guards import validate_service_writer_boundaries",
+        "from .source_gate_import_guards import validate_import_publication_boundaries"
+      ],
+      "lines": 90,
+      "path": "backend/apps/tenant_migration/source_gate_http_guards.py",
+      "sha256": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770"
+    },
+    {
+      "lines": 367,
+      "path": "docs/SOURCE-MAP.md",
+      "sha256": "0f30b175cd3338427646d96b4b1e60b02300c6fe270fa8360c9519cb81d4e390"
+    }
+  ],
+  "global_branch_placement_verified": true,
+  "kind": "Stage 2 static file census (not SourcePrimitive approval)",
+  "original_http_guard_preserved": true,
+  "protected_census_sha256": "a29ab9ff106f9486d942ee6ea72c7a53117f97e88f11d4f2616c0e79cfe343d3",
+  "protected_file_count": 4550,
+  "status": "scope mismatch: implementation stopped",
+  "unexpected_additions": [
+    "backend/tests/backup/recovery_compose_inheritance_support.py",
+    "backend/tests/backup/test_recovery_compose_inheritance.py",
+    "docs/audits/2026-10-29/evidence/compose-null-inheritance-freeze.json",
+    "docs/audits/2026-10-29/evidence/compose-null-inheritance-stage2-freeze.json",
+    "docs/audits/2026-10-29/evidence/qr-http-ownership-source-decisions.json",
+    "docs/audits/2026-10-29/evidence/qr-http-ownership-source-freeze.json",
+    "docs/audits/2026-10-29/evidence/recovery-compose-inheritance.xml",
+    "docs/audits/2026-10-29/evidence/spaceworks-compose-null-inheritance-plan.md",
+    "docs/audits/2026-10-29/evidence/spaceworks-compose-null-inheritance-review.txt",
+    "docs/audits/2026-10-29/evidence/spaceworks-compose-null-inheritance-stage2.txt",
+    "docs/audits/2026-10-29/evidence/spaceworks-compose-null-inheritance-stage3.txt"
+  ],
+  "unexpected_removals": [],
+  "verification": "stdlib AST parse/line-count/branch placement and byte hashes only; no validator, project imports or tests executed"
+}

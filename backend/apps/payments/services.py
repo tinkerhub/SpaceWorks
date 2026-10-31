@@ -1,11 +1,16 @@
 """Payment checkout boundary and compatibility exports."""
 
 import logging
-from decimal import Decimal, ROUND_HALF_UP
 from django.db import transaction
 from apps.audit import services as audit
 from apps.makerspaces.platform import member_payment_return_url
 from apps.payments import stripe_client
+from apps.payments.amounts import (
+    application_fee_amount as _application_fee_amount,
+    normalize_currency,
+    normalize_major_amount,
+    validate_payment_amount,
+)
 from apps.payments.connect import refresh_connected_account, restrict_account_status
 from apps.payments.models import (
     MakerspacePaymentSettings,
@@ -48,7 +53,11 @@ def create_payment(
         )
     provider = source.provider
     connected_account_id = source.connected_account_id
-    fee_amount = _application_fee_amount(amount, source.application_fee_bps)
+    currency = normalize_currency(currency)
+    amount = normalize_major_amount(amount)
+    fee_amount = _application_fee_amount(
+        amount, source.application_fee_bps, currency, source.vendor
+    )
     payment = Payment.objects.create(
         makerspace=makerspace,
         subject_type=subject_type,
@@ -57,7 +66,7 @@ def create_payment(
         via_makerspace=via_makerspace,
         subject_label=(subject_label or "")[:255],
         amount=amount,
-        currency=currency.lower(),
+        currency=currency,
         created_by=created_by,
         # Stamped at creation from whatever resolved NOW, and immutable thereafter: a
         # space that switches vendor must still settle and expire the charges it raised
@@ -147,6 +156,7 @@ def _create_checkout_url_atomic(payment_id, *, actor=None):
         # links for one charge, any of which a member could pay.
         if payment.checkout_url or payment.stripe_checkout_url:
             return payment.checkout_url or payment.stripe_checkout_url
+        amount_minor = validate_payment_amount(payment)
         if payment.online_rail is None:
             payment.online_rail = Payment.OnlineRail.CHECKOUT
         source = source_for_payment(payment)
@@ -182,9 +192,7 @@ def _create_checkout_url_atomic(payment_id, *, actor=None):
             raise stripe_client.PaymentsUnavailable("A payment return URL is not configured.")
         label = subject_label(payment, resolve_subject_labels([payment]))
         if payment.provider != Payment.Provider.STRIPE:
-            # Non-Stripe rows go through the provider seam. The Stripe branch below is
-            # left untouched on purpose: it is the path taking real money today, and
-            # this phase must not change its behaviour to add a second vendor.
+            # Non-Stripe rows use the same validated amounts through the provider seam.
             checkout_url = _create_checkout_via_provider(
                 payment, source, label, member_url
             )
@@ -196,7 +204,7 @@ def _create_checkout_url_atomic(payment_id, *, actor=None):
             "success_url": f"{member_url}?checkout=success",
             "cancel_url": f"{member_url}?checkout=cancelled",
             "metadata": {"payment_id": str(payment.pk), "makerspace_id": str(payment.makerspace_id)},
-            "line_items": [{"price_data": {"currency": payment.currency, "unit_amount": int(payment.amount * 100), "product_data": {"name": label}}, "quantity": 1}],
+            "line_items": [{"price_data": {"currency": payment.currency.lower(), "unit_amount": amount_minor, "product_data": {"name": label}}, "quantity": 1}],
         }
         if payment.stripe_application_fee_amount:
             checkout_params["payment_intent_data"] = {
@@ -247,8 +255,8 @@ def _create_checkout_via_provider(payment, source, label, member_url):
         CheckoutRequest(
             # Integer minor units. A float here is a rounding bug that reconciles as a
             # real money difference.
-            amount_minor=int(payment.amount * 100),
-            currency=payment.currency,
+            amount_minor=validate_payment_amount(payment),
+            currency=payment.currency.lower(),
             description=label,
             reference=str(payment.pk),
             success_url=f"{member_url}?checkout=success",
@@ -267,15 +275,6 @@ def _create_checkout_via_provider(payment, source, label, member_url):
 
 def _value(value, key):
     return value.get(key) if isinstance(value, dict) else getattr(value, key, None)
-
-
-def _application_fee_amount(amount, basis_points):
-    minor_units = (Decimal(amount) * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
-    return int(
-        (minor_units * Decimal(basis_points) / Decimal(10000)).quantize(
-            Decimal("1"), rounding=ROUND_HALF_UP
-        )
-    )
 
 
 def _checkout_idempotency_key(payment):

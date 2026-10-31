@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="15" time="16.112" timestamp="2026-10-29T19:37:05.470518+00:00" hostname="7bc0bef38790"><testcase classname="tests.test_individual_fix_boundaries" name="test_aggregate_api_refuses_individual_stock[repair]" time="2.681" /><testcase classname="tests.test_individual_fix_boundaries" name="test_aggregate_api_refuses_individual_stock[scrap]" time="0.139" /><testcase classname="tests.test_individual_fix_boundaries" name="test_aggregate_api_refuses_individual_stock[shelve]" time="0.336" /><testcase classname="tests.test_individual_fix_boundaries" name="test_central_helper_reads_locked_mode_despite_stale_caller[repair]" time="0.168" /><testcase classname="tests.test_individual_fix_boundaries" name="test_central_helper_reads_locked_mode_despite_stale_caller[scrap]" time="0.121" /><testcase classname="tests.test_individual_fix_boundaries" name="test_central_helper_reads_locked_mode_despite_stale_caller[shelve]" time="0.102" /><testcase classname="tests.test_individual_fix_boundaries" name="test_control_action_refuses_individual_stock[repair]" time="0.490" /><testcase classname="tests.test_individual_fix_boundaries" name="test_control_action_refuses_individual_stock[scrap]" time="0.297" /><testcase classname="tests.test_individual_fix_boundaries" name="test_quantity_api_fix_cycle_still_moves_buckets_and_audits" time="0.228" /><testcase classname="tests.test_individual_fix_lifecycle" name="test_repaired_unit_reconciles_surfaces_and_completes_real_lending_cycle" time="1.722" /><testcase classname="tests.test_individual_fix_lifecycle" name="test_unmarked_accepted_reservation_refuses_shelve_then_issues_normally" time="1.219" /><testcase classname="tests.test_asset_fix_concurrency" name="test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[shelve]" time="1.695"><failure message="AssertionError: SELECT &quot;inventory_inventoryasset&quot;.&quot;id&quot;, &quot;inventory_inventoryasset&quot;.&quot;makerspace_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;product_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;box_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;asset_tag&quot;, &quot;inventory_inventoryasset&quot;.&quot;serial_number&quot;, &quot;inventory_inventoryasset&quot;.&quot;status&quot;, &quot;inventory_inventoryasset&quot;.&quot;public_self_checkout_enabled&quot;, &quot;inventory_inventoryasset&quot;.&quot;notes&quot;, &quot;inventory_inventoryasset&quot;.&quot;created_at&quot;, &quot;inventory_inventoryasset&quot;.&quot;updated_at&quot;, &quot;makerspaces_makerspace&quot;...&#10;[truncated; full report in element text]">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff8870f980&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff867974d0&gt;
+operation = 'shelve'
+
+    @pytest.mark.parametrize("operation", ["shelve", "metadata"])
+    def test_issue_wins_and_waiting_asset_edit_rechecks_eligibility(monkeypatch, settings, operation):
+        lab = make_lab(monkeypatch, settings, total=1, tracking_mode=TrackingMode.INDIVIDUAL)
+        store = uploaded_images(monkeypatch, settings)
+        loan = accept_one(lab)
+        evidence = photo(lab, store, "issue")
+        asset = lab.assets[0]
+        metadata_fields = ("notes", "serial_number", "asset_tag", "box_id", "public_self_checkout_enabled")
+        metadata = {field: getattr(asset, field) for field in metadata_fields}
+        reached, release = threading.Event(), threading.Event()
+        adapter = notifications.notify_lifecycle
+    
+        def observe_issued_notification(*args, **kwargs):
+            result = adapter(*args, **kwargs)
+            if kwargs.get("event") == "issued":
+                # Real QR validation, image decode/promotion, bucket movement and audits
+                # have all happened; their domain transaction is still uncommitted.
+                assert connection.in_atomic_block
+                assert InventoryAsset.objects.get(pk=asset.pk).status == "issued"
+                assert AuditLog.objects.filter(
+                    makerspace=lab.space, action="request.issued", target_id=str(loan.pk),
+                ).count() == 1
+                assert EvidenceUploadFinalization.objects.get(evidence=evidence).status == "finalized"
+                reached.set()
+                assert release.wait(12), "Real issue notification pause was not released"
+            return result
+    
+        monkeypatch.setattr(notifications, "notify_lifecycle", observe_issued_notification)
+        reads = []
+    
+        def issue():
+            return worker_client(lab).post(issue_url(loan), issue_payload(lab, evidence), format="json")
+    
+        def contender():
+            client = worker_client(lab)
+            with asset_reads(asset.pk) as statuses:
+                if operation == "shelve":
+                    response = client.post(fix_url(asset), {"action": "shelve"}, format="json")
+                else:
+                    response = client.patch(
+                        f"/api/v1/admin/assets/{asset.pk}", {"notes": "stale edit"}, format="json",
+                    )
+                reads.extend(statuses)
+                return response
+    
+        def still_committed_available():
+            assert InventoryAsset.objects.get(pk=asset.pk).status == "available"
+            assert HardwareRequest.objects.get(pk=loan.pk).status == "accepted"
+    
+&gt;       issued, refused, pids, query = race(
+            issue, contender, reached, release, table="inventory_inventoryasset",
+            clause='FOR UPDATE OF "inventory_inventoryasset"', before_second=still_committed_available,
+        )
+
+tests/test_asset_fix_concurrency.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/asset_fix_concurrency_helpers.py:96: in race
+    query = _lock_edge(waiter, blocker, table, clause)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+waiter = 1515, blocker = 1513, table = 'inventory_inventoryasset'
+clause = 'FOR UPDATE OF "inventory_inventoryasset"'
+
+    def _lock_edge(waiter, blocker, table, clause):
+        deadline = time.monotonic() + 5
+        poll = threading.Event()
+        last = None
+        while time.monotonic() &lt; deadline:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT wait_event_type, %s = ANY(pg_blocking_pids(pid)), query "
+                    "FROM pg_stat_activity WHERE pid = %s", [blocker, waiter],
+                )
+                last = cursor.fetchone()
+            if last and last[0] == "Lock" and last[1]:
+                query = " ".join(last[2].split())
+&gt;               assert f'FROM "{table}"' in query, query
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: SELECT "inventory_inventoryasset"."id", "inventory_inventoryasset"."makerspace_id", "inventory_inventoryasset"."product_id", "inventory_inventoryasset"."box_id", "inventory_inventoryasset"."asset_tag", "inventory_inventoryasset"."serial_number", "inventory_inventoryasset"."status", "inventory_inventoryasset"."public_self_checkout_enabled", "inventory_inventoryasset"."notes", "inventory_inventoryasset"."created_at", "inventory_inventoryasset"."updated_at", "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace
+
+tests/asset_fix_concurrency_helpers.py:43: AssertionError</failure></testcase><testcase classname="tests.test_asset_fix_concurrency" name="test_issue_wins_and_waiting_asset_edit_rechecks_eligibility[metadata]" time="1.739"><failure message="AssertionError: SELECT &quot;inventory_inventoryasset&quot;.&quot;id&quot;, &quot;inventory_inventoryasset&quot;.&quot;makerspace_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;product_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;box_id&quot;, &quot;inventory_inventoryasset&quot;.&quot;asset_tag&quot;, &quot;inventory_inventoryasset&quot;.&quot;serial_number&quot;, &quot;inventory_inventoryasset&quot;.&quot;status&quot;, &quot;inventory_inventoryasset&quot;.&quot;public_self_checkout_enabled&quot;, &quot;inventory_inventoryasset&quot;.&quot;notes&quot;, &quot;inventory_inventoryasset&quot;.&quot;created_at&quot;, &quot;inventory_inventoryasset&quot;.&quot;updated_at&quot;, &quot;makerspaces_makerspace&quot;...&#10;[truncated; full report in element text]">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff865071a0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff863d3a40&gt;
+operation = 'metadata'
+
+    @pytest.mark.parametrize("operation", ["shelve", "metadata"])
+    def test_issue_wins_and_waiting_asset_edit_rechecks_eligibility(monkeypatch, settings, operation):
+        lab = make_lab(monkeypatch, settings, total=1, tracking_mode=TrackingMode.INDIVIDUAL)
+        store = uploaded_images(monkeypatch, settings)
+        loan = accept_one(lab)
+        evidence = photo(lab, store, "issue")
+        asset = lab.assets[0]
+        metadata_fields = ("notes", "serial_number", "asset_tag", "box_id", "public_self_checkout_enabled")
+        metadata = {field: getattr(asset, field) for field in metadata_fields}
+        reached, release = threading.Event(), threading.Event()
+        adapter = notifications.notify_lifecycle
+    
+        def observe_issued_notification(*args, **kwargs):
+            result = adapter(*args, **kwargs)
+            if kwargs.get("event") == "issued":
+                # Real QR validation, image decode/promotion, bucket movement and audits
+                # have all happened; their domain transaction is still uncommitted.
+                assert connection.in_atomic_block
+                assert InventoryAsset.objects.get(pk=asset.pk).status == "issued"
+                assert AuditLog.objects.filter(
+                    makerspace=lab.space, action="request.issued", target_id=str(loan.pk),
+                ).count() == 1
+                assert EvidenceUploadFinalization.objects.get(evidence=evidence).status == "finalized"
+                reached.set()
+                assert release.wait(12), "Real issue notification pause was not released"
+            return result
+    
+        monkeypatch.setattr(notifications, "notify_lifecycle", observe_issued_notification)
+        reads = []
+    
+        def issue():
+            return worker_client(lab).post(issue_url(loan), issue_payload(lab, evidence), format="json")
+    
+        def contender():
+            client = worker_client(lab)
+            with asset_reads(asset.pk) as statuses:
+                if operation == "shelve":
+                    response = client.post(fix_url(asset), {"action": "shelve"}, format="json")
+                else:
+                    response = client.patch(
+                        f"/api/v1/admin/assets/{asset.pk}", {"notes": "stale edit"}, format="json",
+                    )
+                reads.extend(statuses)
+                return response
+    
+        def still_committed_available():
+            assert InventoryAsset.objects.get(pk=asset.pk).status == "available"
+            assert HardwareRequest.objects.get(pk=loan.pk).status == "accepted"
+    
+&gt;       issued, refused, pids, query = race(
+            issue, contender, reached, release, table="inventory_inventoryasset",
+            clause='FOR UPDATE OF "inventory_inventoryasset"', before_second=still_committed_available,
+        )
+
+tests/test_asset_fix_concurrency.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/asset_fix_concurrency_helpers.py:96: in race
+    query = _lock_edge(waiter, blocker, table, clause)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+waiter = 1521, blocker = 1519, table = 'inventory_inventoryasset'
+clause = 'FOR UPDATE OF "inventory_inventoryasset"'
+
+    def _lock_edge(waiter, blocker, table, clause):
+        deadline = time.monotonic() + 5
+        poll = threading.Event()
+        last = None
+        while time.monotonic() &lt; deadline:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT wait_event_type, %s = ANY(pg_blocking_pids(pid)), query "
+                    "FROM pg_stat_activity WHERE pid = %s", [blocker, waiter],
+                )
+                last = cursor.fetchone()
+            if last and last[0] == "Lock" and last[1]:
+                query = " ".join(last[2].split())
+&gt;               assert f'FROM "{table}"' in query, query
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: SELECT "inventory_inventoryasset"."id", "inventory_inventoryasset"."makerspace_id", "inventory_inventoryasset"."product_id", "inventory_inventoryasset"."box_id", "inventory_inventoryasset"."asset_tag", "inventory_inventoryasset"."serial_number", "inventory_inventoryasset"."status", "inventory_inventoryasset"."public_self_checkout_enabled", "inventory_inventoryasset"."notes", "inventory_inventoryasset"."created_at", "inventory_inventoryasset"."updated_at", "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace
+
+tests/asset_fix_concurrency_helpers.py:43: AssertionError</failure></testcase><testcase classname="tests.test_asset_fix_concurrency" name="test_waiting_repair_rechecks_committed_repair_without_duplicate_audit" time="1.816"><failure message="AssertionError: SELECT &quot;makerspaces_makerspace&quot;.&quot;id&quot;, &quot;makerspaces_makerspace&quot;.&quot;name&quot;, &quot;makerspaces_makerspace&quot;.&quot;slug&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_code&quot;, &quot;makerspaces_makerspace&quot;.&quot;item_code_prefix&quot;, &quot;makerspaces_makerspace&quot;.&quot;location&quot;, &quot;makerspaces_makerspace&quot;.&quot;map_url&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_latitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_longitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_radius_m&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_enabled&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_inven...&#10;[truncated; full report in element text]">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff862b0bf0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff862eba40&gt;
+
+    def test_waiting_repair_rechecks_committed_repair_without_duplicate_audit(monkeypatch, settings):
+        lab = make_lab(monkeypatch, settings, total=1, tracking_mode=TrackingMode.INDIVIDUAL)
+        park_unit(lab)
+        reached, release = threading.Event(), threading.Event()
+        hold_real_audit(monkeypatch, lab, "inventory.asset_needs_fix_repair", reached, release)
+        reads = []
+    
+        def repair():
+            return worker_client(lab).post(fix_url(lab.assets[0]), {"action": "repair"}, format="json")
+    
+        def stale_repair():
+            with asset_reads(lab.assets[0].pk) as statuses:
+                response = repair()
+                reads.extend(statuses)
+                return response
+    
+        def still_committed_maintenance():
+            assert InventoryAsset.objects.get(pk=lab.assets[0].pk).status == "maintenance"
+    
+&gt;       repaired, refused, _, query = race(
+            repair, stale_repair, reached, release, table="makerspaces_makerspace",
+            clause="FOR NO KEY UPDATE", before_second=still_committed_maintenance,
+        )
+
+tests/test_asset_fix_concurrency.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/asset_fix_concurrency_helpers.py:96: in race
+    query = _lock_edge(waiter, blocker, table, clause)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+waiter = 1526, blocker = 1524, table = 'makerspaces_makerspace'
+clause = 'FOR NO KEY UPDATE'
+
+    def _lock_edge(waiter, blocker, table, clause):
+        deadline = time.monotonic() + 5
+        poll = threading.Event()
+        last = None
+        while time.monotonic() &lt; deadline:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT wait_event_type, %s = ANY(pg_blocking_pids(pid)), query "
+                    "FROM pg_stat_activity WHERE pid = %s", [blocker, waiter],
+                )
+                last = cursor.fetchone()
+            if last and last[0] == "Lock" and last[1]:
+                query = " ".join(last[2].split())
+&gt;               assert f'FROM "{table}"' in query, query
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: SELECT "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace"."checkin_space_id", "makerspaces_makerspace"."checkin_api_url", "makerspaces_makerspace"."checkin_required_purpose", "makerspaces_makerspace"."checkin_provider_name", "makerspaces_makerspace"."public_stats_enabled", "makerspaces_makerspace"."public_stats_show_holder_names", "makerspaces_makerspace"."public_print_status_lookup_policy", "makerspaces_makerspace"."membership_policy", "makerspaces_makerspace"."membership_dues_amount", "makerspaces_make
+
+tests/asset_fix_concurrency_helpers.py:43: AssertionError</failure></testcase><testcase classname="tests.test_asset_fix_concurrency" name="test_fix_module_lock_still_serializes_actual_module_configuration" time="2.624"><failure message="AssertionError: SELECT &quot;makerspaces_makerspace&quot;.&quot;id&quot;, &quot;makerspaces_makerspace&quot;.&quot;name&quot;, &quot;makerspaces_makerspace&quot;.&quot;slug&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_code&quot;, &quot;makerspaces_makerspace&quot;.&quot;item_code_prefix&quot;, &quot;makerspaces_makerspace&quot;.&quot;location&quot;, &quot;makerspaces_makerspace&quot;.&quot;map_url&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_latitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_longitude&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_radius_m&quot;, &quot;makerspaces_makerspace&quot;.&quot;geofence_enabled&quot;, &quot;makerspaces_makerspace&quot;.&quot;public_inven...&#10;[truncated; full report in element text]">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0xffff86196cf0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0xffff86197e30&gt;
+
+    def test_fix_module_lock_still_serializes_actual_module_configuration(monkeypatch, settings):
+        lab = make_lab(monkeypatch, settings, total=1, tracking_mode=TrackingMode.INDIVIDUAL)
+        park_unit(lab)
+        reached, release = threading.Event(), threading.Event()
+        hold_real_audit(monkeypatch, lab, "inventory.asset_needs_fix_repair", reached, release)
+    
+        def repair():
+            return worker_client(lab).post(fix_url(lab.assets[0]), {"action": "repair"}, format="json")
+    
+        def disable_units():
+            actor = get_user_model().objects.get(pk=lab.actor.pk)
+            return uninstall_module(lab.space, "asset_units", actor=actor)
+    
+&gt;       repaired, removed, _, query = race(
+            repair, disable_units, reached, release, table="makerspaces_makerspace", clause="FOR UPDATE",
+        )
+
+tests/test_asset_fix_concurrency.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/asset_fix_concurrency_helpers.py:96: in race
+    query = _lock_edge(waiter, blocker, table, clause)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+waiter = 1531, blocker = 1529, table = 'makerspaces_makerspace'
+clause = 'FOR UPDATE'
+
+    def _lock_edge(waiter, blocker, table, clause):
+        deadline = time.monotonic() + 5
+        poll = threading.Event()
+        last = None
+        while time.monotonic() &lt; deadline:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT wait_event_type, %s = ANY(pg_blocking_pids(pid)), query "
+                    "FROM pg_stat_activity WHERE pid = %s", [blocker, waiter],
+                )
+                last = cursor.fetchone()
+            if last and last[0] == "Lock" and last[1]:
+                query = " ".join(last[2].split())
+&gt;               assert f'FROM "{table}"' in query, query
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: SELECT "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace"."checkin_space_id", "makerspaces_makerspace"."checkin_api_url", "makerspaces_makerspace"."checkin_required_purpose", "makerspaces_makerspace"."checkin_provider_name", "makerspaces_makerspace"."public_stats_enabled", "makerspaces_makerspace"."public_stats_show_holder_names", "makerspaces_makerspace"."public_print_status_lookup_policy", "makerspaces_makerspace"."membership_policy", "makerspaces_makerspace"."membership_dues_amount", "makerspaces_make
+
+tests/asset_fix_concurrency_helpers.py:43: AssertionError</failure></testcase></testsuite></testsuites>

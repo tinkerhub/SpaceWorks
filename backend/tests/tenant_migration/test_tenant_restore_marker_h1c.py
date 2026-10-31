@@ -67,7 +67,7 @@ def _run(tmp_path, database, marker_writer):
     return run_target_restore(
         ops_dir=tmp_path / "ops",
         inputs=RestoreInputs(RUN_ID, ARTIFACT, CAPTURE_ID, "admin@example.test"),
-        artifact=Artifact(),
+        artifact=Artifact(tmp_path / "selected"),
         database=database,
         writers=database.writers,
         pointer=pointer,

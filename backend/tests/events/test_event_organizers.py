@@ -19,6 +19,7 @@ from apps.organizations.models import (
     OrganizationMakerspace,
     OrganizationMembership,
 )
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 
 pytestmark = pytest.mark.django_db
@@ -274,7 +275,7 @@ def test_event_report_appends_attribution_without_multiplying_figures():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_purge_uses_host_scope_and_preserves_global_organization_rows(monkeypatch):
+def test_purge_uses_host_scope_and_preserves_global_organization_rows(purge_store, purge_clock):
     actor = make_user(
         "organizer-purge-root",
         role=User.Role.SUPERADMIN,
@@ -287,16 +288,17 @@ def test_purge_uses_host_scope_and_preserves_global_organization_rows(monkeypatc
     membership = grant(organization, member, [rbac.Action.MANAGE_EVENTS])
     link(organization, linked_space)
     organizer = EventOrganizer.objects.create(event=event, organization=organization)
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda keys: None)
-
-    lifecycle.purge(lifecycle.archive(linked_space, actor), actor)
+    linked_space = lifecycle.archive(linked_space, actor)
+    arm(linked_space, actor, purge_clock)
+    lifecycle.purge(linked_space, actor)
 
     assert EventOrganizer.objects.filter(pk=organizer.pk).exists()
     assert Organization.objects.filter(pk=organization.pk).exists()
     assert OrganizationMembership.objects.filter(pk=membership.pk).exists()
 
-    lifecycle.purge(lifecycle.archive(venue, actor), actor)
+    venue = lifecycle.archive(venue, actor)
+    arm(venue, actor, purge_clock)
+    lifecycle.purge(venue, actor)
 
     assert not EventOrganizer.objects.filter(pk=organizer.pk).exists()
     assert Organization.objects.filter(pk=organization.pk).exists()

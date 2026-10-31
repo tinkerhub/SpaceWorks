@@ -1,0 +1,71 @@
+Stage 2 — hardware ownership source implementation
+
+Implemented only the nine approved production sources and three small hardware-domain helpers. Existing independent final Stage 1 approval was accepted. Stage 3/runtime and Stage 4 review remain with the root workflow; this is not a claim that those gates have passed. No tests were edited or run. No TSC, build, application/browser/DB actions, staging, commits or pushes were performed. The user's reported prior 247 green tests were not rerun and do not validate this new delta.
+
+Behavior and reasons for the seams
+
+- Queues.tsx uses a maker/session-keyed inner component and distinct modal-visit keys. The queue action scope additionally records modal kind and row ID. Same-row refetches retain draft/evidence state; closing/reopening and A→B→A create distinct owners. Capture-phase event fences cover unchanged modal controls synchronously.
+- panels/useQueueActions.ts owns the existing queue modal state and complete assign→issue operation. It captures owner, origin maker/slug, row, paths and BOTH serialized bodies before the first TanStack mutation. It checks the original token inside each mutationFn and before stage two, UI success/error and cache publication. Its owner lock blocks same-tick duplicates and edits across the inter-stage gap. A ref retains known committed assignment for a current failed-issue retry; the row, evidence and scans are not replaced.
+- QueuesInvalidation.ts recognizes assign-box container effects. An admitted assignment attempt also conservatively invalidates only the origin maker's containers/containers-all from finally, including ambiguous failure or stale-epoch decoding. Canonical staffRequest remains unchanged: no stale response body is inspected. An obsolete attempt never publishes assigned UI state, starts issue, or undoes server assignment. Known current success retains retry state; unknown commit cannot be represented as a known successful assignment.
+- useHardwareQrVisit.ts reuses useAuthActionOwner for scope/epoch/mounted lifetime and records the original editable predicate for each scan. Separate camera-opening identity rejects retained native callbacks after close or replacement, including after later rerenders. Asset scans share a visit and remain concurrent; single-container/return scanners admit one callback per opening. This removes repeated scanner ownership mistakes from four hardware controls without introducing a new authentication layer.
+- QueuesAssignIssueModal.tsx fences all assignment fields/scans and manual-entry handlers. Queue keys now own semantic reset, replacing the row-object effect that could wipe retry drafts. QueuesModalShared.tsx guards container loading, scan dispatch/result/error and manual/selection controls. QueueFormEditContext passes the parent's synchronous action fence into the existing return form's BoxCodeField without modifying that excluded modal source.
+- DirectLoans.tsx captures borrower, items, QR payloads, container, evidence and remark before mutate; returns capture their path and serialized DTO including resolutions. Maker/session keys and issue/return visit keys prevent old callbacks entering a new form. Parent setters and nested controls synchronously reject pending or obsolete edits.
+- useDirectLoanMutation.ts factors the duplicated direct issue/return command ownership and existing cache refresh rules into one domain hook. Both dispatch and completion require the original owner; stale callbacks do not refresh unrelated global caches or clear/toast newer forms. Current success preserves all prior loan/inventory/container/dashboard/accountability/fix-shelf invalidations.
+- DirectLoanItems.tsx freezes item, quantity, removal, pasted QR and container paths while pending. Scan responses, error and finally paths require their originating form and camera visit. Container selection invalidates and closes an older camera; independent valid asset scans are retained.
+- DirectLoanReturnModal.tsx guards native QR, evidence/notes and resolution setters, and uses a distinct return visit supplied by the parent. Same-loan refetch does not reset outcomes.
+- DirectLoanBorrower.tsx captures the selected membership's waiver path/body and owner before mutate. Waiver pending/success/error are shown only for that subject. Borrower changes and nested walk-in callbacks check the handout lock and original borrower-choice visit.
+- WalkInMemberForm.tsx serializes creation details before mutate and guards same-tick duplicate/edit routes. Successful creation refetches the originating roster before selection; the delayed selection still requires the original actor, form, borrower choice and handout intent. Committed creation is not cancelled/undone. Current creation/retry behavior remains available.
+
+Preserved contracts
+
+Canonical auth/API/session ownership hook, dormant handover/IssueDialog, DirectLoanList, backend/schema/generated sources and tests were not edited by this implementation. Prior resourceContext evidence-upload changes in the touched files were retained. Optional containers, exact individual-unit scans, mandatory issue photo and mandatory return photo/note checks remain; backend authority/QR/evidence/quantity checks are unchanged.
+
+Source checks and limitations
+
+Scoped git diff --check passed; every touched/new source has clean trailing whitespace and is ≤300 lines (maximum 207). CLAUDE.md and AGENTS.md match. Index remains empty. Source was read through for dispatch, callback, retry and invalidation ownership. No compiler, behavioral verification, independent Stage 4 review or QA was performed, as requested. codex doctor found configured authentication and reported restricted-environment DNS/reachability failures.
+
+A server assignment may commit without an admissible success DTO. Origin-only invalidation handles cache uncertainty; the UI deliberately claims committed assignment only after a current successful response. There is no automatic undo. This tradeoff needs a real held-response regression, not a transport mock that bypasses the epoch decoder.
+
+Minimum meaningful Stage 3 regressions (root-controlled)
+
+1. Real held QR resolution and retained native scanner callbacks across same-maker actor changes, maker changes, same-row close/reopen, A→B→A and next direct form. Assert no old dispatch/result/error/finally changes the new draft, pending state or container choice. Two concurrent valid asset scans must both survive.
+2. Pause queued queue dispatch, direct issue/return, waiver and walk-in creation; change the owner/subject before resume. Assert original paths and serialized bodies were captured before queuing, stale dispatch is denied, same-tick duplicates are blocked and every nested edit route is fenced.
+3. Hold an actual assignment response across epoch change through canonical transport. Assert only originating container keys invalidate, no assigned UI is published, no issue is dispatched and no undo/global cache clear occurs. Include admitted ambiguous assignment failure.
+4. Current assign success then issue failure retains evidence, asset scans, remark and committed container. Retry issues using that assignment without assigning again. Ordinary same-row refetch preserves drafts; same-row reopen starts a new visit. Cover issue with and without an optional container and exact unit-scan validation.
+5. Hold direct issue/return success and failure across owner/visit changes; assert old completion cannot clear/toast/change the new form. Verify captured return resolutions and current happy-path cache refreshes.
+6. Pause waiver for membership A, switch to B, and ensure it cannot be rebound or publish A success/error into B. Hold walk-in roster invalidation across newer borrower selection, issue start, form reset and session/maker changes; no late selection may override them. Verify immutable creation body, duplicate blocking, current retry and refetch-before-selection happy path.
+
+Exact source manifest
+
+| Path | Lines | SHA256 |
+| --- | ---: | --- |
+| frontend/src/features/staff/panels/Queues.tsx | 166 | 356a7420977efcc8a0df96826e67eb9b3e103dd7cd0bb7f1240e2fc344fdeed3 |
+| frontend/src/features/staff/panels/QueuesAssignIssueModal.tsx | 194 | ea6433ba1bd5f6a1f503c815c699389a5dbc178358d5ab98957df40ad828bb44 |
+| frontend/src/features/staff/panels/QueuesModalShared.tsx | 128 | da8a897e8edda356a3921649d2f3b61e5a5d23f197af01ee66d575bcc382c56d |
+| frontend/src/features/staff/panels/QueuesInvalidation.ts | 42 | 875c5f9eb25649333c337091537d9fbe1a2803883a7a4bd042d3f4d8c39bb5ea |
+| frontend/src/features/staff/panels/useQueueActions.ts | 130 | 2ec3709659cc59232221914837824e2d741e80395e25d880b74afa003f57fc68 |
+| frontend/src/features/staff/DirectLoans.tsx | 207 | 5e1fc6ed48610039f258d8f9e7b2b8ad808997afd1528bf8504610694c7d6a96 |
+| frontend/src/features/staff/DirectLoanItems.tsx | 185 | d3a174b3292c81acdafcb1d5fb3ca71c6a83aa4089d1232b6fa63459cb1faea7 |
+| frontend/src/features/staff/DirectLoanBorrower.tsx | 87 | 35998ff869d15bf661b9546a3d6cd1370432e51b354e467cdb0ae062195bae5d |
+| frontend/src/features/staff/DirectLoanReturnModal.tsx | 185 | b18e3cf8931c1bad04a465a7931dbc860b8f605c1655a933626b41fcc0f9a328 |
+| frontend/src/features/staff/WalkInMemberForm.tsx | 101 | 04b91e4e5a0b980779aac3e4dd469f58d7bfea64da35223f14de9c48e7b39da7 |
+| frontend/src/features/staff/useHardwareQrVisit.ts | 37 | 4fe4ee635350eebe905baf837de6549026fcabfe248b41ec9ec32cc5279c890b |
+| frontend/src/features/staff/useDirectLoanMutation.ts | 49 | d64e8b07b270afba90fdc61d8858e3478dc86fb2d8695084939d8f81cb63720c |
+
+Concurrent workspace changes observed, not written or reverted by this implementation
+
+The baseline hash comparison detected changes outside the allowlist while this turn was active. Those paths were left untouched; this check therefore does not claim the whole workspace stayed static. All remaining baseline paths outside the allowlist matched when checked.
+
+- docs/audits/2026-10-29/evidence/backend-followup.md
+- docs/audits/2026-10-29/evidence/ui-staff-ownership-followup.md
+- docs/audits/2026-10-29/evidence/operations-qr-source-freeze.json
+- backend/apps/warranty/admin.py
+- docs/audits/2026-10-29/evidence/box-qr-open-findings.md
+- backend/apps/warranty/views_documents.py
+- docs/audits/2026-10-29/evidence/ui-staff-ownership-test-freeze.json
+- backend/apps/procurement/views_items.py
+- docs/audits/2026-10-29/CHANGE-REPORT.md
+- backend/apps/procurement/views_receipts.py
+- docs/audits/2026-10-29/evidence/evidence-access-test-freeze.json
+- backend/apps/procurement/admin.py
+- docs/screenshots/2026-10/staff-notifications.jpg

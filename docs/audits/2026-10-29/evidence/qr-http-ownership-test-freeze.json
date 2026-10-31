@@ -1,0 +1,4058 @@
+{
+  "approved_stage2_source_hashes": {
+    "backend/apps/tenant_migration/gate_http_ownership.py": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+    "backend/apps/tenant_migration/gate_runtime.py": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+    "backend/apps/tenant_migration/middleware.py": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39"
+  },
+  "auth_policy_facts_from_actual_sources": [
+    "Claim policy for these QR POSTs is Refused, but validated_claim_session and expire_claim_presence precede that refusal. Signed revoked/expired-row claims therefore exercise actual cleanup and 401; valid claims retain 403 with unchanged presence and no DML.",
+    "Already-quarantined QR HTTP is rejected by the first deployment recovery middleware with deployment_quarantined 503. A real NORMAL-to-QUARANTINED transition after that outer check exercises the actual JWT recovery-principal 401 inside retained P.",
+    "must_change_password is refused by IsActiveStaff after valid native authentication updates last_used_at; that one global metadata UPDATE is asserted separately and no QR domain write is allowed."
+  ],
+  "author_validation": [
+    "stdlib ast.parse of every owned file",
+    "exact named function/file SHA256",
+    "AST-only complete parameter products",
+    "<=300 lines per file",
+    "static imports resolve to existing project module paths",
+    "no trailing whitespace and final newline",
+    "approved three-source hashes equal Stage 2 report",
+    "frozen QR suites/helper hashes equal start snapshot"
+  ],
+  "combined_command_note": "One pytest process only. Main 273 + Asset 28 + Print 60+16 remain frozen inputs; no full combined collection/result count is claimed. The command also includes existing regression suites from the main freeze and existing purge controls.",
+  "created_at_utc": "2026-10-30T03:55:29.693980+00:00",
+  "doctor": "Not executed in this explicitly scoped Stage 3 authoring turn; no gate/runtime result inferred.",
+  "exact_root_command": "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-http-ownership-combined.xml tests/qr_http_ownership_safety tests/qr_asset_race_safety tests/qr_print_race_safety tests/qr_source_safety tests/box_parent_safety tests/test_native_box_audit.py tests/test_native_box_creation.py tests/test_qr_api.py tests/test_qr_atomic_mutations.py tests/test_qr_target_boundaries.py tests/test_qr_revoke_fresh_state.py tests/test_box_qr_input_boundaries.py tests/test_qr_revoke_autocommit.py tests/test_qr_rebind.py tests/test_qr_rebind_assets.py tests/test_qr_asset_move_core.py tests/test_qr_asset_move_edges.py tests/test_qr_asset_move_warranty.py tests/test_qr_checkout_target_overlap.py tests/test_box_checkout_nested_guard.py tests/test_box_checkout_scan_guards.py tests/test_checkout_lock_races.py tests/test_checkout_native_lock_races.py tests/test_checkout_evidence_lock_races.py tests/operations/test_qr_audit_safety.py tests/operations/test_qr_input_safety.py tests/operations/test_qr_print_module_safety.py tests/tenant_migration/test_source_gate_nested_atomic_stage3.py tests/tenant_migration/test_purge_source_contract.py tests/tenant_migration/test_module_cleanup_source_contract.py tests/makerspaces/test_purge_admin_routes.py tests/makerspaces/test_module_cleanup_admin.py\n'",
+  "file_count": 16,
+  "files": {
+    "backend/tests/qr_http_ownership_safety/__init__.py": {
+      "bytes": 82,
+      "functions": [],
+      "lines": 1,
+      "sha256": "87ad2d9bbda5df7b8a2181d01f354c4f7cc46fd54f7cab874000af93b2cc9aeb"
+    },
+    "backend/tests/qr_http_ownership_safety/assertions.py": {
+      "bytes": 1380,
+      "functions": [
+        {
+          "end_line": 11,
+          "line": 10,
+          "name": "dml",
+          "sha256": "59e70c3415a160a4875cd54b361e02396b859fe207eaf8cc2f5c9c8de46edd9c"
+        },
+        {
+          "end_line": 26,
+          "line": 14,
+          "name": "statements",
+          "sha256": "a6d7706b8c3d24759a41b4ca6d84ebd926431a7abba3395ec02f067d72eff0d5"
+        },
+        {
+          "end_line": 23,
+          "line": 18,
+          "name": "statements.observe",
+          "sha256": "3d8d4e88d59058f397699cc48f19558983aa3a18e4664efd9dc69d3fdfc3e8b8"
+        },
+        {
+          "end_line": 32,
+          "line": 29,
+          "name": "no_gate_or_dml",
+          "sha256": "0e85258af4968fadca81a25e3f10807663aa8d00b4be98e5db6b161277a16111"
+        },
+        {
+          "end_line": 37,
+          "line": 35,
+          "name": "unavailable",
+          "sha256": "1345b826a93fa4c4cf74c2c9a5301819775f078e182d62ca1f55bbf313c546f1"
+        },
+        {
+          "end_line": 42,
+          "line": 40,
+          "name": "all_rows",
+          "sha256": "48794bc854e349f2cbb832ee3fc15c8f44c9a0b85ba72becc1afd5da9974351d"
+        },
+        {
+          "end_line": 48,
+          "line": 45,
+          "name": "domain_without_audits",
+          "sha256": "f43d1eecb61151fa037ad6a4959693a03acfd18809000586745c22fca5b7febd"
+        }
+      ],
+      "lines": 48,
+      "sha256": "66259c674c1408ed94a230575f400ad916cdd806aefdc140fc41023c9f5a4276"
+    },
+    "backend/tests/qr_http_ownership_safety/auth_setup.py": {
+      "bytes": 4372,
+      "functions": [
+        {
+          "end_line": 46,
+          "line": 21,
+          "name": "native_session",
+          "sha256": "271669587825d8c59bab67ad076d6ba81f6a4641ab22ca9a2c446678475a2b94"
+        },
+        {
+          "end_line": 50,
+          "line": 49,
+          "name": "authenticate",
+          "sha256": "8d8c101bb3d9d74e63cac9acd207651f3034c652a50b8a489f73560f72e7932a"
+        },
+        {
+          "end_line": 81,
+          "line": 53,
+          "name": "claim_session",
+          "sha256": "07867f8e56e96dbf59d0e739268383edb2f87db1588bd20df6291650aef7372b"
+        },
+        {
+          "end_line": 90,
+          "line": 84,
+          "name": "freeze",
+          "sha256": "79125d71153b6c519b318f384e430a18d8201ae966c868828e378d8d29d28bf3"
+        }
+      ],
+      "lines": 93,
+      "sha256": "3b8b8c52ae7506034e79d993ff7db1729b04dda6e3ff8225575d73d369c82bac"
+    },
+    "backend/tests/qr_http_ownership_safety/cases.py": {
+      "bytes": 4341,
+      "functions": [
+        {
+          "end_line": 48,
+          "line": 40,
+          "name": "declaration",
+          "sha256": "066bae31681e7483f2b8e367b95c7969862ad0656bc6dca1830d53e008daceb0"
+        },
+        {
+          "end_line": 53,
+          "line": 51,
+          "name": "imported",
+          "sha256": "1158ca11993ad4c6c730a84cb2165a82d301a97c5a8c5ab54c1b283173e222ce"
+        },
+        {
+          "end_line": 57,
+          "line": 56,
+          "name": "matched",
+          "sha256": "53593e7d0af861a39e66cee26a0ec45739c3b9e48fddb82e33b3f95c1ac9cb66"
+        },
+        {
+          "end_line": 73,
+          "line": 60,
+          "name": "url_pattern",
+          "sha256": "04b83b1a479e31626c08cefb2f0a0bdd4a6f4d4f988fe663c96b1f31bdd02040"
+        },
+        {
+          "end_line": 69,
+          "line": 64,
+          "name": "url_pattern.walk",
+          "sha256": "547379521f6b18bb9e8cccb4b244d4a6adc6e5344e734042b90634135c90a196"
+        },
+        {
+          "end_line": 106,
+          "line": 76,
+          "name": "prepared",
+          "sha256": "886b8c22321c2d96fc4380ab4da5ddde11bb10aba4d63e8c128cd868d51cf1e1"
+        }
+      ],
+      "lines": 106,
+      "sha256": "7f1a664d9fd9ffd83ebb16cf4355b60a7e4bc33e479677d2184eb6456e39e308"
+    },
+    "backend/tests/qr_http_ownership_safety/conftest.py": {
+      "bytes": 153,
+      "functions": [],
+      "lines": 2,
+      "sha256": "b5f33d225e87a4d04fcfd70e7d15c964c3fb7544cce3721dd66075ee9c22d008"
+    },
+    "backend/tests/qr_http_ownership_safety/dispatch_probe.py": {
+      "bytes": 3176,
+      "functions": [
+        {
+          "end_line": 16,
+          "line": 14,
+          "name": "Checkpoint.__init__",
+          "sha256": "7c6a43ba445db156575b021d39244df9fce078971b64bd6628547ab6fa740765"
+        },
+        {
+          "end_line": 21,
+          "line": 18,
+          "name": "Checkpoint.stop",
+          "sha256": "203d00911077316497e3f5f23490ff580baa812674e0ca70afb63ab9b26fdf4a"
+        },
+        {
+          "end_line": 26,
+          "line": 23,
+          "name": "Checkpoint.wait",
+          "sha256": "fb6f24eb493805782765b9bb4d71ead28737290d16ae46bcd3325b77f73df38b"
+        },
+        {
+          "end_line": 33,
+          "line": 30,
+          "name": "DispatchProbe.__init__",
+          "sha256": "efbad6a08ee52a32dd17bfb6f5a12771a2db62855c67d147a59f7949e8db579f"
+        },
+        {
+          "end_line": 45,
+          "line": 35,
+          "name": "DispatchProbe.capture",
+          "sha256": "7acc6f7f445cf9e6991ed230e8620635944e09c129350fea4b4b46753249ff4a"
+        },
+        {
+          "end_line": 55,
+          "line": 47,
+          "name": "DispatchProbe.run",
+          "sha256": "ac723c5b53e7e8cc24da48b469e587fca78a762ac93ad10deac54af38dcb4fd1"
+        },
+        {
+          "end_line": 54,
+          "line": 48,
+          "name": "DispatchProbe.run.observed",
+          "sha256": "4c7dade0ea6e459542e8dffdad626292e69f93f0080a84cb55023b349afde77a"
+        },
+        {
+          "end_line": 61,
+          "line": 60,
+          "name": "ObserveDelegatedDispatchMiddleware.__init__",
+          "sha256": "43de90999533b3e0a1eddf40cdf7707e0c7ff4d17c3aa1a4fbb253219b759249"
+        },
+        {
+          "end_line": 70,
+          "line": 63,
+          "name": "ObserveDelegatedDispatchMiddleware.__call__",
+          "sha256": "206dbd110edbecaf60c7039a5489b531d3d1ea65769673e3cad7757f869650df"
+        },
+        {
+          "end_line": 88,
+          "line": 73,
+          "name": "observe_dispatch",
+          "sha256": "260bdf9342eb3b380490a69c3fd2cdd1093d855932abad7e9c31f59c84313a0f"
+        }
+      ],
+      "lines": 88,
+      "sha256": "d86b12299039c07ec6f985646ae2acfe36426b1dab385df17d7572446506d586"
+    },
+    "backend/tests/qr_http_ownership_safety/drift.py": {
+      "bytes": 5038,
+      "functions": [
+        {
+          "end_line": 10,
+          "line": 9,
+          "name": "impostor",
+          "sha256": "1d59f58b2f3bf190215d6664b5106d0f220d7baea96e9b19794272d3605cac40"
+        },
+        {
+          "end_line": 22,
+          "line": 13,
+          "name": "clone",
+          "sha256": "1374f635aebd58a7c233ef8840c50bc6ba1133357c2fe3c3b88dde4e05551b40"
+        },
+        {
+          "end_line": 26,
+          "line": 25,
+          "name": "cell",
+          "sha256": "88ce561c553cef570866bd0103b4f9542dd7998e499bf46a5e7340f1bbceab9d"
+        },
+        {
+          "end_line": 68,
+          "line": 29,
+          "name": "callback_drift",
+          "sha256": "b972d2d9f25c399d2054cfe2acb414b9406104b73876aa874df2536e59247935"
+        },
+        {
+          "end_line": 89,
+          "line": 71,
+          "name": "class_drift",
+          "sha256": "a9e5b63dc53892ed1897290aaa7b458da1617c5231389307707518c1d0c895a0"
+        },
+        {
+          "end_line": 115,
+          "line": 92,
+          "name": "binding_drift",
+          "sha256": "c49789f67c1f7fc62cbb6e997bfcefa4b843148ad6669e63b6b7ce9886eac0ae"
+        },
+        {
+          "end_line": 119,
+          "line": 118,
+          "name": "replace_callback",
+          "sha256": "82923f173f7ac32461f58b5d9e0fd8a0b17e026dc03164f35d4c8387b971d623"
+        },
+        {
+          "end_line": 125,
+          "line": 122,
+          "name": "replace_barrel",
+          "sha256": "39abba8a6cca14c22ae30684a986e33b1dfca419dd2b4588bc0e69133b1d689b"
+        }
+      ],
+      "lines": 125,
+      "sha256": "146674306a5aedcec70139634d9ebf718271a4089dcffc24d114b678eef92a4b"
+    },
+    "backend/tests/qr_http_ownership_safety/p_observations.py": {
+      "bytes": 4629,
+      "functions": [
+        {
+          "end_line": 22,
+          "line": 12,
+          "name": "source_locks",
+          "sha256": "a50058c88de70b444fcd29d30e428fd3d06f660bbd086ef249ce2099d78bd43b"
+        },
+        {
+          "end_line": 27,
+          "line": 25,
+          "name": "identity",
+          "sha256": "935efb362da1c6d7e349d41e73ea3e19805f485376c9d5affdee794220ec32c3"
+        },
+        {
+          "end_line": 33,
+          "line": 30,
+          "name": "exclusive_p",
+          "sha256": "efbea83cf14a7bd147328fed13188f46c4202f3822b5d5f9f86968125fbacfbd"
+        },
+        {
+          "end_line": 38,
+          "line": 36,
+          "name": "p_statement",
+          "sha256": "be3e70f71b40de5a7c08ff052e56c1bf5a8ec41500c978256cd88cb8dc600570"
+        },
+        {
+          "end_line": 49,
+          "line": 42,
+          "name": "PProof.__init__",
+          "sha256": "6a6c925f00e6918baf5915818f575dbe65d4a12085d6c6a3cc6c50d7ea69c2f9"
+        },
+        {
+          "end_line": 87,
+          "line": 51,
+          "name": "PProof.observe",
+          "sha256": "2e6e506606f73b4c8a7a0fe306dd039fe9a0bc1a8d222c2e02e9ed4717673c80"
+        },
+        {
+          "end_line": 97,
+          "line": 89,
+          "name": "PProof.blocked_exclusive",
+          "sha256": "8459caf31a898b028ce7e6d57388e38cd3678f2b9cc1e8ec7ca87f873ba6d755"
+        },
+        {
+          "end_line": 102,
+          "line": 99,
+          "name": "PProof.released",
+          "sha256": "8a899779060d61bbc98cc13f3ee03b596f18623c266a62e4a130268b56fca71a"
+        }
+      ],
+      "lines": 102,
+      "sha256": "e4090ab24d2ed540a83c5301a5ef1621fc2e4dd9e8fff2417ff8097a721a8ded"
+    },
+    "backend/tests/qr_http_ownership_safety/p_protocol.py": {
+      "bytes": 3651,
+      "functions": [
+        {
+          "end_line": 50,
+          "line": 10,
+          "name": "full_dispatch",
+          "sha256": "df1e71ba8ee19f7755e3ee52395e1c764e2961182ddf5b233605eb27507f7520"
+        },
+        {
+          "end_line": 74,
+          "line": 53,
+          "name": "refused_dispatch",
+          "sha256": "49b27dbc5eb834e88535642d37317abf0c97d266273410734f478f8fd4e219ce"
+        }
+      ],
+      "lines": 74,
+      "sha256": "816fe88bb0945a053fce17e31e43b58c72168fbb01791d26c5fc7462ce8e462e"
+    },
+    "backend/tests/qr_http_ownership_safety/refusal_setup.py": {
+      "bytes": 4867,
+      "functions": [
+        {
+          "end_line": 92,
+          "line": 40,
+          "name": "deny",
+          "sha256": "e7383a1a439565d2a6ca608326ae6d1759b3e6a69fa17670f76a7217d1b6cea1"
+        },
+        {
+          "end_line": 99,
+          "line": 95,
+          "name": "protocol_rows",
+          "sha256": "e8922d62d824cdfd78522c551a931b48fe5ad5137ee317d376bedb5ee570e62f"
+        }
+      ],
+      "lines": 99,
+      "sha256": "6da2b7a537c6b9a2fd205c8c31c29be62cc37970e8a51adb9beb8072be886868"
+    },
+    "backend/tests/qr_http_ownership_safety/test_auth_refusals.py": {
+      "bytes": 3747,
+      "functions": [
+        {
+          "end_line": 46,
+          "line": 17,
+          "name": "test_real_native_jwt_and_selection_refusals_precede_qr_gate_and_domain_writes",
+          "sha256": "b732b2b30850165e96d5fe43db94d9c30363313fa3c218ac5ad1559817e47812"
+        },
+        {
+          "end_line": 68,
+          "line": 49,
+          "name": "test_real_recovery_principal_check_still_refuses_if_quarantine_begins_before_auth",
+          "sha256": "2380fb10ff2a17c3c55e7bd6e6287b4b190e6653f19481bc2445c8dc76bb7a49"
+        },
+        {
+          "end_line": 61,
+          "line": 58,
+          "name": "test_real_recovery_principal_check_still_refuses_if_quarantine_begins_before_auth.quarantine_after_outer_recovery_gate",
+          "sha256": "26d0b5a9e00533433d41755c01daf710f8d6ca52f8cfcfbca04cb97a74d211fe"
+        },
+        {
+          "end_line": 85,
+          "line": 71,
+          "name": "test_already_quarantined_deployment_retains_its_earlier_http_503",
+          "sha256": "647137f75953d0d09ead249de6c112b99c0c44a136d502e855c899054cace08b"
+        }
+      ],
+      "lines": 85,
+      "sha256": "6ecfd2d8a1b58778a236a5c2d9fb4715a7dd16ab85ec99e81ca672353fec863a"
+    },
+    "backend/tests/qr_http_ownership_safety/test_declarations.py": {
+      "bytes": 5419,
+      "functions": [
+        {
+          "end_line": 21,
+          "line": 20,
+          "name": "test_registry_has_exactly_the_eight_approved_declarations",
+          "sha256": "d8d999e7d1828b7171c2dc22e3a94f33adf63c44088cedc6c9d5ea9249119edf"
+        },
+        {
+          "end_line": 42,
+          "line": 24,
+          "name": "test_actual_resolved_post_class_barrel_and_consumed_bindings_are_accepted",
+          "sha256": "f7a592e72e1b2b23e6784797ee39ba4fb15e4023dd871ef65ab5f55164a1a76d"
+        },
+        {
+          "end_line": 51,
+          "line": 45,
+          "name": "test_every_other_method_declines_delegation",
+          "sha256": "1a6180de4353114010756645ec32d2f3397c8c168ba9db672ac759ae15bd12dc"
+        },
+        {
+          "end_line": 67,
+          "line": 54,
+          "name": "test_resolved_alias_print_and_print_item_are_not_delegated",
+          "sha256": "47f3581c6fa2a114a01ecc0e5615b123857e7863a666c629bc01b6671c6f4cf9"
+        },
+        {
+          "end_line": 76,
+          "line": 70,
+          "name": "test_unknown_name_cannot_borrow_a_known_callback_to_delegate",
+          "sha256": "9c508affde92678895e6a8cd19c17c22f95df59b73384e548728fc74b0d4d7d6"
+        },
+        {
+          "end_line": 91,
+          "line": 79,
+          "name": "assert_http_drift",
+          "sha256": "f692d7cf5542f11dbdc25933c794adb3ecd35f9d8e3d2d14b969f47486ddd072"
+        },
+        {
+          "end_line": 98,
+          "line": 94,
+          "name": "test_declared_class_alias_post_and_import_drift_fail_closed",
+          "sha256": "e92bac818e6d2fbd952be4b7b3de8fc484d3a926a3e76d454ca243a5fd7637f0"
+        },
+        {
+          "end_line": 109,
+          "line": 101,
+          "name": "test_borrowed_callback_metadata_and_hidden_capture_drift_fail_closed",
+          "sha256": "fbe566553ffacd91c6c760dfaf166da135ce201dc6b89d95b27978b820d5cef6"
+        },
+        {
+          "end_line": 119,
+          "line": 112,
+          "name": "test_every_consumed_owner_binding_must_remain_canonical",
+          "sha256": "3b2ca58a0e2da151ecb8dc65cf7a79f5298179bb8297837ebaf867bff95b04f6"
+        },
+        {
+          "end_line": 123,
+          "line": 122,
+          "name": "test_generation_rejects_barrel_object_substitution_even_with_same_service",
+          "sha256": "8718b8117c1ca53147261faceaac2ea829461ab61f92b4ccba1321684f0d9627"
+        }
+      ],
+      "lines": 123,
+      "sha256": "ae6c9fc98a52d7e9c755079078775ba02b67d0cf4322f1c35e69a0d00fe65f3e"
+    },
+    "backend/tests/qr_http_ownership_safety/test_late_guard.py": {
+      "bytes": 4215,
+      "functions": [
+        {
+          "end_line": 21,
+          "line": 18,
+          "name": "request_for",
+          "sha256": "447a2b9f872eb6bb154b77393a7658c1f714ff5aea6554bce4eed218fbed2819"
+        },
+        {
+          "end_line": 45,
+          "line": 24,
+          "name": "test_direct_late_assertion_without_actual_p_context_is_typed_unavailable",
+          "sha256": "6aa3f2f454207ffd4dde5dd43d89ad670ded8e44fb0ad4716c9305f109a4c037"
+        },
+        {
+          "end_line": 57,
+          "line": 48,
+          "name": "test_late_assertion_accepts_the_actual_p_boundary_without_tenant_gate_query",
+          "sha256": "ceeb789b96ab6536a87a69d43d8134d2c6b95f0064bebb0a38722b4e81e663c9"
+        },
+        {
+          "end_line": 72,
+          "line": 60,
+          "name": "test_late_guard_revalidates_declaration_even_when_actual_p_is_held",
+          "sha256": "436a3e81b4655eb80982eafbb362e8c9b4f2ba4c1bb6a38f9cb1d1ca54c44675"
+        },
+        {
+          "end_line": 97,
+          "line": 75,
+          "name": "test_actual_http_late_drift_is_translated_to_503_before_native_last_used_write",
+          "sha256": "7c926ef563425af7d24d2efb2849974d5501acd6598655a9a8199554a06fc5d1"
+        }
+      ],
+      "lines": 97,
+      "sha256": "0e79ec100df2ce49168556d632ad438c5b8a1ccb6d2a8a690169010c09b95baf"
+    },
+    "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py": {
+      "bytes": 6875,
+      "functions": [
+        {
+          "end_line": 33,
+          "line": 32,
+          "name": "purge_url",
+          "sha256": "75f0585a554e79c3d12eca37550d9c5df89d66e118fe81918b1790a0aaac7093"
+        },
+        {
+          "end_line": 49,
+          "line": 36,
+          "name": "test_original_purge_ast_validator_still_accepts_its_separate_three_routes",
+          "sha256": "7db1434988600c51eebbd7204afd38525e096a1061f75537efc2a044f8ac96b9"
+        },
+        {
+          "end_line": 64,
+          "line": 52,
+          "name": "test_actual_purge_callback_is_non_atomic_csrf_protected_and_separately_owned",
+          "sha256": "ad4969e372af5cee39b9a0342d1f172e39c7fd0f9ab545440196db6c76c1e826"
+        },
+        {
+          "end_line": 79,
+          "line": 67,
+          "name": "test_actual_purge_callback_still_refuses_loss_of_non_atomic_or_csrf_fence",
+          "sha256": "2e897d64ccb026742e1840d4acbba9d3a520bd1971dbdab4d61579b1ae629fe7"
+        },
+        {
+          "end_line": 93,
+          "line": 82,
+          "name": "test_real_admin_csrf_control_still_refuses_post_without_token",
+          "sha256": "d46e613cf2a6af8cbf85f15b3292da53afb9ec3f7b25305c13e092996d5983d5"
+        },
+        {
+          "end_line": 110,
+          "line": 96,
+          "name": "test_actual_print_item_post_keeps_default_source_n_protection",
+          "sha256": "b85c16477860626c48edc9f78a9b6e64465ffa5cea2533481a605da41fa9dcf5"
+        },
+        {
+          "end_line": 125,
+          "line": 113,
+          "name": "test_actual_qr_print_get_remains_a_read_without_source_gate_query",
+          "sha256": "1c9e6501e78dbe6e801e0457b981bd0d7458ef9fb73a843e365ff68fa4941efe"
+        },
+        {
+          "end_line": 139,
+          "line": 128,
+          "name": "test_qr_containers_post_keeps_default_protection_despite_shared_view_class",
+          "sha256": "de1755b4b1ce90d3a64842c87ae7730e0e0b83a81c431cfa39c0d94b0a02aa53"
+        },
+        {
+          "end_line": 155,
+          "line": 142,
+          "name": "test_other_unsafe_methods_keep_ordinary_frozen_tenant_protection",
+          "sha256": "49bda2ea869ad2d0d4c6508289120ab0cbbcc54c8d83322ae035ce7c5b7ce1ab"
+        }
+      ],
+      "lines": 155,
+      "sha256": "f80926da7b7bb4b020ceabf4f32a826d26a737e22d658763f18dccd856f3c03e"
+    },
+    "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py": {
+      "bytes": 5168,
+      "functions": [
+        {
+          "end_line": 47,
+          "line": 19,
+          "name": "test_actual_native_last_used_update_and_qr_audit_stay_under_same_p",
+          "sha256": "cdcc5656d7acfe149a82a12ecae1a956a27972369ce42afa19430360a19dd242"
+        },
+        {
+          "end_line": 84,
+          "line": 50,
+          "name": "test_reachable_invalid_claim_cleanup_updates_presence_and_audit_under_p",
+          "sha256": "b152d21ee71030de93e72cccc7411dcfc722f940c903534568ca9584fb4a5bee"
+        },
+        {
+          "end_line": 100,
+          "line": 87,
+          "name": "test_valid_claim_policy_still_refuses_403_without_presence_cleanup_under_p",
+          "sha256": "35051fd848a6caa9243a0126c63b6295da407a7e0f5d333e0ae693e22fff4dfb"
+        }
+      ],
+      "lines": 100,
+      "sha256": "b6e6635147c33dd8c00b6288566a4abd832d6f8ac18999a0cedeb93e0856cdfe"
+    },
+    "backend/tests/qr_http_ownership_safety/test_source_structure.py": {
+      "bytes": 3577,
+      "functions": [
+        {
+          "end_line": 14,
+          "line": 9,
+          "name": "function",
+          "sha256": "9033f03352f78ee203effb7594792c12644ab377ff99dbecf47e6be081015caf"
+        },
+        {
+          "end_line": 18,
+          "line": 17,
+          "name": "calls",
+          "sha256": "b09ba187d84117fc9ab9f9d1e1d418b424616c0b70c53dfad35434c22b0480de"
+        },
+        {
+          "end_line": 36,
+          "line": 21,
+          "name": "test_api_delegation_precedes_tenant_resolution_and_only_retains_p_around_dispatch",
+          "sha256": "eba55c0f8c746331338657322550391d3ddaa64a6a81044b9fa1c38a24ed4801"
+        },
+        {
+          "end_line": 50,
+          "line": 39,
+          "name": "test_late_api_guard_revalidates_and_reads_contextvar_before_ordinary_resolution",
+          "sha256": "dc7b32e321e7c824123d5220c7dd6f707a1473f0cddeee3902c3c1fbaaade378"
+        },
+        {
+          "end_line": 65,
+          "line": 53,
+          "name": "test_invalid_claim_cleanup_really_precedes_refused_qr_policy_in_authentication",
+          "sha256": "b5894efa0bd235055f99fdd85ab12ff1c7068791b1234c235e03bd76b559cb33"
+        }
+      ],
+      "lines": 65,
+      "sha256": "16c76a99e923926d846d3f171b780e45def6bdadedf60f5706d48eb58988e501"
+    }
+  },
+  "format": "spaceworks-qr-http-ownership-test-freeze-v1",
+  "frozen_input_hashes_unchanged_since_start": {
+    "backend/tests/box_parent_safety/__init__.py": "12faa3eaf777f02cccf1e7b609b09df3f4bbb87854643965bdce9941d5e6e671",
+    "backend/tests/box_parent_safety/http_helpers.py": "fd068f67dcb7f6e249b5df5c029e7997609b9f85e98420ab4e3574e2c86c7a63",
+    "backend/tests/box_parent_safety/pg_helpers.py": "4c15e96dbc0351996b149b679bb11a42eeaaaa02a22030852f6a4781ea02f9f5",
+    "backend/tests/box_parent_safety/test_fresh_native_policy.py": "1b49081959e19d0589b5632bdfd059c44d88e1821951668391faf1ad272b4ef2",
+    "backend/tests/box_parent_safety/test_lock_contract.py": "eb80b096bc4cb8ee5a9488943fd722d45c706db3b873ee502e0d9bac16fe5838",
+    "backend/tests/box_parent_safety/test_parent_races.py": "f9c7b290a489c86bf83eef50718a2f4c5780972822cca35c3f80db4b151ba3d0",
+    "backend/tests/box_parent_safety/test_source_order.py": "749291d6fccb58d666395496437305020744db433b361820c3ab5fb46ba25f9e",
+    "backend/tests/qr_asset_race_safety/__init__.py": "c82ffcccd4a44c18ccdee70dbbd2934aab143125f7fc2bad2148651c294f6411",
+    "backend/tests/qr_asset_race_safety/helpers.py": "5d6e98c103f189136ac53b427cc0a23713d89ab987306dff0f36313a562a99a3",
+    "backend/tests/qr_asset_race_safety/move_assertions.py": "d7bcf0cf4e5aff9f28c042c5302ad777bf86776c8a9903d1522d9fe861dc763d",
+    "backend/tests/qr_asset_race_safety/source_observations.py": "59fe70fe0520fa30db251d8415e8e710be497a216977ff844684583d3da58a18",
+    "backend/tests/qr_asset_race_safety/test_create_contract.py": "4c4544e10e935097bd8deb3f0656023975dabd5934260a504cb2dc5dbf95c701",
+    "backend/tests/qr_asset_race_safety/test_fresh_policy.py": "e3ca63190a059c984de3ab2c0d6703df61a812747f8b6fb403b386e29d5a19ea",
+    "backend/tests/qr_asset_race_safety/test_openapi_source.py": "72ae0de6942521a0e4d9bd019d31c75624f1f35a5382ca9443ab72ba78c90bf1",
+    "backend/tests/qr_asset_race_safety/test_source_boundary.py": "3a2fdd781884de924ef13116b9092e8294096bc825999a6836d45460fb2bace2",
+    "backend/tests/qr_asset_race_safety/test_transfer_races.py": "e2521ce8dab4155df8392aa6860d1716fc8f2214cf5ad2c8e7d8d35e94998ae4",
+    "backend/tests/qr_print_race_safety/__init__.py": "39c18eb04b6ab4b4e0783d795fd585b8b81f5bb941a1e8fb3845e4dcbacdbac7",
+    "backend/tests/qr_print_race_safety/helpers.py": "1dd5377265817b3232288c06b2c9443a7884c727c18c2008b2da8ef597523b47",
+    "backend/tests/qr_print_race_safety/source_helpers.py": "ee7be5fef5b47143c40ac598e60f1ef7b45b86fbc920b64edcd9e18bb6b05c81",
+    "backend/tests/qr_print_race_safety/test_fresh_policy.py": "ff341bd81c1b416920f640f87cebf67bd923ef716426ac62fa70a1f021b2a021",
+    "backend/tests/qr_print_race_safety/test_item_contract.py": "ab8e23d7801217e3353b6c3a3848534925adc2299a4445121fb48f91074c1774",
+    "backend/tests/qr_print_race_safety/test_refusals.py": "bb730046b9e6c3e868985fe3e3c2f1160cd174620be7ec12b20e082a8a2521cf",
+    "backend/tests/qr_print_race_safety/test_source_boundary.py": "abc39cdbd91376700e2e6ce072bcd49f85859f72d7c4741aa6244c234a6dcd69",
+    "backend/tests/qr_print_race_safety/test_transfer_races.py": "320fef26ea8c0a96f3fc2009a0c2d1045bbfa073cf16ba59cfeffbfa71bb0b05",
+    "backend/tests/qr_source_safety/__init__.py": "809c9bb5b15284ab5f6def6749f3655caef58af0b16a64fd72f2b112932329f4",
+    "backend/tests/qr_source_safety/http_helpers.py": "6ecad6755ce56a2d93c4ee46b144eea65b2995f02b6226aefcdd29b7d040d4a9",
+    "backend/tests/qr_source_safety/pg_helpers.py": "2c202de00e98b2efa49ce0d6c900654359aad9cc927610a5d2b1aa0885f1b575",
+    "backend/tests/qr_source_safety/race_helpers.py": "543f861f6a8af797914d0f887cd2cd87124e711c01c30a69e8389b6570bb63ab",
+    "backend/tests/qr_source_safety/state_helpers.py": "cb27d7c3cc849c210afcbc615786ffc93a9ecf16e6fae7458e29d820415f4f87",
+    "backend/tests/qr_source_safety/test_audit_rollback_closure.py": "8122ff57fd3877869b88a597f236b3b6d70a159ae1777e9f5bb98ed9c8c51514",
+    "backend/tests/qr_source_safety/test_fresh_qr_waits.py": "764b6b3c467fc98b28f49588fc81a94c172576d4f4da5a306326399cc753ca19",
+    "backend/tests/qr_source_safety/test_fresh_target_waits.py": "84018953aff5026923d87493c80f8544c54638dd4aab46dd19ea6a145a563128",
+    "backend/tests/qr_source_safety/test_generation_fresh_policy.py": "be3541eb4e369658fe54d1a2c92b0cc6f7769f6922189b51b175ffbf6271db43",
+    "backend/tests/qr_source_safety/test_native_canonical_audit.py": "fe5afc2fc9fe98474b764bd38b1c19f2033b0af812ffb23ced6feb841eb953ca",
+    "backend/tests/qr_source_safety/test_native_effective_selection.py": "2fffa9c4db3ca64e16e014b51e0eeb08ccb8688900a3f98626de257190d81503",
+    "backend/tests/qr_source_safety/test_openapi_contract.py": "4755522d7cec8f5bbb8f27bb61cb033287466473826c3bb51411efad1cdf58c0",
+    "backend/tests/qr_source_safety/test_quiesced_http.py": "d93957b11c27170de4beec18fbaaecaf0b8064ade6111bf5ce630e2aa8badfb6",
+    "backend/tests/qr_source_safety/test_resolve_audit.py": "5573a9b1c08671484d0d3223d707878e221db62a0f238b5366cec278183d1a38",
+    "backend/tests/qr_source_safety/test_scope_before_gate.py": "a91f5c8c6707db5e688bf77b859e83c1a09e47058cac5a4583cc4ee8141483fe",
+    "backend/tests/qr_source_safety/test_source_lock_lifetime.py": "813567ab44b1aae9c8ee15dbf8a8753ac805cdc8cc9fff400a6aeff06155c604",
+    "backend/tests/qr_target_safety_helpers.py": "328c2ae1f2d108ba2b17c218f4aa8316aab4802b736da1cc481441330769b9b9",
+    "backend/tests/test_qr_atomic_mutations.py": "006361f66ad9801e46f60b7d0e13e63f6e26689572e460cfd5184f52a6d68308"
+  },
+  "frozen_test_edits_by_this_author": [],
+  "function_hash_scope": "Exact UTF-8 named function/method source including decorators; nested functions qualified by enclosing name; no code executed",
+  "generation_233_fixture": {
+    "note": "Already-corrected fixture accepted as input and unchanged; no reuse of its tests or modification of its parameter products.",
+    "path": "backend/tests/qr_source_safety/test_generation_fresh_policy.py",
+    "sha256": "be3541eb4e369658fe54d1a2c92b0cc6f7769f6922189b51b175ffbf6271db43"
+  },
+  "independent_review": {
+    "file_hashes_verified": true,
+    "reviewed_at_utc": "2026-10-30T04:18:17.750783+00:00",
+    "reviewer": "/root/audit_backend_finish",
+    "scope": "All 16 test files read in full. Compared actual presence.start_session and presence_presets: canonical start requires active membership and allowed 60-minute duration; presence has no opt-in module key/service check, so no invented module setup is needed. Auth/P lock observations, drift cases, original purge and ordinary route controls reviewed. No runtime execution claimed.",
+    "source3_hashes_verified": true
+  },
+  "max_file_lines": 155,
+  "observed_source_hashes": {
+    "backend/apps/accounts/authentication.py": "4fafae6863cadd861fad03a13b4977459d687db3844e02f43552d0b0f37e7274",
+    "backend/apps/accounts/claim_route_types.py": "58b5c70e9fdfa9a6119a2e1f1bae347a0f69c32fa6217314256dbfd678527395",
+    "backend/apps/accounts/claim_routes.py": "0917159441601a1c88a5dafa54b58866f00892a62ef1747d73ad9d8ec2617fa0",
+    "backend/apps/accounts/claim_sessions.py": "384c82fa990306da1a33205d4a156a472b87b11216f4c3017b472f4b1fc5dccb",
+    "backend/apps/accounts/claim_tokens.py": "7733ab1438d3c913a696d0e3aba9c13950c6be82fa6c38f0773a679d220b3c8a",
+    "backend/apps/accounts/models_claim.py": "ee68482a75b5d2d700bd9b32aa2359d80be6c5cabb1a6d066edca9934d2cd89d",
+    "backend/apps/accounts/models_devices.py": "e8c2629545836a478c394e5c09e605e225910f6eca32cd2ec2c1fe04f8b56719",
+    "backend/apps/accounts/services_device_tokens.py": "bf83fe363d9c675fb47f6f2b8c71742da422bb0cb01026e0ea05478ea75e5b3e",
+    "backend/apps/accounts/tokens.py": "9ce2006a2b01496e4439517cd370a60c6b702b1d4bf523a6fc099b0a87d52be3",
+    "backend/apps/admin_api/permissions.py": "a3fc316178a4e2385b79f38e926d949634be7c125a412534906ef12c8e8ce157",
+    "backend/apps/audit/keys.py": "e1f2ac2e9e2ecfc915b021972840818e3f488d64c743cc56c83ff2a33888426e",
+    "backend/apps/audit/services.py": "31a7371418b06e93dde0f4d7e0d88b72421dadc5318788e71c7a90a1f0bf50ec",
+    "backend/apps/backup/middleware.py": "5095160003921147f531616c2fbc1aef2c6913808df8bcb2bcc4fa9eae0f87a0",
+    "backend/apps/backup/recovery.py": "1f3f5e02da87b8f5856b0ba66ef4c38fb2cea13d587eb540919222019d50070b",
+    "backend/apps/backup/route_policy.py": "8725b08da0ea8bdd4929015f20988317dccb77bda13c42342db787df43966f79",
+    "backend/apps/boxes/api_views.py": "ccaf70e48dbc8e17dc95912e2f4eb85671012fb7b20153cde55de48c095675f5",
+    "backend/apps/boxes/api_views_qr.py": "e80679a8b364412023cd736b3531d30de681bca7495e28b264c70280ea2acf9f",
+    "backend/apps/boxes/qr_admission.py": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+    "backend/apps/boxes/rebind.py": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+    "backend/apps/boxes/services.py": "91ef7b63e2c69173cda207bbe880ea9e3328cc5385706b4aaba8b57ae5a65ae4",
+    "backend/apps/boxes/urls.py": "8e4624359ee0a0cf339d4826c32e73f2dfad118f4aa69d353ce2f788703e44f2",
+    "backend/apps/hardware_requests/exceptions.py": "b91a744e8da7dac4d55b7df8131baa6ef653c2e464bbd07216dd6cac79828309",
+    "backend/apps/makerspaces/origin_scope.py": "2220de34cbae8ebc8d293dbc7647fcaa940901ac64f7bcbbef5fd7f09990c257",
+    "backend/apps/makerspaces/origin_scope_routes.py": "9689c32cd0df988be87fffdb6f84cd98e810b196865df39c75384eaf81e69f20",
+    "backend/apps/operations/services.py": "8546fb5ff88077018d45560bc055a37de27f7dc94d0f97a771ec7715004395ee",
+    "backend/apps/operations/services_qr_assets.py": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+    "backend/apps/operations/urls.py": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+    "backend/apps/operations/views.py": "3622b8497650ec1e7f9b6df34b6a0a3d4bf62cee0b0d48619a242082968fb22e",
+    "backend/apps/operations/views_qr_batches.py": "7c697ee0ae899af9db25ab220307307cc9c706591eab016ced1c3184aef5a474",
+    "backend/apps/presence/models.py": "9bbf4eceb3ba1a8848c8247150f8e156d3b5833e15a292cac01599f8dc36f68c",
+    "backend/apps/presence/services.py": "c9946e6e1dbda731553863a072c68f4f8b1969e3adc2c861a34eee03b26418d8",
+    "backend/apps/tenant_migration/gate_errors.py": "bf4b9981cf8f9c6582556996bda74d26eb9e672a58c921eb574523011c25d6e2",
+    "backend/apps/tenant_migration/gate_http_ownership.py": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+    "backend/apps/tenant_migration/gate_locks.py": "e95377a2afc1945eaf14e549d21b21c1dd6d516ac3820214b88987e5d50cb815",
+    "backend/apps/tenant_migration/gate_policy.py": "6cfdc459c29bfffa3b68582ed732b9c3dab9bc12f03f4be64bdd2ba45cfa9bdb",
+    "backend/apps/tenant_migration/gate_runtime.py": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+    "backend/apps/tenant_migration/middleware.py": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+    "backend/apps/tenant_migration/source_gate_http_guards.py": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770",
+    "backend/apps/tenant_migration/source_gate_owned_http_guards.py": "ce948aa6e81326ab3c549be723557ff8ae9b29c4266134f9bd6470b7b189c35f",
+    "backend/config/settings.py": "b49349b0708b12816577efb88834ae1b51207ec48a35962c94413ceb505c4e1f"
+  },
+  "ownership": "ONLY NEW backend/tests/qr_http_ownership_safety/*.py plus this requested /tmp freeze",
+  "retained_acceptance_references": {
+    "25_previously_failed_scope_cases": "tests/qr_source_safety/test_scope_before_gate.py::test_scope_and_auth_precede_foreign_gate_state (existing complete 40-case matrix; strict 403/404 and no SourceMigrationGate query unchanged)",
+    "four_strict_423": {
+      "edited": false,
+      "file": "backend/tests/test_qr_atomic_mutations.py",
+      "function": "test_closed_source_gate_refuses_real_qr_writes",
+      "parameter_products": [
+        "box",
+        "product",
+        "asset",
+        "scan"
+      ],
+      "required_status": 423
+    },
+    "identity_policy_after_wait": "tests/qr_source_safety/test_fresh_qr_waits.py, test_fresh_target_waits.py, test_generation_fresh_policy.py plus frozen Asset/Print policy races",
+    "real_audit_and_outer_commit": "tests/qr_source_safety/test_source_lock_lifetime.py::test_real_audit_insert_and_actual_outer_commit_retain_source_n plus frozen Asset/Print source-boundary suites",
+    "two_reversed_source_api_cases": [
+      "tests/qr_source_safety/test_source_lock_lifetime.py::test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-product]",
+      "tests/qr_source_safety/test_source_lock_lifetime.py::test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-asset]"
+    ]
+  },
+  "root_only_new_suite_command": "./scripts/dev-docker.sh exec -T backend sh -c '\n  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager\n  export API_CLIENT_ENC_KEY=$(python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\")\n  python -m pytest -q --create-db -o junit_family=legacy --junitxml=/tmp/spaceworks-qr-http-ownership.xml tests/qr_http_ownership_safety\n'",
+  "runtime": {
+    "build": false,
+    "commit": false,
+    "django_or_project_imports": false,
+    "executed": false,
+    "pytest_collection": false,
+    "pytest_tests": false,
+    "runtime_claim": "NONE",
+    "staging": false,
+    "subagents": false
+  },
+  "source_bug_reporting": "No confirmed new source bug was found statically; no source fix attempted and no runtime closure claimed.",
+  "source_bugs_confirmed_by_this_author": [],
+  "source_edits_by_this_author": [],
+  "stage": "Stage 3 TEST AUTHORING ONLY; root alone owns runtime QA",
+  "stage_input_hashes": {
+    "/tmp/spaceworks-qr-asset-race-test-freeze.json": "66647883e708c959852a6e969de111c18a22565613f244f52f0561054c376392",
+    "/tmp/spaceworks-qr-http-ownership-stage1.txt": "44830138ecdb23fdc390846ef5936648fb17eabaccc7d3cfff8bccf6c0c1e910",
+    "/tmp/spaceworks-qr-http-ownership-stage2.txt": "a05092a49dfc5cfa65109763ee1ff003f9a2e1f4644df7286e6b052f5b9bdee1",
+    "/tmp/spaceworks-qr-http-ownership-v2-stage1.txt": "e31c125bae72f4591076df2a0d761ea5ec07d728d1bbc80a803892a0776b211d",
+    "/tmp/spaceworks-qr-http-stage2-static-report.txt": "91ca139797b23bdcf699363cb067f03e5334edb96e3f591f274f23129d68350d",
+    "/tmp/spaceworks-qr-print-policy-test-freeze.json": "fffc820606f73c15f4ab44e3d7a2257f7b6b9c7b7aed0a7126eb6b7a32d43990",
+    "/tmp/spaceworks-qr-print-race-test-freeze.json": "1f7f98726959a58d4b2c83e9cf36b151d77469477d85ad54187e0611f23b5b5d",
+    "/tmp/spaceworks-qr-source-test-freeze.json": "b50f47828a9718367db10ca5ef4ef9f1f92969c22a920f946584384b4bda3f93"
+  },
+  "static_case_count": 473,
+  "static_case_products": [
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "detail": "different authentication generation",
+            "kind": "generation",
+            "status": 401
+          },
+          {
+            "detail": "Invalid session surface",
+            "kind": "unknown-surface",
+            "status": 401
+          },
+          {
+            "detail": "Member sessions cannot access staff APIs",
+            "kind": "member-surface",
+            "status": 403
+          },
+          {
+            "detail": "Member sessions cannot access staff APIs",
+            "kind": "missing-surface",
+            "status": 403
+          },
+          {
+            "detail": "trusted staff origin",
+            "kind": "staff-origin",
+            "status": 403
+          },
+          {
+            "detail": "Staff session origin does not match",
+            "kind": "staff-scope",
+            "status": 403
+          },
+          {
+            "detail": "requires a device grant",
+            "kind": "missing-grant",
+            "status": 403
+          },
+          {
+            "detail": "Invalid device authorization",
+            "kind": "missing-family",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "unknown-family",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "revoked-grant",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "revoked-registration",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "revoked-family",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "wrong-family-user",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "wrong-grant-user",
+            "status": 401
+          },
+          {
+            "detail": "Invalid native makerspace selection",
+            "kind": "invalid-selection",
+            "status": 403
+          },
+          {
+            "detail": "Makerspace selection is not available",
+            "kind": "nonmember-selection",
+            "status": 403
+          },
+          {
+            "detail": "target does not match the selected makerspace",
+            "kind": "conflicting-selection",
+            "status": 403
+          },
+          {
+            "detail": "Browser origin cannot use native makerspace selection",
+            "kind": "browser-selection",
+            "status": 403
+          },
+          {
+            "detail": "Makerspace selection conflicts with browser origin",
+            "kind": "origin-selection-conflict",
+            "status": 403
+          },
+          {
+            "detail": "Verify the account email",
+            "kind": "unverified",
+            "status": 403
+          },
+          {
+            "detail": "User is inactive",
+            "kind": "inactive",
+            "status": 401
+          },
+          {
+            "detail": "Device authorization is no longer active",
+            "kind": "suspended",
+            "status": 401
+          },
+          {
+            "detail": "permission",
+            "kind": "must-change-password",
+            "status": 403
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_auth_refusals.py",
+      "function": "test_real_native_jwt_and_selection_refusals_precede_qr_gate_and_domain_writes",
+      "static_case_count": 184,
+      "static_case_products": [
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-boxes",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-boxes",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-tools",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-tools",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-scan",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-scan",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-resolve",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-resolve",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-revoke",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-revoke",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "qr-rebind-target",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "qr-rebind-target",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "asset-generate",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "asset-generate",
+          "status": 403
+        },
+        {
+          "detail": "different authentication generation",
+          "kind": "generation",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Invalid session surface",
+          "kind": "unknown-surface",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "member-surface",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Member sessions cannot access staff APIs",
+          "kind": "missing-surface",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "trusted staff origin",
+          "kind": "staff-origin",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Staff session origin does not match",
+          "kind": "staff-scope",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "requires a device grant",
+          "kind": "missing-grant",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Invalid device authorization",
+          "kind": "missing-family",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "unknown-family",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-grant",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-registration",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "revoked-family",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-family-user",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "wrong-grant-user",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Invalid native makerspace selection",
+          "kind": "invalid-selection",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection is not available",
+          "kind": "nonmember-selection",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "target does not match the selected makerspace",
+          "kind": "conflicting-selection",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Browser origin cannot use native makerspace selection",
+          "kind": "browser-selection",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Makerspace selection conflicts with browser origin",
+          "kind": "origin-selection-conflict",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "Verify the account email",
+          "kind": "unverified",
+          "route": "asset-qr",
+          "status": 403
+        },
+        {
+          "detail": "User is inactive",
+          "kind": "inactive",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "Device authorization is no longer active",
+          "kind": "suspended",
+          "route": "asset-qr",
+          "status": 401
+        },
+        {
+          "detail": "permission",
+          "kind": "must-change-password",
+          "route": "asset-qr",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_auth_refusals.py",
+      "function": "test_real_recovery_principal_check_still_refuses_if_quarantine_begins_before_auth",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_auth_refusals.py",
+      "function": "test_already_quarantined_deployment_retains_its_earlier_http_503",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_registry_has_exactly_the_eight_approved_declarations",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_actual_resolved_post_class_barrel_and_consumed_bindings_are_accepted",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "method": "GET"
+          },
+          {
+            "method": "HEAD"
+          },
+          {
+            "method": "OPTIONS"
+          },
+          {
+            "method": "TRACE"
+          },
+          {
+            "method": "PUT"
+          },
+          {
+            "method": "PATCH"
+          },
+          {
+            "method": "DELETE"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_every_other_method_declines_delegation",
+      "static_case_count": 56,
+      "static_case_products": [
+        {
+          "method": "GET",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-boxes"
+        },
+        {
+          "method": "GET",
+          "route": "qr-tools"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-tools"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-tools"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-tools"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-tools"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-tools"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-tools"
+        },
+        {
+          "method": "GET",
+          "route": "qr-scan"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-scan"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-scan"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-scan"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-scan"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-scan"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-scan"
+        },
+        {
+          "method": "GET",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-resolve"
+        },
+        {
+          "method": "GET",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "GET",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "HEAD",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "TRACE",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "PUT",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "PATCH",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "DELETE",
+          "route": "qr-rebind-target"
+        },
+        {
+          "method": "GET",
+          "route": "asset-generate"
+        },
+        {
+          "method": "HEAD",
+          "route": "asset-generate"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "asset-generate"
+        },
+        {
+          "method": "TRACE",
+          "route": "asset-generate"
+        },
+        {
+          "method": "PUT",
+          "route": "asset-generate"
+        },
+        {
+          "method": "PATCH",
+          "route": "asset-generate"
+        },
+        {
+          "method": "DELETE",
+          "route": "asset-generate"
+        },
+        {
+          "method": "GET",
+          "route": "asset-qr"
+        },
+        {
+          "method": "HEAD",
+          "route": "asset-qr"
+        },
+        {
+          "method": "OPTIONS",
+          "route": "asset-qr"
+        },
+        {
+          "method": "TRACE",
+          "route": "asset-qr"
+        },
+        {
+          "method": "PUT",
+          "route": "asset-qr"
+        },
+        {
+          "method": "PATCH",
+          "route": "asset-qr"
+        },
+        {
+          "method": "DELETE",
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "name": "qr-containers",
+            "path": "/api/v1/admin/qr/containers"
+          },
+          {
+            "name": "qr-print",
+            "path": "/api/v1/admin/qr/17/print"
+          },
+          {
+            "name": "qr-print-batch-items",
+            "path": "/api/v1/admin/qr-print-batches/17/items"
+          }
+        ],
+        [
+          {
+            "method": "POST"
+          },
+          {
+            "method": "GET"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_resolved_alias_print_and_print_item_are_not_delegated",
+      "static_case_count": 6,
+      "static_case_products": [
+        {
+          "method": "POST",
+          "name": "qr-containers",
+          "path": "/api/v1/admin/qr/containers"
+        },
+        {
+          "method": "GET",
+          "name": "qr-containers",
+          "path": "/api/v1/admin/qr/containers"
+        },
+        {
+          "method": "POST",
+          "name": "qr-print",
+          "path": "/api/v1/admin/qr/17/print"
+        },
+        {
+          "method": "GET",
+          "name": "qr-print",
+          "path": "/api/v1/admin/qr/17/print"
+        },
+        {
+          "method": "POST",
+          "name": "qr-print-batch-items",
+          "path": "/api/v1/admin/qr-print-batches/17/items"
+        },
+        {
+          "method": "GET",
+          "name": "qr-print-batch-items",
+          "path": "/api/v1/admin/qr-print-batches/17/items"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_unknown_name_cannot_borrow_a_known_callback_to_delegate",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "kind": "canonical-class"
+          },
+          {
+            "kind": "url-alias"
+          },
+          {
+            "kind": "post-function"
+          },
+          {
+            "kind": "post-globals"
+          },
+          {
+            "kind": "import-failure"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_declared_class_alias_post_and_import_drift_fail_closed",
+      "static_case_count": 40,
+      "static_case_products": [
+        {
+          "kind": "canonical-class",
+          "route": "qr-boxes"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-boxes"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-boxes"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-boxes"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-boxes"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "qr-scan"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-scan"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-scan"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-scan"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-scan"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "qr-resolve"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-resolve"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-resolve"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-resolve"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-resolve"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "qr-revoke"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-revoke"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-revoke"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-revoke"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-revoke"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "qr-rebind-target"
+        },
+        {
+          "kind": "url-alias",
+          "route": "qr-rebind-target"
+        },
+        {
+          "kind": "post-function",
+          "route": "qr-rebind-target"
+        },
+        {
+          "kind": "post-globals",
+          "route": "qr-rebind-target"
+        },
+        {
+          "kind": "import-failure",
+          "route": "qr-rebind-target"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "url-alias",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "post-function",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "post-globals",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "import-failure",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "canonical-class",
+          "route": "asset-qr"
+        },
+        {
+          "kind": "url-alias",
+          "route": "asset-qr"
+        },
+        {
+          "kind": "post-function",
+          "route": "asset-qr"
+        },
+        {
+          "kind": "post-globals",
+          "route": "asset-qr"
+        },
+        {
+          "kind": "import-failure",
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "asset-generate"
+          }
+        ],
+        [
+          {
+            "kind": "borrowed-metadata"
+          },
+          {
+            "kind": "callback-globals"
+          },
+          {
+            "kind": "defaults"
+          },
+          {
+            "kind": "kwdefaults"
+          },
+          {
+            "kind": "initkwargs"
+          },
+          {
+            "kind": "view-initkwargs"
+          },
+          {
+            "kind": "missing-wrapper"
+          },
+          {
+            "kind": "closure"
+          },
+          {
+            "kind": "wrong-callback-class"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_borrowed_callback_metadata_and_hidden_capture_drift_fail_closed",
+      "static_case_count": 18,
+      "static_case_products": [
+        {
+          "kind": "borrowed-metadata",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "callback-globals",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "defaults",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "kwdefaults",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "initkwargs",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "view-initkwargs",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "missing-wrapper",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "closure",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "wrong-callback-class",
+          "route": "qr-tools"
+        },
+        {
+          "kind": "borrowed-metadata",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "callback-globals",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "defaults",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "kwdefaults",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "initkwargs",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "view-initkwargs",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "missing-wrapper",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "closure",
+          "route": "asset-generate"
+        },
+        {
+          "kind": "wrong-callback-class",
+          "route": "asset-generate"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "expression": "create_box_with_qr",
+            "owner": "apps.boxes.services.create_box_with_qr",
+            "route": "qr-boxes"
+          },
+          {
+            "expression": "create_tool_qr",
+            "owner": "apps.boxes.qr_admission.create_tool_qr",
+            "route": "qr-tools"
+          },
+          {
+            "expression": "admitted_qr",
+            "owner": "apps.boxes.qr_admission.admitted_qr",
+            "route": "qr-scan"
+          },
+          {
+            "expression": "admitted_qr",
+            "owner": "apps.boxes.qr_admission.admitted_qr",
+            "route": "qr-resolve"
+          },
+          {
+            "expression": "revoke_qr_code",
+            "owner": "apps.boxes.services.revoke_qr_code",
+            "route": "qr-revoke"
+          },
+          {
+            "expression": "preflight_rebind",
+            "owner": "apps.boxes.rebind.preflight_rebind",
+            "route": "qr-rebind-target"
+          },
+          {
+            "expression": "rebind_qr_target",
+            "owner": "apps.boxes.rebind.rebind_qr_target",
+            "route": "qr-rebind-target"
+          },
+          {
+            "expression": "services.generate_assets_with_qr",
+            "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+            "route": "asset-generate"
+          },
+          {
+            "expression": "qr_write",
+            "owner": "apps.boxes.qr_admission.qr_write",
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "kind": "missing-service"
+          },
+          {
+            "kind": "noncallable-service"
+          },
+          {
+            "kind": "canonical-service"
+          },
+          {
+            "kind": "consumed-alias"
+          },
+          {
+            "kind": "missing-consumed-alias"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_every_consumed_owner_binding_must_remain_canonical",
+      "static_case_count": 45,
+      "static_case_products": [
+        {
+          "expression": "create_box_with_qr",
+          "kind": "missing-service",
+          "owner": "apps.boxes.services.create_box_with_qr",
+          "route": "qr-boxes"
+        },
+        {
+          "expression": "create_box_with_qr",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.services.create_box_with_qr",
+          "route": "qr-boxes"
+        },
+        {
+          "expression": "create_box_with_qr",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.services.create_box_with_qr",
+          "route": "qr-boxes"
+        },
+        {
+          "expression": "create_box_with_qr",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.services.create_box_with_qr",
+          "route": "qr-boxes"
+        },
+        {
+          "expression": "create_box_with_qr",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.services.create_box_with_qr",
+          "route": "qr-boxes"
+        },
+        {
+          "expression": "create_tool_qr",
+          "kind": "missing-service",
+          "owner": "apps.boxes.qr_admission.create_tool_qr",
+          "route": "qr-tools"
+        },
+        {
+          "expression": "create_tool_qr",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.qr_admission.create_tool_qr",
+          "route": "qr-tools"
+        },
+        {
+          "expression": "create_tool_qr",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.qr_admission.create_tool_qr",
+          "route": "qr-tools"
+        },
+        {
+          "expression": "create_tool_qr",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.qr_admission.create_tool_qr",
+          "route": "qr-tools"
+        },
+        {
+          "expression": "create_tool_qr",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.qr_admission.create_tool_qr",
+          "route": "qr-tools"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "missing-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-scan"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-scan"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-scan"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-scan"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-scan"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "missing-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-resolve"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-resolve"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-resolve"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-resolve"
+        },
+        {
+          "expression": "admitted_qr",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.qr_admission.admitted_qr",
+          "route": "qr-resolve"
+        },
+        {
+          "expression": "revoke_qr_code",
+          "kind": "missing-service",
+          "owner": "apps.boxes.services.revoke_qr_code",
+          "route": "qr-revoke"
+        },
+        {
+          "expression": "revoke_qr_code",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.services.revoke_qr_code",
+          "route": "qr-revoke"
+        },
+        {
+          "expression": "revoke_qr_code",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.services.revoke_qr_code",
+          "route": "qr-revoke"
+        },
+        {
+          "expression": "revoke_qr_code",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.services.revoke_qr_code",
+          "route": "qr-revoke"
+        },
+        {
+          "expression": "revoke_qr_code",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.services.revoke_qr_code",
+          "route": "qr-revoke"
+        },
+        {
+          "expression": "preflight_rebind",
+          "kind": "missing-service",
+          "owner": "apps.boxes.rebind.preflight_rebind",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "preflight_rebind",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.rebind.preflight_rebind",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "preflight_rebind",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.rebind.preflight_rebind",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "preflight_rebind",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.rebind.preflight_rebind",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "preflight_rebind",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.rebind.preflight_rebind",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "rebind_qr_target",
+          "kind": "missing-service",
+          "owner": "apps.boxes.rebind.rebind_qr_target",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "rebind_qr_target",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.rebind.rebind_qr_target",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "rebind_qr_target",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.rebind.rebind_qr_target",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "rebind_qr_target",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.rebind.rebind_qr_target",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "rebind_qr_target",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.rebind.rebind_qr_target",
+          "route": "qr-rebind-target"
+        },
+        {
+          "expression": "services.generate_assets_with_qr",
+          "kind": "missing-service",
+          "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+          "route": "asset-generate"
+        },
+        {
+          "expression": "services.generate_assets_with_qr",
+          "kind": "noncallable-service",
+          "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+          "route": "asset-generate"
+        },
+        {
+          "expression": "services.generate_assets_with_qr",
+          "kind": "canonical-service",
+          "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+          "route": "asset-generate"
+        },
+        {
+          "expression": "services.generate_assets_with_qr",
+          "kind": "consumed-alias",
+          "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+          "route": "asset-generate"
+        },
+        {
+          "expression": "services.generate_assets_with_qr",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.operations.services_qr_assets.generate_assets_with_qr",
+          "route": "asset-generate"
+        },
+        {
+          "expression": "qr_write",
+          "kind": "missing-service",
+          "owner": "apps.boxes.qr_admission.qr_write",
+          "route": "asset-qr"
+        },
+        {
+          "expression": "qr_write",
+          "kind": "noncallable-service",
+          "owner": "apps.boxes.qr_admission.qr_write",
+          "route": "asset-qr"
+        },
+        {
+          "expression": "qr_write",
+          "kind": "canonical-service",
+          "owner": "apps.boxes.qr_admission.qr_write",
+          "route": "asset-qr"
+        },
+        {
+          "expression": "qr_write",
+          "kind": "consumed-alias",
+          "owner": "apps.boxes.qr_admission.qr_write",
+          "route": "asset-qr"
+        },
+        {
+          "expression": "qr_write",
+          "kind": "missing-consumed-alias",
+          "owner": "apps.boxes.qr_admission.qr_write",
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_declarations.py",
+      "function": "test_generation_rejects_barrel_object_substitution_even_with_same_service",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "forged_flags": false
+          },
+          {
+            "forged_flags": true
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_late_guard.py",
+      "function": "test_direct_late_assertion_without_actual_p_context_is_typed_unavailable",
+      "static_case_count": 16,
+      "static_case_products": [
+        {
+          "forged_flags": false,
+          "route": "qr-boxes"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-boxes"
+        },
+        {
+          "forged_flags": false,
+          "route": "qr-tools"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-tools"
+        },
+        {
+          "forged_flags": false,
+          "route": "qr-scan"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-scan"
+        },
+        {
+          "forged_flags": false,
+          "route": "qr-resolve"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-resolve"
+        },
+        {
+          "forged_flags": false,
+          "route": "qr-revoke"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-revoke"
+        },
+        {
+          "forged_flags": false,
+          "route": "qr-rebind-target"
+        },
+        {
+          "forged_flags": true,
+          "route": "qr-rebind-target"
+        },
+        {
+          "forged_flags": false,
+          "route": "asset-generate"
+        },
+        {
+          "forged_flags": true,
+          "route": "asset-generate"
+        },
+        {
+          "forged_flags": false,
+          "route": "asset-qr"
+        },
+        {
+          "forged_flags": true,
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_late_guard.py",
+      "function": "test_late_assertion_accepts_the_actual_p_boundary_without_tenant_gate_query",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_late_guard.py",
+      "function": "test_late_guard_revalidates_declaration_even_when_actual_p_is_held",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_late_guard.py",
+      "function": "test_actual_http_late_drift_is_translated_to_503_before_native_last_used_write",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_original_purge_ast_validator_still_accepts_its_separate_three_routes",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_purgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_makerspace_purge_confirmed"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_actual_purge_callback_is_non_atomic_csrf_protected_and_separately_owned",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup"
+        },
+        {
+          "route": "admin:makerspaces_purgereceipt_retry_cleanup"
+        },
+        {
+          "route": "admin:makerspaces_makerspace_purge_confirmed"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_purgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_makerspace_purge_confirmed"
+          }
+        ],
+        [
+          {
+            "attribute": "_non_atomic_requests",
+            "value": {
+              "items": [],
+              "python_type": "set"
+            }
+          },
+          {
+            "attribute": "csrf_exempt",
+            "value": true
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_actual_purge_callback_still_refuses_loss_of_non_atomic_or_csrf_fence",
+      "static_case_count": 6,
+      "static_case_products": [
+        {
+          "attribute": "_non_atomic_requests",
+          "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup",
+          "value": {
+            "items": [],
+            "python_type": "set"
+          }
+        },
+        {
+          "attribute": "csrf_exempt",
+          "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup",
+          "value": true
+        },
+        {
+          "attribute": "_non_atomic_requests",
+          "route": "admin:makerspaces_purgereceipt_retry_cleanup",
+          "value": {
+            "items": [],
+            "python_type": "set"
+          }
+        },
+        {
+          "attribute": "csrf_exempt",
+          "route": "admin:makerspaces_purgereceipt_retry_cleanup",
+          "value": true
+        },
+        {
+          "attribute": "_non_atomic_requests",
+          "route": "admin:makerspaces_makerspace_purge_confirmed",
+          "value": {
+            "items": [],
+            "python_type": "set"
+          }
+        },
+        {
+          "attribute": "csrf_exempt",
+          "route": "admin:makerspaces_makerspace_purge_confirmed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_purgereceipt_retry_cleanup"
+          },
+          {
+            "route": "admin:makerspaces_makerspace_purge_confirmed"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_real_admin_csrf_control_still_refuses_post_without_token",
+      "static_case_count": 3,
+      "static_case_products": [
+        {
+          "route": "admin:makerspaces_modulepurgereceipt_retry_cleanup"
+        },
+        {
+          "route": "admin:makerspaces_purgereceipt_retry_cleanup"
+        },
+        {
+          "route": "admin:makerspaces_makerspace_purge_confirmed"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_actual_print_item_post_keeps_default_source_n_protection",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_actual_qr_print_get_remains_a_read_without_source_gate_query",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_qr_containers_post_keeps_default_protection_despite_shared_view_class",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "method": "put"
+          },
+          {
+            "method": "delete"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py",
+      "function": "test_other_unsafe_methods_keep_ordinary_frozen_tenant_protection",
+      "static_case_count": 6,
+      "static_case_products": [
+        {
+          "method": "put",
+          "route": "qr-tools"
+        },
+        {
+          "method": "delete",
+          "route": "qr-tools"
+        },
+        {
+          "method": "put",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "delete",
+          "route": "qr-revoke"
+        },
+        {
+          "method": "put",
+          "route": "asset-qr"
+        },
+        {
+          "method": "delete",
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py",
+      "function": "test_actual_native_last_used_update_and_qr_audit_stay_under_same_p",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ],
+        [
+          {
+            "invalid": "revoked"
+          },
+          {
+            "invalid": "expired-row"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py",
+      "function": "test_reachable_invalid_claim_cleanup_updates_presence_and_audit_under_p",
+      "static_case_count": 16,
+      "static_case_products": [
+        {
+          "invalid": "revoked",
+          "route": "qr-boxes"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-boxes"
+        },
+        {
+          "invalid": "revoked",
+          "route": "qr-tools"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-tools"
+        },
+        {
+          "invalid": "revoked",
+          "route": "qr-scan"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-scan"
+        },
+        {
+          "invalid": "revoked",
+          "route": "qr-resolve"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-resolve"
+        },
+        {
+          "invalid": "revoked",
+          "route": "qr-revoke"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-revoke"
+        },
+        {
+          "invalid": "revoked",
+          "route": "qr-rebind-target"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "qr-rebind-target"
+        },
+        {
+          "invalid": "revoked",
+          "route": "asset-generate"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "asset-generate"
+        },
+        {
+          "invalid": "revoked",
+          "route": "asset-qr"
+        },
+        {
+          "invalid": "expired-row",
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [
+        [
+          {
+            "route": "qr-boxes"
+          },
+          {
+            "route": "qr-tools"
+          },
+          {
+            "route": "qr-scan"
+          },
+          {
+            "route": "qr-resolve"
+          },
+          {
+            "route": "qr-revoke"
+          },
+          {
+            "route": "qr-rebind-target"
+          },
+          {
+            "route": "asset-generate"
+          },
+          {
+            "route": "asset-qr"
+          }
+        ]
+      ],
+      "file": "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py",
+      "function": "test_valid_claim_policy_still_refuses_403_without_presence_cleanup_under_p",
+      "static_case_count": 8,
+      "static_case_products": [
+        {
+          "route": "qr-boxes"
+        },
+        {
+          "route": "qr-tools"
+        },
+        {
+          "route": "qr-scan"
+        },
+        {
+          "route": "qr-resolve"
+        },
+        {
+          "route": "qr-revoke"
+        },
+        {
+          "route": "qr-rebind-target"
+        },
+        {
+          "route": "asset-generate"
+        },
+        {
+          "route": "asset-qr"
+        }
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_source_structure.py",
+      "function": "test_api_delegation_precedes_tenant_resolution_and_only_retains_p_around_dispatch",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_source_structure.py",
+      "function": "test_late_api_guard_revalidates_and_reads_contextvar_before_ordinary_resolution",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    },
+    {
+      "dimensions": [],
+      "file": "backend/tests/qr_http_ownership_safety/test_source_structure.py",
+      "function": "test_invalid_claim_cleanup_really_precedes_refused_qr_policy_in_authentication",
+      "static_case_count": 1,
+      "static_case_products": [
+        {}
+      ]
+    }
+  ],
+  "static_counts_by_file": {
+    "backend/tests/qr_http_ownership_safety/test_auth_refusals.py": 200,
+    "backend/tests/qr_http_ownership_safety/test_declarations.py": 176,
+    "backend/tests/qr_http_ownership_safety/test_late_guard.py": 40,
+    "backend/tests/qr_http_ownership_safety/test_ordinary_controls.py": 22,
+    "backend/tests/qr_http_ownership_safety/test_p_auth_dispatch.py": 32,
+    "backend/tests/qr_http_ownership_safety/test_source_structure.py": 3
+  },
+  "test_function_count": 30,
+  "tradeoffs": [
+    "AST literal parameter products are authoring evidence, not pytest collection, execution, or a passing count. Root must collect/run the recorded command.",
+    "All patches change only a concrete misconfiguration value. No SourceLock, role, auth, permission, gate primitive or service admission guard is mocked. The inner observer middleware is inserted via settings and retains every production middleware in its original order.",
+    "Persisted native fixtures follow the existing device helper protocol and call the real token issuer to create refresh-family/token rows; the trusted fixture adds staff_api like the frozen staff JWT helper. No live attestation provider or login exchange is claimed.",
+    "P is discovered from fresh current-database pg_locks rows, then pg_stat_clear_snapshot precedes exact-PID activity inspection. Full lock metadata, raw backend SQL, worker SQL/params/PID, transaction continuity and exact exclusive blocking edges are recorded as JUnit properties.",
+    "P proof uses real successful execute results and event checkpoints at dispatch entry, auth UPDATE, real AuditLog INSERT and delegated response tail. Event waits are watchdogs only; exclusive lock exclusion is proven by pg_blocking_pids and ungranted exclusive pg_locks, without sleep-based winners or DB timeouts.",
+    "The Worker execute wrapper remains outside the SQL checkpoint observer, so its completed flag can still be false during the inner pause. The probe separately records completed=True only after the actual execute returns, with the raw backend PID; no attempted statement is represented as completed.",
+    "Auth refusal snapshots cover whole QR/domain/audit rows plus whole user, membership, grant, family, registration, claim and presence rows. Expected global auth/presence metadata writes are asserted separately from QR domain state.",
+    "Direct missing-P calls test typed SourceMigrationGateUnavailable and the real process_exception translator without claiming a bare DRF callback installs Django middleware. Full HTTP declaration drift and post-P late drift exercise actual middleware 503 translation.",
+    "No new permissions, scope expansion, fixtures in frozen directories, API/schema generation, registry/guard edits, staging or commits. Existing 25-scope/two-reversed/N-lifetime/four-423 matrices are referenced and combined, not recopied.",
+    "Three unrelated files changed concurrently outside this author scope; start/current hashes are retained. Approved three Stage 2 sources and all frozen QR suites/helpers stayed unchanged during this authoring turn."
+  ],
+  "unowned_concurrent_changes_observed": [
+    {
+      "current_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "start_sha256": "7612253e391b0be9fe2ddc3327db820c8bec0fff889c55d9afd667d525861a4e"
+    },
+    {
+      "current_sha256": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770",
+      "path": "backend/apps/tenant_migration/source_gate_http_guards.py",
+      "start_sha256": "855ca39cb0a43ee280b3476bc7a7a49c9e1d9d9174e77f19c51b367866637727"
+    },
+    {
+      "current_sha256": "f5e33c1bd7939eee8f9606c3de499c7c7ccf29e1b80f0f12d8ec1550cadacbf2",
+      "path": "backend/tests/test_host_operator_docker_boundary.py",
+      "start_sha256": "189825b5930bd2739700f22eabf8a6c2aa7dda8ef270309ebccf102a1f9486b7"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ export function invalidateInventoryViews(queryClient: QueryClient, makerspaceId:
 export function invalidatePublicInventory(queryClient: QueryClient, slug?: string) {
   queryClient.invalidateQueries({ queryKey: ["public-inventory"] });
   queryClient.invalidateQueries({ queryKey: ["public-inventory-detail"] });
+  queryClient.invalidateQueries({ queryKey: slug ? ["public-stats", slug] : ["public-stats"] });
   if (slug) {
     queryClient.invalidateQueries({ queryKey: ["public-categories", slug] });
     queryClient.invalidateQueries({ queryKey: ["tenant-bootstrap", slug] });

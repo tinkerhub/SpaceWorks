@@ -1,4 +1,5 @@
 ﻿from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from decimal import Decimal
 from threading import Barrier
 from types import SimpleNamespace
@@ -23,6 +24,7 @@ from apps.machines.models import (
     MachineType,
     MachineUsageEntry,
 )
+from apps.machines.printer_capabilities import PRINTER_CONFIG
 from apps.makerspaces import lifecycle as makerspace_lifecycle
 from apps.makerspaces.models import MakerspaceMembership
 from apps.operations.models import InventoryAdjustment
@@ -229,7 +231,7 @@ def test_machine_list_query_count_is_constant_as_machines_increase(
 
 @pytest.fixture(autouse=True)
 def mock_machine_document_storage(monkeypatch):
-    monkeypatch.setattr("apps.machines.storage.finalize_upload", lambda key, max_bytes: 123)
+    monkeypatch.setattr("apps.machines.storage.prepare_upload", lambda key: SimpleNamespace(size=123, content_type="application/pdf"))
     monkeypatch.setattr(
         "apps.machines.storage.validate_machine_object",
         lambda key: SimpleNamespace(size=123, content_type="application/pdf"),
@@ -245,7 +247,7 @@ def mock_machine_document_storage(monkeypatch):
     monkeypatch.setattr("apps.machines.storage.ext_for", lambda *args: "pdf")
     monkeypatch.setattr(
         "apps.machines.storage.machine_object_key",
-        lambda makerspace_id, ext: f"machines/{makerspace_id}/x.pdf",
+        lambda makerspace_id, machine_id, ext: f"machines/{makerspace_id}/{machine_id}/documents/{'a' * 32}.pdf",
     )
 
 
@@ -258,7 +260,25 @@ def enable_machines(makerspace):
 
 
 def global_machine_type(slug="3d_printer"):
-    return MachineType.objects.get(makerspace__isnull=True, slug=slug)
+    if slug == "3d_printer":
+        defaults = {
+            "name": "3D Printer",
+            "is_builtin": True,
+            "managing_action": "manage_printing",
+            "capability_config": deepcopy(PRINTER_CONFIG),
+        }
+    elif slug == "laser_cutter":
+        defaults = {
+            "name": "Laser Cutter",
+            "is_builtin": True,
+            "managing_action": "",
+            "capability_config": {"metering_unit": "minutes", "requires_booking": True},
+        }
+    else:
+        return MachineType.objects.get(makerspace__isnull=True, slug=slug)
+    return MachineType.objects.get_or_create(
+        makerspace=None, slug=slug, defaults=defaults,
+    )[0]
 
 
 def make_machine(makerspace, *, name="Machine One", machine_type=None, created_by=None):
@@ -319,7 +339,8 @@ def mock_machine_image_storage(monkeypatch, *, size=123):
         lambda object_key: public_image_storage._finalize_result(object_key, size),
     )
     monkeypatch.setattr(public_image_storage, "sniff_is_valid_image", lambda key: True)
-    delete = Mock()
+    monkeypatch.setattr(public_image_storage, "object_size", lambda key: size)
+    delete = Mock(return_value=True)
     monkeypatch.setattr(public_image_storage, "delete_object", delete)
     return delete
 
@@ -773,6 +794,7 @@ def test_only_machine_admin_or_type_manager_can_unretire():
     assert allowed.status_code == 200
     assert allowed.data["is_active"] is True
 
+@pytest.mark.django_db(transaction=True)
 def test_machine_documents_presign_finalize_list_url_delete_and_reuse_guard():
     makerspace = enable_machines(make_space("machines-documents"))
     manager = make_member("machines-documents-manager", makerspace)
@@ -814,7 +836,7 @@ def test_machine_documents_presign_finalize_list_url_delete_and_reuse_guard():
     )
 
     assert presign.status_code == 201
-    assert object_key == f"machines/{makerspace.id}/x.pdf"
+    assert object_key == f"machines/{makerspace.id}/{machine.id}/documents/{'a' * 32}.pdf"
     assert presign.data["upload"] == {"url": "http://x", "fields": {}}
     assert finalized.status_code == 201
     assert "object_key" not in finalized.data
@@ -823,7 +845,8 @@ def test_machine_documents_presign_finalize_list_url_delete_and_reuse_guard():
     assert all("object_key" not in row for row in response_rows(listed))
     assert signed.status_code == 200
     assert signed.data == {"url": "http://signed"}
-    assert duplicate.status_code == 400
+    assert duplicate.status_code == 201
+    assert duplicate.data["id"] == document.pk
     assert deleted.status_code == 204
     assert not MachineDocument.objects.filter(pk=document.pk).exists()
 
@@ -1094,6 +1117,7 @@ def test_machine_serializer_exposes_only_lightweight_warranty_status():
         assert field not in covered.data
 
 
+@pytest.mark.django_db(transaction=True)
 def test_machine_image_presign_finalize_delete_and_audit(
     monkeypatch, settings, django_capture_on_commit_callbacks
 ):
@@ -1159,6 +1183,7 @@ def test_machine_image_rejects_invalid_mime_without_calling_storage(monkeypatch)
     assert AuditLog.objects.count() == 0
 
 
+@pytest.mark.django_db(transaction=True)
 def test_machine_image_rejects_foreign_key_prefix(monkeypatch):
     mock_machine_image_storage(monkeypatch)
     makerspace = enable_machines(make_space("machines-image-prefix"))
@@ -1176,6 +1201,7 @@ def test_machine_image_rejects_foreign_key_prefix(monkeypatch):
     assert machine.image_key == ""
 
 
+@pytest.mark.django_db(transaction=True)
 def test_machine_image_rejects_key_reused_by_another_model(monkeypatch):
     mock_machine_image_storage(monkeypatch)
     makerspace = enable_machines(make_space("machines-image-reuse"))
@@ -1496,9 +1522,8 @@ def test_count_consumption_decrements_availability_and_overdraw_is_400():
 def test_concurrent_count_consumption_never_overdraws():
     makerspace = enable_machines(make_space("machine-consumables-concurrent"))
     manager = make_member("machine-consumables-concurrent-manager", makerspace)
-    # This test is transaction=True, so pytest-django flushes migration-seeded data
-    # (the global built-in MachineTypes); create an explicit type instead of relying
-    # on global_machine_type(), which is absent after another transactional test.
+    # Keep an explicit local type for concurrent-test isolation, independent of
+    # migration-seeded global MachineTypes and the helper's fallback creation.
     machine_type = MachineType.objects.create(
         makerspace=makerspace, slug="concurrent-type", name="Concurrent Type",
     )

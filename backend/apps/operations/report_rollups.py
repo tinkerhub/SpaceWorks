@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from apps.audit import services as audit
 from apps.evidence.models import EvidencePhoto
+from apps.evidence.report_expiry import terminal_expiry_counts
 from apps.hardware_requests.models import HardwareRequest, RequesterAccountability, ReturnEvent
 from apps.hardware_requests.self_checkout_models import PublicToolLoan
 from apps.operations.models import ReportMetricRollup, ReportRollupCursor
@@ -69,15 +70,17 @@ def _rollup_start(makerspace, cursor, through, requested):
 def _finalize_bucket(makerspace, start, end, actor):
     evidence = EvidencePhoto.objects.filter(makerspace=makerspace, created_at__gte=start, created_at__lt=end)
     attached_ids = _attached_ids(makerspace.id, evidence.values_list("id", flat=True))
+    expired = terminal_expiry_counts(evidence)
     facts = {}
     for row in evidence.values("evidence_type").annotate(created=Count("id"), bytes=Sum("size_bytes")):
         evidence_type = row["evidence_type"]
         created = row["created"]
         attached = len(attached_ids.get(evidence_type, set()))
+        expired_count = expired.get((timezone.localdate(start), evidence_type), 0)
         facts[evidence_type] = {
             "created_count": created, "attached_count": attached,
-            "unattached_count": created - attached, "object_live_count": created,
-            "object_expired_count": 0, "metadata_retained_count": created,
+            "unattached_count": created - attached, "object_live_count": created - expired_count,
+            "object_expired_count": expired_count, "metadata_retained_count": created,
             "bytes": row["bytes"] or 0,
         }
     changed = 0

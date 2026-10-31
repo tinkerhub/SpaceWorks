@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="source-setup-cold-cache-red" tests="3" failures="3" errors="0" skipped="0" time="5.119">
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build]" time="1.853">
+      <failure type="AssertionError" message="Preserved pre-fix cold infrastructure startup regression" />
+    </testcase>
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-tls]" time="1.220">
+      <failure type="AssertionError" message="Preserved pre-fix cold infrastructure startup regression" />
+    </testcase>
+    <testcase classname="tests.test_source_setup_cold_cache" name="test_source_setup_builds_apps_and_pulls_all_infrastructure_from_empty_cache[build-saas]" time="1.148">
+      <failure type="AssertionError" message="Preserved pre-fix cold infrastructure startup regression" />
+    </testcase>
+  </testsuite>
+</testsuites>

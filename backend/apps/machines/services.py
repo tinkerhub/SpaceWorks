@@ -1,4 +1,6 @@
 """Audited workflow services for machine mutations."""
+
+from apps.object_storage_lifecycle import storage_lifecycle
 from decimal import Decimal
 
 from django.db import transaction
@@ -12,7 +14,7 @@ from apps.machines.models import (
     Machine, MachineDocument, MachineErrorLog, MachineOperator, MachineUsageEntry,
 )
 from apps.makerspaces import limits
-from apps.makerspaces.guards import require_module_locked
+from apps.makerspaces.guards import require_module, require_module_locked
 
 
 def _retired(machine):
@@ -63,13 +65,26 @@ def machine_usage_total(machine):
     return machine.usage_entries.aggregate(total=Sum("hours"))["total"] or Decimal("0")
 
 
-@transaction.atomic
-def update_image(machine, actor, object_key):
-    # No tenant-wide lock: a `machine/` key is pinned to that prefix by the attach view,
-    # so only another Machine can claim it and this row lock is what serializes that.
+def update_image(machine, actor, object_key, *, size_bytes=None, guard=None):
+    with storage_lifecycle(machine.makerspace_id, guard=guard) as owned:
+        if size_bytes is None:
+            result = public_image_storage.finalize_upload(object_key)
+            if result.status != "ok":
+                raise ValidationError({"object_key": public_image_storage.finalize_error_message(result)})
+            size_bytes = result.size
+        owned.verify()
+        with transaction.atomic():
+            return _update_image(machine, actor, object_key, size_bytes=size_bytes, guard=owned)
+
+
+def _update_image(machine, actor, object_key, *, size_bytes, guard):
     machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
+    guard.verify(machine.makerspace_id)
+    require_module(machine.makerspace_id, "machines")
+    if not access.can_manage_machine(actor, machine):
+        raise PermissionDenied()
     old_key = machine.image_key
     if object_key and object_key != old_key and public_image_storage.public_image_key_in_use(
         machine.makerspace_id,
@@ -77,9 +92,12 @@ def update_image(machine, actor, object_key):
         machine_id=machine.pk,
     ):
         raise ValidationError({"object_key": "This image is already in use."})
+    if old_key == object_key:
+        return machine
+    limits.add_storage(machine.makerspace, size_bytes)
     if old_key and old_key != object_key:
         public_image_storage.release_public_image_on_commit(
-            machine.makerspace, old_key
+            machine.makerspace, old_key, guard=guard
         )
     machine.image_key = object_key
     machine.save(update_fields=["image_key", "updated_at"])
@@ -87,14 +105,24 @@ def update_image(machine, actor, object_key):
     return machine
 
 
-@transaction.atomic
-def remove_image(machine, actor):
+def remove_image(machine, actor, *, guard=None):
+    with storage_lifecycle(machine.makerspace_id, guard=guard) as owned:
+        owned.verify()
+        with transaction.atomic():
+            return _remove_image(machine, actor, guard=owned)
+
+
+def _remove_image(machine, actor, *, guard):
     machine = Machine.objects.select_for_update(of=("self",)).select_related("makerspace").get(
         pk=machine.pk
     )
+    guard.verify(machine.makerspace_id)
+    require_module(machine.makerspace_id, "machines")
+    if not access.can_manage_machine(actor, machine):
+        raise PermissionDenied()
     if machine.image_key:
         public_image_storage.release_public_image_on_commit(
-            machine.makerspace, machine.image_key
+            machine.makerspace, machine.image_key, guard=guard
         )
     machine.image_key = ""
     machine.save(update_fields=["image_key", "updated_at"])
@@ -201,44 +229,13 @@ def log_error(machine, actor, severity, message):
     return row
 
 
-@transaction.atomic
 def attach_document(machine, actor, object_key, doc_type, original_filename):
-    if doc_type not in MachineDocument.DocType.values:
-        raise ValidationError({"doc_type": "Invalid machine document type."})
-    storage.assert_machine_object_key_for_makerspace(object_key, machine.makerspace_id)
-    if MachineDocument.objects.filter(object_key=object_key).exists():
-        raise ValidationError("Evidence already used.")
-    from django.conf import settings
+    from apps.machines.document_lifecycle import attach_document as implementation
 
-    storage.finalize_upload(object_key, settings.MACHINE_DOC_MAX_BYTES)
-    result = storage.validate_machine_object(object_key)
-    doc = MachineDocument.objects.create(
-        machine=machine,
-        doc_type=doc_type,
-        object_key=object_key,
-        original_filename=original_filename,
-        content_type=result.content_type,
-        size_bytes=result.size,
-        uploaded_by=actor,
-    )
-    _audit(
-        machine,
-        actor,
-        "machine.document_added",
-        {"document_id": doc.pk, "doc_type": doc_type, "object_key": object_key},
-    )
-    return doc
+    return implementation(machine, actor, object_key, doc_type, original_filename)
 
 
-@transaction.atomic
 def remove_document(machine, actor, document):
-    object_key = document.object_key
-    document_id = document.pk
-    document.delete()
-    storage.delete_object(object_key)
-    _audit(
-        machine,
-        actor,
-        "machine.document_removed",
-        {"document_id": document_id, "object_key": object_key},
-    )
+    from apps.machines.document_lifecycle import remove_document as implementation
+
+    return implementation(machine, actor, document)

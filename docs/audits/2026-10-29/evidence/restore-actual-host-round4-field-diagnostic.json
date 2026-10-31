@@ -1,0 +1,65 @@
+{
+  "status": "actual-readonly-target-field-diagnostic",
+  "product_target_result": "refused",
+  "source_fixed_refusal": "Bundled SQL transport and application identity disagree.",
+  "field_matches": {
+    "name": {
+      "equal": true,
+      "owner_json_type": "str",
+      "product_probe_type": "str"
+    },
+    "oid": {
+      "equal": false,
+      "owner_json_type": "str",
+      "product_probe_type": "int"
+    },
+    "uuid": {
+      "equal": true,
+      "owner_json_type": "str",
+      "product_probe_type": "str"
+    },
+    "system": {
+      "equal": true,
+      "owner_json_type": "str",
+      "product_probe_type": "str"
+    }
+  },
+  "actual_role_probe": {
+    "maintenance": {
+      "system_available": true,
+      "system_type": "str",
+      "oid_type": "int",
+      "role_capabilities": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "application": {
+      "system_available": true,
+      "system_type": "str",
+      "oid_type": "int",
+      "role_capabilities": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "product_probe_system_available": true,
+  "actual_product_corroboration_sql_sha256": "2a1e8952b551a34e1245e1c8f869f81a062a350443c187c0461082ae93ee0970",
+  "source_admission_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+  "held_existing_root_host_lock": true,
+  "effects": [
+    "Two fixed SELECT-only maintenance oneoffs and their product tracked cleanup",
+    "Product db exec SELECT corroboration; no source/result rewriting"
+  ],
+  "limits": [
+    "No control, backup, grants, quiescence, restore SQL or protected-state writes",
+    "No successful restore claim; actual inspected raw fields/credentials withheld"
+  ]
+}

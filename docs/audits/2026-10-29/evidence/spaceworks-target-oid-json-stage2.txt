@@ -1,0 +1,20 @@
+Implemented and independently reread both files. Exactly two substitutions:
+
+- [host_restore_admission.py:238](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/host_restore_admission.py:238): `SELECT oid FROM pg_database` → `SELECT oid::bigint FROM pg_database`.
+- [restore.sh:24](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/scripts/restore.sh:24): admission SHA `55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2` → `92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837`.
+
+Every other byte remained unchanged, preserving all strict guards.
+
+Static review passed: admission/embedded-guard AST parsing, Bash syntax, exactly 25 wrapper entries, and all 25 hashes match.
+
+Resulting SHA-256:
+
+```text
+host_restore_admission.py
+92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837
+
+scripts/restore.sh
+85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668
+```
+
+No runtime, tests, collection, DB, Docker, provider, build, or install actions. Parent-owned source freezes untouched.

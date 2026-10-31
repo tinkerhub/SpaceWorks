@@ -23,6 +23,7 @@ from apps.operations.admin import QrPrintBatchItemInline
 from apps.operations.models import InventoryAdjustment, QrPrintBatch, StocktakeSession
 from apps.procurement.models import ToBuyItem
 from apps.procurement.services import stamp_status_change
+from apps.tenant_migration.gate_runtime import boundary_tenant_write
 from tests.return_helpers import make_space, make_user
 
 pytestmark = pytest.mark.django_db
@@ -98,7 +99,8 @@ def test_changing_the_domain_in_control_resets_verification():
     space.refresh_from_db()
     space.frontend_domain = "new.example"
     form = SimpleNamespace(changed_data=["frontend_domain"], cleaned_data={}, initial={"frontend_domain": "old.example"})
-    admin.site._registry[Makerspace].save_model(_request(), space, form, True)
+    with boundary_tenant_write(space.pk):
+        admin.site._registry[Makerspace].save_model(_request(), space, form, True)
     space.refresh_from_db()
     assert space.frontend_domain_changed_at is not None
     # Self-host verifies a superadmin's domain at once; managed hosting sends it back to pending.
@@ -114,7 +116,8 @@ def test_re_pasting_the_same_domain_keeps_it_verified():
     space.refresh_from_db()
     # The raw "https://Alpha.example" differs from the initial value but normalises to it.
     form = SimpleNamespace(changed_data=["frontend_domain"], cleaned_data={}, initial={"frontend_domain": "alpha.example"})
-    admin.site._registry[Makerspace].save_model(_request(), space, form, True)
+    with boundary_tenant_write(space.pk):
+        admin.site._registry[Makerspace].save_model(_request(), space, form, True)
     space.refresh_from_db()
     assert (space.frontend_domain_status, space.frontend_domain_changed_at) == (Makerspace.DomainStatus.VERIFIED, None)
 
@@ -187,7 +190,11 @@ def test_print_batch_items_are_read_only():
     request = _request()
     assert not inline.has_add_permission(request, None)
     assert not inline.can_delete
-    assert {"qr_code", "target_type", "target_id"} <= set(inline.get_readonly_fields(request))
+    projection = ("qr_code_display", "label_text", "target_type", "target_id", "sort_order")
+    assert inline.get_fields(request) == projection
+    assert inline.get_readonly_fields(request) == projection
+    assert "qr_code" not in inline.get_fields(request)
+    assert "qr_code" not in inline.get_readonly_fields(request)
 
 
 def test_tenancy_is_fixed_once_a_row_exists():

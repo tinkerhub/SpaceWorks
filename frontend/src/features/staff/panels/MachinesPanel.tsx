@@ -176,6 +176,7 @@ export function MachinesPanel({
 
       {shownType ? (
         <MachineTypePage
+          key={shownType.id}
           makerspaceId={makerspaceId}
           canManage={canManage}
           machineServiceEnabled={machineServiceEnabled}

@@ -1,0 +1,10 @@
+**APPROVED. No mandatory revisions.** This approves the Stage 1 delta; implementation remains unverified.
+
+- Resolve currently creates `SCANNER_LOOKUP` without audit. Capture that scan and record exactly one `qr.scanned` using `request.user`, the QR makerspace/target, and its context/scan ID, inside the existing `admitted_qr` atomic boundary. Let audit failure propagate so both inserts roll back.
+- Preserve resolve DTO, `VIEW_INVENTORY`, 404 denials, read lookup/Print GET, and explicit Scan’s existing single audit.
+- Add dedicated write-error annotations to the six named QR mutations: **423** `tenant_migration_quiesced`, **503** `tenant_migration_gate_unavailable`. Add only those two responses to AssetGenerate; keep Print GET unchanged.
+- Stage 3 separately verifies real actor/makerspace/target/meta and real Audit INSERT followed by refusal rolling back both rows, while retaining strict 423/native/scope and no-write contracts.
+
+Apply after the source writer finishes; keep touched source ≤300 lines. Schema/types remain root-owned.
+
+Read-only inspection only; no edits, runtime execution, tests, builds, or staging.

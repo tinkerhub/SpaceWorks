@@ -1,0 +1,5 @@
+One concrete correction remains in item 2: **explicitly lock the related `BackupRun` row through publication commit**, then validate its holder, permitted status, and exact typed cohort from that locked row.
+
+The makerspace table fence does not protect `BackupRun`. A plain recheck still allows concurrent failure after validation but before publication: [`_fail_run` and `_fail_stale_runs`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/services_runs.py:163) update run status independently. Use `select_for_update()` in a lock order compatible with existing run-before-archive callers, and add a planned concurrency case covering this race.
+
+The other four corrections are safe and concrete. No tests run or files edited.

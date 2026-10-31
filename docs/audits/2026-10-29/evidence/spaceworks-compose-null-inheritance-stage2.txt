@@ -1,0 +1,13 @@
+Implemented only the authorized two-file delta:
+
+- `host_restore_admission.py`: **+12/−2 lines**, now 255 lines. Missing/null entrypoints inherit inspected image defaults; application commands require a list before slicing. Inventory inherits command/entrypoint only for missing/`None`, preserving literal explicit values.
+- `scripts/restore.sh`: **one SHA replacement only**. Exact 25-entry set and all other guards unchanged.
+
+Re-read both files after writing. AST parsing, hash verification, and `bash -n` passed. All other admission checks and their order remain unchanged.
+
+New admission SHA-256:
+```text
+55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2
+```
+
+No application imports, tests, runtime operations, staging, or commits. Runtime validation and freeze remain with the parent.

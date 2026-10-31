@@ -1,0 +1,56 @@
+{
+  "status": "completed_after_clean_final_review",
+  "final_review_proof": "final-independent-review-round6.json",
+  "final_review_sha256": "d36090071d88c6603062d1cc765ef099f1bf9b734ba7c8e4e4e36dceee790486",
+  "removed": [
+    {
+      "id": "9618e2a63813653551435322b19551c4a2b4dff93bfdd24baff082f34f126c69",
+      "name": "spaceworks-merge-backup-db",
+      "exit_code": 0,
+      "seconds": 2.377,
+      "signal": "TERM",
+      "force_remove": false,
+      "remove_volumes": false
+    },
+    {
+      "id": "d71fd1af54020ae4e5d6f27a3f9a320f7b4410aa4f7d58ac206f0503ccc82091",
+      "name": "spaceworks-final-backup-redis-20261030",
+      "exit_code": 0,
+      "seconds": 1.107,
+      "signal": "TERM",
+      "force_remove": false,
+      "remove_volumes": false
+    },
+    {
+      "id": "c0b7ab34e8ed7c0638ae707646659454411daa2e14d7e8038188e3bf6a12c9e6",
+      "name": "spaceworks-final-backup-minio-20261030",
+      "exit_code": 0,
+      "seconds": 0.655,
+      "signal": "TERM",
+      "force_remove": false,
+      "remove_volumes": false
+    }
+  ],
+  "additional_removed": 3,
+  "previous_manually_removed_obsolete_containers": 80,
+  "total_manually_removed_obsolete_containers": 83,
+  "all52_original_volumes_preserved": true,
+  "current_volumes": 52,
+  "all_original_images_networks_preserved": true,
+  "all27_other_container_ids_preserved": true,
+  "QA_preview_retained": [
+    "spaceworks-fix-ui",
+    "spaceworks-fix-db",
+    "spaceworks-minio",
+    "spaceworks-merge-test-redis"
+  ],
+  "travel_esim_seo_and_other_projects_untouched": true,
+  "commands_excluded": [
+    "docker system prune",
+    "docker volume prune",
+    "docker image prune",
+    "docker rm -v",
+    "docker rm --force"
+  ],
+  "owner_QA_pending": true
+}

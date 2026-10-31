@@ -12,9 +12,12 @@ import {
   type QrResolveResponse,
   type ScannedPayload,
 } from "./DirectLoanTypes";
+import { useHardwareQrVisit } from "./useHardwareQrVisit";
 import { isQrNotRecognised, qrResolveErrorText } from "./evidenceUi";
 
 type DirectLoanItemsProps = {
+  disabled?: boolean;
+  canEdit?: () => boolean;
   products: ProductOption[];
   productsLoading: boolean;
   /** `null` when the `containers` module is off: no container picker at all. */
@@ -35,25 +38,39 @@ type DirectLoanItemsProps = {
  * The parent remounts this (key) after each issue, which also clears scanner state.
  */
 export function DirectLoanItems(props: DirectLoanItemsProps) {
-  const { products, productsLoading, containers, containersLoading, containerId, onContainerChange, lines, setLines, scanned, setScanned, qrPayloads, onQrPayloadsChange } = props;
+  const { disabled = false, canEdit = () => !disabled, products, productsLoading, containers, containersLoading, containerId, onContainerChange, lines, setLines, scanned, setScanned, qrPayloads, onQrPayloadsChange } = props;
   const [scanner, setScanner] = useState<"items" | "container" | null>(null);
   const [containerScanError, setContainerScanError] = useState("");
   const [itemScanError, setItemScanError] = useState("");
+  const qr = useHardwareQrVisit("direct-loan-items", () => !disabled && canEdit());
+  const cameraVisit = qr.cameraVisit;
+  const closeScanner = () => {
+    if (!qr.canEdit() || !qr.cameraCurrent(cameraVisit)) return;
+    qr.closeCamera(); setScanner(null);
+  };
+  const openScanner = (kind: "items" | "container") => {
+    if (!qr.canEdit()) return;
+    qr.openCamera(); setScanner(kind);
+  };
   const productById = new Map(products.map((product) => [product.id, product]));
 
-  const addLine = () => setLines((rows) => [...rows, { key: Math.max(0, ...rows.map((row) => row.key)) + 1, productId: "", quantity: "1" }]);
+  const addLine = () => qr.canEdit() && setLines((rows) => [...rows, { key: Math.max(0, ...rows.map((row) => row.key)) + 1, productId: "", quantity: "1" }]);
   const updateLine = (key: number, patch: Partial<LineDraft>) =>
-    setLines((rows) => rows.map((line) => (line.key === key ? { ...line, ...patch } : line)));
-  const removeLine = (key: number) => setLines((rows) => rows.filter((line) => line.key !== key));
+    qr.canEdit() && setLines((rows) => rows.map((line) => (line.key === key ? { ...line, ...patch } : line)));
+  const removeLine = (key: number) => qr.canEdit() && setLines((rows) => rows.filter((line) => line.key !== key));
 
-  const handleScan = async (payload: string) => {
+  const handleScan = async (payload: string, camera?: number) => {
+    const scan = qr.capture(camera);
+    if (!scan) return;
     const cleanPayload = payload.trim();
     if (!cleanPayload || scanned.some((item) => item.payload === cleanPayload)) return;
     let label = cleanPayload;
     try {
       const result = await staffRequest<QrResolveResponse>("/admin/qr/resolve", { method: "POST", body: JSON.stringify({ payload: cleanPayload }) });
+      if (!qr.current(scan)) return;
       label = labelForTarget(result.target, cleanPayload);
     } catch (error) {
+      if (!qr.current(scan)) return;
       // 403 and 404 both mean "not a code of this site" (see isQrNotRecognised): say so
       // and leave it out. Any other failure keeps the code as typed for the server to judge.
       if (isQrNotRecognised(error)) {
@@ -62,13 +79,17 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
       }
       label = cleanPayload;
     }
+    if (!qr.current(scan)) return;
     setItemScanError("");
     setScanned((items) => (items.some((item) => item.payload === cleanPayload) ? items : [...items, { payload: cleanPayload, label }]));
   };
 
-  const handleContainerScan = async (payload: string) => {
+  const handleContainerScan = async (payload: string, camera: number) => {
+    const scan = qr.captureSingleCamera(camera);
+    if (!scan) return;
     try {
       const result = await staffRequest<QrResolveResponse>("/admin/qr/resolve", { method: "POST", body: JSON.stringify({ payload }) });
+      if (!qr.current(scan)) return;
       const target = result.target;
       if (target.type !== "box") {
         setContainerScanError("That QR code isn't a container. Scan the label on the container.");
@@ -81,9 +102,10 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
       onContainerChange(String(target.id));
       setContainerScanError("");
     } catch (error) {
+      if (!qr.current(scan)) return;
       setContainerScanError(qrResolveErrorText(error, "Could not read that QR code. Try again or pick the container from the list."));
     } finally {
-      setScanner(null);
+      if (qr.current(scan)) { qr.closeCamera(); setScanner(null); }
     }
   };
 
@@ -92,14 +114,14 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
       {containers ? <div className="grid gap-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
           <Field label="Container" optional className="min-w-0 flex-1">
-            <Dropdown id="direct-loan-container" value={containerId} disabled={containersLoading} onChange={(event) => onContainerChange(event.target.value)}>
+            <Dropdown id="direct-loan-container" value={containerId} disabled={disabled || containersLoading} onChange={(event) => { if (qr.canEdit()) { qr.closeCamera(); setScanner(null); onContainerChange(event.target.value); } }}>
               <option value="">No container</option>
               {containers.map((container) => (
                 <option key={container.id} value={container.id}>{container.label}</option>
               ))}
             </Dropdown>
           </Field>
-          <Button startIcon={<ScanLine />} onClick={() => { setContainerScanError(""); setScanner("container"); }}>
+          <Button startIcon={<ScanLine />} disabled={disabled} onClick={() => { if (qr.canEdit()) { setContainerScanError(""); openScanner("container"); } }}>
             Scan container
           </Button>
         </div>
@@ -107,14 +129,14 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
       </div> : null}
 
       <div className="grid gap-3">
-        <SectionHeading as="h3" title="Items" action={<Button size="sm" startIcon={<Plus />} onClick={addLine}>Add item</Button>} />
+        <SectionHeading as="h3" title="Items" action={<Button size="sm" startIcon={<Plus />} disabled={disabled} onClick={addLine}>Add item</Button>} />
         {lines.length === 0 ? <p className="text-body-ui text-ink-muted">No counted items. Add one, or scan QR codes below.</p> : null}
         {lines.map((line) => {
           const product = productById.get(Number(line.productId));
           const individual = product?.tracking_mode === "individual";
           return (
             <div key={line.key} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px_auto] sm:items-start">
-              <Dropdown aria-label="Product" value={line.productId} disabled={productsLoading} onChange={(event) => updateLine(line.key, { productId: event.target.value })}>
+              <Dropdown aria-label="Product" value={line.productId} disabled={disabled || productsLoading} onChange={(event) => updateLine(line.key, { productId: event.target.value })}>
                 <option value="">Inventory item</option>
                 {products.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -122,8 +144,8 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
                   </option>
                 ))}
               </Dropdown>
-              <Input aria-label="Quantity" min={1} inputMode="numeric" type="number" value={line.quantity} disabled={individual} onChange={(event) => updateLine(line.key, { quantity: event.target.value })} />
-              <IconButton label="Remove item" variant="quiet" onClick={() => removeLine(line.key)}>
+              <Input aria-label="Quantity" min={1} inputMode="numeric" type="number" value={line.quantity} disabled={disabled || individual} onChange={(event) => updateLine(line.key, { quantity: event.target.value })} />
+              <IconButton label="Remove item" variant="quiet" disabled={disabled} onClick={() => removeLine(line.key)}>
                 <Trash2 />
               </IconButton>
               {product ? (
@@ -137,14 +159,14 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
       </div>
 
       <div className="grid gap-3">
-        <SectionHeading as="h3" title="QR codes" action={<Button size="sm" startIcon={<QrCode />} onClick={() => { setItemScanError(""); setScanner("items"); }}>Scan QR</Button>} />
+        <SectionHeading as="h3" title="QR codes" action={<Button size="sm" startIcon={<QrCode />} disabled={disabled} onClick={() => { if (qr.canEdit()) { setItemScanError(""); openScanner("items"); } }}>Scan QR</Button>} />
         <ErrorText message={itemScanError} />
         {scanned.length ? (
           <ul className="flex flex-wrap gap-2" aria-label="Scanned QR codes">
             {scanned.map((item) => (
               <li key={item.payload} className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-fill py-0.5 pl-3 pr-0.5 text-sm font-semibold text-ink-secondary">
                 <span className="min-w-0 [overflow-wrap:anywhere]">{item.label}</span>
-                <IconButton label={`Remove ${item.label}`} variant="quiet" size="sm" onClick={() => setScanned((items) => items.filter((entry) => entry.payload !== item.payload))}>
+                <IconButton label={`Remove ${item.label}`} variant="quiet" size="sm" disabled={disabled} onClick={() => { if (qr.canEdit()) setScanned((items) => items.filter((entry) => entry.payload !== item.payload)); }}>
                   <X />
                 </IconButton>
               </li>
@@ -152,12 +174,12 @@ export function DirectLoanItems(props: DirectLoanItemsProps) {
           </ul>
         ) : null}
         <Field label="QR payloads" optional helperText="For codes you can't scan: paste one per line.">
-          <Textarea className="font-mono text-sm" rows={3} placeholder="One QR payload per line" value={qrPayloads} onChange={(event) => onQrPayloadsChange(event.target.value)} />
+          <Textarea className="font-mono text-sm" rows={3} placeholder="One QR payload per line" value={qrPayloads} disabled={disabled} onChange={(event) => { if (qr.canEdit()) onQrPayloadsChange(event.target.value); }} />
         </Field>
       </div>
 
-      {scanner === "items" ? <QrScanner onScan={handleScan} onClose={() => setScanner(null)} /> : null}
-      {scanner === "container" ? <QrScanner onScan={handleContainerScan} onClose={() => setScanner(null)} /> : null}
+      {scanner === "items" ? <QrScanner onScan={(payload) => handleScan(payload, cameraVisit)} onClose={closeScanner} /> : null}
+      {scanner === "container" ? <QrScanner onScan={(payload) => handleContainerScan(payload, cameraVisit)} onClose={closeScanner} /> : null}
     </div>
   );
 }

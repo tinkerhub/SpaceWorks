@@ -1,0 +1,19 @@
+{
+  "format": "spaceworks-legacy-digest-fixture-repair-v1",
+  "stage3_cli_exit": 0,
+  "scope": "Only four storage-facts lines in existing _manifest helper; all other file bytes unchanged",
+  "runtime_status": "Not run; parent full suite still active against immutable prior snapshot; no pass claim",
+  "files": [
+    {
+      "path": "backend/tests/backup/test_archive_digests.py",
+      "lines": 298,
+      "sha256": "6949778379c5a753a91529683fb802bd04820c6d50f8e965bb17537ba55a838a",
+      "prior_sha256": "fc9f6bdfb678741282a07d9dae37d72770bbdb2197f32f6d009c2cc1248d0bcf"
+    }
+  ],
+  "preserved_test_functions": [
+    "test_preflight_rejects_altered_declared_bundle_file",
+    "test_preflight_accepts_v1_manifest_without_content_ledger"
+  ],
+  "guard_policy": "No app/env/validator/mock/skip/protocol change; empty objects with canonical private/public_image kinds only"
+}

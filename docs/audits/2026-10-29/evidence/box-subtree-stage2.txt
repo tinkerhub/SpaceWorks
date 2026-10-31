@@ -1,0 +1,14 @@
+Implemented the bounded HW002 addendum and frozen.
+
+| Exact modified path | Lines |
+|---|---:|
+| `backend/apps/boxes/contents.py` — new | 39 |
+| `backend/apps/hardware_requests/direct_loan_workflow.py` | 240 |
+| `backend/apps/hardware_requests/self_checkout_helpers.py` | 261 |
+| `backend/apps/boxes/api_views_eligibility.py` | 109 |
+
+Checkout and scanner now share the makerspace-scoped refusal predicate: AVAILABLE assets throughout the subtree, or nonarchived positive product stock in descendants only.
+
+Static AST comparison confirmed unchanged traversal, container-only guard, direct-root issuance, occupancy/overlap checks, and evidence → makerspace lock flow. All four files parse, remain ≤300 lines, and pass scoped `git diff --check`.
+
+Only these four files were edited. No runtime, tests, builds, schema, migrations, provider actions, staging, commits, or resets.

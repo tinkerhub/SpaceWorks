@@ -1,0 +1,348 @@
+{
+  "status": "passed",
+  "scope": "Exactly two protected bundle-install and installed-layout test files against the public reviewed 60-file copy descriptor. No private descriptor overlay.",
+  "descriptor": {
+    "path": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze.json",
+    "sha256": "3c9cf63c561b9a83c15f1ce75b3972c44ae11b8e35d29bf406f3a7064ba35d57",
+    "source_files": 65,
+    "guard_dependencies": 25,
+    "copy_files": 60,
+    "new_copy_member": "scripts/provision-runtime-image.py",
+    "new_copy_member_installed_mode": "0644",
+    "all_descriptor_hashes_match_current_tested_source": true
+  },
+  "source": {
+    "initial_frozen_files": 4836,
+    "initial_inventory_sha256": "14277e4d72053eb5f83dcca14090acdc3b8155d91dd933c0270a3e662d78d5a8",
+    "final_frozen_files": 4836,
+    "final_inventory_sha256": "52a5eb0bb294b5c93922f71337be2140f9be2181eebd0095216cc94f48f383ae",
+    "only_fixture_overlay_path": "backend/tests/backup/recovery_bundle_support.py",
+    "fixture_before_sha256": "355432ca6076f2990024ca42c0e552af01c1c97d9e2a85ce9154ac3cedaf038c",
+    "fixture_after_sha256": "46029ac6e5e06179c5260591e1eb8d5828ba324a1d832049e3cd7d32b48c2dc8",
+    "all_other_source_test_descriptor_bytes_modes_unchanged": true,
+    "all_case_ids_identical": true,
+    "case_count": 25,
+    "duplicates": 0
+  },
+  "fixture_repair": {
+    "root_independently_approved": true,
+    "lines_added": 3,
+    "reason": "Construct the intended readable root-owned code fixture under the private runner umask, so real nobody processes reach the actual installer and root guard.",
+    "scope": "Only directories below the freshly copied controlled code fixture receive0755; no outside ancestor/private authority/data path chmod.",
+    "production_guard_assertions_harness_umask_and_deadlines_unchanged": true,
+    "original_23_pass_2_failure_history_preserved": true
+  },
+  "runtime": {
+    "initial": {
+      "cases": 25,
+      "passed": 23,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 1,
+      "driver_seconds": 82.109,
+      "pytest_seconds": 72.77,
+      "collection_sha256": "382e3011926761dccadd065bac8304dff416afb912c1df043593317f35f49745",
+      "frozen_inputs_sha256": "ced9f412f67492539d9c2aac945519cce75dbd7693acae3516764908b0ec55b0",
+      "raw_private_xml_sha256": "c2b4f50d2d8da145218e0f60e5de62cc88c5a7202032fa12b77b5578569e5e79",
+      "closed_source_modes_inputs_env_cli_verified_before_after": true,
+      "sanitized_xml": "runtime-image-copy60-initial-fixture-failures-20261031.xml",
+      "sanitized_xml_sha256": "b8ee5ab5f70fe74a6a8482270e5cca149bdeb6edaa834595a6bb1da74bc75318",
+      "all_outcomes": [
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_actual_installer_copies_exact_reviewed_files_preserves_private_state_and_backups",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[fifo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_changed_guarded_source_or_broken_checker_refuses_before_backup_creation",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[duplicate]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[traversal]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[unknown]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[nonliteral]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[digest]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_actual_nonroot_bundle_install_retains_caller_ownership_without_conversion",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_correct_copied_layout_help_and_missing_environment_have_no_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_poisoned_valid_timestamp_bytecode_is_ignored_without_cache_writes",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[altered]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[fifo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[owner]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[writable]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_real_nobody_process_cannot_use_otherwise_correct_root_bundle",
+          "outcome": "failures"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_operator_owned_ancestor_refuses_even_when_invoked_by_root",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_linked_code_directory_refuses_before_python_import",
+          "outcome": "passed"
+        }
+      ]
+    },
+    "final": {
+      "cases": 25,
+      "passed": 25,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pytest_exit_code": 0,
+      "driver_seconds": 126.72,
+      "pytest_seconds": 115.745,
+      "collection_sha256": "382e3011926761dccadd065bac8304dff416afb912c1df043593317f35f49745",
+      "frozen_inputs_sha256": "7cd3a6cf4226147af2f3284dfcf19c326c80b0e26ae0877fcc6afb2949605904",
+      "raw_private_xml_sha256": "48b8c4d315aea47e0d700d1f3998f9ad16f23bfc3f840557202e5fe976cc44e3",
+      "closed_source_modes_inputs_env_cli_verified_before_after": true,
+      "sanitized_xml": "runtime-image-copy60-current-20261031.xml",
+      "sanitized_xml_sha256": "5fa82158f50eb7e816260c5a1698b37303f429c14537984d851343563802f0a0",
+      "all_outcomes": [
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_actual_installer_copies_exact_reviewed_files_preserves_private_state_and_backups",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_every_dependency_checker_and_original_fixed_entry_preflight_before_effects[fifo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_changed_guarded_source_or_broken_checker_refuses_before_backup_creation",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[duplicate]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[traversal]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[unknown]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[nonliteral]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_guard_contract_is_data_and_cannot_expand_copy_set[digest]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_bundle_install",
+          "name": "test_actual_nonroot_bundle_install_retains_caller_ownership_without_conversion",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_correct_copied_layout_help_and_missing_environment_have_no_effects",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_poisoned_valid_timestamp_bytecode_is_ignored_without_cache_writes",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[missing]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[altered]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[symlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[hardlink]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[fifo]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[owner]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_each_guarded_dependency_refuses_before_controller_import[writable]",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_real_nobody_process_cannot_use_otherwise_correct_root_bundle",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_operator_owned_ancestor_refuses_even_when_invoked_by_root",
+          "outcome": "passed"
+        },
+        {
+          "classname": "tests.backup.test_recovery_installed_layout",
+          "name": "test_linked_code_directory_refuses_before_python_import",
+          "outcome": "passed"
+        }
+      ]
+    }
+  },
+  "controls": [
+    "Actual staged installer copies the exact reviewed files with ownership/modes and preserves private files and backups.",
+    "Every copy dependency is independently made missing/symlink/hardlink/FIFO and must refuse before effects.",
+    "Guard-contract malformed literal/path/hash mutations cannot expand the copy set.",
+    "Real nonroot installer retains caller ownership without conversion; real nobody restore invocation reaches and is refused by the root-only guard.",
+    "Every guarded dependency fails missing/altered/link/owner/writable checks before controller import.",
+    "Poisoned timestamp bytecode is ignored without cache writes; linked/owned ancestor refusals remain enforced."
+  ],
+  "environment": {
+    "platform": "Linux",
+    "effective_uid": 0,
+    "pytest_cases_request_database": false,
+    "driver_secondary_database_port": 55433,
+    "cache_database": 12,
+    "broker_database": 14,
+    "daemon_socket_mounted": false,
+    "provider_network_io_required": false,
+    "private_minio_restarted": false,
+    "per_test_deadlines_unchanged": true
+  },
+  "limits": [
+    "Finite packaging and refusal proof only; this does not perform a new restore.",
+    "Backend live-provider tests are separate evidence and are not claimed green by this proof.",
+    "Original actual7 image/source capture/success and canonical metadata remain unchanged."
+  ]
+}

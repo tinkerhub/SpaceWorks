@@ -1,5 +1,7 @@
 from django.apps import apps
+from django.http import Http404
 
+from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.origin_scope_model_lookups import (
     BASE_MODEL_LOOKUPS,
     TARGET_SET_LOOKUPS,
@@ -68,9 +70,13 @@ NATIVE_HEADER_GLOBAL_ROUTES = {
     'push-device-list-create',
     'push-device-detail',
 }
+# Only these account-history routes resolve a public slug/code as an authoritative
+# tenant target. Other public slug routes retain their existing classifications.
+OWN_REQUEST_HISTORY_ROUTES = {'own-requests', 'public-own-machine-service-requests'}
 REQUEST_ACTIONS = {
     'request-accept',
     'request-reject',
+    'request-cancel',
     'request-assign-box',
     'request-issue',
     'request-return-due',
@@ -87,6 +93,7 @@ MACHINE_SERVICE_ACTIONS = {
     'admin-machine-service-request-fail',
     'admin-machine-service-request-collect',
     'admin-machine-service-request-record-manual-payment',
+    'admin-machine-service-request-reprint',
     'admin-machine-service-file-presign',
     'admin-machine-service-file-finalize',
 }
@@ -179,6 +186,7 @@ def _authoritative_route_targets(request, view=None):
         or (url_name == 'admin-makerspace' and 'pk' in kwargs)
         or url_name in MODEL_LOOKUPS or url_name in TARGET_SET_LOOKUPS
         or url_name in QUERY_SCOPED_ROUTES or url_name in NATIVE_HEADER_GLOBAL_ROUTES
+        or url_name in OWN_REQUEST_HISTORY_ROUTES
         or url_name in ORIGIN_FILTERED_ROUTES)
     route_value = None
     if registered:
@@ -194,7 +202,12 @@ def _authoritative_route_targets(request, view=None):
         if parsed is not None:
             targets.add(parsed)
 
-    if url_name in MODEL_LOOKUPS:
+    if url_name in OWN_REQUEST_HISTORY_ROUTES:
+        try:
+            targets.add(get_public_makerspace(kwargs.get('makerspace_slug')).pk)
+        except Http404:
+            invalid = True
+    elif url_name in MODEL_LOOKUPS:
         pk = kwargs.get(model_lookup_kwarg(url_name))
         resolved = _lookup_makerspace_id(url_name, pk) if pk is not None else None
         invalid = invalid or resolved is None

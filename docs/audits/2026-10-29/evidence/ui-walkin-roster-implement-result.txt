@@ -1,0 +1,14 @@
+Implemented the approved source-only change.
+
+Creation receipts now block duplicate POSTs. Refresh retries retain the original owner; selection requires a real successful canonical roster read containing the returned user ID. Pause, cancellation and stale completion release local work without cancelling shared reads.
+
+Changed files and SHA-256:
+
+- [WalkInMemberForm.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/WalkInMemberForm.tsx) — 165 lines  
+  `862b168eb189a03309ea0fd818cd3fc96dc0e0e98dd600707713e202201609cb`
+- [refreshWalkInRoster.ts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/staff/refreshWalkInRoster.ts) — 97 lines  
+  `b420ded198232fe30bcd3c38af94cd266944d1738a13b71236387f995b8aaabb`
+
+Readback and whitespace checks completed; both files remain under 300 lines. Existing hardware test hashes are unchanged, and `CLAUDE.md`/`AGENTS.md` remain identical.
+
+No tests, TSC, build, runtime, staging, commit or push performed. Stage 3 and combined runtime verification remain pending.

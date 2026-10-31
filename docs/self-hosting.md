@@ -2,16 +2,27 @@
 
 This project is Docker-first for operators who do not want to build Django or Vite locally.
 
+For a new makerspace, use the official
+[SpaceWorks-Labs project and its current installation guide](https://github.com/SpaceWorks-Labs/SpaceWorks).
+This checkout is TinkerHub's customized edition. Its release archives, images and host runtime must
+come from a compatible release of that edition; do not combine an upstream image with this checkout's
+host scripts. The unreleased 0.9.0 host bundle requires its matching future release archive.
+
 ## Pinned curl install
 
 The supported fresh-install path needs no Git clone:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/SpaceWorks-Labs/SpaceWorks/main/install.sh | bash
 ```
 
 The installer defaults to `/opt/spaceworks`; override it on the `bash` process with, for example,
-`curl -fsSL https://raw.githubusercontent.com/SpaceWorks-HQ/SpaceWorks/main/install.sh | SPACEWORKS_DIR="$HOME/SpaceWorks" bash`.
+`curl -fsSL https://raw.githubusercontent.com/SpaceWorks-Labs/SpaceWorks/main/install.sh | SPACEWORKS_DIR="$HOME/SpaceWorks" bash`.
+These commands fetch the official project's installer. For this customized edition, obtain its
+installer from the selected compatible tagged release, configure `SPACEWORKS_REPOSITORY` and both
+image names explicitly, or use the source-build instructions below. Public availability of this
+edition's published images has not been established by the local audit; private registries need
+their normal authentication. Existing configured installations are not switched by these links.
 It resolves the latest tagged GitHub release,
 downloads that tag's archive, and pins the published backend/frontend images to its immutable version.
 Before mutating the host it checks x86_64/aarch64 support, distribution/dependency handling, Docker,
@@ -29,7 +40,11 @@ Use the production Compose file when deploying published images:
 cp .env.example .env
 # Fill the required values, then provision the root-owned pointer/key/config state once.
 bash scripts/init-host-orchestration.sh
-scripts/spaceworks-compose.sh bundled up -d
+scripts/spaceworks-compose.sh bundled pull
+# Rebind after the final pull, which may have moved the backend tag.
+bash scripts/init-host-orchestration.sh
+unset SPACEWORKS_OCI_DIGEST
+scripts/spaceworks-compose.sh bundled up -d --pull never
 ```
 
 Set these values before first boot. The guided installer generates all of them; by hand, replace every
@@ -86,6 +101,14 @@ source tree can explicitly build locally:
 bash setup.sh --build
 ```
 
+Source setup pulls infrastructure images before building the apps, while startup still forbids implicit pulls.
+
+Source setup clears any stale `SPACEWORKS_OCI_DIGEST` and prints recovery instructions. A local build
+has no claimed registry identity, so signed FULL deployment backups refuse before source capture.
+Ordinary makerspace backups remain available. To enable FULL, publish and pull the actual backend
+image, select that repository/tag, then provision and refresh configuration as described below;
+neither the Docker config Id nor a tag is a repository digest.
+
 For a guided first run that generates secrets, the atomic pointer and `.env`, use the curl installer or
 `setup.sh` at the repo root (see [setup-for-makerspaces.md](setup-for-makerspaces.md)).
 
@@ -101,6 +124,12 @@ Bash and PowerShell are not supported — the production host scripts need Linux
 > access.
 
 ## First Run
+
+For checked-in borrowing, the guided installer asks for a staff username and password as the
+credentials. It leaves the admin email empty and skips Google sign-in configuration. Visitors use
+the eligible check-in roster without an account or second factor; staff sign in with their own
+username and password. Other request modes retain the email and optional Google prompts. See
+[check-in setup](checkin-mode.md).
 
 Create the first superadmin and makerspace:
 
@@ -275,7 +304,7 @@ On hosts with `flock`, the updater also holds the shared host operation-lock ino
 missing, update falls back to the existing directory lock, recording its owner PID and start timestamp.
 A dead owner is detected and cleared on the next run. A live or unreadable owner is never silently
 discarded: after verifying no update is active, pass `--override-lock`. This fallback covers update only;
-`scripts/restore.sh` and the other compound recovery supervisors require `flock`.
+`scripts/restore.sh` and the recovery supervisors require `flock`.
 
 For a manual deployment, set `MAKERSPACE_IMAGE_TAG` to a release such as
 `0.5.1-main.42.a1b2c3d4e5f6`, then run:
@@ -283,13 +312,67 @@ For a manual deployment, set `MAKERSPACE_IMAGE_TAG` to a release such as
 ```bash
 bash scripts/init-host-orchestration.sh
 scripts/spaceworks-compose.sh bundled pull
-scripts/spaceworks-compose.sh bundled up -d
+bash scripts/init-host-orchestration.sh
+unset SPACEWORKS_OCI_DIGEST
+scripts/spaceworks-compose.sh bundled up -d --pull never
 ```
 
 Do not schedule a blind container watcher: application images must not restart without the migration
 service and readiness gate. Manual dependency audit: `pip install pip-audit && pip-audit -r backend/requirements.txt`.
 
 ### Host configuration changes
+
+Published-image setup and init automatically inspect the pulled backend image and atomically persist
+its actual repository digest in `SPACEWORKS_OCI_DIGEST`, preserving unrelated `.env` bytes and secrets,
+ownership and mode `0600`. The host helper requires Python 3's standard library and Docker access;
+the backend gets neither Docker access nor the host socket. It validates the common backend
+entrypoint, requires one distinct digest for the selected repository, and checks the image again
+before persistence. Standard `docker.io`/`index.docker.io` and implicit `library` aliases are normalized;
+other registries must match explicitly. Missing or ambiguous RepoDigests refuse without changing `.env`.
+Docker documents [repository digests and immutable pulls](https://docs.docker.com/reference/cli/docker/image/pull/).
+The [Compose startup reference](https://docs.docker.com/reference/cli/docker/compose/up/) documents the
+`--pull never` policy used below.
+
+Guided setup provisions again after its last Compose pull and refreshes trusted records before
+starting with `--pull never`. Later setup restarts also forbid implicit pulls. Post-provision host
+helpers likewise use [`docker run --pull=never`](https://docs.docker.com/reference/cli/docker/container/run/#set-the-pull-policy---pull);
+a missing cached image refuses before startup instead of pulling another image. The updater clears an
+inherited OCI override, provisions in its init child after deployment begins, and starts with
+`--pull never`; the persisted environment supplies its identity. Rollback re-provisions the previous
+actual backend and refreshes only trusted Compose records before startup. Failure in either step
+blocks rollback startup. The previous producer proof is restored byte-for-byte, never regenerated;
+forward database migrations stay in place and the pre-update database backup is retained.
+
+For manual bundled operation, pull all required images before the final
+`bash scripts/init-host-orchestration.sh`, unset inherited `SPACEWORKS_OCI_DIGEST`, then use
+`scripts/spaceworks-compose.sh bundled up -d --pull never`. Do not pull or build again between final
+provisioning and startup. An unavailable admitted image must fail startup instead of being repulled.
+
+For an already initialized cloud topology, provision its explicit durable env file after all image
+pulls, then refresh its existing trusted record before startup (substitute the exact backend tag and
+your established paths/group; keep the existing database pointer and producer proof):
+
+```bash
+backend_image=ghcr.io/spaceworks-hq/spaceworks-backend:YOUR_RELEASE_TAG
+docker pull "$backend_image"
+sudo python3 -I -B scripts/provision-runtime-image.py \
+  --env-file /etc/spaceworks/cloud.env --image "$backend_image"
+unset SPACEWORKS_OCI_DIGEST
+docker run --rm --user 0:0 --entrypoint python \
+  -v "$PWD:/repo:ro" -v /etc/spaceworks:/config:ro \
+  -v /var/lib/spaceworks/ops:/ops "$backend_image" \
+  /repo/scripts/configure-compose-wrapper.py record-config \
+  --topology cloud --static-env /config/cloud.env \
+  --pointer /ops/database-pointer.env --record /ops/compose-topology.json \
+  --compose-file /repo/docker-compose.cloud.yml --reader-gid "$(id -g)"
+sudo scripts/spaceworks-compose.sh cloud up -d --pull never
+```
+
+The selected cloud backend image/tag must match `cloud.env`. Initial cloud environment rendering
+must be completed before this sequence; provisioning changes that file's fingerprint, so the trusted
+record must be refreshed afterwards. The helper refuses symlinked, hardlinked, non-private or unsafe
+dotenv inputs and duplicate OCI assignments. On a persistence/fsync refusal, resolve the error and
+rerun provisioning plus record refresh before startup. Never hand-fill a digest-shaped placeholder.
 
 Any edit to `.env` or a Compose file selected for the active topology/layer requires rerunning
 `bash scripts/init-host-orchestration.sh` before using the Compose wrapper again.
@@ -330,6 +413,24 @@ fingerprints only `.env` and the selected Compose files.
 
 ### Upgrade notes: manual steps per release
 
+**2026-10: migration-package capability fingerprint (unreleased).** The producer capability now
+includes source/data files within installed migration packages, including extracted SQL helpers and
+nested helper modules; compiler caches are excluded. An upgraded image can require capability
+regeneration even when numbered migrations are unchanged. Install the reviewed matching image and
+host bundle through the normal initialization/update flow. Migration-byte drift continues to refuse
+backup production: do not hand-edit the marker or replace its digest with a version label. No database
+migration is required for this fingerprint correction.
+
+**2026-10: actual runtime OCI identity (unreleased).** Adopt the release's host bundle through the
+pinned curl installer to install `scripts/provision-runtime-image.py` and the updated setup/updater.
+Published setup/update now provision `SPACEWORKS_OCI_DIGEST` automatically; existing manual bundled
+hosts must rerun init after pulling, and cloud hosts must provision their `cloud.env` and refresh
+trusted records using [Host configuration changes](#host-configuration-changes). Recreate application
+containers with `--pull never` so they receive the provisioned environment. Source builds clear the
+digest and cannot create signed FULL archives until their actual backend is published and pulled.
+No database migration is required. Rollback refuses startup when the old image identity or trusted
+record refresh fails, and preserves the old producer proof instead of issuing a new one.
+
 A plain `bash scripts/update.sh` (and the runner deploy, which calls the installed copy) pulls new
 images, migrates and restarts. From the release after 0.8.5-main.11 it also brings
 `deploy/Caddyfile` and `deploy/Caddyfile.saas` up to the release being deployed (downloaded from that
@@ -341,6 +442,248 @@ and prints a warning; merge it by hand, then recreate Caddy as above. An `update
 release performs the same check. Hosts on 0.8.5-main.11 or older run their installed updater, which
 lacks this step, so apply the notes below by hand once, or rerun the curl installer and choose an
 update (which installs the new updater and applies the same unedited-only rule).
+
+**2026-10: backend signal handling (unreleased).** Base, production and cloud Compose now
+`exec` Gunicorn after successful `collectstatic`, so Docker's SIGTERM reaches Gunicorn directly.
+Existing hosts must rerun the [pinned curl installer](#pinned-curl-install) and choose update to adopt
+the release's host bundle; an ordinary update replaces images only. Refresh the trusted topology per
+[Host configuration changes](#host-configuration-changes), then recreate the backend through
+`scripts/spaceworks-compose.sh bundled up -d --force-recreate backend` (use `cloud` instead of
+`bundled` for cloud hosts), preserving the configured layer. This change requires no database migration.
+
+**2026-10: security environment forwarding (unreleased).** Base, production and cloud Compose
+now forward the complete existing scoped-PII and signed-client settings through their shared
+application environments. Previously ignored `PII_ENCRYPTION_ENABLED=True` and
+`API_CLIENT_AUTH_REQUIRED=True` values now become effective: inspect existing configuration before
+restarting any process. Defaults still leave both features off and keys blank. PII activation
+**requires the [staged rollout](scoped-pii-encryption.md#dual-read-rollout-sequence)**, including
+independent keys, preflight, fencing, exclusive fleet replacement, backfill and readiness verification;
+do not simply flip the flag or perform a rolling mixed-flag restart. Preserve the previous local
+wrapping key during rotation. KMS additionally needs the optional dependency and operator IAM access
+documented in that runbook; forwarding settings does not establish provider readiness.
+
+Signed-client enforcement rejects unsigned requests on `HMAC_PROTECTED_PATH_PREFIXES` when they lack
+existing accepted client authentication, including browser requests to those routes. Existing
+browser/publishable-client authentication and middleware exemptions still apply. Keep
+`API_CLIENT_AUTH_REQUIRED=False` unless ingress is deliberately configured for signed clients;
+never distribute `HMAC_SECRET` to a browser or frontend.
+After adopting the Compose changes or editing operator configuration, rebuild the trusted records
+with `bash scripts/init-host-orchestration.sh` as described under
+[Host configuration changes](#host-configuration-changes), before the planned restart. Bootstrap and
+orchestration-ready environments remain minimal and receive no application secrets.
+
+**2026-10: staged upload policy (unreleased).** POST and PUT uploads now target `staging/`;
+accepted final objects are never client-writable. Existing installations need the release's host
+runtime bundle, not only new application images: rerun the pinned curl installer and choose update
+(see [Host configuration changes](#host-configuration-changes)). The bundle adds
+`deploy/init-object-buckets.sh`, mounted by both bundled Compose files. After adoption, apply its
+policy to existing buckets:
+
+```bash
+bash scripts/init-host-orchestration.sh
+scripts/spaceworks-compose.sh bundled up -d --force-recreate createbuckets
+```
+
+The bootstrap honors custom bucket names, preserves private evidence and signed staging reads, and
+denies anonymous public-image staging reads including historical versions. Final-file cleanup now requires
+verified enabled versioning and exact version identities, plus backend `s3:GetBucketVersioning`,
+`s3:ListBucketVersions` and `s3:DeleteObjectVersion` permissions. This prevents deleting a newly imported or
+reattached object after a stale cleanup check. Unsupported/disabled versioning leaves bytes in place
+and grants no quota credit. Use a versioned S3-compatible backend for complete production cleanup;
+weak-provider upload/read compatibility does not imply equivalent deletion guarantees. A partial
+cleanup failure may conservatively overcount usage until an operator reconciles it. Tenant storage
+changes serialize under a dedicated advisory lock connection in addition to the source boundary;
+include those pinned connections when sizing the database pool.
+
+New machine manual, warranty and receipt presigns bind the exact resource ID. Existing attached
+legacy files remain readable/deletable; an unfinished legacy-flat upload must be uploaded again for
+its intended resource. A raw User/membership cascade with profile/project images is refused: clear
+the images through their normal guarded paths before deleting the account or membership.
+
+External S3-compatible storage needs the equivalent staging policy. Already-issued legacy direct-final upload URLs remain valid
+until their original expiry; stop issuing them before changing releases and allow their configured
+TTL to pass. Backup capture now falls back to staging only when the final object is genuinely absent;
+permission, transport, version or integrity failures abort capture rather than substituting bytes.
+
+**2026-10: production-flow audit fixes (unreleased).** Apply all migrations before starting web and
+worker processes: the certificate trigger migration permits cancellation/recovery while retaining
+immutable certificate snapshots. Restart workers with the web release. Pending exports now recover
+after their deadline, expire download tokens at archive expiry, and retain their object locator when
+byte deletion fails; a broker dispatch outage returns 503 with the job ID, so check that job before
+submitting another export. Backup reconciliation respects an active producer operation lock.
+
+Backup publication now verifies the encrypted staging object in a private, seekable temporary
+file before the storage SDK uploads it. Budget an additional encrypted-archive-sized file in
+the producer or reconciliation container's writable temporary storage. Memory use stays bounded;
+insufficient temporary space fails publication. Default SDK checksums, size/hash verification
+and create-only final-object protection remain enabled.
+
+Integration health now includes per-room diagnostics for enabled chat channels, including disabled
+rooms and legacy configuration. It exposes configuration state and safe failure reasons rather than
+webhook credentials. Storage recalculation includes event-series images and activated certificate
+PDFs, including revoked issued PDFs retained for accountability. API-client usage telemetry retries
+detached Redis buckets after worker/database failure; it remains best-effort within its two-day Redis
+retention and never substitutes for the durable audit log.
+
+Run `recompute_storage` as a top-level management command outside any transaction (autocommit on).
+It pauses writes for each selected tenant while draining existing writers, reading canonical
+records/storage and committing that tenant's counter; schedule it during maintenance, especially for
+large tenants or slow storage. Recovery, migration and unfinished purge states refuse reconciliation.
+A storage read failure leaves the counter unchanged. If commit acknowledgement is lost, the outcome is
+uncertain: rerun for a fresh scan before relying on the total.
+
+Accepted procurement receipts and warranty documents now charge their validated final byte size
+against finite managed storage limits when their metadata is attached. Repeating a successful
+attachment does not charge it again. Only an actual managed debit records local provenance in the
+immutable added audit event. Explicit or cascading deletion can release that debit once after
+successful deletion of a nonempty accepted data-version snapshot and an unreferenced-key check.
+Failed, empty or marker-only snapshots and legacy, foreign, source-prefixed or unproven events grant
+no invented credit. Procurement module purge freezes proven receipt obligations in managed mode before strict
+byte-first cleanup and settles them with its graph checkpoint; later cleanup retries cannot refund
+again. A pending payable receipt refuses graph settlement if accounting mode or provenance changes;
+a new self-host purge keeps its legacy zero-credit behavior. Whole-tenant purge deletes the Maker
+and needs no additional refund.
+`recompute_storage` preserves valid live unreleased proof amounts even when HEAD sees missing or
+changed bytes; legacy/unproven documents retain HEAD-only reconciliation. There is no automatic
+callback retry queue. Ordinary deletion failures can leave usage conservatively high; use the existing
+`recompute_storage` command for operator reconciliation. Unfinished module purges retain their explicit
+receipt retry and block reconciliation until resolved. Self-host/unlimited behavior is unchanged;
+this is not a billing change. These document quota changes are unreleased.
+
+Evidence expiry credits only a proven local debit for the accepted bytes. Legacy, imported or
+otherwise unproven records can expire without a quota credit; reconciliation uses actual retained
+objects instead of trusting a declared upload size. Retention keeps the immutable evidence metadata
+and audit trail after deleting eligible object versions.
+
+Before tenant purge, take a fresh database backup. Purge uses an explicit two-step confirmation/retry
+in `/control/`. The first confirmed attempt commits irreversible purge intent and reports the fixed
+retry time; it prevents reopening the tenant. A storage outage retains the tenant graph and cleanup
+locators for retry. Successful graph removal creates a read-only purge receipt with the last verified
+storage time. An already-admitted upload can finish after its URL expires, so retain the receipt and
+use its explicit superadmin retry if late bytes remain. Retry refuses restored/current tenant IDs,
+changed storage origins, active references, recovery or invalidated authority. Receipts never run
+as background jobs; restored receipt authority is invalidated before readiness. Purge and receipt
+cleanup require complete object-version listing/deletion support.
+
+**0.9.0: hardware handover safeguards (unreleased).** Individually tracked tools must be repaired or
+scrapped through their individual unit status actions; aggregate repair quantities cannot reconcile
+their physical units. Box QR checkout supports quantity stock stored directly in that box.
+Individually tracked tools require their own unit QR scans. A parent box with available stock in
+nested containers requires explicit contents selection, so lending the parent cannot leave nested
+hardware recorded as available. Staff can select a container separately; containers remain optional.
+
+Public self-checkout and staff direct loans must use their respective return flows. Reviewed-request
+returns no longer accept their backing requests. A public loan with previously resolved or inconsistent
+stock history refuses automatic settlement to prevent another debit or credit. Investigate and
+reconcile that historical ledger with verified physical stock; retrying or editing a status alone is
+not a repair. Existing photos, scan records and audit history must remain intact.
+
+Evidence compliance reports distinguish terminal byte expiry from retained metadata, including old
+rolled periods. Their byte metric is recorded historical metadata, not current storage/quota usage;
+the live-reference count does not prove that an upload exists. See [report semantics](evidence-reporting.md).
+
+**0.9.0: request status, cancellation and machine alerts (unreleased).** Apply the new hardware,
+encryption and notification-choice migrations before restarting web and worker processes. Staff with
+request-review authority may cancel accepted requests only before handover, with a protected reason;
+inconsistent reservations refuse atomically instead of being repaired. Check-in visitors retain private
+status links without accounts or another roster lookup; a typed name cannot recover lost history.
+Signed-in personal accounts can view their own requests without an active community membership.
+Printing and generic machine Telegram alerts now default on when configured. Existing explicit off
+preferences remain off; no credentials or preference rows are overwritten. Review
+[notification controls](notifications-setup.md) and [check-in status access](checkin-mode.md).
+
+**0.9.0: checked-in setup credentials (unreleased).** New guided installs using checked-in borrowing
+ask for staff username and password, leave the admin email empty, and skip Google configuration.
+Reusing an existing `.env` introduces no identity-setting changes. Blank-password generation and its
+existing one-time display remain available. Public visitors continue to use the eligible roster
+without an account or second factor; staff authentication and permissions are unchanged.
+On macOS, cleanup of the retired `updates` tombstone now replaces the old assignment while
+preserving other keys, comments and surviving module labels, matching Linux behavior.
+
+**0.9.0: walk-in account conversion (unreleased).** Conversion waits until every linked makerspace
+is writable, including links through inactive or revoked memberships. Credentials and claim-created
+presence change together or remain unchanged. A multi-makerspace attempt from a dedicated origin
+may need a fresh attempt from the central origin to preserve lock order. Native password changes
+show a retry message; OIDC callbacks return the typed source-gate refusal.
+
+Rejected claim tokens still return the generic authentication failure. Defensive cleanup of
+inconsistent legacy presence waits for its actual makerspace to become writable; deferred cleanup
+never restores token access. Normal claim revocation already ends matching presence atomically,
+and normal presence expiry is bounded by the claim deadline.
+
+**0.9.0: archive reads across split storage endpoints (unreleased).** Backend downloads and
+maintenance archive exports now read through `AWS_S3_ENDPOINT_URL`. Browser presigning continues
+to use `AWS_S3_PUBLIC_ENDPOINT_URL`. Redeploy the updated backend image for all application and
+maintenance roles; updating the host bundle alone does not install this fix.
+
+**0.9.0: module deletion and restore proofs (unreleased).** Module purges also retain a durable,
+source-local receipt. Storage versions are removed before the frozen graph; provider failure keeps
+that graph and its cleanup locators. Pending intents block reinstall, capture and storage recalculation.
+Successful deletion settles only the original verified charge obligations. Explicit late-byte retries
+are available to an active superadmin in `/control/`, grant no additional quota credit, and refuse
+changed tenants, references, recovery generations or storage origins. Receipts are excluded from
+portable exports and invalidated by recovery; never copy one as deletion authority. There is no force
+rebind. A changed frozen graph requires a verified pre-intent recovery point or deliberate whole-tenant
+purge. See [module deletion](MODULES.md#deleting-a-modules-data).
+
+Compound captures and static artifact validation now require protocol 2 and independently frozen source
+facts. Older compound protocol-1 input is refused with an upgrade message. This does not install a
+sovereign compound restore coordinator: the installed host refuses compound restoration, including
+protocol 2. See the [supported recovery formats](#supported-recovery-formats) below.
+Lane D version-2 restores authenticate the selected
+outer artifact and inner projection proof on every invocation, including resumes without API-client
+reissue. They copy and verify `database.dump` into a private, invocation-owned file before effects and
+recheck it immediately before restore. Budget an additional dump-sized temporary file under the
+operations directory, plus full copy/hash I/O. Insufficient disk or fsync failure refuses safely.
+Actual version-1 Lane D artifacts remain explicitly legacy-unverified and cannot reissue API clients.
+
+The supervised restore tail retains rollback object rows, bytes and their quota instead of invoking a
+second cleanup process while holding the operation lock. Expiry or explicit standalone cleanup
+requires a confirmed completed restore and normal recovery state under the same source/operation
+fences. Failed and aborted restores retain their copies and quota; expiry alone cannot prove recovery
+completed. Never edit a restore stage to force deletion.
+
+Expiry traversal records a private, non-authoritative cursor at
+`BACKUP_OPS_DIR/rollback-cleanup-progress.json`. Keep it in the runtime-owned shared work directory,
+not beside the separately mounted root-owned operation lock. Retained or frozen rows do not starve later
+eligible cleanup. A `rollback_cleanup_progress_unconfirmed` diagnostic means some individual cleanup
+may already have completed: preserve the actual cleaned/skipped counts, repair local permissions or
+capacity, and retry. Settled rows prevent duplicate quota credit. Refresh the installed host bundle with
+this release so scripts and application agree; retained rollback usage is expected.
+
+Browser session recovery now requires a per-tab intended-identity pin. Existing sessions without one,
+and genuinely new tabs without an inherited pin, require an explicit sign-in once. The pin contains
+identity/context identifiers, never an access or refresh token. A late refresh cookie belonging to a
+previous account cannot select that account after reload. Browsers with blocked session storage may
+operate in memory only after an older pin is safely invalidated; an unconfirmed durable sign-out is
+reported truthfully. This does not promise independent persistent accounts in different tabs sharing
+one refresh-cookie jar.
+
+A central staff frontend must be declared in `PLATFORM_STAFF_ORIGINS`. A verified makerspace custom
+domain intentionally scopes every actor, including superadmins, to that space. For a shared console,
+configure its exact HTTPS origin as a platform staff origin and review any conflicting dedicated-domain
+assignment. Do not bypass tenant-origin checks to make the chooser work.
+
+Email quota refusals are terminal skipped deliveries (`daily_email_limit_reached`), including legacy
+failed rows with that refusal. Waiting until the next day does not retry that old dispatch; a new
+logical notification needs its own quota reservation. Queued chat deliveries recheck their current
+destination and scope before sending. Provider transport retries still reuse an already reserved
+email slot.
+
+Online payment conversion now validates exact provider minor units before creating or starting a
+charge. `backend/apps/payments/currency_rules.py` holds the complete published provider catalogues:
+[Stripe charge currencies](https://docs.stripe.com/currencies), including its
+[three-decimal currencies](https://support.stripe.com/questions/which-payments-methods-and-products-are-available-in-the-uae),
+and [Razorpay currencies](https://razorpay.com/docs/payments/international-payments/).
+The ledger retains two major-unit decimal places, so exact values such as KWD 1.23 convert to 1230
+minor units; KWD 1.234 is refused. Three-decimal fees round HALF_UP to a quantum of 10 minor units
+and are capped at the charge (a 5000-bps fee on KWD 1.23 is 620). That quantum is local ledger
+policy, not a universal Stripe API restriction; Razorpay separately requires a trailing zero for
+[three-decimal payment-link amounts](https://razorpay.com/docs/api/payments/payment-links/create-standard/).
+Unsupported currencies or fractions are refused; offline recording is unchanged. Existing pending
+charges with an invalid legacy fee snapshot need operator reconciliation rather than a new checkout
+link or a rewritten financial snapshot. Provider account/country currency availability still applies:
+the published catalogues do not guarantee that every account can charge every listed currency.
 
 **2026-10: public machine service by type.** No migration or environment change. Public clients can
 choose a machine type and submit an unassigned job; staff choose its machine later. Enable public
@@ -565,7 +908,9 @@ The installer (`setup.sh`) generates every secret marked *generated* below and w
 you; this table is for checking or hand-editing it. Values reach the backend only through the
 `environment:` block of the Compose file, so a variable listed as *not forwarded* has no effect when
 set in `.env` on the bundled stack. After any `.env` edit, rerun `bash scripts/init-host-orchestration.sh`
-and `scripts/spaceworks-compose.sh bundled up -d`.
+and `scripts/spaceworks-compose.sh bundled up -d --pull never`. Unset an inherited
+`SPACEWORKS_OCI_DIGEST` before launching. For PII activation, use the fenced fleet-switch
+procedure below instead of an ordinary restart.
 
 **Secrets that must be set, and backed up, in production:**
 
@@ -577,8 +922,9 @@ and `scripts/spaceworks-compose.sh bundled up -d`.
 | `BACKUP_AGE_RECIPIENT`, `BACKUP_ARCHIVE_SIGNING_PRIVATE_KEY`, `BACKUP_ARCHIVE_VERIFY_PUBLIC_KEY` | yes (the age identity lives in `/var/lib/spaceworks/ops/work/age-identity.txt`) | Backups and tenant exports refuse to run. Without the age identity a backup cannot be decrypted |
 | `POSTGRES_PASSWORD`, `POSTGRES_APP_PASSWORD`, `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD` | yes | The stack does not start |
 
-Keep an offline copy of `.env` and the age identity file. A restore writes the archived continuity keys
-(`SECRET_KEY`, `API_CLIENT_ENC_KEY`, `AUDIT_MAC_MASTER_KEY`, …) back into `.env`.
+Keep an offline copy of `.env` and the age identity file. Supported signed FULL disaster recovery can
+install the archived continuity keys (`SECRET_KEY`, `API_CLIENT_ENC_KEY`, `AUDIT_MAC_MASTER_KEY`, …).
+Non-reset rollback instead requires the archive to match the installed keys.
 
 | Variable | Required | Purpose |
 |---|---|---|
@@ -592,6 +938,20 @@ Keep an offline copy of `.env` and the age identity file. A restore writes the a
 | `PUBLIC_APP_BASE_URL` | yes | Absolute frontend base URL for links in email (invitations, member-area and machine-job links) and payment returns. Unset falls back to `http://localhost:5000`. Password reset sends a code, not a link |
 | `API_CLIENT_ENC_KEY` | yes | See the secrets table above |
 | `AUDIT_MAC_MASTER_KEY` | yes | See the secrets table above |
+| `PII_ENCRYPTION_ENABLED` | no (default `False`) | Opt-in scoped PII encryption; requires the complete [staged rollout](scoped-pii-encryption.md#dual-read-rollout-sequence) |
+| `PII_ENCRYPTION_DUAL_READ` | no (default `True`) | Allows legacy plaintext reads during the bounded rollout window |
+| `PII_KEY_BROKER` | no (default `local`) | Existing `local` or `aws_kms` wrapping broker; KMS requires `backend/requirements-kms.txt` and operator IAM encrypt/decrypt access |
+| `PII_MASTER_KEY` | for enabled local broker (default empty) | Independent wrapping secret; back up separately from the search, API-client and audit keys |
+| `PII_MASTER_KEY_PREVIOUS` | during local wrapping-key rotation (default empty) | Retained old wrapping key until rewrap and verification finish; see the runbook's rotation procedure |
+| `PII_SEARCH_HASH_KEY` | for enabled encryption (default empty) | Independent search secret bound to the persisted search generation; preserve for recovery |
+| `PII_DEK_CACHE_TTL_SECONDS` | no (default `300`) | In-process DEK cache lifetime in seconds |
+| `PII_AWS_KMS_KEY_ID` | for `aws_kms` broker (default empty) | KMS key or alias; local master-key settings are unused with this broker |
+| `PII_AWS_KMS_REGION`, `PII_AWS_KMS_ENDPOINT_URL` | no (both default empty) | Optional KMS region and approved compatible endpoint |
+| `API_CLIENT_AUTH_REQUIRED` | no (default `False`) | Rejects unsigned requests lacking existing accepted client authentication on configured protected prefixes; existing middleware exemptions apply. Leave off unless signed-client ingress is intentional; never give browser clients the HMAC secret |
+| `HMAC_CLIENT_ID`, `HMAC_SECRET` | for legacy signed-client configuration (both default empty) | Server-side legacy client credentials, separate from `API_CLIENT_ENC_KEY` |
+| `HMAC_MAX_CLOCK_SKEW_SECONDS` | no (default `300`) | Allowed signed-request timestamp skew in seconds |
+| `APICLIENT_REQUIRE_NONCE` | no (default `False`) | Requires a nonce on signed-client requests |
+| `HMAC_PROTECTED_PATH_PREFIXES` | no (default `/api/public/,/api/v1/public/`) | Comma-separated protected route prefixes; widening requires registered routes. See [API client protocol](api-client-protocol.md) |
 | `TOMBSTONED_APPS` | no | App labels whose runtime surfaces are removed deployment-wide; get the line from `manage.py suggest_tombstones` |
 | `GITHUB_API_TOKEN` | no | Enables the GitHub contribution count on maker profiles. Not forwarded by the bundled Compose files yet |
 | `TELEGRAM_BOT_TOKEN` | no | Deployment-wide fallback bot for makerspaces without their own token. Not forwarded by `docker-compose.prod.yml`; set tokens in the console ([notifications-setup.md](notifications-setup.md)) |
@@ -599,6 +959,7 @@ Keep an offline copy of `.env` and the age identity file. A restore writes the a
 | `SPACEWORKS_REPOSITORY` | no (default `SpaceWorks-HQ/SpaceWorks`) | GitHub `owner/repo` whose latest release the host follows; fresh installs derive image names from its lowercased owner |
 | `MAKERSPACE_BACKEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-backend`) | Backend image name without a tag; set explicitly for a fork on an existing host |
 | `MAKERSPACE_FRONTEND_IMAGE` | no (default `ghcr.io/spaceworks-hq/spaceworks-frontend`) | Frontend image name without a tag; keep it paired with the backend image |
+| `SPACEWORKS_OCI_DIGEST` | for signed FULL backup | Actual backend repository digest, exactly `sha256:` plus 64 lowercase hex digits. Host setup/init/update provision it after pulling; manual/cloud hosts use the host helper and refresh trusted records before startup. Source builds clear it; never substitute config Id or tag. |
 | `SPACEWORKS_DEPLOY_RUNNER` | repository variable for automatic deploys | Set `true` in GitHub Actions variables after runner setup; `false` disables automatic deployment jobs. This is not a host `.env` setting |
 | `CHECKIN_API_URL` | for `checked_in` mode, unless every such makerspace sets its own roster | **Deployment default** public upstream roster URL; matching establishes presence eligibility, not identity. A makerspace can set its own roster URL in **Settings → Domain & access → Check-in** (or `set_request_access --checkin-api-url`), which overrides this for that makerspace only |
 | `CHECKIN_PROVIDER_NAME` | no | Default name of your check-in system shown to borrowers; empty means "TinkerHub" for a TinkerHub roster URL, otherwise neutral wording. A makerspace with its own roster URL does not inherit it. See [checkin-mode.md](checkin-mode.md) |
@@ -634,6 +995,13 @@ Keep an offline copy of `.env` and the age identity file. A restore writes the a
 | `STORAGE_PRESIGN_METHOD` | no (default `post`) | `put` for Supabase Storage presigned PUT uploads (server re-validates size at attach) |
 | `CRON_SECRET` | no (default empty) | Enables `POST /api/v1/internal/cron/return-reminders` (header `X-Cron-Secret`); 404s while unset |
 
+The PII and signed-client variables above reach every consumer of the shared application environment
+in base, production and cloud Compose, including migration and existing management-command consumers.
+Compose `.env` is interpolation input; it does not implicitly populate containers. Before restarting,
+review any previously ignored true flags. PII keys are operator-provisioned, not installer-generated;
+follow [scoped-pii-encryption.md](scoped-pii-encryption.md) for independent keys, readiness, backfill,
+rotation and rollback. Retain the previous wrapping key for the documented local rotation window.
+
 > **Supabase free-tier deployment** (managed Postgres + Storage, env-toggled, demo/pilot scope):
 > see **[supabase-deployment.md](supabase-deployment.md)** for the full runbook. All five vars
 > above default to the self-hosted behavior, so this Compose stack is unaffected unless you set them.
@@ -645,9 +1013,13 @@ S3-compatible object storage by default. The backend talks to MinIO at `http://m
 use `AWS_S3_PUBLIC_ENDPOINT_URL` in presigned upload/download URLs, so that value must be reachable
 from staff/requester browsers.
 
+The bucket bootstrap passes `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD` as literal
+arguments to `mc alias set`, including credentials beginning with a hyphen (`-`).
+
 Public catalog images use a separate `PUBLIC_IMAGE_BUCKET` that is anonymous-readable by design.
-The bundled Compose bootstrap creates it, sets `download` policy, and applies the same upload CORS
-policy. Keep evidence and print files in the private `AWS_STORAGE_BUCKET_NAME`; only item photos and
+The bundled Compose bootstrap creates it and permits anonymous reads of final images while denying
+anonymous reads of `staging/` (including object versions). Signed backend staging reads remain
+available. The same upload CORS policy applies. Keep evidence and print files in the private `AWS_STORAGE_BUCKET_NAME`; only item photos and
 makerspace logo/cover images belong in the public bucket.
 
 For HTTPS deployments, put MinIO behind the same TLS proxy as the frontend, for example:
@@ -712,6 +1084,36 @@ and bucket policies intact, and with presigned POST (MIME and size conditions en
 uploads working. If you pinned a different MinIO release, test your own pair.
 
 ## Backups
+
+### Supported recovery formats
+
+FULL capture requires the host-provisioned `SPACEWORKS_OCI_DIGEST`. A missing or malformed value raises
+a typed backup build refusal with a stable reason and operator guidance, after FULL custody selection
+but before source identity queries, database dump or object capture. The admitted value is frozen for
+the signed archive; later environment changes cannot replace it. Capture never downgrades to another
+format. Makerspace and non-FULL capture retain their existing behavior.
+
+The installed `scripts/restore.sh` admits the following complete deployment archives only after its
+protected-host, archive identity and readback checks. Passing static artifact validation alone does
+not establish that the installed host can restore an archive.
+
+| Archive | Installed host support |
+| --- | --- |
+| Signed FULL (`spaceworks-deployment-full-v1`) | Supported route for registered recovery and externally pinned cross-host import. Signature trust, complete archive facts and target compatibility must pass before effects. |
+| Historical `spaceworks-phase5a-v1`, `v2` or `v3` without a protocol declaration | Registered same-host recovery only, bound to its stored encrypted artifact hash. This is not a cross-host import route. |
+| Sovereign compound, including protocol 2 | Refused: no sovereign compound restore coordinator is installed. Protocol-2 capture/static validation does not make host restoration available. |
+| Lane D tenant dump | A separate tenant-migration artifact, not a deployment archive for this host restore route. |
+
+Do not change an archive's format fields or route an unsupported compound archive through FULL
+admission. No conversion procedure is provided here. Complete an isolated end-to-end restore drill
+with the exact release, installed host bundle and deployment before relying on recovery.
+The earlier host wrapper also refused compound execution; protocol validation and coordinator library
+code did not supply an installed launcher. This limitation is not resolved by refreshing host files alone.
+
+### Manual database and object-volume copies
+
+The following commands create separate database and object-volume copies; they do not produce a
+signed FULL or compound archive and do not exercise the supervised restore/quarantine/resume path.
 
 Operational data lives in Postgres and object files live in the `minio_data` Docker volume. Back up
 both before upgrades. Stop writers and MinIO, retaining their containers and leaving the database running;

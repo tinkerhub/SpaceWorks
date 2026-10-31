@@ -8,7 +8,7 @@ from apps.bookings.models import BookableSpace
 from apps.makerspaces import lifecycle, limits
 from apps.makerspaces.models import Makerspace, MakerspaceMembership
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def setup_space(slug):
@@ -100,7 +100,8 @@ def test_finalize_delete_accounting_and_compensation(
     target.refresh_from_db()
     assert failed.status_code == 500 and target.image_key == old_key
     assert makerspace.storage_bytes_used == 10
-    assert new_key in deleted and storage.staging_key(new_key) in deleted
+    assert deleted.count(new_key) == 1  # only the earlier, successful explicit removal
+    assert storage.staging_key(new_key) in deleted
 
 
 def test_presign_inactive_images_and_purge_collection(monkeypatch):

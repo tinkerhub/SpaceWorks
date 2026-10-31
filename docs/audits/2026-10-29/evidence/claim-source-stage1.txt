@@ -1,0 +1,16 @@
+**Bounded revision required:** include `TenantNotRestored` in the new boundary’s refusal handling.
+
+`boundary_tenant_write()` calls `assert_restored()` before checking migration state ([gate_runtime.py:43](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/gate_runtime.py:43)). That raises a separate `RuntimeError`, outside the proposed Closed/Unavailable catches ([not_restored.py:4](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/not_restored.py:4)). The source-gate exception translator does not handle it ([middleware.py:71](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/middleware.py:71)).
+
+Amend only these affected paths:
+
+- **Rejected-claim cleanup:** defer on `TenantNotRestored` too, preserving the original generic 401 without writes.
+- **Native password transition:** show the same readable refusal/redirect; never enter inherited fallback.
+- **OIDC transition:** map this refusal locally to a typed 503 after transaction unwind, preserving fail-closed behavior.
+- **Stage 3:** add focused coverage for these outcomes. Avoid blanket `RuntimeError` catches.
+
+The existing native-admin refusal tuple already includes this exception ([admin_source_gate.py:9](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/config/admin_source_gate.py:9)).
+
+Otherwise, the bounded plan is sound. The new admission helper path is `backend/apps/accounts/claim_transition_gate.py`; it need not introduce role-authority decisions.
+
+No edits, tests, collection, Django imports, or builds performed.

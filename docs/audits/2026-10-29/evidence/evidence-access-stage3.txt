@@ -1,0 +1,30 @@
+Frozen: **23 test functions / 44 cases** across seven new files. AST, diff, whitespace, and ≤300-line checks pass. **Runtime not run.**
+
+| New file under `backend/tests/evidence/` | Cases | Lines |
+|---|---:|---:|
+| `test_evidence_origin_admission.py` | 16 | 155 |
+| `test_evidence_declared_size.py` | 10 | 97 |
+| `test_evidence_recompute_provenance.py` | 10 | 203 |
+| `test_evidence_accounting_export.py` | 8 | 173 |
+| `safety_access_helpers.py` | — | 173 |
+| `safety_transport_helpers.py` | — | 53 |
+| `safety_accounting_helpers.py` | — | 79 |
+
+Root runtime command, from `backend/`:
+
+```bash
+python -m pytest -q \
+  tests/evidence/test_evidence_origin_admission.py \
+  tests/evidence/test_evidence_declared_size.py \
+  tests/evidence/test_evidence_recompute_provenance.py \
+  tests/evidence/test_evidence_accounting_export.py
+```
+
+Pending root work:
+
+- The permitted existing file, `backend/tests/test_recompute_storage.py`, does not exist. The unsafe fallback expectation is actually at `backend/tests/test_managed_limits_enforcement.py:262`; left untouched.
+- Existing atomic command fixtures need boundary reconciliation in `backend/tests/test_managed_limits_enforcement.py`, `backend/tests/test_storage_reconciler_gaps.py`, `backend/tests/events/test_recompute_event_artifacts.py`, and `backend/tests/makerspaces/test_module_cleanup_boundaries.py`.
+- `backend/tests/tenant_migration/test_module_cleanup_source_contract.py` pins the old fanout implementation.
+- All runtime results remain pending. Restore coverage exercises metadata/projection/import helpers; it does not claim a host artifact roundtrip.
+
+No production, docs, ledger, existing tests, or other writer’s files edited. No staging or commit.

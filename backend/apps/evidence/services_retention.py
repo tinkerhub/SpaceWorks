@@ -1,7 +1,7 @@
 """Bounded, idempotent expiry of evidence bytes while metadata stays immutable."""
 
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 import uuid
 
@@ -17,8 +17,12 @@ from apps.evidence.models import (
     EvidencePhoto,
     EvidenceUploadFinalization,
 )
-from apps.evidence.retention_policy import object_candidates, preview_object_expiry
+from apps.evidence.quota import finalized_size_bytes, proven_charge_bytes
+from apps.evidence.retention_policy import (
+    effective_retention_days, object_candidates, preview_object_expiry,
+)
 from apps.makerspaces import limits
+from apps.makerspaces.models import Makerspace
 from apps.makerspaces.servability import servable_queryset
 from apps.tenant_migration.gate_runtime import fanout_tenant_write
 
@@ -33,6 +37,8 @@ class ExpiryClaim:
     object_key: str
     token: uuid.UUID
     recorded_size: int
+    policy_days: int
+    cutoff: datetime
 
 
 def sweep_evidence_retention(*, dry_run=False, now=None, batch_size=None):
@@ -97,7 +103,7 @@ def _logged_summary(summary, *, dry_run, **context):
 
 
 def _sweep_makerspace(makerspace, *, now, run_id, batch_size, summary):
-    queryset, policy_days, cutoff = object_candidates(makerspace, as_of=now)
+    queryset, _, _ = object_candidates(makerspace, as_of=now)
     candidate_ids = list(queryset.values_list("pk", flat=True)[: batch_size + 1])
     summary["photos_eligible"] += min(len(candidate_ids), batch_size)
     if len(candidate_ids) > batch_size:
@@ -119,8 +125,6 @@ def _sweep_makerspace(makerspace, *, now, run_id, batch_size, summary):
             removed = _complete(
                 claim,
                 size=size,
-                policy_days=policy_days,
-                cutoff=cutoff,
                 outcomes=outcomes,
                 run_id=run_id,
             )
@@ -160,19 +164,29 @@ def _claim(evidence_id, *, now):
         finalization = EvidenceUploadFinalization.objects.select_for_update().filter(
             evidence_id=evidence_id
         ).first()
-        state, _ = EvidenceObjectRetentionState.objects.select_for_update().get_or_create(
+        state = EvidenceObjectRetentionState.objects.select_for_update().filter(
             evidence_id=evidence_id
-        )
-        if state.status == EvidenceObjectRetentionState.Status.EXPIRED:
-            return None
-        if state.claim_token and state.claimed_at and state.claimed_at > stale_before:
-            return None
+        ).first()
+        if state is not None:
+            if state.status == EvidenceObjectRetentionState.Status.EXPIRED:
+                return None
+            if state.claim_token and state.claimed_at and state.claimed_at > stale_before:
+                return None
         if (
             finalization is not None
             and finalization.status == EvidenceUploadFinalization.Status.PROMOTING
             and finalization.updated_at > stale_before
         ):
             return None
+        # Policy writers lock this row too. Re-read only after the evidence locks;
+        # NO KEY UPDATE remains compatible with concurrent audit FK checks.
+        Makerspace.objects.select_for_update(no_key=True).get(pk=photo.makerspace_id)
+        policy_days = effective_retention_days(photo.makerspace_id)
+        cutoff = now - timedelta(days=policy_days)
+        if photo.created_at > cutoff:
+            return None  # Keep any existing EXPIRING fence after partial deletion.
+        if state is None:
+            state = EvidenceObjectRetentionState.objects.create(evidence_id=evidence_id)
         token = uuid.uuid4()
         state.status = EvidenceObjectRetentionState.Status.EXPIRING
         state.claim_token = token
@@ -183,15 +197,13 @@ def _claim(evidence_id, *, now):
                 "status", "claim_token", "claimed_at", "last_error", "updated_at",
             )
         )
-        recorded_size = (
-            getattr(finalization, "size_bytes", None) or photo.size_bytes or 0
-        )
         return ExpiryClaim(
-            photo.pk, photo.makerspace_id, photo.object_key, token, recorded_size
+            photo.pk, photo.makerspace_id, photo.object_key, token,
+            finalized_size_bytes(finalization), policy_days, cutoff,
         )
 
 
-def _complete(claim, *, size, policy_days, cutoff, outcomes, run_id):
+def _complete(claim, *, size, outcomes, run_id):
     with transaction.atomic():
         photo = EvidencePhoto.objects.select_for_update().get(pk=claim.evidence_id)
         finalization = EvidenceUploadFinalization.objects.select_for_update().filter(
@@ -204,6 +216,7 @@ def _complete(claim, *, size, policy_days, cutoff, outcomes, run_id):
             return None
         if state.claim_token != claim.token:
             return None
+        quota_released_bytes = proven_charge_bytes(photo, finalization)
         expired_at = timezone.now()
         state.status = EvidenceObjectRetentionState.Status.EXPIRED
         state.claim_token = None
@@ -212,24 +225,20 @@ def _complete(claim, *, size, policy_days, cutoff, outcomes, run_id):
         state.expired_size_bytes = size
         state.last_error = ""
         state.save()
-        quota_was_charged = (
-            settings.STORAGE_PRESIGN_METHOD != "put"
-            or finalization is None
-            or finalization.quota_charged
-        )
-        if quota_was_charged:
-            limits.free_storage(photo.makerspace, size)
+        if quota_released_bytes:
+            limits.free_storage(photo.makerspace, quota_released_bytes)
         audit.record(
             None,
             "evidence.object_expired",
             makerspace=photo.makerspace,
             target=photo,
             meta={
-                "policy_days": policy_days,
-                "cutoff": cutoff.isoformat(),
+                "policy_days": claim.policy_days,
+                "cutoff": claim.cutoff.isoformat(),
                 "final_outcome": outcomes["final"],
                 "staging_outcome": outcomes["staging"],
                 "expired_size_bytes": size,
+                "quota_released_bytes": quota_released_bytes,
                 "sweep_run_id": str(run_id),
             },
         )

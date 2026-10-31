@@ -142,7 +142,10 @@ def _run_archive_locked(archive_id, *, manage_lease=True, lease_holder=None):
                 return BackupArchive.objects.get(pk=archive_id)
             expected_status = BackupArchive.Status.PROMOTING
             storage.create_final_from_staging(
-                archive.staging_object_key, archive.object_key
+                archive.staging_object_key,
+                archive.object_key,
+                expected_size=size,
+                expected_sha256=archive_sha256,
             )
             storage.stream_verify(
                 archive.object_key,

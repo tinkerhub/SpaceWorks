@@ -1,5 +1,6 @@
 from django.urls import path
 
+from apps.machines.own_request_history import OwnMachineServiceRequestsView
 from apps.machines.views_public import PublicMachineListView
 from apps.machines.views_public_service import PublicMachineServiceSubmitView
 from apps.machines.views_public_service_types import (
@@ -12,6 +13,11 @@ from apps.machines.views_public_printer_service import (
 
 
 urlpatterns = [
+    path(
+        'public/<slug:makerspace_slug>/machine-service-requests/mine',
+        OwnMachineServiceRequestsView.as_view(),
+        name='public-own-machine-service-requests',
+    ),
     path('public/<slug:makerspace_slug>/machine-service/types', PublicMachineServiceTypesView.as_view(), name='public-machine-service-types'),
     path('public/<slug:makerspace_slug>/machine-service/uploads', PublicMachineServiceUploadView.as_view(), name='public-machine-service-upload'),
     path('public/machine-service/requests/<uuid:public_token>/status', PublicMachineServiceStatusView.as_view(), name='public-machine-service-status'),

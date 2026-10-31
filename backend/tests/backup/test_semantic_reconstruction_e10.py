@@ -8,6 +8,7 @@ import pytest
 
 from apps.backup import compound_archive
 from apps.backup.recipient_selection import BackupBuildError
+from apps.backup.source_capture_facts import source_capture_facts_from_capture
 
 
 def test_project_reconstructs_with_every_unsealed_slice_before_any_slice_is_sealed(
@@ -37,8 +38,14 @@ def test_project_reconstructs_with_every_unsealed_slice_before_any_slice_is_seal
     capture.expected_full_ledger = {"full": "expected"}
     capture.reservation_capture = SimpleNamespace(sequence_facts=())
     capture.object_plan = SimpleNamespace(
-        verify_component=lambda *_args: None
+        references=(), verify_component=lambda *_args: None
     )
+    # Independent frozen provenance binds the actual synthetic source dump.
+    capture.frozen_population = tuple({"makerspace_id": pk} for pk in (41, 42, 99))
+    capture.source_database_identity = "semantic-source-fixture"
+    capture.source_server_identity = "postgresql:160004:semantic-fixture"
+    capture.source_dump_sha256 = hashlib.sha256((root / "database.dump").read_bytes()).hexdigest()
+    capture._source_capture_facts = source_capture_facts_from_capture(capture)
     events = []
 
     def project(_source, destination, *_args, **_kwargs):

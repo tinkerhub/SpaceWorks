@@ -9,6 +9,7 @@ from apps.hardware_requests.models import PublicProblemReport, RequesterAccounta
 from apps.hardware_requests.workflow_errors import InvalidTransition, RequestValidationError, ReturnValidationError
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, TrackingMode
+from apps.makerspaces.models import Makerspace
 
 
 ACCOUNTABILITY_OUTCOMES = {
@@ -33,7 +34,7 @@ def triage_problem_report(report, actor, *, outcome, resolutions, note, evidence
     )
     with transaction.atomic():
         locked = (
-            PublicProblemReport.objects.select_for_update()
+            PublicProblemReport.objects.select_for_update(of=("self",))
             .select_related("loan", "request", "requester", "makerspace")
             .get(pk=report.pk)
         )
@@ -45,7 +46,11 @@ def triage_problem_report(report, actor, *, outcome, resolutions, note, evidence
                 raise RequestValidationError(
                     "Evidence has expired under the retention policy."
                 )
-            charge_storage_once(evidence, finalized.size)
+        locked.makerspace = Makerspace.objects.select_for_update(no_key=True).get(
+            pk=locked.makerspace_id
+        )
+        if finalized is not None:
+            charge_storage_once(evidence, finalized.size, no_key=True)
         quantities = []
         if outcome != PublicProblemReport.Outcome.NO_ISSUE:
             validated = _validated_resolutions(locked, resolutions)

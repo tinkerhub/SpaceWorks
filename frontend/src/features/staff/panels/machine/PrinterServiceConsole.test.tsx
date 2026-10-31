@@ -1,17 +1,24 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PrinterServiceConsole } from "./PrinterServiceConsole";
 import { blankServiceDraft } from "./serviceDrafts";
+import { isolateMachineTestSession, machineConsoleTestClient, machineTestMakerspaces } from "./machineConsoleTestUtils";
+
+isolateMachineTestSession();
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
-vi.mock("../../../../lib/api", () => ({ staffRequest }));
+vi.mock("../../../../lib/api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../../../lib/api")>(),
+  staffRequest,
+}));
 
 beforeEach(() => {
   staffRequest.mockReset();
   staffRequest.mockImplementation(async (path: string) => {
+    if (path === "/admin/makerspaces") return machineTestMakerspaces();
     if (path.includes("machine-service-report")) {
       return {
         printer_metrics: [{
@@ -33,7 +40,7 @@ beforeEach(() => {
 
 describe("PrinterServiceConsole", () => {
   it("renders the printer-specific report response without crashing the staff console", async () => {
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
     const machineType = { id: 1, slug: "3d_printer", name: "3D Printer", icon: "", is_builtin: true, managing_action: "", makerspace: null, capability_config: { metering_unit: "weight" as const, requires_booking: false } };
     render(
       <QueryClientProvider client={client}>
@@ -52,7 +59,7 @@ describe("PrinterServiceConsole", () => {
   // dereferences `printer_metrics` -- taking the whole Machines panel down with it. The mock
   // above answers regardless of query string, so only this assertion catches the regression.
   it("requests the printer report with the slug discriminator, not the type id", async () => {
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
     const machineType = { id: 1, slug: "3d_printer", name: "3D Printer", icon: "", is_builtin: true, managing_action: "", makerspace: null, capability_config: { metering_unit: "weight" as const, requires_booking: false } };
     render(
       <QueryClientProvider client={client}>
@@ -69,6 +76,7 @@ describe("PrinterServiceConsole", () => {
 
   it("uses the nested online payment instead of the manual fallback fields", async () => {
     staffRequest.mockImplementation(async (path: string) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces();
       if (path.includes("machine-service/requests")) return [{
         id: 9,
         title: "Paid print",
@@ -81,7 +89,7 @@ describe("PrinterServiceConsole", () => {
       if (path.includes("machine-service-report")) return { printer_metrics: [] };
       return [];
     });
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
     const machineType = { id: 1, slug: "3d_printer", name: "3D Printer", icon: "", is_builtin: true, managing_action: "", makerspace: null, capability_config: { metering_unit: "weight" as const, requires_booking: false } };
 
     render(
@@ -95,6 +103,7 @@ describe("PrinterServiceConsole", () => {
 
   it("offers settlement only for a completed request with a pending payment row", async () => {
     staffRequest.mockImplementation(async (path: string) => {
+      if (path === "/admin/makerspaces") return machineTestMakerspaces();
       if (path.includes("machine-service/requests")) return [
         {
           id: 10,
@@ -118,7 +127,7 @@ describe("PrinterServiceConsole", () => {
       if (path.includes("machine-service-report")) return { printer_metrics: [] };
       return [];
     });
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const client = machineConsoleTestClient();
     const machineType = { id: 1, slug: "3d_printer", name: "3D Printer", icon: "", is_builtin: true, managing_action: "", makerspace: null, capability_config: { metering_unit: "weight" as const, requires_booking: false } };
 
     render(

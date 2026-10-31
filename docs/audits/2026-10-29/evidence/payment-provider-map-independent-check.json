@@ -1,0 +1,18 @@
+{
+  "status": "exact-independent-provider-fact-match",
+  "stripe_currencies": 139,
+  "razorpay_currencies": 128,
+  "union_currencies": 147,
+  "missing_or_extra_provider_codes": 0,
+  "unit_rule_mismatches": 0,
+  "source_sha256": "9680966afb1c121928f429b873ecf9516f992a81345baae7d2322332b9247490",
+  "fact_sources": [
+    "https://docs.stripe.com/currencies",
+    "https://support.stripe.com/questions/which-payments-methods-and-products-are-available-in-the-uae",
+    "https://razorpay.com/docs/payments/international-payments/",
+    "https://razorpay.com/docs/api/payments/payment-links/create-standard/"
+  ],
+  "method": "Independent fresh primary HTML extraction before implementation compared with the pure currency_rules data module; no Django, provider SDK action or payment was executed.",
+  "ledger_policy": "Three-decimal unit scale is1000; allowed quantum10 reflects the existing two-major-decimal local ledger and separately Razorpay payment-link rules, not a universal Stripe limitation.",
+  "limits": "Published support does not establish availability for a particular merchant/country. Functional payment regression checks and review remain separate."
+}

@@ -1,0 +1,9 @@
+**APPROVED.** F1/F2 remain unchanged.
+
+- Default to `needs_fix_quantity` only when `qty[id] === undefined`; otherwise use `Number(qty[id])`. Clearing must remain invalid, never restore the full count.
+- Keep the existing positive-integer and shelf-limit validation. Add the minimal `quantityValid(item)` guard in `run`, since scrap confirmation currently calls it without revalidation.
+- Test the actual component inputs: untouched default enables actions; valid typed quantity POSTs exactly; zero, cleared blank, fraction and negative values dispatch neither repair nor scrap requests. Include stale-confirmation coverage.
+
+Preserve the Stage 3 clarification: verify the observed wait is **on the actual asset**, not an earlier makerspace lock; retain real validators and assertions for stale-status rejection, unchanged loan, absent fix audit and successful return.
+
+No edits or tests performed.

@@ -4,14 +4,15 @@ import { invalidateContainerViews, invalidateInventoryViews } from "../queryInva
 export type InvalidationScope = {
   inventory: boolean;
   needsFix: boolean;
+  containers?: boolean;
   ledger: boolean;
 };
 
 export function actionInvalidationScope(path: string): InvalidationScope {
-  const inventory = path.endsWith("/accept") || path.endsWith("/issue") || path.endsWith("/return");
+  const inventory = path.endsWith("/accept") || path.endsWith("/cancel") || path.endsWith("/issue") || path.endsWith("/return");
   const ledger = path.endsWith("/issue") || path.endsWith("/return") || path.endsWith("/return-due");
   const needsFix = path.endsWith("/issue") || path.endsWith("/return");
-  return { inventory, ledger, needsFix };
+  return { inventory, ledger, needsFix, containers: path.endsWith("/assign-box") };
 }
 
 export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: number, scope: InvalidationScope, slug?: string) {
@@ -28,6 +29,7 @@ export function invalidateRequestQueues(queryClient: QueryClient, makerspaceId: 
     invalidateInventoryViews(queryClient, makerspaceId, slug);
     invalidateContainerViews(queryClient, makerspaceId);
   }
+  if (scope.containers && !scope.inventory) invalidateContainerViews(queryClient, makerspaceId);
   if (scope.needsFix) {
     queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspaceId] });
     // A return can record lost or damaged units against the borrower.

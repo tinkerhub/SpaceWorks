@@ -76,7 +76,8 @@ def test_legacy_cutover_is_explicit_and_new_entries_default_to_excluded():
     # and upload POST add five excluded method entries. The exclusions are
     # what proves a post-cutover route is still denied under `legacy:v1`.
     assert sum(entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 61
-    assert sum(not entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 6
+    # Each new account-history route adds GET/HEAD, both excluded from legacy.
+    assert sum(not entry.legacy_v1 for entry in SCOPE_REGISTRY.values()) == 10
     new_entry = ScopeRegistryEntry(frozenset({"public:read"}), TARGET_GLOBAL)
 
     assert new_entry.legacy_v1 is False

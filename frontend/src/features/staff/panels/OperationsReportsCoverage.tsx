@@ -50,6 +50,10 @@ function CoverageReport({ report, analyticsBase, scopeKey, startDate, endDate, g
   const stacked = STACKED_FIELDS[report.key];
   return (
     <ReportCard title={report.title}>
+      {report.key === "evidence-compliance" ? <p className="mb-3 text-body-ui text-ink-muted">
+        Object counts track retained references and recorded expiry, rather than checking stored files.
+        Recorded bytes are historical metadata, not current storage usage.
+      </p> : null}
       {!enabled ? <EmptyReport reason={report.unavailable_reason} /> : (
         <DataState loading={result.isLoading} error={result.error} empty={!reportRows(result.data).length}>
           {aggregate ? <PerMakerspaceTables data={result.data} nameOf={makerspaceName} /> : <>{stacked ? <StackedBarChart rows={stackedChartRows(result.data, ...stacked.slice(0, 3) as [string, string, string])} valueLabel={stacked[3]} /> : <Chart rows={chartRows(result.data, labelKey, valueKey)} valueLabel={valueLabel} />}<ReportTable data={result.data} /></>}

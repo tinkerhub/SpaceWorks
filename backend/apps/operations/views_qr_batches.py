@@ -12,7 +12,9 @@ from apps.accounts import rbac
 from apps.admin_api.permissions import IsActiveStaff, require_action
 from apps.audit import services as audit
 from apps.boxes.models import QrCode
+from apps.boxes.qr_admission import current_qr_actor, qr_write
 from apps.boxes.serializers import QrCodeSerializer
+from apps.boxes.targets import qr_target
 from apps.hardware_requests.exceptions import ErrorSerializer
 from apps.inventory.models import InventoryAsset, InventoryProduct
 from apps.makerspaces.guards import require_module, require_module_locked
@@ -94,11 +96,13 @@ class QrPrintBatchItemView(APIView):
         serializer = QrPrintBatchItemCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         qr = get_object_or_404(QrCode, pk=serializer.validated_data["qr_code_id"], makerspace=batch.makerspace)
+        qr_target(qr)
         if qr.target_type not in {QrCode.TargetType.PRODUCT, QrCode.TargetType.ASSET}:
             raise ValidationError("QR print batches only accept inventory item or unit QR codes.")
         with transaction.atomic():
-            require_module_locked(batch.makerspace_id, "qr_print_batches")
+            require_module_locked(batch.makerspace_id, "qr_print_batches", no_key=True)
             item = services.add_qr_to_batch(
+                request.user,
                 batch,
                 qr,
                 serializer.validated_data.get("label_text", ""),
@@ -136,9 +140,12 @@ class AssetGenerateView(APIView):
         request=AssetGenerateSerializer,
         responses={
             201: AssetGenerateResultSerializer,
-            400: OpenApiResponse(description="Invalid request, or the asset_units module is off."),
+            400: OpenApiResponse(description="Invalid request, the asset_units module is off, or print_batch_id was supplied while qr_print_batches is off."),
             403: OpenApiResponse(description="Converting a quantity product to unit tracking requires edit_inventory."),
+            404: OpenApiResponse(description="Product not found in the authorized makerspace scope."),
             409: OpenApiResponse(ErrorSerializer, description="tracking_mode_locked: the product holds stock and cannot be converted."),
+            423: OpenApiResponse(ErrorSerializer, description="tenant_migration_quiesced: tenant writes are frozen for migration."),
+            503: OpenApiResponse(ErrorSerializer, description="tenant_migration_gate_unavailable: the source gate could not prove the write is safe."),
         },
     )
     def post(self, request, pk, *args, **kwargs):
@@ -163,17 +170,45 @@ class AssetQrView(APIView):
     permission_classes = [IsActiveStaff]
     serializer_class = EmptySerializer
 
-    @extend_schema(tags=["Asset units"], summary="Create asset QR code", request=EmptySerializer, responses={201: QrCodeSerializer, **BATCH_ERRORS})
+    @extend_schema(
+        tags=["Asset units"], summary="Create asset QR code", request=EmptySerializer,
+        responses={
+            201: QrCodeSerializer, **BATCH_ERRORS,
+            423: OpenApiResponse(ErrorSerializer, description="tenant_migration_quiesced: tenant writes are frozen for migration."),
+            503: OpenApiResponse(ErrorSerializer, description="tenant_migration_gate_unavailable: the source gate could not prove the write is safe."),
+        },
+    )
     def post(self, request, pk, *args, **kwargs):
-        asset = get_object_or_404(rbac.scope_by_action(request.user, rbac.Action.MANAGE_QR, InventoryAsset.objects.all()), pk=pk)
+        actor = current_qr_actor(request.user)
+        asset = get_object_or_404(rbac.scope_by_action(actor, rbac.Action.MANAGE_QR, InventoryAsset.objects.all()), pk=pk)
+        initial_makerspace_id, initial_asset_id = asset.makerspace_id, asset.id
         require_module(asset.makerspace, "asset_units")
-        with transaction.atomic():
-            require_module_locked(asset.makerspace_id, "asset_units")
-            qr, _ = QrCode.objects.get_or_create(
-                makerspace=asset.makerspace,
+        with qr_write([initial_makerspace_id]):
+            # Permit transfer FK checks while serializing module uninstall.
+            require_module_locked(initial_makerspace_id, "asset_units", no_key=True)
+            # Canonical rebind and checkout also lock the QR before its asset.
+            qr = QrCode.objects.select_for_update().filter(
+                makerspace_id=initial_makerspace_id,
                 target_type=QrCode.TargetType.ASSET,
-                target_id=asset.id,
+                target_id=initial_asset_id,
                 status=QrCode.Status.ACTIVE,
-                defaults={"created_by": request.user},
+            ).first()
+            actor = current_qr_actor(actor)
+            asset = get_object_or_404(
+                rbac.scope_by_action(actor, rbac.Action.MANAGE_QR, InventoryAsset.objects.select_for_update()),
+                pk=initial_asset_id, makerspace_id=initial_makerspace_id,
             )
+            actor = current_qr_actor(actor)
+            require_action(actor, rbac.Action.MANAGE_QR, initial_makerspace_id)
+            created = False
+            if qr is None:
+                qr, created = QrCode.objects.get_or_create(
+                    makerspace=asset.makerspace,
+                    target_type=QrCode.TargetType.ASSET,
+                    target_id=asset.id,
+                    status=QrCode.Status.ACTIVE,
+                    defaults={"created_by": actor},
+                )
+            if created:
+                audit.record(actor, "qr.created", makerspace=asset.makerspace, target=qr)
         return Response(QrCodeSerializer(qr).data, status=status.HTTP_201_CREATED)

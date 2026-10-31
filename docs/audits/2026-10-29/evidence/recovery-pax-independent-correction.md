@@ -1,0 +1,3 @@
+# Independent bounded PAX correction
+
+Source-only; no behavior or runtime claim. The new screen initially searched entire PAX bytes for sparse-looking text, incorrectly rejecting safe long path values containing GNU.sparse or SCHILY.realsize. It now validates bounded length-framed PAX records and checks their keys before the stdlib parser, rejecting malformed framing and sparse keys while leaving ordinary path values intact. host_restore_files.py and its exact restore.sh transitive guard digest changed; combined source/copy inventories and guard map were refreshed. Separate Stage 3 tests explicitly cover this boundary. Historical reports/freezes are preserved.

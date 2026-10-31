@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone as datetime_timezone
 import hashlib
-import json
-import re
 import secrets
 import uuid
 
@@ -20,9 +18,11 @@ from apps.audit import services as audit
 from apps.makerspaces import limits
 
 from .tenant_restore_types import TenantRestoreRefused
+from .tenant_client_catalog import (
+    MAX_CLIENTS, MAX_DECLARATIONS, SHA256, _canonical, _digest, _is_sha256, _text, validate_client_catalog,
+)
 
 
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 APPROVAL_FIELDS = {
     "artifact_sha256", "capture_id", "source_catalog_sha256",
     "source_client_ref", "source_entry_sha256", "label", "client_type",
@@ -30,18 +30,6 @@ APPROVAL_FIELDS = {
     "privileged_scopes_approved", "host_principal", "approved_at",
     "expires_at", "nonce", "approval_record_sha256",
 }
-
-
-def _canonical(value):
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-
-
-def _digest(value):
-    return hashlib.sha256(_canonical(value).encode("utf-8")).hexdigest()
-
-
-def _is_sha256(value):
-    return isinstance(value, str) and SHA256.fullmatch(value) is not None
 
 
 def provenance_digest(*, artifact_sha256, makerspace_id, source_client_ref):
@@ -53,6 +41,14 @@ def provenance_digest(*, artifact_sha256, makerspace_id, source_client_ref):
 
 
 def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None):
+    try:
+        return _parse_approvals(document, artifact_sha256=artifact_sha256,
+                                capture_id=capture_id, catalog=catalog, now=now)
+    except (ValueError, TypeError, AttributeError, UnicodeError, OverflowError, RecursionError) as exc:
+        raise TenantRestoreRefused("The API-client approval file is malformed.") from exc
+
+
+def _parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None):
     now = now or datetime.now(datetime_timezone.utc)
     if now.tzinfo is None:
         raise TenantRestoreRefused("API-client approval clock must be timezone-aware.")
@@ -62,42 +58,17 @@ def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None)
         raise TenantRestoreRefused("API-client approval capture ID is invalid.") from exc
     if not _is_sha256(artifact_sha256):
         raise TenantRestoreRefused("API-client approval artifact digest is invalid.")
-    if (
-        not isinstance(catalog, dict)
-        or not {"entries", "sha256"}.issubset(catalog)
-        or not isinstance(catalog["entries"], list)
-        or not _is_sha256(catalog["sha256"])
-    ):
-        raise TenantRestoreRefused("The source API-client catalog is malformed.")
-    ordered = catalog["entries"]
-    if any(
-        not isinstance(item, dict)
-        or not isinstance(item.get("source_client_ref"), str)
-        or not _is_sha256(item["source_client_ref"])
-        for item in ordered
-    ) or ordered != sorted(
-        ordered, key=lambda item: item.get("source_client_ref", "")
-    ):
-        raise TenantRestoreRefused("The source API-client catalog is not canonical.")
-    entries = {item.get("source_client_ref"): item for item in ordered}
-    if None in entries or len(entries) != len(ordered):
-        raise TenantRestoreRefused("The source API-client catalog contains duplicate references.")
-    for source in ordered:
-        source_digest = source.get("source_entry_sha256")
-        unsigned = {key: value for key, value in source.items() if key != "source_entry_sha256"}
-        if not _is_sha256(source_digest) or _digest(unsigned) != source_digest:
-            raise TenantRestoreRefused("A source API-client catalog entry digest changed.")
-    if _digest(ordered) != catalog["sha256"]:
-        raise TenantRestoreRefused("The source API-client catalog digest changed.")
+    validate_client_catalog(catalog, capture_id=capture_id)
+    entries = {item["source_client_ref"]: item for item in catalog["entries"]}
     allowed_document_shapes = ({"approvals"}, {"version", "approvals"})
     records = document.get("approvals") if isinstance(document, dict) else None
     if (
         not isinstance(document, dict)
         or set(document) not in allowed_document_shapes
-        or ("version" in document and document["version"] != 1)
+        or ("version" in document and (type(document["version"]) is not int or document["version"] != 1))
     ):
         records = None
-    if not isinstance(records, list):
+    if not isinstance(records, list) or len(records) > MAX_CLIENTS:
         raise TenantRestoreRefused("The API-client approval file is malformed.")
     approved = []
     seen_refs = set()
@@ -113,9 +84,7 @@ def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None)
         nonce = record.get("nonce")
         if (
             not _is_sha256(ref)
-            or not isinstance(nonce, str)
-            or not 0 < len(nonce) <= 64
-            or "\x00" in nonce
+            or not _text(nonce, 64, nonempty=True)
         ):
             raise TenantRestoreRefused("API-client approval reference or nonce is invalid.")
         if type(record.get("privileged_scopes_approved")) is not bool:
@@ -143,7 +112,7 @@ def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None)
             approved_at = datetime.fromisoformat(
                 record["approved_at"].replace("Z", "+00:00")
             )
-        except (KeyError, TypeError, ValueError) as exc:
+        except (KeyError, TypeError, ValueError, AttributeError) as exc:
             raise TenantRestoreRefused("API-client approval timestamps are invalid.") from exc
         if (
             expires.tzinfo is None
@@ -151,13 +120,14 @@ def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None)
             or expires <= now
             or approved_at > now
             or approved_at >= expires
-            or not isinstance(record.get("host_principal"), str)
-            or not record["host_principal"].strip()
-            or len(record["host_principal"]) > 255
-            or "\x00" in record["host_principal"]
+            or not _text(record.get("host_principal"), 255, nonempty=True)
         ):
             raise TenantRestoreRefused("API-client approval is expired or unattributed.")
         try:
+            for name in ("target_scopes", "target_origins"):
+                if (not isinstance(record.get(name), list) or len(record[name]) > MAX_DECLARATIONS
+                        or any(not _text(value, 2048, nonempty=True) for value in record[name])):
+                    raise ValueError
             scopes = validate_grantable_scopes(
                 record.get("target_scopes"),
                 privileged=record.get("privileged_scopes_approved") is True,
@@ -180,6 +150,9 @@ def parse_approvals(document, *, artifact_sha256, capture_id, catalog, now=None)
 
 
 def reissue_approved_client(*, makerspace, record, delivery_store):
+    # Host admission freezes nested lists as tuples; Django JSON fields persist lists.
+    record = {**record, "target_scopes": list(record["target_scopes"]),
+              "target_origins": list(record["target_origins"])}
     provenance = provenance_digest(
         artifact_sha256=record["artifact_sha256"],
         makerspace_id=makerspace.pk,

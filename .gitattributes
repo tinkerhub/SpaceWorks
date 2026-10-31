@@ -26,3 +26,7 @@
 *.stl    binary
 *.3mf    binary
 *.step   binary
+
+# Frozen audit captures retain exact bytes and original diagnostic whitespace.
+docs/audits/2026-10-29/evidence/** -text -whitespace
+docs/audits/2026-10-29/*.csv -text -whitespace

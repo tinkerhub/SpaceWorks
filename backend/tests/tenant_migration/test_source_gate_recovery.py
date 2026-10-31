@@ -17,6 +17,7 @@ from apps.tenant_migration.gate_runtime import tenant_write
 from apps.tenant_migration.models import SourceMigrationGate
 from apps.tenant_migration.source_gate import recover_expired
 from tests.encryption.conftest import enabled_encryption
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 from tests.tenant_migration.source_gate_helpers import (
     close_gate,
     make_actor,
@@ -77,19 +78,13 @@ def test_declared_dek_rotation_exclusion_bypasses_closed_gate():
         assert rotate_dek(space.pk).key.version == 2
 
 
-def test_tenant_purge_is_excluded_and_cascade_removes_its_gate(monkeypatch):
+def test_tenant_purge_is_excluded_and_cascade_removes_its_gate(purge_store, purge_clock):
     actor = make_actor("purge-exclusion")
     space = make_space("purge-exclusion")
     space.archived_at = timezone.now()
     space.save(update_fields=["archived_at"])
     close_gate(space, actor)
-    monkeypatch.setattr(
-        "apps.makerspaces.lifecycle._delete_storage_keys", lambda _keys: None
-    )
-    monkeypatch.setattr(
-        "apps.makerspaces.lifecycle._delete_public_image_keys", lambda _keys: None
-    )
-
+    arm(space, actor, purge_clock)
     lifecycle.purge(space, actor)
 
     assert not Makerspace.objects.filter(pk=space.pk).exists()

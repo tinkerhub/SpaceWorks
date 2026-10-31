@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
+from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 
 from apps.operations import services
@@ -140,8 +141,22 @@ class QrPrintBatchItemInline(TabularInline):
     extra = 0
     # Items are added by `add_qr_to_batch`, which checks the code is this space's; a raw
     # row could put another tenant's payload in the print ZIP.
-    readonly_fields = ("qr_code", "label_text", "target_type", "target_id", "sort_order")
+    readonly_fields = ("qr_code_display", "label_text", "target_type", "target_id", "sort_order")
+    fields = readonly_fields
     can_delete = False
+
+    @admin.display(description="QR code")
+    def qr_code_display(self, obj):
+        current_qr = obj.qr_code
+        if current_qr.makerspace_id != obj.batch.makerspace_id:
+            return "QR unavailable"
+        opts = current_qr._meta
+        url = reverse(
+            f"admin:{opts.app_label}_{opts.model_name}_change",
+            args=(current_qr.pk,),
+            current_app=self.admin_site.name,
+        )
+        return format_html('<a href="{}">{}</a>', url, str(current_qr))
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -182,6 +197,12 @@ class QrPrintBatchAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
             return None
 
         batch = queryset.first()
-        resp = HttpResponse(build_batch_zip(batch), content_type="application/zip")
+        try:
+            content = build_batch_zip(batch)
+        except DRFValidationError as exc:
+            self.message_user(request, str(exc), level=messages.ERROR)
+            return None
+
+        resp = HttpResponse(content, content_type="application/zip")
         resp["Content-Disposition"] = f'attachment; filename="qr-batch-{batch.pk}.zip"'
         return resp

@@ -31,6 +31,9 @@ class SourcePreflightResult:
 
 def run_source_preflight(makerspace):
     """Validate that this source can produce a non-degrading migration archive."""
+    from apps.makerspaces.purge_intent import assert_capture_allowed
+
+    assert_capture_allowed([makerspace.pk])
     if not settings.PII_ENCRYPTION_ENABLED:
         _fail(
             "encryption_enabled",

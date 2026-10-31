@@ -1,0 +1,13 @@
+{
+  "format_version": "source-review-v1",
+  "parser_version": "python-ast+typescript+shell-facts-v1",
+  "fingerprint_version": "location-owner-corpus-callgraph-v1",
+  "status": "UNREVIEWED",
+  "reviewer": null,
+  "report": null,
+  "scope": [],
+  "call_index": [],
+  "symbol_index": {},
+  "derived": [],
+  "entries": []
+}

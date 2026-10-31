@@ -25,18 +25,21 @@ const user: StaffAuthUser = {
 
 function session(overrides: Record<string, unknown> = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  const activeMakerspace = { id: 3, name: "Forge", slug: "forge" };
   return {
-    activeMakerspace: { id: 3, name: "Forge", slug: "forge" },
+    activeMakerspace,
     chooseMakerspace: vi.fn(),
     login: { error: null, isPending: false, mutate: vi.fn() },
-    makerspaces: { data: [{ id: 3, name: "Forge", slug: "forge" }], isLoading: false },
+    makerspaces: { data: [activeMakerspace], isLoading: false, isPending: false, isError: false, status: "success" },
     queryClient,
     recovery: { data: undefined },
     refreshAuthUser: vi.fn(),
     restoring: false,
+    retryMakerspaces: vi.fn(),
     routeMakerspace: undefined,
     routeMakerspaceSlug: undefined,
     selected: 3,
+    selection: { kind: "selected" as const, makerspace: activeMakerspace },
     setTab: vi.fn(),
     setUser: vi.fn(),
     signOut: vi.fn().mockResolvedValue(undefined),

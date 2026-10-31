@@ -1,5 +1,4 @@
 import hashlib
-import uuid
 
 import pytest
 from rest_framework.exceptions import ValidationError
@@ -9,6 +8,8 @@ from apps.backup import storage
 from apps.backup.archive_import import import_disaster_archive
 from apps.backup.digests import ArchiveDigestError, verify_content_ledger
 from apps.backup.models import BackupArchive, RestoreOperation
+from tests.backup.full_backup_fixture_helpers import make_full_fixture
+from tests.backup.full_backup_preflight_helpers import configure_target
 
 
 @pytest.mark.django_db
@@ -16,20 +17,19 @@ def test_import_rejects_missing_expected_digest_before_storage(monkeypatch, tmp_
     actor = User.objects.create_superuser(
         username="digest-import-missing", password="secret"
     )
-    encrypted = tmp_path / "archive.tar.age"
-    encrypted.write_bytes(b"encrypted archive")
-    manifest = {
-        "format": "spaceworks-phase5a-v2",
-        "archive_id": str(uuid.uuid4()),
-        "scope": BackupArchive.Scope.DEPLOYMENT,
-        "age_encrypted": True,
-    }
+    fixture = make_full_fixture(tmp_path)
+    probes = configure_target(monkeypatch, fixture)
     uploads = []
     monkeypatch.setattr(storage, "upload_archive", lambda *args: uploads.append(args))
 
     with pytest.raises(ValidationError, match="expected sha256 digest is required"):
-        import_disaster_archive(actor, encrypted, manifest)
+        import_disaster_archive(
+            actor, fixture.encrypted, fixture.manifest, bundle=fixture.bundle,
+            manifest_file=fixture.manifest_file,
+            continuity_secrets_file=fixture.secrets_file,
+        )
 
+    assert len(probes) == 2  # Read-only capability probes; no object writes.
     assert uploads == []
     assert BackupArchive.objects.count() == 0
     assert RestoreOperation.objects.count() == 0

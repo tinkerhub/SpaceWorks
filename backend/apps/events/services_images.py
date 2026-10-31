@@ -6,8 +6,12 @@ services.EVENT_FIELDS: it is owned by the dedicated image endpoints, so a generi
 event update can never set or clear it.
 """
 
+from apps.object_storage_lifecycle import storage_lifecycle
+
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from apps.events.organizer_authority import can_manage_event
+from apps.makerspaces.guards import require_module
 
 from apps.audit import services as audit
 from apps.events.models import Event
@@ -23,14 +27,24 @@ def _locked_event(event_id):
     )
 
 
-@transaction.atomic
-def update_image(event, actor, object_key):
-    # HEADed before the row lock: an S3 round trip under a held lock turns a slow bucket
-    # into lock contention. No tenant-wide lock is taken -- every attach path pins the key
-    # to its own `<kind>/<makerspace_id>/` prefix, so an `event/` key can only ever be
-    # claimed by another Event, and this row lock is what serializes that.
-    new_size = public_image_storage.object_size(object_key)
+def update_image(event, actor, object_key, *, size_bytes=None, guard=None):
+    with storage_lifecycle(event.makerspace_id, guard=guard) as owned:
+        if size_bytes is None:
+            result = public_image_storage.finalize_upload(object_key)
+            if result.status != "ok":
+                raise ValidationError({"object_key": public_image_storage.finalize_error_message(result)})
+            size_bytes = result.size
+        owned.verify()
+        with transaction.atomic():
+            return _update_image(event, actor, object_key, size_bytes=size_bytes, guard=owned)
+
+
+def _update_image(event, actor, object_key, *, size_bytes, guard):
     locked = _locked_event(event.pk)
+    guard.verify(locked.makerspace_id)
+    require_module(locked.makerspace_id, "events")
+    if not can_manage_event(actor, locked):
+        raise PermissionDenied()
     old_key = locked.image_key
     if object_key == old_key:
         return locked
@@ -40,10 +54,10 @@ def update_image(event, actor, object_key):
         event_id=locked.pk,
     ):
         raise ValidationError({"object_key": "This image is already in use."})
-    limits.add_storage(locked.makerspace, new_size or 0)
+    limits.add_storage(locked.makerspace, size_bytes)
     if old_key:
         public_image_storage.release_public_image_on_commit(
-            locked.makerspace, old_key
+            locked.makerspace, old_key, guard=guard
         )
     locked.image_key = object_key
     update_fields = ["image_key", "updated_at"]
@@ -64,9 +78,19 @@ def update_image(event, actor, object_key):
     return locked
 
 
-@transaction.atomic
-def remove_image(event, actor):
+def remove_image(event, actor, *, guard=None):
+    with storage_lifecycle(event.makerspace_id, guard=guard) as owned:
+        owned.verify()
+        with transaction.atomic():
+            return _remove_image(event, actor, guard=owned)
+
+
+def _remove_image(event, actor, *, guard):
     locked = _locked_event(event.pk)
+    guard.verify(locked.makerspace_id)
+    require_module(locked.makerspace_id, "events")
+    if not can_manage_event(actor, locked):
+        raise PermissionDenied()
     old_key = locked.image_key
     if not old_key and (
         locked.series_id is None or "image_key" in (locked.series_override_fields or [])
@@ -87,6 +111,6 @@ def remove_image(event, actor):
         target=locked,
         meta={},
     )
-    public_image_storage.release_public_image_on_commit(locked.makerspace, old_key)
+    public_image_storage.release_public_image_on_commit(locked.makerspace, old_key, guard=guard)
     locked.refresh_from_db()
     return locked

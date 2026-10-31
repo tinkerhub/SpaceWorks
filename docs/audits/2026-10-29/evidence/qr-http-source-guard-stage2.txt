@@ -1,0 +1,14 @@
+Implemented the bounded guard, then stopped at scope reconciliation.
+
+- [source_gate_api_owned_http_guards.py](backend/apps/tenant_migration/source_gate_api_owned_http_guards.py): `validate_api_owned_http_boundaries`, runtime ownership/callback checks, middleware P retention and late-guard ordering.
+- [source_gate_api_owned_bindings.py](backend/apps/tenant_migration/source_gate_api_owned_bindings.py): `validate_declaration`, `validate_routes`, `validate_admission`; supplied-tree AST checks for the eight routes, consumed bindings and admission chain.
+- Existing HTTP guard: branch-local import/call only. Source map: three-line owner description.
+
+Dependencies are stdlib `ast`/`pathlib`, existing `source_gate_ast` helpers, and the new bindings module.
+
+Static verification passed: Python files are **268/214/90 lines**; all **4,550 protected baseline files remain unchanged**, including purge guards, fixtures and runtime ownership files. No tests, collection, project imports, builds, staging or commits ran.
+
+Scope mismatch: **two backup test files and nine audit/evidence files appeared concurrently outside the declared writer directory**. They remain untouched; Stage 2 reconciliation needs root review.
+
+[Full census, functions, hashes and unexpected paths](/tmp/spaceworks-qr-http-source-stage2-census.json)  
+SHA-256: `fbde31660d4e1d23d16b34664229b68f4ff658fe112cd65a84b9c8f20793cd9c`

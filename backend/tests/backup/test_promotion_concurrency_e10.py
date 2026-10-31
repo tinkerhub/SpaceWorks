@@ -27,9 +27,12 @@ def test_blocked_final_readback_prevents_promotion_from_reaching_lock_primitive(
     monkeypatch.setattr(
         artifact_protocol.storage, "upload_staging", lambda *_args: None
     )
-    monkeypatch.setattr(
-        artifact_protocol.storage, "create_final_from_staging", lambda *_args: None
-    )
+    def create_final(staging, final, **kwargs):
+        assert (staging, final) == (ledger.staging_locator, ledger.final_locator)
+        assert kwargs == {"expected_size": ledger.expected_size_bytes,
+                          "expected_sha256": ledger.outer_sha256}
+
+    monkeypatch.setattr(artifact_protocol.storage, "create_final_from_staging", create_final)
     monkeypatch.setattr(
         artifact_protocol.storage, "delete_archive", lambda *_args: True
     )

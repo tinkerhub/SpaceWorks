@@ -21,6 +21,7 @@ Three rules, in the order they are applied:
 """
 
 import logging
+from typing import Literal
 
 from apps.integrations.models_destinations import NotificationDestination
 from apps.integrations.notification_enums import ChatNotificationChannel
@@ -93,6 +94,41 @@ def _matches(destination, scope) -> bool:
         or (scope.machine_type_id is not None and scope.machine_type_id in type_ids)
         or (scope.category_id is not None and scope.category_id in category_ids)
     )
+
+
+DestinationSkipReason = Literal[
+    "notification_destination_deleted",
+    "notification_destination_disabled",
+    "notification_destination_scope_withdrawn",
+]
+
+
+def refresh_delivery_destination(log) -> DestinationSkipReason | None:
+    """Reload the current room and scope links before queued delivery or retry.
+
+    A refused room never falls back to the makerspace's legacy credential. Lookup
+    errors propagate so an unreadable scope cannot silently permit a send.
+    """
+    if log.channel not in ChatNotificationChannel.values:
+        return None
+    if log.destination_id is None:
+        return "notification_destination_deleted" if log.destination_label else None
+    destination = (
+        NotificationDestination.objects.filter(
+            pk=log.destination_id, makerspace_id=log.makerspace_id, channel=log.channel
+        )
+        .prefetch_related("machine_scopes", "machine_type_scopes", "category_scopes")
+        .first()
+    )
+    if destination is None:
+        return "notification_destination_deleted"
+    log.destination = destination
+    if not destination.is_active:
+        return "notification_destination_disabled"
+    scope = NotificationScope.from_dict((log.payload or {}).get("scope"))
+    if not _matches(destination, scope):
+        return "notification_destination_scope_withdrawn"
+    return None
 
 
 def resolve_destinations(makerspace, channel, scope=None):

@@ -10,12 +10,17 @@ from django.contrib import messages
 from django.contrib.admin.utils import unquote
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import is_password_usable
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext
 from rest_framework.exceptions import APIException
 from unfold.forms import UserChangeForm
 
+from apps.accounts.claim_transition_gate import (
+    ClaimTransitionScopeChanged,
+    claim_transition_gate,
+)
 from apps.accounts.models import User
 from apps.accounts.principal_guards import refuse_anonymous_requester_credential
 from apps.accounts.transition_services import (
@@ -23,6 +28,11 @@ from apps.accounts.transition_services import (
     transition_walk_in_to_account,
 )
 from apps.audit import services as audit
+from apps.backup.not_restored import TenantNotRestored
+from apps.tenant_migration.gate_errors import (
+    SourceMigrationGateClosed,
+    SourceMigrationGateUnavailable,
+)
 
 AUDITED_FLAGS = ("is_superuser", "is_staff", "is_active", "role")
 
@@ -146,11 +156,36 @@ class UserControlAdminMixin:
             locked_user.save(update_fields=["password"])
 
         try:
-            user = transition_walk_in_to_account(
-                user,
-                actor=request.user,
-                credential_writer=write_password,
+            with claim_transition_gate(user.pk):
+                # Source admission can wait; request.user may now have lost authority.
+                actor = User.objects.filter(pk=request.user.pk).first()
+                if (
+                    actor is None
+                    or not actor.is_active
+                    or not actor.is_superuser
+                    or not actor.is_staff
+                    or actor.access_status != User.AccessStatus.ACTIVE
+                    or actor.must_change_password
+                    or actor.is_tenant_dump_stub
+                ):
+                    raise PermissionDenied("You no longer have permission to change this password.")
+                user = transition_walk_in_to_account(
+                    user,
+                    actor=actor,
+                    credential_writer=write_password,
+                )
+        except (
+            SourceMigrationGateClosed,
+            SourceMigrationGateUnavailable,
+            TenantNotRestored,
+            ClaimTransitionScopeChanged,
+        ):
+            self.message_user(
+                request,
+                "The account could not be updated right now. Please retry shortly.",
+                level=messages.ERROR,
             )
+            return HttpResponseRedirect(_change_url(self, user))
         except WalkInTransitionError:
             # A concurrent transition won the row lock. The record is now an ordinary
             # account, so the inherited form is again the correct writer.

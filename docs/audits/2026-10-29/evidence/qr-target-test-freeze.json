@@ -1,0 +1,32 @@
+{
+  "status": "all5files independently read; runtime pending root; native Box edit/bulk audit and native Warranty races have separately pending test extensions",
+  "cases": "126 statically expanded cases/28functions; no child runtime",
+  "verification_correction": "Asset QR fixture now uses individual tracking with one physical unit and matching product buckets; no production guards bypassed.",
+  "files": [
+    {
+      "path": "backend/tests/qr_target_safety_helpers.py",
+      "sha256": "81543fad3bdf9e28a53119ccb9380a9444c62766a5f777183d967e622c58baa7",
+      "lines": 164
+    },
+    {
+      "path": "backend/tests/test_qr_target_boundaries.py",
+      "sha256": "80ed6556e67cb7924e97d26c960a04a10c65e322484b76cee928cec852a6c46e",
+      "lines": 135
+    },
+    {
+      "path": "backend/tests/test_qr_atomic_mutations.py",
+      "sha256": "006361f66ad9801e46f60b7d0e13e63f6e26689572e460cfd5184f52a6d68308",
+      "lines": 115
+    },
+    {
+      "path": "backend/tests/test_native_box_creation.py",
+      "sha256": "38bdc1a0a5bc76510851975e12e25195b57c8c65c6f5ab7cd8241469efd1b337",
+      "lines": 137
+    },
+    {
+      "path": "backend/tests/test_native_document_audit.py",
+      "sha256": "9a95f357131e1d640b57f3814e238351c75130c310db480067fe9946235ee865",
+      "lines": 198
+    }
+  ]
+}

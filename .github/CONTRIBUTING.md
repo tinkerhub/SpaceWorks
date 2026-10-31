@@ -1,18 +1,18 @@
 # Contributing to Space Works
 
-Thanks for contributing! This guide covers how to get set up, the conventions we follow, and how
-to get a change merged.
+This guide covers contributions to TinkerHub’s customized SpaceWorks edition for TinkerSpace.
+For general use at another makerspace or changes to the upstream product, start with
+[SpaceWorks-Labs/SpaceWorks](https://github.com/SpaceWorks-Labs/SpaceWorks).
+Contributions to this edition belong in [tinkerhub/SpaceWorks](https://github.com/tinkerhub/SpaceWorks).
 
 ## Getting started
 
 1. Fork and clone the repo.
 2. Follow **[DEVELOPMENT.md](DEVELOPMENT.md)** to run Postgres, the Django backend, and the React
    frontend locally.
-3. Confirm the backend test suite is green before you start:
-
-   ```bash
-   cd backend && pytest
-   ```
+3. Run the relevant baseline checks using the [development test instructions](DEVELOPMENT.md#dependencies-and-tests).
+   Backend tests need the database-owner connection and encryption configuration; frontend tests use
+   Node 20. Record existing failures before changing code, and report environmental limits explicitly.
 
 ## Project layout
 
@@ -42,7 +42,7 @@ to get a change merged.
 - **Document every API endpoint in OpenAPI** (drf-spectacular `@extend_schema`). An undocumented
   endpoint is incomplete.
 - **Production-quality code:** validate inputs at the boundary, handle external-service failure
-  explicitly (the Check-In API must fail safe), use structured logging, return typed errors, and
+  explicitly (an unreadable check-in roster must return 503 rather than authorize or deny a person), use structured logging, return typed errors, and
   emit an audit-log entry from every state-changing endpoint.
 - **Tests:** add/extend pytest coverage under `backend/tests/` for behavior changes (test external
   behavior, not implementation). Keep the suite green.
@@ -64,7 +64,9 @@ to get a change merged.
 
 ## Pull requests
 
-1. Make sure `cd backend && pytest` passes and the frontend builds (`cd frontend && npm run build`).
+1. Run the required backend checks and frontend type checking, tests and build using
+   [DEVELOPMENT.md](DEVELOPMENT.md#dependencies-and-tests). Include exact commands and outcomes; do not treat a build
+   alone as proof that workflows pass.
 2. Update docs (`README.md`, `docs/`, and `CLAUDE.md` if you change tooling/architecture) alongside
    the code.
 3. Open the PR against `dev`—not `main`—describing **what** changed and **why**, and call out any

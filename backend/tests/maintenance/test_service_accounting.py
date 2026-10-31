@@ -9,7 +9,7 @@ from apps.maintenance.models import MaintenanceLog, MaintenanceLogDocument
 from tests.maintenance.helpers import make_machine_setup
 
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def test_finalize_and_delete_charge_exact_validated_size(monkeypatch):
@@ -20,10 +20,9 @@ def test_finalize_and_delete_charge_exact_validated_size(monkeypatch):
     key = f"machines/{machine.makerspace_id}/{machine.id}/logs/file.pdf"
     add_storage = Mock()
     free_storage = Mock()
-    delete_object = Mock()
-    monkeypatch.setattr("apps.maintenance.storage.finalize_upload", lambda key: 321)
+    delete_object = Mock(return_value=True)
     monkeypatch.setattr(
-        "apps.maintenance.storage.validate_log_document_object",
+        "apps.maintenance.storage.prepare_upload",
         lambda key: SimpleNamespace(size=321, content_type="application/pdf"),
     )
     monkeypatch.setattr("apps.maintenance.storage.delete_object", delete_object)
@@ -44,22 +43,20 @@ def test_finalize_and_delete_charge_exact_validated_size(monkeypatch):
     assert not MaintenanceLogDocument.objects.filter(pk=document.pk).exists()
 
 
-def test_quota_failure_cleans_objects_and_creates_no_metadata(monkeypatch):
+def test_quota_failure_retains_prepared_final_and_creates_no_metadata(monkeypatch):
     _, manager, machine, _ = make_machine_setup("maintenance-quota")
     log = MaintenanceLog.objects.create(machine=machine, summary="Ready")
     key = f"machines/{machine.makerspace_id}/{machine.id}/logs/file.pdf"
-    cleanup = Mock()
-    monkeypatch.setattr("apps.maintenance.storage.finalize_upload", lambda key: 321)
-    monkeypatch.setattr(
-        "apps.maintenance.storage.validate_log_document_object",
-        lambda key: SimpleNamespace(size=321, content_type="application/pdf"),
-    )
-    monkeypatch.setattr("apps.maintenance.storage.cleanup_upload", cleanup)
+    from apps.maintenance import storage
+    from tests.atomic_publication.store import Store
+    store = Store()
+    store.seed(storage.staging_key(key), b"%PDF-ready", "application/pdf")
+    monkeypatch.setattr(storage, "_client", lambda: store)
     monkeypatch.setattr(
         "apps.maintenance.services_documents.limits.add_storage",
         Mock(side_effect=ValidationError({"limit": "full"})),
     )
     with pytest.raises(ValidationError):
         services.finalize_log_document(log, actor=manager, object_key=key)
-    cleanup.assert_called_once_with(key)
+    assert store.objects[key][0] == b"%PDF-ready"
     assert not MaintenanceLogDocument.objects.exists()

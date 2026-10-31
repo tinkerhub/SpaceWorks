@@ -9,6 +9,10 @@ from django.conf import settings
 
 from apps.object_storage import delete_all_versions
 
+from .models import DataExportJob
+from .object_lock import export_object_lock
+from .source_boundary import gated_archive_upload
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +37,27 @@ def _client(*, public=False):
     )
 
 
+@gated_archive_upload
 def upload_archive(object_key, file_path, content_type="application/zip"):
+    # Both REDACTED and PORTABLE producers use this boundary. A worker still
+    # building when recovery wins must never republish a deleted/failed archive.
+    from .lifecycle import require_running
+
+    with export_object_lock(object_key):
+        require_running(DataExportJob.objects.filter(object_key=object_key).first())
+        _upload_archive_bytes(object_key, file_path, content_type)
+
+
+def _upload_archive_bytes(object_key, file_path, content_type):
+    from apps.tenant_migration.gate_runtime import assert_boundary_held
+    from .errors import ExportIntegrityError
+
+    makerspace_id = DataExportJob.objects.filter(object_key=object_key).values_list(
+        "makerspace_id", flat=True,
+    ).first()
+    if makerspace_id is None:
+        raise ExportIntegrityError("The raw export upload has no owning job.")
+    assert_boundary_held(makerspace_id)
     try:
         with open(file_path, "rb") as handle:
             _client().upload_fileobj(

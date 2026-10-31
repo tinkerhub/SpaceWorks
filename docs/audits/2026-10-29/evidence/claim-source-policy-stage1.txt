@@ -1,0 +1,9 @@
+**APPROVED — bounded Stage 1 plan only.** In-progress implementation is not certified.
+
+- **A:** Run the complete shared identity validator against unlocked DB reads before acquiring source Ns, then repeat it against locked reads before writes. Preserve subject/current-identity checks, verified email, email collisions, `allow_auto_link`, active bound membership, walk-in status, and existing error precedence. This prevents an already-invalid typed binding from exposing foreign freeze state.
+- **B:** Surround the actual custom password transition with the same transition boundary, outside the canonical atomic block. After acquiring all Ns, reload the actor and enforce every stated native-policy condition. Refusal must raise Django `PermissionDenied` (403), bypass inherited fallback, and precede target mutation. Pass the fresh actor to canonical audit; retain post-User-lock scope validation and boundaries through commit.
+- **Stage 3:** Demonstrate actual N blocking, commit actor revocation from another connection, release N, then assert 403 and unchanged target password, walk-in state, bearers, and transition audits.
+
+The freeze tradeoff remains correct for legitimate conversions affecting frozen memberships. Previously approved exact refusal handling remains unchanged; keep changes within the six owned files and each file ≤300 lines.
+
+Read-only source review only; no edits, runtime, imports, or tests.

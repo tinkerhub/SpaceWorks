@@ -1,0 +1,109 @@
+.................F......                                                 [100%]
+=================================== FAILURES ===================================
+_ test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[triage-put] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0xffff815e42c0>
+settings = <pytest_django.fixtures.Settings object at 0xffff815cfa70>
+transport = 'put', winner = 'triage'
+
+    @pytest.mark.parametrize("transport", ["post", "put"])
+    @pytest.mark.parametrize("winner", ["checkout", "triage"])
+    def test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker(
+        monkeypatch, settings, transport, winner,
+    ):
+        lab = setup_lab(monkeypatch, settings, transport)
+        qr = product_qr(lab)
+        report = returned_report(lab, qr)
+        old_loan = report.loan
+        old_request = old_loan.request
+        old_return = old_loan.return_evidence_id
+        shared = photo(lab, lab.store, "issue")
+        assert not HardwareRequest.objects.filter(issue_evidence=shared).exists()
+        quota(lab, 2)
+        triage_locks = []
+    
+        def triaging():
+            def capture(execute, sql, params, many, context):
+                if "FOR UPDATE" in sql or "FOR NO KEY UPDATE" in sql:
+                    triage_locks.append(sql)
+                return execute(sql, params, many, context)
+    
+            with connection.execute_wrapper(capture):
+                return triage(lab, report, shared)
+    
+        operations = {
+            "checkout": lambda: public_checkout(lab, qr, shared),
+            "triage": triaging,
+        }
+        loser = "triage" if winner == "checkout" else "checkout"
+        first_module = self_checkout_workflow if winner == "checkout" else problem_report_workflow
+        second_module = problem_report_workflow if winner == "checkout" else self_checkout_workflow
+        prepared, resume = prepare_validation(
+            monkeypatch, second_module, label="Triage" if loser == "triage" else "Issue",
+        )
+        reached, release = pause_attachment(monkeypatch, first_module, shared.pk)
+    
+>       first, second, pids, query = prepared_race(
+            operations[winner], operations[loser], reached, release, prepared, resume,
+            table="evidence_evidencephoto", clause="FOR UPDATE",
+        )
+
+tests/test_checkout_evidence_lock_races.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/checkout_lock_race_helpers.py:117: in prepared_race
+    raise error  # Never accept/retry a deadlock, timeout or worker exception.
+    ^^^^^^^^^^^
+tests/checkout_lock_race_helpers.py:64: in run
+    outcomes[name] = operation(), None
+                     ^^^^^^^^^^^
+tests/test_checkout_evidence_lock_races.py:58: in <lambda>
+    "checkout": lambda: public_checkout(lab, qr, shared),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/checkout_lock_fixture_helpers.py:94: in public_checkout
+    return issue_post(lab, f"/api/v1/public/{lab.space.slug}/tools/checkout", {
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+lab = namespace(space=<Makerspace: inventory-lending>, actor=<User: lending-manager>, product=<InventoryProduct: Oscilloscop...fff815e6000>, store=<tests.inventory_lending_evidence_helpers.EvidenceStore object at 0xffff87021010>, transport='put')
+url = '/api/v1/public/inventory-lending/tools/checkout'
+payload = {'payload': 'ecfa9bec722340c8ba720db21a46852c', 'evidence_id': 861, 'remark': 'Race handover'}
+
+    def issue_post(lab, url, payload):
+        """Capture real Maker lock SQL, including add_storage's finite-cap PUT lock."""
+        maker_locks = []
+    
+        def capture(execute, sql, params, many, context):
+            if 'FROM "makerspaces_makerspace"' in sql and "FOR " in sql:
+                maker_locks.append(sql)
+            return execute(sql, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = client(lab).post(url, payload, format="json")
+        if response.status_code in (200, 201):
+            assert maker_locks and all("FOR NO KEY UPDATE" in sql for sql in maker_locks), maker_locks
+            if lab.transport == "put":
+                # The domain guard and add_storage each execute their actual SELECT.
+>               assert len(maker_locks) >= 2, maker_locks
+                       ^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: ['SELECT "makerspaces_makerspace"."id", "makerspaces_makerspace"."name", "makerspaces_makerspace"."slug", "makerspaces_makerspace"."public_code", "makerspaces_makerspace"."item_code_prefix", "makerspaces_makerspace"."location", "makerspaces_makerspace"."map_url", "makerspaces_makerspace"."geofence_latitude", "makerspaces_makerspace"."geofence_longitude", "makerspaces_makerspace"."geofence_radius_m", "makerspaces_makerspace"."geofence_enabled", "makerspaces_makerspace"."public_inventory_enabled", "makerspaces_makerspace"."public_request_mode", "makerspaces_makerspace"."checkin_space_id", "makerspaces_makerspace"."checkin_api_url", "makerspaces_makerspace"."checkin_required_purpose", "makerspaces_makerspace"."checkin_provider_name", "makerspaces_makerspace"."public_stats_enabled", "makerspaces_makerspace"."public_stats_show_holder_names", "makerspaces_makerspace"."public_print_status_lookup_policy", "makerspaces_makerspace"."membership_policy", "makerspaces_makerspace"."membership_dues_amount", "makerspaces_makerspace"."referrals_enabled", "makerspaces_makerspace"."filament_low_stock_threshold_grams", "makerspaces_makerspace"."superadmin_access_enabled", "makerspaces_makerspace"."staff_notifications_enabled", "makerspaces_makerspace"."booking_requester_notifications_enabled", "makerspaces_makerspace"."logo_key", "makerspaces_makerspace"."cover_image_key", "makerspaces_makerspace"."frontend_domain", "makerspaces_makerspace"."frontend_domain_status", "makerspaces_makerspace"."domain_verification_token", "makerspaces_makerspace"."domain_verified_at", "makerspaces_makerspace"."frontend_domain_changed_at", "makerspaces_makerspace"."hidden_from_central_directory", "makerspaces_makerspace"."public_api_key", "makerspaces_makerspace"."cors_allowed_origins", "makerspaces_makerspace"."enabled_modules", "makerspaces_makerspace"."enabled_features", "makerspaces_makerspace"."resource_limit_overrides", "makerspaces_makerspace"."storage_bytes_used", "makerspaces_makerspace"."theme_config", "makerspaces_makerspace"."branding_config", "makerspaces_makerspace"."telegram_group_chat_id", "makerspaces_makerspace"."telegram_bot_token", "makerspaces_makerspace"."smtp_host", "makerspaces_makerspace"."smtp_port", "makerspaces_makerspace"."smtp_username", "makerspaces_makerspace"."smtp_password", "makerspaces_makerspace"."smtp_use_tls", "makerspaces_makerspace"."smtp_use_ssl", "makerspaces_makerspace"."smtp_from_email", "makerspaces_makerspace"."slack_webhook_url", "makerspaces_makerspace"."mattermost_webhook_url", "makerspaces_makerspace"."discord_webhook_url", "makerspaces_makerspace"."default_loan_days", "makerspaces_makerspace"."presence_preset_minutes", "makerspaces_makerspace"."created_by_id", "makerspaces_makerspace"."anonymous_requester_id", "makerspaces_makerspace"."archived_at", "makerspaces_makerspace"."purge_started_at", "makerspaces_makerspace"."lifecycle_state", "makerspaces_makerspace"."archived_by_id", "makerspaces_makerspace"."created_at", "makerspaces_makerspace"."updated_at" FROM "makerspaces_makerspace" WHERE "makerspaces_makerspace"."id" = %s LIMIT 21 FOR NO KEY UPDATE']
+
+tests/checkout_lock_fixture_helpers.py:89: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  apps.inventory.middleware:middleware_observability.py:63 api_client_auth_would_reject
+WARNING  apps.inventory.middleware:middleware_observability.py:63 api_client_auth_would_reject
+WARNING  apps.inventory.middleware:middleware_observability.py:63 api_client_auth_would_reject
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+tests/test_checkout_lock_races.py: 8 warnings
+tests/test_checkout_native_lock_races.py: 6 warnings
+tests/test_checkout_evidence_lock_races.py: 6 warnings
+tests/test_asset_fix_concurrency.py: 4 warnings
+  /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_checkout_evidence_lock_races.py::test_triage_report_self_lock_then_shared_evidence_does_not_invert_maker[triage-put]
+1 failed, 23 passed, 25 warnings in 49.04s

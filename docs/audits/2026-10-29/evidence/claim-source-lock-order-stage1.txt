@@ -1,0 +1,19 @@
+**Bounded actual alternative: OIDC reorder plus one hook change.** The same-file-only delta is insufficient.
+
+The direct transition locks User at [transition_services.py:67](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/accounts/transition_services.py:67), then invokes the claim hook. That hook uses unrestricted `select_for_update()` with `membership__user=user` at [services_claim.py:268](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/accounts/services_claim.py:268). This joins Membership and locks contributing Membership rows too: PostgreSQL’s unqualified `FOR UPDATE` covers all participating tables. [PostgreSQL 16 documentation](https://www.postgresql.org/docs/16/sql-select.html#SQL-FOR-UPDATE-SHARE)
+
+With an unrevoked claim, the proposed ordering therefore permits:
+
+- OIDC holds Membership → waits for User.
+- Direct transition holds User → its hook waits for Membership.
+
+`end_sessions_for_claim` correctly uses `of=("self",)` at [services.py:156](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/presence/services.py:156), but that does not prevent the earlier hook lock.
+
+The bounded correction is:
+
+1. Apply the proposed OIDC order: bound active Membership by `pk + user_id` → target User → fresh scope assertion → full identity validation, before writes.
+2. Change **only the hook’s locking call** to `select_for_update(of=("self",))`, retaining its filter and revocation behavior.
+
+This makes the hook’s actual locks match the stated User → claims contract. Keep the approved unlocked preflight, sorted all-source Ns, nested admission reuse, and locked revalidation unchanged; no new lock framework or claim ordering is needed.
+
+Read-only review only; no edits, runtime, or tests.

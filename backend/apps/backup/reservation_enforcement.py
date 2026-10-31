@@ -8,6 +8,9 @@ from django.db import connections, transaction
 from django.utils import timezone
 
 from apps.backup.models import B1FenceContinuity, B1ReservationEntry
+from apps.backup.compound_restore_catalog import (
+    installed_trigger_oid, target_catalog_binding,
+)
 from apps.backup.postgres_client import server_major
 from apps.backup.recipient_selection import BackupBuildError
 from apps.backup.reservation_catalog import load_unique_rules
@@ -26,7 +29,8 @@ FENCE_KINDS = frozenset({
 
 
 def install_reservation_entry(
-    *, operation_id, component_id, kind, fact, reservation_salt=None, using="default"
+    *, operation_id, component_id, kind, fact, reservation_salt=None,
+    expected_entry=None, using="default"
 ):
     """Bind a signed fact to the reproduced catalog and install its row trigger.
 
@@ -35,12 +39,20 @@ def install_reservation_entry(
     after its exact catalog and canonicalizer identities reproduce successfully.
     """
 
-    payload = _catalog_bound_payload(
+    payload = catalog_bound_payload(
         fact, kind=kind, reservation_salt=reservation_salt, using=using
     )
     identity = payload.get("constraint_identity") or payload.get("registry_identity")
     if not _is_digest(identity) or not _is_digest(payload.get("definition_sha256")):
         raise BackupBuildError("A reservation identity or definition digest is invalid.")
+    if expected_entry is not None and (
+        payload != expected_entry["installed_payload"]
+        or target_catalog_binding(payload, using=using) != {
+            key: expected_entry[key]
+            for key in ("target_relation_oid", "enforcement_function_oid")
+        }
+    ):
+        raise BackupBuildError("The compiled installation changed before entry commit.")
     with transaction.atomic(using=using):
         entry = B1ReservationEntry.objects.using(using).create(
             operation_id=operation_id,
@@ -51,7 +63,7 @@ def install_reservation_entry(
             safe_payload=payload,
             installed_at=timezone.now(),
         )
-        trigger_oid = _installed_trigger_oid(payload, using=using)
+        trigger_oid = installed_trigger_oid(payload, using=using)
         if kind in FENCE_KINDS:
             continuity, created = B1FenceContinuity.objects.using(using).get_or_create(
                 operation_id=operation_id,
@@ -69,7 +81,7 @@ def install_reservation_entry(
     return entry
 
 
-def _catalog_bound_payload(fact, *, kind, reservation_salt, using):
+def catalog_bound_payload(fact, *, kind, reservation_salt, using):
     payload = dict(fact)
     if kind != B1ReservationEntry.Kind.COMMITMENT:
         _validate_fact_digest(payload)
@@ -126,26 +138,6 @@ def _validate_fact_digest(payload):
         raise BackupBuildError("The database fence definition digest is invalid.")
 
 
-def _installed_trigger_oid(payload, *, using):
-    enforcement = payload.get("enforcement", {})
-    schema = payload.get("schema", enforcement.get("schema", "public"))
-    table = payload.get("table", enforcement.get("table"))
-    with connections[using].cursor() as cursor:
-        cursor.execute(
-            "SELECT trigger.oid FROM pg_catalog.pg_trigger trigger "
-            "JOIN pg_catalog.pg_class target ON target.oid = trigger.tgrelid "
-            "JOIN pg_catalog.pg_namespace namespace ON namespace.oid = target.relnamespace "
-            "WHERE namespace.nspname = %s AND target.relname = %s "
-            "AND trigger.tgname = 'backup_b1_reservation_guard' "
-            "AND trigger.tgenabled = 'O' AND NOT trigger.tgisinternal",
-            [schema, table],
-        )
-        row = cursor.fetchone()
-    if row is None:
-        raise BackupBuildError("The database reservation trigger was not installed and enabled.")
-    return row[0]
-
-
 def _server_major(using):
     if using == "default":
         return server_major()
@@ -165,3 +157,7 @@ def _is_digest(value):
         isinstance(value, str) and len(value) == 64
         and all(character in "0123456789abcdef" for character in value)
     )
+
+
+_catalog_bound_payload = catalog_bound_payload
+_installed_trigger_oid = installed_trigger_oid

@@ -1,0 +1,21 @@
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx (6 tests) 2515ms
+     ✓ gates the form and sends identity with every presign and submission  1210ms
+     ✓ lets quantity be cleared while typing, clamps it, and resets the form after submitting  418ms
+ ✓ src/features/staff/staffSession.completion.test.tsx (3 tests) 7803ms
+     ✓ shows a current failed logout in the real LoginPanel after local identity and token cleanup  2430ms
+     ✓ a new password submit invalidates an old logout warning in the same act before any new token is installed  4094ms
+     ✓ a late failed logout cannot publish a warning or clear a completed new login's cache and selection  1276ms
+ ✓ src/features/inventory/PublicRequestPanelCheckedIn.test.tsx (14 tests) 1123ms
+     ✓ describes the account-less roster path  314ms
+ ✓ src/features/members/MemberAreaAccountsOff.test.tsx (4 tests) 658ms
+     ✓ is a not-found page and calls no member API  332ms
+ ✓ src/components/chrome/PublicHeaders.test.tsx (9 tests) 825ms
+
+ Test Files  5 passed (5)
+      Tests  36 passed (36)
+   Start at  13:45:20
+   Duration  50.25s (transform 5.33s, setup 3.20s, import 17.86s, tests 12.92s, environment 14.59s)
+

@@ -1,0 +1,19 @@
+Added only [test_native_box_audit.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_native_box_audit.py) (235 lines) and [native_box_audit_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/native_box_audit_helpers.py) (133 lines).
+
+29 cases cover:
+
+- Add audit uniqueness; edit privacy and absent/active/revoked QR preservation.
+- No-op audit suppression; native changeform rollback.
+- Actual Box/Category MRO, two-object bulk success, first/second INSERT refusal.
+- SourceGate, hidden, suspended and non-superuser guards.
+- Protected-history preflight and real Collector rollback.
+
+Bulk assertions explicitly preserve native `LogEntry` attempt records outside canonical/domain rollback. Parent races remain excluded.
+
+AST and line-limit checks passed. No project imports, pytest, builds, production edits, staging or commits.
+
+Root’s runtime command:
+
+```bash
+/tmp/spaceworks-backend-test.sh -m pytest tests/test_native_box_audit.py -q
+```

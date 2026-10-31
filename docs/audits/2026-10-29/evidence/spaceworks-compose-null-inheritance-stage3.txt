@@ -1,0 +1,29 @@
+Written **22 cases** in only:
+
+- [test_recovery_compose_inheritance.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_recovery_compose_inheritance.py) — 196 lines.
+- [recovery_compose_inheritance_support.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/recovery_compose_inheritance_support.py) — 184 lines.
+
+Independent static review: **APPROVED**. AST checks passed. No tests, collection, project imports, Compose, Docker, DB, providers, or builds executed. Nothing staged or committed; other lanes untouched.
+
+Parent command, from repository root:
+
+```bash
+cd backend && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest --noconftest -c /dev/null -q tests/backup/test_recovery_compose_inheritance.py
+```
+
+Requires Linux, Python 3.12+, pytest, Docker CLI and a system-installed Compose plugin supporting repeated `--env-file` and `config --format json`. Missing CLI fails explicitly. No daemon required.
+
+The suite renders production Compose plus the shipped build overlay, then uses real admission over independent synthetic inspect facts. Real host/image/container attestation remains the parent’s separate probe.
+
+SHA-256:
+
+```text
+tests    e1548a8ec74b6d7a66138239b6d58d5bdd32ecbbea8ceaf4f84119c942fb8369
+support  9722d7d8ebeb3d7052eee87657f4ff15f66a106a6e8262350d65aea5a61ff810
+source   55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2
+wrapper  5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3
+prod     a88a0db72fd5c6222bf6e2105b2659f8d2415f132758d46b2d1054edac62ab75
+build    c18b95da944ce1b37726d161d02766e9effbabfb89096acd5a4d5519c2541f4b
+```
+
+Source and wrapper admission pin match.

@@ -1,0 +1,21 @@
+{
+  "status": "findings-require-correction",
+  "gate": "Stage4 bare background uncommitted review",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "exit_code": 0,
+  "seconds": 824.495,
+  "initial_changed_file_count": 1810,
+  "finding": {
+    "priority": "P2",
+    "path": "backend/apps/payments/amounts.py",
+    "lines": [
+      14,
+      18
+    ],
+    "issue": "Incomplete currency allowlist rejects valid existing SAR and BDT configurations before payment/checkout.",
+    "resolution_status": "Provider-specific currency mapping and focused verification in progress; review must rerun afterward."
+  },
+  "reviewer_runtime_limits": "Reviewer TypeScript check passed. Its host frontend test attempt could not start because native Rolldown binding was missing; separate recorded Node20 full frontend1991 and focused36 checks passed.",
+  "raw_review_log": "Private; not copied into public artifacts."
+}

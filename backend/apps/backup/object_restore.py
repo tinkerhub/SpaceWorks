@@ -7,7 +7,6 @@ from pathlib import Path, PurePosixPath
 
 from botocore.exceptions import ClientError
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 
 from apps.backup import object_restore_versions, storage
@@ -16,6 +15,10 @@ from apps.backup.object_restore_versions import ObjectRestoreError
 from apps.makerspaces import limits
 from apps.makerspaces.models import Makerspace
 from apps.object_storage import delete_all_versions
+from apps.backup.rollback_cleanup import (
+    cleanup_rollback_objects,
+    cleanup_expired_rollback_objects,
+)
 def restore_objects(restore, bundle_root, manifest, journal_path):
     root = Path(bundle_root).resolve()
     journal = Path(journal_path)
@@ -154,70 +157,6 @@ def rollback_objects(restore):
                 Key=row.source_key,
                 MetadataDirective="COPY",
             )
-
-
-def cleanup_rollback_objects(restore):
-    client = storage.client()
-    for row in restore.rollback_objects.select_related("makerspace"):
-        if row.copy_key:
-            delete_all_versions(
-                client, bucket=_bucket(row.bucket_kind), key=row.copy_key
-            )
-        elif row.source_version_id:
-            client.delete_object(
-                Bucket=_bucket(row.bucket_kind),
-                Key=row.source_key,
-                VersionId=row.source_version_id,
-            )
-        if row.makerspace_id and row.size_bytes:
-            limits.free_storage(row.makerspace, row.size_bytes)
-        row.delete()
-
-
-def cleanup_expired_rollback_objects(limit=100):
-    """Remove expired failed-restore copies without deleting a live source version."""
-    rows = list(
-        RestoreRollbackObject.objects.select_related("makerspace", "restore")
-        .filter(expires_at__lte=timezone.now())
-        .order_by("pk")[:limit]
-    )
-    cleaned = 0
-    for row in rows:
-        if row.copy_key:
-            try:
-                delete_all_versions(
-                    storage.client(),
-                    bucket=_bucket(row.bucket_kind),
-                    key=row.copy_key,
-                )
-            except Exception:
-                continue
-        elif row.source_version_id and row.restore.stage in {
-            RestoreOperation.Stage.COMPLETED,
-            RestoreOperation.Stage.RESTORED_QUARANTINED,
-        }:
-            try:
-                storage.client().delete_object(
-                    Bucket=_bucket(row.bucket_kind),
-                    Key=row.source_key,
-                    VersionId=row.source_version_id,
-                )
-            except Exception:
-                continue
-        with transaction.atomic():
-            locked = (
-                RestoreRollbackObject.objects.select_for_update()
-                .select_related("makerspace")
-                .filter(pk=row.pk, expires_at__lte=timezone.now())
-                .first()
-            )
-            if locked is None:
-                continue
-            if locked.makerspace_id and locked.size_bytes:
-                limits.free_storage(locked.makerspace, locked.size_bytes)
-            locked.delete()
-            cleaned += 1
-    return cleaned
 
 
 def reconcile_rollback_journal(restore, journal_path):

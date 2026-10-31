@@ -1,0 +1,20 @@
+{
+  "README.md": "c0c6d463bee1c20055dc66d84428e2898b4ee981b889fbabc419f92bf241f265",
+  "spaceworks-audit-events.md": "1e496186bffa0de386fb7399959ae920f0dd2a891d70e010395c1750e00de3ae",
+  "spaceworks-audit-feature-inventory.json": "fba0ee8141dbd7ab78977a034d37df7d64276fa02e80dc2d2dca2642434b8f86",
+  "spaceworks-audit-identity.md": "8a6ca62d59b53e92df8ec1bcd2d97fdd70c6734cde5028d45ac3ae0d923b942c",
+  "spaceworks-audit-inventory.md": "c09ed649521f5e3649c9a75cb2f9b72dde7bb04eb2e0d8b59e2e7fb65bb95c31",
+  "spaceworks-audit-machines.md": "1ad93a1cb632af82a3f4e60e1bd4762026b812ce112281e32a11aee6a10b68ef",
+  "spaceworks-audit-payments-notifications.md": "b44539749327b052d1e871c24fb7940581ef6edf195a34a5c282fa2570050480",
+  "spaceworks-audit-recovery.md": "b5bea0a947641553445fb8641ffa9d68542afe4d413e43a0bb659875378176ff",
+  "spaceworks-audit-storage-followup.md": "f3feeb6c2650ff0db73f24edbf644361b40123096e7a837a763012eb62c84bf5",
+  "spaceworks-audit-utilities.md": "11a0ec2f5fa58fe7a087e9715538508beaa9bed7f30e3fb71a8d919acf8dd4fd",
+  "spaceworks-complete-audit-evidence-gaps.csv": "61bb6ae1fc667d1a2cfb58e9f60d527d1fdbea803bffbd856f98b0bbc4a6d0de",
+  "spaceworks-complete-audit-flow-map.csv": "4e0077c1c1978344d5e70fe3074cec976e625d18f8c3f5d1c96d2bdbb0134275",
+  "spaceworks-complete-audit-frontend-map.csv": "3046ad6ddac91765dd0c567e9576f578c616e15886fa73e8200db0283cfb9b52",
+  "spaceworks-complete-audit-initial-evidence-gaps.csv": "bd4d1a94ce364f70fdc34537964663a15374ee945257ec4ad084257d21d2d3ed",
+  "spaceworks-complete-audit-inventory-map.csv": "dfca1ea7f42cfd823e7d4bbcb0446b552084e10c88b9888761b7281b097692ee",
+  "spaceworks-complete-audit-inventory-refresh-delta.json": "5a0c5edb99fc1fa9f099d4b0b85b0cb1c10db613138af51cb1cdf9fa6a4d5652",
+  "spaceworks-complete-audit-mapping-summary.json": "687e0aac938eb9144999307eeb86462dc86e15050fd86f69a1cf8563332f9c30",
+  "spaceworks-complete-audit-report-draft.md": "5faf05711c34f382d37ba62a182417da18091cf885c378ffe43f9cbb06ba37c2"
+}

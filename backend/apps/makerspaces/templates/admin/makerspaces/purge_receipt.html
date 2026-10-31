@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% block content %}
+  {{ block.super }}
+  <p>Tenant graph removed. Storage checked at {{ original.last_verified_at|default:"unconfirmed" }}.
+     Late-upload cleanup remains available. This receipt and its locators are retained indefinitely.</p>
+  {% if original.invalidated_at %}
+    <p>This receipt was permanently invalidated by recovery.</p>
+  {% else %}
+    <form method="post" action="{{ cleanup_url }}">
+      {% csrf_token %}
+      <button type="submit">Verify storage and retry cleanup</button>
+    </form>
+  {% endif %}
+{% endblock %}

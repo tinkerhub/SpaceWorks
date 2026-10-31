@@ -1,0 +1,5 @@
+Implemented and frozen in [retention_policy.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/retention_policy.py:84). Only added `F` and the approved ordering.
+
+Untouched candidates sort first; attempted candidates sort by oldest state timestamp. Failures refresh that timestamp, moving behind later candidates instead of repeatedly starving them. All filters, cutoff/count/preview behavior, APIs, and policy writes remain unchanged.
+
+Static AST and diff checks passed; source is 113/300 lines. Runtime/tests **NOT RUN**. No other files edited; nothing staged or committed.

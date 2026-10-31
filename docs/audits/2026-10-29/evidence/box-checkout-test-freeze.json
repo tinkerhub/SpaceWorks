@@ -1,0 +1,76 @@
+{
+  "reviewer": "/root/audit_backend_finish",
+  "source_manifest": "box-checkout-source-freeze.json",
+  "runtime": "Root: 89 functional cases PASS23.20s; 24 actual PostgreSQL checkout/native/evidence/asset race cases PASS48.47s. Distinct targeted groups, not whole-suite approval.",
+  "corrections": [
+    "Managed fixtures explicitly configure INFRA_HOSTS and raw HTTP_HOST=testserver; real middleware/quota preserved.",
+    "Functional fresh-state service case labels corrected from native to service; native action actually invoked by race tests.",
+    "PG helper observes prior quota_charged after actual first Maker lock, so triage-shared photo skips second charge without relaxing NK SQL or quota-once assertions."
+  ],
+  "files": [
+    {
+      "path": "backend/tests/checkout_lock_race_helpers.py",
+      "lines": 152,
+      "sha256": "e7c77e9a795a052c490f9dadbf863b044daaca00528a7cf9116bc59604d252c3"
+    },
+    {
+      "path": "backend/tests/checkout_lock_fixture_helpers.py",
+      "lines": 267,
+      "sha256": "4e09d64e84162ea1d3a4e30904979881fc986b600199603971fdcceada5d3d33"
+    },
+    {
+      "path": "backend/tests/test_checkout_lock_races.py",
+      "lines": 157,
+      "sha256": "642b3ae49a9119e23f730e433121913c5a405c30395776ccdbaee6105e704259"
+    },
+    {
+      "path": "backend/tests/test_checkout_native_lock_races.py",
+      "lines": 175,
+      "sha256": "058d5718d8eb9a1642288293290100df1df5cf7bce300ad4c606dde2e87dc260"
+    },
+    {
+      "path": "backend/tests/test_checkout_evidence_lock_races.py",
+      "lines": 228,
+      "sha256": "4ccdf70e33233bb2b7c52b43a70c12ddf9525cb300ea08b4fae6b406760992ef"
+    },
+    {
+      "path": "backend/tests/test_asset_fix_concurrency.py",
+      "lines": 200,
+      "sha256": "82845f08ffa2c8427e98a116d67c4cd6aba8bc8b6d840deb044c8ba6fdbd4038"
+    },
+    {
+      "path": "backend/tests/asset_fix_concurrency_helpers.py",
+      "lines": 139,
+      "sha256": "dae24e6055bffc8f612bf9efbc5ce3f7072b9bcff7a86b0e60ddafb6247a6d78"
+    },
+    {
+      "path": "backend/tests/box_checkout_guard_helpers.py",
+      "lines": 178,
+      "sha256": "289ad4ca3c4872a0b60a9c9393f127a6a8c46f8c3e07b1cea47f76ee90db2700"
+    },
+    {
+      "path": "backend/tests/test_box_checkout_scan_guards.py",
+      "lines": 203,
+      "sha256": "18a96a63563e791368e81bc767f0de852c7b5b5672da7d6afe56dc3922c09d9d"
+    },
+    {
+      "path": "backend/tests/test_box_checkout_nested_guard.py",
+      "lines": 146,
+      "sha256": "212779b61e41ed340580e846c73330b3461f47c9882895ba1437688201b988c4"
+    },
+    {
+      "path": "backend/tests/test_qr_revoke_fresh_state.py",
+      "lines": 84,
+      "sha256": "184ac05c8b00becfce2bc78c343c55f960a499d8cd788db0563c8ddf7e7e9990"
+    },
+    {
+      "path": "backend/tests/test_box_checkout_integrity.py",
+      "lines": 269,
+      "sha256": "26f2b6f3127bd865951f26d36d11c76e454ed71cd1fc4024488a99b139c942a0"
+    }
+  ],
+  "runtime_evidence": [
+    "box-checkout-functional-host-corrected.xml",
+    "checkout-lock-races-corrected.xml"
+  ]
+}

@@ -7,10 +7,16 @@ from pathlib import Path
 import logging
 
 from django.core.management import call_command
-from django.db import transaction
+from django.db import connection, transaction
 from django.utils import timezone
 
 from apps.backup import storage
+from apps.backup.full_format import FULL_FORMAT
+from apps.backup.full_control_record import (
+    apply_archive_record, capture_archive_record, validate_archive_record, write_private_json,
+)
+from apps.backup.full_restore_identity import capture_target_identity, verify_target_identity
+from apps.backup.manifest_dispatch import registered_manifest_kind, verify_signed_manifest
 from apps.backup.models import (
     BackupArchive,
     DeploymentRecoveryState,
@@ -33,9 +39,26 @@ def export_control_record(restore_id, output, decision=None):
         "fencing_token": str(restore.fencing_token or ""),
         "requested_by_username": restore.requested_by_username_snapshot,
     }
+    if restore.archive.manifest.get("format") == FULL_FORMAT:
+        registered_manifest_kind(restore.archive.manifest, restore.archive.manifest)
+        with transaction.atomic():
+            payload["full_target_identity"] = capture_target_identity(connection.connection)
+        payload["full_archive_identity"] = capture_archive_record(restore.archive)
     path = Path(output)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+    encoded = json.dumps(payload, sort_keys=True)
+    if "full_target_identity" in payload:
+        from apps.backup.full_restore_identity import MAX_CONTROL_BYTES
+
+        # The all-table report may be large; the privileged bootstrap receives
+        # only its bounded identity projection, never the report itself.
+        identity = {"full_target_identity": payload["full_target_identity"]}
+        if len(json.dumps(identity).encode("utf-8")) > MAX_CONTROL_BYTES:
+            raise RuntimeError("The signed-full target identity exceeds its size bound.")
+        write_private_json(path, payload)
+        write_private_json(path.with_name(f"{path.name}.identity.json"), identity)
+    else:
+        path.write_text(encoded, encoding="utf-8")
     return path
 
 
@@ -45,6 +68,14 @@ def rehydrate_control_record(restore_id, options):
 
     control = json.loads(Path(options["control_record"]).read_text(encoding="utf-8"))
     manifest = json.loads(Path(options["manifest"]).read_text(encoding="utf-8"))
+    if manifest.get("format") == FULL_FORMAT:
+        verify_signed_manifest(manifest)
+        archive_record = validate_archive_record(
+            control.get("full_archive_identity"), manifest, options["archive_id"],
+        )
+        verify_target_identity(connection.connection, control.get("full_target_identity"))
+    elif "full_target_identity" in control:
+        raise RuntimeError("The target identity control record requires signed-full restore.")
     completed_at = timezone.now()
     archive = BackupArchive.objects.select_for_update().get(
         pk=options["archive_id"]
@@ -58,6 +89,8 @@ def rehydrate_control_record(restore_id, options):
         archive.expires_at = completed_at + timedelta(
             days=PlatformBackupSettings.load().retention_days
         )
+    if manifest.get("format") == FULL_FORMAT:
+        apply_archive_record(archive, archive_record)
     archive.save(
         update_fields=(
             "status",
@@ -66,6 +99,12 @@ def rehydrate_control_record(restore_id, options):
             "completed_at",
             "failure_detail",
             "expires_at",
+            "archive_sha256",
+            "size_bytes",
+            "object_key",
+            "download_token_digest",
+            "download_token_expires_at",
+            "download_token_consumed_at",
             "updated_at",
         )
     )
@@ -102,6 +141,14 @@ def validate_restored_state(restore_id):
     restore = RestoreOperation.objects.get(pk=restore_id)
     if restore.stage != RestoreOperation.Stage.VALIDATING:
         raise RuntimeError("Only the validating stage can run restored-state checks.")
+    from django.conf import settings
+    from apps.backup.host_marker import MarkerState, read_marker
+    from apps.backup.inplace_readiness import assert_inplace_ready
+
+    marker = read_marker(getattr(settings, "SPACEWORKS_HOST_MARKER_PATH",
+                                 "/run/spaceworks-host/restore-marker.json"))
+    if marker.state == MarkerState.RESTORE_BLOCKED:
+        assert_inplace_ready(marker, restore)
     call_command("check", verbosity=0)
     from apps.accounts.token_guard import validate_token_configuration
     from apps.backup.custody import validate_deployment_custody

@@ -1,0 +1,19 @@
+**APPROVED for the bounded HW002 addendum, using refusal for both descendant assets and descendant product stock.** Extending only the individual-unit check leaves the same physical traceability gap for quantity stock in child boxes.
+
+The existing [container-only guard](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/direct_loan_workflow.py:113) already treats descendant stock as contents that leave with the parent. [Box.parent](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/models.py:21), the container APIs, and the UI’s separate “Sub-containers” display confirm nesting is an existing contract. Current Stage 2 checkout and scanner checks still inspect only direct assets.
+
+Approve this concrete policy:
+
+- Extract the existing traversal unchanged into `boxes/contents.py::container_subtree_ids`; retain the import/re-export as `direct_loan_workflow._container_subtree_ids`. Preserve makerspace filtering, visited-ID exclusion, and existing container-only behavior.
+- Use one shared refusal predicate in `_checkout_box` and `_box_checkout_eligible`. Refuse when **any AVAILABLE asset exists anywhere in the subtree, including the root**, or **any non-archived product with `available_quantity > 0` exists in a descendant box, excluding the root**.
+- Scope stock queries to the makerspace. Apply no public visibility, self-checkout-enabled, or child-box-active filters to this refusal. Match the existing container-only guard’s archived-product treatment.
+- Keep quantity selection and issuance **direct-root only**, with existing quantities unchanged. Preserve active public-loan/reviewed-request occupancy checks, overlap rejection, standalone unit scans, and selected-container staff handouts with explicitly scanned units.
+- Return generic guidance without names, IDs, counts, or hidden-unit details. For example: “This box requires separate contents selection. Scan individual units using their own QR codes; for a staff handout, select the container and contents separately.”
+
+This closes the identified omission without introducing recursive issuance or claiming complete-kit validation.
+
+Stage 3 should cover public checkout, staff box-QR checkout, and scanner eligibility with a valid root quantity product plus: an AVAILABLE child/grandchild asset, hidden or checkout-disabled descendant stock, and an available descendant quantity product. Assert refusal preserves stock and transactional records. Also retain success coverage for direct-root quantity kits with empty descendants, selected-container unit scans, and the existing container-only descendant refusal.
+
+The separate Stage 2 correction CLI may own the five specified source files; tests follow in Stage 3. Current existing files are **258, 265, and 109 lines** respectively; every resulting source file must remain ≤300.
+
+This is bounded Stage 1 plan approval only, with no global ledger approval. Stage 2 remains active in shared source; no source freeze is asserted. No edits, tests, or builds performed.

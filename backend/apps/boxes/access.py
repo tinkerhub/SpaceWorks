@@ -21,10 +21,14 @@ def locked_qr_for_action(user, action, **filters):
     return get_object_or_404(queryset, **filters)
 
 
-def target_for_rebind(user, target_type, target_id):
+def target_for_rebind(user, target_type, target_id, *, locked=True, makerspace_id=None):
     action = rbac.Action.EDIT_INVENTORY
     if target_type == QrCode.TargetType.PRODUCT:
-        queryset = rbac.scope_by_action(user, action, InventoryProduct.objects.select_for_update())
+        queryset = rbac.scope_by_action(user, action, InventoryProduct.objects.all())
     else:
-        queryset = rbac.scope_by_action(user, action, InventoryAsset.objects.select_for_update())
+        queryset = rbac.scope_by_action(user, action, InventoryAsset.objects.all())
+    if makerspace_id is not None:
+        queryset = queryset.filter(makerspace_id=makerspace_id)
+    if locked:
+        queryset = queryset.select_for_update()
     return get_object_or_404(queryset, pk=target_id)

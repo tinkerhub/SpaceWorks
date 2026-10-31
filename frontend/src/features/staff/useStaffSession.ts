@@ -1,34 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import {
-  addAuthExpiredListener,
-  clearAccessToken,
-  fetchMe,
-  logout as logoutStaff,
-  refreshAccessToken,
-  setAccessToken,
-  staffRequest,
-  type PasswordLoginRequest,
-  type PasswordLoginResponse,
-  type StaffAuthUser,
+  addAuthExpiredListener, clearAccessToken, fetchMe, getSessionGeneration,
+  logout as logoutStaff, refreshAccessToken, setAccessToken, staffRequest,
+  type PasswordLoginRequest, type PasswordLoginResponse, type StaffAuthUser,
 } from "../../lib/api";
+import { LogoutIncompleteError } from "../../lib/apiSession";
 import type { SocialLoginResult } from "../auth/socialSdk";
-import { type RecoveryState } from "./RecoveryQuarantinePanel";
-import {
-  persistSelectedMakerspace,
-  persistStaffTab,
-  readStoredMakerspace,
-  staffBasePath,
-  staffMakerspaceSlugFromPath,
-  staffTabPath,
-  tabFromStaffPath,
-} from "./staffTabs";
-import { type Makerspace, useStaffGet } from "./panels/shared";
+import type { RecoveryState } from "./RecoveryQuarantinePanel";
+import { persistSelectedMakerspace, persistStaffTab, readStoredMakerspace, staffBasePath } from "./staffTabs";
 import { useTenant } from "../../lib/tenant";
 import { wipeOfflineScopes } from "./eventCheckInOfflineStore";
 import { staffMeKey } from "./paymentsApi";
+import { useStaffMakerspaces } from "./useStaffMakerspaces";
+import { isGlobalStaffAdmin, resolveStaffSelection, staffChoicePath, type StaffSelection } from "./staffSelection";
+
+type SelectionIntent = {
+  sequence: number;
+  generation: number;
+  sourceKey: string;
+  targetPath: string;
+  id: number | null;
+};
 
 export function useStaffSession(guestOnly: boolean) {
   const tenant = useTenant();
@@ -36,185 +31,206 @@ export function useStaffSession(guestOnly: boolean) {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState<StaffAuthUser | null>(null);
-  const [selected, setSelectedState] = useState<number | null>(() => readStoredMakerspace());
+  const [hint, setHint] = useState(readStoredMakerspace);
   const [restoring, setRestoring] = useState(true);
-  const routeMakerspaceSlug = staffMakerspaceSlugFromPath(location.pathname, guestOnly);
-  const routeMakerspaceSlugRef = useRef(routeMakerspaceSlug);
-  const singleTenantLocked = tenant.mode === "single" && tenant.makerspaceId !== null;
-  const setSelected = useCallback((value: number | null) => {
-    setSelectedState(value);
-    persistSelectedMakerspace(value);
-  }, []);
-  const setTab = useCallback((value: string) => {
-    persistStaffTab(value);
-  }, []);
-
-  useEffect(() => {
-    routeMakerspaceSlugRef.current = routeMakerspaceSlug;
-  }, [routeMakerspaceSlug]);
-  const hydrateUser = useCallback((nextUser: StaffAuthUser) => {
-    setUser(nextUser);
-    // Panels read the same payload (currency, per-space actions) through this query.
-    queryClient.setQueryData(staffMeKey, nextUser);
-    if (tenant.mode === "single" && tenant.makerspaceId !== null) {
-      setSelected(tenant.makerspaceId);
-      return;
-    }
-    const superadmin = nextUser.is_superuser || nextUser.role === "superadmin";
-    const routeMembership = nextUser.makerspaces.find((item) => item.slug === routeMakerspaceSlugRef.current);
-    if (routeMembership) {
-      setSelected(routeMembership.id);
-      return;
-    }
-    const saved = readStoredMakerspace();
-    const staffSaved = nextUser.makerspaces.some((item) => item.id === saved) ? saved : null;
-    setSelected(superadmin ? saved : staffSaved ?? nextUser.makerspaces[0]?.id ?? null);
-  }, [queryClient, setSelected, tenant.makerspaceId, tenant.mode]);
-
-  // Refetch /auth/me and re-hydrate after a role edit/assignment may have changed the
-  // current actor's own effective actions, so tabs/capabilities recompute immediately.
-  const refreshAuthUser = useCallback(() => {
-    fetchMe().then(hydrateUser).catch(() => {});
-  }, [hydrateUser]);
-
-  const expireSession = useCallback(() => {
-    void wipeOfflineScopes("staff:");
+  const [refreshingAuth, setRefreshingAuth] = useState(false);
+  const [authorizationError, setAuthorizationError] = useState(false);
+  const [sessionNotice, setSessionNotice] = useState("");
+  const [intent, setIntent] = useState<SelectionIntent | null>(null);
+  const mounted = useRef(false);
+  const authLifetime = useRef(0);
+  const choiceSequence = useRef(0);
+  const generation = getSessionGeneration();
+  const renderedChoice = choiceSequence.current;
+  const singleTenantLocked = tenant.mode === "single";
+  const current = useCallback((lifetime: number, authGeneration: number) =>
+    mounted.current && authLifetime.current === lifetime && getSessionGeneration() === authGeneration, []);
+  const hydrateUser = useCallback((next: StaffAuthUser) => {
+    setUser(next);
+    queryClient.setQueryData(staffMeKey, next);
+  }, [queryClient]);
+  const clearLocalSession = useCallback(() => {
+    authLifetime.current += 1;
+    choiceSequence.current += 1;
     setUser(null);
-    setSelected(null);
-    setTab("");
+    setHint(null);
+    setIntent(null);
+    setRefreshingAuth(false);
+    setAuthorizationError(false);
+    setRestoring(false);
+    persistSelectedMakerspace(null);
+    persistStaffTab("");
     queryClient.clear();
-  }, [queryClient, setSelected, setTab]);
-
+  }, [queryClient]);
+  const expireSession = useCallback(() => {
+    clearLocalSession();
+    void wipeOfflineScopes("staff:").catch(() => {});
+  }, [clearLocalSession]);
   useEffect(() => addAuthExpiredListener(expireSession), [expireSession]);
 
   useEffect(() => {
-    let active = true;
-
-    async function restoreSession() {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        try {
-          const currentUser = await fetchMe();
-          if (active) {
-            hydrateUser(currentUser);
-          }
-        } catch {
-          clearAccessToken();
-          if (active) {
-            setUser(null);
-          }
+    mounted.current = true;
+    const lifetime = ++authLifetime.current;
+    const authGeneration = getSessionGeneration();
+    void (async () => {
+      try {
+        const refreshed = await refreshAccessToken();
+        if (!current(lifetime, authGeneration)) return;
+        if (refreshed) {
+          const next = await fetchMe();
+          if (current(lifetime, authGeneration)) hydrateUser(next);
         }
+      } catch {
+        if (current(lifetime, authGeneration)) {
+          clearAccessToken();
+          setUser(null);
+          setRestoring(false);
+        }
+      } finally {
+        if (current(lifetime, authGeneration)) setRestoring(false);
       }
-      if (active) {
-        setRestoring(false);
+    })();
+    return () => { mounted.current = false; authLifetime.current += 1; };
+  }, [current, hydrateUser]);
+
+  const makerspaces = useStaffMakerspaces(Boolean(user) && !user?.must_change_password);
+  // Hide operational panels while BOTH identity actions and the allowed list refresh.
+  const refreshAuthUser = useCallback(() => {
+    if (!mounted.current || generation !== getSessionGeneration()) return;
+    const lifetime = ++authLifetime.current;
+    const authGeneration = getSessionGeneration();
+    setRefreshingAuth(true);
+    setAuthorizationError(false);
+    setIntent(null);
+    void (async () => {
+      try {
+        await queryClient.cancelQueries({ queryKey: ["staff", "makerspaces"] });
+        if (!current(lifetime, authGeneration)) return;
+        const next = await fetchMe();
+        if (!current(lifetime, authGeneration)) return;
+        await queryClient.resetQueries({ queryKey: ["staff", "makerspaces"] }, { throwOnError: true });
+        if (current(lifetime, authGeneration)) hydrateUser(next);
+      } catch {
+        if (current(lifetime, authGeneration)) setAuthorizationError(true);
+      } finally {
+        if (current(lifetime, authGeneration)) setRefreshingAuth(false);
       }
+    })();
+  }, [current, generation, hydrateUser, queryClient]);
+
+  const beginChoice = useCallback((id: number | null, targetPath: string) => {
+    const sequence = ++choiceSequence.current;
+    setIntent({ sequence, generation: getSessionGeneration(), sourceKey: location.key, targetPath, id });
+    setHint(id);
+    if (id === null) {
+      // This intent wins before the old scoped frame can canonicalize its workspace.
+      persistSelectedMakerspace(null);
     }
-
-    restoreSession();
-    return () => {
-      active = false;
-    };
-  }, [hydrateUser]);
-
-  const login = useMutation({
-    mutationFn: (payload: { username: string; password: string }) =>
+    navigate(targetPath, { state: { staffPicker: id === null, staffMakerspaceId: id } });
+  }, [location.key, navigate]);
+  const completeLogin = useCallback((access: string, next: StaffAuthUser) => {
+    // Installation can fail atomically; retain the caller's ownership to report it.
+    setAccessToken(access);
+    authLifetime.current += 1;
+    choiceSequence.current += 1;
+    setSessionNotice("");
+    setAuthorizationError(false);
+    setRefreshingAuth(false);
+    setRestoring(false);
+    setIntent(null);
+    hydrateUser(next);
+    if (!singleTenantLocked && isGlobalStaffAdmin(next)) beginChoice(null, staffBasePath(guestOnly));
+  }, [beginChoice, guestOnly, hydrateUser, singleTenantLocked]);
+  const loginMutation = useMutation({
+    mutationFn: ({ payload }: { payload: { username: string; password: string }; lifetime: number; authGeneration: number }) =>
       staffRequest<PasswordLoginResponse<StaffAuthUser>>("/auth/login", {
-        method: "POST",
-        credentials: "include",
+        method: "POST", credentials: "include",
         body: JSON.stringify({ ...payload, surface: "staff" } satisfies PasswordLoginRequest),
       }),
-    onSuccess: (data) => {
-      setAccessToken(data.access);
-      hydrateUser(data.user);
+    onSuccess: (data, { lifetime, authGeneration }) => {
+      if (current(lifetime, authGeneration)) completeLogin(data.access, data.user);
     },
   });
+  const login = { ...loginMutation, mutate: (payload: { username: string; password: string }) => {
+    if (!mounted.current) return;
+    // Invalidate older notices/completions at the public call, before mutationFn runs.
+    const lifetime = ++authLifetime.current;
+    setSessionNotice("");
+    loginMutation.mutate({ payload, lifetime, authGeneration: getSessionGeneration() });
+  } };
+  const socialLifetime = authLifetime.current;
   const socialLoginSucceeded = useCallback((result: SocialLoginResult) => {
-    setAccessToken(result.access);
-    hydrateUser(result.user as unknown as StaffAuthUser);
-  }, [hydrateUser]);
+    if (!current(socialLifetime, generation)) return;
+    setSessionNotice("");
+    try {
+      completeLogin(result.access, result.user as unknown as StaffAuthUser);
+    } catch (error) {
+      if (current(socialLifetime, generation)) {
+        setSessionNotice(error instanceof Error ? error.message : "Unable to sign in. Try again.");
+      }
+    }
+  }, [completeLogin, current, generation, socialLifetime]);
 
-  const makerspaces = useStaffGet<Makerspace[]>(
-    ["staff", "makerspaces"],
-    "/admin/makerspaces",
-    Boolean(user) && !user?.must_change_password,
-  );
   const recovery = useQuery({
     queryKey: ["deployment-recovery-state"],
     queryFn: () => staffRequest<RecoveryState>("/recovery"),
-    enabled: Boolean(user && (user.is_superuser || user.role === "superadmin")),
-    retry: false,
+    enabled: Boolean(user && isGlobalStaffAdmin(user)), retry: false,
   });
-  const chooseMakerspace = useCallback((id: number | null) => {
-    if (singleTenantLocked) return;
-    if (id === null) {
-      setSelected(null);
-      navigate(staffBasePath(guestOnly));
-      return;
-    }
-    const ms = makerspaces.data?.find((m) => m.id === id);
-    setSelected(id);
-    // Only the non-guest staff console uses slug-scoped /m/<slug>/admin routes.
-    // Guest-admin keeps its own shell, so leave its switching as-is (a slug
-    // navigate here would remount the non-guest app and drop the guest UI).
-    if (ms?.slug && !guestOnly) {
-      const currentTab = tabFromStaffPath(location.pathname, guestOnly);
-      navigate(staffTabPath(currentTab, guestOnly, ms.slug));
-    }
-  }, [guestOnly, location.pathname, makerspaces.data, navigate, setSelected, singleTenantLocked]);
-  const activeMakerspace = useMemo(
-    () => {
-      return makerspaces.data?.find((item) => item.id === selected);
-    },
-    [makerspaces.data, selected],
-  );
-
-  const routeMakerspace = useMemo(() => {
-    if (!routeMakerspaceSlug || !makerspaces.data) {
-      return undefined;
-    }
-    return makerspaces.data.find((item) => item.slug === routeMakerspaceSlug);
-  }, [makerspaces.data, routeMakerspaceSlug]);
-
+  const pending = intent && intent.sequence === renderedChoice && intent.generation === generation &&
+    intent.sourceKey === location.key && intent.targetPath !== location.pathname &&
+    !makerspaces.isError && !authorizationError &&
+    (intent.id === null || makerspaces.data?.some((space) => space.id === intent.id));
   useEffect(() => {
-    if (singleTenantLocked || !routeMakerspace || routeMakerspace.id === selected) {
-      return;
+    if (intent && !pending) setIntent(null); // Acknowledged, superseded navigation, or withdrawn target.
+  }, [intent, pending]);
+  const routeState = location.state as { staffPicker?: boolean; staffMakerspaceId?: number } | null;
+  let selection: StaffSelection = resolveStaffSelection({
+    spaces: makerspaces.data ?? [], loading: refreshingAuth || makerspaces.isPending,
+    error: authorizationError || makerspaces.isError, pathname: location.pathname, guestOnly,
+    lockedId: singleTenantLocked ? tenant.makerspaceId : null,
+    globalAdmin: Boolean(user && isGlobalStaffAdmin(user)),
+    hint: typeof routeState?.staffMakerspaceId === "number" ? routeState.staffMakerspaceId : hint,
+    explicitId: typeof routeState?.staffMakerspaceId === "number" ? routeState.staffMakerspaceId : null,
+    picker: routeState?.staffPicker === true,
+  });
+  if (pending) selection = { kind: "loading" };
+  if (singleTenantLocked && tenant.makerspaceId === null) {
+    selection = { kind: tenant.error ? "error" : "loading" };
+  }
+  const activeMakerspace = selection.kind === "selected" ? selection.makerspace : undefined;
+  const selected = activeMakerspace?.id ?? null;
+  useEffect(() => {
+    if (!user || generation !== getSessionGeneration() || renderedChoice !== choiceSequence.current) return;
+    if (selected !== null) {
+      persistSelectedMakerspace(selected);
+      setHint(selected);
     }
-    setSelected(routeMakerspace.id);
-  }, [routeMakerspace, selected, setSelected, singleTenantLocked]);
+  }, [generation, renderedChoice, selected, user]);
+  const chooseMakerspace = useCallback((id: number | null) => {
+    if (!mounted.current || singleTenantLocked || !user || generation !== getSessionGeneration() ||
+      renderedChoice !== choiceSequence.current || pending) return;
+    if (id === null) { beginChoice(null, staffBasePath(guestOnly)); return; }
+    if (makerspaces.isError || refreshingAuth || authorizationError) return;
+    const space = makerspaces.data?.find((item) => item.id === id);
+    if (space) beginChoice(id, staffChoicePath(space, user, guestOnly, location.pathname));
+  }, [authorizationError, beginChoice, generation, guestOnly, location.pathname, makerspaces.data, makerspaces.isError, pending, refreshingAuth, renderedChoice, singleTenantLocked, user]);
 
-  // Local sign-out must never depend on the network: a failed logout call still has to
-  // drop the in-memory session. logout() always clears the access token, and throws
-  // LogoutIncompleteError when the server did not confirm, which is caught here.
   const signOut = async () => {
-    try {
-      await logoutStaff();
-    } catch {
-      // The server-side refresh cookie may survive; the local session is still cleared.
+    const logout = logoutStaff(); // Synchronously clears token and bumps generation before its first await.
+    if (mounted.current) clearLocalSession();
+    const lifetime = authLifetime.current;
+    const signedOutGeneration = getSessionGeneration();
+    // No late local cleanup: a new login may have started during either operation.
+    const [logoutResult] = await Promise.allSettled([logout, wipeOfflineScopes("staff:")]);
+    if (logoutResult.status === "rejected" && current(lifetime, signedOutGeneration)) {
+      setSessionNotice(logoutResult.reason instanceof LogoutIncompleteError
+        ? logoutResult.reason.message : new LogoutIncompleteError().message);
     }
-    await wipeOfflineScopes("staff:");
-    setUser(null);
-    setSelected(null);
-    queryClient.clear();
   };
-
   return {
-    activeMakerspace,
-    chooseMakerspace,
-    login,
-    makerspaces,
-    queryClient,
-    recovery,
-    refreshAuthUser,
-    restoring,
-    routeMakerspace,
-    routeMakerspaceSlug,
-    selected,
-    setTab,
-    setUser,
-    signOut,
-    singleTenantLocked,
-    socialLoginSucceeded,
-    tenant,
-    user,
+    activeMakerspace, chooseMakerspace, login, makerspaces, queryClient, recovery,
+    refreshAuthUser, restoring, selected, selection, setTab: persistStaffTab, setUser,
+    sessionNotice, signOut, singleTenantLocked, socialLoginSucceeded, tenant, user,
+    retryMakerspaces: () => { if (authorizationError) refreshAuthUser(); else void makerspaces.refetch(); },
   };
 }

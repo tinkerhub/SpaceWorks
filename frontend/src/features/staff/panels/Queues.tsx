@@ -1,23 +1,23 @@
-﻿import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
-import { Field, SearchInput, useToast } from "../../../components/ui";
-import { staffRequest } from "../../../lib/api";
+import { Field, SearchInput } from "../../../components/ui";
+import { getSessionGeneration } from "../../../lib/apiSession";
 import { useDebouncedValue } from "../../../lib/useDebouncedValue";
 import { usePaginatedQuery } from "../../../lib/usePaginatedQuery";
-import { errorText, Panel, type Makerspace } from "./shared";
-import { actionInvalidationScope, invalidateRequestQueues } from "./QueuesInvalidation";
+import { Panel, type Makerspace } from "./shared";
+import { useQueueActions } from "./useQueueActions";
+import { QueueFormEditContext } from "./QueuesModalShared";
 import {
   AssignIssueModal,
   RejectRequestModal,
   ReturnDueModal,
   ReturnRequestModal,
-  type AssignIssueValues,
   type RejectRequestValues,
   type ReturnDueValues,
   type ReturnRequestValues,
 } from "./QueuesModals";
 import { AcceptRequestModal } from "./QueuesAcceptModal";
+import { CancelRequestModal } from "./QueuesCancelModal";
 import { AcceptedActions, ActiveActions, HistoryToggle, PendingActions, QueueSection } from "./QueuesSections";
 
 export type RequestItem = {
@@ -48,32 +48,37 @@ export type HardwareRequest = {
   checkin_project_name?: string;
   checkin_verified_at?: string | null;
   rejection_reason?: string;
+  cancellation_reason?: string;
+  closed_by?: { username: string; role: string } | null;
+  closed_at?: string | null;
   issue_evidence_id?: number | null;
   return_evidence_ids?: number[];
   requested_for: string;
   return_due_at: string | null;
   return_reminder_sent_at: string | null;
   items: RequestItem[];
-  // AdminRequestSerializer serializes the assigned container as the flat `assigned_box_label`.
+  assigned_box_id?: number | null;
+  // Label and legacy object support older staff API responses.
   assigned_box_label?: string | null;
   assigned_box?: { code: string; label: string };
 };
 
-// `guestOnly` (the handover surface) hides review. Active loans are listed with ISSUE_REQUEST,
-// returned with RETURN_REQUEST and re-dated with ACCEPT_REQUEST, so a handover role that holds
-// `return_request` still gets Active loans -> Return, without the Set due it cannot use.
-export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnRequest, canReviewRequests }: {
+// Handover hides review and cancellation; each action keeps its own backend permission.
+type QueuesProps = {
   makerspace: Makerspace; guestOnly: boolean; canViewAudit?: boolean; canReturnRequest: boolean; canReviewRequests: boolean;
-}) {
-  const showActiveLoans = !guestOnly || canReturnRequest;
-  const queryClient = useQueryClient();
-  const { showToast } = useToast();
-  const [acceptRow, setAcceptRow] = useState<HardwareRequest | null>(null);
-  const [dueRow, setDueRow] = useState<HardwareRequest | null>(null);
-  const [rejectRow, setRejectRow] = useState<HardwareRequest | null>(null);
-  const [assignIssueRow, setAssignIssueRow] = useState<HardwareRequest | null>(null);
-  const [returnRow, setReturnRow] = useState<HardwareRequest | null>(null);
-  const [modalError, setModalError] = useState("");
+  canIssueRequest?: boolean; canCancelRequests?: boolean;
+};
+export function Queues(props: QueuesProps) {
+  return <QueueVisit key={`${props.makerspace.id}:${getSessionGeneration()}:${Boolean(props.canCancelRequests)}:${props.guestOnly}`} {...props} />;
+}
+function QueueVisit({ makerspace, guestOnly, canViewAudit = false, canReturnRequest, canReviewRequests, canIssueRequest = false, canCancelRequests = false }: QueuesProps) {
+  const showActiveLoans = canIssueRequest;
+  const canCancel = (row: HardwareRequest) => !guestOnly && canCancelRequests && row.status === "accepted" && row.items.every((item) => item.issued_quantity === 0);
+  const {
+    acceptRow, setAcceptRow, dueRow, setDueRow, rejectRow, setRejectRow, cancelRow, setCancelRow, assignIssueRow, setAssignIssueRow,
+    returnRow, setReturnRow, assignedContainerCode, modalError, visit, openModal, closeModals, runAction,
+    submitAssignIssue, editable, pending: actionPending,
+  } = useQueueActions(makerspace);
   const [defaultLoanDays, setDefaultLoanDays] = useState(String(makerspace.default_loan_days ?? 7));
   const [showHistory, setShowHistory] = useState(false);
   const [search, setSearch] = useState("");
@@ -91,47 +96,9 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
   const active = usePaginatedQuery<HardwareRequest>(queue("active", "active-loans", showActiveLoans));
   const history = usePaginatedQuery<HardwareRequest>(queue("request-history", "request-history", showHistory));
 
-  const action = useMutation({
-    mutationFn: ({ path, body }: { path: string; body?: object }) => staffRequest(path, { method: "POST", body: JSON.stringify(body ?? {}) }),
-    onSuccess: (_data, { path }) => invalidateRequestQueues(queryClient, makerspace.id, actionInvalidationScope(path), makerspace.slug),
-  });
   useEffect(() => {
     setDefaultLoanDays(String(makerspace.default_loan_days ?? 7));
   }, [makerspace.default_loan_days, makerspace.id]);
-
-  const openModal = (setter: (row: HardwareRequest | null) => void, row: HardwareRequest) => {
-    setModalError("");
-    setter(row);
-  };
-  const closeModals = () => {
-    if (action.isPending) return;
-    setAcceptRow(null);
-    setDueRow(null);
-    setRejectRow(null);
-    setAssignIssueRow(null);
-    setReturnRow(null);
-    setModalError("");
-  };
-  const clearModals = () => {
-    setAcceptRow(null);
-    setDueRow(null);
-    setRejectRow(null);
-    setAssignIssueRow(null);
-    setReturnRow(null);
-    setModalError("");
-  };
-  const runAction = async (path: string, body: object, done: string, failed: string) => {
-    setModalError("");
-    try {
-      await action.mutateAsync({ path, body });
-      clearModals();
-      showToast(done, { tone: "success" });
-    } catch (error) {
-      const message = errorText(error, failed);
-      setModalError(message);
-      showToast(message, { tone: "error" });
-    }
-  };
   const submitReturnDue = (values: ReturnDueValues) => {
     if (dueRow) void runAction(`/admin/requests/${dueRow.id}/return-due`, { return_due_at: values.returnDueAt ? new Date(values.returnDueAt).toISOString() : null }, values.returnDueAt ? "Due date saved." : "Due date cleared.", "Could not save the due date.");
   };
@@ -141,27 +108,17 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
   const submitReject = (values: RejectRequestValues) => {
     if (rejectRow) void runAction(`/admin/requests/${rejectRow.id}/reject`, { reason: values.reason }, `Request #${rejectRow.id} rejected.`, "Could not reject the request.");
   };
+  const openCancel = (row: HardwareRequest) => {
+    if (canCancel(row)) openModal(setCancelRow, row);
+  };
+  const submitCancel = ({ reason }: { reason: string }) => {
+    const clean = reason.trim();
+    if (cancelRow && canCancel(cancelRow) && clean && clean.length <= 500) {
+      void runAction(`/admin/requests/${cancelRow.id}/cancel`, { reason: clean }, `Request #${cancelRow.id} cancelled.`, "Could not cancel the request.");
+    }
+  };
   const submitReturn = (values: ReturnRequestValues) => {
     if (returnRow) void runAction(`/admin/requests/${returnRow.id}/return`, { evidence_id: values.evidenceId, box_code: values.boxCode, remark: values.remark, resolutions: values.resolutions }, `Return recorded for request #${returnRow.id}.`, "Could not record the return.");
-  };
-  const submitAssignIssue = async (values: AssignIssueValues) => {
-    if (!assignIssueRow) return;
-    setModalError("");
-    let boxAssigned = false;
-    try {
-      await action.mutateAsync({ path: `/admin/requests/${assignIssueRow.id}/assign-box`, body: { box_code: values.boxCode } });
-      boxAssigned = true;
-      await action.mutateAsync({
-        path: `/admin/requests/${assignIssueRow.id}/issue`,
-        body: { evidence_id: values.evidenceId, remark: values.remark, rejects: values.rejects, asset_qr_payloads: values.assetQrPayloads },
-      });
-      showToast(`Request #${assignIssueRow.id} issued.`, { tone: "success" });
-      clearModals();
-    } catch (error) {
-      const message = errorText(error, "Could not issue the request.");
-      setModalError(boxAssigned ? `Box assigned, but issue failed: ${message} The request still needs the issue step; retry with the assigned box.` : message);
-      showToast(boxAssigned ? "Box assigned, but the issue step failed." : message, { tone: "error" });
-    }
   };
   const searching = debouncedSearch.trim().length > 0;
   const emptyText = (idle: string) => (searching ? `No requests match "${debouncedSearch.trim()}".` : idle);
@@ -177,30 +134,35 @@ export function Queues({ makerspace, guestOnly, canViewAudit = false, canReturnR
         </Field>
         {!guestOnly ? (
           <QueueSection title="Pending review" query={pending} canViewAudit={canViewAudit} emptyDescription={emptyText("New requests from the public page land here.")}
-            actions={(row) => <PendingActions row={row} disabled={action.isPending} openModal={openModal} setAcceptRow={setAcceptRow} setRejectRow={setRejectRow} setDueRow={setDueRow} />} />
+            actions={(row) => <PendingActions row={row} disabled={actionPending} openModal={openModal} setAcceptRow={canReviewRequests ? setAcceptRow : null} setRejectRow={canCancelRequests && !guestOnly ? setRejectRow : null} setDueRow={canReviewRequests ? setDueRow : null} />} />
         ) : null}
         <QueueSection title="Ready for handover" query={accepted} canViewAudit={canViewAudit} emptyDescription={emptyText("Accepted requests wait here until someone hands them over.")}
-          actions={(row) => <AcceptedActions row={row} disabled={action.isPending} openModal={openModal} setAssignIssueRow={setAssignIssueRow} setDueRow={canReviewRequests ? setDueRow : null} />} />
+          actions={(row) => <AcceptedActions row={row} disabled={actionPending} openModal={openModal} setAssignIssueRow={canIssueRequest ? setAssignIssueRow : null} setDueRow={canReviewRequests ? setDueRow : null} onCancel={canCancel(row) ? () => openCancel(row) : null} />} />
         {showActiveLoans ? (
           <QueueSection title="Active loans" query={active} canViewAudit={canViewAudit} emptyDescription={emptyText("Hardware that's out on loan shows up here.")}
-            actions={(row) => <ActiveActions row={row} disabled={action.isPending} openModal={openModal} setDueRow={canReviewRequests ? setDueRow : null} setReturnRow={canReturnRequest ? setReturnRow : null} />} />
+            actions={(row) => <ActiveActions row={row} disabled={actionPending} openModal={openModal} setDueRow={canReviewRequests ? setDueRow : null} setReturnRow={canReturnRequest ? setReturnRow : null} />} />
         ) : null}
         <QueueSection
           title="History"
-          description={showHistory ? undefined : "Returned, rejected and closed requests."}
+          description={showHistory ? undefined : "Returned, rejected, cancelled and closed requests."}
           query={history}
           collapsed={!showHistory}
           canViewAudit={canViewAudit}
-          emptyDescription={emptyText("Returned, rejected and closed requests show up here.")}
+          emptyDescription={emptyText("Returned, rejected, cancelled and closed requests show up here.")}
           headingAction={<HistoryToggle show={showHistory} onToggle={() => setShowHistory((value) => !value)} />}
           actions={() => null}
         />
       </div>
-      <AcceptRequestModal row={acceptRow} open={Boolean(acceptRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAccept} />
-      <ReturnDueModal row={dueRow} defaultValue={dueRow?.return_due_at ? localDateTimeValue(dueRow.return_due_at) : localDateTimeValue(defaultDueDate(Number(defaultLoanDays) || 7).toISOString())} open={Boolean(dueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturnDue} />
-      <RejectRequestModal row={rejectRow} open={Boolean(rejectRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReject} />
-      <AssignIssueModal row={assignIssueRow} open={Boolean(assignIssueRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitAssignIssue} makerspaceId={makerspace.id} />
-      <ReturnRequestModal row={returnRow} open={Boolean(returnRow)} pending={action.isPending} error={modalError} onClose={closeModals} onSubmit={submitReturn} makerspaceId={makerspace.id} />
+      <QueueFormEditContext.Provider value={editable}>
+      <div onSubmitCapture={(event) => { if (!editable()) { event.preventDefault(); event.stopPropagation(); } }} onChangeCapture={(event) => { if (!editable()) event.stopPropagation(); }} onClickCapture={(event) => { if (!editable()) { event.preventDefault(); event.stopPropagation(); } }}>
+      <AcceptRequestModal key={`AcceptRequestModal-${visit}`} row={acceptRow} open={Boolean(acceptRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitAccept} />
+      <ReturnDueModal key={`ReturnDueModal-${visit}`} row={dueRow} defaultValue={dueRow?.return_due_at ? localDateTimeValue(dueRow.return_due_at) : localDateTimeValue(defaultDueDate(Number(defaultLoanDays) || 7).toISOString())} open={Boolean(dueRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitReturnDue} />
+      <RejectRequestModal key={`RejectRequestModal-${visit}`} row={rejectRow} open={Boolean(rejectRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitReject} />
+      <CancelRequestModal key={`CancelRequestModal-${visit}`} row={cancelRow} open={Boolean(cancelRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitCancel} />
+      <AssignIssueModal key={`AssignIssueModal-${visit}`} row={assignIssueRow} assignedContainerCode={assignedContainerCode} canEdit={editable} open={Boolean(assignIssueRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitAssignIssue} makerspaceId={makerspace.id} />
+      <ReturnRequestModal key={`ReturnRequestModal-${visit}`} row={returnRow} open={Boolean(returnRow)} pending={actionPending} error={modalError} onClose={closeModals} onSubmit={submitReturn} makerspaceId={makerspace.id} />
+      </div>
+      </QueueFormEditContext.Provider>
     </Panel>
   );
 }

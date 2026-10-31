@@ -165,7 +165,7 @@ def _audit_transition(actor, service_request, event, extra=None):
 
 def _notify_after_commit(service_request, event):
     request_id = service_request.pk
-    transaction.on_commit(lambda: notify_service_status(MachineServiceRequest.objects.select_related("bucket__machine__makerspace", "queue__makerspace").get(pk=request_id), event))
+    transaction.on_commit(lambda: notify_service_status(MachineServiceRequest.objects.select_related("bucket__machine__makerspace", "queue__makerspace").get(pk=request_id), event), robust=True)
 
 
 def _record_unpooled_actual(service_request, *, actual_grams=None, actual_quantity=None):

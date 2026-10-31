@@ -14,7 +14,7 @@ import {
   TR,
   type StatusTone,
 } from "../../components/ui";
-import type { BackupArchive } from "./backupApi";
+import { backupFormat, type BackupArchive } from "./backupApi";
 
 type RestoreKind = "rollback_in_place" | "disaster";
 
@@ -62,7 +62,11 @@ export function BackupArchiveTable({ label, rows, loading, downloadPending, onDo
           {rows.map((row) => (
             <TR key={row.id}>
               <TD>
-                <span className="font-semibold">{row.scope === "deployment" ? "Full deployment" : "Makerspace"}</span>
+                <span className="font-semibold">{row.scope === "deployment"
+                  ? backupFormat(row) === "full" ? "Signed full deployment"
+                    : backupFormat(row) === "compound" ? "B1 compound deployment"
+                      : backupFormat(row) === "legacy" ? "Historical full deployment" : "Deployment archive"
+                  : "Makerspace"}</span>
                 {row.failure_detail ? <span className="mt-0.5 block text-caption text-danger-fg">{row.failure_detail}</span> : null}
               </TD>
               <TD className="whitespace-nowrap text-ink-secondary">{formatDate(row.created_at)}</TD>
@@ -72,11 +76,17 @@ export function BackupArchiveTable({ label, rows, loading, downloadPending, onDo
                 {row.status === "available" ? (
                   <div className="flex flex-wrap justify-end gap-2">
                     <Button size="sm" variant="secondary" disabled={downloadPending} onClick={() => onDownload(row.id)}>Download</Button>
-                    {onRestore ? (
+                    {onRestore && ["full", "legacy"].includes(backupFormat(row)) ? (
                       <>
                         <Button size="sm" variant="secondary" onClick={() => setConfirm({ id: row.id, kind: "rollback_in_place" })}>Rollback here…</Button>
                         <Button size="sm" variant="danger" onClick={() => setConfirm({ id: row.id, kind: "disaster" })}>Disaster restore…</Button>
                       </>
+                    ) : onRestore ? (
+                      <span className="text-caption text-ink-secondary">
+                        {backupFormat(row) === "compound"
+                          ? "Restore unavailable: this host has no sovereign compound restore coordinator."
+                          : "Restore unavailable: unsupported archive format."}
+                      </span>
                     ) : null}
                   </div>
                 ) : null}
@@ -88,11 +98,11 @@ export function BackupArchiveTable({ label, rows, loading, downloadPending, onDo
       <ConfirmDialog
         open={confirm !== null}
         tone="danger"
-        title={confirm?.kind === "disaster" ? "Run a disaster restore?" : "Roll this deployment back?"}
+        title={confirm?.kind === "disaster" ? "Record a disaster restore intent?" : "Record a rollback intent?"}
         message={confirm?.kind === "disaster"
-          ? "The deployment is rebuilt from this archive. You'll review an all-table report and decide before anything is committed."
+          ? "This replaces deployment data from the archive and resets authority. A privileged host operator must run the recorded restore intent."
           : "Live data is rolled back to this archive in place. You'll review an all-table report and decide before anything is committed."}
-        confirmLabel={confirm?.kind === "disaster" ? "Start disaster restore" : "Start rollback"}
+        confirmLabel={confirm?.kind === "disaster" ? "Record disaster restore intent" : "Record rollback intent"}
         pending={restorePending}
         onConfirm={() => {
           if (!confirm || !onRestore) return;

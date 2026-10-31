@@ -7,60 +7,31 @@ from rest_framework.exceptions import ValidationError
 
 def public_image_key_in_use(
     makerspace_id, object_key, *, product_id=None, machine_id=None, event_id=None,
-    series_id=None,
-    profile_id=None, project_id=None, makerspace_field="",
+    series_id=None, profile_id=None, project_id=None, space_id=None, makerspace_field="",
 ):
-    from apps.events.models import Event, EventSeries
-    from apps.inventory.models import InventoryProduct
-    from apps.machines.models import Machine
-    from apps.makerspaces.models import Makerspace, MemberProfile, MemberProject
+    from django.apps import apps
+    from apps.backup.object_ownership_registry import FIELD_OBJECT_RULES
 
-    products = InventoryProduct.objects.filter(
-        makerspace_id=makerspace_id, image_key=object_key
-    )
-    if product_id is not None:
-        products = products.exclude(pk=product_id)
-    if products.exists():
-        return True
-    machines = Machine.objects.filter(
-        makerspace_id=makerspace_id, image_key=object_key
-    )
-    if machine_id is not None:
-        machines = machines.exclude(pk=machine_id)
-    if machines.exists():
-        return True
-    events = Event.objects.filter(makerspace_id=makerspace_id, image_key=object_key)
-    if event_id is not None:
-        events = events.exclude(pk=event_id)
-    if events.exists():
-        return True
-    series = EventSeries.objects.filter(makerspace_id=makerspace_id, image_key=object_key)
-    if series_id is not None:
-        series = series.exclude(pk=series_id)
-    if series.exists():
-        return True
-    profiles = MemberProfile.objects.filter(
-        membership__makerspace_id=makerspace_id, avatar_key=object_key
-    )
-    if profile_id is not None:
-        profiles = profiles.exclude(pk=profile_id)
-    if profiles.exists():
-        return True
-    projects = MemberProject.objects.filter(
-        profile__membership__makerspace_id=makerspace_id, image_key=object_key
-    )
-    if project_id is not None:
-        projects = projects.exclude(pk=project_id)
-    if projects.exists():
-        return True
-    makerspace_query = Makerspace.objects.filter(pk=makerspace_id)
-    if makerspace_field == "logo_key":
-        return makerspace_query.filter(cover_image_key=object_key).exists()
-    if makerspace_field == "cover_image_key":
-        return makerspace_query.filter(logo_key=object_key).exists()
-    return makerspace_query.filter(
-        Q(logo_key=object_key) | Q(cover_image_key=object_key)
-    ).exists()
+    own_ids = {
+        "inventory.InventoryProduct": product_id, "machines.Machine": machine_id,
+        "events.Event": event_id, "events.EventSeries": series_id,
+        "makerspaces.MemberProfile": profile_id, "makerspaces.MemberProject": project_id,
+        "bookings.BookableSpace": space_id,
+    }
+    for rule in FIELD_OBJECT_RULES:
+        if rule.bucket != "public_image":
+            continue
+        queryset = apps.get_model(rule.model_label)._base_manager.filter(**{rule.field_name: object_key})
+        own_id = own_ids.get(rule.model_label)
+        if own_id is not None:
+            queryset = queryset.exclude(pk=own_id)
+        if rule.model_label == "makerspaces.Makerspace" and rule.field_name == makerspace_field:
+            queryset = queryset.exclude(pk=makerspace_id)
+        # Inherited occurrence artwork resolves through its series; a non-empty
+        # Event.image_key is an independent owner, including an explicit override.
+        if queryset.exists():
+            return True
+    return False
 
 
 def public_url(object_key):

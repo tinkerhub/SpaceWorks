@@ -274,6 +274,7 @@ def test_bulk_import_preview_warns_on_blank_mapped_details():
     assert "image_key" in response.data["warnings"][0]["warnings"]
 
 
+@pytest.mark.django_db(transaction=True)
 def test_bulk_import_apply_maps_full_supported_inventory_fields(monkeypatch):
     makerspace = make_space("bulk-full-map")
     admin = make_member("bulk-full-map-admin", makerspace)

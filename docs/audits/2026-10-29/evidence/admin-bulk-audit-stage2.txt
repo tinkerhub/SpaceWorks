@@ -1,0 +1,8 @@
+Updated only:
+
+- [backend/config/admin_audit.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/config/admin_audit.py): imported `transaction`; added `@transaction.atomic` to `delete_queryset`.
+- [backend/apps/boxes/admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/admin.py): removed only the redundant wrapper; retained mixin/MRO and create/edit behavior.
+
+Canonical `AuditLog` entries and domain deletions share the transaction. Native `LogEntry` writes remain outside it.
+
+Exact-delta, AST, ≤300-line, and diff checks passed. No tests, runtime checks, staging, commits, or builds.

@@ -1,6 +1,8 @@
 ﻿from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.messages import get_messages
+from django.db import connection
 from django.test import Client, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 import pytest
 
@@ -10,6 +12,9 @@ from apps.boxes.models import QrCode
 from apps.integrations.models import EmailLog
 from apps.inventory.models import InventoryAsset, TrackingMode
 from apps.makerspaces.models import MakerspaceMembership
+from tests.native_qr_preflight_helpers import (
+    assert_rebind_error, no_qr_dispatch, qr_persisted_state, record_qr_history,
+)
 from tests.return_helpers import make_member, make_product, make_space, make_user
 
 pytestmark = pytest.mark.django_db
@@ -215,7 +220,7 @@ def test_qr_revoke_and_rebind_actions_route_through_services():
     assert AuditLog.objects.filter(action="qr.rebound", target_id=str(rebind_qr.id)).exists()
 
 
-def test_qr_rebind_admin_rejects_cross_makerspace_non_product_target():
+def test_qr_rebind_admin_rejects_cross_makerspace_non_product_target(no_qr_dispatch):
     superadmin = make_superadmin("admin-parity-qr-cross-super")
     source_space = make_space("admin-parity-qr-cross-source")
     dest_space = make_space("admin-parity-qr-cross-dest")
@@ -233,17 +238,19 @@ def test_qr_rebind_admin_rejects_cross_makerspace_non_product_target():
         asset_tag="DEST-ASSET-1",
     )
     qr = make_qr(source_product, superadmin)
+    record_qr_history(qr, superadmin)
+    client = admin_client(superadmin)
+    payload = {"target_type": QrCode.TargetType.ASSET,
+               "asset_target": str(dest_asset.id), "new_name": "DEST-ASSET-2"}
+    before = qr_persisted_state()
 
-    response = post_action(
-        admin_client(superadmin),
-        reverse("admin:boxes_qrcode_changelist"),
-        "rebind_selected",
-        qr,
-        apply="1",
-        target_type=QrCode.TargetType.ASSET,
-        asset_target=str(dest_asset.id),
-        new_name="DEST-ASSET-2",
-    )
+    # Keep the genuine cross-tenant preflight: an injected ValidationError here
+    # would conceal the original escaping exception and its policy decision.
+    with CaptureQueriesContext(connection) as queries:
+        response = post_action(
+            client, reverse("admin:boxes_qrcode_changelist"),
+            "rebind_selected", qr, apply="1", **payload,
+        )
 
     qr.refresh_from_db()
     assert response.status_code == 200
@@ -251,3 +258,13 @@ def test_qr_rebind_admin_rejects_cross_makerspace_non_product_target():
     assert qr.target_type == QrCode.TargetType.PRODUCT
     assert qr.target_id == source_product.id
     assert not AuditLog.objects.filter(action="qr.rebound").exists()
+    assert_rebind_error(
+        response, qr, payload, "Only products can be rebound across makerspaces.",
+    )
+    assert len(no_qr_dispatch) == 1
+    assert response.context_data["form"] is no_qr_dispatch[0]
+    assert response.context_data["form"].cleaned_data["asset_target"].pk == dest_asset.pk
+    assert queries.captured_queries
+    assert not any("FOR UPDATE" in query["sql"].upper() for query in queries.captured_queries)
+    # Includes every tenant's names, quantities, tags, ownership and history.
+    assert qr_persisted_state() == before

@@ -1,0 +1,13 @@
+**APPROVED. No further mandatory revisions.**
+
+The revised plan addresses both prior gaps and matches the current callers:
+
+- [QrCodeAdmin](\/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/admin.py:134) disables add, permits `created_by` changes, and inherits single/bulk deletion. Retained admission must span actual dispatch, native history writes, and commit. Bulk admission must use the effective action queryset, including `select_across`.
+- Native and API rebind share [rebind_qr_target](\/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/rebind.py:16), the only application caller of the asset-move helper. The admitted identities and fresh ownership checks fit this routing.
+- Native asset generation reaches [generate_assets_with_qr](\/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:96). Admission before its existing Maker lock closes the identified gap.
+
+Sorted admission before row locks, retention through outer commit, fresh scoped validation, unchanged resolve authority, and preserving checkout-compatible locking are all covered.
+
+The exact source scope and frozen parent Box logic are acceptable. Keep touched files ≤300 lines; extract only QR methods if necessary. Stage 3 remains separate, with all four strict QUIESCED **423** expectations unchanged.
+
+Read-only review completed. No edits, runtime tests, Django imports, builds, or staging performed.

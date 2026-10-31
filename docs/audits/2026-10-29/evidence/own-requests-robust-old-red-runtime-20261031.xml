@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="own-requests-robust-old-red-runtime-20261031" tests="1" failures="1" errors="0" skipped="0"><testcase classname="tests.own_requests.test_machine_callback_failures" name="test_reprint_api_commits_when_after_commit_row_lookup_fails" time="5.992"><failure message="Unguarded after-commit row lookup returns HTTP500 after durable transition">Unguarded after-commit row lookup returns HTTP500 after durable transition</failure></testcase></testsuite>

@@ -1,0 +1,78 @@
+{
+  "status": "All owned QR mutation sources independently verified and frozen; source writers idle, three independent test writers active; root runtime pending.",
+  "files": [
+    {
+      "path": "backend/apps/boxes/api_views_qr.py",
+      "sha256": "537a205ed050531faafa4936531cc94691ab721e21a998560bea0a5d6305a224",
+      "lines": 288,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/services.py",
+      "sha256": "91ef7b63e2c69173cda207bbe880ea9e3328cc5385706b4aaba8b57ae5a65ae4",
+      "lines": 107,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/access.py",
+      "sha256": "3b2ed6228afbd06f4e6660bb6517c1965bc364470597425bbcba260a509e5454",
+      "lines": 34,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/rebind.py",
+      "sha256": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+      "lines": 173,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/asset_rebind.py",
+      "sha256": "58bebc8a8fd93211fba9e28a794b7b1735960ae45ee67c169027f48f9a55f78f",
+      "lines": 264,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/qr_admission.py",
+      "sha256": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+      "lines": 137,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/admin_qr_lifecycle.py",
+      "sha256": "412bea74180f9bcddce1b5376a8ea441a2a58e0434c73eae0ef6d38ffa22ea20",
+      "lines": 231,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/boxes/admin.py",
+      "sha256": "60f9992007cdd6a1da5046387f22dfc93ee151376d70dbe797b4937e5e26a2ac",
+      "lines": 222,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/operations/services_qr_assets.py",
+      "sha256": "c3b4742ea7485b20e6c3146e680e7a7d138e4dd925e8e685f97192b767109d1e",
+      "lines": 191,
+      "independently_fully_read": true,
+      "supersedes_pre_target_race_sha256": "9fd9e2d16a74745ec4adad1fe1ac4bab36f5c5ceb24c00d5014bc7bba650ce07"
+    },
+    {
+      "path": "backend/apps/inventory/admin.py",
+      "sha256": "ba9ac32112a3000b1677a13773dfd58d2a24b8713c93165df9bf6f3187b0a965",
+      "lines": 175,
+      "independently_fully_read": true
+    },
+    {
+      "path": "backend/apps/operations/views_qr_batches.py",
+      "sha256": "ddd1cd69e2324246c39eb6aefe1a511e66c66107c10b0047f3993999d6f1f2c2",
+      "lines": 214,
+      "independently_fully_read": true,
+      "supersedes_pre_target_race_sha256": "7f808ee3be62c89445223af50db587057fc065f49a4b3e8fbeff899fc7b86aeb"
+    }
+  ],
+  "verification_correction": "Native QR disappeared/moved selection uses Django Http404 instead of DRF Conflict outside DRF, avoiding expected-concurrency500. API conflicts unchanged.",
+  "preserved": "Parent Box helper/class AST unchanged; explicit Scan audit, Print GET and quantity/warranty mutation ordering retained; generation native keyword defaultFalse preserves API callers.",
+  "remaining": "UI lane owns separately confirmed historical print-item nested live-QR projection exposure; pending null projection tests/runtime. No broader exploration. Three new QR regression test groups still authoring; no whole-production-ready claim.",
+  "supersedes": "Historical QR/OPS overlapping source snapshots remain retained; this current combined snapshot includes source admission, native dispatch/audit, tiny resolve audit and write-only typed423/503 annotations.",
+  "target_race_closures": "AssetQrView: Source N then Maker NK module lock, existing QR then fresh scoped asset, actor/action after wait, created-only audit/reuse no-op. Print item: Maker NK caller plus shared scoped fresh QR lock before target/snapshot/item/audit; later authorized cross-Maker move and historical snapshot remain allowed."
+}

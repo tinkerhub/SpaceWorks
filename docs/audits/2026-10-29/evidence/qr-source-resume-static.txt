@@ -1,0 +1,36 @@
+AST parse OK; 275 lines: backend/apps/boxes/api_views_qr.py
+AST parse OK; 107 lines: backend/apps/boxes/services.py
+AST parse OK; 34 lines: backend/apps/boxes/access.py
+AST parse OK; 173 lines: backend/apps/boxes/rebind.py
+AST parse OK; 264 lines: backend/apps/boxes/asset_rebind.py
+AST parse OK; 137 lines: backend/apps/boxes/qr_admission.py
+AST parse OK; 229 lines: backend/apps/boxes/admin_qr_lifecycle.py
+AST parse OK; 222 lines: backend/apps/boxes/admin.py
+AST parse OK; 188 lines: backend/apps/operations/services_qr_assets.py
+AST parse OK; 175 lines: backend/apps/inventory/admin.py
+AST identical: backend/apps/boxes/services.py :: box_write_makerspace
+AST identical: backend/apps/boxes/services.py :: create_box_with_qr
+AST identical: backend/apps/boxes/admin.py :: BoxAdmin
+AST identical: backend/apps/boxes/admin.py :: QrScanEventAdmin
+AST identical: backend/apps/boxes/admin.py :: BoxScanAdmin
+AST identical: backend/apps/boxes/api_views_qr.py :: CreateBoxQrView
+AST identical: backend/apps/boxes/api_views_qr.py :: QrPrintView
+AST identical: backend/apps/boxes/admin.py :: QrRebindAdminForm
+AST identical: backend/apps/operations/services_qr_assets.py :: _label_with_suffix
+AST identical: backend/apps/operations/services_qr_assets.py :: _target_label
+AST identical: backend/apps/operations/services_qr_assets.py :: add_qr_to_batch
+AST identical: backend/apps/operations/services_qr_assets.py :: _create_asset_qr
+AST identical: backend/apps/operations/services_qr_assets.py :: _assets_missing_active_qr
+AST identical: backend/apps/operations/services_qr_assets.py :: mark_batch_printed
+AST identical: backend/apps/boxes/asset_rebind.py :: _require_transfer_permission
+AST identical: backend/apps/boxes/asset_rebind.py :: _guard_asset_is_movable
+AST identical: backend/apps/boxes/asset_rebind.py :: _destination_candidate_ids
+AST identical: backend/apps/boxes/asset_rebind.py :: _resolve_destination_product
+Byte identical: backend/apps/boxes/admin_forms.py
+Byte identical: backend/apps/boxes/admin_lifecycle.py
+Byte identical: backend/apps/operations/views_containers.py
+Inventory admin only change: native=True generation caller keyword
+Fingerprint unchanged: backend/tests/test_qr_atomic_mutations.py
+Fingerprint unchanged: backend/tests/qr_target_safety_helpers.py
+Concurrent changes observed outside this pass (left untouched): backend/tests/backup/recovery_bundle_support.py, backend/tests/backup/recovery_live_tasks.py, backend/tests/backup/recovery_transport_support.py, backend/tests/backup/test_recovery_task_fence_db.py, backend/tests/backup/test_signed_full_host.py, docs/audits/2026-10-29/evidence/recovery-runtime-20261030/matrix-results.json, docs/screenshots/2026-10/manifest.json
+AGENTS/CLAUDE byte-identical. No tests/runtime/Django imports/builds/staging/commits performed.

@@ -1,0 +1,31 @@
+Applied only the requested helper edit and smoke-test deletion:
+
+```diff
+--- a/backend/tests/tenant_migration/x13_boundary_mutations.py
++++ b/backend/tests/tenant_migration/x13_boundary_mutations.py
+@@
+ def mapped_content(using):
+-    update(using, "accounts.User", FULL, email="changed@example.test")
++    model = apps.get_model("events.EventRegistration")
++    pk = model._base_manager.using(using).values_list("pk", flat=True).get()
++    update(using, "events.EventRegistration", pk, name="Changed mapped name")
+```
+
+Deleted `backend/tests/test_audit_x13_fixture_preflight_tmp.py`, whose full contents were:
+
+```diff
+-import pytest
+-from django.apps import apps
+-from tests.tenant_migration.x13_source_helpers import put, seed_source
+-@pytest.mark.django_db(transaction=True)
+-def test_real_schema_source_fixture_preflight():
+-    # Transaction-test flush removes migration data. This lightweight fixture
+-    # smoke recreates only the baseline rows used by the real fresh-migrate test.
+-    apps.get_model("encryption.PiiGlobalWriteFence").objects.get_or_create(pk=1)
+-    put("default", "machines.MachineType", id=1, slug="3d_printer", name="3D Printer", is_builtin=True, managing_action="manage_printing")
+-    seed_source("default")
+```
+
+`encryption.registry.SOURCE_FIELDS` explicitly maps `events.EventRegistration.name`; `accounts.User.email` is absent. The lookup now requires exactly one registration on the supplied database alias and retains the existing raw SQL update helper.
+
+Production, assertions, other cases, the exact `Mapped raw values` message, and original-verifier calls at both boundaries remain unchanged. No tests, staging, or commits performed.

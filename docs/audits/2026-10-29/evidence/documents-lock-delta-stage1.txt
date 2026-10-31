@@ -1,0 +1,10 @@
+**APPROVE** the proposed five-call-site refinement.
+
+- `require_module_locked(..., no_key=True)` in warranty upsert and both document finalizers preserves serialization against uninstall’s `FOR UPDATE`, while allowing canonical transfer’s Makerspace FK `KEY SHARE` checks.
+- Both finalizers must also use `limits.add_storage(..., no_key=True)` to prevent a later lock upgrade under the Warranty/ToBuy lock. The counter-only `F()` update remains safe.
+- Concrete host locking still serializes first creation and sparse PUTs. The tenant-filtered lookup rejects an asset moved before lock acquisition with 404; fresh permission checks remain intact.
+- No cross-module lock-order regression identified in this delta. Source-gate boundaries, storage-guard acquisition/verification, and root-owned gate/recompute behavior remain unchanged.
+
+Stage 3 should retain the actual canonical asset-move PostgreSQL races against upsert/document finalization, explicitly exercising FK compatibility, plus both uninstall winner orders and sparse PUT coverage.
+
+Static review only; no edits, tests, or runtime checks performed.

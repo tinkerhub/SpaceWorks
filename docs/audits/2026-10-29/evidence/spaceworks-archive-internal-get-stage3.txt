@@ -1,0 +1,32 @@
+Created [test_archive_server_endpoint.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_archive_server_endpoint.py): **211 lines, exactly 3 unit cases + 1 actual SDK case**. No helper needed.
+
+Coverage includes internal endpoint selection, intact unread streaming body, unchanged bucket/key and metadata, and typed wrapping of connection and S3 client errors. The SDK case requires explicit disposable aliases, uses the production factory with default checksums/signature, reserves an unreachable public endpoint, verifies bounded GET size/SHA, closes the body, and cleans only its newly owned versioned bucket.
+
+Parent-only command, **after existing lanes finish**, from `backend/` with the parent’s test environment:
+
+```bash
+SPACEWORKS_TEST_S3_DISPOSABLE=1 \
+SPACEWORKS_TEST_S3_ENDPOINT_URL=http://127.0.0.1:59200 \
+SPACEWORKS_TEST_S3_ACCESS_KEY_ID='<disposable-access-key>' \
+SPACEWORKS_TEST_S3_SECRET_ACCESS_KEY='<disposable-secret-key>' \
+python -m pytest -q \
+  tests/backup/test_archive_server_endpoint.py \
+  tests/backup/test_archive_api.py \
+  tests/backup/test_archive_digests.py
+```
+
+Container execution may use `http://host.docker.internal:59200`.
+
+SHA-256:
+
+```text
+New test:
+b54f884feaf8482b10b88c32e3bd23cccd38b865593fc89abc63dc6599718226
+
+Unchanged Stage2 storage.py:
+b1ccfab397f24438cf0f79f79e9e464e52cbcf23302fb0fe1412be15d1c5a420
+```
+
+Static whitespace checks passed. All **4,680 pre-existing repository files** matched the starting hash snapshot. Existing affected tests, production, manifests, docs, harness, and immutable baseline remain untouched.
+
+No runtime, imports, collection, tests, Docker, DB, provider actions, or builds executed. This proves only synthetic opaque-byte GET transport once run; it makes no age/PostgreSQL restore claim or passing-test claim.

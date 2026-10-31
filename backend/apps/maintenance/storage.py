@@ -17,7 +17,7 @@ from apps.maker_file_formats import (
     has_required_signature,
     sniff_pdf_or_image,
 )
-from apps.object_storage import delete_all_versions
+from apps.object_storage import delete_accepted_object_versions
 
 
 logger = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ def presigned_upload(object_key, content_type):
             return {"url": url, "method": "PUT", "headers": {"Content-Type": content_type}}
         return _public_client().generate_presigned_post(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
+            Key=staging_key(object_key),
             Fields={"Content-Type": content_type},
             Conditions=[
                 {"Content-Type": content_type},
@@ -118,15 +118,17 @@ def presigned_upload(object_key, content_type):
 
 def delete_object(object_key):
     try:
-        delete_all_versions(
+        delete_accepted_object_versions(
             _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key
         )
     except (BotoCoreError, ClientError):
         logger.exception("Failed to delete maintenance document %s.", object_key)
+        return False
+    return True
 
 
 def cleanup_upload(object_key):
-    delete_object(object_key)
+    # Final ownership is a metadata decision, never inferred from upload failure.
     delete_object(staging_key(object_key))
 
 
@@ -148,46 +150,20 @@ def object_size(object_key):
 
 
 def finalize_upload(object_key):
-    if settings.STORAGE_PRESIGN_METHOD != "put":
-        return object_size(object_key)
-    final_size = object_size(object_key)
-    if final_size is not None:
+    from apps.object_publication import InvalidObjectSize
+
+    try:
+        result = _publish_upload(object_key, settings.MACHINE_DOC_MAX_BYTES)
+    except InvalidObjectSize as exc:
+        return exc.size
+    if result is not None:
         delete_object(staging_key(object_key))
-        return final_size
-    source = staging_key(object_key)
-    size = object_size(source)
-    if size is None or not (1 <= size <= settings.MACHINE_DOC_MAX_BYTES):
-        return size
-    try:
-        _client().copy_object(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            CopySource={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": source},
-            Key=object_key,
-        )
-    except (BotoCoreError, ClientError) as exc:
-        raise StorageUnavailable from exc
-    delete_object(source)
-    return object_size(object_key)
+    return result.size if result is not None else None
 
 
-def validate_log_document_object(object_key):
-    size = object_size(object_key)
-    if size is None:
-        raise ValidationError({"object_key": "Maintenance document was not found."})
-    if size == 0:
-        raise ValidationError({"object_key": "Maintenance document is empty."})
-    if size > settings.MACHINE_DOC_MAX_BYTES:
-        raise ValidationError({"object_key": "Maintenance document exceeds the size limit."})
-    try:
-        response = _client().get_object(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
-            Key=object_key,
-        )
-        data = response["Body"].read(settings.MACHINE_DOC_MAX_BYTES)
-        stored_content_type = str(response.get("ContentType", "")).lower()
-    except (BotoCoreError, ClientError, OSError) as exc:
-        raise StorageUnavailable from exc
-
+def _validate_snapshot(object_key, observed):
+    size, data = observed.size, observed.data()
+    stored_content_type = observed.content_type
     ext = _extension(object_key)
     if not allowed_pair(
         ext,
@@ -217,6 +193,44 @@ def validate_log_document_object(object_key):
             )
         content_type = stored_content_type
     return LogDocumentValidationResult(size=size, content_type=content_type)
+
+
+def validate_log_document_object(object_key):
+    from apps.object_publication import InvalidObjectSize, validate_existing
+
+    try:
+        result = validate_existing(
+            _client(), settings.AWS_STORAGE_BUCKET_NAME, object_key,
+            settings.MACHINE_DOC_MAX_BYTES, lambda observed: _validate_snapshot(object_key, observed),
+        )
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Maintenance document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Maintenance document was not found."})
+    return result
+
+
+def prepare_upload(object_key, max_bytes=None):
+    from apps.object_publication import InvalidObjectSize
+
+    try:
+        result = _publish_upload(object_key, max_bytes or settings.MACHINE_DOC_MAX_BYTES)
+    except InvalidObjectSize as exc:
+        raise ValidationError({"object_key": "Maintenance document is empty or exceeds the size limit."}) from exc
+    if result is None:
+        raise ValidationError({"object_key": "Maintenance document was not found."})
+    delete_object(staging_key(object_key))
+    return result
+
+
+def _publish_upload(object_key, max_bytes):
+    from apps.object_publication import publish
+
+    return publish(
+        _client(), bucket=settings.AWS_STORAGE_BUCKET_NAME, key=object_key,
+        staging_key=staging_key(object_key), max_bytes=max_bytes or settings.MACHINE_DOC_MAX_BYTES,
+        validator=lambda observed: _validate_snapshot(object_key, observed),
+    )
 
 
 def presigned_get_url(object_key):

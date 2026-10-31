@@ -1,0 +1,11 @@
+Implemented only [backend/apps/operations/admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/admin.py).
+
+- Readonly “QR code” display checks makerspace IDs before stringification/link construction; foreign QR returns “QR unavailable”.
+- Same-maker text/link uses `format_html` and `reverse`.
+- Explicit `fields = readonly_fields` excludes editable raw FK.
+- Snapshots, permissions, lifecycle behavior, and other admin classes preserved.
+
+Whole-file readback completed; whitespace check passed. No tests or runtime validation performed.
+
+208 lines. SHA-256:
+`b1ba899456ae32711e780a9974b9e5999e6e8190f3931b128529da0b0cd88aee`

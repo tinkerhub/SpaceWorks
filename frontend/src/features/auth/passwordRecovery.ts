@@ -43,5 +43,12 @@ export function isRecoveryUnavailable(error: unknown) {
 /** Where "Back to sign in" goes: a same-site `next` path (e.g. /member), else the staff console. */
 export function signInPath(search: string) {
   const next = new URLSearchParams(search).get("next") ?? "";
-  return /^\/(?![/\\])/.test(next) ? next : "/admin";
+  // WHATWG URL parsing strips some controls, so reject them before normalization.
+  if (!/^\/(?![/\\])/.test(next) || /[\u0000-\u0020\u007f\\]/.test(next)) return "/admin";
+  const trustedBase = "https://spaceworks.invalid";
+  try {
+    return new URL(next, trustedBase).origin === trustedBase ? next : "/admin";
+  } catch {
+    return "/admin";
+  }
 }

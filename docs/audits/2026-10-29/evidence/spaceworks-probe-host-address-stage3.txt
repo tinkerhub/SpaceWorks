@@ -1,0 +1,22 @@
+Added only [test_restore_probe_host_address.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_restore_probe_host_address.py): **176 lines, 10 static cases**. No helper needed.
+
+Covers the real production TCP probe, exact address/port/TLS and identity preservation, IPv4/IPv6 SQL formatting, and synthetic strict-admission controls.
+
+Parent command, from `backend/` in Linux UID0:
+
+```bash
+SPACEWORKS_TEST_REPO_ROOT=/repo python -m pytest tests/backup/test_restore_probe_host_address.py tests/backup/test_recovery_redis_admission.py -q --create-db
+```
+
+Environment: full checkout at `/repo`, isolated PG16 TCP `DATABASE_URL` with test-database creation rights, valid `API_CLIENT_ENC_KEY`, migrations enabled. Probe URLs derive exclusively from the active pytest connection.
+
+No tests, collection, imports, Docker, DB, providers, or builds executed. IPv6 coverage proves SQL formatting only.
+
+SHA-256:
+
+```text
+test:   209e1131dfc3bd3ec292e8407293ea9e7a790b775700181b2606b6b32d1da6d1
+source: a53b6588c953fcf770e765c38bd60cf0ff9000861dfe8f43969b30d48262120c
+plan:   390011547bb15c8917758f440035590a61933d65e7365eb6333b807f8033e277
+review: c2780fbed6f7e9827bde9e24009d0f972a9acca2693b7ca8162179ab0bc07ff9
+```

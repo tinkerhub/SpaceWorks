@@ -50,10 +50,7 @@ PACKAGE_FAMILY=""
 case "$kernel" in
   Linux)
     [[ -r /etc/os-release ]] || die "Linux distribution metadata /etc/os-release is missing."
-    # /etc/os-release is the distribution's canonical data source. Do not infer
-    # the family from whichever package-manager binary happens to be present.
     ID=""; ID_LIKE=""
-    # shellcheck disable=SC1091
     source /etc/os-release
     distro_words=" ${ID:-} ${ID_LIKE:-} "
     case "$distro_words" in
@@ -73,7 +70,6 @@ say "Architecture: $ARCH; host: $HOST_KIND${PACKAGE_FAMILY:+/$PACKAGE_FAMILY}."
 missing=()
 MISSING_DOCKER=0
 MISSING_COMPOSE=0
-# python3 runs the Compose wrapper validator and setup helpers on the host itself.
 for tool in curl tar python3; do command -v "$tool" >/dev/null 2>&1 || missing+=("$tool"); done
 if ! command -v docker >/dev/null 2>&1; then
   missing+=(docker-engine docker-compose-v2)
@@ -124,7 +120,6 @@ if [[ -f "$INSTALL_DIR/.spaceworks-version" ]]; then
     RUN_ROOT=(sudo)
     RUN_INSTALLED_AS_ROOT=1
   fi
-  # With the privileges chosen above: a root-owned install keeps its .env at mode 0600.
   REPOSITORY="$("${RUN_ROOT[@]}" bash -c 'source "$1/scripts/env-file.sh"; source "$1/scripts/host-image.sh"; resolve_spaceworks_repository "$1"' _ "$INSTALL_DIR")" || die "Invalid installed repository."
   RELEASE_API="https://api.github.com/repos/$REPOSITORY/releases/latest"
 elif [[ -e "$INSTALL_DIR" ]]; then
@@ -177,8 +172,6 @@ if [[ "$ACTION" != modules && "$ACTION" != runner ]]; then
     MAKERSPACE_BACKEND_IMAGE="${MAKERSPACE_BACKEND_IMAGE-ghcr.io/$owner/spaceworks-backend}"
     MAKERSPACE_FRONTEND_IMAGE="${MAKERSPACE_FRONTEND_IMAGE-ghcr.io/$owner/spaceworks-frontend}"
   fi
-  # sudo/sg strip or re-parse the environment, so pass values explicitly
-  # with shell quoting to preserve spaces and metacharacters.
   for name in MAKERSPACE_IMAGE_TAG SPACEWORKS_REPOSITORY MAKERSPACE_BACKEND_IMAGE MAKERSPACE_FRONTEND_IMAGE; do
     [[ ${!name+x} ]] || continue
     value="${!name}"; [[ "$value" != *$'\r'* && "$value" != *$'\n'* ]] || die "$name cannot contain CR or LF."
@@ -272,14 +265,21 @@ curl --fail --silent --show-error --location \
 parent="$(dirname "$INSTALL_DIR")"
 if [[ ! -d "$parent" ]]; then "${RUN_ROOT[@]}" mkdir -p -- "$parent"; CREATED_PARENT=1; fi
 STAGE_DIR="$("${RUN_ROOT[@]}" mktemp -d "$parent/.spaceworks-stage.XXXXXX")"
-"${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1
-for required in setup.sh docker-compose.prod.yml scripts/update.sh scripts/spaceworks-compose.sh \
-  scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh \
-  scripts/install-host-bundle.sh scripts/install-deploy-runner.sh scripts/setup-deploy-runner.sh; do
-  "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" || die "The pinned release archive is missing required installer file $required."
+"${RUN_ROOT[@]}" tar -xzf "$ARCHIVE" -C "$STAGE_DIR" --strip-components=1 --no-same-owner
+required_files=(setup.sh docker-compose.prod.yml scripts/update.sh scripts/spaceworks-compose.sh
+  scripts/module-selection.sh scripts/request-access-selection.sh scripts/update-lock.sh
+  scripts/install-host-bundle.sh scripts/install-deploy-runner.sh scripts/setup-deploy-runner.sh
+  scripts/check-restore-host-bundle.py scripts/restore.sh scripts/import-backup.sh install.sh)
+for required in "${required_files[@]}"; do
+  "${RUN_ROOT[@]}" test -f "$STAGE_DIR/$required" && "${RUN_ROOT[@]}" test ! -L "$STAGE_DIR/$required" \
+    || die "The pinned release archive is missing regular installer file $required."
 done
-"${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR" "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh"
-# An existing install runs the NEW release's updater: backup, staged host files, images.
+guarded_paths="$("${RUN_ROOT[@]}" python3 -I -B "$STAGE_DIR/scripts/check-restore-host-bundle.py" \
+  "$STAGE_DIR" "${required_files[@]}")" || die "The pinned release restore host bundle is incomplete or differs."
+while IFS= read -r required; do "${RUN_ROOT[@]}" chmod 644 "$STAGE_DIR/$required"; done <<< "$guarded_paths"
+"${RUN_ROOT[@]}" chmod 644 "$STAGE_DIR/scripts/check-restore-host-bundle.py"
+"${RUN_ROOT[@]}" chmod 755 "$STAGE_DIR" "$STAGE_DIR/scripts" "$STAGE_DIR/backend" "$STAGE_DIR/backend/apps" "$STAGE_DIR/backend/apps/backup" \
+  "$STAGE_DIR/install.sh" "$STAGE_DIR/scripts/spaceworks-compose.sh" "$STAGE_DIR/scripts/restore.sh" "$STAGE_DIR/scripts/import-backup.sh"
 if [[ "$ACTION" != fresh ]]; then
   update_options="--force --no-module-changes"; [[ "$ACTION" != both ]] || update_options="--force --modules"
   printf -v update_command 'SPACEWORKS_REPOSITORY=%q SPACEWORKS_PINNED_RELEASE=%q SPACEWORKS_UPDATE_INSTALL_DIR=%q bash %q %s' "$REPOSITORY" "$RELEASE_TAG" "$INSTALL_DIR" "$STAGE_DIR/scripts/update.sh" "$update_options"

@@ -1,0 +1,55 @@
+{
+  "status": "retry-inputs-prepared-not-executed",
+  "syntax_only": true,
+  "private_inputs": [
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/README.txt",
+      "sha256": "431d7011e64ba076761181176caaec55c6f6bdd6b99c98ae48ee635f63f665f0",
+      "lines": 56
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/bootstrap_operator.py",
+      "sha256": "37ccfb16cc2c215591d800511c3cb1dd1b6046d547fb8cc87db99a8a71efbeaa",
+      "lines": 91
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/feasibility.sh",
+      "sha256": "39ecc3302c976e0d331c5d5a3dc6e3410b17c8ab213b9abd90a40c110e24a823",
+      "lines": 63
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/prepare_snapshot.py",
+      "sha256": "a80d190446ffb8e4bdf62194285b4dce09e1cbe22ecd11fbf28c48f049c81c81",
+      "lines": 55
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/run_topology.sh",
+      "sha256": "0c795d536399aa052e658368940fec20922d346fc0c810de63796f242c1e6777",
+      "lines": 82
+    },
+    {
+      "path": "/tmp/spaceworks-actual-host-drill/workflow_operator.py",
+      "sha256": "36c502e1670d15cdfaa55ec161547a96f8a896aabf900225c0124aaa0ab3c297",
+      "lines": 176
+    }
+  ],
+  "runtime": "UNVERIFIED",
+  "no_production_actions": true,
+  "commands": [
+    "/tmp/spaceworks-actual-host-drill/feasibility.sh",
+    "/tmp/spaceworks-actual-host-drill/run_topology.sh REPO NEW_FEASIBILITY_RUN_DIRECTORY swdrill202610292203055ae1c4-registry-host"
+  ],
+  "limits": [
+    "same-host-only",
+    "live-broker-generation-proof-separate",
+    "different-key-cross-target-not-yet",
+    "no-adverse-post-effect-injection",
+    "no-official-release-attestation"
+  ],
+  "host_context_correction": "Host default or desktop-linux local Unix context accepted without switching; actual host/operator daemon IDs must match; operator uses default local socket.",
+  "feasibility_evidence": "docs/audits/2026-10-29/evidence/restore-actual-host-feasibility.json",
+  "feasibility_status": "actual-pass-by-parent-only",
+  "previous_attempt": "Actual Celery producer failed on nonseekable StreamingBody SDK checksum before any restore SQL; retained unchanged in the prior authority volume/private run.",
+  "retry": "Fresh feasibility/authority volume/project/install; current source freeze >=64 entries verified and actual count recorded dynamically. New genuine build/new per-run registry tag/actual RepoDigest; no production or source checks bypassed.",
+  "registry": "Parent validated existing isolated registry:2, host network, prior drill label, REGISTRY_HTTP_ADDR=127.0.0.1:31129; runner revalidates actual inspect. No deletion or daemon configuration change."
+}

@@ -9,13 +9,15 @@ import { QrImage } from "./QrImage";
 
 type QrCode = { id: number; payload: string; target_type: string; target_id: number };
 export type Batch = { id: number; title: string; status: string; created_at: string };
-type BatchItem = { id: number; qr_code: QrCode; label_text: string; target_type: string; target_id: number };
+type BatchItem = { id: number; qr_code: QrCode | null; label_text: string; target_type: string; target_id: number };
 export type BatchDetail = Batch & { items: BatchItem[] };
 
 /** The working batch: every label collected so far, plus the ZIP download. */
 export function BatchLabels({ batchId, batch, loading, error }: { batchId: number; batch?: BatchDetail; loading: boolean; error: unknown }) {
   const { showToast } = useToast();
   const items = batch?.items ?? [];
+  const printableCount = items.filter((item) => item.qr_code !== null).length;
+  const hasUnavailableLabels = printableCount < items.length;
   const downloadZip = useMutation({
     mutationFn: () => downloadStaffFile(`/admin/qr-print-batches/${batchId}/download`, `qr-batch-${batchId}.zip`),
     onSuccess: () => showToast("Download started", { tone: "success" }),
@@ -25,10 +27,12 @@ export function BatchLabels({ batchId, batch, loading, error }: { batchId: numbe
     <Card as="section">
       <CardHeader
         title={batch?.title ?? "Working batch"}
-        description={`${items.length} QR ${items.length === 1 ? "label" : "labels"} collected`}
+        description={hasUnavailableLabels
+          ? `${printableCount} printable of ${items.length} QR labels collected`
+          : `${items.length} QR ${items.length === 1 ? "label" : "labels"} collected`}
         action={(
-          <Button startIcon={<Download />} disabled={!items.length} loading={downloadZip.isPending} loadingLabel="Preparing…" onClick={() => downloadZip.mutate()}>
-            Download all (ZIP)
+          <Button startIcon={<Download />} disabled={!printableCount} loading={downloadZip.isPending} loadingLabel="Preparing…" onClick={() => downloadZip.mutate()}>
+            {hasUnavailableLabels ? "Download available (ZIP)" : "Download all (ZIP)"}
           </Button>
         )}
       />
@@ -43,7 +47,11 @@ export function BatchLabels({ batchId, batch, loading, error }: { batchId: numbe
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item) => (
             <article key={item.id} className="grid gap-2 rounded-lg border border-line bg-canvas p-3 text-center">
-              <QrImage qrId={item.qr_code.id} label={item.label_text} />
+              {item.qr_code !== null ? (
+                <QrImage qrId={item.qr_code.id} label={item.label_text} />
+              ) : (
+                <div className="grid aspect-square place-items-center rounded-md border border-dashed border-line bg-canvas p-2 text-caption text-ink-muted">QR unavailable</div>
+              )}
               <p className="text-label text-ink [overflow-wrap:anywhere]">{item.label_text}</p>
               <p className="text-caption text-ink-muted">{sentence(item.target_type)} #{item.target_id}</p>
             </article>

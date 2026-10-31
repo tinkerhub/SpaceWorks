@@ -249,6 +249,7 @@ def test_superadmin_sees_both_and_can_target_either_kind():
     assert create.data["kind"] == ToBuyItem.Kind.PRINTING
 
 
+@pytest.mark.django_db(transaction=True)
 def test_received_status_delete_and_export_all_succeed():
     space = make_space("proc-regression")
     admin = make_space_manager("proc-regression-mgr", space)

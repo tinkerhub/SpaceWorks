@@ -1,0 +1,24 @@
+Added **161 cases across 29 test functions** in 11 new files under `backend/tests/document_safety`. All files are ≤300 lines.
+
+| Test module | Cases |
+|---|---:|
+| quota | 57 |
+| guards | 48 |
+| procurement | 15 |
+| warranty | 10 |
+| concurrency | 11 |
+| transfer concurrency | 8 |
+| module concurrency | 9 |
+| exclusion | 3 |
+
+Static AST checks passed. No tests, application imports, or builds executed. My edits stayed inside the allowlist. Static search found no old direct `_upsert_warranty` callers requiring actor migration.
+
+Root runtime command:
+
+```bash
+./scripts/dev-docker.sh exec -T backend sh -c '
+  export DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager
+  export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+  python -m pytest tests/document_safety -q --create-db
+'
+```

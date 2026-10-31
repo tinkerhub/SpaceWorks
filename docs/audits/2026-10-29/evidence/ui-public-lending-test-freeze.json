@@ -1,0 +1,68 @@
+{
+  "cases_authored": 60,
+  "runtime_status": "root Node20 targeted inventory 144 passed; TSC passed; full suite/release pending",
+  "runtime_report": "docs/audits/2026-10-29/evidence/ui-public-lending-corrected-runtime.log",
+  "runtime_report_sha256": "49293b9c5482db8f4d0dfcef09447fd02aaaeb14ea5c3df16ef4d3cb656c0a4c",
+  "files": [
+    {
+      "path": "frontend/src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+      "sha256": "33c340bdbc17e8cb2e7ae5b828638c3f745070c692a8fcc8177595af82243902",
+      "lines": 163
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicEvidenceUpload.ownership.test.tsx",
+      "sha256": "ee5f72beace438af5ce591ae8d7a937f26f5d04a70aff6f8f9a78c8fb2cb13c0",
+      "lines": 159
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicInventoryPage.ownership.test.tsx",
+      "sha256": "e574cdae651cee4574b4bf4183c555b83383411ad53fc7dac3b33ee5addea70e",
+      "lines": 119
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx",
+      "sha256": "c7198101e7047e8a5751c467b4307740b2fe8f5385eaa677139db4196ded6407",
+      "lines": 145
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicToolScanPanel.ownership.test.tsx",
+      "sha256": "422f6827902fd7696e111a85505b84e21c5c50d9c839055dd2e1308b56500cae",
+      "lines": 158
+    },
+    {
+      "path": "frontend/src/features/inventory/usePublicSession.ownership.test.tsx",
+      "sha256": "34ea68465e6c4a7d34c8e4ff3a8c5b4616ebf220ca8a2b733a0977e4f38bdea5",
+      "lines": 83
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx",
+      "sha256": "c6fd5000f50ed6161e252dbce7cc70e2a57f5ed8a4c046dd31f5679d9b92510a",
+      "lines": 44
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicIdentityTenantScope.test.tsx",
+      "sha256": "7bdb4cfc09bbf2df701f0eb1a46df879c085bed2831c21a3be6729436cb0562c",
+      "lines": 139
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+      "sha256": "a54dce4c41970ec3c70a2ef964af492fe31893bdb65db36bdd6eba6df0a49465",
+      "lines": 338
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicRequestPanelFlow.test.tsx",
+      "sha256": "2d4e15bb6c05e8c3969724b7496cc413ff888055c83ace14645ab9272a525301",
+      "lines": 94
+    },
+    {
+      "path": "frontend/src/features/inventory/PublicSelfCheckoutPage.test.tsx",
+      "sha256": "68f389df36b1a871fc3c5d1489a7445f7c922a5f209a33da19097d28a7be8940",
+      "lines": 106
+    },
+    {
+      "path": "frontend/src/test/publicLendingHarness.tsx",
+      "sha256": "4b99d86a6b99af396a7c15ab061ac353d3ba9f996ef3ba63c274ca76b9bcedb2",
+      "lines": 84
+    }
+  ]
+}

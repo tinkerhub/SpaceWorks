@@ -1,0 +1,9 @@
+Implemented only these three files:
+
+- [source_primitive_scope.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/source_primitive_scope.py): exact cache exclusion; canonical dated-audit data kept as documentation rows without source hashes; SVG hashing; four exact public-template exceptions.
+- [source_primitive_derived.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/source_primitive_derived.py): null draft bindings; nonempty reviewer/report validation; actual report-byte and derivation-fingerprint validation before output exclusion. Existing input hashes remain required.
+- [source_primitive_registry.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/backup/source_primitive_registry.py): clears derived bindings in the copied draft, preserving the input census.
+
+All remain below 300 lines and pure stdlib. Registry approval remains explicit; drafts stay `UNREVIEWED`.
+
+No tests edited or run. No frontend edits, census, builds, staging, commits, pushes, or ledger updates.

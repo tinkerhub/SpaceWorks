@@ -6,7 +6,8 @@ from django.db import connection
 
 from apps.accounts import rbac
 from apps.accounts.rbac import Action
-from apps.backup.models import B1RestoreOperationState
+from apps.backup.models import B1ReservationEntry, B1RestoreOperationState
+from django.utils import timezone
 from apps.backup.not_restored import TenantNotRestored
 from apps.machines.role_scope import NOTHING, manage_scope_for
 from apps.makerspaces.models import Makerspace
@@ -16,6 +17,8 @@ from tests.backup.e7_reservation_test_helpers import (
     assert_database_rejects,
     persist_restore_state,
 )
+from apps.backup.compound_restore_state import install_manifest_enforcement
+from tests.backup.x07_installation_test_helpers import fence, prepared
 
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -26,12 +29,19 @@ def _component_fact():
 
 
 def test_restore_operation_stage_can_only_advance_one_database_step():
-    operation_id, _component_id = persist_restore_state(_component_fact())
+    case = prepared([("broad_fence", fence(
+        [uuid.uuid4()], table="inventory_inventoryproduct",
+    ))])
+    install_manifest_enforcement(inputs=case.inputs, manifest=case.manifest)
+    operation_id = case.inputs.run_id
 
     assert_database_rejects(lambda: B1RestoreOperationState.objects.filter(
         pk=operation_id
     ).update(stage=B1RestoreOperationState.Stage.STATE_REHYDRATED))
 
+    B1ReservationEntry.objects.filter(operation_id=operation_id).update(
+        catalog_verified_at=timezone.now(),
+    )
     assert B1RestoreOperationState.objects.filter(pk=operation_id).update(
         stage=B1RestoreOperationState.Stage.CATALOG_VERIFIED
     ) == 1

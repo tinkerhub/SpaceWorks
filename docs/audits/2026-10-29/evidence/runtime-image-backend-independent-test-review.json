@@ -1,0 +1,62 @@
+{
+  "status": "independent-parent-test-read-approved-finite-runtime-pending",
+  "new_cases": 17,
+  "source_of_case_count": "separate Stage3 author static inventory; collection/runtime not yet claimed",
+  "test_files": [
+    {
+      "path": "backend/tests/backup/runtime_image_capture_support.py",
+      "lines": 98,
+      "sha256": "c295e67862aab11f64dbad56cb5880edd6a5e781fdd9573bb2c35512bda3dc97"
+    },
+    {
+      "path": "backend/tests/backup/test_runtime_image_capture_admission.py",
+      "lines": 142,
+      "sha256": "fa599135a6ab055a0e4b9f52107ce749b9b3dd838a30732a96ad2c62333948f2"
+    },
+    {
+      "path": "backend/tests/backup/test_runtime_image_capture_freeze.py",
+      "lines": 72,
+      "sha256": "25a4ffb0c6e71bf75f10be30362b658b563aa4af897d300cf3caa23d05ba8cd4"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_capture.py",
+      "lines": 174,
+      "sha256": "774a1c22496e3f6901f0df3eb5049c1270f580576b7242487d56033fcdd422bb"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_concurrency.py",
+      "lines": 112,
+      "sha256": "4b3c3450a35f12df87243a44960fcaf21cc8eb1949eab5d2f44ddde0cfcc8cd3"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_promotion.py",
+      "lines": 160,
+      "sha256": "cd6b0e660f56246b22d0bccecf92d51dabb972a9289f0e1c9f2866524823d4de"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_upload.py",
+      "lines": 110,
+      "sha256": "3e7de5bfbc91cb97fa82822569ffabf3f3f3cfaeda91f27eb34b48d5407ad5fd"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_roundtrip.py",
+      "lines": 183,
+      "sha256": "fd41c2416e3d1c842a6ff2dd3106982fd39daf6d21f3d21ff9707360fac021ee"
+    },
+    {
+      "path": "backend/tests/backup/test_signed_full_runtime_role_exact.py",
+      "lines": 135,
+      "sha256": "c0d7dc4e9397d78de68e92ca93a277292704abe01b9b39215d2a2a4b5a43216d"
+    },
+    {
+      "path": "backend/tests/backup/full_backup_capture_helpers.py",
+      "lines": 77,
+      "sha256": "be60719239b950fe01dee50c50035e4e8593787416dc6bbe551b43c1175cbad5"
+    }
+  ],
+  "root_read_new_support_admission_freeze_files": true,
+  "root_verified_original_four_positive_module_function_AST_unchanged": true,
+  "fixture_change": "Module-local synthetic OCI precondition only for old positive FULL tests; no global/lane identity, new missing/invalid tests remain separate.",
+  "runtime_pending": true,
+  "production_approval": false
+}

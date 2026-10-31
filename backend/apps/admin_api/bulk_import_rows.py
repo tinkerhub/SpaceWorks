@@ -106,7 +106,7 @@ def _normalize_row(makerspace, row, mapping):
         errors["public_availability_mode"] = "Invalid public availability mode."
 
     total_used = sum(
-        data[field]
+        data.get(field, 0)
         for field in [
             "available_quantity",
             "reserved_quantity",

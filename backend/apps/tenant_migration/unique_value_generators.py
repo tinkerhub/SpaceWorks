@@ -48,7 +48,7 @@ def refuse_checkin_operation_collision(row, target, source_value):
 def machine_document_key(row, target, source_value):
     from apps.machines.storage import machine_object_key
 
-    return machine_object_key(target.pk, _extension(source_value))
+    return machine_object_key(target.pk, row["machine_id"], _extension(source_value))
 
 
 def service_file_key(row, target, _source_value):
@@ -71,10 +71,10 @@ def maintenance_document_key(row, target, source_value):
 def receipt_key(row, target, source_value):
     from apps.procurement.storage import receipt_object_key
 
-    return receipt_object_key(target.pk, _extension(source_value))
+    return receipt_object_key(target.pk, row["to_buy_item_id"], _extension(source_value))
 
 
 def warranty_document_key(row, target, source_value):
     from apps.warranty.storage import warranty_object_key
 
-    return warranty_object_key(target.pk, _extension(source_value))
+    return warranty_object_key(target.pk, row["warranty_id"], _extension(source_value))

@@ -1,0 +1,28 @@
+Stage 3 functional tests are written and frozen. **AST parsing passed; runtime NOT RUN.** AST enumeration gives **84 new cases plus one corrected existing case**.
+
+| Exact path | Lines |
+|---|---:|
+| [backend/tests/box_checkout_guard_helpers.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/box_checkout_guard_helpers.py) | 174 |
+| [backend/tests/test_box_checkout_scan_guards.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_box_checkout_scan_guards.py) | 203 |
+| [backend/tests/test_box_checkout_nested_guard.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_box_checkout_nested_guard.py) | 146 |
+| [backend/tests/test_qr_revoke_fresh_state.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_qr_revoke_fresh_state.py) | 84 |
+| [backend/tests/test_box_checkout_integrity.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/test_box_checkout_integrity.py) | 269 |
+
+Exact nodeid selectors, relative to `backend/tests/`:
+
+| Selector | Cases |
+|---|---:|
+| `test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation` | 24 |
+| `test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold` | 4 |
+| `test_box_checkout_scan_guards.py::test_explicit_asset_qrs_issue_and_return_exact_units` | 4 |
+| `test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner` | 40 |
+| `test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only` | 4 |
+| `test_box_checkout_nested_guard.py::test_container_only_handout_still_refuses_descendant_stock` | 2 |
+| `test_qr_revoke_fresh_state.py::test_revoke_api_serializes_the_fresh_revoked_instance` | 1 |
+| `test_qr_revoke_fresh_state.py::test_stale_active_instance_cannot_revoke_twice_or_append_audit` | 1 |
+| `test_qr_revoke_fresh_state.py::test_real_active_public_loan_blocks_revoke_without_mutation` | 4 |
+| `test_box_checkout_integrity.py::test_public_box_checkout_refuses_mixed_asset_and_quantity_contents` | 1 replaced |
+
+The refusal matrices cover available, hidden, disabled, archived-product, zero-aggregate legacy, and missing-active-QR units; child/grandchild units and quantity stock, including hidden, disabled, and inactive descendants. Public/direct paths use POST and finite-cap PUT evidence with genuine PNG validation.
+
+All AST outside the authorized existing-test replacement matches HEAD. No production or race files were edited; no extra helper files were needed. No tests, providers, builds, schema/migration commands, staging, or commits were run. Central execution and remaining gates are pending.

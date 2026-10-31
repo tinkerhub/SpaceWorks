@@ -1,0 +1,30 @@
+Added and statically reviewed [test_restore_target_oid_json.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_restore_target_oid_json.py): 237 lines, exactly three cases. No helper or existing files changed.
+
+The tests use real emitted SQL and real dual-role `main()`, verify all five restricted-login capabilities are false, and preserve native JSON types. Docker inspection remains explicitly synthetic.
+
+AST/source checks passed. No pytest, project imports, Docker, DB, builds, or installation mutations ran.
+
+SHA256:
+
+```text
+test:      2d7a2be826d01d77c2bbbabfeee03caca7a4b3d81c3745964424584af38b1ca5
+admission: 92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837
+wrapper:   85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668
+```
+
+Parent command for the documented dev stack, **after root2 releases the database**:
+
+```sh
+./scripts/dev-docker.sh exec -T --user 0:0 \
+  -e SPACEWORKS_TEST_REPO_ROOT=/workspace \
+  -e DATABASE_URL=postgres://makerspace:makerspace@db:5432/makerspace_manager \
+  backend sh -c '
+    export API_CLIENT_ENC_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+    python -m pytest -q --reuse-db \
+      tests/backup/test_restore_target_oid_json.py \
+      tests/backup/test_restore_probe_host_address.py \
+      tests/backup/test_recovery_redis_admission.py
+  '
+```
+
+Expected scope: 3 + 10 + 28 cases. Runtime results and installed-source/image attestation remain unverified.

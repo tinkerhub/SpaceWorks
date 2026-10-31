@@ -1,0 +1,12 @@
+Implemented both corrections:
+
+- OIDC locked phase: active Membership by raw intended IDs → User → fresh scope assertion. Preflight and full identity validation preserved.
+- Revocation hook: exact `select_for_update(of=("self",))`; filter and revocation logic unchanged.
+
+Static AST and exact-delta checks passed. Files remain 149 and 289 lines.
+
+SHA-256 hashes and handoff: [freeze report](/tmp/spaceworks-claim-source-lock-order-stage2-freeze.json).
+
+Only the two allowed files were written by this task. Snapshot comparison detected concurrent changes in seven other files, listed in the report.
+
+No application imports, runtime, tests, builds, staging, or commits performed.

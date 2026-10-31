@@ -19,6 +19,12 @@ def _anonymous(name):
 
 
 PUBLIC_CLAIM_ROUTES = {
+    ("hardware_requests:own-requests", "GET"): Refused("Personal account history only"),
+    ("hardware_requests:own-requests", "HEAD"): Refused("Personal account history only"),
+    ("hardware_requests:own-requests", "OPTIONS"): AnonymousRead(),
+    ("public-own-machine-service-requests", "GET"): Refused("Personal account history only"),
+    ("public-own-machine-service-requests", "HEAD"): Refused("Personal account history only"),
+    ("public-own-machine-service-requests", "OPTIONS"): AnonymousRead(),
     **_anonymous("public-machines"),
     **_anonymous("public-machine-service-types"),
     ("public-machine-service-upload", "POST"): Allowed(tenant=SLUG, audited=True),

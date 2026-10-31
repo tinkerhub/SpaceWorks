@@ -85,6 +85,7 @@ export function getStaffAccess(
   const canIssueRequest = has("issue_request");
   const canReturnRequest = has("return_request");
   const canReviewRequests = has("accept_request");
+  const canCancelRequests = has("reject_request");
   const canSeeHardware = isSuperadmin || ["accept_request", "reject_request", "assign_box", "issue_request", "issue_direct_loan", "return_request"].some((action) => actions.includes(action));
   const canUseToBuy = has("edit_inventory") || has("manage_printing") || has("manage_machines") || has("manage_makerspace");
   const canChooseToBuyKind = has("manage_makerspace");
@@ -166,6 +167,7 @@ export function getStaffAccess(
     canIssueRequest,
     canReturnRequest,
     canReviewRequests,
+    canCancelRequests,
     canViewAudit,
     canManageQr,
     canManageMakerspace,

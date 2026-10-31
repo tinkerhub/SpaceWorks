@@ -59,10 +59,10 @@ export function IssueDialog({ row, makerspace, onClose }: DialogProps) {
           </Callout>
         ) : (
           <Callout tone="warning" title="No box is assigned to this request.">
-            Assign and scan a box before issuing.
+            A container is optional. If one is assigned, scan it before issuing.
           </Callout>
         )}
-        <EvidenceUpload makerspaceId={makerspace.id} evidenceType="issue" label="Evidence photo" disabled={mutation.isPending} onUploaded={setEvidenceId} />
+        <EvidenceUpload resourceContext={row.id} makerspaceId={makerspace.id} evidenceType="issue" label="Evidence photo" disabled={mutation.isPending} onUploaded={setEvidenceId} />
         <Field label="Remark" optional>
           <Textarea value={remark} onChange={(event) => setRemark(event.target.value)} />
         </Field>

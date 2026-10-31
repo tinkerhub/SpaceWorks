@@ -29,6 +29,13 @@ NONCE_URL = "/api/v1/auth/social/nonce"
 GOOGLE_URL = "/api/v1/auth/social/google"
 
 
+@pytest.fixture(autouse=True)
+def register_social_member_origin(settings):
+    settings.CORS_ALLOWED_ORIGINS = list(dict.fromkeys([
+        *settings.CORS_ALLOWED_ORIGINS, ORIGIN,
+    ]))
+
+
 def configure_google():
     row = PlatformSocialAuthSettings.load()
     row.google_web_client_id = "google-web-client"

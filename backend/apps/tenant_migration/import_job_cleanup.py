@@ -26,6 +26,9 @@ DEFAULT_CLEANUP_BATCH_SIZE = 100
 logger = logging.getLogger(__name__)
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def cleanup_expired_import_jobs(*, now=None, batch_size=DEFAULT_CLEANUP_BATCH_SIZE):
     """Delete pre-tenant jobs and expire archives retained by terminal target jobs."""
     cleanup_at = now or timezone.now()
@@ -66,6 +69,7 @@ def cleanup_expired_import_jobs(*, now=None, batch_size=DEFAULT_CLEANUP_BATCH_SI
     return len(candidates)
 
 
+@import_writer
 def cleanup_abandoned_import_objects(*, now=None, batch_size=DEFAULT_CLEANUP_BATCH_SIZE):
     """Roll back a bounded batch of failed/abandoned object journals."""
     cleanup_at = now or timezone.now()
@@ -93,6 +97,7 @@ def cleanup_abandoned_import_objects(*, now=None, batch_size=DEFAULT_CLEANUP_BAT
     return len(job_ids)
 
 
+@import_writer
 def resume_expired_finalizing_import_jobs(
     *, now=None, batch_size=DEFAULT_CLEANUP_BATCH_SIZE
 ):

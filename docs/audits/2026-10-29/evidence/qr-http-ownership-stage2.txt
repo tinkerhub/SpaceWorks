@@ -1,0 +1,13 @@
+Stage 2 implemented in the three authorized files:
+
+- [gate_http_ownership.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/gate_http_ownership.py:91) — separate eight-POST registry; validates canonical classes, URL aliases, POST implementations, real DRF callbacks, and consumed owner bindings. Declared drift raises typed 503.
+- [middleware.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/middleware.py:39) — verifies ownership before tenant resolution and retains P around the entire dispatch.
+- [gate_runtime.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/tenant_migration/gate_runtime.py:144) — revalidates ownership and requires the existing trusted P context; missing P raises typed 503.
+
+Independent static checks passed. File lengths: **163 / 146 / 208**. Original runtime helpers and ordinary middleware behavior are AST-preserved; GateLocks, the purge table, and the original purge validator remain unchanged.
+
+[Detailed verification report](/tmp/spaceworks-qr-http-stage2-static-report.txt) records every route/class/binding, function, failure condition, and hash.
+
+**Root pending:** the existing guard covers only purge ownership. New API-registry validation, final authority hashes, and separate Stage 3 runtime verification remain required. The 27 failures are not yet claimed closed.
+
+No tests, collection, Django imports, builds, staging, or commits performed.

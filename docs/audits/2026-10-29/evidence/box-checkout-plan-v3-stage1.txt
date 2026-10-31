@@ -1,0 +1,18 @@
+**APPROVED for bounded Stage 1 v3.** The stated changes close all three mandatory v2 gaps. I found no additional blocking lock cycle within the inspected scope.
+
+- Native revoke owns its per-QR atomic lock, fresh checks, save and audit; the API serializes the returned instance.
+- Triage retains only the report-row lock before attachment evidence, then acquires fresh Maker `NO KEY UPDATE` before inventory work, including without evidence. I found no opposing Maker→existing-report locking path in scope.
+- Scanner eligibility rejects every AVAILABLE contained asset and checks both reviewed-request occupancy and active public loans.
+- The authorized public-return reorder preserves pre-provider servability/preflight and locked ledger/asset validation before charging.
+- Issuing paths share Evidence→Maker NK→domain ordering. Optional lock arguments retain existing defaults.
+- HW002 refusal preserves quantity-box checkout, standalone unit scans, selected-container direct handouts with unit scans, and overlap rejection.
+
+The Stage 3 requirements remain appropriate, including both winner orders, observed bounded PostgreSQL waits, genuine image validation, POST/finite-cap PUT, refusal rollback assertions, and the Maker-wait adjustment to INV-S02 without weakening its behavior assertions.
+
+All ten current source files are ≤300 lines. `self_checkout_workflow.py` is **297**; its implementation must remain ≤300.
+
+Approval is bound to the inspected source snapshot. Current `self_checkout_workflow.py` SHA-256:
+
+`22247712ec3622bb5a61c0c24dc4335ec5876cf2752116e4111768d6bc67ac6d`
+
+This is plan approval only; Stage 3 and Stage 4 remain pending. No edits, tests, builds, or runtime actions performed.

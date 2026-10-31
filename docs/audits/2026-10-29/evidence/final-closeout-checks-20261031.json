@@ -1,0 +1,24 @@
+{
+  "status": "local audit closeout passed; owner QA required before commit",
+  "report_sha256": "d7640632e1494310161882ab7168d51f1d32ef2aee33b55413c4666c69e43d4f",
+  "report_links_all_resolve": true,
+  "gallery76_hashes_sizes_exact": true,
+  "version0_9_0_consistent": true,
+  "version_sources": [
+    "VERSION",
+    "backend/config/settings.py SPECTACULAR_SETTINGS",
+    "frontend/openapi-schema.json info.version"
+  ],
+  "AGENTS_CLAUDE_byte_identical": true,
+  "all2041_runtime_bytes_modes_still_match_reviewed_vector": true,
+  "whitespace_clean": true,
+  "index_empty": true,
+  "current_branch": "dev",
+  "new_audit_application_code_committed_or_pushed": false,
+  "final_review": "final-independent-review-round6.json",
+  "Docker_cleanup": "final-test-infrastructure-cleanup-20261031.json",
+  "remote_cleanup": "remote-merged-branch-cleanup-20261031.json",
+  "public_text_pattern_check": "No JWT-like values or Django password hashes in current audit text. Not an exhaustive secret scan.",
+  "ad_hoc_check_history": "First metadata attempt incorrectly assumed npm package version fields. Those fields do not exist by design; corrected check uses the repository version sources, with no product/source change.",
+  "owner_QA_pending": true
+}

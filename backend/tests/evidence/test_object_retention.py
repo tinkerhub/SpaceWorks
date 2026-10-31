@@ -222,7 +222,7 @@ def test_dry_run_selects_candidates_without_mutation(settings, monkeypatch):
     assert not AuditLog.objects.filter(action="evidence.object_expired").exists()
 
 
-def test_enabled_sweep_deletes_both_keys_retains_row_and_releases_quota(
+def test_enabled_sweep_deletes_both_keys_but_cannot_credit_unproved_legacy_charge(
     settings, monkeypatch
 ):
     settings.EVIDENCE_OBJECT_EXPIRY_ENABLED = True
@@ -239,6 +239,8 @@ def test_enabled_sweep_deletes_both_keys_retains_row_and_releases_quota(
         content_type="image/jpeg",
         quota_charged=True,
     )
+    # Explicit historical fixture: the old handled flag has no actual-debit
+    # marker. This counter is retained usage, not proof that this photo paid it.
     Makerspace.objects.filter(pk=makerspace.pk).update(storage_bytes_used=321)
     monkeypatch.setattr("apps.makerspaces.limits.is_self_host", lambda: False)
     monkeypatch.setattr(storage, "object_size", lambda _key: 321)
@@ -259,7 +261,10 @@ def test_enabled_sweep_deletes_both_keys_retains_row_and_releases_quota(
     assert state.status == EvidenceObjectRetentionState.Status.EXPIRED
     assert state.expired_size_bytes == 321
     makerspace.refresh_from_db()
-    assert makerspace.storage_bytes_used == 0
+    assert makerspace.storage_bytes_used == 321
+    assert AuditLog.objects.get(
+        action="evidence.object_expired", target_id=str(photo.pk)
+    ).meta["quota_released_bytes"] == 0
     assert AuditLog.objects.filter(
         action="evidence.object_expired", target_id=str(photo.pk)
     ).count() == 1
@@ -277,7 +282,7 @@ def test_storage_failure_is_retryable_and_does_not_release_quota(settings, monke
         status=EvidenceUploadFinalization.Status.FINALIZED,
         size_bytes=75,
         quota_charged=True,
-    )
+    )  # Historical/unproved flag; no actual debit marker exists for this photo.
     Makerspace.objects.filter(pk=makerspace.pk).update(storage_bytes_used=75)
     monkeypatch.setattr("apps.makerspaces.limits.is_self_host", lambda: False)
     monkeypatch.setattr(storage, "object_size", lambda _key: 75)

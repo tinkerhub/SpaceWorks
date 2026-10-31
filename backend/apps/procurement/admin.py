@@ -1,13 +1,18 @@
+from apps.object_storage_admin import StorageDocumentDeleteAdminMixin
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from apps.procurement.admin_forms import ToBuyItemAdminForm
 from apps.procurement.models import ToBuyItem, ToBuyReceipt
 from apps.procurement.services import stamp_status_change
 from apps.separability.tombstones import app_is_tombstoned
 from config.admin_access import SuperuserOnlyModelAdmin
+from config.admin_audit import AdminAuditMixin
 
 
-class ToBuyItemAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class ToBuyItemAdmin(StorageDocumentDeleteAdminMixin, AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+    storage_makerspace_path = "makerspace_id"
+    form = ToBuyItemAdminForm
     list_display = (
         "name",
         "makerspace",
@@ -48,13 +53,23 @@ class ToBuyItemAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
         # space's machine type and audit trail.
         return fields if obj is None else (*fields, "makerspace", "kind")
 
+    def get_form(self, request, obj=None, **kwargs):
+        form_class = super().get_form(request, obj, **kwargs)
+
+        class RequestBoundForm(form_class):
+            def __init__(self, *args, **form_kwargs):
+                super().__init__(*args, actor=request.user, **form_kwargs)
+
+        return RequestBoundForm
+
     def save_model(self, request, obj, form, change):
         previous = ToBuyItem.objects.filter(pk=obj.pk).values_list("status", flat=True).first() if change else None
         super().save_model(request, obj, form, change)
         stamp_status_change(obj, request.user, previous)
 
 
-class ToBuyReceiptAdmin(SuperuserOnlyModelAdmin, ModelAdmin):
+class ToBuyReceiptAdmin(StorageDocumentDeleteAdminMixin, SuperuserOnlyModelAdmin, ModelAdmin):
+    storage_makerspace_path = "to_buy_item__makerspace_id"
     list_display = ("id", "to_buy_item", "uploaded_by", "created_at")
     search_fields = ("object_key", "to_buy_item__name", "to_buy_item__makerspace__name")
     readonly_fields = ("to_buy_item", "object_key", "uploaded_by", "created_at")

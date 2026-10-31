@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -18,6 +18,18 @@ from apps.audit import services as audit
 from apps.inventory import availability
 from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
 from apps.makerspaces.guards import require_module, require_module_locked
+
+
+def _validate_asset_fix_action(asset, action):
+    if asset.product.tracking_mode != TrackingMode.INDIVIDUAL:
+        raise ValidationError("Asset fix actions are only for individual-tracked products.")
+    if action == "shelve" and asset.status not in {
+        InventoryAsset.Status.AVAILABLE,
+        InventoryAsset.Status.DAMAGED,
+    }:
+        raise ValidationError("Only available or damaged assets can be moved to the fix shelf.")
+    if action == "repair" and asset.status != InventoryAsset.Status.MAINTENANCE:
+        raise ValidationError("Only assets on the fix shelf can be moved back to inventory.")
 
 
 class InventoryAssetListView(generics.ListAPIView):
@@ -58,7 +70,12 @@ class InventoryAssetDetailView(APIView):
         tags=["Admin inventory"],
         summary="Update an individual asset",
         request=InventoryAssetAdminUpdateSerializer,
-        responses={200: InventoryAssetAdminSerializer},
+        responses={
+            200: InventoryAssetAdminSerializer,
+            400: OpenApiResponse(description="Invalid asset edit, ineligible asset, or disabled module."),
+            403: OpenApiResponse(description="Active staff access and edit inventory permission required."),
+            404: OpenApiResponse(description="Asset not found in the accessible inventory scope."),
+        },
     )
     def patch(self, request, pk, *args, **kwargs):
         asset = get_object_or_404(
@@ -84,9 +101,10 @@ class InventoryAssetDetailView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
-            require_module_locked(asset.makerspace_id, "asset_units")
+            # Allow an issue's audit FK checks while waiting for its asset lock.
+            require_module_locked(asset.makerspace_id, "asset_units", no_key=True)
             locked_asset = (
-                InventoryAsset.objects.select_for_update()
+                InventoryAsset.objects.select_for_update(of=("self",))
                 .select_related("product", "makerspace")
                 .get(pk=asset.pk)
             )
@@ -121,7 +139,14 @@ class InventoryAssetStatusActionView(APIView):
         tags=["Admin inventory"],
         summary="Move a specific individual asset to or from the fix shelf",
         request=InventoryAssetStatusActionSerializer,
-        responses={200: InventoryAssetAdminSerializer},
+        responses={
+            200: InventoryAssetAdminSerializer,
+            400: OpenApiResponse(
+                description="Invalid action, ineligible asset, insufficient stock, or disabled module."
+            ),
+            403: OpenApiResponse(description="Active staff access and edit inventory permission required."),
+            404: OpenApiResponse(description="Asset not found in the accessible inventory scope."),
+        },
     )
     def post(self, request, pk, *args, **kwargs):
         asset = get_object_or_404(
@@ -135,29 +160,26 @@ class InventoryAssetStatusActionView(APIView):
         require_module(asset.makerspace_id, "staff_admin")
         require_module(asset.makerspace_id, "asset_units")
         require_action(request.user, rbac.Action.EDIT_INVENTORY, asset.makerspace_id)
-        if asset.product.tracking_mode != TrackingMode.INDIVIDUAL:
-            raise ValidationError("Asset fix actions are only for individual-tracked products.")
-
         serializer = InventoryAssetStatusActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         action = serializer.validated_data["action"]
+        _validate_asset_fix_action(asset, action)
         target_status = (
             InventoryAsset.Status.MAINTENANCE
             if action == "shelve"
             else InventoryAsset.Status.AVAILABLE
         )
-        if action == "shelve" and asset.status not in {
-            InventoryAsset.Status.AVAILABLE,
-            InventoryAsset.Status.DAMAGED,
-        }:
-            raise ValidationError("Only available or damaged assets can be moved to the fix shelf.")
-        if action == "repair" and asset.status != InventoryAsset.Status.MAINTENANCE:
-            raise ValidationError("Only assets on the fix shelf can be moved back to inventory.")
 
         try:
             with transaction.atomic():
-                require_module_locked(asset.makerspace_id, "asset_units")
-                locked_asset = InventoryAsset.objects.select_for_update().select_related("product", "makerspace").get(pk=asset.pk)
+                # Keep joined product/makerspace reads from taking stronger locks.
+                require_module_locked(asset.makerspace_id, "asset_units", no_key=True)
+                locked_asset = (
+                    InventoryAsset.objects.select_for_update(of=("self",))
+                    .select_related("product", "makerspace")
+                    .get(pk=asset.pk)
+                )
+                _validate_asset_fix_action(locked_asset, action)
                 availability.move_asset_status(locked_asset, target_status)
                 audit.record(
                     request.user,

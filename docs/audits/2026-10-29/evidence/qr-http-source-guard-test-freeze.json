@@ -1,0 +1,544 @@
+{
+  "coverage": {
+    "admission": "9 edges x context removed/unrelated/noop with real work outside/actual work escaped; 5 audit.record-only escapes; canonical context import unused or substituted; leaf sorted boundary consumption/enter_context removed.",
+    "compatibility": "Original purge API, table, two existing minimal copied-fixture tests, runtime ownership files, schemas, registry and SourceMap untouched.",
+    "consumption": "9 consumed bindings x removed/wrong alias/false conditional/shadow with correct imports retained; generation services barrel correct unused export plus wrong active export.",
+    "fixture": "14 byte-identical CURRENT real source files per case, no 2000-file tree; provided-tree baseline validated before each negative by Root execution.",
+    "global_wiring": "Actual source guard AST requires branch-local API import and exact call solely in APPS_DIR branch.",
+    "middleware_late": "Retained P removed/noop outside dispatch, branch after tenant lookup/early lookup; late owner/P/raise removed, return moved before P, early authoritative resolution, unrelated P, canonical imports shadowed.",
+    "positive": [
+      "unchanged supplied tree",
+      "AST-unparsed harmless formatting with changed bytes"
+    ],
+    "registry": "All 8 keys x removal, duplicate-before-correct-last-value, extra scope, unpack, tuple shape, owner change; whole declaration removal/duplication.",
+    "routes": "All 8 URL names missing/duplicate/changed callback/class; cross-config duplicate; all canonical classes renamed; all barrels wrong; all own POST removal/substitution/duplication.",
+    "runtime": "POST-only exact lookup, callback call, actual consumed globals and callable identity, generation module identity, own POST lookup, 21 individual class/alias/POST/callback identity predicates, 4 runtime import shadows."
+  },
+  "execution": {
+    "build": false,
+    "committed": false,
+    "project_imports_executed": 0,
+    "pytest_collection_or_tests": false,
+    "staged": false,
+    "stdlib_ast_checks_only": true,
+    "validator_calls_executed": 0
+  },
+  "functions": {
+    "backend/tests/tenant_migration/api_owned_http_source_helpers.py": [
+      "expression",
+      "owner",
+      "replace_expression",
+      "replace_expression.Replace.visit",
+      "SourceCopy.__init__",
+      "SourceCopy.tree",
+      "SourceCopy.save",
+      "SourceCopy.edit",
+      "SourceCopy.replace",
+      "view_file",
+      "declaration_mutation",
+      "route_mutation",
+      "post_mutation",
+      "consumed_mutation",
+      "admission_mutation",
+      "middleware_mutation",
+      "late_mutation"
+    ],
+    "backend/tests/tenant_migration/test_api_owned_http_source_contract.py": [
+      "source",
+      "refuse",
+      "test_current_supplied_tree_is_valid_without_source_hash_matching",
+      "test_literal_registry_is_exact_and_duplicate_checked_before_last_wins",
+      "test_actual_named_url_and_as_view_expression_are_owned",
+      "test_cross_config_duplicate_name_is_also_rejected",
+      "test_each_canonical_class_requires_its_own_unique_post",
+      "test_url_facing_barrel_cannot_reexport_a_different_class",
+      "test_url_facing_barrel_cannot_reexport_a_different_class.change",
+      "test_canonical_class_cannot_be_replaced_in_its_defining_module",
+      "test_post_must_consume_the_canonical_import_not_an_unused_correct_one",
+      "test_generation_service_barrel_must_export_the_actual_implementation",
+      "test_generation_service_barrel_must_export_the_actual_implementation.change",
+      "test_all_nine_admission_edges_retain_real_work_inside_source_context",
+      "test_audit_record_alone_cannot_escape_its_actual_admission",
+      "test_audit_record_alone_cannot_escape_its_actual_admission.change",
+      "test_canonical_admission_imports_cannot_be_shadowed_or_left_unused",
+      "test_canonical_admission_imports_cannot_be_shadowed_or_left_unused.change",
+      "test_literal_declaration_itself_must_exist_once",
+      "test_literal_declaration_itself_must_exist_once.change",
+      "test_qr_sources_consumes_and_retains_actual_sorted_tenant_contexts",
+      "test_route_class_and_leaf_boundary_bindings_cannot_be_shadowed",
+      "test_runtime_proof_cannot_drop_post_alias_callback_or_consumed_identity",
+      "test_runtime_canonical_import_cannot_be_shadowed",
+      "test_middleware_retains_p_around_dispatch_before_tenant_resolution",
+      "test_late_guard_revalidates_owner_and_p_before_return_or_authority",
+      "test_late_guard_cannot_trust_an_unrelated_p_flag",
+      "test_middleware_and_late_guard_use_canonical_imports",
+      "test_actual_global_http_guard_wires_api_validator_only_in_apps_dir_branch"
+    ]
+  },
+  "gaps": [
+    "No collection or execution was authorized for this writer. Root must prove baseline fixture acceptance and every refusal/category; unexpected failures must be reported as source/fixture bugs, never weakened.",
+    "Runtime lock behavior and real global-tree invocation remain Root/separate runtime writer responsibility.",
+    "No blanket source-hash assertion substitutes for behavioral guard calls; source hashes here are handoff evidence only."
+  ],
+  "independent_review": {
+    "reviewed_at_utc": "2026-10-30T04:18:59.269230+00:00",
+    "reviewer": "/root/audit_backend_finish",
+    "scope": "Read both new test/helper files in full and compared registry, URL/post/binding, all admission edges, runtime predicates, middleware and late-guard mutations against actual source. Positive fixture copies 14 current source files. No validators, imports, collection or runtime executed.",
+    "static_case_products": 270,
+    "test_hashes_verified": true
+  },
+  "newfiles": {
+    "backend/tests/tenant_migration/api_owned_http_source_helpers.py": {
+      "functions": [
+        {
+          "line": 42,
+          "name": "expression"
+        },
+        {
+          "line": 46,
+          "name": "owner"
+        },
+        {
+          "line": 55,
+          "name": "replace_expression"
+        },
+        {
+          "line": 62,
+          "name": "replace_expression.Replace.visit"
+        },
+        {
+          "line": 75,
+          "name": "SourceCopy.__init__"
+        },
+        {
+          "line": 82,
+          "name": "SourceCopy.tree"
+        },
+        {
+          "line": 85,
+          "name": "SourceCopy.save"
+        },
+        {
+          "line": 91,
+          "name": "SourceCopy.edit"
+        },
+        {
+          "line": 96,
+          "name": "SourceCopy.replace"
+        },
+        {
+          "line": 100,
+          "name": "view_file"
+        },
+        {
+          "line": 104,
+          "name": "declaration_mutation"
+        },
+        {
+          "line": 130,
+          "name": "route_mutation"
+        },
+        {
+          "line": 146,
+          "name": "post_mutation"
+        },
+        {
+          "line": 161,
+          "name": "consumed_mutation"
+        },
+        {
+          "line": 180,
+          "name": "admission_mutation"
+        },
+        {
+          "line": 211,
+          "name": "middleware_mutation"
+        },
+        {
+          "line": 230,
+          "name": "late_mutation"
+        }
+      ],
+      "lines": 248,
+      "sha256": "2efd3256a12c2e9b427d40b4693350dbbad8b23fe8e1996374eea07c2d115309"
+    },
+    "backend/tests/tenant_migration/test_api_owned_http_source_contract.py": {
+      "functions": [
+        {
+          "line": 19,
+          "name": "source"
+        },
+        {
+          "line": 27,
+          "name": "refuse"
+        },
+        {
+          "line": 33,
+          "name": "test_current_supplied_tree_is_valid_without_source_hash_matching"
+        },
+        {
+          "line": 45,
+          "name": "test_literal_registry_is_exact_and_duplicate_checked_before_last_wins"
+        },
+        {
+          "line": 53,
+          "name": "test_actual_named_url_and_as_view_expression_are_owned"
+        },
+        {
+          "line": 58,
+          "name": "test_cross_config_duplicate_name_is_also_rejected"
+        },
+        {
+          "line": 67,
+          "name": "test_each_canonical_class_requires_its_own_unique_post"
+        },
+        {
+          "line": 73,
+          "name": "test_url_facing_barrel_cannot_reexport_a_different_class"
+        },
+        {
+          "line": 74,
+          "name": "test_url_facing_barrel_cannot_reexport_a_different_class.change"
+        },
+        {
+          "line": 88,
+          "name": "test_canonical_class_cannot_be_replaced_in_its_defining_module"
+        },
+        {
+          "line": 98,
+          "name": "test_post_must_consume_the_canonical_import_not_an_unused_correct_one"
+        },
+        {
+          "line": 103,
+          "name": "test_generation_service_barrel_must_export_the_actual_implementation"
+        },
+        {
+          "line": 104,
+          "name": "test_generation_service_barrel_must_export_the_actual_implementation.change"
+        },
+        {
+          "line": 116,
+          "name": "test_all_nine_admission_edges_retain_real_work_inside_source_context"
+        },
+        {
+          "line": 124,
+          "name": "test_audit_record_alone_cannot_escape_its_actual_admission"
+        },
+        {
+          "line": 125,
+          "name": "test_audit_record_alone_cannot_escape_its_actual_admission.change"
+        },
+        {
+          "line": 140,
+          "name": "test_canonical_admission_imports_cannot_be_shadowed_or_left_unused"
+        },
+        {
+          "line": 141,
+          "name": "test_canonical_admission_imports_cannot_be_shadowed_or_left_unused.change"
+        },
+        {
+          "line": 157,
+          "name": "test_literal_declaration_itself_must_exist_once"
+        },
+        {
+          "line": 158,
+          "name": "test_literal_declaration_itself_must_exist_once.change"
+        },
+        {
+          "line": 175,
+          "name": "test_qr_sources_consumes_and_retains_actual_sorted_tenant_contexts"
+        },
+        {
+          "line": 186,
+          "name": "test_route_class_and_leaf_boundary_bindings_cannot_be_shadowed"
+        },
+        {
+          "line": 227,
+          "name": "test_runtime_proof_cannot_drop_post_alias_callback_or_consumed_identity"
+        },
+        {
+          "line": 233,
+          "name": "test_runtime_canonical_import_cannot_be_shadowed"
+        },
+        {
+          "line": 239,
+          "name": "test_middleware_retains_p_around_dispatch_before_tenant_resolution"
+        },
+        {
+          "line": 245,
+          "name": "test_late_guard_revalidates_owner_and_p_before_return_or_authority"
+        },
+        {
+          "line": 250,
+          "name": "test_late_guard_cannot_trust_an_unrelated_p_flag"
+        },
+        {
+          "line": 261,
+          "name": "test_middleware_and_late_guard_use_canonical_imports"
+        },
+        {
+          "line": 266,
+          "name": "test_actual_global_http_guard_wires_api_validator_only_in_apps_dir_branch"
+        }
+      ],
+      "lines": 281,
+      "sha256": "6ab75fd7d272cd5cad909bb6553fa612ccb0d95187c0dc2fe0da49ba2ad9209a"
+    }
+  },
+  "no_runtime": true,
+  "products": [
+    {
+      "cases": 2,
+      "dimensions": [
+        {
+          "parameters": "formatting",
+          "size": 2
+        }
+      ],
+      "function": "test_current_supplied_tree_is_valid_without_source_hash_matching"
+    },
+    {
+      "cases": 48,
+      "dimensions": [
+        {
+          "parameters": "route",
+          "size": 8
+        },
+        {
+          "parameters": "defect",
+          "size": 6
+        }
+      ],
+      "function": "test_literal_registry_is_exact_and_duplicate_checked_before_last_wins"
+    },
+    {
+      "cases": 32,
+      "dimensions": [
+        {
+          "parameters": "route,package,klass,consumed",
+          "size": 8
+        },
+        {
+          "parameters": "defect",
+          "size": 4
+        }
+      ],
+      "function": "test_actual_named_url_and_as_view_expression_are_owned"
+    },
+    {
+      "cases": 1,
+      "dimensions": [],
+      "function": "test_cross_config_duplicate_name_is_also_rejected"
+    },
+    {
+      "cases": 24,
+      "dimensions": [
+        {
+          "parameters": "route,package,klass,consumed",
+          "size": 8
+        },
+        {
+          "parameters": "defect",
+          "size": 3
+        }
+      ],
+      "function": "test_each_canonical_class_requires_its_own_unique_post"
+    },
+    {
+      "cases": 8,
+      "dimensions": [
+        {
+          "parameters": "route,package,klass,consumed",
+          "size": 8
+        }
+      ],
+      "function": "test_url_facing_barrel_cannot_reexport_a_different_class"
+    },
+    {
+      "cases": 8,
+      "dimensions": [
+        {
+          "parameters": "route,package,klass,consumed",
+          "size": 8
+        }
+      ],
+      "function": "test_canonical_class_cannot_be_replaced_in_its_defining_module"
+    },
+    {
+      "cases": 36,
+      "dimensions": [
+        {
+          "parameters": "route,package,klass,consumed",
+          "size": 9
+        },
+        {
+          "parameters": "defect",
+          "size": 4
+        }
+      ],
+      "function": "test_post_must_consume_the_canonical_import_not_an_unused_correct_one"
+    },
+    {
+      "cases": 1,
+      "dimensions": [],
+      "function": "test_generation_service_barrel_must_export_the_actual_implementation"
+    },
+    {
+      "cases": 36,
+      "dimensions": [
+        {
+          "parameters": "path,target,local",
+          "size": 9
+        },
+        {
+          "parameters": "defect",
+          "size": 4
+        }
+      ],
+      "function": "test_all_nine_admission_edges_retain_real_work_inside_source_context"
+    },
+    {
+      "cases": 5,
+      "dimensions": [
+        {
+          "parameters": "path,target,local",
+          "size": 5
+        }
+      ],
+      "function": "test_audit_record_alone_cannot_escape_its_actual_admission"
+    },
+    {
+      "cases": 9,
+      "dimensions": [
+        {
+          "parameters": "path,target,local",
+          "size": 9
+        }
+      ],
+      "function": "test_canonical_admission_imports_cannot_be_shadowed_or_left_unused"
+    },
+    {
+      "cases": 2,
+      "dimensions": [
+        {
+          "parameters": "defect",
+          "size": 2
+        }
+      ],
+      "function": "test_literal_declaration_itself_must_exist_once"
+    },
+    {
+      "cases": 4,
+      "dimensions": [
+        {
+          "parameters": "before,after",
+          "size": 4
+        }
+      ],
+      "function": "test_qr_sources_consumes_and_retains_actual_sorted_tenant_contexts"
+    },
+    {
+      "cases": 7,
+      "dimensions": [
+        {
+          "parameters": "relative,local",
+          "size": 7
+        }
+      ],
+      "function": "test_route_class_and_leaf_boundary_bindings_cannot_be_shadowed"
+    },
+    {
+      "cases": 28,
+      "dimensions": [
+        {
+          "parameters": "target,before,after,category",
+          "size": 28
+        }
+      ],
+      "function": "test_runtime_proof_cannot_drop_post_alias_callback_or_consumed_identity"
+    },
+    {
+      "cases": 4,
+      "dimensions": [
+        {
+          "parameters": "local",
+          "size": 4
+        }
+      ],
+      "function": "test_runtime_canonical_import_cannot_be_shadowed"
+    },
+    {
+      "cases": 4,
+      "dimensions": [
+        {
+          "parameters": "defect",
+          "size": 4
+        }
+      ],
+      "function": "test_middleware_retains_p_around_dispatch_before_tenant_resolution"
+    },
+    {
+      "cases": 5,
+      "dimensions": [
+        {
+          "parameters": "defect",
+          "size": 5
+        }
+      ],
+      "function": "test_late_guard_revalidates_owner_and_p_before_return_or_authority"
+    },
+    {
+      "cases": 1,
+      "dimensions": [],
+      "function": "test_late_guard_cannot_trust_an_unrelated_p_flag"
+    },
+    {
+      "cases": 4,
+      "dimensions": [
+        {
+          "parameters": "path,target,local",
+          "size": 4
+        }
+      ],
+      "function": "test_middleware_and_late_guard_use_canonical_imports"
+    },
+    {
+      "cases": 1,
+      "dimensions": [],
+      "function": "test_actual_global_http_guard_wires_api_validator_only_in_apps_dir_branch"
+    }
+  ],
+  "protected_sources_unchanged_from_writer_baseline": true,
+  "rootcommands": [
+    "./scripts/dev-docker.sh exec -T backend pytest tests/tenant_migration/test_api_owned_http_source_contract.py -q",
+    "./scripts/dev-docker.sh exec -T backend pytest tests/tenant_migration/test_purge_source_contract.py::test_source_ownership_guard_rejects_route_or_service_drift tests/tenant_migration/test_module_cleanup_source_contract.py::test_exact_module_route_guard_refuses_broadened_or_unprotected_route -q",
+    "./scripts/dev-docker.sh exec -T backend pytest tests/qr_http_ownership_safety -q"
+  ],
+  "rootcommands_note": "Suggested commands only, NOT executed. Root owns any DB-owner/key environment setup, collection, runtime/global-tree proof and orchestration.",
+  "sourcehash": {
+    "backend/apps/boxes/api_views.py": "ccaf70e48dbc8e17dc95912e2f4eb85671012fb7b20153cde55de48c095675f5",
+    "backend/apps/boxes/api_views_qr.py": "e80679a8b364412023cd736b3531d30de681bca7495e28b264c70280ea2acf9f",
+    "backend/apps/boxes/qr_admission.py": "d1bf4be96f9d31c21ba762bc597f92f573a9642baac1e0930858959719d8fb71",
+    "backend/apps/boxes/rebind.py": "cd0e45f048ed1d39ec11cfc471a731a708d238f403f6291c4a188a782bc53fea",
+    "backend/apps/boxes/services.py": "91ef7b63e2c69173cda207bbe880ea9e3328cc5385706b4aaba8b57ae5a65ae4",
+    "backend/apps/boxes/urls.py": "8e4624359ee0a0cf339d4826c32e73f2dfad118f4aa69d353ce2f788703e44f2",
+    "backend/apps/operations/services.py": "8546fb5ff88077018d45560bc055a37de27f7dc94d0f97a771ec7715004395ee",
+    "backend/apps/operations/services_qr_assets.py": "04886f9af19fde2c32633d0f56f458d6dbf911e01f1187bdb9d1eec6f9d5d6f6",
+    "backend/apps/operations/urls.py": "6681fdf5731517a0c4bbe120620f048b17f7687a11458bbd1dad40b2b8740379",
+    "backend/apps/operations/views.py": "3622b8497650ec1e7f9b6df34b6a0a3d4bf62cee0b0d48619a242082968fb22e",
+    "backend/apps/operations/views_qr_batches.py": "7c697ee0ae899af9db25ab220307307cc9c706591eab016ced1c3184aef5a474",
+    "backend/apps/tenant_migration/gate_http_ownership.py": "c5dca8517465cd0ab14bf573e684b09d1a26a66258e3db393f407affcb3414ff",
+    "backend/apps/tenant_migration/gate_runtime.py": "f4a6a121fdf90aa22eb559ecd79fa7ee9bf878919beb33599b26dbb058f7fa60",
+    "backend/apps/tenant_migration/middleware.py": "53bca493702c01a7da60d3ab0fa892cad0d768b5b14a76bfd2ab3b6a55fa1f39",
+    "backend/apps/tenant_migration/source_gate_api_owned_bindings.py": "2860ea6766eeb4cf71b3eb46fa9a304dcd9500acf87ab469650cb38c9b21fd04",
+    "backend/apps/tenant_migration/source_gate_api_owned_http_guards.py": "ff66a18e7a33cd2e3e905070b498ae2500bb5d0ef67390079145a65ecfdca900",
+    "backend/apps/tenant_migration/source_gate_ast.py": "fe6bbe41d1b98f18a0daf05edd35986d19afec50d2a6494fd11fb057ac8b1fb8",
+    "backend/apps/tenant_migration/source_gate_http_guards.py": "89da95dd06e94370b104a68a753d13b3f6be818deea4292715abfffc735ba770",
+    "backend/apps/tenant_migration/source_gate_owned_http_guards.py": "ce948aa6e81326ab3c549be723557ff8ae9b29c4266134f9bd6470b7b189c35f",
+    "backend/tests/tenant_migration/test_module_cleanup_source_contract.py": "b0ab163d8f94343622384364dc1a1c6fdae996a70c75d9d9d00b7e64f35deaf8",
+    "backend/tests/tenant_migration/test_purge_source_contract.py": "a02780af7626ef80b231765d8bb8a17899703d862aeb9d4e0f687ad6c4329c79"
+  },
+  "sourcehash_combined_sha256": "40904839d613afbfae05fbd86fee9f9e20a71e26393a05b7002f598326c60251",
+  "stage": "Stage 3 TESTS ONLY: bounded QR static source contract",
+  "staticcasecount": 270
+}

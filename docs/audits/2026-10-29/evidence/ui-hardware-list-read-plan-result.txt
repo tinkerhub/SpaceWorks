@@ -1,0 +1,14 @@
+**APPROVED — read-only Stage 1 review.** The proposed correction is minimal and addresses the confirmed race.
+
+In `QueuesModalShared.tsx`:
+
+- Give the container-list GET a separate `useAuthActionOwner(makerspaceId)`.
+- Capture its token in the effect; check `readOwner.isCurrent(load)` plus `cancelled` on success and error.
+- Include `readOwner.context` in the effect dependencies.
+- Preserve all existing QR, selection and manual-entry edit guards.
+
+This lets valid options load while an action is pending. Session, makerspace and mounted-lifetime checks still suppress stale responses; parent visit keys protect row changes.
+
+Stage 3 should hold a valid list response through pending, release it, fail the action, then verify the options are usable. Retain stale maker/session/unmount coverage.
+
+No files changed; no tests, builds or application runtime run. `CLAUDE.md` and `AGENTS.md` match. `codex doctor` found configured authentication but reported restricted-environment connectivity failures.

@@ -1,0 +1,11 @@
+{
+  "snapshot": "/tmp/spaceworks-recovery-runtime-snapshot-round3-20261030",
+  "results": [
+    {
+      "lane": "fast",
+      "exit_code": 0,
+      "seconds": 13.06,
+      "junit": "recovery-fast.xml"
+    }
+  ]
+}

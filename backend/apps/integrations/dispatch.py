@@ -5,6 +5,10 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.utils import timezone
 
+from apps.integrations.email_delivery_policy import (
+    DAILY_EMAIL_LIMIT_REACHED,
+    email_quota_denied,
+)
 from apps.integrations.models import DailyEmailCounter, EmailLog
 from apps.integrations.smtp_validation import sanitize_email_error
 from apps.makerspaces import domain_verification, limits
@@ -129,8 +133,8 @@ def dispatch_email(
                             event=event,
                             audience=audience,
                             connection_kind=connection,
-                            status=EmailLog.Status.FAILED,
-                            error="Daily email limit reached for this space.",
+                            status=EmailLog.Status.SKIPPED,
+                            error=DAILY_EMAIL_LIMIT_REACHED,
                         )
                     counter.count = counter.count + 1
                     counter.save(update_fields=["count"])
@@ -191,13 +195,19 @@ def _enqueue(log_id):
 
 
 def _deliver(log):
-    if log.status == EmailLog.Status.SENT:
+    if log.status in (EmailLog.Status.SENT, EmailLog.Status.SKIPPED):
         return log
 
     from apps.encryption.write_fence import assert_mapped_write_allowed
 
     with transaction.atomic():
         assert_mapped_write_allowed(log.makerspace_id)
+
+    if email_quota_denied(log):
+        log.status = EmailLog.Status.SKIPPED
+        log.error = DAILY_EMAIL_LIMIT_REACHED
+        log.save(update_fields=["status", "error", "updated_at"])
+        return log
 
     # Re-checked at delivery, not just at dispatch: a queued row can sit in Celery
     # across a module uninstall, and the retry path re-enters here too. Gating only

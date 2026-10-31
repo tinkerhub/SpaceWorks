@@ -1,0 +1,10 @@
+**APPROVED — Stage 1 v3 closes the mandatory gaps.**
+
+- **Absent identity:** explicitly approved. Read the existing singleton per operation before debit; never create it from evidence code. A missing row may produce an actual-debit marker with `accounting_database_id=None`. That marker remains unusable for automatic credit, including after an identity is later seeded. Operator reconciliation handles the retained usage.
+- **Restore/export:** the deployment-affinity correction is sound. Consistent same-deployment full-restore proof may release once. Foreign, portable, and custom tenant-dump provenance remains inert. Keep their tests separate and describe metadata tests accurately.
+- **EVID-S06:** confirmed against source. The explicit serializer field currently has no maximum, and validation runs before presigning and database writes. Dynamic `validate_size_bytes` safely adds the bound while retaining omitted/`None`/zero compatibility. Declared size remains untrusted for accounting.
+- **Quota/recompute:** approved within the stated limits: actual finite debit plus exact proof, conservative zero for legacy/unprovable credit, proven journal bytes retained until terminal expiry, and provider-error refusal preserved. Whole-counter reconciliation concurrency remains outside scope.
+
+All prior lock, origin, immutability, source-scope, and file-size constraints remain applicable. This is plan approval, not implementation or runtime verification.
+
+No edits, tests, builds, migrations, or provider calls performed. Root-owned reports and Box QR files were untouched.

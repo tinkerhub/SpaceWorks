@@ -31,11 +31,24 @@
   `actions_for_membership`/`makerspaces_for_action`/`scope_by_action`, makerspace scoping, superadmin
   hide/archive exclusion). `checks.py` holds system check `accounts.E001` (placeholder/short
   `SECRET_KEY` with `DEBUG=False`).
+  `claim_transition_gate.py` admits the identity's complete membership makerspace set in order
+  before identity row locks and refuses scope growth. Native password and bound OIDC adapters
+  retain that admission through their transition commits.
 - `backend/apps/makerspaces/` — `Makerspace` model (tenant root; unique `slug`; `frontend_domain`, module
   flags, `resource_limit_overrides`, `archived_at`, `superadmin_access_enabled`), bootstrap views, dynamic
   CORS, module guards, `module_registry.py` (canonical module definitions — all module lists derive from
   it), `platform.py` (origin helpers), `limits.py` (fair-use quotas), `lifecycle.py` (archive/purge barrel
-  over `lifecycle_archive.py`, `lifecycle_purge.py` and `lifecycle_storage.py`),
+  over `lifecycle_archive.py`, `lifecycle_purge.py` and `lifecycle_storage.py`).
+  `purge_intent.py`/`purge_locks.py` own irreversible intent and the dedicated source/host boundary;
+  `purge_object_closure.py`/`purge_storage.py` own exact namespace and version cleanup.
+  `models_purge_receipt.py`, `purge_receipts.py` and `admin_purge_receipts.py` retain immutable
+  deployment-only locators and explicitly authorized retry after graph removal (never scheduled).
+  `models_module_purge_receipt.py` and `module_purge_{graph,sites,namespaces,accounting,references}.py`
+  freeze module cleanup authority; `module_purge_receipts.py` owns byte-first intent/retry and atomic
+  graph settlement. `admin_module_purge_receipts.py` exposes its explicit CSRF-protected retry.
+  Unreleased procurement quota settlement freezes only proven local receipt charges, revalidates
+  their immutable audit events after strict byte cleanup, and commits each release with the graph
+  checkpoint; legacy receipts keep their previous snapshot shape and receive no invented credit.
   `origin_scope.py` (browser origin→tenant guard; the route registry is `origin_scope_routes.py` +
   `origin_scope_model_lookups.py` — `origin_scope_routes.py` also holds the body-scoped QR sets,
   `BODY_TARGET_ROUTES` (body `makerspace_id`) and `QR_PAYLOAD_ROUTES` (the payload's `QrCode` row)), `guards.py` (`require_module*`; `require_module_locked_for_all` for a
@@ -66,7 +79,9 @@
   widened `HMAC_PROTECTED_PATH_PREFIXES` has no unregistered routes. Verification itself lives in
   `apps/inventory/middleware.py`. `origin_validation.py` is the shared exact-origin boundary, and
   `ApiClientImportApproval` plus the import-provenance/delivery fields are Lane D's append-only,
-  artifact-bound API-client reset record.
+  artifact-bound API-client reset record. `telemetry.py` uses unique Redis draining buckets, retries
+  detached observations after failure, and persists only monotonic last-seen values; this best-effort
+  signal is separate from the durable audit trail.
 - `backend/apps/audit/` — append-only `AuditLog` + `audit.record(...)` (Postgres-trigger immutable), with
   signing/batch models in `models_signing.py`, verification phases behind the `integrity.py` barrel, and
   object-store/HTTP collector protocols behind the `anchors.py` barrel.
@@ -80,7 +95,8 @@
   and each tenant source gate, removes both final and staging bytes, credits confirmed storage and audits a
   terminal expired state without mutating the `EvidencePhoto` row. `sweep_evidence_retention()` is the
   single sweep entry point, `tasks.py` is its Celery/scheduled-task adapter, and `views_retention.py` exposes
-  the policy and preview API.
+  the policy and preview API. `report_expiry.py` shares terminal expiry aggregation between compliance
+  reports and rollup snapshots; old rollup reads overlay retained expiry without rewriting history.
 - `backend/apps/checkin/` — the upstream check-in roster: `config.py` (`checkin_config(makerspace)`,
   the ONLY resolver of roster URL/purpose/provider: the makerspace's own value, else the deployment
   setting), `transport.py` (body fetch: the deployment URL via `requests`, a makerspace URL through the
@@ -94,10 +110,17 @@
   `errors.py` (the shared `denied()`/503 shapes both `verification` and `identity` raise),
   `throttles.py` (the mid-keyed and lookup budgets).
   **Reinstated** after the M7 retirement; see **Check-in gated requests** in `docs/INVARIANTS.md`.
-- `backend/apps/boxes/` — `QrCode`/`Box` payloads, immutable `BoxScan`/`QrScanEvent`, `qr_render.py`
+- `backend/apps/boxes/` — `contents.py` shares tenant-scoped container traversal and unsupported nested/
+  individual-stock eligibility between lending and scanner previews; containers remain optional.
+  `QrCode`/`Box` payloads, immutable `BoxScan`/`QrScanEvent`, `qr_render.py`
   (namespaced standalone SVG shared by QR-print + batch ZIP), QR rebind. `api_views_qr.py` holds the
-  create/resolve/scan routes, whose tenant-origin target comes from the body (see `origin_scope_routes.py`). Camera scanner at
-  `frontend/src/components/ui/QrScanner.tsx` (native `BarcodeDetector` + `zxing-wasm` fallback).
+  create/resolve/scan routes, whose tenant-origin target comes from the body (see `origin_scope_routes.py`).
+  `qr_admission.py` shares sorted source-write/transaction admission and fresh actor/QR identity checks;
+  `admin_qr_lifecycle.py` owns `QrLifecycleMixin` effective native selections, actions and commit-spanning
+  admission, plus `QrRebindAdminForm` target validation. `admin_lifecycle.py` owns `BoxLifecycleMixin`
+  source/Maker admission around native change forms and actual deletion collectors.
+  `admin_forms.py` owns `BoxAdminForm` fresh-row, tenant and parent validation before native saves.
+  Camera scanner at `frontend/src/components/ui/QrScanner.tsx` (native `BarcodeDetector` + `zxing-wasm` fallback).
 - `backend/apps/admin_api/` — staff REST surface: makerspaces, inventory CRUD + per-makerspace category CRUD
   (`EDIT_INVENTORY`), bulk import (`bulk_import_rows.py` owns per-row validation, including the create-row
   refusals preview and apply share), staff/membership + role management, user restrict/restore, API-client
@@ -108,6 +131,9 @@
   cross-makerspace), stocktake, adjustments, ledger, `report_registry.py` + `report_scope.py` + `reports_*`
   (`report_applicability.py` decides whether a report applies to a space's module set)
   builders, CSV/XLSX exports, container APIs, QR print batches (`qr_zip.py`), dashboard, accountability.
+  `QrPrintBatchItemSerializer` keeps historical item snapshots while returning null for a live QR now
+  owned by another makerspace. `qr_zip.py` exports only current batch-local QR labels; partial batches
+  omit moved codes and empty output returns validation failure, adapted to messages by native admin.
   `views.py`/`services.py` are thin re-export barrels over `views_*`/`services_*`; `serializers.py`
   re-exports the stocktake serializers from `serializers_stocktake.py`. `stocktake_authority.py` is the one
   approve/apply rule (superadmin, or a `manage_makerspace` holder who is not the stocktake's `completed_by`;
@@ -116,6 +142,11 @@
   `services_stocktake_workflow._locked_session` is the one stocktake lock helper (makerspace row and its
   `stocktake` module gate first, then the session); `services_qr_assets.generate_assets_with_qr` re-checks
   `asset_units` the same way, so both gates also bind `/control/`.
+- `backend/apps/accounts/request_history.py` — shared real-account and browser-origin admission for
+  private request lists. `hardware_requests/own_request_history.py` and
+  `machines/own_request_history.py` own paginated public-allowlist projections; machine ownership
+  uses `member`, never legacy staff `requester`. `machines/service_notifications.py` owns generic
+  machine channel fan-out; printer routing stays exclusive in `service_emails.py`.
 - `backend/apps/integrations/` — Telegram/email/Slack/Mattermost/native-push delivery, encrypted FCM/APNs
   credentials + device registrations, `dispatch_email` choke point + `EmailLog` outbox + Celery task,
   webhook (auth via `X-Telegram-Bot-Api-Secret-Token` vs `TELEGRAM_WEBHOOK_SECRET`, fail-closed),
@@ -146,17 +177,31 @@
   durable static configuration without consulting later ambient shells; only the root-only
   `scripts/init-cloud-environment.py` renderer invokes Compose. `errors.py` owns `BackupBuildError`
   (settings-free so the root producer-capability installer can import it), and `recipient_selection.py`
-  re-exports it.
+  re-exports it. `producer_capability.py` owns host-installed producer-proof admission;
+  `migration_fingerprint.py` owns its settings-free installed migration-package fingerprint.
+  `runtime_image_identity.py` owns settings-free FULL OCI admission; `full_capture.py` freezes that
+  digest before source identity/dump capture, and `archive_payload.py` consumes the frozen value.
+  Host-only `scripts/provision-runtime-image.py` inspects the selected backend's actual RepoDigest
+  and atomically updates private dotenv bytes. `scripts/setup-host-orchestration.sh` shares provisioning
+  and trusted Compose record refresh between setup/init and updater rollback without reissuing proofs.
 - `backend/apps/data_export/` — Space-Manager data export (Phase 4). Per-fidelity (`REDACTED`/`PORTABLE`)
   disposition registry over models, fields, datasets, traversals and the global-user reference closure, with
   **drift guards that refuse an unclassified model or field**. Its `guards._equal(subject, declared,
   actual)` is called with the *scanned* set passed as `declared`, so `extra=` in a failure means **scanned
   but not registered** — read the signature before deciding which side to fix. `references.py` re-exports
   `JSON_FIELDS` from `references_json_fields.py`; a new JSON column missing from that set is invisible to
-  the export and tenant-migration passes.
+  the export and tenant-migration passes. `lifecycle.py` owns job claim/finalize/failure, deadline
+  recovery and byte-first expiry cleanup; `object_lock.py` serializes archive upload/deletion through
+  a dedicated lock-only PostgreSQL connection, outside application row-lock transactions.
 - `backend/apps/tenant_migration/` — per-makerspace migration, managed → self-host (Phase 5B), in
   `SEPARABLE_APPS`. `source_gate.py` + `gate_locks.py`/`gate_runtime.py`/`gate_policy.py`/`middleware.py`/
   `task_gate.py` (the write-drain lock protocol and its AST coverage guards in `source_gate_guards.py`);
+  `source_gate_api_owned_http_guards.py` verifies the eight QR API owners, runtime validation and
+  retained writer boundary; `source_gate_api_owned_bindings.py` checks their URLs, barrels, consumed
+  POST bindings and tenant-admission chain against the supplied source tree;
+  `gate_locks.py`/`gate_runtime.py` also retain the operator-only exclusive boundary for
+  `makerspaces/management/commands/recompute_storage.py`, whose final counter SET and commit use that
+  same backend after fresh admission; `source_gate_module_guards.py` guards this command explicitly;
   `archive_envelope.py` + `object_export.py` (streamed into `age`); `admission.py` (the source-superadmin
   closure approval); `materialization.py` + `raw_repository.py` + `row_planning.py`/`row_dispositions.py`
   (one-shot insertion); `target_projection.py` + `unique_values.py` + `closure_references.py`;
@@ -192,6 +237,9 @@
   pending-to-published/download transition; `tenant_dump_audit_anchors.py` supplies the fail-closed
   external-anchor absence proof;
   `tenant_restore_orchestrator.py` is the D7 §5.4 ordered target-restore spine over H1;
+  `tenant_restore_{artifact_admission,inner_admission,client_admission}.py` authenticate the selected
+  artifact/projection and exact optional client reset. `tenant_restore_dump_snapshot.py` binds the
+  authenticated dump digest to the private file actually consumed by the restore adapter;
   `tenant_restore_activation.py` owns crash-safe pointer/marker re-entry and writer restart, with
   `tenant_restore_preflight.py`, `tenant_restore_database*.py`, `tenant_restore_sibling.py`,
   `tenant_restore_pgpass.py`, `tenant_restore_pointer.py` and `tenant_restore_scheduler.py` owning
@@ -219,6 +267,13 @@
   `HardwareRequestItemAsset` through-model, immutable `ReturnEvent`/`RequesterAccountability`,
   `PublicToolLoan`, `PublicProblemReport`. `workflow.py` is the **single source of truth** for state
   transitions (atomic + row-locked + audited; also `assign_box`/`issue_request`/`return_items`);
+  `cancellation_workflow.py` owns staff `accepted → cancelled` through the workflow barrel, with the
+  PII fence before the request lock and box detachment through `handover_workflow` before product locks.
+  `inventory/availability_reservations.py` proves exact pooled attribution and releases only that request's
+  accepted reservation; ambiguity refuses without repairs. The protected reason is separate from audit
+  presence metadata; existing closed actor/time derive the cancellation timeline.
+  `public_return_validation.py` validates public return admission and the complete unresolved backing
+  ledger before stock settlement; reviewed returns reject requests backed by public/direct loans.
   `permissions.py`, `exceptions.py` (workflow→HTTP map + `ErrorSerializer._EXCEPTION_MAP`),
   `notifications.py` (Telegram seam), public submit/verify/status views, `send_return_reminders` command.
   `serializers.py` is a thin re-export **barrel** over `serializers_public.py` (the public submit/status
@@ -226,6 +281,8 @@
   only, since everything in it is reachable without staff authority.
 - `backend/apps/payments/` — immutable multi-subject Payment authority, per-space raw credentials + managed
   Stripe Connect resolution, checkout/webhook settlement, reconciliation, native PaymentSheet intents.
+  `currency_rules.py` holds explicit published provider currency data and ledger-compatible unit rules;
+  `amounts.py` converts and validates exact minor units and fees against immutable Payment snapshots.
   `offline_payments.py` is the ONLY way to raise a charge with no online provider configured (counter
   settlement): `services.create_payment` resolves a payment source and raises `PaymentsUnavailable` when
   there is none, so it cannot serve that case. Both re-check the `payments` module under the makerspace
@@ -264,8 +321,15 @@
   delegating lifecycle and registration-state transitions to `services_lifecycle.py`,
   `services_registration.py` and `services_registration_state.py`. The other `services_*` modules own the
   corresponding series/recurrence/collaboration, calendar/feed, badge, check-in/offline-sync/station,
-  feedback/certificate, image and organizer workflows; `urls_admin.py`, `urls_member.py`, `urls_public.py`
+  feedback/certificate, image and organizer workflows; `certificate_cleanup.py` removes only
+  never-activated revoked artifacts under the tenant write boundary. Certificate state transitions are
+  enforced both by model validation and the database trigger in migration0022; `urls_admin.py`, `urls_member.py`, `urls_public.py`
   and `urls_station.py` divide the staff, authenticated-member, public and anonymous-station surfaces.
+- `backend/apps/procurement/admin_forms.py` — `ToBuyItemAdminForm` applies canonical machine-type
+  access and provenance validation to native creation/edits without changing the item's existing tenant/kind.
+- `backend/apps/warranty/admin_forms.py` — `WarrantyAdminForm` validates native creation against the
+  admitted tenant and locked concrete host; `admitted_add_tenant`, `lock_makerspace`, `lock_host` and
+  `check_admission` share fresh actor, hidden-space, module and source-write checks with native updates.
 - `backend/apps/warranty/`, `apps/maintenance/`, `apps/events/`, `apps/bookings/`, `apps/forms_schema/`,
   `apps/encryption/`, `apps/procurement/`, `apps/notifications/`, `apps/operations/report_registry.py` — the
   remaining FabLab + governance modules.
@@ -274,9 +338,26 @@
   `PublicPrinterQueueSetup.tsx` exposes explicit queue enablement on the printer type's console.
 - `backend/apps/inventory/availability_manual_adjustments.py` — locked manual-quantity guard;
   `availability.py` explicitly re-exports it alongside asset-backed quantity primitives.
+- `backend/apps/object_publication.py` — bounded single-read snapshots and conditional final PUT,
+  shared by the seven non-evidence upload flows. `object_storage_lifecycle.py` owns dedicated
+  tenant storage advisory exclusion through metadata commit and synchronous cleanup.
+  `object_storage_references.py` refuses cleanup of any current canonical/coordination reference;
+  `object_storage_admin.py` acquires ownership before inherited Django admin transactions.
+- `backend/apps/document_storage_charge.py` / `document_storage_quota.py` (unreleased) — immutable
+  local provenance for actual finite managed warranty/receipt charges and serialized one-shot release.
+  Document delete signals require a successful nonempty data-version deletion snapshot and no live
+  reference before release. Failed/empty/marker-only deletion and legacy, foreign or source-prefixed
+  provenance grant no invented credit. `recompute_storage` preserves valid live proof amounts;
+  legacy/unproven rows retain HEAD-only accounting. Module procurement purge freezes managed proven
+  obligations and settles them with its graph checkpoint; context drift refuses unpaid settlement.
+  No automatic callback retry queue or new command; operators reconcile ordinary deletion failures
+  with the existing command, after resolving any unfinished purge. Self-host/unlimited and billing are unchanged.
 - `backend/tests/` — pytest behavior tests (external behavior, not implementation).
 - `frontend/src/features/inventory/` — public catalog/detail/self-checkout + `ProductCard`/
-  `AvailabilityBadge`. `frontend/src/features/staff/` — staff console panels (`panels/UsersInvitations.tsx` for staff invitations
+  `AvailabilityBadge`. `PublicBorrowRequest`/`PublicBorrowRequestForm` own the scoped request draft,
+  body-bound retry key and completion. `usePublicToolOperation` shares checkout/return admission;
+  `PublicSelfCheckoutView` owns a scoped scan/evidence view. `PublicEvidenceUpload` fences all upload
+  stages and callbacks by the current identity/action. `frontend/src/features/staff/` — staff console panels (`panels/UsersInvitations.tsx` for staff invitations
   when membership is off, `MakerspaceEmailTestSettings.tsx`, `panels/machine/useConsoleModule.ts` for module
   state on machine screens; public desk tabs in `features/inventory/RequestDeskTabs.tsx`); grouped nav via
   `staffAccess.ts` `TAB_GROUPS`, which does sidebar grouping AND permission derivation (**not**
@@ -287,6 +368,11 @@
   by the staff `ChangePasswordGate`, the staff `AccountDialog` (opened from the username in `StaffHeader`)
   and the member area's `MemberAccountSection`; it stores the re-issued access token the endpoint returns.
   Role-assignment ceiling for role selects: `staff/panels/rolesApi.ts` `assignableRolesFor`.
+  `frontend/src/features/requests/` owns account and saved-capability history, with bounded verified
+  browser storage, explicit shared-browser reveal, independent hardware/machine pagination and
+  request-specific quantities. `members/MemberAreaTabs.tsx` mounts Requests only while selected;
+  member accounts can remain off for the dedicated public page. `apiSession.ts` publishes a
+  nonsecret observable revision so logout immediately removes stale private views.
   `frontend/src/features/machineService/` owns the shared public type selector, job form, uploads
   and token status; `printing/PublicPrintRequestPage.tsx` keeps `/print` links working through that
   same page. Printer fields and file widgets remain shared in `features/printing/`.
@@ -296,6 +382,9 @@
   `apiRequests`; ~164 files import from `lib/api`, so add a symbol to a submodule AND the barrel. The
   in-memory access token, runtime publishable key, tenant key cache and auth-expired listeners live in
   `apiSession.ts` alone — duplicating that state across submodules would silently break auth.
+  Session generations fence old request/refresh completions; the shared JSON/blob transports own
+  bounded recovery and tenant key selection. `IntegrationHealthDestinations.tsx` renders typed room
+  diagnostics inside the staff integration-health panel.
 - `frontend/src/index.css` holds the theme tokens (`--color-*` palette + `--sw-*` roles, documented in its
   header) because the backend contrast guard reads that exact file; `styles/type.css` the type scale,
   `styles/components.css` the shared `desk-*` / `chip` / `status-box` / `blueprint-*` classes,

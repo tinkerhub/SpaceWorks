@@ -15,13 +15,14 @@ def _digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def test_installed_host_capability_binds_protocol_signer_migration_and_files(
-    tmp_path,
-):
+def installed_capability_case(tmp_path):
     script = tmp_path / "restore-host"
     entrypoint = tmp_path / "entrypoint"
     script.write_bytes(b"restore-v1")
     entrypoint.write_bytes(b"entrypoint-v1")
+    tmp_path.chmod(0o700)
+    script.chmod(0o600)
+    entrypoint.chmod(0o600)
     record = tmp_path / "compound-capability.json"
     record.write_text(json.dumps({
         "version": 1,
@@ -35,6 +36,7 @@ def test_installed_host_capability_binds_protocol_signer_migration_and_files(
             "restore-host": _digest(script),
         },
     }), encoding="utf-8")
+    record.chmod(0o600)
     capability = InstalledHostCapability(
         record_path=record,
         installed_files={"restore-host": script, "entrypoint": entrypoint},
@@ -47,6 +49,11 @@ def test_installed_host_capability_binds_protocol_signer_migration_and_files(
     )
     manifest = {"archive_signature": {"signer_fingerprint": "a" * 64}}
 
+    return capability, topology, manifest, script, record
+
+
+def test_installed_host_capability_binds_protocol_signer_migration_and_files(tmp_path):
+    capability, topology, manifest, script, _record = installed_capability_case(tmp_path)
     assert capability.validate(
         inputs=object(), manifest=manifest, topology=topology
     )["validated"] is True

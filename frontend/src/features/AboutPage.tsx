@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { PlatformSiteHeader } from "../components/chrome/PublicHeaders";
 import { PublicContainer, PublicShell } from "../components/chrome/PublicShell";
@@ -30,9 +30,9 @@ export function AboutPage() {
             Space Works is free and open source software, licensed under the{" "}
             <a
               className="font-semibold text-ink underline underline-offset-4 hover:text-accent-ink"
-              href="https://github.com/SpaceWorks-HQ/SpaceWorks/blob/main/LICENSE"
+              href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               GNU Affero General Public License v3
               <span className="sr-only"> (opens in a new tab)</span>
@@ -42,6 +42,32 @@ export function AboutPage() {
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <a
+            className={`${cardClasses} border border-line bg-secondary/25 hover:bg-secondary/35`}
+            href="https://github.com/SpaceWorks-Labs/SpaceWorks"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>
+              <span className="block text-h4 text-ink">Use SpaceWorks for your space</span>
+              <span className="mt-1 block text-body-ui text-ink-secondary">Get the official project and installation guide for your makerspace.</span>
+              <span className="sr-only"> (opens in a new tab)</span>
+            </span>
+            <ArrowUpRight aria-hidden="true" className="mt-1 size-5 shrink-0 text-ink" />
+          </a>
+          <a
+            className={`${cardClasses} border border-line bg-accent/20 hover:bg-accent/30`}
+            href="https://github.com/tinkerhub/SpaceWorks"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>
+              <span className="block text-h4 text-ink">Contribute to TinkerSpace's SpaceWorks</span>
+              <span className="mt-1 block text-body-ui text-ink-secondary">Help improve this community's setup with ideas, bug reports, code or documentation.</span>
+              <span className="sr-only"> (opens in a new tab)</span>
+            </span>
+            <ArrowUpRight aria-hidden="true" className="mt-1 size-5 shrink-0 text-ink" />
+          </a>
           <Link className={`${cardClasses} bg-accent/20 hover:bg-accent/30`} to="/">
             <span>
               <span className="block text-h4 text-ink">Browse makerspaces</span>

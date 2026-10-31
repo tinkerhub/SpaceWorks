@@ -97,6 +97,7 @@ OMITTED_FIELD_RECONSTRUCTIONS = {
     ),
     **_rules(
         NULL,
+        ("makerspaces.Makerspace", "purge_started_at"),
         ("backup.MakerspaceArchiveRecipient", "verified_at"),
         # Projection provenance only: the target rebuilds the link from the canonical
         # series collaboration, and a carried-over id would point at a source row.

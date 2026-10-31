@@ -1,0 +1,5 @@
+APPROVED — retaining the acquisition-time `pg_current_xact_id()` and comparing it on the same connection closes both substitution cases while preserving existing PID and exact-lock checks. The caller performs its setter and final commit on that retained transaction.
+
+Preserve the verifier’s `SELECT pg_backend_pid(), EXISTS` prefix; an existing strict test asserts it. Append the transaction-ID result column.
+
+Read-only review; no edits, runtime, or network.

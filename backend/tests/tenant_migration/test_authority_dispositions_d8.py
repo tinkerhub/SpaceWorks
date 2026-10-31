@@ -53,7 +53,7 @@ EXPECTED = dict(
             "frontend_domain frontend_domain_status domain_verification_token "
             "domain_verified_at frontend_domain_changed_at cors_allowed_origins "
             "enabled_modules enabled_features resource_limit_overrides "
-            "hidden_from_central_directory storage_bytes_used archived_at archived_by "
+            "hidden_from_central_directory storage_bytes_used archived_at archived_by purge_started_at "
             "public_request_mode checkin_space_id checkin_api_url checkin_required_purpose "
             "checkin_provider_name "
             "lifecycle_state staff_notifications_enabled "

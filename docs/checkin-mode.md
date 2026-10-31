@@ -10,6 +10,20 @@ evidence as usual.
 > with that name is checked in, not that the visitor is that person. It is a presence filter, not
 > authentication. Rules: [Check-in gated requests](INVARIANTS.md#check-in-gated-requests).
 
+## Accounts and staff sign-in
+
+Visitors using check-in do not create a SpaceWorks account or enter a password. The public borrow,
+self-checkout and machine-service forms use the confirmed roster name; they do not require an email
+address, phone number, email verification or two-factor enrollment. The server still checks the roster
+when the request is submitted. Turning `member_accounts` off also removes the member-area link and
+account settings; it does not change the selected request policy.
+
+Staff use their existing username and password when password sign-in is enabled. Check-in hosting does
+not require social sign-in, an external identity provider or an email recovery setup. Email-code password
+recovery and configured institutional OIDC remain optional, separate capabilities; enable them only if
+your deployment needs them. Staff permissions, active-account checks, session protections and required
+password changes still apply. Disabling member accounts never disables staff administration.
+
 ## 1. Modules
 
 | Module | Setting | Why |
@@ -160,7 +174,25 @@ mode. The same applies to public self-checkout and public machine-job requests.
    automatically.
 3. They submit. The server re-reads the roster at that moment, so someone who checked out in between
    is refused with *You are not currently checked in.*
-4. They get a reference token to quote to staff; there is no account to come back to.
+4. They get a reference token and a private status link. **My requests** keeps saved private
+   status links in this browser, separately for each makerspace.
+
+Saved hardware and machine-service status links still work after upstream checkout. Reading them
+does not require a SpaceWorks account, login, two-factor enrollment or another roster lookup.
+Hardware status shows the requested, accepted, issued and returned quantities for that request,
+including partial approvals and returns; these are not inventory stock counts.
+
+Treat each saved link as private: anyone using the same browser can read its saved requests.
+Remove saved entries on a shared browser when finished. Removing an entry clears that browser's
+shortcut, not the request or the private link's read access. Keep the private link elsewhere if you
+need to return from another browser or after clearing browser storage. Without the saved entry or
+link, a typed name, roster identity, email or phone cannot recover a request history.
+
+Signed-in personal accounts can also list their own account-owned requests in this makerspace,
+without current presence or community membership. Machine-service history uses the request's member
+owner, not a staff creator's historical attribution. A check-in principal is a stable walk-in record;
+it does not automatically become an account or confer access to an account history. The public roster
+and typed name remain a presence filter, never authentication or a historical credential.
 
 Limits: 20 requests per person per hour, plus per-IP limits, and at most 50 outstanding unreviewed
 account-less requests per makerspace (`ANONYMOUS_REQUEST_OUTSTANDING_LIMIT`).
@@ -176,8 +208,9 @@ Requests arrive in **Requests** like any other, under the person's roster name (
 with no email or phone. The request drawer has a **Checked in** row: purpose, project and when the
 check-in was verified. Each roster person becomes a stable walk-in record, so their history, overdue
 items and restrictions follow them across visits; restricting that record blocks their future
-requests. Accept, issue (box QR plus photo) and return (photo plus remark) work exactly as for any
-request, and Telegram alerts go out if configured.
+requests. Accept, issue and return use the ordinary request workflow. Issue requires a photo and
+individual asset scans where applicable; a container is optional, and an assigned container requires
+its matching QR scan. Return requires a photo and remarks. Telegram alerts go out if configured.
 
 If borrowers report errors, check in this order: **Test connection** succeeds (above), the row's
 `spaceId` matches the ID you set, and the purpose text matches exactly.

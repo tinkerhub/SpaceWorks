@@ -1,0 +1,32 @@
+{
+  "status": "passed for the current local synthetic QA configuration",
+  "checks": [
+    {
+      "command": [
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 4.562
+    },
+    {
+      "command": [
+        "makemigrations",
+        "--check",
+        "--dry-run"
+      ],
+      "exit_code": 0,
+      "seconds": 2.636
+    }
+  ],
+  "results": [
+    "System check identified no issues (0 silenced).",
+    "No changes detected"
+  ],
+  "runtime": "Existing host Python3.14 virtual environment, -B before imports; same77 preserved local preview environment values. Functional backend tests use separate frozen Linux/Python3.12 evidence.",
+  "private_log_sha256": "544f856533e0bc60d50012d4845ff9a48647b0057bdf3b1bc016a3a787134d80",
+  "warnings": "Existing Django AppConfig initialization database-access RuntimeWarning retained in private log; not a no-warning claim.",
+  "limits": [
+    "No --deploy security certificate, production credentials or production database was checked.",
+    "No migration files were written; the local preview had already applied the three new reviewed migrations."
+  ]
+}

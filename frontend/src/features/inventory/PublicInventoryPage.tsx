@@ -28,6 +28,10 @@ function maxQuantity(product: Product): number {
 
 export function PublicInventoryPage() {
   const space = useMakerspacePublic();
+  return <PublicInventoryContent key={space.makerspaceSlug} space={space} />;
+}
+
+function PublicInventoryContent({ space }: { space: ReturnType<typeof useMakerspacePublic> }) {
   const { makerspaceSlug, bootstrap, displayName } = space;
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -92,7 +96,7 @@ export function PublicInventoryPage() {
           kicker="Public inventory"
           title={<MakerspaceBrand name={displayName} logoUrl={bootstrap?.makerspace?.logo_url} size="xl" />}
           description="Shared tools and equipment published by this makerspace."
-          actions={<Chip tone="secondary">{count ?? "–"} listed items</Chip>}
+          actions={<Chip tone="secondary">{count ?? "–"} listed {count === 1 ? "item" : "items"}</Chip>}
         />
         <MakerspaceMapLink makerspace={bootstrap?.makerspace} className="mt-2" />
 
@@ -140,7 +144,13 @@ export function PublicInventoryPage() {
             <PublicRequestPanel
               items={selectedItems}
               makerspaceSlug={makerspaceSlug}
-              onClear={() => setCart({})}
+              onClear={(admitted) => setCart((current) => {
+                if (!admitted) return {};
+                // Preserve any selection made after the admitted request body.
+                const same = Object.values(current).length === admitted.length &&
+                  admitted.every((item) => current[item.productId]?.quantity === item.quantity);
+                return same ? {} : current;
+              })}
               disabled={!moduleEnabled("request_workflow")}
               requestAccess={bootstrap?.makerspace?.request_access}
               membershipOn={moduleEnabled("membership")}

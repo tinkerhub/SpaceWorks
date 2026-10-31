@@ -1,0 +1,31 @@
+**MANDATORY REVISION: resolve the file-length constraint.** [docs/SOURCE-MAP.md](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/docs/SOURCE-MAP.md) already has 364 lines. Permit a small documentation-only insertion there; retain the ≤300-line limit for new/touched Python files. Splitting that document would unnecessarily expand this task.
+
+The bounded design is otherwise sound. Proposed exact implementation scope:
+
+- **New:** `backend/apps/tenant_migration/source_gate_api_owned_http_guards.py`
+- **Modify:** `backend/apps/tenant_migration/source_gate_http_guards.py`
+- **Modify:** `docs/SOURCE-MAP.md`, with the exception above.
+- **Separate Stage 3:** new `backend/tests/tenant_migration/test_api_owned_http_source_contract.py`
+
+Required algorithm:
+
+1. Parse the **supplied source tree**, without importing its ownership registry. Require one literal API declaration, exactly the eight approved keys and exact tuple shapes/values. Detect duplicate AST keys before dictionary conversion; reject unpacking and extra/missing routes.
+2. Verify each named URL occurs once and uses its expected URL-facing barrel class through the actual `.as_view()` expression. Follow the barrel import to the canonical class; require its own unique `post` method.
+3. Verify the expressions **called by that POST**, including their actual import bindings. Generation must consume `services.generate_assets_with_qr`, with the operations barrel exporting the canonical implementation. An unused correct import must not satisfy validation.
+4. Check canonical admission ownership:
+   - `create_box_with_qr` → `boundary_tenant_write`
+   - `create_tool_qr`, `admitted_qr`, `revoke_qr_code`, `rebind_qr_target`, generation and `AssetQrView.post` → `qr_write`
+   - `qr_write` → `qr_sources` → `boundary_tenant_write`
+   
+   Require the actual context/call structures and canonical imports. `preflight_rebind` remains a consumed read-only binding; it is not an N owner.
+5. Inspect runtime ownership validation itself: exact registry lookup and POST restriction, canonical class/barrel identity checks, own-method validation, callback validation, and consumed-binding comparison. A correct constant alone must not satisfy the guard.
+6. Require middleware’s verified-owner branch to retain canonical P around `get_response`, before `_makerspace_ids`. Require the late guard to revalidate that same owner and check canonical `_unscoped_writer_owned.get()`, raising on absence before returning or reaching authoritative tenant resolution. Use AST structure and ordering, not mere name occurrence.
+7. Wire this validator **only inside the existing global `APPS_DIR` branch**. Leave the purge table, public purge validator and both minimal copied fixtures unchanged.
+
+Reuse existing AST helpers; keep any additional inspection local and specific to these owners. No generic resolver framework or whole-body hash substitute is needed.
+
+**Census finding:** I found no separate hand-maintained guard census. Existing `source_primitive_scope.py` recursively includes Python sources, and `source_primitive_python.py` records import dependencies. The global import/call will expose the new dependency automatically. Root should include the new path in its final reviewed census/hash work; do not edit the currently `UNREVIEWED` ledger merely to manufacture registration. No `AUTHORIZATION_SOURCES` change is warranted.
+
+Stage 3 must mutate actual source copies independently for registry removal/duplication/expansion, URL/class/POST/barrel drift, removed or unused consumed bindings, every admission edge, runtime ownership broadening, middleware P removal, and late owner/P removal. Include an unchanged-copy positive control; root retains runtime and existing purge-fixture verification.
+
+Read-only review completed. No writes, tests, Django imports, build or staging performed.

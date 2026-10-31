@@ -21,7 +21,7 @@ def _fields(label, names, path, classification, indexes):
 
 
 SOURCE_FIELDS = (
-    *_fields("hardware_requests.HardwareRequest", ("requester_username", "requester_name", "requester_contact_email", "requester_contact_phone", "checkin_project_name"), "makerspace_id", "source", ((150, 200, 254, 32, 200), ("none", "bloom", "bloom_exact", "none", "none"))),
+    *_fields("hardware_requests.HardwareRequest", ("requester_username", "requester_name", "requester_contact_email", "requester_contact_phone", "checkin_project_name", "cancellation_reason"), "makerspace_id", "source", ((150, 200, 254, 32, 200, 500), ("none", "bloom", "bloom_exact", "none", "none", "none"))),
     *_fields("events.EventRegistration", ("name", "email", "phone"), "event.makerspace_id", "source", ((200, 254, 32), ("none", "event_exact", "none"))),
     *_fields("events.EventFeedbackResponse", ("answers_snapshot",), "survey.event.makerspace_id", "source", ((None,), ("none",))),
     *_fields("events.EventAttendanceCertificate", ("recipient_name",), "registration.event.makerspace_id", "source", ((None,), ("none",))),

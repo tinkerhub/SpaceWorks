@@ -1,0 +1,35 @@
+Implemented the approved plan in:
+
+- [apiSession.ts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/lib/apiSession.ts) — 180 lines.
+- [sessionIntent.ts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/lib/sessionIntent.ts) — 120 lines.
+- [sessionIntentStorage.ts](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/lib/sessionIntentStorage.ts) — 54 lines.
+
+Strict producer-compatible parsing, verified per-tab pin persistence, refresh identity matching, and durable logout checks are implemented. Public header/map exports and generation contracts are preserved. No raw tokens are persisted.
+
+Caller handoff:
+
+```ts
+import { SessionInstallError } from "./sessionIntent";
+```
+
+`setAccessToken(token): void` now throws synchronously with:
+
+```ts
+code: "session_install_failed"
+reason: "invalid_token" | "storage_unavailable"
+```
+
+Failure preserves prior in-memory session state and generation. Callers must complete installation before publishing sign-in success.
+
+`logout(): Promise<void>` still rejects with `LogoutIncompleteError`, now exposing:
+
+```ts
+reason:
+  | "server_unconfirmed"
+  | "storage_unavailable"
+  | "server_and_storage_unconfirmed"
+```
+
+Storage key: `sessionStorage["makerspace.session-intent"]`. Missing/invalid pins require explicit sign-in after reload. Fixtures must use realistic compact JWTs; opaque tokens are rejected.
+
+Focused strict TypeScript validation passed. No runtime tests, tests/docs/backend/caller edits, staging, or commits. Index remains empty.

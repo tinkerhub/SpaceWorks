@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 
 import pytest
 import yaml
@@ -246,8 +247,7 @@ def test_compose_wrapper_unsets_ambient_pointer_and_layers_pointer_last(tmp_path
     fake_bin.mkdir()
     (fake_bin / "python3").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     (fake_bin / "docker").write_text(
-        """#!/usr/bin/python3
-import json, os, pathlib, sys
+        f"#!{Path(sys.executable).resolve()}\n" + """import json, os, pathlib, sys
 files = [sys.argv[index + 1] for index, value in enumerate(sys.argv) if value == '--env-file']
 effective = {}
 for name in files:

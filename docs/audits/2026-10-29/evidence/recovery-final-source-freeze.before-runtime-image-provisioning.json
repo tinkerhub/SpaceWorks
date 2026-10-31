@@ -1,0 +1,1224 @@
+{
+  "format": "spaceworks-recovery-final-source-v1",
+  "status": "source-only-runtime-unproven",
+  "historical_freeze": {
+    "path": "docs/audits/2026-10-29/evidence/recovery-source-freeze.json",
+    "sha256": "d72451f12ec83a9444ce2c05e91fbb836ac379b187b7e0423b52450931d1d109",
+    "preserved": true
+  },
+  "approved_inputs": {
+    "/tmp/spaceworks-recovery-packaging-plan.md": "3713086066be3e8b397ed961f9911740ffa415898b1f3b310b25a53091138a9b",
+    "/tmp/spaceworks-recovery-packaging-review.txt": "d0b148edc831db06a695aa301bd132b2f1391f3d72738388208d71838cfc87c1",
+    "docs/audits/2026-10-29/evidence/recovery-stage2-independent-corrections.md": "1db3aa5838c4c10cb5ea31a5e4d86d6eabd581e2fa3e374809b747643263313a",
+    "/tmp/spaceworks-recovery-final-corrections-plan.md": "2092b02426249a11edd18a276191da2437291ce12d9c38e4b36d2e5e322ff506",
+    "/tmp/spaceworks-recovery-final-corrections-delta.md": "0ab317def9c2997e1ca9ee527e092b99ae5d3202d2c89a7ccafd05205d0c1e30",
+    "/tmp/spaceworks-recovery-final-corrections-final-review.txt": "f1995216dcfbca4efddfa35f22f1deceaa1d31ee7a829f9d6d72ed78a1aa258a"
+  },
+  "prior_source_file_count": 43,
+  "prior_source_paths": [
+    "backend/apps/backup/archive_import.py",
+    "backend/apps/backup/backup_control_preflight.py",
+    "backend/apps/backup/backup_control_proof.py",
+    "backend/apps/backup/full_preflight.py",
+    "backend/apps/backup/full_restore_identity.py",
+    "backend/apps/backup/host_marker.py",
+    "backend/apps/backup/host_restore_admission.py",
+    "backend/apps/backup/host_restore_configuration.py",
+    "backend/apps/backup/host_restore_files.py",
+    "backend/apps/backup/host_restore_lifecycle.py",
+    "backend/apps/backup/host_restore_prepare.py",
+    "backend/apps/backup/host_restore_resume.py",
+    "backend/apps/backup/host_restore_transport.py",
+    "backend/apps/backup/import_preflight.py",
+    "backend/apps/backup/inplace_marker.py",
+    "backend/apps/backup/inplace_readiness.py",
+    "backend/apps/backup/inplace_recovery_facts.py",
+    "backend/apps/backup/management/commands/backup_control.py",
+    "backend/apps/backup/management/commands/import_backup_archive.py",
+    "backend/apps/backup/management/commands/preflight_backup_import.py",
+    "backend/apps/backup/process_roles.py",
+    "backend/apps/backup/restore_control_records.py",
+    "backend/apps/backup/restore_journal_proof.py",
+    "backend/apps/backup/restore_manifest_facts.py",
+    "backend/apps/backup/restore_object_apply.py",
+    "backend/apps/backup/restore_object_proof.py",
+    "backend/apps/backup/restore_prospective.py",
+    "backend/apps/backup/restore_services.py",
+    "backend/apps/backup/settings_policy.py",
+    "backend/apps/backup/task_admission.py",
+    "backend/apps/tenant_migration/authority_guards.py",
+    "backend/apps/tenant_migration/task_gate.py",
+    "backend/config/settings.py",
+    "backend/config/task_queue_settings.py",
+    "backend/scripts/bootstrap_host_orchestration.py",
+    "backend/scripts/restore_database_probe.py",
+    "backend/scripts/restore_legacy_preview.py",
+    "docker-compose.cloud.yml",
+    "docker-compose.prod.yml",
+    "docker-compose.yml",
+    "scripts/import-backup.sh",
+    "scripts/restore-host.py",
+    "scripts/restore.sh"
+  ],
+  "packaging_addon_files": [
+    "install.sh",
+    "scripts/install-host-bundle.sh",
+    "scripts/check-restore-host-bundle.py",
+    "scripts/restore.sh"
+  ],
+  "combined_source_file_count": 65,
+  "source_files": [
+    {
+      "path": "backend/apps/__init__.py",
+      "lines": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "backend/apps/backup/__init__.py",
+      "lines": 2,
+      "sha256": "87e7763152dbb2a14b12826c8015a1fa82467090df82e11e47622b6879f0fe75"
+    },
+    {
+      "path": "backend/apps/backup/archive_builder.py",
+      "lines": 210,
+      "sha256": "d75d1fca67557ed2c34177c93049df9e349832c17cb0f72cab8e18dcef2a3283"
+    },
+    {
+      "path": "backend/apps/backup/archive_import.py",
+      "lines": 107,
+      "sha256": "db250e714fadfdda4369b975e7eea1b0c1645e050f574936b4abf61a1678bb6e"
+    },
+    {
+      "path": "backend/apps/backup/artifact_protocol.py",
+      "lines": 37,
+      "sha256": "2e65e2c5b76bfebe73cc9e467e43a369b44ebd2f7e075edfc1d77a5521781fe2"
+    },
+    {
+      "path": "backend/apps/backup/backup_control_preflight.py",
+      "lines": 203,
+      "sha256": "dd3edb602bb099e5b72155717010af836933b565da127e94c899737218945821"
+    },
+    {
+      "path": "backend/apps/backup/backup_control_proof.py",
+      "lines": 53,
+      "sha256": "36a25348d20cfade58b3e417a92f5d0b874bd6ba15dec0ae5c0ca6821f9850f9"
+    },
+    {
+      "path": "backend/apps/backup/full_format.py",
+      "lines": 12,
+      "sha256": "f180b8303143ae25c39c05e2cf38b60e43205dbe134564c1cc584d6156d325c3"
+    },
+    {
+      "path": "backend/apps/backup/full_preflight.py",
+      "lines": 29,
+      "sha256": "aec70c6f1ee2072690f462d7011c411444a38192c7c969d5d017ee8a95da658c"
+    },
+    {
+      "path": "backend/apps/backup/full_restore_identity.py",
+      "lines": 254,
+      "sha256": "0030b6fd30024cb35da2363904f171aabba9406a14d4333f5ac5b3ba877038c8"
+    },
+    {
+      "path": "backend/apps/backup/host_capability_journal.py",
+      "lines": 224,
+      "sha256": "b251db0457f9bdd388d372d4fbad6b6384f4e6e1412d40bc2f9a523c24521ff8"
+    },
+    {
+      "path": "backend/apps/backup/host_capability_types.py",
+      "lines": 237,
+      "sha256": "aeac8a00a8fc7db6592f9b46a0eae1d074e81fd385765238681ebc807c6ac09c"
+    },
+    {
+      "path": "backend/apps/backup/host_marker.py",
+      "lines": 295,
+      "sha256": "18d032f4b347ddbe7831c0531e1252eba576e8de9ed8d8be19062ce218dee104"
+    },
+    {
+      "path": "backend/apps/backup/host_marker_file.py",
+      "lines": 43,
+      "sha256": "0c63f5a282ed89e12f1395b4a29eb9683068589ce934a144111beb82edc2900b"
+    },
+    {
+      "path": "backend/apps/backup/host_pointer.py",
+      "lines": 192,
+      "sha256": "d5343ce1c7a1143356b07b54afbdbd44a8f22a04dc1493ca65e93b6300e29b6f"
+    },
+    {
+      "path": "backend/apps/backup/host_private_file.py",
+      "lines": 67,
+      "sha256": "1e18213207aa6141e4a1e916aa6949bc905c57a6f881b18fa9cc30fc6accb40a"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "lines": 257,
+      "sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_configuration.py",
+      "lines": 173,
+      "sha256": "f01614e7691f7d486a49e81f72cf20ed2f223645675ea84a78fcd6dd545cb803"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_files.py",
+      "lines": 227,
+      "sha256": "4adb25d8febcaf651813a186a1e3070723dcc53c650929b74dae1d3f7768e8cf"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_lifecycle.py",
+      "lines": 236,
+      "sha256": "bb0887f7dc9ae063db5030b212dffa9d2c319ddae1b1bda8b136357755770cec"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_prepare.py",
+      "lines": 182,
+      "sha256": "865e146e7814394d179577a767904cbeeb41bab043020bc1b8a1db589cab3c38"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_resume.py",
+      "lines": 78,
+      "sha256": "469bf7bb3b2cb6de34d7323d2bc53e06a0e4842b34f3d73b4ada36bc4a755dc2"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_transport.py",
+      "lines": 173,
+      "sha256": "c1dd16d552715272a8f4ae3a87c2b9af844d68a4a5d2a768eab840fdbe27e599"
+    },
+    {
+      "path": "backend/apps/backup/host_run_ledger.py",
+      "lines": 231,
+      "sha256": "2c4d747ad4554176bc25ff1e4da914a3a5852ccf7ed5326279788f0212e08dd7"
+    },
+    {
+      "path": "backend/apps/backup/host_supervisor.py",
+      "lines": 183,
+      "sha256": "95e62a71d3633fd372428100fd7e49ac410633dc497d94463844f1f67749f4ed"
+    },
+    {
+      "path": "backend/apps/backup/host_topology_record.py",
+      "lines": 128,
+      "sha256": "212533a4b0d8e4e2aa0491e46c58a265907732668e7560d7c4957ccdfdd98f28"
+    },
+    {
+      "path": "backend/apps/backup/import_preflight.py",
+      "lines": 260,
+      "sha256": "ba9c2b33eaadd6ed5b3f42f90cac51355e559358f70e236fd50edb72579eb886"
+    },
+    {
+      "path": "backend/apps/backup/inplace_marker.py",
+      "lines": 222,
+      "sha256": "026a817f3c857a00b09700955af9f22f5728e23b657bfcfc5f155178945b83ef"
+    },
+    {
+      "path": "backend/apps/backup/inplace_readiness.py",
+      "lines": 70,
+      "sha256": "7cb06b81f6e26b456f8f569f9641ed2c70f42eae88f234ea62dee2cea7edc1a2"
+    },
+    {
+      "path": "backend/apps/backup/inplace_recovery_facts.py",
+      "lines": 70,
+      "sha256": "77cac93c564a700dd7321166582833772b4115262241ee5b4e81e89df855b3b9"
+    },
+    {
+      "path": "backend/apps/backup/management/commands/backup_control.py",
+      "lines": 278,
+      "sha256": "2bc342c896ce0c0f44234f0317df918591cfb5889946355f3af5f6aea76e6f73"
+    },
+    {
+      "path": "backend/apps/backup/management/commands/import_backup_archive.py",
+      "lines": 50,
+      "sha256": "84e3419e764c68d3113df5f3cf83f5b03bc2142038009b1461fcc7c26e875e88"
+    },
+    {
+      "path": "backend/apps/backup/management/commands/preflight_backup_import.py",
+      "lines": 33,
+      "sha256": "0c9144a42bf87efe40f80fc5bbf58c354d4c925bed23835e171c93364fd468c1"
+    },
+    {
+      "path": "backend/apps/backup/operation_lock.py",
+      "lines": 58,
+      "sha256": "226cf543049dcca1ad26a0a31db47effd4347a8416ea10794c4a3f809fe110ce"
+    },
+    {
+      "path": "backend/apps/backup/process_roles.py",
+      "lines": 46,
+      "sha256": "8899349fe8c425d0e41e1dc0afabd24ad8c20f6723e3b9142d24171d6a0caabd"
+    },
+    {
+      "path": "backend/apps/backup/reconciliation.py",
+      "lines": 140,
+      "sha256": "bdaf87285bec7cfd62622097e5871d9b2ec96e34f65d102239af7d679677535c"
+    },
+    {
+      "path": "backend/apps/backup/restore_control_records.py",
+      "lines": 176,
+      "sha256": "293a62be843f1a10fbf5fdfb76b637f1365f4f36450d5f10f5bb82e7b14636be"
+    },
+    {
+      "path": "backend/apps/backup/restore_journal_proof.py",
+      "lines": 104,
+      "sha256": "fc792e20c4f419b9794da86799a8c26ad48dc680070b5bed21aacb01cbc8dff7"
+    },
+    {
+      "path": "backend/apps/backup/restore_manifest_facts.py",
+      "lines": 149,
+      "sha256": "a78561210f21df1f192a2dc15aa81eb939da6fe8c99d4067648726b4d3baa459"
+    },
+    {
+      "path": "backend/apps/backup/restore_object_apply.py",
+      "lines": 116,
+      "sha256": "fe58ec62480f3372ddad25c8283c535de77e9af3fbbc08a78bb3bd5c6e672b7b"
+    },
+    {
+      "path": "backend/apps/backup/restore_object_proof.py",
+      "lines": 161,
+      "sha256": "531b818c5f81dde48c1f78d9e0f427bd859ff6dffcad189768d0c2a9c4974049"
+    },
+    {
+      "path": "backend/apps/backup/restore_prospective.py",
+      "lines": 55,
+      "sha256": "d2ce701e26fa8657682726a4ed56d3db56d48928a5ede9c132887d245c50b50d"
+    },
+    {
+      "path": "backend/apps/backup/restore_services.py",
+      "lines": 261,
+      "sha256": "ae4c91f43842c398a34bfa4c05bd216dbbe7b916fa3bb0fe4592ad85fb3838e6"
+    },
+    {
+      "path": "backend/apps/backup/services_archives.py",
+      "lines": 263,
+      "sha256": "b02860b19d6c02af9eb2e6685abaef95b36558bce7e2a9103a7328caba1b530f"
+    },
+    {
+      "path": "backend/apps/backup/settings_policy.py",
+      "lines": 193,
+      "sha256": "e5109f9aa10332a85c587b1f248f1ee192c8bf0b553a0c71e687909175065ed8"
+    },
+    {
+      "path": "backend/apps/backup/storage.py",
+      "lines": 256,
+      "sha256": "b1ccfab397f24438cf0f79f79e9e464e52cbcf23302fb0fe1412be15d1c5a420"
+    },
+    {
+      "path": "backend/apps/backup/storage_promotion.py",
+      "lines": 176,
+      "sha256": "a944b057138fd2510357665a548a2c2126eea6f61f7759573727de4089e4b4a3"
+    },
+    {
+      "path": "backend/apps/backup/task_admission.py",
+      "lines": 31,
+      "sha256": "1dcae5a3f0a58ecb2f7f34af148c56cf1268b8f22ba7d76555cf732b646a0fc9"
+    },
+    {
+      "path": "backend/apps/backup/topology.py",
+      "lines": 98,
+      "sha256": "8c5f31fe31eceb86d84b3d438b363657513a8c6abb73b8bc4ea22ccd65215048"
+    },
+    {
+      "path": "backend/apps/tenant_migration/authority_guards.py",
+      "lines": 230,
+      "sha256": "ad8c2657a1d9f7135fba348fb75107e318d18559cd6c8b6c828c78334173c507"
+    },
+    {
+      "path": "backend/apps/tenant_migration/task_gate.py",
+      "lines": 68,
+      "sha256": "3e07e6fc99e7a0bfe1144660d7cf579d736a1fcddb1bf7fe8670274d871a2f3d"
+    },
+    {
+      "path": "backend/config/settings.py",
+      "lines": 1137,
+      "sha256": "b49349b0708b12816577efb88834ae1b51207ec48a35962c94413ceb505c4e1f"
+    },
+    {
+      "path": "backend/config/task_queue_settings.py",
+      "lines": 21,
+      "sha256": "f50a270298c4ceeefe001bf1a7cec87946a624a9ee3bccb0d35e340c95c54dc8"
+    },
+    {
+      "path": "backend/scripts/bootstrap_host_orchestration.py",
+      "lines": 190,
+      "sha256": "82e82780fb7692f4b82774fbd996e86aa00ded66c947f9c4c44c495e0fc0b44d"
+    },
+    {
+      "path": "backend/scripts/restore_database_probe.py",
+      "lines": 60,
+      "sha256": "a53b6588c953fcf770e765c38bd60cf0ff9000861dfe8f43969b30d48262120c"
+    },
+    {
+      "path": "backend/scripts/restore_legacy_preview.py",
+      "lines": 31,
+      "sha256": "a90b81b7400ef368f8b21bcff8da8950f8a1b508ed1501c8d751bfc9a293ffeb"
+    },
+    {
+      "path": "docker-compose.cloud.yml",
+      "lines": 293,
+      "sha256": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae"
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "lines": 357,
+      "sha256": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597"
+    },
+    {
+      "path": "docker-compose.yml",
+      "lines": 336,
+      "sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff"
+    },
+    {
+      "path": "install.sh",
+      "lines": 300,
+      "sha256": "0e9fc5e775413b9b85fa96ec092ec3c4b15f2cf91da1a7d5a0c675bfc646c554"
+    },
+    {
+      "path": "scripts/check-restore-host-bundle.py",
+      "lines": 119,
+      "sha256": "19a289c7022db1f528080f25c138f72cd665fb02aeaddd3648424a498f9ad6c6"
+    },
+    {
+      "path": "scripts/import-backup.sh",
+      "lines": 5,
+      "sha256": "4d1629a69b16f543f5970efdb83966808263b0452816abed6f8238232deda908"
+    },
+    {
+      "path": "scripts/install-host-bundle.sh",
+      "lines": 63,
+      "sha256": "a34e6467928ff6420ebbf3147a2739488c0bb291db414159edf3fe30089dc1d6"
+    },
+    {
+      "path": "scripts/restore-host.py",
+      "lines": 96,
+      "sha256": "f971c644b459bddfe5c461f555f48936e963afa8abfcd384a894a44d2c9a12d3"
+    },
+    {
+      "path": "scripts/restore.sh",
+      "lines": 72,
+      "sha256": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41"
+    }
+  ],
+  "guarded_host_dependency_count": 25,
+  "guarded_host_dependencies": {
+    "backend/apps/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "backend/apps/backup/__init__.py": "87e7763152dbb2a14b12826c8015a1fa82467090df82e11e47622b6879f0fe75",
+    "backend/apps/backup/full_format.py": "f180b8303143ae25c39c05e2cf38b60e43205dbe134564c1cc584d6156d325c3",
+    "backend/apps/backup/host_capability_journal.py": "b251db0457f9bdd388d372d4fbad6b6384f4e6e1412d40bc2f9a523c24521ff8",
+    "backend/apps/backup/host_capability_types.py": "aeac8a00a8fc7db6592f9b46a0eae1d074e81fd385765238681ebc807c6ac09c",
+    "backend/apps/backup/host_marker.py": "18d032f4b347ddbe7831c0531e1252eba576e8de9ed8d8be19062ce218dee104",
+    "backend/apps/backup/host_marker_file.py": "0c63f5a282ed89e12f1395b4a29eb9683068589ce934a144111beb82edc2900b",
+    "backend/apps/backup/host_pointer.py": "d5343ce1c7a1143356b07b54afbdbd44a8f22a04dc1493ca65e93b6300e29b6f",
+    "backend/apps/backup/host_private_file.py": "1e18213207aa6141e4a1e916aa6949bc905c57a6f881b18fa9cc30fc6accb40a",
+    "backend/apps/backup/host_restore_admission.py": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+    "backend/apps/backup/host_restore_configuration.py": "f01614e7691f7d486a49e81f72cf20ed2f223645675ea84a78fcd6dd545cb803",
+    "backend/apps/backup/host_restore_files.py": "4adb25d8febcaf651813a186a1e3070723dcc53c650929b74dae1d3f7768e8cf",
+    "backend/apps/backup/host_restore_lifecycle.py": "bb0887f7dc9ae063db5030b212dffa9d2c319ddae1b1bda8b136357755770cec",
+    "backend/apps/backup/host_restore_prepare.py": "865e146e7814394d179577a767904cbeeb41bab043020bc1b8a1db589cab3c38",
+    "backend/apps/backup/host_restore_resume.py": "469bf7bb3b2cb6de34d7323d2bc53e06a0e4842b34f3d73b4ada36bc4a755dc2",
+    "backend/apps/backup/host_restore_transport.py": "c1dd16d552715272a8f4ae3a87c2b9af844d68a4a5d2a768eab840fdbe27e599",
+    "backend/apps/backup/host_run_ledger.py": "2c4d747ad4554176bc25ff1e4da914a3a5852ccf7ed5326279788f0212e08dd7",
+    "backend/apps/backup/host_supervisor.py": "95e62a71d3633fd372428100fd7e49ac410633dc497d94463844f1f67749f4ed",
+    "backend/apps/backup/host_topology_record.py": "212533a4b0d8e4e2aa0491e46c58a265907732668e7560d7c4957ccdfdd98f28",
+    "backend/apps/backup/inplace_marker.py": "026a817f3c857a00b09700955af9f22f5728e23b657bfcfc5f155178945b83ef",
+    "backend/apps/backup/inplace_recovery_facts.py": "77cac93c564a700dd7321166582833772b4115262241ee5b4e81e89df855b3b9",
+    "backend/apps/backup/operation_lock.py": "226cf543049dcca1ad26a0a31db47effd4347a8416ea10794c4a3f809fe110ce",
+    "backend/apps/backup/restore_manifest_facts.py": "a78561210f21df1f192a2dc15aa81eb939da6fe8c99d4067648726b4d3baa459",
+    "backend/apps/backup/topology.py": "8c5f31fe31eceb86d84b3d438b363657513a8c6abb73b8bc4ea22ccd65215048",
+    "scripts/restore-host.py": "f971c644b459bddfe5c461f555f48936e963afa8abfcd384a894a44d2c9a12d3"
+  },
+  "preserved_independent_corrections": {
+    "scripts/restore-host.py": "f971c644b459bddfe5c461f555f48936e963afa8abfcd384a894a44d2c9a12d3",
+    "backend/apps/backup/host_restore_prepare.py": "865e146e7814394d179577a767904cbeeb41bab043020bc1b8a1db589cab3c38"
+  },
+  "changed_from_historical_source": [
+    "backend/apps/backup/archive_builder.py",
+    "backend/apps/backup/full_format.py",
+    "backend/apps/backup/host_restore_admission.py",
+    "backend/apps/backup/host_restore_files.py",
+    "backend/apps/backup/host_restore_prepare.py",
+    "backend/apps/backup/host_restore_resume.py",
+    "backend/apps/backup/management/commands/backup_control.py",
+    "backend/apps/backup/management/commands/preflight_backup_import.py",
+    "scripts/restore-host.py",
+    "scripts/restore.sh"
+  ],
+  "pinned_fixed_runtime_file_count": 34,
+  "pinned_runtime_copy_count": 59,
+  "pinned_runtime_copy_files": [
+    {
+      "path": "setup.sh",
+      "lines": 274,
+      "sha256": "7266e981689f8d5293c07477feee23959b24d76b5b40a4064d362d750e57022e",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "install.sh",
+      "lines": 300,
+      "sha256": "0e9fc5e775413b9b85fa96ec092ec3c4b15f2cf91da1a7d5a0c675bfc646c554",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "setup.ps1",
+      "lines": 8,
+      "sha256": "66e3ca208dd01de0e56f5feb7bb93611ed3ea6942e3622c2c231329df0343d5f",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "lines": 357,
+      "sha256": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker-compose.cloud.yml",
+      "lines": 293,
+      "sha256": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker-compose.yml",
+      "lines": 336,
+      "sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker/compose.build.yml",
+      "lines": 44,
+      "sha256": "c18b95da944ce1b37726d161d02766e9effbabfb89096acd5a4d5519c2541f4b",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker/compose.tls.yml",
+      "lines": 68,
+      "sha256": "ff9c6b4d1fd92340494e44b190175d5fca4e748f07d23b4d1d95a7f4ab1a01f1",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "docker/compose.saas.yml",
+      "lines": 65,
+      "sha256": "dd48f14f37ce96804f1d66b157d8371b24a1f761178a3f5df17586c46c76b334",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "frontend/nginx.conf",
+      "lines": 68,
+      "sha256": "b56ebb5add3ae6a4bcfd95ba1a5092d6d0ec67c5a4150b50e93ec8cc4e1a6311",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "deploy/init-object-buckets.sh",
+      "lines": 58,
+      "sha256": "f041b480458b977c718ac2c328d07ef65ca443969279b0fdba6f382ffd7199b2",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/bundled-database-url.py",
+      "lines": 35,
+      "sha256": "849292456aba1c7a9419c5c3f0d478fe20657646e913f5f103e7690a28048417",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/configure-compose-wrapper.py",
+      "lines": 64,
+      "sha256": "37f8d2e1a35c9551488d0599679a86e93189ba5f6f80955cf13702d445ea99f2",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/check-restore-host-bundle.py",
+      "lines": 119,
+      "sha256": "19a289c7022db1f528080f25c138f72cd665fb02aeaddd3648424a498f9ad6c6",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/host-capability.py",
+      "lines": 92,
+      "sha256": "5433d8e769d76841a806f26c59b4454c2167741a94e9815d5e55c5440f436390",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/import-backup.sh",
+      "lines": 5,
+      "sha256": "4d1629a69b16f543f5970efdb83966808263b0452816abed6f8238232deda908",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/init-host-orchestration.sh",
+      "lines": 29,
+      "sha256": "725c30188e3fd4ae4539982d47ea977859102d6b014f7ecee50c32107dc11b31",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/install-deploy-runner.sh",
+      "lines": 125,
+      "sha256": "f4dc857033547bbae9ecc4ff949bec8236a89702c66e282fb0c1da1649fd584b",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/install-host-bundle.sh",
+      "lines": 63,
+      "sha256": "a34e6467928ff6420ebbf3147a2739488c0bb291db414159edf3fe30089dc1d6",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/refresh-proxy-config.sh",
+      "lines": 109,
+      "sha256": "29bb06bc7bc489001f15742240d1894c960ccaf58a5c004c722db44acb04b763",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/setup-deploy-runner.sh",
+      "lines": 35,
+      "sha256": "de16adb4b24a658fa82d222df5dbed8496e62a83eecccfd588edc78dc445788b",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/env-file.sh",
+      "lines": 135,
+      "sha256": "d34966f0dbe7a23bac2a212e2c32ec451a3fbe24271178f04d3f5bcebebdee4e",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/host-image.sh",
+      "lines": 79,
+      "sha256": "c6eb31f1efe6e2d185e1d65d2e159672f0d39e8598200feece23e42cdec826d9",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/module-selection.sh",
+      "lines": 250,
+      "sha256": "afb5bce0a20cc023de8898f280ee6f4807611dd4ae4d5834bf1bcac3274fbdc6",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/request-access-selection.sh",
+      "lines": 185,
+      "sha256": "97e994cedfadefe9595167ec2afc4792ea414b9df94a57baf0f233f8689f2fd5",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/restore.sh",
+      "lines": 72,
+      "sha256": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/retire-update-polling.sh",
+      "lines": 10,
+      "sha256": "8d6d2a28a92f5f0255632022d9b06ee5df033b6d4ce460b7d949afdfec2521c7",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/retire-update-tombstone.sh",
+      "lines": 32,
+      "sha256": "419d97374101a72f1b330566e06a4fccab9ac7f37285d92d97448bef7c997a3f",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/setup-host-orchestration.sh",
+      "lines": 92,
+      "sha256": "44e29d6a19a9602a374fc7aa3d2dc693ab540c8a79bed8791d51484ae3acf3ad",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/spaceworks-compose.sh",
+      "lines": 91,
+      "sha256": "be195de8384dcadc489f28c521383e172571eca6b40dc74d8958ed75fef7d4bd",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/update-lock.sh",
+      "lines": 77,
+      "sha256": "917164fe5f6404b892c2ba02d07399ba3430052c8fa02838576c1e32e2c7209d",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/update.ps1",
+      "lines": 11,
+      "sha256": "1f127c6de2e76e31129b53bb02821ebc30ef61562b1143b12621ed4005914fce",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/update.sh",
+      "lines": 276,
+      "sha256": "75f3b1b33036f05eb748db20c1dd6ae5fd67f0868f5fd540b3f160fffbea3168",
+      "installed_mode": "0755"
+    },
+    {
+      "path": "scripts/validate-compose-wrapper.py",
+      "lines": 35,
+      "sha256": "5361ec52946430a37c5db2a11427c57c09d3a13f0d5423db5bcb787005e3a649",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/__init__.py",
+      "lines": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/__init__.py",
+      "lines": 2,
+      "sha256": "87e7763152dbb2a14b12826c8015a1fa82467090df82e11e47622b6879f0fe75",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/full_format.py",
+      "lines": 12,
+      "sha256": "f180b8303143ae25c39c05e2cf38b60e43205dbe134564c1cc584d6156d325c3",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_capability_journal.py",
+      "lines": 224,
+      "sha256": "b251db0457f9bdd388d372d4fbad6b6384f4e6e1412d40bc2f9a523c24521ff8",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_capability_types.py",
+      "lines": 237,
+      "sha256": "aeac8a00a8fc7db6592f9b46a0eae1d074e81fd385765238681ebc807c6ac09c",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_marker.py",
+      "lines": 295,
+      "sha256": "18d032f4b347ddbe7831c0531e1252eba576e8de9ed8d8be19062ce218dee104",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_marker_file.py",
+      "lines": 43,
+      "sha256": "0c63f5a282ed89e12f1395b4a29eb9683068589ce934a144111beb82edc2900b",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_pointer.py",
+      "lines": 192,
+      "sha256": "d5343ce1c7a1143356b07b54afbdbd44a8f22a04dc1493ca65e93b6300e29b6f",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_private_file.py",
+      "lines": 67,
+      "sha256": "1e18213207aa6141e4a1e916aa6949bc905c57a6f881b18fa9cc30fc6accb40a",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_admission.py",
+      "lines": 257,
+      "sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_configuration.py",
+      "lines": 173,
+      "sha256": "f01614e7691f7d486a49e81f72cf20ed2f223645675ea84a78fcd6dd545cb803",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_files.py",
+      "lines": 227,
+      "sha256": "4adb25d8febcaf651813a186a1e3070723dcc53c650929b74dae1d3f7768e8cf",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_lifecycle.py",
+      "lines": 236,
+      "sha256": "bb0887f7dc9ae063db5030b212dffa9d2c319ddae1b1bda8b136357755770cec",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_prepare.py",
+      "lines": 182,
+      "sha256": "865e146e7814394d179577a767904cbeeb41bab043020bc1b8a1db589cab3c38",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_resume.py",
+      "lines": 78,
+      "sha256": "469bf7bb3b2cb6de34d7323d2bc53e06a0e4842b34f3d73b4ada36bc4a755dc2",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_restore_transport.py",
+      "lines": 173,
+      "sha256": "c1dd16d552715272a8f4ae3a87c2b9af844d68a4a5d2a768eab840fdbe27e599",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_run_ledger.py",
+      "lines": 231,
+      "sha256": "2c4d747ad4554176bc25ff1e4da914a3a5852ccf7ed5326279788f0212e08dd7",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_supervisor.py",
+      "lines": 183,
+      "sha256": "95e62a71d3633fd372428100fd7e49ac410633dc497d94463844f1f67749f4ed",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/host_topology_record.py",
+      "lines": 128,
+      "sha256": "212533a4b0d8e4e2aa0491e46c58a265907732668e7560d7c4957ccdfdd98f28",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/inplace_marker.py",
+      "lines": 222,
+      "sha256": "026a817f3c857a00b09700955af9f22f5728e23b657bfcfc5f155178945b83ef",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/inplace_recovery_facts.py",
+      "lines": 70,
+      "sha256": "77cac93c564a700dd7321166582833772b4115262241ee5b4e81e89df855b3b9",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/operation_lock.py",
+      "lines": 58,
+      "sha256": "226cf543049dcca1ad26a0a31db47effd4347a8416ea10794c4a3f809fe110ce",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/restore_manifest_facts.py",
+      "lines": 149,
+      "sha256": "a78561210f21df1f192a2dc15aa81eb939da6fe8c99d4067648726b4d3baa459",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "backend/apps/backup/topology.py",
+      "lines": 98,
+      "sha256": "8c5f31fe31eceb86d84b3d438b363657513a8c6abb73b8bc4ea22ccd65215048",
+      "installed_mode": "0644"
+    },
+    {
+      "path": "scripts/restore-host.py",
+      "lines": 96,
+      "sha256": "f971c644b459bddfe5c461f555f48936e963afa8abfcd384a894a44d2c9a12d3",
+      "installed_mode": "0644"
+    }
+  ],
+  "install_ownership": {
+    "uid0": "Replacement/new runtime files root:root; new code directories owned by invoking root, mode0755. Existing live directory ownership/modes and private state are not converted.",
+    "nonroot": "Preserve replaced file ownership through cp -p; new files/directories belong to caller. Existing fresh-install ownership handback remains unchanged.",
+    "supported_restore_layout": "Linux UID0 controller, protected root-owned installation ROOT/code ancestry, root-private .env and existing authority inputs. Operator-owned ancestry remains unsupported even under sudo.",
+    "private_state": "No new conversion of .env, OPS/work, volumes, backups/rollback data or private keys."
+  },
+  "static_checks": {
+    "python_ast_file_count": 62,
+    "shell_syntax_all_source_and_copy_paths": true,
+    "embedded_guard_exact25_hashes_match": true,
+    "pinned_copy_paths": 59,
+    "source_count": 65,
+    "twins_identical": true,
+    "source_python_ast_file_count": 58,
+    "python_ast_count_scope": "Unique Python paths in current source_files union pinned_runtime_copy_files; no imports or runtime."
+  },
+  "stage3": "Pending parent-owned real signature/outer-hash no-extraction/no-registration/no-config proof, plain-tar/PAX/sparse/member/size bounds, real signed tar success, registered disaster UUID vs strict rollback keys, actual Redis identity/refusal/resume, crypto/PG/broker and installed-layout tests; no readiness/pass claim.",
+  "handoff": "docs/audits/2026-10-29/evidence/recovery-final-corrections-stage2.md",
+  "final_corrections": {
+    "previous_combined_snapshot_sha256": "51086a0c5aac6a6be65f82e5c301ab5ab1978cf1937aaacc7a4b28e0ef27c9cc",
+    "previous_combined_source_file_count": 59,
+    "changed_source_file_count": 9,
+    "changed_source_files": [
+      {
+        "path": "backend/apps/backup/archive_builder.py",
+        "lines": 210,
+        "sha256": "d75d1fca67557ed2c34177c93049df9e349832c17cb0f72cab8e18dcef2a3283",
+        "before_sha256": "3abe10119ab96994d687f1215a906ea8b850fdb25165dc05fb1945b78dedc46e"
+      },
+      {
+        "path": "backend/apps/backup/full_format.py",
+        "lines": 12,
+        "sha256": "f180b8303143ae25c39c05e2cf38b60e43205dbe134564c1cc584d6156d325c3",
+        "before_sha256": "8d059952308193480ae5acb21625dbb9cd898c94a23f98f46567d9f7326743de"
+      },
+      {
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "lines": 245,
+        "sha256": "7612253e391b0be9fe2ddc3327db820c8bec0fff889c55d9afd667d525861a4e",
+        "before_sha256": "fc4c3231a6ef9677531811b1b895c6c18f997f5e3ce4c9e8dfc98363869959a5"
+      },
+      {
+        "path": "backend/apps/backup/host_restore_files.py",
+        "lines": 220,
+        "sha256": "af80148184f132306ae00236e3394c611a904fd2c0faf91a154686edff92fe7b",
+        "before_sha256": "219a50cd6d03b6251fbc818dbdb86639062a217a83626bb65115115a4a9772c1"
+      },
+      {
+        "path": "backend/apps/backup/host_restore_prepare.py",
+        "lines": 182,
+        "sha256": "865e146e7814394d179577a767904cbeeb41bab043020bc1b8a1db589cab3c38",
+        "before_sha256": "c392c3a70f6c5c97578454a2951b18b0430f8df2036005f85654894f0fcbf5f8"
+      },
+      {
+        "path": "backend/apps/backup/host_restore_resume.py",
+        "lines": 78,
+        "sha256": "469bf7bb3b2cb6de34d7323d2bc53e06a0e4842b34f3d73b4ada36bc4a755dc2",
+        "before_sha256": "7c89f8faa4e823cd1fe8573ab5c04584b2016df07f28090807b696cd70dc9c93"
+      },
+      {
+        "path": "backend/apps/backup/management/commands/backup_control.py",
+        "lines": 278,
+        "sha256": "2bc342c896ce0c0f44234f0317df918591cfb5889946355f3af5f6aea76e6f73",
+        "before_sha256": "28ef3a772c8dce7c08651e18a5f9ab63ffaad5be46623268c39004512eeeb5f5"
+      },
+      {
+        "path": "backend/apps/backup/management/commands/preflight_backup_import.py",
+        "lines": 33,
+        "sha256": "0c9144a42bf87efe40f80fc5bbf58c354d4c925bed23835e171c93364fd468c1",
+        "before_sha256": "22a66e6ef60bf3b975668bcad33bd6ab76ca794d52e00a0c81b89f0842a35daa"
+      },
+      {
+        "path": "scripts/restore.sh",
+        "lines": 72,
+        "sha256": "54d95e1355ee6d8573333910f81ab9bc2b11a0e6204398593a61424fde2ea45d",
+        "before_sha256": "295256b6a6fa31acc7384da2c1089ee143e4999b3aac1b50305784bfa21f0b84"
+      }
+    ],
+    "changed_guard_dependency_count": 5,
+    "source_added_to_combined_inventory": [
+      "backend/apps/backup/archive_builder.py"
+    ],
+    "manifest_max_bytes": 67108864,
+    "continuity_max_bytes": 1048576,
+    "outer_tar": "plain r: only; regular files/directories plus single local PAX headers <=1MiB; no compression/sparse/links/special/unsafe/duplicate/out-of-file extents",
+    "registered_order": "describe + exact route/UUID/stored outer SHA -> export/seal/hash match -> decrypt/seal -> bounded metadata -> registered route match -> FULL signature + complete tar-ledger static admission -> full extraction/metadata equality/delegation -> later shared exact registered preflight; legacy uses the authenticated stored hash and later existing legacy preflight",
+    "import_order": "seal/hash -> decrypt/seal -> bounded metadata -> FULL-only route -> root readonly prospective delegation without restore UUID -> signature + complete tar-ledger static admission -> full extraction/metadata equality/delegation -> import registration under OLD keys -> describe and bind UUID/prospective record -> later exact registered preflight",
+    "redis": "only redis:7-alpine with exactly image-declared /data and no explicit Compose volumes; actual anonymous 64lowerhex local RW volume; volume inspect local/local, no options and matching Mountpoint; bind identity across inventories and reload from root-private admission-old.json for recovery/resume; never create/migrate/purge",
+    "historical_reports_and_freezes_unchanged": true,
+    "runtime_and_tests_executed": false
+  },
+  "independent_pax_correction": "Screen bounded PAX length-framed record keys before stdlib processing; harmless sparse-looking path values remain legal.",
+  "approved_security_compose_refresh": {
+    "evidence": "docs/audits/2026-10-29/evidence/security-env-forwarding-stage2.json",
+    "sha256": "4114df14698c80fa166ab6a862c1f81e7a059e8506eedb51db639de1fadc4b23",
+    "paths": [
+      "docker-compose.cloud.yml",
+      "docker-compose.prod.yml",
+      "docker-compose.yml"
+    ],
+    "scope": "Approved parent-only security env forwarding; no privileged host guard/dependency or historical freeze changes."
+  },
+  "independent_path_conflict_correction": "Reject regular-file/ancestor conflicts in either tar order during metadata screening; preserve ordinary explicit directories and implied parents. Previous extraction failed privately before config/service/SQL, with no demonstrated escape.",
+  "native_authorization_path_refresh": {
+    "historical_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-native-authorization-paths.json",
+    "changed_source": "backend/apps/tenant_migration/authority_guards.py",
+    "old_sha256": "ca7cf244d5759e67dd4a0bd495576d37b6225ede4b343554aeec0a48dba80fc9",
+    "new_sha256": "a0d960eed02e9f9bcc75202459703e76b3fdcdd914df1ceb014342e7452eab99",
+    "reason": "Explicitly include six newly introduced native admission/form helpers. Conservative creator-name discovery is declared individually as provenance, not a permission grant. No scanning exclusion or projection change.",
+    "runtime": "20 passed in 5.23s: test_authority_guard.py plus test_tenant_dump_catalog_d1.py",
+    "runtime_xml": "docs/audits/2026-10-29/evidence/authorization-helper-registry-corrected.xml",
+    "status": "Bounded registry delta verified; full current backend/actual host drill pending."
+  },
+  "seekable_publication_refresh": {
+    "prior_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-seekable-promotion.json",
+    "prior_files": 60,
+    "current_files": 64,
+    "source_scope": "four independently reviewed publication/callsite sources; pinned25 host guard and59 copyset unchanged",
+    "actual_runtime_xml": "docs/audits/2026-10-29/evidence/seekable-promotion-actual-sdk-round1.xml",
+    "result": "58 passed, no skipped or failed, 150.76s including actual default-checksum SDK with disposable S3. This is not full backup/restore proof.",
+    "tests_by_class": {
+      "tests.backup.test_seekable_promotion": 42,
+      "tests.backup.test_reconciliation_operation_lock": 3,
+      "tests.backup.test_reconciliation_e5": 8,
+      "tests.backup.test_seekable_promotion_s3": 4,
+      "tests.backup.test_promotion_concurrency_e10": 1
+    },
+    "next": "Build genuine updated artifact; repeat actual producer and host restore drill."
+  },
+  "compose_inheritance_refresh": {
+    "prior_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-compose-inheritance.json",
+    "changes": [
+      {
+        "section": "source_files",
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "before_sha256": "7612253e391b0be9fe2ddc3327db820c8bec0fff889c55d9afd667d525861a4e",
+        "after_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2"
+      },
+      {
+        "section": "source_files",
+        "path": "scripts/restore.sh",
+        "before_sha256": "9983bf0ea7e999f9ecd539c8e9fdaad15499637740175f0c2cda4f8dd652fa41",
+        "after_sha256": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3"
+      },
+      {
+        "section": "pinned_runtime_copy_files",
+        "path": "scripts/restore.sh",
+        "before_sha256": "9983bf0ea7e999f9ecd539c8e9fdaad15499637740175f0c2cda4f8dd652fa41",
+        "after_sha256": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3"
+      },
+      {
+        "section": "pinned_runtime_copy_files",
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "before_sha256": "7612253e391b0be9fe2ddc3327db820c8bec0fff889c55d9afd667d525861a4e",
+        "after_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2"
+      }
+    ],
+    "source_count": 64,
+    "guarded_operator_count": 25,
+    "pinned_copy_paths": 59,
+    "historical_static_checks": {
+      "python_ast_file_count": 57,
+      "embedded_guard_ast": true,
+      "shell_syntax_paths": [
+        "install.sh",
+        "scripts/install-host-bundle.sh",
+        "scripts/restore.sh"
+      ],
+      "guarded_sha256_exact_match": true,
+      "same_reviewed_dependency_paths_as_historical": true,
+      "distinct_pinned_copy_paths": true,
+      "pinned_runtime_copy_set_unchanged": true,
+      "only_wrapper_EXPECTED_values_changed": true,
+      "changed_python_files_at_most_300_lines": true,
+      "scoped_whitespace": true,
+      "checker_or_guard_executed": false,
+      "tests_collection_application_imports_builds_runtime_executed": false,
+      "agents_claude_mirror_byte_identical": true
+    },
+    "historical_unchanged_bundle_sha256": "d3237368907e29f5990bd573d1ab50faadfc90b3343c3e6ec236608256e9b15f",
+    "runtime": "22 socket-free actual-Compose/configuration cases passed in0.59s; actual retained-topology read-only admission/inventory passed after deliberate two-file guarded test-install update. The old image/install is diagnostic only; do not restore it.",
+    "proof": "docs/audits/2026-10-29/evidence/restore-actual-readonly-admission-proof.json",
+    "next": "Fresh complete64source build/image/install/backup/normal-entrypoint restore drill remains required."
+  },
+  "current_runtime_copy_digest": "60e93144ba6e86d88b825acbe6e2c4882bd9c36c4a3d982e3a70222f30e6b252",
+  "probe_host_address_refresh": {
+    "verified_at_utc": "2026-10-30T04:55:39+00:00",
+    "prior_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-probe-host-address.json",
+    "prior_manifest_sha256": "6da6ad393efe5d54bb295d3a1c3d47b0608947cfa0b5c085bb3c2ac045cdf971",
+    "changes": [
+      {
+        "path": "backend/scripts/restore_database_probe.py",
+        "before_sha256": "43a0986d1895910376a75be8fc4a6dba10f6f931c193f73f0bcea91dd63e15da",
+        "after_sha256": "a53b6588c953fcf770e765c38bd60cf0ff9000861dfe8f43969b30d48262120c"
+      }
+    ],
+    "source_count": 64,
+    "guarded_operator_count": 25,
+    "pinned_copy_count": 59,
+    "pinned_copy_membership_unchanged": true,
+    "probe_is_image_baked_not_host_bundle_copy": true,
+    "pinned_copy_digest_unchanged": "51bc18f2665f94c28d032e8b0425dbd13d08fe7b494a9dd8a30571992f2b820e",
+    "runtime": {
+      "parent_result": "38 passed in5.45s",
+      "xml": "docs/audits/2026-10-29/evidence/host-address-and-redis-admission-round1.xml",
+      "xml_sha256": "1edecf18f67bafcb0fd83029603ea587fe68f9151b70cb36d7cefaa53299d609",
+      "new_probe_cases": 10,
+      "existing_redis_admission_cases": 28,
+      "limitations": "Scoped actual PG16 probe + synthetic admission controls; not full-suite or privileged restore success."
+    },
+    "all_current_64_source_25_guard_59_copy_hashes_verified": true,
+    "wrapper_and25closure_unchanged": true,
+    "next": "Wait for backend raw-shared-boundary/gate-runtime writers, separate tests and final authority registry refresh. Then capture fresh complete source, build a new genuine OCI image, install/newproject and run pre-backup target diagnostic plus actual backup/restore. No restored-success claim."
+  },
+  "claim_native_registry_refresh": {
+    "at_utc": "2026-10-30T05:03:30.983876+00:00",
+    "preserved_previous": "recovery-final-source-freeze-before-claim-native-registry.json",
+    "change": {
+      "path": "backend/apps/tenant_migration/authority_guards.py",
+      "before": "a0d960eed02e9f9bcc75202459703e76b3fdcdd914df1ceb014342e7452eab99",
+      "after": "ad8c2657a1d9f7135fba348fb75107e318d18559cd6c8b6c828c78334173c507"
+    },
+    "reason": "Pin freshly rechecked native account password authority source; exact one-path tuple addition, no projection changes.",
+    "runtime": {
+      "junit": "claim-native-authority-registry-round1.xml",
+      "passed": 17,
+      "seconds": 7.7
+    },
+    "source64_count_unchanged": true,
+    "guarded25_and_hostcopy59_unchanged": true,
+    "claim_source_scope": "Final9-file claim source freeze separately bound; runtime source capture copies all actual backend app files."
+  },
+  "target_oid_json_refresh": {
+    "verified_at_utc": "2026-10-30T05:32:01+00:00",
+    "prior_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-target-oid-json.json",
+    "prior_manifest_sha256": "75f0ee83ca469f321f4274151cec6bcfbb6d9c6f85a63988fa91703ebab0a136",
+    "changes": [
+      {
+        "section": "source_files",
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "before_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+        "after_sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837"
+      },
+      {
+        "section": "source_files",
+        "path": "scripts/restore.sh",
+        "before_sha256": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3",
+        "after_sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668"
+      },
+      {
+        "section": "pinned_runtime_copy_files",
+        "path": "scripts/restore.sh",
+        "before_sha256": "5ffaede68046c9133dee23039e8f8abcf0c197e913dca7804fae75e59c00b3d3",
+        "after_sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668"
+      },
+      {
+        "section": "pinned_runtime_copy_files",
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "before_sha256": "55cd7589ea7c5ed4273ac376ba58c526ab65cb57936b2ea2e96acaf17dbc8fd2",
+        "after_sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837"
+      }
+    ],
+    "guarded_digest_changed_paths": [
+      "backend/apps/backup/host_restore_admission.py"
+    ],
+    "source_count": 64,
+    "guarded_operator_count": 25,
+    "pinned_copy_count": 59,
+    "all_path_memberships_unchanged": true,
+    "previous_copy_digest": "51bc18f2665f94c28d032e8b0425dbd13d08fe7b494a9dd8a30571992f2b820e",
+    "current_copy_digest": "ed32794d7103757419b6e98e540d278edb643a010633689569c050f89b015783",
+    "runtime": {
+      "parent_result": "41 passed in14.40s",
+      "new_real_pg16_oid_cases": 3,
+      "prior_probe_and_redis_controls": 38,
+      "xml": "docs/audits/2026-10-29/evidence/restore-oid-and-probe-controls-round1.xml",
+      "xml_sha256": "39aa20b8af15f2b4d32d57c5f4ce824c120667ff6d590a608455728b1588c22a",
+      "test_sha256": "2d7a2be826d01d77c2bbbabfeee03caca7a4b3d81c3745964424584af38b1ca5",
+      "test_bytes_equal_parent_immutable_runtime_snapshot": true
+    },
+    "actual_guarded_candidate": {
+      "proof": "docs/audits/2026-10-29/evidence/restore-actual-oid-candidate-target-proof.json",
+      "sha256": "d99d474eb8168d9b1787888a9d4792e0d049a3100fddbdf23d23e14eecd3ff5d",
+      "original_pair_restored_and_fullguard_verified": true,
+      "limits": "Retained fourth topology SELECT-only guarded host-pair preflight. No actual restore/hybrid release or successful complete fresh-image restore claim."
+    },
+    "all_current_64_source_25_guard_59_copy_hashes_verified": true,
+    "next": "Root may capture only after all remaining source/test writers are frozen; fresh fifth genuine complete-source image/topology and full-suite collection/runtime remain required."
+  },
+  "archive_internal_get_refresh": {
+    "verified_at_utc": "2026-10-30T06:14:38+00:00",
+    "prior_64_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-archive-internal-get.json",
+    "prior_64_manifest_sha256": "aa3315bd0a22404200bc547d961f909f63586eb48973bc9c63581c83df66c309",
+    "new_65th_source": "backend/apps/backup/storage.py",
+    "new_source_sha256": "b1ccfab397f24438cf0f79f79e9e464e52cbcf23302fb0fe1412be15d1c5a420",
+    "image_baked_not_host_bundle": true,
+    "baseline": {
+      "immutable_full_suite_manifest_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+      "denominator": 11695,
+      "source_before_sha256": "393b133843aff9b40307a5c19d529c03106b29f086c783f834c9ae1d366347b5",
+      "baseline_runs_do_not_test_new_source_sha": true
+    },
+    "runtime": {
+      "result": "4 passed in0.96s",
+      "new_cases": "3 unit +1 actual default-SDK disposable-S3 case",
+      "xml": "docs/audits/2026-10-29/evidence/archive-server-endpoint-no-db-round1.xml",
+      "xml_sha256": "a5c7de37bcb2f01d48ea4d8fb72d805dfe963b01278d0efe6dd0e78f0b8ccb96",
+      "limits": "No DB, project conftest or cache side effects. Synthetic opaque archive-byte GET transport only; not age/PG/full restore proof. Archive API/digest compatibility remains pending backup-lane availability."
+    },
+    "source_count": 65,
+    "guarded_count": 25,
+    "copy_count": 59,
+    "all_current65_25_59_hashes_verified": true,
+    "guard_and_copy_memberships_and_hashes_unchanged": true,
+    "copy_digest_unchanged": "ed32794d7103757419b6e98e540d278edb643a010633689569c050f89b015783",
+    "host_state": "Fifth topology remains NORMAL, restore requested, writers running; no RESTORE_BLOCKED/quiescence/restore SQL. No unblock action performed.",
+    "operator_note": "docs/self-hosting.md 0.9.0 archive reads across split storage endpoints; redeploy backend image for app/maintenance roles, host bundle alone insufficient; browser presigning unchanged.",
+    "next": "Root owns affected API/digest tests after backup lane, final delta evidence and new genuine sixth image/topology/full restore. No broad baseline rerun or final complete restore pass claimed."
+  },
+  "minio_literal_argument_refresh": {
+    "at_utc": "2026-10-30T08:10:52.621144+00:00",
+    "previous_manifest": "recovery-final-source-freeze-before-minio-literal-args.json",
+    "exact_change": {
+      "path": "deploy/init-object-buckets.sh",
+      "before": "06559e91c81e2b6a36bff1caa8f096a3552495c28bdac4d656886cf9398b7e38",
+      "after": "f041b480458b977c718ac2c328d07ef65ca443969279b0fdba6f382ffd7199b2"
+    },
+    "source65_and_guard25_unchanged": true,
+    "copy59_membership_unchanged": true,
+    "regression": "11/11 noDB shell checks passed3.82s /tmp/spaceworks-minio-literal-credentials-no-db.xml; actualsame-client -- exit0,oldexit1",
+    "limits": "Seventh fresh actualimage/bootstrap/restore stillrequired; sixthNORMAL/operationnull retained."
+  },
+  "age_identity_policy_refresh": {
+    "path": "backend/apps/backup/settings_policy.py",
+    "before_sha256": "74b7aeb23c75767d5f90a8a1d891992c03d331a17c1958e210ea75bee572ce13",
+    "after_sha256": "e5109f9aa10332a85c587b1f248f1ee192c8bf0b553a0c71e687909175065ed8",
+    "change": "Explicit ENV_SURFACE classification only: BACKUP_AGE_IDENTITY_FILE remains default EXCLUDED, nonsecret and nonblocking; fixed host path validation is unchanged.",
+    "gate_stage1": "/tmp/codex-host-tail-stage1.txt",
+    "gate_stage2": "/tmp/codex-host-tail-stage2.txt",
+    "runtime_verification": "Host/env/MinIO static batch: 71 passed; exact environment-surface assertion unchanged.",
+    "seventh_drill_source_freeze_sha256": "d8a279c325d2981576df52635e4d372356dbee8f227b6491db6fd5273758ecc7",
+    "seventh_drill_baked_policy_sha256": "74b7aeb23c75767d5f90a8a1d891992c03d331a17c1958e210ea75bee572ce13",
+    "baked_into_seventh_drill": false,
+    "host_guard_and_runtime_copy_unchanged": true
+  },
+  "checkin_setup_identity_refresh": {
+    "changes": [
+      {
+        "path": "setup.sh",
+        "before_sha256": "0836c4827e77f191745d631f2eb63bcf0239163c3474c58ebfec0abdde827d6d",
+        "after_sha256": "7266e981689f8d5293c07477feee23959b24d76b5b40a4064d362d750e57022e"
+      },
+      {
+        "path": "scripts/request-access-selection.sh",
+        "before_sha256": "95a247c0a233c75f94084a46128b8530adf5173d8ccc3802bf01dbe755ff526e",
+        "after_sha256": "97e994cedfadefe9595167ec2afc4792ea414b9df94a57baf0f233f8689f2fd5"
+      },
+      {
+        "path": "scripts/retire-update-tombstone.sh",
+        "before_sha256": "536ab0f0c0a62921331a9423f88801b8616d97b16c2b23201b1e6551624cbcdf",
+        "after_sha256": "419d97374101a72f1b330566e06a4fccab9ac7f37285d92d97448bef7c997a3f"
+      }
+    ],
+    "evidence": "checkin-setup-identity-runtime-20261030.json",
+    "evidence_sha256": "189102403c10d7978f3bea60c4981e90f0a44be810ac76a6d9a9e046bcc0df02",
+    "root_exact_source_reviewed": true,
+    "source65_and_guard25_unchanged": true,
+    "membership59_unchanged": true,
+    "actual_seventh_drill_baked_these_changes": false,
+    "drill_source_freeze_sha256": "d8a279c325d2981576df52635e4d372356dbee8f227b6491db6fd5273758ecc7",
+    "scope": "Username/password-only checked-in identity prompts and one portable sed expression; no host recovery execution or authorization change."
+  },
+  "backend_graceful_shutdown_refresh": {
+    "status": "exact independently reviewed delta; functional/process/protected bundle compatibility passed",
+    "before_manifest": "recovery-final-source-freeze.before-compose-exec.json",
+    "before_manifest_sha256": "b8bf573802ba52d0ead374a2b93ced93f348d4d13cf1e8064827b0fed50079a4",
+    "changes": [
+      {
+        "path": "backend/apps/backup/host_restore_admission.py",
+        "before_sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+        "after_sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e"
+      },
+      {
+        "path": "docker-compose.cloud.yml",
+        "before_sha256": "d272a6b6ae421cd18b6b5737b039ed5d12d16ac9cf4919c665f57ae4bb40043b",
+        "after_sha256": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae"
+      },
+      {
+        "path": "docker-compose.prod.yml",
+        "before_sha256": "a88a0db72fd5c6222bf6e2105b2659f8d2415f132758d46b2d1054edac62ab75",
+        "after_sha256": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597"
+      },
+      {
+        "path": "docker-compose.yml",
+        "before_sha256": "2d020f77297db1941e03c91a0646c50118b979e020e9100ce5e380bfb18b6ecc",
+        "after_sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff"
+      },
+      {
+        "path": "scripts/restore.sh",
+        "before_sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+        "after_sha256": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41"
+      }
+    ],
+    "changed_entry_counts": {
+      "source65": 5,
+      "copy59": 5,
+      "guard25": 1
+    },
+    "only_guard25_change": "backend/apps/backup/host_restore_admission.py",
+    "memberships_and_installed_modes_unchanged": true,
+    "tested_private_candidate_sha256": "ad70db08429000b377d046838ba045ab189cb4d5c08d97b20b21dee3e10246ae",
+    "compatibility_evidence": "backend-process-and-restore-admission-runtime.json",
+    "compatibility_evidence_sha256": "ccb87a25e3a9bc54806c61e2aa9bcd273a5651f832ab8ac3896ae20bf63bc5b8",
+    "pytest_passed": 266,
+    "pytest_failures": 0,
+    "pytest_errors": 0,
+    "pytest_skipped": 0,
+    "real_process_evidence": "backend-process-lifecycle-runtime.json",
+    "real_process_evidence_sha256": "3c6b2dabf6cade3a5d606c5c9515294aab5dd268e04570da0573bafcb1154b07",
+    "real_process_cases_passed": 9,
+    "disposable_process_cleanup_passed": true,
+    "root_exact_source_and_one_pin_review_approved": true,
+    "original_seventh_drill_image_and_capture_unchanged": true,
+    "scope": "Three literal exec insertions, exact legacy-or-exec admission prefix, and its one wrapper digest. All other admission literals, numeric checks, role/image/topology guards and dependency pins preserved. Separate synthetic process probes do not establish application restore or continuous uptime."
+  }
+}

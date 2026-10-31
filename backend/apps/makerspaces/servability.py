@@ -10,7 +10,8 @@ def is_servable(makerspace: Makerspace, *, allow_archived: bool = False) -> bool
     from apps.backup.not_restored import is_not_restored
 
     return (
-        makerspace.lifecycle_state == Makerspace.LifecycleState.ACTIVE
+        makerspace.purge_started_at is None
+        and makerspace.lifecycle_state == Makerspace.LifecycleState.ACTIVE
         and (allow_archived or makerspace.archived_at is None)
         and not is_not_restored(makerspace.pk)
     )
@@ -30,6 +31,7 @@ def servable_q(relation: str = "") -> Q:
     ordinary = Q(
         **{
             f"{prefix}archived_at__isnull": True,
+            f"{prefix}purge_started_at__isnull": True,
             f"{prefix}lifecycle_state": Makerspace.LifecycleState.ACTIVE,
         }
     )
@@ -59,6 +61,7 @@ def archived_or_inactive_makerspace_ids() -> set[int]:
     return set(
         Makerspace.objects.exclude(
             archived_at__isnull=True,
+            purge_started_at__isnull=True,
             lifecycle_state=Makerspace.LifecycleState.ACTIVE,
         ).values_list("id", flat=True)
     )

@@ -58,7 +58,11 @@ class TenantDumpCatalogError(AssertionError):
 # MakerspaceMachineTypePricing.*_override columns (tenant content that travels as-is).
 # Re-blessed for personal machine-type links: machines.MembershipMachineTypeScope (DROP,
 # like the role scope tables -- a source member's reach must not grant target authority).
-CATALOG_SCHEMA_SHA256 = "970deb65702c37a5668fa27a20c7fe19f93ad7a69e8af063ff1059eda9359d3f"
+# Re-blessed after reviewed purge intent + deployment-only PurgeReceipt classification;
+# validate_catalog passed every model/table/field disposition before pinning this digest.
+# Reviewed B1 expected-installation fields and deployment-only ModulePurgeReceipt;
+# all model/table/field classifications validated before pinning this whole graph.
+CATALOG_SCHEMA_SHA256 = "7b8c74e664c41d6c9ae49c02e065ac3c0e2554cd4fa8ebf0151e8878a49be059"
 
 
 def catalog_models(apps_registry=apps):

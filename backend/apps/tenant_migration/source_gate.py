@@ -52,6 +52,8 @@ def claim(
         # drains them without changing the tenant-key ordering used by scoped writers.
         acquire_unscoped_writer_exclusive()
         acquire_exclusive(makerspace.pk)
+        from apps.makerspaces.purge_intent import assert_capture_allowed
+        assert_capture_allowed([makerspace.pk])
         gate, _ = SourceMigrationGate.objects.select_for_update().get_or_create(
             makerspace_id=makerspace.pk
         )
@@ -241,7 +243,6 @@ def recover_expired(makerspace, actor, *, now=None):
         return _open(
             gate, actor, action="tenant_migration.source_gate_recovered"
         )
-
 
 @transaction.atomic
 def reopen_after_verified_abort(makerspace, actor):

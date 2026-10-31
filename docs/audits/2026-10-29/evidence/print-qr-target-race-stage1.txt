@@ -1,0 +1,19 @@
+**Approved for the bounded Stage 2 fix. No mandatory implementation revision.** This approves the plan only; the concurrent `AssetQrView` work is outside this verdict.
+
+- In [QrPrintBatchItemView](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/views_qr_batches.py:88), use `require_module_locked(..., no_key=True)`. This still excludes module uninstall while allowing canonical transfer FK checks to finish.
+- In [add_qr_to_batch](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:33), reload with `get_object_or_404(QrCode.objects.select_for_update(), pk=qr.pk, makerspace_id=batch.makerspace_id)` before deriving the label, snapshot, or item. Use that fresh instance throughout. The existing atomic block retains the lock through item and audit writes.
+- Preserve label/sort validation, revoked-QR behavior, the passed actor, created/changed-item audits, and no audit for an unchanged item.
+
+All three production callers are accounted for: HTTP item-add and both generation loops. HTTP’s route resolves the batch’s maker for the retained Source N boundary. Generation enters `qr_write` before its Makerspace/module and product locks, checks `asset_units` plus `qr_print_batches` when requested, and scopes the selected batch to the product’s maker. Its newly created QR is uncommitted in that transaction. **Do not introduce a late shared-service boundary under the Maker lock.**
+
+Stage 3 should exercise actual HTTP add-item against both canonical product rebind and asset move, in both winner orders, with observed PostgreSQL blocking edges and retained Source N:
+
+- **Transfer first:** the locked, maker-scoped reload returns 404; no item creation/update or item audit.
+- **Item first:** creation records a coherent A snapshot and actual-actor audit; the subsequent authorized move remains allowed.
+- Confirm module-off rejection, label/sort behavior, and changed versus unchanged re-add auditing.
+
+**Historical semantics:** the invariant is ownership when adding/updating the item—not perpetual equality between batch and live QR makerspaces. [The existing provenance test](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/data_export/test_portable_reference_provenance.py:65) explicitly preserves the stored target snapshot after rebind. Both canonical cross-maker paths leave batch references intact. Therefore, after item-first followed by a legitimate move, Batch A retaining a FK to the now-B QR is existing behavior; Stage 3 must not prohibit it.
+
+**Separate exposure confirmed by source:** [batch-detail serialization](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/serializers.py:202) follows that historical FK into the live QR without a per-QR tenant check. Authenticated staff authorized only for Batch A can consequently receive B’s current QR makerspace, target identity, status, payload, and timestamps. Snapshot preservation does not establish authorization for those live fields. Flag this separately; the authorized stale-creation closure does not resolve it.
+
+Read-only review completed. No edits, runtime execution, tests, builds, or staging performed.

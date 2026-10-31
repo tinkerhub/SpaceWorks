@@ -1,0 +1,1201 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="28" skipped="0" tests="399" time="687.084" timestamp="2026-10-30T02:38:06.988880+00:00" hostname="3bebe2b230e6"><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-missing-box]" time="2.201" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-missing-product]" time="0.121" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-missing-asset]" time="0.135" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-foreign-box]" time="0.122" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-foreign-product]" time="0.214" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[resolve-foreign-asset]" time="0.120" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-missing-box]" time="0.153" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-missing-product]" time="0.122" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-missing-asset]" time="0.123" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-foreign-box]" time="0.116" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-foreign-product]" time="0.117" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[scan-foreign-asset]" time="0.119" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-missing-box]" time="0.105" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-missing-product]" time="0.113" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-missing-asset]" time="0.128" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-foreign-box]" time="0.114" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-foreign-product]" time="0.117" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[print-foreign-asset]" time="0.131" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-missing-box]" time="0.129" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-missing-product]" time="0.113" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-missing-asset]" time="0.155" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-foreign-box]" time="0.129" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-foreign-product]" time="0.166" /><testcase classname="tests.test_qr_target_boundaries" name="test_invalid_generic_target_is_404_without_writes[batch-foreign-asset]" time="0.144" /><testcase classname="tests.test_qr_target_boundaries" name="test_unknown_enum_cannot_fall_through_to_product[resolve]" time="0.118" /><testcase classname="tests.test_qr_target_boundaries" name="test_unknown_enum_cannot_fall_through_to_product[scan]" time="0.114" /><testcase classname="tests.test_qr_target_boundaries" name="test_unknown_enum_cannot_fall_through_to_product[print]" time="0.118" /><testcase classname="tests.test_qr_target_boundaries" name="test_unknown_enum_cannot_fall_through_to_product[batch]" time="0.108" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[missing-box]" time="0.090" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[missing-product]" time="0.088" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[missing-asset]" time="0.096" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[foreign-box]" time="0.095" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[foreign-product]" time="0.094" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[foreign-asset]" time="0.089" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[unknown-box]" time="0.088" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[unknown-product]" time="0.087" /><testcase classname="tests.test_qr_target_boundaries" name="test_explicit_manual_label_cannot_bypass_service_target_validation[unknown-asset]" time="0.115" /><testcase classname="tests.test_qr_target_boundaries" name="test_valid_http_payload_identifies_the_canonical_target[box]" time="0.234" /><testcase classname="tests.test_qr_target_boundaries" name="test_valid_http_payload_identifies_the_canonical_target[product]" time="0.153" /><testcase classname="tests.test_qr_target_boundaries" name="test_valid_http_payload_identifies_the_canonical_target[asset]" time="0.158" /><testcase classname="tests.test_qr_target_boundaries" name="test_valid_box_retains_batch_kind_restriction" time="0.110" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[foreign-member-resolve]" time="0.125" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[foreign-member-scan]" time="0.273" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[foreign-member-print]" time="0.106" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[foreign-member-batch]" time="0.112" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[origin-resolve]" time="0.113" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[origin-scan]" time="0.121" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[origin-print]" time="0.103" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[origin-batch]" time="0.104" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[suspended-resolve]" time="0.163" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[suspended-scan]" time="0.147" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[suspended-print]" time="0.094" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[suspended-batch]" time="0.098" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[hidden-resolve]" time="0.358" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[hidden-scan]" time="0.364" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[hidden-print]" time="0.367" /><testcase classname="tests.test_qr_target_boundaries" name="test_http_rbac_origin_and_account_guards_preserve_state[hidden-batch]" time="0.377" /><testcase classname="tests.test_qr_target_boundaries" name="test_inventory_read_role_resolves_but_cannot_scan_or_print" time="0.251" /><testcase classname="tests.test_qr_target_boundaries" name="test_revoked_qr_retains_history_and_print_behavior" time="0.276" /><testcase classname="tests.test_qr_atomic_mutations" name="test_audit_insert_then_refusal_rolls_back_complete_api_mutation[box]" time="0.164" /><testcase classname="tests.test_qr_atomic_mutations" name="test_audit_insert_then_refusal_rolls_back_complete_api_mutation[product]" time="0.150" /><testcase classname="tests.test_qr_atomic_mutations" name="test_audit_insert_then_refusal_rolls_back_complete_api_mutation[asset]" time="0.152" /><testcase classname="tests.test_qr_atomic_mutations" name="test_audit_insert_then_refusal_rolls_back_complete_api_mutation[scan]" time="0.149" /><testcase classname="tests.test_qr_atomic_mutations" name="test_reused_tool_audit_refusal_does_not_mutate_existing_qr[product]" time="0.144" /><testcase classname="tests.test_qr_atomic_mutations" name="test_reused_tool_audit_refusal_does_not_mutate_existing_qr[asset]" time="0.151" /><testcase classname="tests.test_qr_atomic_mutations" name="test_successful_tool_reuse_keeps_payload_and_timestamps[product]" time="0.165" /><testcase classname="tests.test_qr_atomic_mutations" name="test_successful_tool_reuse_keeps_payload_and_timestamps[asset]" time="0.172" /><testcase classname="tests.test_qr_atomic_mutations" name="test_closed_source_gate_refuses_real_qr_writes[box]" time="0.140" /><testcase classname="tests.test_qr_atomic_mutations" name="test_closed_source_gate_refuses_real_qr_writes[product]" time="0.131" /><testcase classname="tests.test_qr_atomic_mutations" name="test_closed_source_gate_refuses_real_qr_writes[asset]" time="0.132" /><testcase classname="tests.test_qr_atomic_mutations" name="test_closed_source_gate_refuses_real_qr_writes[scan]" time="0.159" /><testcase classname="tests.test_qr_atomic_mutations" name="test_optional_module_denial_has_no_mutation[resolve-scanner]" time="0.122" /><testcase classname="tests.test_qr_atomic_mutations" name="test_optional_module_denial_has_no_mutation[batch-qr_print_batches]" time="0.112" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[role-box]" time="0.114" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[role-product]" time="0.114" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[role-asset]" time="0.119" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[origin-box]" time="0.103" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[origin-product]" time="0.104" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[origin-asset]" time="0.107" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[suspended-box]" time="0.106" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[suspended-product]" time="0.103" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[suspended-asset]" time="0.102" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[hidden-box]" time="0.351" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[hidden-product]" time="0.352" /><testcase classname="tests.test_qr_atomic_mutations" name="test_creation_http_guard_refusals_do_not_mint_rows[hidden-asset]" time="0.385" /><testcase classname="tests.test_native_box_creation" name="test_native_box_add_creates_matching_usable_qr" time="1.304" /><testcase classname="tests.test_native_box_creation" name="test_native_unscanned_box_delete_retains_active_qr_but_all_target_routes_refuse" time="0.984" /><testcase classname="tests.test_native_box_creation" name="test_native_add_audit_insert_then_refusal_rolls_back_box_qr_and_admin_log" time="1.502" /><testcase classname="tests.test_native_box_creation" name="test_native_box_add_preserves_valid_parent" time="0.794" /><testcase classname="tests.test_native_box_creation" name="test_native_box_add_model_errors_are_form_errors_without_partial_rows[foreign-parent]" time="0.688" /><testcase classname="tests.test_native_box_creation" name="test_native_box_add_model_errors_are_form_errors_without_partial_rows[duplicate]" time="0.699" /><testcase classname="tests.test_native_box_creation" name="test_existing_native_box_edit_never_recreates_or_reactivates_qr[absent]" time="0.650" /><testcase classname="tests.test_native_box_creation" name="test_existing_native_box_edit_never_recreates_or_reactivates_qr[active]" time="0.645" /><testcase classname="tests.test_native_box_creation" name="test_existing_native_box_edit_never_recreates_or_reactivates_qr[revoked]" time="0.677" /><testcase classname="tests.test_native_box_creation" name="test_native_add_guard_refusals_have_no_box_qr_or_audit_writes[suspended]" time="0.653" /><testcase classname="tests.test_native_box_creation" name="test_native_add_guard_refusals_have_no_box_qr_or_audit_writes[hidden]" time="0.713" /><testcase classname="tests.test_native_box_creation" name="test_native_add_guard_refusals_have_no_box_qr_or_audit_writes[source-gate]" time="0.660" /><testcase classname="tests.test_native_box_creation" name="test_native_add_guard_refusals_have_no_box_qr_or_audit_writes[non-superuser]" time="0.701" /><testcase classname="tests.test_native_box_creation" name="test_native_raw_qr_add_is_still_disabled" time="0.645" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[api-revoke]" time="2.875" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[api-rebind]" time="2.137" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[api-cross-product]" time="2.053" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[api-cross-asset]" time="2.215" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[api-generate]" time="2.032" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[native-revoke]" time="2.154" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[native-rebind]" time="1.962" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[native-cross-product]" time="1.864" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[native-cross-asset]" time="2.161" /><testcase classname="tests.qr_source_safety.test_audit_rollback_closure" name="test_actual_service_audit_insert_refusal_rolls_back_whole_http_domain[native-generate]" time="2.142" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-api-scan]" time="2.319" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-api-resolve]" time="1.797" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-native-edit]" time="2.038" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-native-single]" time="2.048" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-native-bulk]" time="2.397" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-native-revoke]" time="3.285" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[moved-native-rebind]" time="2.186" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-api-scan]" time="2.574" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-api-resolve]" time="3.247" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-native-edit]" time="2.666" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-native-single]" time="2.074" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-native-bulk]" time="2.523" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-native-revoke]" time="3.202" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[deleted-native-rebind]" time="4.095" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-api-scan]" time="2.338" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-api-resolve]" time="4.665" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-native-edit]" time="2.956" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-native-single]" time="2.136" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-native-bulk]" time="2.074" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-native-revoke]" time="1.998" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_observed_source_n_wait[retargeted-native-rebind]" time="1.801" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-api-scan]" time="1.788" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-api-resolve]" time="2.011" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-api-revoke]" time="2.013" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-api-rebind]" time="2.179" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-native-edit]" time="1.938" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-native-single]" time="2.005" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-native-bulk]" time="1.814" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-native-revoke]" time="2.144" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[moved-native-rebind]" time="2.286" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-api-scan]" time="2.229" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-api-resolve]" time="3.366" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-api-revoke]" time="2.476" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-api-rebind]" time="2.121" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-native-edit]" time="2.293" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-native-single]" time="1.895" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-native-bulk]" time="2.455" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-native-revoke]" time="2.680" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[deleted-native-rebind]" time="2.037" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-api-scan]" time="1.835" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-api-resolve]" time="1.877" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-api-revoke]" time="2.290" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-api-rebind]" time="4.032" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-native-edit]" time="2.871" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-native-single]" time="2.227" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-native-bulk]" time="2.711" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-native-revoke]" time="2.050" /><testcase classname="tests.qr_source_safety.test_fresh_qr_waits" name="test_qr_identity_fresh_after_actual_qr_row_wait[retargeted-native-rebind]" time="1.825" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[moved-api-product]" time="1.894" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[moved-api-asset]" time="2.442" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[moved-api-scan]" time="2.417" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[moved-api-resolve]" time="2.178" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[deleted-api-product]" time="2.045" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[deleted-api-asset]" time="1.875" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[deleted-api-scan]" time="2.180" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_source_n_wait[deleted-api-resolve]" time="2.156" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[moved-api-product]" time="1.970" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[moved-api-asset]" time="2.057" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[moved-api-rebind]" time="1.805" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[moved-native-rebind]" time="2.349" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[deleted-api-product]" time="2.751" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[deleted-api-asset]" time="2.297" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[deleted-api-rebind]" time="2.526" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_target_ownership_fresh_after_product_or_asset_row_wait[deleted-native-rebind]" time="3.310" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_generation_fresh_product_after_real_product_wait[moved-api-generate]" time="2.351" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_generation_fresh_product_after_real_product_wait[moved-native-generate]" time="2.302" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_generation_fresh_product_after_real_product_wait[deleted-api-generate]" time="2.304" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_generation_fresh_product_after_real_product_wait[deleted-native-generate]" time="2.214" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_cross_asset_destination_product_fresh_after_real_product_wait[moved]" time="1.936" /><testcase classname="tests.qr_source_safety.test_fresh_target_waits" name="test_cross_asset_destination_product_fresh_after_real_product_wait[deleted]" time="2.165" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[maker-inactive]" time="2.161" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[maker-suspended]" time="2.618" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[maker-non-superuser]" time="2.097" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[maker-password-rotation]" time="1.837" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[maker-hidden-maker]" time="1.938" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-inactive]" time="1.922" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-suspended]" time="2.091" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-non-superuser]" time="2.134" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-password-rotation]" time="1.816" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_native_generation_refuses_fresh_policy_after_actual_row_wait[product-hidden-maker]" time="3.029"><failure message="django.db.utils.OperationalError: deadlock detected&#10;DETAIL:  Process 6320 waits for ShareLock on transaction 599057; blocked by process 6319.&#10;Process 6319 waits for ShareLock on transaction 599058; blocked by process 6320.&#10;HINT:  See server log for query details.&#10;CONTEXT:  while locking tuple (0,1) in relation &quot;inventory_inventoryproduct&quot;">self = &lt;django.db.backends.utils.CursorWrapper object at 0xffffa8d52690&gt;
+sql = 'SELECT "inventory_inventoryproduct"."id", "inventory_inventoryproduct"."makerspace_id", "inventory_inventoryproduct"....ERE ("inventory_inventoryproduct"."makerspace_id" = %s AND "inventory_inventoryproduct"."id" = %s) LIMIT 21 FOR UPDATE'
+params = (8062, 2418)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffffa8d52690&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               psycopg2.errors.DeadlockDetected: deadlock detected
+E               DETAIL:  Process 6320 waits for ShareLock on transaction 599057; blocked by process 6319.
+E               Process 6319 waits for ShareLock on transaction 599058; blocked by process 6320.
+E               HINT:  See server log for query details.
+E               CONTEXT:  while locking tuple (0,1) in relation "inventory_inventoryproduct"
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: DeadlockDetected
+
+The above exception was the direct cause of the following exception:
+
+closure_lab = namespace(home=&lt;Makerspace: qr-stage3-7bd2d02536b0&gt;, other=&lt;Makerspace: qr-stage3-c110e806e5fc&gt;, root=&lt;User: qr-root-2...=&lt;rest_framework.test.APIClient object at 0xffffa8e95bb0&gt;, native=&lt;django.test.client.Client object at 0xffffa8fbb5f0&gt;)
+denial = 'hidden-maker', wait_on = 'product'
+
+    @pytest.mark.parametrize("denial", DENIALS)
+    @pytest.mark.parametrize("wait_on", ["maker", "product"])
+    def test_native_generation_refuses_fresh_policy_after_actual_row_wait(closure_lab, denial, wait_on):
+        lab = closure_lab
+        product = empty_product(lab.home)
+        request = generation_request(lab, product, native=True)
+        with workers() as start:
+            with transaction.atomic():
+                model, pk = (Makerspace, lab.home.pk) if wait_on == "maker" else (InventoryProduct, product.pk)
+                model.objects.select_for_update().get(pk=pk)
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT pg_backend_pid()")
+                    owner = cursor.fetchone()[0]
+                pending = start(request)
+                predicate = maker_lock if wait_on == "maker" else table_lock(model._meta.db_table)
+                blocked_by(pending, owner, predicate)
+                mutate_policy(lab, denial)
+                before = state()
+&gt;           response = pending.finish()
+                       ^^^^^^^^^^^^^^^^
+
+tests/qr_source_safety/test_generation_fresh_policy.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/box_parent_safety/pg_helpers.py:77: in finish
+    raise self.error
+tests/box_parent_safety/pg_helpers.py:44: in run
+    self.result = self.operation()
+                  ^^^^^^^^^^^^^^^^
+tests/qr_source_safety/http_helpers.py:59: in &lt;lambda&gt;
+    return lambda: lab.native.post(url, data)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/test/client.py:1156: in post
+    response = super().post(
+/usr/local/lib/python3.12/site-packages/django/test/client.py:499: in post
+    return self.generic(
+/usr/local/lib/python3.12/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+/usr/local/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:198: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py:711: in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/decorators.py:192: in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/decorators.py:190: in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py:80: in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py:247: in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+config/admin_source_gate.py:75: in changelist_view
+    return super().changelist_view(request, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/unfold/admin.py:115: in changelist_view
+    return super().changelist_view(request, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/unfold/mixins/action_model_admin.py:70: in changelist_view
+    return super().changelist_view(request, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/decorators.py:48: in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/decorators.py:192: in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/utils/decorators.py:190: in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py:2040: in changelist_view
+    response = self.response_action(
+/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py:1645: in response_action
+    response = func(self, request, queryset)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/inventory/admin.py:154: in generate_qr_assets
+    created, _batch = operations_services.generate_assets_with_qr(
+apps/operations/services_qr_assets.py:121: in generate_assets_with_qr
+    product = get_object_or_404(
+/usr/local/lib/python3.12/site-packages/django/shortcuts.py:90: in get_object_or_404
+    return queryset.get(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:635: in get
+    num = len(clone)
+          ^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:372: in __len__
+    self._fetch_all()
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:2000: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/models/query.py:95: in __iter__
+    results = compiler.execute_sql(
+/usr/local/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1624: in execute_sql
+    cursor.execute(sql, params)
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/box_parent_safety/pg_helpers.py:54: in capture
+    result = execute(sql, params, many, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/site-packages/django/db/utils.py:94: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.utils.CursorWrapper object at 0xffffa8d52690&gt;
+sql = 'SELECT "inventory_inventoryproduct"."id", "inventory_inventoryproduct"."makerspace_id", "inventory_inventoryproduct"....ERE ("inventory_inventoryproduct"."makerspace_id" = %s AND "inventory_inventoryproduct"."id" = %s) LIMIT 21 FOR UPDATE'
+params = (8062, 2418)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0xffffa8d52690&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               django.db.utils.OperationalError: deadlock detected
+E               DETAIL:  Process 6320 waits for ShareLock on transaction 599057; blocked by process 6319.
+E               Process 6319 waits for ShareLock on transaction 599058; blocked by process 6320.
+E               HINT:  See server log for query details.
+E               CONTEXT:  while locking tuple (0,1) in relation "inventory_inventoryproduct"
+
+/usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:105: OperationalError</failure></testcase><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_api_generation_hidden_maker_explicit_membership_keeps_manage_qr_authority" time="1.799" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[module-off-False]" time="2.015" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[module-off-True]" time="1.890" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[quota-False]" time="1.923" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[quota-True]" time="2.345" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[quantity-stock-False]" time="2.132" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_actual_generation_preserves_module_quota_and_quantity_refusals[quantity-stock-True]" time="2.878" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_generation_reuses_missing_qr_before_adding_units_and_updates_quantities[False]" time="1.850" /><testcase classname="tests.qr_source_safety.test_generation_fresh_policy" name="test_generation_reuses_missing_qr_before_adding_units_and_updates_quantities[True]" time="1.775" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_created_by_edit_audits_only_field_names" time="2.052" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_noop_has_no_canonical_audit" time="3.703" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_delete_has_exact_canonical_events[single]" time="2.213" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_delete_has_exact_canonical_events[bulk]" time="2.063" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_actual_native_history_protects_qr_delete_without_audit[single]" time="2.340" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_actual_native_history_protects_qr_delete_without_audit[bulk]" time="2.428" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_real_native_audit_insert_then_refusal_rolls_back_domain_and_canonical[native-edit]" time="2.487" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_real_native_audit_insert_then_refusal_rolls_back_domain_and_canonical[native-single]" time="2.234" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_real_native_audit_insert_then_refusal_rolls_back_domain_and_canonical[native-bulk]" time="2.300" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_custom_actions_keep_exact_service_event_without_control_duplicate[native-revoke-qr.revoked]" time="2.532" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_custom_actions_keep_exact_service_event_without_control_duplicate[native-rebind-qr.rebound]" time="2.264" /><testcase classname="tests.qr_source_safety.test_native_canonical_audit" name="test_native_qr_add_stays_denied" time="2.115" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows[delete_selected-False]" time="2.268" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows[delete_selected-True]" time="2.766" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows[revoke_selected-False]" time="2.467" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_native_effective_filter_excludes_foreign_nonmatching_and_late_rows[revoke_selected-True]" time="2.514" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_raw_post_ids_outside_effective_native_queryset_cannot_freeze_or_delete[False]" time="2.200" /><testcase classname="tests.qr_source_safety.test_native_effective_selection" name="test_raw_post_ids_outside_effective_native_queryset_cannot_freeze_or_delete[True]" time="2.599" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-box]" time="2.210" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-product]" time="2.065" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-asset]" time="2.379" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-scan]" time="2.531" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-resolve]" time="2.621" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-revoke]" time="2.459" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-rebind]" time="2.237" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-cross-product]" time="2.010" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-cross-asset]" time="2.404" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[api-generate]" time="2.011" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-edit]" time="2.364" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-single]" time="2.370" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-bulk]" time="2.611" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-revoke]" time="2.558" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-rebind]" time="2.777" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_actual_http_open_positive_control[native-generate]" time="2.748" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-box]" time="2.148" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-product]" time="2.115" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-asset]" time="1.942" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-scan]" time="1.809" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-resolve]" time="1.984" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-revoke]" time="1.966" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-rebind]" time="2.657" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-cross-product]" time="1.851" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-cross-asset]" time="1.742" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[api-generate]" time="1.908" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-edit]" time="2.029" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-single]" time="1.892" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-bulk]" time="1.830" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-revoke]" time="1.796" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-rebind]" time="1.847" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_genuine_quiesced_actual_owner_refuses_all_writers[native-generate]" time="2.008" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[source-api-cross-product]" time="1.917" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[source-api-cross-asset]" time="1.817" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[source-native-cross-product]" time="1.771" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[source-native-cross-asset]" time="2.004" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[destination-api-cross-product]" time="1.948" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[destination-api-cross-asset]" time="2.260" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[destination-native-cross-product]" time="1.964" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_cross_maker_each_independent_gate_refuses_valid_transfer[destination-native-cross-asset]" time="1.984" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_native_cross_transfer_open_positive_control[native-cross-product]" time="1.939" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_native_cross_transfer_open_positive_control[native-cross-asset]" time="2.254" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_print_get_stays_available_and_read_only_while_quiesced[box]" time="1.926" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_print_get_stays_available_and_read_only_while_quiesced[product]" time="1.856" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_print_get_stays_available_and_read_only_while_quiesced[asset]" time="1.996" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_existing_get_container_lookup_remains_read_only_when_quiesced[container-detail]" time="1.830" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_existing_get_container_lookup_remains_read_only_when_quiesced[container-contents]" time="1.872" /><testcase classname="tests.qr_source_safety.test_quiesced_http" name="test_existing_get_container_lookup_remains_read_only_when_quiesced[container-history]" time="2.008" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[False-box]" time="2.820" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[False-product]" time="2.475" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[False-asset]" time="1.820" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[True-box]" time="2.379" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[True-product]" time="2.132" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_one_immutable_lookup_and_exact_audit_with_unchanged_dto[True-asset]" time="2.052" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_real_resolve_audit_insert_then_refusal_rolls_back_scan_and_audit[box]" time="2.197" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_real_resolve_audit_insert_then_refusal_rolls_back_scan_and_audit[product]" time="1.802" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_real_resolve_audit_insert_then_refusal_rolls_back_scan_and_audit[asset]" time="2.054" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_explicit_scan_still_has_exactly_one_event_and_one_audit[box]" time="1.913" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_explicit_scan_still_has_exactly_one_event_and_one_audit[product]" time="1.787" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_explicit_scan_still_has_exactly_one_event_and_one_audit[asset]" time="1.783" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_view_inventory_reader_cannot_explicitly_scan_and_denial_writes_nothing" time="2.086" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[unknown-404]" time="2.716" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[revoked-404]" time="2.679" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[missing-target-404]" time="2.418" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[foreign-target-404]" time="2.015" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[wrong-origin-403]" time="2.558" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[foreign-scope-404]" time="1.985" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[module-disabled-400]" time="3.137" /><testcase classname="tests.qr_source_safety.test_resolve_audit" name="test_actual_resolve_denial_emits_neither_scan_nor_audit[suspended-403]" time="2.805" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-box]" time="2.281"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-e116ab8c70c3&gt;, other=&lt;Makerspace: qr-stage3-4799b08d9148&gt;, root=&lt;User: qr-root-7...=&lt;rest_framework.test.APIClient object at 0xffffa92f7560&gt;, native=&lt;django.test.client.Client object at 0xffffadf7e750&gt;)
+kind = 'api-box', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-product]" time="2.330"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-84c58e754ff7&gt;, other=&lt;Makerspace: qr-stage3-064b31060680&gt;, root=&lt;User: qr-root-6...=&lt;rest_framework.test.APIClient object at 0xffffa915ffe0&gt;, native=&lt;django.test.client.Client object at 0xffffa92f5940&gt;)
+kind = 'api-product', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-asset]" time="2.760"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-38d93eff4c82&gt;, other=&lt;Makerspace: qr-stage3-584d0fbc8a03&gt;, root=&lt;User: qr-root-1...=&lt;rest_framework.test.APIClient object at 0xffffa927d0a0&gt;, native=&lt;django.test.client.Client object at 0xffffa9400e30&gt;)
+kind = 'api-asset', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-scan]" time="2.336"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-d681c782d401&gt;, other=&lt;Makerspace: qr-stage3-ac9c3db256ec&gt;, root=&lt;User: qr-root-d...=&lt;rest_framework.test.APIClient object at 0xffffa915f320&gt;, native=&lt;django.test.client.Client object at 0xffffa92f6180&gt;)
+kind = 'api-scan', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-resolve]" time="2.414"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-e8df4cbd0fa9&gt;, other=&lt;Makerspace: qr-stage3-66bbfe1faf6d&gt;, root=&lt;User: qr-root-3...=&lt;rest_framework.test.APIClient object at 0xffffa902a6f0&gt;, native=&lt;django.test.client.Client object at 0xffffa92f6f60&gt;)
+kind = 'api-resolve', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-revoke]" time="2.372"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-6f4fdc1af8cc&gt;, other=&lt;Makerspace: qr-stage3-73e13933bda1&gt;, root=&lt;User: qr-root-4...=&lt;rest_framework.test.APIClient object at 0xffffa8f7b3e0&gt;, native=&lt;django.test.client.Client object at 0xffffa904f860&gt;)
+kind = 'api-revoke', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-rebind]" time="2.186"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-4433f04b5518&gt;, other=&lt;Makerspace: qr-stage3-3d14c69b3f34&gt;, root=&lt;User: qr-root-5...=&lt;rest_framework.test.APIClient object at 0xffffa9451dc0&gt;, native=&lt;django.test.client.Client object at 0xffffa9202cf0&gt;)
+kind = 'api-rebind', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-cross-product]" time="1.946"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-d1b703cfa1ef&gt;, other=&lt;Makerspace: qr-stage3-737f9f1bdbbf&gt;, root=&lt;User: qr-root-9...=&lt;rest_framework.test.APIClient object at 0xffffa92f7410&gt;, native=&lt;django.test.client.Client object at 0xffffa9453ce0&gt;)
+kind = 'api-cross-product', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-cross-asset]" time="1.984"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-bf76491a460d&gt;, other=&lt;Makerspace: qr-stage3-96915c8bb458&gt;, root=&lt;User: qr-root-b...=&lt;rest_framework.test.APIClient object at 0xffffa9240740&gt;, native=&lt;django.test.client.Client object at 0xffffa8f7a810&gt;)
+kind = 'api-cross-asset', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[wrong-origin-api-generate]" time="1.843"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 403&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-cca57b3813c2&gt;, other=&lt;Makerspace: qr-stage3-623615f38382&gt;, root=&lt;User: qr-root-e...=&lt;rest_framework.test.APIClient object at 0xffffa904e360&gt;, native=&lt;django.test.client.Client object at 0xffffa8f30ad0&gt;)
+kind = 'api-generate', denial = 'wrong-origin'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 403
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-box]" time="1.997" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-product]" time="2.222" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-asset]" time="2.384" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-scan]" time="2.113" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-resolve]" time="2.143" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-revoke]" time="1.799"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-f9694bb61803&gt;, other=&lt;Makerspace: qr-stage3-0f201c232e50&gt;, root=&lt;User: qr-root-f...=&lt;rest_framework.test.APIClient object at 0xffffa908e330&gt;, native=&lt;django.test.client.Client object at 0xffffa90f71a0&gt;)
+kind = 'api-revoke', denial = 'foreign-member'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-rebind]" time="1.830"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-681768cdb77d&gt;, other=&lt;Makerspace: qr-stage3-270f2bbb9177&gt;, root=&lt;User: qr-root-1...=&lt;rest_framework.test.APIClient object at 0xffffa8fae690&gt;, native=&lt;django.test.client.Client object at 0xffffa8df3950&gt;)
+kind = 'api-rebind', denial = 'foreign-member'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-cross-product]" time="1.926"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-d9a750376b15&gt;, other=&lt;Makerspace: qr-stage3-dfc321c4d515&gt;, root=&lt;User: qr-root-7...=&lt;rest_framework.test.APIClient object at 0xffffa904cf20&gt;, native=&lt;django.test.client.Client object at 0xffffa8df2d50&gt;)
+kind = 'api-cross-product', denial = 'foreign-member'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-cross-asset]" time="2.075"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-90a16255d3c5&gt;, other=&lt;Makerspace: qr-stage3-64fe3d3a7826&gt;, root=&lt;User: qr-root-7...=&lt;rest_framework.test.APIClient object at 0xffffa92f79e0&gt;, native=&lt;django.test.client.Client object at 0xffffa908f020&gt;)
+kind = 'api-cross-asset', denial = 'foreign-member'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[foreign-member-api-generate]" time="1.823"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-cf4a46603da9&gt;, other=&lt;Makerspace: qr-stage3-7f3d6cc0a36c&gt;, root=&lt;User: qr-root-f...=&lt;rest_framework.test.APIClient object at 0xffffa9029190&gt;, native=&lt;django.test.client.Client object at 0xffffa92422a0&gt;)
+kind = 'api-generate', denial = 'foreign-member'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-box]" time="2.145" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-product]" time="2.049" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-asset]" time="2.030" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-scan]" time="2.248" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-resolve]" time="2.008" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-revoke]" time="1.939"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-e8aa416dd536&gt;, other=&lt;Makerspace: qr-stage3-386f6c85a0c8&gt;, root=&lt;User: qr-root-4...=&lt;rest_framework.test.APIClient object at 0xffffa8f31250&gt;, native=&lt;django.test.client.Client object at 0xffffa92f57f0&gt;)
+kind = 'api-revoke', denial = 'unscoped'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-rebind]" time="1.976"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-9ea28baab4ee&gt;, other=&lt;Makerspace: qr-stage3-458a38d4fec8&gt;, root=&lt;User: qr-root-5...=&lt;rest_framework.test.APIClient object at 0xffffa90f7170&gt;, native=&lt;django.test.client.Client object at 0xffffa92425a0&gt;)
+kind = 'api-rebind', denial = 'unscoped'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-cross-product]" time="1.947"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-a4d085b1e4b4&gt;, other=&lt;Makerspace: qr-stage3-d55ca9b4d6a2&gt;, root=&lt;User: qr-root-c...=&lt;rest_framework.test.APIClient object at 0xffffa8e54b90&gt;, native=&lt;django.test.client.Client object at 0xffffa8f308c0&gt;)
+kind = 'api-cross-product', denial = 'unscoped'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-cross-asset]" time="2.010"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-4bf943b63e0f&gt;, other=&lt;Makerspace: qr-stage3-d210caea5e47&gt;, root=&lt;User: qr-root-2...=&lt;rest_framework.test.APIClient object at 0xffffa8b39b50&gt;, native=&lt;django.test.client.Client object at 0xffffa8e57b60&gt;)
+kind = 'api-cross-asset', denial = 'unscoped'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[unscoped-api-generate]" time="1.792"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-d497883ba21a&gt;, other=&lt;Makerspace: qr-stage3-24141e8909fd&gt;, root=&lt;User: qr-root-3...=&lt;rest_framework.test.APIClient object at 0xffffa9094260&gt;, native=&lt;django.test.client.Client object at 0xffffa902baa0&gt;)
+kind = 'api-generate', denial = 'unscoped'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-box]" time="1.729" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-product]" time="1.720" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-asset]" time="1.694" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-scan]" time="1.832" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-resolve]" time="2.901" /><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-revoke]" time="2.435"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-b78df38850fe&gt;, other=&lt;Makerspace: qr-stage3-c4b25a74ed61&gt;, root=&lt;User: qr-root-8...=&lt;rest_framework.test.APIClient object at 0xffffa8e56600&gt;, native=&lt;django.test.client.Client object at 0xffffa8e55eb0&gt;)
+kind = 'api-revoke', denial = 'no-actions'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-rebind]" time="2.291"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-0ad4317d4420&gt;, other=&lt;Makerspace: qr-stage3-f9574ab411b1&gt;, root=&lt;User: qr-root-2...=&lt;rest_framework.test.APIClient object at 0xffffa8fad700&gt;, native=&lt;django.test.client.Client object at 0xffffa8c599a0&gt;)
+kind = 'api-rebind', denial = 'no-actions'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-cross-product]" time="3.473"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-d949bcfd5937&gt;, other=&lt;Makerspace: qr-stage3-66d5a6655afb&gt;, root=&lt;User: qr-root-4...=&lt;rest_framework.test.APIClient object at 0xffffa9028fe0&gt;, native=&lt;django.test.client.Client object at 0xffffa904f380&gt;)
+kind = 'api-cross-product', denial = 'no-actions'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-cross-asset]" time="2.475"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-e04273376497&gt;, other=&lt;Makerspace: qr-stage3-640e26f79e61&gt;, root=&lt;User: qr-root-4...=&lt;rest_framework.test.APIClient object at 0xffffa8b3b4a0&gt;, native=&lt;django.test.client.Client object at 0xffffa8e4a2a0&gt;)
+kind = 'api-cross-asset', denial = 'no-actions'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_scope_before_gate" name="test_scope_and_auth_precede_foreign_gate_state[no-actions-api-generate]" time="2.553"><failure message="AssertionError: b'{&quot;detail&quot;: &quot;This makerspace is temporarily frozen for tenant migration.&quot;, &quot;code&quot;: &quot;tenant_migration_quiesced&quot;, &quot;purpose&quot;: &quot;migration&quot;}'&#10;assert 423 == 404&#10; +  where 423 = &lt;JsonResponse status_code=423, &quot;application/json&quot;&gt;.status_code">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-32f7fb084ef3&gt;, other=&lt;Makerspace: qr-stage3-c5ad531ec2a0&gt;, root=&lt;User: qr-root-c...=&lt;rest_framework.test.APIClient object at 0xffffa9028e30&gt;, native=&lt;django.test.client.Client object at 0xffffa8e35910&gt;)
+kind = 'api-generate', denial = 'no-actions'
+
+    @pytest.mark.parametrize("kind", API_WRITERS)
+    @pytest.mark.parametrize("denial", ["wrong-origin", "foreign-member", "unscoped", "no-actions"])
+    def test_scope_and_auth_precede_foreign_gate_state(closure_lab, kind, denial):
+        lab = closure_lab
+        # Cross-Maker actions need an actor who would otherwise have both authorities.
+        client = lab.root_api if "cross" in kind else lab.api
+        if denial == "wrong-origin":
+            membership(lab.actor, lab.other)
+            client.defaults["HTTP_ORIGIN"] = f"https://{lab.other.frontend_domain}"
+        else:
+            actor = staff(lab.other) if denial == "foreign-member" else staff(lab.home, "member")
+            if denial == "unscoped":
+                actor.makerspace_memberships.all().delete()
+            client = jwt_client(actor)
+        case = prepared(lab, kind, api=client)
+        # generation_request takes lab.api; use the actual selected denial client too.
+        if kind == "api-generate":
+            lab.api = client
+            from tests.qr_source_safety.http_helpers import generation_request
+            case.call = generation_request(lab, case.obj)
+        for tenant in (lab.home, lab.other):
+            close_gate(tenant, lab.root)
+        before, sql = state(), []
+    
+        def capture(execute, query, params, many, context):
+            sql.append(query)
+            return execute(query, params, many, context)
+    
+        with connection.execute_wrapper(capture):
+            response = case.call()
+        expected = 403 if denial == "wrong-origin" else 404
+&gt;       assert response.status_code == expected, getattr(response, "data", response.content)
+E       AssertionError: b'{"detail": "This makerspace is temporarily frozen for tenant migration.", "code": "tenant_migration_quiesced", "purpose": "migration"}'
+E       assert 423 == 404
+E        +  where 423 = &lt;JsonResponse status_code=423, "application/json"&gt;.status_code
+
+tests/qr_source_safety/test_scope_before_gate.py:46: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-box]" time="1.939" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-product]" time="1.970" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-asset]" time="2.241" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-scan]" time="1.865" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-resolve]" time="1.741" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-revoke]" time="1.749" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-rebind]" time="1.662" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-cross-product]" time="1.911" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-cross-asset]" time="1.861" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[api-generate]" time="1.809" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-edit]" time="1.902" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-single]" time="1.884" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-bulk]" time="2.413" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-revoke]" time="2.236" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-rebind]" time="1.914" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_exclusive_source_blocks_actual_http_before_any_domain_row_lock[native-generate]" time="1.819" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-box]" time="1.802" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-product]" time="2.698" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-asset]" time="2.200" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-scan]" time="1.923" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-resolve]" time="1.962" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-revoke]" time="1.958" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-rebind]" time="2.570" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-cross-product]" time="2.042" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-cross-asset]" time="1.867" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[api-generate]" time="1.660" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-edit]" time="1.866" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-single]" time="2.109" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-bulk]" time="2.159" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-revoke]" time="1.885" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-rebind]" time="1.718" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-generate]" time="1.841" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-cross-product]" time="3.517" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_real_audit_insert_and_actual_outer_commit_retain_source_n[native-cross-asset]" time="2.978" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-product]" time="2.604"><failure message="AssertionError">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-f013f050b6c1&gt;, other=&lt;Makerspace: qr-stage3-a9554cbf6c4a&gt;, root=&lt;User: qr-root-7...=&lt;rest_framework.test.APIClient object at 0xffffadf55820&gt;, native=&lt;django.test.client.Client object at 0xffffa8d9a690&gt;)
+kind = 'api-cross-product'
+
+    @pytest.mark.parametrize("kind", CROSS_WRITERS)
+    def test_sorted_two_source_admission_waits_at_destination_before_qr_lock(closure_lab, kind):
+        # Reverse source/destination so sorted order is observable rather than incidental.
+        closure_lab.home, closure_lab.other = closure_lab.other, closure_lab.home
+        case = prepared(closure_lab, kind)
+        low, high = sorted([closure_lab.home.pk, closure_lab.other.pk])
+        with workers() as start:
+            with exclusive(high) as owner:
+                pending = start(atomic_request(case.call))
+                source_wait(pending, owner, high)
+&gt;               assert_shared(pending.pid, low)
+
+tests/qr_source_safety/test_source_lock_lifetime.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pid = 6777, tenant_id = 8404
+
+    def assert_shared(pid, tenant_id):
+&gt;       assert (pid, "ShareLock", True) in locks(tenant_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError
+
+tests/qr_source_safety/pg_helpers.py:38: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_sorted_two_source_admission_waits_at_destination_before_qr_lock[api-cross-asset]" time="4.342"><failure message="AssertionError">closure_lab = namespace(home=&lt;Makerspace: qr-stage3-2d3fe182377a&gt;, other=&lt;Makerspace: qr-stage3-27ea0945a02c&gt;, root=&lt;User: qr-root-5...=&lt;rest_framework.test.APIClient object at 0xffffa8daa9f0&gt;, native=&lt;django.test.client.Client object at 0xffffadf55d00&gt;)
+kind = 'api-cross-asset'
+
+    @pytest.mark.parametrize("kind", CROSS_WRITERS)
+    def test_sorted_two_source_admission_waits_at_destination_before_qr_lock(closure_lab, kind):
+        # Reverse source/destination so sorted order is observable rather than incidental.
+        closure_lab.home, closure_lab.other = closure_lab.other, closure_lab.home
+        case = prepared(closure_lab, kind)
+        low, high = sorted([closure_lab.home.pk, closure_lab.other.pk])
+        with workers() as start:
+            with exclusive(high) as owner:
+                pending = start(atomic_request(case.call))
+                source_wait(pending, owner, high)
+&gt;               assert_shared(pending.pid, low)
+
+tests/qr_source_safety/test_source_lock_lifetime.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pid = 6779, tenant_id = 8406
+
+    def assert_shared(pid, tenant_id):
+&gt;       assert (pid, "ShareLock", True) in locks(tenant_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError
+
+tests/qr_source_safety/pg_helpers.py:38: AssertionError</failure></testcase><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_sorted_two_source_admission_waits_at_destination_before_qr_lock[native-cross-product]" time="3.217" /><testcase classname="tests.qr_source_safety.test_source_lock_lifetime" name="test_sorted_two_source_admission_waits_at_destination_before_qr_lock[native-cross-asset]" time="3.029" /><testcase classname="tests.test_native_document_audit" name="test_actual_native_add_and_edit_audits_identify_actor_tenant_target_and_field_names[warranty-asset]" time="3.306" /><testcase classname="tests.test_native_document_audit" name="test_actual_native_add_and_edit_audits_identify_actor_tenant_target_and_field_names[warranty-machine]" time="3.129" /><testcase classname="tests.test_native_document_audit" name="test_actual_native_add_and_edit_audits_identify_actor_tenant_target_and_field_names[to-buy]" time="2.958" /><testcase classname="tests.test_native_document_audit" name="test_native_noop_save_suppresses_audit_even_if_admin_updates_timestamp[warranty-asset]" time="4.248" /><testcase classname="tests.test_native_document_audit" name="test_native_noop_save_suppresses_audit_even_if_admin_updates_timestamp[warranty-machine]" time="3.035" /><testcase classname="tests.test_native_document_audit" name="test_native_noop_save_suppresses_audit_even_if_admin_updates_timestamp[to-buy]" time="2.330" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[warranty-asset-add]" time="2.119" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[warranty-asset-edit]" time="2.397" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[warranty-machine-add]" time="2.679" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[warranty-machine-edit]" time="2.153" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[to-buy-add]" time="1.999" /><testcase classname="tests.test_native_document_audit" name="test_real_native_audit_insert_failure_rolls_back_complete_save[to-buy-edit]" time="2.377" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-asset-add]" time="2.327" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-asset-edit]" time="2.312" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-asset-delete]" time="2.030" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-machine-add]" time="2.342" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-machine-edit]" time="2.194" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[warranty-machine-delete]" time="3.125" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[to-buy-add]" time="2.856" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[to-buy-edit]" time="2.302" /><testcase classname="tests.test_native_document_audit" name="test_native_document_source_gate_precedes_audit_and_mutation[to-buy-delete]" time="1.987" /><testcase classname="tests.test_native_document_audit" name="test_native_delete_audit_refusal_retains_parent_and_document_without_cleanup[warranty-asset]" time="2.288" /><testcase classname="tests.test_native_document_audit" name="test_native_delete_audit_refusal_retains_parent_and_document_without_cleanup[warranty-machine]" time="2.614" /><testcase classname="tests.test_native_document_audit" name="test_native_delete_audit_refusal_retains_parent_and_document_without_cleanup[to-buy]" time="2.972" /><testcase classname="tests.test_native_document_audit" name="test_native_audited_parent_delete_preserves_document_cleanup_wrapper[warranty-asset]" time="2.492" /><testcase classname="tests.test_native_document_audit" name="test_native_audited_parent_delete_preserves_document_cleanup_wrapper[warranty-machine]" time="2.713" /><testcase classname="tests.test_native_document_audit" name="test_native_audited_parent_delete_preserves_document_cleanup_wrapper[to-buy]" time="2.502" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/boxes]" time="0.045" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/tools]" time="0.022" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/scan]" time="0.018" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/resolve]" time="0.017" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/{id}/revoke]" time="0.017" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/qr/{id}/rebind-target]" time="0.017" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_qr_mutation_schema_documents_typed_gate_refusals[/api/v1/admin/products/{id}/assets/generate]" time="0.018" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_native_generation_keyword_is_not_a_public_request_schema_field" time="0.025" /><testcase classname="tests.qr_source_safety.test_openapi_contract" name="test_print_get_retains_its_read_error_contract_without_write_gate_responses" time="0.025" /></testsuite></testsuites>

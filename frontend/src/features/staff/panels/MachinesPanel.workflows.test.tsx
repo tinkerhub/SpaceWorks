@@ -2,10 +2,16 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { closeOptions, laserType, machine, openOptions, pick, pool, printerType, renderPanel } from "./machinesPanelTestUtils";
+import { isolateMachineTestSession } from "./machine/machineConsoleTestUtils";
+
+isolateMachineTestSession();
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 
-vi.mock("../../../lib/api", () => ({ staffRequest }));
+vi.mock("../../../lib/api", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../../lib/api")>(),
+  staffRequest,
+}));
 vi.mock("./MachineTypesPanel", () => ({ MachineTypesPanel: () => null }));
 vi.mock("./machine/MachineDrawer", () => ({ MachineDrawer: () => null }));
 

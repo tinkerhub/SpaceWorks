@@ -1,0 +1,22 @@
+{
+  "status": "actual-feasibility-pass-only",
+  "executed_by": "root parent agent",
+  "private_run_directory": "/tmp/spaceworks-actual-host-drill/swdrill202610292203055ae1c4",
+  "proof": {
+    "status": "feasibility-only-pass",
+    "uid": 0,
+    "daemon_path": "/var/lib/docker/volumes/swdrill202610292203055ae1c4_authority/_data",
+    "sentinel_sha256": "8756e75e2efce3f3c136b64b30784cb135b18b609eacb18930f1a5ba49f42238",
+    "docker_socket": "/var/run/docker.sock",
+    "daemon_id": "a48aa99e-3b1a-4eb9-8388-dd97f6f2b54d",
+    "production_restore": "UNVERIFIED"
+  },
+  "proof_sha256": "571150175d2ef76240b8992e87d3635f7140f495f93385921d0efe0a88314132",
+  "executed_feasibility_script_sha256": "39ecc3302c976e0d331c5d5a3dc6e3410b17c8ab213b9abd90a40c110e24a823",
+  "limitations": [
+    "No application image build/topology/restore yet",
+    "No production deployment",
+    "No cross-target import",
+    "No live broker generation evidence from this feasibility step"
+  ]
+}

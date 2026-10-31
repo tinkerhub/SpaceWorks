@@ -1,0 +1,11 @@
+APPROVE.
+
+Actual source confirms the omission. Add `AdminAuditMixin` to both classes in the proposed order:
+
+`StorageDocumentDeleteAdminMixin, AdminAuditMixin, SuperuserOnlyModelAdmin, ModelAdmin`
+
+This preserves the storage cleanup wrapper and source-gate hooks while adding tenant/actor/target attribution, field-name-only metadata, and no-op suppression. Keep procurement status stamping and Warranty host read-only behavior unchanged.
+
+The planned separate native Client regressions appropriately cover rollback after a real insert, metadata privacy, attribution, no-ops, and cleanup/source-gate ordering.
+
+Read-only review completed; no edits or application runtime executed.

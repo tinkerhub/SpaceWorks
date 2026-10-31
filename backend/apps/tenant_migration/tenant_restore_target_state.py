@@ -56,6 +56,9 @@ def establish_target_import_state(
             DeploymentRecoveryState.Mode.TARGET_IMPORT,
         }:
             raise TenantRestoreRefused("Restored recovery state conflicts with target import.")
+        from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+        invalidate_restored_receipts(using=using)
         state.mode = DeploymentRecoveryState.Mode.TARGET_IMPORT
         state.active_restore = None
         state.quarantine_reason = ""
@@ -134,6 +137,9 @@ def set_target_normal(*, expected_identity, using="default"):
         state = DeploymentRecoveryState.objects.using(using).select_for_update().get(pk=1)
         if state.mode != DeploymentRecoveryState.Mode.TARGET_IMPORT:
             raise TenantRestoreRefused("Target recovery mode is not target-import.")
+        from apps.makerspaces.purge_receipt_recovery import invalidate_restored_receipts
+
+        invalidate_restored_receipts(using=using)
         state.mode = DeploymentRecoveryState.Mode.NORMAL
         state.save(using=using, update_fields=("mode", "updated_at"))
     state.refresh_from_db(using=using)

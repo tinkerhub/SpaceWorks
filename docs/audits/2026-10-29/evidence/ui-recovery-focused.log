@@ -1,0 +1,17 @@
+
+ RUN  v4.1.12 /app
+
+ ✓ src/features/staff/staffSelection.login.test.tsx (7 tests) 1392ms
+     ✓ password login from /admin ignores the saved Kochi hint and opens the central picker  432ms
+ ✓ src/features/staff/staffSelection.cache.test.tsx (7 tests) 1868ms
+     ✓ a previous-generation deferred list cannot publish into the new login or either list consumer  546ms
+ ✓ src/features/staff/shell/StaffShellResponsive.test.tsx (3 tests) 1018ms
+     ✓ 800→1200 unmounts the sheet, releases Radix isolation and restores main focus; 800 again stays closed and can reopen  557ms
+ ✓ src/features/organizations/OrganizationInvitationRedeemPage.ownership.test.tsx (19 tests) 1350ms
+ ✓ src/components/ui/dialogStack.test.tsx (6 tests) 448ms
+
+ Test Files  5 passed (5)
+      Tests  42 passed (42)
+   Start at  18:35:53
+   Duration  21.65s (transform 1.21s, setup 3.12s, import 4.41s, tests 6.08s, environment 7.01s)
+

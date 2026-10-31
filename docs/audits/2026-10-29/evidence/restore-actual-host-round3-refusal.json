@@ -1,0 +1,45 @@
+{
+  "status": "actual-third-drill-refused-before-quiescence-and-restore-sql",
+  "recorded_at_utc": "2026-10-30T04:56:56+00:00",
+  "run_id": "swdrill20261030040011389c12",
+  "scope": "Local isolated same-host Docker topology; no production deployment.",
+  "actual_artifact": {
+    "image": "127.0.0.1:31129/spaceworks-audit:swdrill20261030040011389c12",
+    "oci_digest": "sha256:2c8238b10556dd7f8983ec156f779ac3aff006ce2e0255d9520d47f8aecaa795",
+    "archive_id": "100c36fb-3f5b-44c1-98af-bd92f6dfa7b4",
+    "archive_status": "available",
+    "archive_format": "spaceworks-deployment-full-v1",
+    "partial": false,
+    "capture_id": "270e33cf-f065-4461-bf62-974707a7304d",
+    "restore_request_id": "6230802a-b782-4813-a058-552735ae98d7"
+  },
+  "verified_progress": [
+    "Genuine new local OCI build and AVAILABLE signed-full archive were produced by the real API/Celery path.",
+    "Updated null-inheritance configuration and actual container inventory admission passed.",
+    "Fixed maintenance probe returned a physical address with an inet CIDR suffix.",
+    "Strict target-identity admission refused before quiescence and restore SQL."
+  ],
+  "failure": {
+    "fixed_error": "Queried application endpoint is not the admitted bundled SQL container.",
+    "probe_physical": {
+      "address": "172.26.0.4/32",
+      "port": 5432,
+      "tls": false
+    },
+    "actual_db_container_address_observed_by_parent": "172.26.0.4",
+    "cause": "PostgreSQL inet_server_addr()::text includes /32, while Docker IPAddress is bare host text; strict literal membership correctly refused those different representations.",
+    "bounded_correction": "Replace only the SQL address expression with host(inet_server_addr()); do not normalize Python inputs or weaken equality/port/identity checks."
+  },
+  "runtime_regression_after_correction": {
+    "result": "38 passed in 5.45 seconds",
+    "new_probe_cases": 10,
+    "existing_redis_admission_cases": 28,
+    "xml": "docs/audits/2026-10-29/evidence/host-address-and-redis-admission-round1.xml",
+    "limits": "Real PG16 TCP probe and SQL IPv4/IPv6 formatting plus explicitly synthetic admission controls; no actual IPv6-network or privileged restore success claim."
+  },
+  "restored_success": false,
+  "success_json_present": false,
+  "state_limits": "The controller stopped before quiescence and restore SQL. Setup, backup and restore-request API writes occurred normally; this is not a claim that the entire drill had zero writes. No rollback, writer release or automatic recovery was attempted by this lane.",
+  "retained_evidence": "Private project, authority volume, generated credentials, archive and diagnostic logs remain at the prior isolated run; credentials/raw config/logs are intentionally omitted here.",
+  "next": "Wait for final backend source/test freeze and root-approved authority/source digest reconciliation, then use a fourth fresh image/project and pre-backup actual target diagnostic. Complete restore is still unverified."
+}

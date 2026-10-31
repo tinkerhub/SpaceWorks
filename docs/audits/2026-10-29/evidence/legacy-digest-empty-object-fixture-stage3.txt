@@ -1,0 +1,8 @@
+Applied only the four-line insertion in [`_manifest`](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/backup/test_archive_digests.py:59): both canonical bucket kinds use supported `versioned` consistency, with `objects=[]`. This supplies honest empty storage facts before ledger validation without changing bucket resolution.
+
+Read the final file fully. Removing the insertion reproduces the frozen baseline hash, confirming every other byte—including the `CommandError`/`database.dump` and `PREFLIGHT`/`preflight-ok` assertions—is unchanged.
+
+- Final line count: **298**
+- SHA-256: `6949778379c5a753a91529683fb802bd04820c6d50f8e965bb17537ba55a838a`
+
+Only static file inspection, editing, and hashing were performed. No application imports, runtime checks, tests, DB access, builds, staging, commits, or pushes; no pass claim.

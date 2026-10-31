@@ -9,6 +9,7 @@ from pathlib import Path
 import tarfile
 from uuid import uuid4
 
+from .tenant_restore_artifact_files import file_identity, open_artifact_file
 from .tenant_dump_errors import TenantDumpBuildError, TenantDumpVerificationError
 from .tenant_dump_outer_manifest import canonical_manifest_bytes
 from .tenant_dump_outer_manifest_validation import PAYLOAD_MEMBER
@@ -50,54 +51,72 @@ def write_outer_artifact(payload, destination, manifest):
     return destination
 
 
-def read_outer_manifest(artifact):
-    """Validate the readable structure and ciphertext binding without decryption."""
-    artifact = Path(artifact)
+def read_outer_manifest(artifact, *, expected_artifact_sha256=None):
+    """Derive every returned fact from one pinned descriptor, without decryption."""
     try:
-        with tarfile.open(artifact, "r:") as archive:
-            members = archive.getmembers()
-            if [member.name for member in members] != list(OUTER_MEMBERS):
+        if expected_artifact_sha256 is not None and (
+            not isinstance(expected_artifact_sha256, str)
+            or len(expected_artifact_sha256) != 64
+            or any(c not in "0123456789abcdef" for c in expected_artifact_sha256)
+        ):
+            raise ValueError
+        with open_artifact_file(artifact, private=expected_artifact_sha256 is not None) as handle:
+            before = file_identity(handle)
+            if expected_artifact_sha256 is not None:
+                if not hmac.compare_digest(_handle_digest(handle), expected_artifact_sha256):
+                    raise ValueError
+            handle.seek(0)
+            with tarfile.open(fileobj=handle, mode="r:") as archive:
+                members = [archive.next(), archive.next()]
+                if any(member is None for member in members) or archive.next() is not None:
+                    raise ValueError
+                if [member.name for member in members] != list(OUTER_MEMBERS):
+                    raise ValueError
+                if any(not member.isreg() for member in members):
+                    raise ValueError
+                manifest_member, payload_member = members
+                if not 0 < manifest_member.size <= MAX_OUTER_MANIFEST_BYTES:
+                    raise ValueError
+                manifest_handle = archive.extractfile(manifest_member)
+                if manifest_handle is None:
+                    raise ValueError
+                manifest_bytes = manifest_handle.read(MAX_OUTER_MANIFEST_BYTES + 1)
+                manifest = json.loads(manifest_bytes.decode("utf-8"))
+                if not hmac.compare_digest(manifest_bytes, canonical_manifest_bytes(manifest)):
+                    raise ValueError
+                fact = manifest["encrypted_members"][0]
+                if payload_member.size != fact["size"]:
+                    raise ValueError
+                _verify_canonical_tar(handle, members, manifest_bytes)
+                payload_handle = archive.extractfile(payload_member)
+                if payload_handle is None:
+                    raise ValueError
+                digest = hashlib.sha256()
+                while chunk := payload_handle.read(1024 * 1024):
+                    digest.update(chunk)
+                if not hmac.compare_digest(digest.hexdigest(), fact["sha256"]):
+                    raise ValueError
+            if expected_artifact_sha256 is not None:
+                if not hmac.compare_digest(_handle_digest(handle), expected_artifact_sha256):
+                    raise ValueError
+            if file_identity(handle) != before:
                 raise ValueError
-            if any(not member.isreg() for member in members):
-                raise ValueError
-            manifest_member, payload_member = members
-            if not 0 < manifest_member.size <= MAX_OUTER_MANIFEST_BYTES:
-                raise ValueError
-            manifest_handle = archive.extractfile(manifest_member)
-            if manifest_handle is None:
-                raise ValueError
-            manifest_bytes = manifest_handle.read(MAX_OUTER_MANIFEST_BYTES + 1)
-            manifest = json.loads(manifest_bytes.decode("utf-8"))
-            canonical = canonical_manifest_bytes(manifest)
-            if not hmac.compare_digest(manifest_bytes, canonical):
-                raise ValueError
-            fact = manifest["encrypted_members"][0]
-            if payload_member.size != fact["size"]:
-                raise ValueError
-            _verify_canonical_tar(artifact, members, manifest_bytes)
-            payload_handle = archive.extractfile(payload_member)
-            if payload_handle is None:
-                raise ValueError
-            digest = hashlib.sha256()
-            while chunk := payload_handle.read(1024 * 1024):
-                digest.update(chunk)
-            if not hmac.compare_digest(digest.hexdigest(), fact["sha256"]):
-                raise ValueError
-    except (
-        KeyError,
-        OSError,
-        UnicodeDecodeError,
-        ValueError,
-        json.JSONDecodeError,
-        tarfile.TarError,
-    ) as exc:
+    except (KeyError, OSError, UnicodeError, TypeError, ValueError, tarfile.TarError) as exc:
         raise TenantDumpVerificationError(
             "The Lane D readable outer artifact is invalid or is not bound to its sealed payload."
         ) from exc
     return manifest
 
 
-def _verify_canonical_tar(artifact, members, manifest_bytes):
+def _handle_digest(handle):
+    handle.seek(0)
+    digest = hashlib.sha256()
+    while chunk := handle.read(1024 * 1024):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _verify_canonical_tar(handle, members, manifest_bytes):
     manifest_member, payload_member = members
     expected_payload_offset = _BLOCK + _padded_size(len(manifest_bytes)) + _BLOCK
     expected_size = _archive_size(len(manifest_bytes), payload_member.size)
@@ -105,25 +124,26 @@ def _verify_canonical_tar(artifact, members, manifest_bytes):
         manifest_member.offset != 0
         or manifest_member.offset_data != _BLOCK
         or payload_member.offset_data != expected_payload_offset
-        or Path(artifact).stat().st_size != expected_size
+        or os.fstat(handle.fileno()).st_size != expected_size
     ):
         raise ValueError
-    with Path(artifact).open("rb") as handle:
-        if handle.read(_BLOCK) != _member_info(
-            OUTER_MANIFEST_MEMBER, len(manifest_bytes)
-        ).tobuf(format=tarfile.USTAR_FORMAT):
-            raise ValueError
-        handle.seek(payload_member.offset)
-        if handle.read(_BLOCK) != _member_info(
-            PAYLOAD_MEMBER, payload_member.size
-        ).tobuf(format=tarfile.USTAR_FORMAT):
-            raise ValueError
-        handle.seek(_BLOCK + len(manifest_bytes))
-        if any(handle.read(_padded_size(len(manifest_bytes)) - len(manifest_bytes))):
-            raise ValueError
-        handle.seek(payload_member.offset_data + payload_member.size)
-        if any(handle.read(expected_size - handle.tell())):
-            raise ValueError
+    handle.seek(0)
+    if handle.read(_BLOCK) != _member_info(
+        OUTER_MANIFEST_MEMBER, len(manifest_bytes)
+    ).tobuf(format=tarfile.USTAR_FORMAT):
+        raise ValueError
+    handle.seek(payload_member.offset)
+    if handle.read(_BLOCK) != _member_info(
+        PAYLOAD_MEMBER, payload_member.size
+    ).tobuf(format=tarfile.USTAR_FORMAT):
+        raise ValueError
+    handle.seek(_BLOCK + len(manifest_bytes))
+    if any(handle.read(_padded_size(len(manifest_bytes)) - len(manifest_bytes))):
+        raise ValueError
+    handle.seek(payload_member.offset_data + payload_member.size)
+    # Canonical padding is bounded to one tar record; no payload-sized allocation.
+    if any(handle.read(expected_size - handle.tell())):
+        raise ValueError
 
 
 def _member_info(name, size):

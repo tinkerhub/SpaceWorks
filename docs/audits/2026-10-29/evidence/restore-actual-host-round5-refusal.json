@@ -1,0 +1,61 @@
+{
+  "status": "fifth-actual-drill-blocked-by-confirmed-server-archive-get-endpoint",
+  "recorded_at_utc": "2026-10-30T06:01:07+00:00",
+  "run_id": "swdrill20261030053033495363",
+  "progress": [
+    "Actual target identity preflight passed.",
+    "Seed, AVAILABLE genuine archive and restore request were created.",
+    "Controller reached private input admission and then a fixed transport command failed."
+  ],
+  "confirmed_state": {
+    "host_marker": "normal",
+    "marker_operation": null,
+    "restore_stage": "requested",
+    "backend_worker_beat_running_unpaused": true,
+    "quiescence_reached": false,
+    "restore_blocked_reached": false,
+    "restore_sql_attempted": false,
+    "quarantine_or_restore_success": false
+  },
+  "diagnostics": {
+    "describe_select_repro": "passed; stage requested",
+    "private_and_work_input_artifacts": "No files",
+    "production_open_archive": {
+      "read_success": false,
+      "error_classes": [
+        "BackupStorageError",
+        "EndpointConnectionError"
+      ]
+    },
+    "internal_get": {
+      "read_success": true,
+      "size_match": true,
+      "sha256_match": true
+    },
+    "expected_archive_size": 1239528,
+    "endpoint_classification": {
+      "public_is_loopback": true,
+      "internal_is_loopback": false,
+      "equal": false
+    }
+  },
+  "cause": "Server-side backup archive GET uses the browser/public S3 endpoint. Under the actual split endpoint topology it cannot connect, while the same existing object is readable through the internal client and exactly matches stored size/SHA. Source order places export-archive immediately after describe; original child stderr was redacted, so this report distinguishes the observed confirmed GET blocker from an unrecorded original subprocess exception.",
+  "bounded_remedy": "Use internal client() only in backup.storage.open_archive; preserve browser presigning elsewhere, private bucket, streaming result, authentication and typed failure wrapper.",
+  "baseline": {
+    "manifest": "/tmp/spaceworks-final-backend-snapshot-round3-20261030.json",
+    "manifest_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+    "path": "backend/apps/backup/storage.py",
+    "before_sha256": "393b133843aff9b40307a5c19d529c03106b29f086c783f834c9ae1d366347b5",
+    "existing_full_suite_denominator": 11695,
+    "baseline_remains_immutable": true
+  },
+  "effects_and_limits": [
+    "No object/file export, provider writes, decryption, preflight, control mutation, grants, quiescence, restore or unblock",
+    "No endpoint URL, object key, encrypted bytes, credentials or raw error message retained in proof"
+  ],
+  "evidence": [
+    "restore-actual-round5-input-status.json",
+    "restore-actual-round5-archive-endpoint.json"
+  ],
+  "production_action": false
+}

@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from django.conf import settings
@@ -31,7 +32,10 @@ def build_integration_health(makerspace):
         # Every chat channel, not just Telegram. Once credentials live on destinations,
         # a health centre that only knows the makerspace columns goes blind — and this is
         # the only surface where an operator learns a room's webhook was revoked.
-        "chat_destinations": _safe_section(lambda: _destinations_section(makerspace)),
+        "chat_destinations": _safe_section(
+            lambda: _destinations_section(makerspace),
+            safe_detail="Chat destination health is unavailable.",
+        ),
         "worker": _safe_section(_worker_section),
     }
     # Keep the rollup deliberately simple: failed/stalled email, stale worker,
@@ -44,11 +48,11 @@ def build_integration_health(makerspace):
     return {"status": status, **sections}
 
 
-def _safe_section(builder):
+def _safe_section(builder, *, safe_detail=None):
     try:
         return builder()
     except Exception as exc:
-        return {"status": "unknown", "detail": str(exc)[:200]}
+        return {"status": "unknown", "detail": safe_detail or str(exc)[:200]}
 
 
 def _email_section(makerspace):
@@ -181,12 +185,12 @@ def _destinations_section(makerspace):
             destination__isnull=False,
             status=NotificationDeliveryStatus.FAILED,
         )
-        .order_by("destination_id", "-created_at")
-        .values("destination_id", "error", "created_at")
+        .order_by("destination_id", "-created_at", "-id")
+        .values("destination_id", "channel", "error", "created_at")
     ):
         last_errors.setdefault(
             log["destination_id"],
-            {"error": (log["error"] or "")[:200], "at": log["created_at"]},
+            {"error": _destination_failure_detail(log), "at": log["created_at"]},
         )
 
     destinations = []
@@ -200,7 +204,10 @@ def _destinations_section(makerspace):
                 "is_active": row.is_active,
                 # Never the credential itself — only whether one is present. A health
                 # payload is read by staff, and a webhook URL is a bearer secret.
-                "configured": bool(row.webhook_url or row.telegram_chat_id),
+                "configured": bool(
+                    row.webhook_url
+                    or (row.telegram_chat_id and (makerspace.telegram_bot_token or "").strip())
+                ),
                 "last_sent_at": stat.get("last_sent_at"),
                 "failed": stat.get("failed", 0),
                 "last_failure": last_errors.get(row.pk),
@@ -220,6 +227,22 @@ def _destinations_section(makerspace):
         # readable for a release), so the operator can see both halves of the transition.
         "legacy_channels": legacy,
     }
+
+
+def _destination_failure_detail(log):
+    """Stored provider text is untrusted; only closed reason codes become detail."""
+    from apps.integrations.telegram_errors import DETAILS, failure_detail
+
+    error = log["error"] or ""
+    if error == "notification_channel_not_configured":
+        return "The channel wasn't configured when the alert was raised."
+    if log["channel"] == "telegram" and re.fullmatch(
+        r"notification_delivery_failed:[A-Za-z0-9_]{1,100}:[a-z_]{1,40}", error
+    ):
+        reason = error.rsplit(":", 1)[-1]
+        if reason in DETAILS:
+            return failure_detail(reason)[:200]
+    return "The last alert wasn't delivered. Check the channel configuration."
 
 
 def _legacy_channel_configured(makerspace, channel):

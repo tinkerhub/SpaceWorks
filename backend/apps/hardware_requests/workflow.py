@@ -1,3 +1,4 @@
+from apps.hardware_requests.cancellation_workflow import cancel_request
 from apps.hardware_requests.handover_workflow import (
     assign_box,
     issue_request,
@@ -32,6 +33,7 @@ __all__ = [
     "RequesterBlocked",
     "ReturnValidationError",
     "accept_request",
+    "cancel_request",
     "assign_box",
     "issue_request",
     "reject_request",

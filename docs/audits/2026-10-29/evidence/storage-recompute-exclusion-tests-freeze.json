@@ -1,0 +1,299 @@
+{
+  "stage": "Stage 3 tests only; independently authored after root read/source freeze",
+  "created_utc": "2026-10-29T21:30:32.022557+00:00",
+  "runtime_validation": "NOT PERFORMED; root owns execution",
+  "test_collection": "NOT PERFORMED; counts derive only from AST inspection",
+  "new_python_files": [
+    {
+      "path": "backend/tests/makerspaces/storage_recompute_faults.py",
+      "sha256": "f13f7632e5f705b35dd7db2fd059df8424def2f802a677be73cd423a931b33a1",
+      "bytes": 2656,
+      "lines": 84,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/tests/makerspaces/storage_recompute_support.py",
+      "sha256": "04b0e66e9b1015d0ba90eb4e988a0bb4cdac1a2aaf9b6963577e16166b8eb0a4",
+      "bytes": 6099,
+      "lines": 165,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/tests/makerspaces/test_storage_recompute_admission.py",
+      "sha256": "77217aaa162409021d5ceef409c267c467bd99958339ea90836a63a442cbb91f",
+      "bytes": 5574,
+      "lines": 123,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/tests/makerspaces/test_storage_recompute_commit.py",
+      "sha256": "e91bc3feeb0b54cd27f5989789a1ae8ff83373f5769c3e56875d4982918c5ee1",
+      "bytes": 7776,
+      "lines": 179,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/tests/makerspaces/test_storage_recompute_ownership.py",
+      "sha256": "e1be34a19f42c56de41e8c4c4d1aa3644c652f36bc681b2223afd69c1b164693",
+      "bytes": 7813,
+      "lines": 169,
+      "static_parse": "passed"
+    },
+    {
+      "path": "backend/tests/makerspaces/test_storage_recompute_races.py",
+      "sha256": "07c383c9499d81255ec4319aef24d29ac411352162b96e7d052fb4f5d5886434",
+      "bytes": 7420,
+      "lines": 177,
+      "static_parse": "passed"
+    }
+  ],
+  "changed_existing_test_adapters": [
+    {
+      "path": "backend/tests/test_managed_limits_enforcement.py",
+      "sha256": "ecf3de07b9a9570435705685f56806664bc1f402a83066881fb6f9258cad8dd3",
+      "bytes": 13217,
+      "lines": 348,
+      "static_parse": "passed",
+      "before_sha256": "838299a7656e4aedf25963295729a4b953c445a7d1e060d133984dd393ba720b"
+    },
+    {
+      "path": "backend/tests/test_storage_reconciler_gaps.py",
+      "sha256": "c2109a2f77f75794c3830155e246e57452b67c40bcc16671e7463789181a7936",
+      "bytes": 3934,
+      "lines": 102,
+      "static_parse": "passed",
+      "before_sha256": "51ed76b66af8aed0cb1c6d7d9bae4ade4b109abd08d36f1f5a448093475f8d15"
+    },
+    {
+      "path": "backend/tests/events/test_recompute_event_artifacts.py",
+      "sha256": "dd8a6440a0e8f9af066e02c9a42f06b03559af2e4bf3c2dd6c931e2c66619386",
+      "bytes": 9196,
+      "lines": 209,
+      "static_parse": "passed",
+      "before_sha256": "d4fdd7f55d365fe143c07e5f14083c7ca9d1310c43e4aee6a2819d9206544acd"
+    },
+    {
+      "path": "backend/tests/makerspaces/test_module_cleanup_boundaries.py",
+      "sha256": "5b8c567e8474e7c3f8d722be5311d11e65c22c4c5bc14772bd7346e0bb591209",
+      "bytes": 9723,
+      "lines": 204,
+      "static_parse": "passed",
+      "before_sha256": "99fa5e48c396655e15b4143dae11762a18a7721cc82783fe6b3c79d29990676e"
+    },
+    {
+      "path": "backend/tests/tenant_migration/test_module_cleanup_source_contract.py",
+      "sha256": "1dc36cbdea3d46fef9621e8b7b532b307a113c81688306567ee3bea51ffe31b8",
+      "bytes": 11129,
+      "lines": 181,
+      "static_parse": "passed",
+      "before_sha256": "feee067c4b2f423e2b47f5d66ade6a660f5d56ae5d804f56e228bc1720edd594"
+    }
+  ],
+  "test_counts": {
+    "new_test_modules": 4,
+    "new_helpers": 2,
+    "new_test_functions": 18,
+    "static_parameter_cases": 50,
+    "details": [
+      {
+        "path": "backend/tests/makerspaces/test_storage_recompute_admission.py",
+        "test_functions": 3,
+        "static_parameter_cases": 17,
+        "tests": [
+          {
+            "function": "test_fresh_admission_refuses_stale_selected_tenant_before_provider_or_counter",
+            "static_parameter_cases": 10
+          },
+          {
+            "function": "test_fresh_final_admission_rejects_real_change_after_scan_before_set",
+            "static_parameter_cases": 4
+          },
+          {
+            "function": "test_actual_command_retains_typed_closed_skip_and_module_warning",
+            "static_parameter_cases": 3
+          }
+        ]
+      },
+      {
+        "path": "backend/tests/makerspaces/test_storage_recompute_commit.py",
+        "test_functions": 5,
+        "static_parameter_cases": 10,
+        "tests": [
+          {
+            "function": "test_setter_backend_equals_holder_and_exclusion_survives_update_until_commit",
+            "static_parameter_cases": 1
+          },
+          {
+            "function": "test_killed_retained_backend_cannot_set_reconnect_or_announce_success",
+            "static_parameter_cases": 2
+          },
+          {
+            "function": "test_lost_commit_ack_reports_uncertain_fresh_rescan_after_real_commit",
+            "static_parameter_cases": 1
+          },
+          {
+            "function": "test_real_sql_or_scan_failure_rolls_back_releases_and_never_reports_success",
+            "static_parameter_cases": 4
+          },
+          {
+            "function": "test_ended_transaction_owner_cannot_be_used_again",
+            "static_parameter_cases": 2
+          }
+        ]
+      },
+      {
+        "path": "backend/tests/makerspaces/test_storage_recompute_ownership.py",
+        "test_functions": 6,
+        "static_parameter_cases": 15,
+        "tests": [
+          {
+            "function": "test_exclusive_recompute_refuses_nesting_before_new_connection_or_provider",
+            "static_parameter_cases": 6
+          },
+          {
+            "function": "test_nested_ordinary_shared_guards_reuse_original_actual_exclusive_backend",
+            "static_parameter_cases": 1
+          },
+          {
+            "function": "test_real_wrong_lock_does_not_substitute_for_original_exact_owner",
+            "static_parameter_cases": 4
+          },
+          {
+            "function": "test_real_different_backend_with_exact_lock_cannot_be_adopted",
+            "static_parameter_cases": 1
+          },
+          {
+            "function": "test_ended_transaction_cannot_be_hidden_by_same_pid_exact_substitute_lock",
+            "static_parameter_cases": 2
+          },
+          {
+            "function": "test_actual_closed_connection_during_acquisition_refuses_without_retry",
+            "static_parameter_cases": 1
+          }
+        ]
+      },
+      {
+        "path": "backend/tests/makerspaces/test_storage_recompute_races.py",
+        "test_functions": 4,
+        "static_parameter_cases": 8,
+        "tests": [
+          {
+            "function": "test_real_producer_drains_before_scan_and_loop_reloads_images",
+            "static_parameter_cases": 4
+          },
+          {
+            "function": "test_scan_first_blocks_producer_before_effects_and_preserves_later_delta",
+            "static_parameter_cases": 2
+          },
+          {
+            "function": "test_other_tenant_producer_and_ordinary_read_progress_during_scan",
+            "static_parameter_cases": 1
+          },
+          {
+            "function": "test_queued_real_migration_claim_holds_global_zero_before_tenant_without_inversion",
+            "static_parameter_cases": 1
+          }
+        ]
+      }
+    ],
+    "new_structural_mutation_parameters": 14,
+    "owner_file_mutation_group_total_parameters": 20
+  },
+  "stage2_and_approved_inputs": [
+    {
+      "path": "backend/apps/tenant_migration/gate_locks.py",
+      "sha256": "15f887d69327fc62ff347fe99ffafecebeb7dbb6507466a7050486b2da8f0a07",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "backend/apps/tenant_migration/gate_runtime.py",
+      "sha256": "698de047e07cc027d2dc52cc52913e441e498df4bb952aff968f99be4c6c4332",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "backend/apps/tenant_migration/source_gate_module_guards.py",
+      "sha256": "01956bb3f42775844d321e79f3df23b61304d12d118c19bf8ed50a57762afd46",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+      "sha256": "7606ddad0c8f59dcba622cad504b9080591f9339408db318cd0164110fc30825",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/self-hosting.md",
+      "sha256": "dd53240d6a3e077e23dc05a1f08de7f4af7103f370d6ac5872d8a67f010bad7b",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/SOURCE-MAP.md",
+      "sha256": "6250b95c4562d8a93f04820f4d41795b9876f8fb67488091920b515b2becb1eb",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-plan.md",
+      "sha256": "532a75f2042fa2b703fb28339ec562cb50b0cd12c6b19dc56a25f54b8ee37c82",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-review.txt",
+      "sha256": "70f477217525bcf5462aece9d5a9252462accbd4a624601ed12e550066bcf0e3",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-delta.md",
+      "sha256": "53dc9dd330081e1d2b94df6ed6e618611880b87f7b6f873947386b0c07cc5e63",
+      "matches_stage2_freeze": true
+    },
+    {
+      "path": "docs/audits/2026-10-29/evidence/spaceworks-storage-recompute-exclusion-delta-review.txt",
+      "sha256": "6c40bf6398028da1507dd8bd85a8310987eabdf9c61c7d150f72b11d0ae7afc2",
+      "matches_stage2_freeze": true
+    }
+  ],
+  "unchanged_child_test": {
+    "path": "backend/tests/evidence/test_evidence_recompute_provenance.py",
+    "sha256": "2f8db9c7ab67b1d9c95f1d6582b1a13c75bb6e60f7d4e877b43c129f6abb979d",
+    "transactional_marker_present": true,
+    "edited": false
+  },
+  "handoff_document": {
+    "path": "docs/audits/2026-10-29/evidence/storage-recompute-exclusion-tests.md",
+    "sha256": "068fc6f36041e43ce5bb50e82233f9b87293bab65341b9ae3bcda865dace8518",
+    "bytes": 9925,
+    "lines": 127
+  },
+  "static_checks": {
+    "python_ast_parse": "passed; 11 authored/edited Python files",
+    "all_new_python_files_at_most_300_lines": true,
+    "new_suite_skip_or_xfail": false,
+    "structural_mutation_targets": "20 present; all mutated source parses; guard not executed",
+    "adapter_scope_ast_comparison": "passed against dirty pre-edit files; unrelated AST preserved",
+    "whitespace": "passed including untracked/new files",
+    "scoped_git_diff_check": "passed",
+    "stage2_input_hashes": "10/10 match"
+  },
+  "existing_line_ceiling_exception": {
+    "path": "backend/tests/test_managed_limits_enforcement.py",
+    "before_lines": 345,
+    "after_lines": 348,
+    "reason": "Explicitly allowed recompute-only adapter; no broader source/test reorganization."
+  },
+  "predicted_source_defect": {
+    "status": "static prediction; not runtime-confirmed",
+    "source_path": "backend/apps/tenant_migration/gate_locks.py",
+    "method": "_BoundaryExclusiveLock._verify",
+    "test": "test_ended_transaction_cannot_be_hidden_by_same_pid_exact_substitute_lock",
+    "strict_parameter_cases": 2,
+    "description": "Same original PID plus exact matching pg_locks row does not prove original transaction continuity; real same-backend session/new-transaction substitutes appear accepted.",
+    "skip_or_xfail": false,
+    "production_fix_in_this_stage": false
+  },
+  "proof_limits": [
+    "A synchronous blocked backend cannot execute its own verification query concurrently; ungranted locks are observed in real queued producer tests, not fabricated verifier results.",
+    "Runtime production-role grants, transaction pooler behavior and real provider behavior require root checks."
+  ],
+  "prohibited_actions_performed": [],
+  "production_files_edited": [],
+  "output_files_total": 13
+}

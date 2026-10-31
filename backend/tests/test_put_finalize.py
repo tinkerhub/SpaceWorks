@@ -168,52 +168,105 @@ def test_put_evidence_quota_is_charged_once(monkeypatch, settings):
     charge_storage_once(photo, 321)
     charge_storage_once(photo, 321)
 
-    add_storage.assert_called_once_with(photo.makerspace, 321)
+    add_storage.assert_called_once_with(photo.makerspace, 321, no_key=False)
 
 
 def test_public_image_post_finalize_retries_transient_missing_object(monkeypatch, settings):
+    from tests.atomic_publication.store import Store, png
+
     settings.STORAGE_PRESIGN_METHOD = "post"
-    attempts = []
-
-    def fake_size(key):
-        attempts.append(key)
-        return None if len(attempts) == 1 else 123
-
-    monkeypatch.setattr(public_image_storage, "object_size", fake_size)
-    monkeypatch.setattr(public_image_storage.time, "sleep", lambda delay: None)
-
-    result = public_image_storage.finalize_upload("printers/1/photo.png")
-
-    assert result.status == "ok"
-    assert result.size == 123
-    assert attempts == ["printers/1/photo.png", "printers/1/photo.png"]
-
-
-def test_public_image_finalize_uses_size_not_exists(monkeypatch, settings):
-    settings.STORAGE_PRESIGN_METHOD = "put"
     settings.PUBLIC_IMAGE_MAX_BYTES = 500
-    final_key = "items/1/object.jpg"
-    staging_key = f"staging/{final_key}"
-    copied = []
-    sized = []
+    final_key = "printers/1/photo.png"
+    staging_key = public_image_storage.staging_key(final_key)
+    image = png()
+    store = Store()
+    sleeps = []
 
-    def fake_size(key):
-        sized.append(key)
-        if key == final_key and not copied:
-            return None
-        return 123
+    def upload_after_initial_missing(delay):
+        sleeps.append(delay)
+        store.seed(staging_key, image, "image/png")
 
-    _block_object_exists(monkeypatch, public_image_storage)
-    monkeypatch.setattr(public_image_storage, "object_size", fake_size)
-    monkeypatch.setattr(public_image_storage, "copy_object", lambda source, dest: copied.append((source, dest)))
-    monkeypatch.setattr(public_image_storage, "delete_object", lambda key: None)
+    monkeypatch.setattr(public_image_storage, "_client", lambda: store)
+    monkeypatch.setattr(
+        "apps.inventory.public_image_publication.time.sleep",
+        upload_after_initial_missing,
+    )
 
     result = public_image_storage.finalize_upload(final_key)
 
     assert result.status == "ok"
-    assert result.size == 123
-    assert sized == [final_key, staging_key, final_key]
-    assert copied == [(staging_key, final_key)]
+    assert result.size == len(image)
+    assert sleeps == [0.2]
+    assert [kwargs["Key"] for operation, kwargs in store.calls if operation == "get"] == [
+        final_key, staging_key, final_key, staging_key, final_key,
+    ]
+    assert store.objects[final_key][:2] == (image, "image/png")
+    assert staging_key not in store.objects and store.versions[staging_key] == {}
+
+    # A still-valid upload may recreate staging, but cannot replace the final.
+    final_object = store.objects[final_key]
+    final_versions = store.versions[final_key].copy()
+    store.seed(staging_key, png("red"), "image/png")
+    assert public_image_storage.finalize_upload(final_key) == result
+    assert store.objects[final_key] == final_object
+    assert store.versions[final_key] == final_versions
+    assert staging_key not in store.objects and store.versions[staging_key] == {}
+    assert sleeps == [0.2]
+    puts = [kwargs for operation, kwargs in store.calls if operation == "put"]
+    assert len(puts) == 1
+    assert puts[0]["IfNoneMatch"] == "*" and puts[0]["ContentType"] == "image/png"
+    assert all(body.closed for body in store.streams + store.put_bodies)
+
+
+def test_public_image_finalize_uses_observed_get_bytes_and_revalidates_winner(monkeypatch, settings):
+    from tests.atomic_publication.store import Store, png
+
+    settings.STORAGE_PRESIGN_METHOD = "put"
+    settings.PUBLIC_IMAGE_MAX_BYTES = 500
+    final_key = "items/1/object.png"
+    staging_key = public_image_storage.staging_key(final_key)
+    image, winner_image = png(), png("red")
+    store = Store()  # GET deliberately reports ContentLength=1 for every object.
+    staged_versions = [
+        store.seed(staging_key, png("green"), "image/png"),
+        store.seed(staging_key, image, "image/png"),
+    ]
+    neighbor_key = f"{staging_key}.neighbor"
+    neighbor_version = store.seed(neighbor_key, image, "image/png")
+    winner_versions = {}
+
+    def publish_competing_winner(_kwargs):
+        version = store.seed(final_key, winner_image, "image/png")
+        winner_versions[version] = (winner_image, "image/png")
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Finalization must use GET snapshots and conditional PUT, without HEAD or COPY")
+
+    store.before_put = publish_competing_winner
+    monkeypatch.setattr(public_image_storage, "_client", lambda: store)
+    _block_object_exists(monkeypatch, public_image_storage)
+    monkeypatch.setattr(public_image_storage, "object_size", forbidden)
+    monkeypatch.setattr(public_image_storage, "copy_object", forbidden)
+    monkeypatch.setattr(store, "head_object", forbidden)
+
+    result = public_image_storage.finalize_upload(final_key)
+
+    assert result.status == "ok"
+    assert result.size == len(winner_image) > 1
+    assert store.objects[final_key][:2] == (winner_image, "image/png")
+    assert store.versions[final_key] == winner_versions
+    assert [kwargs["Key"] for operation, kwargs in store.calls if operation == "get"] == [
+        final_key, staging_key, final_key,
+    ]
+    puts = [kwargs for operation, kwargs in store.calls if operation == "put"]
+    assert len(puts) == 1
+    assert puts[0]["IfNoneMatch"] == "*" and puts[0]["ContentType"] == "image/png"
+    assert staging_key not in store.objects and store.versions[staging_key] == {}
+    deleted = [item for operation, kwargs in store.calls if operation == "delete"
+               for item in kwargs["Delete"]["Objects"]]
+    assert deleted == [{"Key": staging_key, "VersionId": version} for version in staged_versions]
+    assert store.versions[neighbor_key] == {neighbor_version: (image, "image/png")}
+    assert all(body.closed for body in store.streams + store.put_bodies)
 
 def test_evidence_presigned_upload_put_mode_signs_staging_key(monkeypatch, settings):
     settings.STORAGE_PRESIGN_METHOD = "put"

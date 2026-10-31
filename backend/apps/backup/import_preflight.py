@@ -7,8 +7,10 @@ import re
 
 from apps.backup.archive_payload import CONTINUITY_KEYS
 from apps.backup.digests import sha256_file
+from apps.backup.full_format import FULL_FORMAT, COMPOUND_UNSUPPORTED
+from apps.backup.manifest_dispatch import manifest_kind, verify_signed_manifest
 from apps.backup.management.commands.backup_preflight import build_info
-from apps.backup.outer_manifest import PROTOCOL_VERSION, verify_outer_manifest
+from apps.backup.outer_manifest import PROTOCOL_VERSION
 from apps.backup.postgres_client import server_major
 from apps.backup.recipient_selection import BackupBuildError
 
@@ -32,17 +34,17 @@ class ImportPreflightError(RuntimeError):
 class ImportPreflightResult:
     manifest: dict
     archive_sha256: str
-    host_restore_gate: str
+    host_restore_gate: dict
 
 
 def host_restore_gate_status():
-    # Lane E section 11: the producer/consumer host gate lands in a later phase.
-    return "not configured"
+    # Static artifact admission has no authority to describe installed host state.
+    return {"state": "not_checked", "admission": "static-artifact-only", "authority": False}
 
 
 def validate_import_preflight(
     *, encrypted_file, bundle, manifest_file, continuity_secrets_file,
-    expected_sha256=None,
+    expected_sha256=None, require_host_support=False, prospective_environment=False, prospective_record=None, restore_id=None,
 ):
     """Validate an import without writing environment, database, or object state."""
     encrypted_path = Path(encrypted_file)
@@ -67,8 +69,17 @@ def validate_import_preflight(
             )
 
     manifest = _read_json_file(manifest_file, "manifest")
+    if require_host_support:
+        try:
+            if manifest_kind(manifest) == "compound":
+                raise ImportPreflightError("compound_host_unsupported", COMPOUND_UNSUPPORTED)
+        except BackupBuildError as exc:
+            raise ImportPreflightError("format_unsupported", str(exc)) from exc
     _validate_format(manifest)
     _validate_signature(manifest)
+    kind = manifest_kind(manifest)
+    if (prospective_record or prospective_environment) and kind != "full":
+        raise ImportPreflightError("prospective_authority", "only signed-full admission may use root delegation.")
     continuity_secrets = _read_json_file(
         continuity_secrets_file, "continuity-secret"
     )
@@ -79,6 +90,20 @@ def validate_import_preflight(
     )
     _validate_continuity_secrets(continuity_secrets)
     _validate_target_compatibility(manifest)
+    if kind == "full":
+        from apps.backup.full_preflight import validate_full_target
+
+        environment = None
+        if prospective_record:
+            from apps.backup.restore_prospective import prospective_environment as delegated_environment
+
+            environment = delegated_environment(
+                prospective_record, manifest=manifest, archive_sha256=archive_sha256,
+                continuity_file=continuity_secrets_file, restore_id=restore_id,
+            )
+        elif prospective_environment:
+            raise ImportPreflightError("prospective_authority", "root operation delegation is required.")
+        validate_full_target(manifest, continuity_secrets, environment=environment)
     return ImportPreflightResult(
         manifest=manifest,
         archive_sha256=archive_sha256,
@@ -92,6 +117,8 @@ def _validate_format(manifest):
             "format_unsupported", "the deployment archive manifest is not an object."
         )
     format_name = manifest.get("format")
+    if format_name == FULL_FORMAT:
+        return
     if format_name == LANE_D_FORMAT:
         raise ImportPreflightError(
             "format_lane_d", "a Lane D tenant dump is not a deployment archive."
@@ -105,6 +132,12 @@ def _validate_format(manifest):
             "format_unsupported", "the deployment archive format is unsupported."
         )
     if manifest.get("protocol_version") != PROTOCOL_VERSION:
+        if manifest.get("protocol_version") == "spaceworks-lane-e-b1-v1":
+            raise ImportPreflightError(
+                "source_binding_version",
+                "the old compound v1 source-binding version is unsupported; create a new "
+                "v2 backup and refresh the installed producer and restore capabilities.",
+            )
         raise ImportPreflightError(
             "format_version", "the Lane E compound protocol version is unsupported."
         )
@@ -140,7 +173,7 @@ def _validate_compatibility_declarations(manifest):
 
 def _validate_signature(manifest):
     try:
-        verify_outer_manifest(manifest)
+        verify_signed_manifest(manifest)
     except (BackupBuildError, KeyError, TypeError, ValueError) as exc:
         detail = (
             str(exc)
@@ -161,8 +194,10 @@ def _validate_continuity_secrets(values):
             "continuity_secret_names",
             "the continuity-secret name set is not exactly the required set.",
         )
+    if not isinstance(values["SECRET_KEY"], str) or not values["SECRET_KEY"]:
+        raise ImportPreflightError("continuity_secret_value", "the continuity SECRET_KEY is missing.")
     if any(
-        not isinstance(value, str) or "\n" in value or "\r" in value
+        not isinstance(value, str) or "\n" in value or "\r" in value or "\x00" in value
         for value in values.values()
     ):
         raise ImportPreflightError(

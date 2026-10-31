@@ -7,6 +7,7 @@ import { PublicContainer, PublicShell } from "../../components/chrome/PublicShel
 import { Button, Card, EmptyState, Field, Input, PageHeader, Skeleton, StatusBadge, buttonClasses } from "../../components/ui";
 import { StructuredApiError } from "../../lib/api";
 import { useModules } from "../../lib/modules";
+import { HardwareRequestItems } from "../requests/HardwareRequestItems";
 import { fetchRequestStatus } from "./api";
 import { useMakerspacePublic } from "./useMakerspacePublic";
 
@@ -15,6 +16,7 @@ const STATUS_COPY: Record<string, string> = {
   pending_approval: "Waiting for staff to review it.",
   accepted: "Approved. Collect it from the desk.",
   rejected: "Staff could not approve this request.",
+  cancelled: "This request has been cancelled.",
   issued: "Handed over. Return it when you are done.",
   partially_returned: "Some items are back; the rest are still out.",
   returned: "Everything has been returned.",
@@ -26,8 +28,8 @@ export function PublicRequestStatusPage() {
   const { makerspaceSlug, tenantPath } = space;
   const { moduleEnabled } = useModules();
   const [searchParams, setSearchParams] = useSearchParams();
-  const token = searchParams.get("token")?.trim() ?? "";
-  const [draft, setDraft] = useState(token);
+  const urlToken = searchParams.get("token") ?? "";
+  const token = urlToken.trim();
   const status = useQuery({
     queryKey: ["public-request-status", makerspaceSlug, token],
     queryFn: () => fetchRequestStatus(makerspaceSlug, token),
@@ -35,11 +37,6 @@ export function PublicRequestStatusPage() {
     retry: false,
   });
   const notFound = status.error instanceof StructuredApiError && status.error.status === 404;
-
-  const lookup = (event: FormEvent) => {
-    event.preventDefault();
-    if (draft.trim()) setSearchParams({ token: draft.trim() });
-  };
 
   return (
     <PublicShell header={<MakerspaceSiteHeader {...space.header} moduleEnabled={moduleEnabled} page="Request status" />}>
@@ -49,14 +46,8 @@ export function PublicRequestStatusPage() {
           title="Check a request"
           description="Enter the reference you saved when you submitted the request."
         />
-        <form className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={lookup}>
-          <Field label="Request reference" className="min-w-0 flex-1">
-            <Input value={draft} onChange={(event) => setDraft(event.target.value)} autoComplete="off" spellCheck={false} />
-          </Field>
-          <Button type="submit" variant="primary" disabled={!draft.trim()} loading={status.isFetching} loadingLabel="Checking…">
-            Check status
-          </Button>
-        </form>
+        <ReferenceLookup key={JSON.stringify([makerspaceSlug, urlToken])} token={token} pending={status.isFetching}
+          onLookup={(reference) => setSearchParams({ token: reference })} />
 
         <div className="mt-6" aria-live="polite">
           {status.isLoading ? (
@@ -75,14 +66,7 @@ export function PublicRequestStatusPage() {
                 <p className="text-caption text-ink-muted">Submitted {new Date(status.data.created_at).toLocaleString()}</p>
               </div>
               {STATUS_COPY[status.data.status] ? <p className="text-body-ui text-ink-secondary">{STATUS_COPY[status.data.status]}</p> : null}
-              <ul className="divide-y divide-line">
-                {status.data.items.map((item, index) => (
-                  <li key={`${item.product_name}-${index}`} className="flex justify-between gap-3 py-2 text-body-ui text-ink">
-                    <span className="min-w-0 break-words">{item.product_name}</span>
-                    <span className="shrink-0 text-ink-muted">× {item.requested_quantity}</span>
-                  </li>
-                ))}
-              </ul>
+              <HardwareRequestItems items={status.data.items} />
             </Card>
           ) : null}
         </div>
@@ -91,4 +75,22 @@ export function PublicRequestStatusPage() {
       </PublicContainer>
     </PublicShell>
   );
+}
+
+function ReferenceLookup({ token, pending, onLookup }: {
+  token: string; pending: boolean; onLookup: (reference: string) => void;
+}) {
+  const [draft, setDraft] = useState(token);
+  function lookup(event: FormEvent) {
+    event.preventDefault();
+    if (draft.trim()) onLookup(draft.trim());
+  }
+  return <form className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={lookup}>
+    <Field label="Request reference" className="min-w-0 flex-1">
+      <Input value={draft} onChange={(event) => setDraft(event.target.value)} autoComplete="off" spellCheck={false} />
+    </Field>
+    <Button type="submit" variant="primary" disabled={!draft.trim()} loading={pending} loadingLabel="Checking…">
+      Check status
+    </Button>
+  </form>;
 }

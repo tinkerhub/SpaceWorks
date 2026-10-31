@@ -1,0 +1,26 @@
+{
+  "format": "spaceworks-qr-batch-projection-source-freeze-v1",
+  "status": "Four final complete source bodies read; Stage3 authoring active, root runtime/schema/review pending",
+  "files": [
+    {
+      "path": "backend/apps/operations/serializers.py",
+      "lines": 231,
+      "sha256": "3089d98e5503989ad0560d4d69460c44bcc84661fe515e7f5c542518c1c281c9"
+    },
+    {
+      "path": "backend/apps/operations/qr_zip.py",
+      "lines": 29,
+      "sha256": "7f18d1aa4cbbd422c94a05169dd704f56b03a142fd6b42e5dced0d680e4f9f9a"
+    },
+    {
+      "path": "backend/apps/operations/admin.py",
+      "lines": 193,
+      "sha256": "58b3a701ee35376f032635cc5df0cf4eab91ecfb9558bd3b621d241ea3081309"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/QrToolsBatch.tsx",
+      "lines": 98,
+      "sha256": "417eb47abd6fe6107d6687bf6abcc52f056ed0f4a06a145ce5d609a38781a192"
+    }
+  ]
+}

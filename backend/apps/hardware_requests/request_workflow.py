@@ -17,7 +17,6 @@ from apps.hardware_requests.workflow_errors import (
 from apps.hardware_requests.workflow_utils import locked_request
 from apps.inventory import availability
 from apps.makerspaces.models import Makerspace
-from apps.notifications.emit import emit_notification
 
 
 @dataclass(frozen=True)
@@ -112,13 +111,6 @@ def submit_request(
             ),
         )
         notifications.notify_request_submitted(request)
-        emit_notification(
-            makerspace,
-            level="info",
-            event="request.submitted",
-            title="New hardware request",
-            body=f"Hardware request #{request.pk} submitted.",
-        )
         return request
 
 

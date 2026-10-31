@@ -11,6 +11,7 @@ import { PublicMachineServicePage } from "./features/machineService/PublicMachin
 import { PublicRequestStatusPage } from "./features/inventory/PublicRequestStatusPage";
 import { PublicSelfCheckoutPage } from "./features/inventory/PublicSelfCheckoutPage";
 import { ArchivedPayments } from "./features/members/ArchivedPayments";
+import { MyRequestsPage } from "./features/requests/MyRequestsPage";
 import { MemberArea } from "./features/members/MemberArea";
 import { PublicPrintRequestPage } from "./features/printing/PublicPrintRequestPage";
 import { PublicOrganizationPage } from "./features/organizations/PublicOrganizationPage";
@@ -42,7 +43,8 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
   if (mode === "single") return <Routes>
     <Route path="/" element={<PublicInventoryPage />} />
     <Route path="/checkout" element={<PublicSelfCheckoutPage />} />
-    <Route path="/request" element={<PublicRequestStatusPage />} />
+    <Route path="/my-requests" element={<MyRequestsPage />} />
+    <Route path="/request" element={<RequireModule module="request_workflow"><PublicRequestStatusPage /></RequireModule>} />
     <Route path="/events" element={events(<PublicEventsPage />)} />
     <Route path="/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />
@@ -65,7 +67,8 @@ export function AppRoutes({ mode, landing }: { mode: "single" | "central"; landi
     <Route path="/o/:organizationSlug" element={<PublicOrganizationPage />} />
     <Route path="/m/:slug" element={<PublicInventoryPage />} />
     <Route path="/m/:slug/checkout" element={<PublicSelfCheckoutPage />} />
-    <Route path="/m/:slug/request" element={<PublicRequestStatusPage />} />
+    <Route path="/m/:slug/my-requests" element={<MyRequestsPage />} />
+    <Route path="/m/:slug/request" element={<RequireModule module="request_workflow"><PublicRequestStatusPage /></RequireModule>} />
     <Route path="/m/:slug/events" element={events(<PublicEventsPage />)} />
     <Route path="/m/:slug/events/:publicToken/feedback" element={events(<PublicEventFeedbackPage />)} />
     <Route path="/m/:slug/event-check-in/:stationToken" element={events(<EventCheckInStationPage />)} />

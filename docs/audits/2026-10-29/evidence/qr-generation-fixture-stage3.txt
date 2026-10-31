@@ -1,0 +1,5 @@
+Updated only [test_generation_fresh_policy.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/qr_source_safety/test_generation_fresh_policy.py): preserved all nine coherent denials and replaced the impossible case with a canonical three-session serialization test.
+
+Static checks pass: **273 cases, 39 functions, 233 lines**. No collection, runtime tests, Django imports, builds, staging, or commits performed.
+
+[JSON record with SHAs, lock history, counts, and commands](/tmp/spaceworks-qr-generation-fixture-correction.json).

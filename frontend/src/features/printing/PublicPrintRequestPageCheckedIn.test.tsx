@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { deferred, genericType, printerType, serviceStatus } from "../machineService/serviceTestFixtures";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { accessToken } from "../../test/accessTokens";
 
 const {
   fetchServiceTypes,
@@ -146,7 +147,10 @@ describe("checked-in public print requests", () => {
     submitServiceRequest.mockResolvedValue({ public_token: "print-token", status: "pending" });
     getAccessToken.mockReturnValue("");
     refreshAccessToken.mockReset();
-    refreshAccessToken.mockResolvedValue(true);
+    refreshAccessToken.mockImplementation(async () => {
+      getAccessToken.mockReturnValue(accessToken("printer-restored-member"));
+      return true;
+    });
   });
 
   it("gates the form and sends identity with every presign and submission", async () => {

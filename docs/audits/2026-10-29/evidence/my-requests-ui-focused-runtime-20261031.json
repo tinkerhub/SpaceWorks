@@ -1,0 +1,2056 @@
+{
+  "scope": "My requests frontend, browser-private capabilities, reactive session ownership, receipt persistence and affected compatibility; real UI/transport with leaf HTTP fixtures only",
+  "status": "ALL_275_SELECTED_CASE_INSTANCES_RESOLVED_INITIAL274_PLUS_AFFECTED9_RETRY",
+  "new_behavioral_cases": 77,
+  "existing_compatibility_cases": 198,
+  "runtime": {
+    "node": "20.20.2",
+    "vitest": "4.1.12",
+    "platform": "linux-arm64",
+    "workers": 1,
+    "network": "none",
+    "source_and_locked_dependencies_read_only": true,
+    "compiler_and_cache_scratch_isolated": true,
+    "deadlines_unchanged": true,
+    "backend_database_used": false
+  },
+  "initial_complete_selection": {
+    "exit_code": 1,
+    "seconds": 195.779,
+    "selected_test_files": 36,
+    "source_files": 794,
+    "source_manifest_sha256": "f37c808803539591d6e751c133ce77fc42ca9e6e2e104bba16784cb60d1d3f8a",
+    "snapshot_source_unchanged": true,
+    "checkout_captured_sources_still_match": true,
+    "typescript_exit": 0,
+    "typescript_seconds": 52.119,
+    "vitest_seconds": 141.581,
+    "cases": 275,
+    "passed": 274,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "9e58e12d3c53d946cc55aa1c877a2451300066e6c0585a6b2933754971b61728"
+  },
+  "initial_failing_case": {
+    "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+    "name": "public My requests routes and bootstrap gates > lets the own-history API deny an existing accounts-off token without inventing a sign-in form",
+    "classification": "A newly added test reused one consumable403 Response body across two concurrent account-history reads; one branch consequently could not decode the same body. This is a test fixture error."
+  },
+  "fixture_correction": {
+    "path": "frontend/src/features/requests/MyRequestsPage.routes.test.tsx",
+    "old_sha256": "95dff341f486317950bd3e4b612177801a4b2edc7e8ab85f36caf7ca88b72599",
+    "new_sha256": "eaef97a06eedb37f2fa0ba321ff38fa96dc0306b805cc84148c4ef1648b87a70",
+    "change": "Return a new403 JSON Response for each call; wait for both unchanged denial assertions, rather than resolving at the first visible denial. All privacy, header, no-sign-in/no-refresh and call-count checks remain.",
+    "application_source_changed": false,
+    "root_independently_read": true
+  },
+  "final_affected_file_retry": {
+    "exit_code": 0,
+    "seconds": 27.798,
+    "source_files": 794,
+    "source_manifest_sha256": "dfc378f8fab43c1de644b4c508697497ba20a0f18f408d21bf68161288c01e68",
+    "snapshot_source_unchanged": true,
+    "checkout_captured_sources_still_match": true,
+    "vitest_seconds": 24.496,
+    "cases": 9,
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_sha256": "81c7e3227b90a3ffd94a200934839d134d7e27d2fc0117b2921e33c7f4a87b2d"
+  },
+  "exact_case_resolution": {
+    "original_instances": 275,
+    "resolved_instances": 275,
+    "missing": 0,
+    "extras": 0,
+    "retry_repeats_eight_initial_passes": true,
+    "not_a_fresh_275_case_all_green_run": true,
+    "identity_scheme": "Exact JUnit classname + name + one-based occurrence within identical titles. One unchanged five-row it.each group has identical titles; source and row order are frozen. No title or testcase assertion was rewritten.",
+    "unique_classname_name_titles": 271,
+    "repeated_title_groups": [
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrences": 5
+      }
+    ],
+    "cases": [
+      {
+        "classname": "src/App.centralMemberRoute.test.tsx",
+        "name": "central deployment routing > reaches the recovery page by CLICK, not only by direct load",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/App.centralMemberRoute.test.tsx",
+        "name": "central deployment routing > routes /member to the member area rather than the not-found page",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "MakerspaceSiteHeader > hides the member area link when member accounts are off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "MakerspaceSiteHeader > links only the sections whose modules are on",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "MakerspaceSiteHeader > links the member area when member accounts are on",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "PlatformSiteHeader > offers staff login but never a member area",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "Service request navigation > follows machines + machine_service for [\"machine_service\"]",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "Service request navigation > follows machines + machine_service for [\"machines\",\"machine_service\",\"printing\"]",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "Service request navigation > follows machines + machine_service for [\"machines\",\"machine_service\"]",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "Service request navigation > follows machines + machine_service for [\"machines\"]",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/components/chrome/PublicHeaders.test.tsx",
+        "name": "Service request navigation > follows machines + machine_service for []",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > changing confirmed people clears purpose and captures only the new canonical check-in identity",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > kiosk success retains its reference and status link after clearing the person; next draft is unconfirmed",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > old maker rejection cannot publish a token, clear B cart/draft or toast, or unlock B's pending request",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > old maker success cannot publish a token, clear B cart/draft or toast, or unlock B's pending request",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > old session rejection cannot publish after an actor switch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > old session success cannot publish after an actor switch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.ownership.test.tsx",
+        "name": "borrow draft admission and completion ownership > passes the captured item list to its parent even if the source array is later mutated",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > does not invent a private reference or registry entry for a tokenless honeypot response",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > does not save a held server receipt after actor departure",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > does not save a held server receipt after maker departure",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > does not save a held server receipt after unmount departure",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > does not save a rejected create response",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > keeps a private receipt/link and truthful warning after storage failure (account=false)",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > keeps a private receipt/link and truthful warning after storage failure (account=true)",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicBorrowRequest.persistence.test.tsx",
+        "name": "hardware saves only admitted server receipts > persists two actual submissions before parent clear/completion unmounts the form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicIdentityTenantScope.test.tsx",
+        "name": "actual public parent identity scope > PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicIdentityTenantScope.test.tsx",
+        "name": "actual public parent identity scope > self-checkout parent blocks B evidence/loan readiness until a fresh B lookup and resets uploaded evidence on identity edits",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicIdentityTenantScope.test.tsx",
+        "name": "actual public parent identity scope > tool parent blocks B evidence/loan readiness until a fresh B lookup and resets uploaded evidence on identity edits",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > asks a members-only space for no contact details and sends no key",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > collects contact details and sends them with an idempotency key",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > describes an accounts-only space without membership, waiver or presence",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > gives a signed-in member the member form even on an opted-in space",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > keeps submit disabled until a name and an email are given",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > keeps the member scan tab on a members space with self-checkout on",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > offers no scan tab where self-checkout cannot work",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > sends the honeypot field so autofill bots get the decoy response",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less borrow requests > shows the request token afterwards, the only handle an account-less visitor has",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less races > drops the previous token as soon as another attempt starts",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-less races > keeps submit disabled while the session probe is still pending",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-required policies with nobody signed in > keeps the member rules and adds sign-in on a members space",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-required policies with nobody signed in > points a signed-out visitor at member sign-in instead of letting the submit 401",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-required policies with nobody signed in > restores a reloaded session from the refresh cookie and files the request under it",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelAccountLess.test.tsx",
+        "name": "account-required policies with nobody signed in > sends a visitor to the desk when the space has no member accounts to sign in with",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > asks for a name instead of contact details",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > clears the confirmed identity after a submit so the next person starts fresh",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > describes the account-less roster path",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > describes the check-in scan tab, signed in or not",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > does not auto-pick when two people share a name",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > explains a fixable refusal rather than just failing",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > gives a roster requester the reference token after submitting",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > gives an active member no bypass: the roster identity is still sent",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > hides the scan tab when self-checkout is off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > keeps signed-in staff on the check-in roster",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > never asks an anonymous visitor for a member account",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > says so when nobody matches the typed name",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > sends the confirmed mid and the canonical roster name",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelCheckedIn.test.tsx",
+        "name": "checked-in borrow requests > still requires roster identity when signed in",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelFlow.test.tsx",
+        "name": "borrow desk document flow > BorrowRequestCard preserves clear, edit, submit and token/status actions without a capped selected list",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestPanelFlow.test.tsx",
+        "name": "borrow desk document flow > ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > clears the draft immediately on token removal and only sends a newly visible typed reference",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > immediately replaces an edited reference when the URL token changes, before paint",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > keeps current loading/404/retry behavior and does not display an obsolete maker response",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestReferenceOwnership.test.tsx",
+        "name": "borrow reference ownership on the same reused route element > resets maker-private unsent drafts on A\u2192B\u2192A and sends B's exact visible lookup with B credentials",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatus.flowCounts.test.tsx",
+        "name": "public hardware status uses request flow quantities > distinguishes requested, partially approved, issued and partially returned quantities",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatus.flowCounts.test.tsx",
+        "name": "public hardware status uses request flow quantities > shows only requested for legacy rows missing flow counts, while preserving genuine zeros",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > looks up a typed reference and says when nothing matches",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > looks up the token from the link and shows the status",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > separates a failed lookup from a missing request",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/inventory/PublicRequestStatusPage.test.tsx",
+        "name": "public request status lookup > shows generic Cancelled status without staff details or an action even if extra fields arrive",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/MyRequestsStatus.test.tsx",
+        "name": "My requests reuses machine service status semantics > shows all lifecycle states, Ready to collect for completed and terminal failure callouts",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/MyRequestsStatus.test.tsx",
+        "name": "My requests reuses machine service status semantics > uses those same status semantics for revealed browser links across the six-row page boundary",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > disables the type selector while uploading and submitting",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > does not poll after a terminal token error (403)",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > does not poll after a terminal token error (404)",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > filters cached printer types when printing is disabled",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > honors Machines type preselection and the /print wrapper defaults to the printer",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > never fetches or polls status with moduleoff",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > never fetches or polls status with no-token",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > recovers status through Retry status after a temporary failure: Error: Network unavailable",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > recovers status through Retry status after a temporary failure: StructuredApiError: Status temporarily unavailable",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > renders generic in_progress status and keeps old printer token links working",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > reports status errors without losing the request form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > resets printer fields, files and submission errors when the selected type changes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > selects types by id and submits a successful generic proposal with a private tracker",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > shows an unavailable preselection without silently choosing a different type",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > shows the empty catalog state without a submission form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > shows the error catalog state without a submission form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > shows the loading catalog state without a submission form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > shows the moduleoff catalog state without a submission form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > surfaces a catalog fetch failure with a retry action",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicMachineServicePage.test.tsx",
+        "name": "public machine service page > waits for the refresh-cookie probe before showing sign-in or enabling a form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > creates fresh visits for changed request policy and real auth epochs",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > keeps check-in typing mounted while changing a confirmed person clears private details",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > keeps unpublished types and off modules gated, including cached printer types",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > preserves a current draft across stable catalog object refreshes but resets on a type round trip",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > releases a disappeared form's selector but late A failure/cleanup cannot unlock a pending B",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > resets canonical check-in, private draft/files and lookup results before paint on A\u2192B\u2192A",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > retains a successful token/banner after internal field reset and finish; old completion cannot replace B",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/PublicServiceVisitOwnership.test.tsx",
+        "name": "actual shared service page semantic visits > treats defaultPrinter changes as visits even when the selected catalog id stays the same",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > does not save a failed service submission",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > does not save an already dispatched receipt after actor changes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > does not save an already dispatched receipt after person changes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > does not save an already dispatched receipt after unmount changes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > keeps a committed current receipt and private link when registry storage throws",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > never fetches an old browser service on blank or newly confirmed check-in identity; current success is immediate",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > revokes an offline queued mutation before dispatch when its person visit has ended",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequest.persistence.test.tsx",
+        "name": "actual service form persistence and shared-browser privacy > saves two actual successful references before the completion callback unmounts each form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > accepts printer requests without a queue or filament preference and wraps human Slicer notes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > keeps drafts and reports bytes failures without claiming success",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > keeps drafts and reports presign failures without claiming success",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > keeps drafts and reports submit failures without claiming success",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > keeps the form disabled throughout byte upload and submission",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > lets the requester explicitly clear vanished filament when every pool disappears",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > makes a removed filament choice an explicit choose-again error before uploading",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > posts a generic project using the type id and description without printer fields",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > stops when a later presign tries to change the queue",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > uploads generic documents with attachment kind and preserves the pin",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestForm.test.tsx",
+        "name": "uniform service form > uploads model and screenshot in order, pins every later call and submits the returned file ids",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > cannot revive an A action after A\u2192B\u2192A or replace the newer pending progress on rejection/finally",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > discards a held presign on person change before dispatching raw bytes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > does no more work or result publication after unmount during raw storage",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > ignores an already-dispatched final creation while a new person's request remains pending",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > invalidates held presigns at a real distinct-actor epoch even before another render",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceRequestOwnership.test.tsx",
+        "name": "service action ownership through the real upload pipeline > stops after admitted raw bytes when type changes, including remaining files and progress",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > clears a person's ephemeral completion without erasing the saved capability or reviving old callbacks",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > keeps legacy printer links hidden until explicit reveal and an explicit private URL",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > keeps the changed URL visit current despite old completion and retry closures",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > masks an auth visit's banner before paint while preserving capability compatibility across actors",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > masks completion before paint on A\u2192B\u2192A and fences stale success/retry/storage publication",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > prevents held obsolete completion/persistence and retry work after departure or unmount",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceStatusOwnership.test.tsx",
+        "name": "service tracker capabilities and ephemeral visit ownership > uses an explicit encoded URL capability ahead of a saved token",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > admits same-tick duplicate submit events exactly once",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > captures immutable printer fields, files, identity and policy and pins serial uploads to the first queue",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > keeps a refreshed printer draft but validates its vanished pool before upload",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > keeps current errors and drafts usable for retry, then clears them on success",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > rejects a file above the selected type's byte limit before presign",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > rejects a generic attachment outside the captured type extensions",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > rejects a later queue change before sending that file's bytes or creating the request",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > requires a nonblank title and ready identity before admitting any action",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > submits an exact generic no-file DTO and remains usable after finish",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/machineService/ServiceSubmissionContracts.test.tsx",
+        "name": "captured service submission contracts > uses an actual valid refresh token response when a current API call retries a 401",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAccountSection.test.tsx",
+        "name": "member must-change-password gate > replaces the whole member area until the password is rotated",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAccountSection.test.tsx",
+        "name": "member must-change-password gate > shows the account tab with password and sign-out once the flag is clear",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAccountSection.test.tsx",
+        "name": "member sign out > resets the view and confirms when the server ends the session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAccountSection.test.tsx",
+        "name": "member sign out > still resets the view and says so when the server cannot confirm the logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaAccountsOff.test.tsx",
+        "name": "member area with member accounts off > is a not-found page and calls no member API",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaAccountsOff.test.tsx",
+        "name": "member area with member accounts off > offers no member sign-in on a failed bootstrap when the deployment has none",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaAccountsOff.test.tsx",
+        "name": "member area with member accounts off > renders the member area once member accounts are on",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaAccountsOff.test.tsx",
+        "name": "member area with member accounts off > shows a signed-in staff account no member surfaces when the deployment has none",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaModuleGating.test.tsx",
+        "name": "member area with only the core modules > keeps payments and invitations but drops the membership card, presence and events sections",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaModuleGating.test.tsx",
+        "name": "member area with only the core modules > mounts the membership and events sections when those modules are on",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/members/MemberAreaRequests.test.tsx",
+        "name": "actual MemberArea Requests tab without membership > discovers an authenticated account, mounts history only on selection, and destroys private reveal when leaving",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > asks a signed-out visitor to sign in instead of showing the form",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > gates the form and sends identity with every presign and submission",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > keeps generic input disabled while check-in is pending or unreadable",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > leaves the existing form and request body unchanged for other policies",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > lets quantity be cleared while typing, clamps it, and resets the form after submitting",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/printing/PublicPrintRequestPageCheckedIn.test.tsx",
+        "name": "checked-in public print requests > uses the same checked-in identity for generic attachments and the shared typed POST",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > advertises My requests with only machine_service enabled and keeps the other legacy route off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > advertises My requests with only request_workflow enabled and keeps the other legacy route off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > allows an existing real account to load its own requests with accounts off, without sign-in or refresh",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > lets the own-history API deny an existing accounts-off token without inventing a sign-in form",
+        "occurrence": 1,
+        "initial": "FAILED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > opens the real central route and header with accounts off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > opens the real single route and header with accounts off",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > returns 404 with neither module enabled and retains the existing accounts-off MemberArea 404",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > shows bootstrap failure and recovers without an off-endpoint request",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPage.routes.test.tsx",
+        "name": "public My requests routes and bootstrap gates > waits for a real bootstrap before exposing browser links or issuing status/history requests",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": "PASSED"
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > does not publish held A decoding after maker A\u2192B\u2192A and uses a new request owner on return",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > immediately hides account results and resets browser reveal on clear and a distinct login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > publishes logout before its held HTTP response and an old logout cannot clear a newer login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > rejects an old held JSON error after clear and new login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > rejects an old held JSON success after clear and new login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/MyRequestsPanel.session.test.tsx",
+        "name": "private DOM observes real session mutations without a test rerender > retains legitimate account results and explicit browser consent during an accepted same-generation refresh",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > keeps the other branch usable after a hardware 404, then retries independently",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > keeps the other branch usable after a machine 404, then retries independently",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > never calls the off branch when only machine_service is enabled",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > never calls the off branch when only request_workflow is enabled",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > paginates hardware and machine branches by 24 independently, constructing only local page URLs",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > reports a typed account denial without using a public identity or roster fallback",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > retains private status links throughout the hardware lifecycle",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/OwnRequests.test.tsx",
+        "name": "real account history transport and presentation > shows exact per-request quantities and excludes unrelated PII, evidence, staff reasons and cancel actions",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > Forget all clears both kinds and their private caches while preserving another tenant",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > Forget one removes exact capability caches and legacy references, preserves other scopes and never cancels",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > has no private HTTP, title or href before reveal, then fetches only six per page with bounded navigation",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > hides after Hide, a new route visit, tenant A\u2192B\u2192A and unmount, even with cached private results",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > imports legacy links only on reveal and keeps a failing row independent from its successful neighbor",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/SavedRequests.test.tsx",
+        "name": "private browser history requires explicit visit consent > warns truthfully and retains the visible link if forgetting cannot be verified",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not claim forgetting when legacy removal silently retained",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not claim forgetting when legacy removal throws",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrence": 2,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrence": 3,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrence": 4,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > does not overwrite unreadable data; Forget all clears exact tenant keys without parsing",
+        "occurrence": 5,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > keeps legacy reachable when registry verification fails: readback differs",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > keeps legacy reachable when registry verification fails: set discarded",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > keeps legacy reachable when registry verification fails: set throws",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.storageFailures.test.ts",
+        "name": "truthful local storage outcomes > reports unavailable reads without erasing the registry",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > bounds at 50, trims the oldest existing record and refreshes a duplicate instead of adding it",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > forgets only the matching kind+token and matching legacy keys, without resurrecting them",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > keeps a newly successful submission and both imported legacy links reachable against 50 future timestamps",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > preserves internal spaces, punctuation and a bounded opaque legacy reference",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \" outer\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"\\ud800\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"bad\\nref\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"badref\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"bad\u0085ref\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"outer \" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > refuses malformed capability \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\" without altering existing data",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/features/requests/requestCapabilities.test.ts",
+        "name": "browser capability registry > retains two hardware and two machine references across readback, dedupes kind+token and isolates tenants",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.observable.test.ts",
+        "name": "non-secret observable session revision > exposes a stable integer snapshot and notifies once after a coherent install or clear; unsubscribe stops delivery",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.observable.test.ts",
+        "name": "non-secret observable session revision > notifies logout with token and durable pin cleared before held HTTP; late completion publishes nothing",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.observable.test.ts",
+        "name": "non-secret observable session revision > publishes an accepted refresh with unchanged generation and suppresses a superseded refresh",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.test.ts",
+        "name": "logout > clears the token and persists the refresh latch after a confirmed logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.test.ts",
+        "name": "logout > lets a fresh sign-in lift the latch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.test.ts",
+        "name": "logout > throws on a network failure and never refreshes the surviving cookie back in",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSession.test.ts",
+        "name": "logout > throws on a server error and never refreshes the surviving cookie back in",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > always attempts server logout and reports 'network and storage' accurately",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > always attempts server logout and reports 'server and storage' accurately",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > always attempts server logout and reports 'server only' accurately",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > always attempts server logout and reports 'storage only' accurately",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > always attempts server logout and reports 'unreadable storage' accurately",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > an incomplete old logout cannot alter a newer login's token, pin, latch or epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > cannot call a shared latch durable when an old pin survives and another tab can clear the latch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > proves per-tab logout with invalid marker even after a new tab's login clears the shared latch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionLogoutStorage.test.ts",
+        "name": "logout durability and truthful failures > proves per-tab logout with removed pin even after a new tab's login clears the shared latch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > accepts a throwing write only if read-back proves the exact new pin was saved",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > allows memory B only after confirmed old-pin removal with no-op write",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > allows memory B only after confirmed old-pin removal with throwing read-back",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > allows memory B only after confirmed old-pin removal with throwing write",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > does not treat unreadable storage as proof of persistence or invalidation",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > leaves an already pending matching refresh owned by A when B installation fails",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > rejects an invalid token before storage work and preserves the prior session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > rejects replacement atomically when all persistence and invalidation operations no-op",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > rejects replacement atomically when all persistence and invalidation operations throw",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > uses a verified invalid marker when removal is a no-op",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionPinStorage.test.ts",
+        "name": "atomic explicit session installation > uses a verified invalid marker when removal is a throw",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "logout intent and refresh ownership > clears immediately and an old logout 204 cannot clear a newer login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "logout intent and refresh ownership > clears immediately and an old logout 503 cannot clear a newer login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "logout intent and refresh ownership > deduplicates the newer refresh even after the obsolete promise finishes",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "logout intent and refresh ownership > keeps successful logout latched after module reload until explicit login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at json body > cannot overwrite clear",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at json body > cannot overwrite new login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at json body > cannot overwrite same-token login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at json body > cannot overwrite successful logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at json body > cannot overwrite unsuccessful logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at response > cannot overwrite clear",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at response > cannot overwrite new login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at response > cannot overwrite same-token login",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at response > cannot overwrite successful logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRace.test.ts",
+        "name": "refresh held at response > cannot overwrite unsuccessful logout",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > an opener-cloned pin accepts only its original context after the parent changes account",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > independent tabs retain different pins and reject the other tab's cookie identity",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > never fetches with a missing or invalid reload pin 0",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > never fetches with a missing or invalid reload pin 1",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > never fetches with a missing or invalid reload pin 2",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > never fetches with a missing or invalid reload pin 3",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > persists exactly the versioned identity, without the bearer, rotating claims or PII",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > preserves the pin across a local bearer clear for later matching anonymous recovery",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'claim makerspace' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'claim membership' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'claim session' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'deployment generation' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'staff scope' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects a valid refresh with a changed 'surface' without clearing the current session",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > rejects cookie A delivered after explicit B, including on a fresh module reload",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'claim member' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'member' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'platform staff' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'staff API' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'tenant staff' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      },
+      {
+        "classname": "src/lib/apiSessionRefreshPin.test.ts",
+        "name": "per-tab refresh intent > restores matching 'verification' rotation after reload without advancing its epoch",
+        "occurrence": 1,
+        "initial": "PASSED",
+        "retry": null
+      }
+    ]
+  },
+  "application_source_sha256": {
+    "frontend/src/AppRoutes.tsx": "de8b7df485364de613d0279bf06c1479da4fe4e1263ec27b7614a19756b0e9c8",
+    "frontend/src/components/chrome/PublicHeaders.tsx": "c4512a6dcd47f25b89bba6fad747914961648463dc3b524ec857db09d8b1f9f4",
+    "frontend/src/features/members/MemberArea.tsx": "3820253c0ab87c50cb03a8f166a469566a9777eddf021563ca8ef8d23dcd8bf5",
+    "frontend/src/features/members/MemberAreaTabs.tsx": "284f8aa6ad7df78a2160e0121afc0b1943c2d8e32e3b20fb969fd75d7bfd6788",
+    "frontend/src/features/inventory/PublicBorrowRequestForm.tsx": "b61cd475ed5b4a27bb555cb470eb64dcc95411ce8958c30d3a00a67147604edb",
+    "frontend/src/features/inventory/PublicBorrowRequest.tsx": "a56fe36bc13d8d072242a8722546d24763b170f0cf1a71d5b4029b1f83022880",
+    "frontend/src/features/inventory/PublicRequestPanel.tsx": "1261bbd35165c63d74ab2b64eb2746e1dc5176085fe3da1a5aef0898781c7b54",
+    "frontend/src/features/inventory/PublicRequestStatusPage.tsx": "34469880a86293a87d7ea1bc1c3dc6fe8faa281697f869174e23e38af3752540",
+    "frontend/src/types/inventory.ts": "aab0d75cf1d5eec3d32a7cf06443b68feba4adb8bd92582636091828b2bc257c",
+    "frontend/src/features/machineService/ServiceRequestForm.tsx": "c043c3216dd529ee3cfc53aea3b375e480dab4b34fee0c932a37adb26262f830",
+    "frontend/src/features/machineService/ServiceStatusPanel.tsx": "27cf23996fda07dde10e7947f80061dc8e4475c3faa64f763681b2d50ae00ef5",
+    "frontend/src/features/machineService/PublicMachineServicePage.tsx": "8c9d80114cdf0cf8820e77fdf8fa8582491bf48b5de81d5cd0d0ea38552905c4",
+    "frontend/src/lib/apiSession.ts": "3df3a384aa0b93937b1db3e051a8bdbb1539512705f751c1cd3cea340e200eae",
+    "frontend/src/lib/api.ts": "2a6ff17755b769129910a4621b74fea5664c59d2e897cc0808a9a13bde388048",
+    "frontend/src/features/inventory/usePublicSession.ts": "bebfd33f8d0f9bb2fe80956d5beb2d84af7942081f05c01a09c6626d45d60a41",
+    "frontend/src/features/requests/HardwareRequestItems.tsx": "1bfa47ef931ee8ee96927cd3249faffeb2ed94cfb6cc06d72721624452cae18b",
+    "frontend/src/features/requests/MyRequestsPage.tsx": "b420993793022059de98ec3df6131bb5570c736457c2560c09808f5647f8834c",
+    "frontend/src/features/requests/MyRequestsPanel.tsx": "572abceb5cfe92f190a6745cf5ea513aef7890f1e118f193bd0a71a72fd7625e",
+    "frontend/src/features/requests/OwnRequests.tsx": "01e4d8e5ce4e3f10156ea3a0f5cf96b55acbf3f4de53954d0cc9c4ce5fa61c7e",
+    "frontend/src/features/requests/RequestsListParts.tsx": "21432524a886f50cfd8f3824aec19afdb8e47f3ada7f66e53819e15b723de17e",
+    "frontend/src/features/requests/SavedRequests.tsx": "5a714d7558c0ac8b534714c8b788869497fc07f4da365357fbc550bf2e234ee3",
+    "frontend/src/features/requests/requestCapabilities.ts": "0a5bb5cbf19bf0bb572004ae562d3643c267c5a949a32c5f7143c134b559d21f",
+    "frontend/src/features/requests/requestsApi.ts": "0b489fbe9fc3bbd5a7a10b1f7aa63f746850e2e1b90597e8187efa111aa024be"
+  },
+  "generated_pair_sha256": {
+    "frontend/openapi-schema.json": "6e6be08583ca731c3e0f2458f19facbd9acc25568d480181fc2ca36be2652453",
+    "frontend/src/generated/api.ts": "af8e34cecc7ff3de8c96b029865d4bac6514d294cf1dc649d09570bf9716e93a"
+  },
+  "source_review": {
+    "source_files": 23,
+    "fresh_separate_pinned_stage3_author": true,
+    "all23_hashes_unchanged_during_author": true,
+    "post_author_changes": "Root-approved generated OwnRequestStatus type alias; root-decided accounts-off installed-token success/denial cases; stronger machine-retry success fixture. All reviewed before runtime."
+  },
+  "resulting_contract": {
+    "account_history": "Actual accounts use tenant-scoped own-history endpoints without an active-membership requirement. An existing real-account token remains usable with member accounts off; unsigned visitors get no account form or refresh probe. Backend enforces principal eligibility.",
+    "account_free_history": "Only browser-saved private capabilities, hidden until explicit per-visit reveal. No roster/name/mid history lookup.50 links per tenant, six status reads per page, verified local Forget with no server cancellation.",
+    "session": "Actual install/clear/logout notify React without forced test rerenders; logout hides private DOM before held HTTP completes. Same-generation valid refresh retains legitimate context.",
+    "hardware": "Requested, approved, handed-out and returned are per-request totals, not inventory stock counts.",
+    "machine": "Existing shared StatusResult preserves Ready to collect and failure/rejection semantics. Old saved/legacy status does not automatically display for a blank or different check-in person.",
+    "receipt": "Owner-admitted successful submissions save before callbacks; real private receipts/links survive unavailable storage with truthful warnings."
+  },
+  "limits": [
+    "The complete frontend and production build use the same final794-input snapshot in a separate run; this scoped proof claims neither their result nor production approval.",
+    "Initial TypeScript passed on the initial794 frame; its only later input delta is the reviewed test responder/wait condition. The final production build type-checks the final frame again.",
+    "UI tests do not prove backend database enforcement or live upstream/payment/notification delivery.",
+    "No production requests/settings/accounts changed. Raw logs/XML and initial failure remain private."
+  ]
+}

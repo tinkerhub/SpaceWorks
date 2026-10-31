@@ -45,6 +45,11 @@ def _snapshot_payload(archive, root, modes, selected_recipients, *, compound_cap
             snapshot_at, server_version_num = cursor.fetchone()
             cursor.execute("SELECT pg_export_snapshot()")
             snapshot_id = cursor.fetchone()[0]
+        from apps.makerspaces.purge_intent import assert_capture_allowed
+
+        assert_capture_allowed(
+            None if archive.scope == BackupArchive.Scope.DEPLOYMENT else [archive.makerspace_id]
+        )
         if archive.scope == BackupArchive.Scope.DEPLOYMENT:
             if archive.backup_run_id:
                 covered_makerspace_ids = sorted(
@@ -57,7 +62,13 @@ def _snapshot_payload(archive, root, modes, selected_recipients, *, compound_cap
                 covered_makerspace_ids = list(
                     Makerspace.objects.order_by("pk").values_list("pk", flat=True)
                 )
-            _pg_dump(root / "database.dump", snapshot_id)
+            select = getattr(compound_capture, "select_from_snapshot", None)
+            if select is not None:
+                select()
+            if getattr(compound_capture, "is_full", False):
+                _pg_dump(root / "database.dump", snapshot_id, exclude_operational=True)
+            else:
+                _pg_dump(root / "database.dump", snapshot_id)
             if compound_capture is None:
                 object_keys = _object_closure()
                 object_plan = None
@@ -67,6 +78,16 @@ def _snapshot_payload(archive, root, modes, selected_recipients, *, compound_cap
                     item.makerspace_id for item in compound_capture.frozen_slices
                 )
                 object_keys = object_plan.closure(MAIN_COMPONENT)
+                if getattr(compound_capture, "is_full", False):
+                    from apps.backup.full_manifest_validation import safe_path
+                    from apps.backup.errors import BackupBuildError
+
+                    try:
+                        for keys in object_keys.values():
+                            for key in keys:
+                                safe_path(key)
+                    except ValueError as exc:
+                        raise BackupBuildError("A full source object key is not a safe bundle path.") from exc
             _write_continuity_keys(root / "keys" / "env.json")
         else:
             covered_makerspace_ids = [archive.makerspace_id]
@@ -103,7 +124,10 @@ def _snapshot_payload(archive, root, modes, selected_recipients, *, compound_cap
             "supported_source_majors": [14, 15, 16, 17],
         },
         "build": _build_info(),
-        "oci_digest": os.environ.get("SPACEWORKS_OCI_DIGEST", ""),
+        "oci_digest": (
+            compound_capture.oci_digest if getattr(compound_capture, "is_full", False)
+            else os.environ.get("SPACEWORKS_OCI_DIGEST", "")
+        ),
         "settings": _settings_manifest(),
         "storage": {"consistency": modes, "objects": object_manifest},
         "age_encrypted": True,
@@ -111,7 +135,7 @@ def _snapshot_payload(archive, root, modes, selected_recipients, *, compound_cap
     }
 
 
-def _pg_dump(destination, snapshot_id):
+def _pg_dump(destination, snapshot_id, *, exclude_operational=False):
     env = _postgres_environment()
     command = [
         # The server's own client major, not PATH's newest: a 1.16 archive from
@@ -119,6 +143,12 @@ def _pg_dump(destination, snapshot_id):
         client_binary("pg_dump"), "--format=custom", "--no-owner", "--no-acl",
         f"--snapshot={snapshot_id}", f"--file={destination}",
     ]
+    if exclude_operational:
+        from apps.backup.main_projection_registry import OMITTED_OPERATIONAL_MODELS
+
+        for label in sorted(OMITTED_OPERATIONAL_MODELS):
+            table = apps.get_model(label)._meta.db_table
+            command.append(f"--exclude-table-data=public.{table}")
     subprocess.run(command, env=env, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
 
@@ -137,6 +167,9 @@ def _postgres_environment():
 
 
 def _tenant_payload(makerspace_id, root):
+    from apps.makerspaces.purge_intent import assert_capture_allowed
+
+    assert_capture_allowed([makerspace_id])
     # The guard ends with raw row/object-key projection. Future DEK rewrap belongs
     # after this context because it is the separately authorized unwrap phase.
     with no_decrypt_guard():

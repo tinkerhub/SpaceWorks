@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="7.406" timestamp="2026-10-30T03:41:37.183164+00:00" hostname="3b8222956bbc"><testcase classname="test_host_operator_docker_boundary" name="test_current_full_checkout_boundary" time="7.192" /></testsuite></testsuites>

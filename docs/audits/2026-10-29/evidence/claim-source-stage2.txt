@@ -1,0 +1,8 @@
+Stage 2 implementation complete across the six owned files.
+
+- Added tenant admission before row locks, exact nested reuse, and a typed 409 on scope growth.
+- Added native/OIDC refusal handling and gated defensive presence cleanup.
+- AST parsing passed; all files are ≤239 lines. Unowned backend hashes stayed unchanged.
+- No tests, runtime, imports, builds, staging, or commits performed.
+
+[Freeze manifest and root test handoff](/tmp/spaceworks-claim-source-stage2-freeze.json) include exact file/function hashes and transaction mappings. Concurrency and rollback behavior still require root runtime verification.

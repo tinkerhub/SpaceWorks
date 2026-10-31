@@ -1,0 +1,48 @@
+{
+  "status": "prepared-not-executed",
+  "collection": "UNEXECUTED_BY_CHILD; denominator derived by parent only",
+  "paths": [
+    {
+      "path": "/tmp/spaceworks-final-backend-inputs/README.txt",
+      "lines": 111,
+      "sha256": "9ea0a26a475bc6f840dd48d3c0556068f51a80aacb37316bd53cf4ec246e8a3c"
+    },
+    {
+      "path": "/tmp/spaceworks-final-backend-inputs/collection_ids.py",
+      "lines": 20,
+      "sha256": "1052bc22ae0461853aa10a013831d8b9ef83a30f9d6d76f6fb2ff80a19895a06"
+    },
+    {
+      "path": "/tmp/spaceworks-final-backend-inputs/container_entry.py",
+      "lines": 71,
+      "sha256": "1823166795e79d45e0bff37db2e08a70b31805d9dcea0287fc249228c993e520"
+    },
+    {
+      "path": "/tmp/spaceworks-final-backend-inputs/final_backend.py",
+      "lines": 97,
+      "sha256": "a32e3883c2f6f1ed812432f9cc554de80b92fdc4f750dd9ee4b578a448989698"
+    }
+  ],
+  "no_production_source_edits": true,
+  "partitions": [
+    "core excluding backup/TM/security39",
+    "backup+TM full",
+    "security39 separately"
+  ],
+  "database_ports": {
+    "core": 55432,
+    "backup-tm": 55433
+  },
+  "redis_port": 62125,
+  "redis_dbs": {
+    "core_cache": 10,
+    "core_broker": 11,
+    "backup_cache": 12,
+    "backup_live": 13,
+    "backup_broker": 14,
+    "existing_core_nonce": 15
+  },
+  "s3_port": 59200,
+  "host_environmental_baseline": "22 historical missing-root failures are not exemptions with whole-checkout mount; all guards remain collected.",
+  "sdk_s3_aliases": "Backup entry maps already private AWS_* settings to explicit test-only S3 aliases in process environment; local59200 and default when_supported checksum behavior required."
+}

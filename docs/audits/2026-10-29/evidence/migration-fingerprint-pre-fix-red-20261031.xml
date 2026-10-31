@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="migration-fingerprint-red" tests="12" failures="12" errors="0" skipped="0" time="0.481">
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_expectation_sql.py]" time="0.023">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_source_shape_sql.py]" time="0.017">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_sequence_sql.py]" time="0.014">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_installation_sql.py]" time="0.016">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_trigger_sql.py]" time="0.016">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_extracted_sql_helper_bytes_change_public_version[_0025_stage_sql.py]" time="0.013">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_reverse_only_change_and_rollback_are_both_attested[_0025_trigger_sql.py]" time="0.078">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_reverse_only_change_and_rollback_are_both_attested[_0025_stage_sql.py]" time="0.029">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_helper_data_init_and_orphan_path_sets_are_attested[backup/migrations/lib/guards.py]" time="0.027">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_helper_data_init_and_orphan_path_sets_are_attested[backup/migrations/data/shape.sql]" time="0.024">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_helper_data_init_and_orphan_path_sets_are_attested[backup/migrations/lib/__init__.py]" time="0.025">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+    <testcase classname="tests.backup.test_migration_fingerprint_regression" name="test_helper_data_init_and_orphan_path_sets_are_attested[helper_only/migrations/unreferenced.bin]" time="0.020">
+      <failure type="ExpectedRegressionAssertion" message="Original numbered-only producer ignores migration helper/source-data drift.">Expected RED: original public fingerprint remained unchanged after helper-only drift.</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -21,10 +21,12 @@ from apps.backup.compound_protocol import (
 from apps.backup.host_marker import MarkerError, _assert_trusted_file
 from apps.backup.host_marker_file import write_json_fsynced
 from apps.backup.errors import BackupBuildError
+from apps.backup.full_format import FULL_FORMAT
+from apps.backup.migration_fingerprint import installed_migration_version as installed_migration_version
 from apps.ed25519 import Ed25519Error, decode_key, fingerprint_public_key
 
 
-MARKER_VERSION = 1
+MARKER_VERSION = 2
 PRIVILEGED_SCRIPT_NAMES = (
     "host-capability.py",
     "import-backup.sh",
@@ -51,6 +53,7 @@ class ProducerCapability:
     protocol_maximum: str
     signing_key_fingerprint: str
     migration_version: str
+    full_formats: tuple[str, ...]
 
 
 def _refuse(reason, detail, *, cause=None):
@@ -75,12 +78,14 @@ def _protocol_number(value):
 def parse_capability_marker(payload):
     required = {
         "version", "privileged_scripts", "entrypoint_sha256",
-        "compound_protocol", "signing_key_fingerprint", "migration_version",
+        "compound_protocol", "signing_key_fingerprint", "migration_version", "full_formats",
     }
     if not isinstance(payload, dict) or set(payload) != required:
         raise ValueError("capability marker has an invalid top-level shape")
     if type(payload["version"]) is not int or payload["version"] != MARKER_VERSION:
         raise ValueError("capability marker version is unsupported")
+    if payload["full_formats"] != [FULL_FORMAT]:
+        raise ValueError("capability marker lacks explicit signed-full support")
     scripts = payload["privileged_scripts"]
     if not isinstance(scripts, dict) or set(scripts) != set(PRIVILEGED_SCRIPT_NAMES):
         raise ValueError("capability marker privileged-script set is invalid")
@@ -109,6 +114,7 @@ def parse_capability_marker(payload):
         protocol_maximum=protocol["maximum"],
         signing_key_fingerprint=fingerprint,
         migration_version=migration,
+        full_formats=tuple(payload["full_formats"]),
     )
 
 
@@ -124,22 +130,6 @@ def _sha256_installed_file(path):
     return digest.hexdigest()
 
 
-def installed_migration_version(migrations_root):
-    root = Path(migrations_root)
-    files = sorted(
-        path for path in root.glob("*/migrations/[0-9][0-9][0-9][0-9]_*.py")
-    )
-    if not files:
-        raise OSError("no installed migration files were found")
-    digest = hashlib.sha256(b"spaceworks-django-migrations-v1\0")
-    for path in files:
-        relative = path.relative_to(root).as_posix().encode("utf-8")
-        content = path.read_bytes()
-        digest.update(len(relative).to_bytes(8, "big") + relative)
-        digest.update(len(content).to_bytes(8, "big") + content)
-    return f"django-migrations-v1:{digest.hexdigest()}"
-
-
 def capability_marker_payload(
     *, script_paths, entrypoint_path, verification_public_key, migrations_root,
     protocol_minimum=SUPPORTED_PROTOCOL_MINIMUM,
@@ -150,6 +140,7 @@ def capability_marker_payload(
     public = decode_key(verification_public_key, label="public key", length=32)
     payload = {
         "version": MARKER_VERSION,
+        "full_formats": [FULL_FORMAT],
         "privileged_scripts": {
             name: _sha256_installed_file(script_paths[name])
             for name in PRIVILEGED_SCRIPT_NAMES

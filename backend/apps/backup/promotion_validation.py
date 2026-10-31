@@ -9,8 +9,10 @@ from apps.backup.models import (
     BackupArtifactLedger,
     MakerspaceArchiveCustodyState,
 )
-from apps.backup.outer_manifest import manifest_digest, verify_outer_manifest
+from apps.backup.outer_manifest import manifest_digest
+from apps.backup.manifest_dispatch import verify_signed_manifest
 from apps.backup.recipients import fingerprint_for
+from apps.backup.full_format import FULL_FORMAT
 
 
 def validate_frozen_state(
@@ -94,7 +96,7 @@ def validate_frozen_state(
 
 def validate_artifact_rows(artifact, archive, components, associations):
     manifest = artifact.outer_manifest
-    verify_outer_manifest(manifest)
+    verify_signed_manifest(manifest)
     if (
         manifest["artifact_id"] != str(artifact.artifact_id)
         or manifest["capture_id"] != str(artifact.capture_id)
@@ -106,7 +108,7 @@ def validate_artifact_rows(artifact, archive, components, associations):
         != (str(archive.backup_run_id) if archive.backup_run_id else None)
     ):
         raise ArtifactLedgerMismatch("The artifact or archive identity changed.")
-    if archive.backup_run_id is not None:
+    if archive.backup_run_id is not None and manifest["format"] != FULL_FORMAT:
         try:
             run_flags = {
                 int(key): value
@@ -127,6 +129,17 @@ def validate_artifact_rows(artifact, archive, components, associations):
             raise ArtifactLedgerMismatch(
                 "The backup run cohort conflicts with the retained promotion snapshot."
             )
+    if manifest["format"] == FULL_FORMAT:
+        frozen = artifact.frozen_promotion_snapshot
+        source = manifest["source_capture"]
+        if source != {
+            "capture_id": frozen["capture_id"],
+            "database_identity": frozen["source_database_identity"],
+            "server_identity": frozen["source_server_identity"],
+            "dump_sha256": frozen["source_dump_sha256"],
+            "object_ownership_digest": frozen["object_ownership_digest"],
+        }:
+            raise ArtifactLedgerMismatch("The signed full source differs from frozen capture facts.")
     expected = component_specs(manifest)
     actual = {str(item.component_id): item for item in components}
     if set(actual) != {str(item["component_id"]) for item in expected}:

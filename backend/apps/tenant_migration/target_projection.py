@@ -92,6 +92,9 @@ def _default(reason, *, allow_superadmin_override=False):
 
 
 TARGET_FIELD_PROJECTION = {
+    ("makerspaces.Makerspace", "purge_started_at"): TargetField(
+        None, reason="Irreversible source-local purge authority never travels to a new tenant."
+    ),
     ("makerspaces.Makerspace", "frontend_domain"): TargetField(
         None, reason="A source domain must not enter the target credentialed-origin allowlist."
     ),

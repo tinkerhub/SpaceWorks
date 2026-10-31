@@ -18,6 +18,8 @@ class TenantObjectStorageError(RuntimeError):
     pass
 
 
+from .import_boundary import import_writer
+
 def bucket_name(bucket_kind):
     if bucket_kind == "private":
         return settings.AWS_STORAGE_BUCKET_NAME
@@ -26,6 +28,7 @@ def bucket_name(bucket_kind):
     raise TenantObjectStorageError(f"Unsupported bucket kind: {bucket_kind!r}.")
 
 
+@import_writer
 def upload_staged(staging_key, path):
     try:
         with Path(path).open("rb") as handle:
@@ -41,6 +44,7 @@ def upload_staged(staging_key, path):
         ) from exc
 
 
+@import_writer
 def copy_from_staging(staging_key, bucket_kind, target_key, content_type=""):
     try:
         params = {
@@ -107,6 +111,7 @@ def object_exists(bucket_kind, object_key):
         ) from exc
 
 
+@import_writer
 def choose_target_key(bucket_kind, source_key, job_id):
     if not object_exists(bucket_kind, source_key):
         return source_key, False
@@ -117,6 +122,7 @@ def choose_target_key(bucket_kind, source_key, job_id):
     raise TenantObjectStorageError("Could not allocate a collision-safe target key.")
 
 
+@import_writer
 def delete_object(bucket_kind, object_key):
     if not object_key:
         return

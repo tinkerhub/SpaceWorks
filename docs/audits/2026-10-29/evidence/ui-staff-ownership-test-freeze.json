@@ -1,0 +1,111 @@
+{
+  "format": "spaceworks-ui-staff-test-freeze-v1",
+  "stage3_cli_exit": 0,
+  "case_count_static_expansion": 131,
+  "test_files": 13,
+  "helpers": 3,
+  "runtime_status": "Prior frozen source group: 247/247 focused runtime plus TypeScript passed. Follow-on overlapping hardware source changes require renewed verification; whole release remains pending.",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/staffUploadProtocol.ownership.test.ts",
+      "lines": 96,
+      "sha256": "97480e3bf00a67e4de95accd8a981b4176839d3922b5f4ffb85102a5823c03fb"
+    },
+    {
+      "path": "frontend/src/features/staff/imageUploadConfig.ownership.test.ts",
+      "lines": 75,
+      "sha256": "46e5ee40d242d5fff2f93ae08a8e85881f3f93761188e6a5b9bf1d164d068d52"
+    },
+    {
+      "path": "frontend/src/features/staff/ImageUploader.ownership.test.tsx",
+      "lines": 159,
+      "sha256": "8e4704177849a9a45ead36aed327af5fc9ce043433298037b7ad5b5a5a471e8d"
+    },
+    {
+      "path": "frontend/src/features/staff/WarrantySection.ownership.test.tsx",
+      "lines": 95,
+      "sha256": "4fdd3cf28dfe33722d85fa813aa2cd85b04f94cd44de9881fb8b2290a7a90d60"
+    },
+    {
+      "path": "frontend/src/features/staff/StaffAttachmentBatches.ownership.test.tsx",
+      "lines": 157,
+      "sha256": "98fc16913f5631539533efbe5e7bf8639efad3849b0965f70c98dc03f7960e5e"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/DocumentsTab.ownership.test.tsx",
+      "lines": 114,
+      "sha256": "6cc8e8635b99c53658961eb06b4de15e87fb044ce48bf08ae633b71b88095ece"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/maintenanceHooks.ownership.test.tsx",
+      "lines": 128,
+      "sha256": "082eefd76d734e9f2a94bff4aec48784f369864bd84191e855fe3dbc400c5e36"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/MaintenanceDocuments.ownership.test.tsx",
+      "lines": 119,
+      "sha256": "e44506e13fdb5964ae7ebf02cd42eb005b01f7b50622d73a372581cc4ff21ae6"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/EvidenceUpload.ownership.test.tsx",
+      "lines": 164,
+      "sha256": "604d12040751c45076d659809e3ff2526eb4fc5c82b7b9c3b1b6ef08b5c82eb1"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/HandoverEvidence.ownership.test.tsx",
+      "lines": 64,
+      "sha256": "3a2d84bbf5103bda90c6eee76ab3375e6a6ccc849376a05b01dc4c5167284cf5"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ServiceConsole.ownership.test.tsx",
+      "lines": 134,
+      "sha256": "104e0efe80d09654a80b1f19c16041e3997a7e69f3dc81d345a9d6d37b3d4983"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/machine/ServiceConsoleContracts.ownership.test.tsx",
+      "lines": 131,
+      "sha256": "69fb67a2a711fee568d00aefe45a4101a897c5e0842d9cb29dd047e45293ee9c"
+    },
+    {
+      "path": "frontend/src/features/staff/panels/MachinesPanel.ownership.test.tsx",
+      "lines": 89,
+      "sha256": "4ad238997e77f9789074fe55e037b6dc3c8d805797b538f05ccdaf8e373a38eb"
+    },
+    {
+      "path": "frontend/src/test/staffUploadHarness.tsx",
+      "lines": 96,
+      "sha256": "fee89dd832bd9546440086bd0a4c4689ea15aad579534ee281bdd4bc5e996994"
+    },
+    {
+      "path": "frontend/src/test/staffDocumentFixtures.ts",
+      "lines": 21,
+      "sha256": "d540112e9bd01d1c82815d17c41976b5afb3d5707f7d40a4d1a245638be3a844"
+    },
+    {
+      "path": "frontend/src/test/staffServiceOwnershipHarness.tsx",
+      "lines": 79,
+      "sha256": "10b3c5d8c06ce21236dafeeb649ca9cd224fc5424aaa4c04e1ca918633cade73"
+    }
+  ],
+  "initial_runtime": {
+    "tests": 247,
+    "passed": 242,
+    "failed": 5,
+    "files": 38,
+    "seconds": 81.85,
+    "evidence": "ui-staff-ownership-initial-runtime.log"
+  },
+  "test_fixture_corrections": [
+    "DocumentsTab uses actual form submit after asserting required selected file; jsdom fireEvent FileList does not populate its internal native file validity. All ownership/payload assertions retained.",
+    "ServiceConsole awaits the B query-rendered action before starting B; checking parent draft alone did not imply query observer readiness."
+  ],
+  "corrected_runtime": {
+    "tests": 247,
+    "passed": 247,
+    "failed": 0,
+    "files": 38,
+    "seconds": 75.65,
+    "evidence": "ui-staff-ownership-corrected-runtime.log",
+    "tsc_status": "Root confirmed chained npx tsc -b exit 0, session 89449"
+  }
+}

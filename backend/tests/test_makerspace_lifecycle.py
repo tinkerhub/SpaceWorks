@@ -43,6 +43,9 @@ from apps.operations.models import (
 )
 from apps.payments.models import Payment, ProcessedStripeEvent
 
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
+from apps.makerspaces.purge_storage import bucket_name
+
 pytestmark = pytest.mark.django_db
 
 
@@ -120,10 +123,10 @@ def test_archive_unarchive_state_and_double_archive_guard():
     assert unarchived.public_inventory_enabled is False
 
 
-def test_purge_rejected_unless_archived_enabled_and_superuser(monkeypatch):
+@pytest.mark.django_db(transaction=True)
+def test_purge_rejected_unless_archived_enabled_and_superuser(monkeypatch, purge_store):
     actor = make_superadmin("lifecycle-purge-super")
     non_superuser = make_user("lifecycle-purge-not-super")
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
 
     not_archived = make_space("lifecycle-purge-not-archived")
     with pytest.raises(ValidationError):
@@ -517,7 +520,7 @@ def assert_purged_makerspace_graph(space_id):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_comprehensive_purge_removes_entire_makerspace_graph_and_preserves_survivor(monkeypatch):
+def test_comprehensive_purge_removes_entire_makerspace_graph_and_preserves_survivor(monkeypatch, purge_store, purge_clock):
     actor = make_superadmin("lifecycle-drift-super")
     makerspace = make_space("lifecycle-drift")
     survivor = make_space("lifecycle-drift-survivor")
@@ -525,18 +528,19 @@ def test_comprehensive_purge_removes_entire_makerspace_graph_and_preserves_survi
     space_id = makerspace.id
     survivor_id = survivor.id
     survivor_adjustment_id = refs["survivor_adjustment"].id
-    deleted_keys = []
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", deleted_keys.extend)
+    for key in (refs["maintenance_key"], refs["machine_doc_key"], refs["survivor_key"]):
+        purge_store.put(bucket_name("private"), key)
 
     archived = archive_space(makerspace, actor)
+    arm(archived, actor, purge_clock)
     lifecycle.purge(archived, actor)
 
     assert_purged_makerspace_graph(space_id)
     assert not Makerspace.objects.filter(pk=space_id).exists()
     assert Makerspace.objects.filter(pk=survivor_id).exists()
-    assert refs["maintenance_key"] in deleted_keys
-    assert refs["machine_doc_key"] in deleted_keys
-    assert refs["survivor_key"] not in deleted_keys
+    assert not purge_store.has_key(bucket_name("private"), refs["maintenance_key"])
+    assert not purge_store.has_key(bucket_name("private"), refs["machine_doc_key"])
+    assert purge_store.has_key(bucket_name("private"), refs["survivor_key"])
     assert MaintenanceLogDocument.objects.filter(
         pk=refs["survivor_document"].pk
     ).exists()
@@ -553,7 +557,7 @@ def test_comprehensive_purge_removes_entire_makerspace_graph_and_preserves_survi
 
 
 @pytest.mark.django_db(transaction=True)
-def test_comprehensive_purge_under_managed_postgres(monkeypatch):
+def test_comprehensive_purge_under_managed_postgres(monkeypatch, purge_store, purge_clock):
     monkeypatch.setattr("django.conf.settings.MANAGED_POSTGRES", True)
     actor = make_superadmin("lifecycle-managed-super")
     makerspace = make_space("lifecycle-managed")
@@ -562,18 +566,19 @@ def test_comprehensive_purge_under_managed_postgres(monkeypatch):
     space_id = makerspace.id
     survivor_id = survivor.id
     survivor_adjustment_id = refs["survivor_adjustment"].id
-    deleted_keys = []
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", deleted_keys.extend)
+    for key in (refs["maintenance_key"], refs["machine_doc_key"], refs["survivor_key"]):
+        purge_store.put(bucket_name("private"), key)
 
     archived = archive_space(makerspace, actor)
+    arm(archived, actor, purge_clock)
     lifecycle.purge(archived, actor)
 
     assert_purged_makerspace_graph(space_id)
     assert not Makerspace.objects.filter(pk=space_id).exists()
     assert Makerspace.objects.filter(pk=survivor_id).exists()
-    assert refs["maintenance_key"] in deleted_keys
-    assert refs["machine_doc_key"] in deleted_keys
-    assert refs["survivor_key"] not in deleted_keys
+    assert not purge_store.has_key(bucket_name("private"), refs["maintenance_key"])
+    assert not purge_store.has_key(bucket_name("private"), refs["machine_doc_key"])
+    assert purge_store.has_key(bucket_name("private"), refs["survivor_key"])
     assert MaintenanceLogDocument.objects.filter(
         pk=refs["survivor_document"].pk
     ).exists()
@@ -590,7 +595,7 @@ def test_comprehensive_purge_under_managed_postgres(monkeypatch):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_purge_removes_scoped_pii_encryption_keys(monkeypatch):
+def test_purge_removes_scoped_pii_encryption_keys(monkeypatch, purge_store, purge_clock):
     """A makerspace that owns PII encryption keys still purges cleanly.
 
     The key rows carry a PROTECT FK + a no-delete ORM guard/trigger; the purge
@@ -604,7 +609,6 @@ def test_purge_removes_scoped_pii_encryption_keys(monkeypatch):
 
     actor = make_superadmin("lifecycle-enc-super")
     doomed = make_space("lifecycle-enc-doomed")
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
 
     with override_settings(
         PII_ENCRYPTION_ENABLED=True,
@@ -614,6 +618,7 @@ def test_purge_removes_scoped_pii_encryption_keys(monkeypatch):
         get_or_create_active_dek(doomed.id)
         assert MakerspaceEncryptionKey.objects.filter(makerspace=doomed).exists()
         archived = archive_space(doomed, actor)
+        arm(archived, actor, purge_clock)
         lifecycle.purge(archived, actor)
 
     assert not MakerspaceEncryptionKey.objects.filter(makerspace_id=doomed.id).exists()
@@ -636,7 +641,7 @@ def test_immutable_update_still_blocked_under_purge_guard():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_purge_reenables_immutable_triggers_for_surviving_rows(monkeypatch):
+def test_purge_reenables_immutable_triggers_for_surviving_rows(monkeypatch, purge_store, purge_clock):
     actor = make_superadmin("lifecycle-trigger-super")
     doomed = make_space("lifecycle-trigger-doomed")
     survivor = make_space("lifecycle-trigger-survivor")
@@ -645,9 +650,9 @@ def test_purge_reenables_immutable_triggers_for_surviving_rows(monkeypatch):
         action="survivor.before_purge",
         makerspace=survivor,
     )
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
 
     archived = archive_space(doomed, actor)
+    arm(archived, actor, purge_clock)
     lifecycle.purge(archived, actor)
 
     AuditLog.objects.create(

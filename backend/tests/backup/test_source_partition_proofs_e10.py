@@ -6,12 +6,19 @@ import uuid
 
 import pytest
 
-from apps.backup import host_supervisor, source_partition_proof
+from apps.backup import outer_reservation_validation, source_partition_proof
+from apps.backup.compound_restore_coordinator import run_compound_restore
+from apps.backup.compound_restore_types import CompoundRestoreRefused
+from apps.backup.import_preflight import ImportPreflightError
 from apps.backup.recipient_selection import BackupBuildError
 from tests.backup.e10_test_helpers import (
     resign_source_proof,
     signed_source_proof,
     valid_rule_proof,
+)
+
+from tests.backup.obsolete_contract_coordinator import (
+    assert_no_effects, prepared_coordinator,
 )
 
 
@@ -122,23 +129,29 @@ def test_no_low_entropy_raw_value_or_value_derived_oracle_can_enter_a_rule(
         source_partition_proof._validate_unsigned(proof)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SPEC GAP: no Lane E host cutover coordinator validates the source proof "
-        "before calling the pointer primitive"
-    ),
-)
-def test_source_proof_rejection_precedes_pointer_mutation():
-    coordinator = getattr(host_supervisor, "prepare_compound_cutover", None)
-    assert callable(coordinator)
-    pointer_calls = []
-    proof = signed_source_proof(rules=(valid_rule_proof(),))
-    proof["proof_signature"]["value"] = base64.b64encode(b"x" * 64).decode()
+def test_source_proof_rejection_precedes_pointer_mutation(monkeypatch, tmp_path):
+    fixture, arguments, events = prepared_coordinator(monkeypatch, tmp_path)
+    fixture.manifest["source_partition_proof"]["proof_signature"]["value"] = (
+        base64.b64encode(b"x" * 64).decode()
+    )
+    # Re-sign the enclosing archive so its invalid nested proof is the refusal.
+    fixture.write()
+    reached = []
+    real_verify = outer_reservation_validation.verify_source_partition_proof
 
-    with pytest.raises(BackupBuildError):
-        coordinator(
-            proof=proof,
-            pointer_mutation=lambda *_args: pointer_calls.append(True),
-        )
-    assert pointer_calls == []
+    def verify(proof, *, expected):
+        reached.append((proof["proof_signature"]["value"], expected["artifact_id"]))
+        return real_verify(proof, expected=expected)
+
+    monkeypatch.setattr(outer_reservation_validation, "verify_source_partition_proof", verify)
+    with pytest.raises(CompoundRestoreRefused, match="signed source-partition proof") as refused:
+        run_compound_restore(**arguments)
+
+    assert reached == [(
+        fixture.manifest["source_partition_proof"]["proof_signature"]["value"],
+        fixture.manifest["artifact_id"],
+    )]
+    assert isinstance(refused.value.__cause__, ImportPreflightError)
+    assert refused.value.__cause__.reason == "manifest_signature"
+    assert isinstance(refused.value.__cause__.__cause__, BackupBuildError)
+    assert_no_effects(arguments, events)

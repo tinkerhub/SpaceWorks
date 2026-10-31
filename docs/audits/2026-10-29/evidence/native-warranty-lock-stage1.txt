@@ -1,0 +1,31 @@
+**APPROVE**, using the existing warranty service’s lock order, with admission pinned to the tenant observed at the start of the POST.
+
+Django’s installed flow reads the object before form validation and then calls `save_model()` ([options.py:1797](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/.venv/lib/python3.14/site-packages/django/contrib/admin/options.py:1797)). Read-only host fields therefore do not close this race.
+
+1. **Admit before Django’s atomic block.** For a change POST, pre-read through the visible admin queryset and retain `(warranty_pk, makerspace_id, asset_id, machine_id)` on the request. Missing/hidden objects return 404. Enter `admin_tenant_write([expected_makerspace_id])` around the inherited change-form call, retaining it through transaction completion. For add, admit the submitted visible makerspace; malformed input remains a normal form error.
+
+2. **Pin source admission.** During this native operation, the inherited source assertion must use the admitted tenant. A small WarrantyAdmin-local override can do this; leave `config.admin_source_gate` untouched. Do not rediscover tenant B and acquire its boundary after observing a move.
+
+3. **Lock only inside actual change-form POST processing.** Scope a request flag with `try/finally` around `_changeform_view()`, which Django invokes inside its transaction. Only under that flag may `get_object()` lock. Outside it, delegate unchanged. This preserves the delete mixin’s pre-atomic lookup ([object_storage_admin.py:17](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/object_storage_admin.py:17)).
+
+4. **Use source → Makerspace `NO KEY UPDATE` → concrete host → Warranty.** This matches [_upsert_warranty()](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/views.py:141). Lock the expected asset/machine with an expected-tenant predicate, then fetch and lock Warranty through a visible queryset without nullable joins. Compare the complete expected identity before form validation. Any difference or disappearance returns **404**, without saving or auditing. This is the smallest clear failure path; it avoids needing special handling for Django’s subsequent `ModelForm._post_clean()`.
+
+5. **Recheck admission after waits.** Re-run active-superuser, hidden-tenant, host-action, module and source checks against that same tenant and fresh host/Warranty. Acquire any module lock before host/Warranty locks, always with `no_key=True`. Translate failures into native-admin 403/form errors or existing source refusals, rather than uncaught DRF exceptions. Reject crafted `_saveasnew` on change URLs so it cannot bypass the change admission path.
+
+6. **Preserve normal save/audit behavior.** Give Django only the fresh locked instance. Its ordinary save and `AdminAuditMixin` then run within the transaction; audit failure rolls both back. Native add needs equivalent host locking before model validation, including fresh host-to-tenant validation. No storage lifecycle/provider locks are needed.
+
+The concrete host lock adds one lock to edits but avoids depending on unchanged-FK trigger shortcuts. Dirty-field saving plus an audit refresh alone does **not** establish source/hidden admission or prevent a tenant change between refresh and audit.
+
+Implementation files only:
+
+- [warranty/admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/admin.py)
+- New `backend/apps/warranty/admin_forms.py` for request-bound add validation/helpers, each file ≤300 lines.
+
+Stage 3 remains separately owned. Require actual `Client.post()` versus the real `rebind_qr_target` path, in both orders:
+
+- **Move wins:** native request retains its original snapshot, demonstrably waits, then returns 404 with no native writes/audit.
+- **Native wins:** transfer demonstrably waits; the edit commits, then transfer preserves vendor/date changes and documents. Native audit belongs to the source; move audit belongs to the destination.
+- Capture PostgreSQL blocking edges and immediate-FK compatibility; prove no Makerspace lock upgrade, foreign-tenant writes, or wrong-tenant audit.
+- Cover hidden/frozen refusal, ordinary add/edit/no-op, real audit-insert rollback, and the delete pre-atomic lookup.
+
+No edits or runtime checks performed.

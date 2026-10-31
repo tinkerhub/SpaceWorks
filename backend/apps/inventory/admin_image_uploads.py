@@ -7,6 +7,8 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from apps.audit import services as audit
 from apps.evidence.storage import StorageUnavailable
 from apps.inventory import public_image_storage
+from apps.inventory.admin_image_lifecycle import AdminImageLifecycleMixin
+from apps.makerspaces import limits
 
 
 class PublicImageAdminForm(forms.ModelForm):
@@ -38,7 +40,10 @@ class PublicImageAdminForm(forms.ModelForm):
         return cleaned
 
 
-class PublicImageAdminMixin:
+class PublicImageAdminMixin(AdminImageLifecycleMixin):
+    def get_readonly_fields(self, request, obj=None):
+        return (*super().get_readonly_fields(request, obj), *(self.image_field,))
+
     image_field = ""
     image_kind = ""
     image_attach_action = ""
@@ -63,32 +68,20 @@ class PublicImageAdminMixin:
         upload = form.cleaned_data.get("image_upload")
         clear = form.cleaned_data.get("clear_image")
         if upload:
-            ext = form.cleaned_data["_image_ext"]
-            key = public_image_storage.build_object_key(
-                self.image_kind,
-                obj.makerspace_id if self.image_kind != "makerspace" else obj.id,
-                ext,
-            )
-            data = upload.read()
-            try:
-                public_image_storage.put_bytes(key, data, upload.content_type)
-            except StorageUnavailable:
-                # Django admin does not convert save_model() exceptions into form
-                # errors, so raising here would 500. Persist the object's other
-                # edits WITHOUT the image and surface a recoverable message instead.
-                self.message_user(
-                    request,
-                    "Public image storage is unavailable; the image was not saved.",
-                    level=messages.ERROR,
-                )
+            prepared = getattr(request, "_prepared_storage_images", {}).get("image_upload")
+            if prepared is None:
                 super().save_model(request, obj, form, change)
                 return
+            key, size = prepared
+            guard = request._storage_guard
+            guard.verify(obj.makerspace_id)
+            limits.add_storage(obj.makerspace, size)
             setattr(obj, self.image_field, key)
             super().save_model(request, obj, form, change)
             if old_key and old_key != key:
-                public_image_storage.delete_public_image_on_commit(
+                public_image_storage.release_public_image_on_commit(
                     obj if self.image_kind == "makerspace" else obj.makerspace,
-                    old_key,
+                    old_key, guard=request._storage_guard,
                 )
             audit.record(
                 request.user,
@@ -102,9 +95,9 @@ class PublicImageAdminMixin:
             setattr(obj, self.image_field, "")
             super().save_model(request, obj, form, change)
             if old_key:
-                public_image_storage.delete_public_image_on_commit(
+                public_image_storage.release_public_image_on_commit(
                     obj if self.image_kind == "makerspace" else obj.makerspace,
-                    old_key,
+                    old_key, guard=request._storage_guard,
                 )
             audit.record(
                 request.user,

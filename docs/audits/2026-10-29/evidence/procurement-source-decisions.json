@@ -1,0 +1,1504 @@
+{
+  "format": "explicit-source-owner-decisions-v1",
+  "reviewer": "Codex /root/audit_backend_finish; exact serving-model identifier not exposed",
+  "scope_kind": "direct-source-review-not-runtime-proof",
+  "selected_file_count": 18,
+  "observed_lexical_owner_count": 136,
+  "blanket_approval": false,
+  "runtime_validation": "No tests, builds, migrations or application imports run by this reviewer. Parent central runtime separate.",
+  "owner_census_method": "AST identifies named owner identities and ranges after actual full source reading. Explicit purpose/boundary/findings follow individually read definitions and contexts.",
+  "files": [
+    {
+      "path": "backend/apps/procurement/__init__.py",
+      "file_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 0,
+          "purpose": "Explicit app/route declarations declarations/imports.",
+          "runtime_boundary": "Import or named URL mapping only; concrete handlers own authorization.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/access.py",
+      "file_sha256": "a8fc9668e240d216a9a79a4eee538d3631f90b71edf7e646695fba86fd13d77d",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 206,
+          "purpose": "Stream and machine-type authority declarations/imports.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "viewable_kinds",
+          "line_start": 18,
+          "line_end": 27,
+          "purpose": "Resolve readable hardware/printing streams from actual actions.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "can_use",
+          "line_start": 30,
+          "line_end": 32,
+          "purpose": "Require at least one readable procurement stream.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "derive_kind",
+          "line_start": 35,
+          "line_end": 44,
+          "purpose": "Derive creation stream server-side, honoring requested stream only for makerspace managers.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "can_manage_kind",
+          "line_start": 47,
+          "line_end": 51,
+          "purpose": "Require the stream-specific write action.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "machine_type_scope",
+          "line_start": 54,
+          "line_end": 88,
+          "purpose": "Distinguish exempt None from empty narrowed scope and preserve explicitly stored printing grants.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "scope_items",
+          "line_start": 91,
+          "line_end": 105,
+          "purpose": "Filter tenant/stream first, then linked machine types for narrowed printing authority.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "provenance_machine_type_id",
+          "line_start": 108,
+          "line_end": 128,
+          "purpose": "Derive label only from durable resulting machine or machine-bound pools, in migration order.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "validate_machine_type_provenance",
+          "line_start": 131,
+          "line_end": 158,
+          "purpose": "Reject type changes contradicting durable origin.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "machine_type_is_required",
+          "line_start": 161,
+          "line_end": 171,
+          "purpose": "Expose server-owned required-type predicate.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "validate_machine_type",
+          "line_start": 174,
+          "line_end": 192,
+          "purpose": "Reject foreign types and narrowed actor omissions/out-of-scope type ids.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "scope_machine_type_options",
+          "line_start": 195,
+          "line_end": 206,
+          "purpose": "Limit options to tenant/global types and applicable linked type ids.",
+          "runtime_boundary": "Effective action scope, stored independent grants and durable machine provenance determine item visibility.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/admin.py",
+      "file_sha256": "2878856142c3779b8d353b80c1d5e0ff8053649042b350d51e25d8624c36f4aa",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 78,
+          "purpose": "Procurement control-plane forms declarations/imports.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemAdmin",
+          "line_start": 11,
+          "line_end": 56,
+          "purpose": "Declare ToBuyItemAdmin typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemAdmin.get_readonly_fields",
+          "line_start": 47,
+          "line_end": 51,
+          "purpose": "Fix existing tenancy and kind.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemAdmin.save_model",
+          "line_start": 53,
+          "line_end": 56,
+          "purpose": "Save native form and stamp lifecycle status; currently omits provenance/type validation.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct PROC-S03 before release; actual runtime remains pending.",
+          "findings": [
+            "PROC-S03"
+          ]
+        },
+        {
+          "owner": "ToBuyReceiptAdmin",
+          "line_start": 59,
+          "line_end": 69,
+          "purpose": "Declare ToBuyReceiptAdmin typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptAdmin.has_add_permission",
+          "line_start": 65,
+          "line_end": 66,
+          "purpose": "Refuse raw receipt creation.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptAdmin.has_change_permission",
+          "line_start": 68,
+          "line_end": 69,
+          "purpose": "Refuse raw receipt changes.",
+          "runtime_boundary": "Active superuser/hidden/source checks inherited; machine-label validation gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/apps.py",
+      "file_sha256": "1a57e070c470027e61800e715be32bd649c09cd39e416e2357dbc6e4da1a74f9",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 17,
+          "purpose": "Retention receiver registration declarations/imports.",
+          "runtime_boundary": "Retention cleanup stays installed even when runtime procurement is tombstoned.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ProcurementConfig",
+          "line_start": 4,
+          "line_end": 17,
+          "purpose": "Declare ProcurementConfig typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Retention cleanup stays installed even when runtime procurement is tombstoned.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ProcurementConfig.ready",
+          "line_start": 9,
+          "line_end": 17,
+          "purpose": "Register retained delete signal and separable app.",
+          "runtime_boundary": "Retention cleanup stays installed even when runtime procurement is tombstoned.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/models.py",
+      "file_sha256": "9337575cd789d6457b6a12ef9b3112c4e359781dde0e1dffeef6164bcf78ea79",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 138,
+          "purpose": "Procurement persistence declarations/imports.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItem",
+          "line_start": 5,
+          "line_end": 118,
+          "purpose": "Declare ToBuyItem ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItem.Kind",
+          "line_start": 15,
+          "line_end": 17,
+          "purpose": "Declare ToBuyItem.Kind ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItem.Status",
+          "line_start": 19,
+          "line_end": 24,
+          "purpose": "Declare ToBuyItem.Status ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItem.Meta",
+          "line_start": 108,
+          "line_end": 115,
+          "purpose": "Declare ToBuyItem.Meta ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItem.__str__",
+          "line_start": 117,
+          "line_end": 118,
+          "purpose": "Render item/receipt descriptive string.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceipt",
+          "line_start": 121,
+          "line_end": 138,
+          "purpose": "Declare ToBuyReceipt ORM fields, relationship/choice or database consistency metadata.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceipt.__str__",
+          "line_start": 137,
+          "line_end": 138,
+          "purpose": "Render item/receipt descriptive string.",
+          "runtime_boundary": "Tenant list item, status/cost/provenance fields and unique receipt key; caller services own policy.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/reports.py",
+      "file_sha256": "aa904d555ef78234220f4b535b13b2a45ce0a19afbdeccd05af510a17f52f88c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 46,
+          "purpose": "Procurement report aggregation declarations/imports.",
+          "runtime_boundary": "Report context scoped_ids owns admitted makerspaces/modules; no independent actor admission in builder.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "build_procurement_performance",
+          "line_start": 16,
+          "line_end": 42,
+          "purpose": "Aggregate scoped item/unit/cost/status and lifecycle timing by period, retaining limit/date-range contract.",
+          "runtime_boundary": "Report context scoped_ids owns admitted makerspaces/modules; no independent actor admission in builder.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_hours",
+          "line_start": 45,
+          "line_end": 46,
+          "purpose": "Convert optional duration to rounded hours.",
+          "runtime_boundary": "Report context scoped_ids owns admitted makerspaces/modules; no independent actor admission in builder.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/serializers.py",
+      "file_sha256": "3326619b6a67bfadd2532ec11934f1d2d5bc13c030a1cfb1581d5866dfd1a999",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 221,
+          "purpose": "Typed procurement contracts declarations/imports.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ErrorSerializer",
+          "line_start": 7,
+          "line_end": 8,
+          "purpose": "Declare ErrorSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMachineTypeSerializer",
+          "line_start": 11,
+          "line_end": 15,
+          "purpose": "Declare ToBuyMachineTypeSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMachineTypeSerializer.Meta",
+          "line_start": 12,
+          "line_end": 15,
+          "purpose": "Declare ToBuyMachineTypeSerializer.Meta typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMachineTypeOptionsSerializer",
+          "line_start": 18,
+          "line_end": 29,
+          "purpose": "Declare ToBuyMachineTypeOptionsSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptSerializer",
+          "line_start": 32,
+          "line_end": 47,
+          "purpose": "Declare ToBuyReceiptSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptSerializer.Meta",
+          "line_start": 39,
+          "line_end": 47,
+          "purpose": "Declare ToBuyReceiptSerializer.Meta typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer",
+          "line_start": 50,
+          "line_end": 143,
+          "purpose": "Declare ToBuyItemSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer.Meta",
+          "line_start": 75,
+          "line_end": 124,
+          "purpose": "Declare ToBuyItemSerializer.Meta typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer.validate_name",
+          "line_start": 126,
+          "line_end": 130,
+          "purpose": "Trim and reject empty names.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer.validate_vendor_name",
+          "line_start": 132,
+          "line_end": 133,
+          "purpose": "Trim optional vendor label.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer.validate_estimated_unit_cost",
+          "line_start": 135,
+          "line_end": 138,
+          "purpose": "Reject negative estimated price.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyItemSerializer.validate_actual_unit_cost",
+          "line_start": 140,
+          "line_end": 143,
+          "purpose": "Reject negative actual price.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MoveToInventoryRequestSerializer",
+          "line_start": 146,
+          "line_end": 175,
+          "purpose": "Declare MoveToInventoryRequestSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MoveToInventoryRequestSerializer.validate",
+          "line_start": 167,
+          "line_end": 175,
+          "purpose": "Require destination id for topup or a nonblank name for create.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MoveToPrintingRequestSerializer",
+          "line_start": 178,
+          "line_end": 203,
+          "purpose": "Declare MoveToPrintingRequestSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptPresignSerializer",
+          "line_start": 206,
+          "line_end": 208,
+          "purpose": "Declare ToBuyReceiptPresignSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptFinalizeSerializer",
+          "line_start": 211,
+          "line_end": 212,
+          "purpose": "Declare ToBuyReceiptFinalizeSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptUploadResponseSerializer",
+          "line_start": 215,
+          "line_end": 217,
+          "purpose": "Declare ToBuyReceiptUploadResponseSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptUrlSerializer",
+          "line_start": 220,
+          "line_end": 221,
+          "purpose": "Declare ToBuyReceiptUrlSerializer typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "ModelSerializer supplies actual varchar/decimal limits; read-only provenance cannot be rewritten by API input.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/services.py",
+      "file_sha256": "67a6f5d4c1865f381dab0b650e73bde1004a82e5f704fc580ca5486e609b3145",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 209,
+          "purpose": "Shared procurement-to-stock conversion declarations/imports.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "MoveMode",
+          "line_start": 14,
+          "line_end": 16,
+          "purpose": "Declare MoveMode typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "PrintingTarget",
+          "line_start": 19,
+          "line_end": 21,
+          "purpose": "Declare PrintingTarget typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "move_to_inventory",
+          "line_start": 24,
+          "line_end": 96,
+          "purpose": "Require received hardware/unmoved status, reject aggregate individual creation/topup, validate tenant destination and atomically adjust audited stock.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "move_to_printing",
+          "line_start": 99,
+          "line_end": 130,
+          "purpose": "Lock nonnullable item/makerspace join, validate received printing status and delegate machine-kernel conversion; persist durable result and audit.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_assert_move_allowed",
+          "line_start": 132,
+          "line_end": 138,
+          "purpose": "Require correct stream, received lifecycle and no prior move timestamp.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_positive_quantity",
+          "line_start": 141,
+          "line_end": 148,
+          "purpose": "Normalize positive service quantity; typed API supplies integers.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_create_inventory_product",
+          "line_start": 151,
+          "line_end": 179,
+          "purpose": "Reuse actual inventory serializer and tenant box/category checks.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_topup_product",
+          "line_start": 182,
+          "line_end": 191,
+          "purpose": "Resolve topup product only inside the item tenant.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "stamp_status_change",
+          "line_start": 194,
+          "line_end": 209,
+          "purpose": "Set first ordered/received time and real purchaser when status enters those states.",
+          "runtime_boundary": "Atomic item/product locks and inventory-owned arithmetic protect one-time received conversion; boundary callers authorize actors.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/signals.py",
+      "file_sha256": "aebd020a15d3b4be99f6c1a60e2c81c22c983928cda90fcf912c00961581217e",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 34,
+          "purpose": "Private receipt deletion lifecycle declarations/imports.",
+          "runtime_boundary": "Requires existing storage ownership before SQL deletion; cleanup runs after commit with source/storage guard and reference recheck. No legacy quota credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_to_buy_receipt_object",
+          "line_start": 12,
+          "line_end": 34,
+          "purpose": "Reject unguarded document detach except authoritative purge ownership; retain exact key for callback.",
+          "runtime_boundary": "Requires existing storage ownership before SQL deletion; cleanup runs after commit with source/storage guard and reference recheck. No legacy quota credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_to_buy_receipt_object.delete_after_commit",
+          "line_start": 28,
+          "line_end": 32,
+          "purpose": "Reuse active storage guard and delete only unreferenced object versions.",
+          "runtime_boundary": "Requires existing storage ownership before SQL deletion; cleanup runs after commit with source/storage guard and reference recheck. No legacy quota credit.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/storage.py",
+      "file_sha256": "1db299b27cd97daefa9e001249a807e14f105bcbf815d320178c6c19b57da66c",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 241,
+          "purpose": "Receipt private provider boundary declarations/imports.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ReceiptObjectValidationResult",
+          "line_start": 28,
+          "line_end": 30,
+          "purpose": "Declare ReceiptObjectValidationResult typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_s3_client",
+          "line_start": 33,
+          "line_end": 44,
+          "purpose": "Build configured S3 client using backend/browser endpoint argument.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_client",
+          "line_start": 47,
+          "line_end": 48,
+          "purpose": "Select backend-facing storage endpoint.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_public_client",
+          "line_start": 51,
+          "line_end": 52,
+          "purpose": "Select browser-facing signing endpoint.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "receipt_object_key",
+          "line_start": 55,
+          "line_end": 57,
+          "purpose": "Mint tenant/item-bound UUID receipt key.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "staging_key",
+          "line_start": 60,
+          "line_end": 61,
+          "purpose": "Derive separate client-writable staging key.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "assert_receipt_object_key_for_makerspace",
+          "line_start": 64,
+          "line_end": 69,
+          "purpose": "Require exact tenant/item UUID key prefix.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "assert_receipt_object_key_for_item",
+          "line_start": 72,
+          "line_end": 77,
+          "purpose": "Require correct item-bound key and reject an already referenced private key.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ext_for",
+          "line_start": 80,
+          "line_end": 92,
+          "purpose": "Match configured allowed MIME and safe filename extension; reject mismatches.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "presigned_upload",
+          "line_start": 95,
+          "line_end": 119,
+          "purpose": "Sign staging only with MIME binding and POST size range; translate SDK failures.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "delete_object",
+          "line_start": 122,
+          "line_end": 130,
+          "purpose": "Delete all accepted object versions; log and return failure truthfully.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "copy_object",
+          "line_start": 133,
+          "line_end": 141,
+          "purpose": "Translate provider copy failures; runtime publication uses create-once adapter instead.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "object_size",
+          "line_start": 144,
+          "line_end": 158,
+          "purpose": "Return HEAD bytes, missing None, distinguish denied/transport error.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_upload",
+          "line_start": 161,
+          "line_end": 170,
+          "purpose": "Legacy publication adapter preserves size/missing result and deletes staging after success.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "finalize_receipt_upload",
+          "line_start": 173,
+          "line_end": 175,
+          "purpose": "Validate current item/private-reference ownership then publish validated object.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "presigned_get_url",
+          "line_start": 178,
+          "line_end": 186,
+          "purpose": "Mint short-lived private read URL; translate provider failure.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_validate_snapshot",
+          "line_start": 189,
+          "line_end": 203,
+          "purpose": "Validate actual bounded snapshot bytes against MIME, extension and configured allowed types.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "validate_receipt_object",
+          "line_start": 206,
+          "line_end": 218,
+          "purpose": "Validate existing final bytes and return typed missing/size errors.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "prepare_upload",
+          "line_start": 221,
+          "line_end": 231,
+          "purpose": "Publish and validate winner, enforce max size, delete staging only after success.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "_publish_upload",
+          "line_start": 234,
+          "line_end": 241,
+          "purpose": "Delegate to create-once publication with domain snapshot validator.",
+          "runtime_boundary": "Only resource-bound staged uploads publish through actual-byte create-once adapter; scoped views own admission/accounting.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/urls.py",
+      "file_sha256": "13bfd06911b8c0d329d60ff9976a62417563678bf096a0240f1751494d6867a6",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 65,
+          "purpose": "Explicit app/route declarations declarations/imports.",
+          "runtime_boundary": "Import or named URL mapping only; concrete handlers own authorization.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views.py",
+      "file_sha256": "459d32a7aafdff2106ada964bbbce89d0fcf6457f4ff791da9cd5222da091755",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 39,
+          "purpose": "Explicit procurement API barrel declarations/imports.",
+          "runtime_boundary": "Re-export only; child owners implement admission.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_common.py",
+      "file_sha256": "1541af38fedf0e930a864b03a003d0f4443298aa663d70ba7be74673e7cbdcf7",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 73,
+          "purpose": "Neutral procurement query/constants module declarations/imports.",
+          "runtime_boundary": "Shared contracts avoid circular imports; optional list limit is bounded.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "list_limit",
+          "line_start": 52,
+          "line_end": 60,
+          "purpose": "Parse bounded optional limit with safe default.",
+          "runtime_boundary": "Shared contracts avoid circular imports; optional list limit is bounded.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "apply_status_filter",
+          "line_start": 63,
+          "line_end": 67,
+          "purpose": "Apply only recognized lifecycle status filter.",
+          "runtime_boundary": "Shared contracts avoid circular imports; optional list limit is bounded.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "receipt_queryset_related",
+          "line_start": 70,
+          "line_end": 73,
+          "purpose": "Prefetch creator/purchaser/type/receipt uploader without changing scope.",
+          "runtime_boundary": "Shared contracts avoid circular imports; optional list limit is bounded.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_items.py",
+      "file_sha256": "b4922faa49a09899b7d1ab40789e0f7c5978bd96985311ad2536fbcf34e9e68d",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 177,
+          "purpose": "Procurement item HTTP admission declarations/imports.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyListCreateView",
+          "line_start": 29,
+          "line_end": 82,
+          "purpose": "Declare ToBuyListCreateView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyListCreateView.get_queryset",
+          "line_start": 34,
+          "line_end": 40,
+          "purpose": "Require module and bounded tenant/machine-scoped list.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyListCreateView.get",
+          "line_start": 47,
+          "line_end": 48,
+          "purpose": "Delegate read to DRF with declared schema.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyListCreateView.post",
+          "line_start": 51,
+          "line_end": 52,
+          "purpose": "Delegate creation to typed DRF serializer and perform_create.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyListCreateView.perform_create",
+          "line_start": 54,
+          "line_end": 82,
+          "purpose": "Check stream/type scope and save actor/tenant item with audit; initial lifecycle stamps missing.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "finding-open",
+          "disposition": "Correct PROC-S02 before release; actual runtime remains pending.",
+          "findings": [
+            "PROC-S02"
+          ]
+        },
+        {
+          "owner": "ToBuyDetailView",
+          "line_start": 86,
+          "line_end": 166,
+          "purpose": "Declare ToBuyDetailView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.get_queryset",
+          "line_start": 91,
+          "line_end": 102,
+          "purpose": "Resolve tenant then apply stream/type scope.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.get_object",
+          "line_start": 104,
+          "line_end": 114,
+          "purpose": "Recheck module and scoped object lookup.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView._assert_can_manage",
+          "line_start": 116,
+          "line_end": 118,
+          "purpose": "Require write action for the actual item stream.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.get",
+          "line_start": 121,
+          "line_end": 122,
+          "purpose": "Delegate read to DRF with declared schema.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.patch",
+          "line_start": 125,
+          "line_end": 126,
+          "purpose": "Delegate typed partial update to guarded perform_update.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.delete",
+          "line_start": 129,
+          "line_end": 130,
+          "purpose": "Delegate guarded document-aware deletion.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.perform_update",
+          "line_start": 132,
+          "line_end": 152,
+          "purpose": "Validate ownership/provenance before saving, stamp status and audit.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyDetailView.perform_destroy",
+          "line_start": 154,
+          "line_end": 166,
+          "purpose": "Hold storage exclusion, verify actor and source ownership, attach cleanup guard then delete transactionally.",
+          "runtime_boundary": "IsActiveStaff plus stream/type scope and modules protect items; initial status attribution gap remains open.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_items_export.py",
+      "file_sha256": "9cddf1e224d82b313626ac75cd315af68cf51d510b912120aa79103b3f8008ef",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 78,
+          "purpose": "Procurement export admission declarations/imports.",
+          "runtime_boundary": "Active staff, module and stream/type scope precede CSV/XLSX rendering.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyExportView",
+          "line_start": 23,
+          "line_end": 78,
+          "purpose": "Declare ToBuyExportView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Active staff, module and stream/type scope precede CSV/XLSX rendering.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyExportView.get",
+          "line_start": 41,
+          "line_end": 78,
+          "purpose": "Validate format and export only scoped items with lifecycle/vendor attribution.",
+          "runtime_boundary": "Active staff, module and stream/type scope precede CSV/XLSX rendering.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_machine_types.py",
+      "file_sha256": "2a3d63d1b5f2f81a8ee4760e2a19ce696ab596554c2930d83ecd1ff7f6d44a02",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 65,
+          "purpose": "Procurement machine options admission declarations/imports.",
+          "runtime_boundary": "Resolve visible/action-scoped servable tenant and validate procurement access before listing machine options.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMachineTypeOptionsView",
+          "line_start": 18,
+          "line_end": 65,
+          "purpose": "Declare ToBuyMachineTypeOptionsView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Resolve visible/action-scoped servable tenant and validate procurement access before listing machine options.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMachineTypeOptionsView.get",
+          "line_start": 29,
+          "line_end": 65,
+          "purpose": "Apply server-owned type options and required flag; preserve exempt versus empty narrowing.",
+          "runtime_boundary": "Resolve visible/action-scoped servable tenant and validate procurement access before listing machine options.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_move.py",
+      "file_sha256": "485cf79ff7ddfb11185e2cd9d2414ff54765c463f52cce7058b03b98e5c7f7d1",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 95,
+          "purpose": "Procurement move HTTP admission declarations/imports.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveBaseView",
+          "line_start": 23,
+          "line_end": 43,
+          "purpose": "Declare ToBuyMoveBaseView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveBaseView.get_item",
+          "line_start": 26,
+          "line_end": 39,
+          "purpose": "Resolve tenant-scoped stream/type item and require manage action/module.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveBaseView.serialize_item",
+          "line_start": 41,
+          "line_end": 43,
+          "purpose": "Reload just-processed item for response after admitted mutation.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveToInventoryView",
+          "line_start": 47,
+          "line_end": 77,
+          "purpose": "Declare ToBuyMoveToInventoryView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveToInventoryView.post",
+          "line_start": 55,
+          "line_end": 77,
+          "purpose": "Validate hardware destination payload and delegate received-stock conversion.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveToPrintingView",
+          "line_start": 81,
+          "line_end": 95,
+          "purpose": "Declare ToBuyMoveToPrintingView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyMoveToPrintingView.post",
+          "line_start": 87,
+          "line_end": 95,
+          "purpose": "Validate printing payload and delegate kernel machine/pool conversion.",
+          "runtime_boundary": "Scoped item, correct stream write action and module checks precede typed shared conversion.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    },
+    {
+      "path": "backend/apps/procurement/views_receipts.py",
+      "file_sha256": "9f27831c66c667fb12b5dd2a58b47ac1581c1a4b76bf660943d80d7ff0e43a20",
+      "fully_read": true,
+      "owners": [
+        {
+          "owner": "<module>",
+          "line_start": 1,
+          "line_end": 213,
+          "purpose": "Receipt HTTP/storage lifecycle declarations/imports.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_item",
+          "line_start": 28,
+          "line_end": 43,
+          "purpose": "Resolve item through actual tenant/stream/machine scope and module.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "resolve_receipt",
+          "line_start": 46,
+          "line_end": 60,
+          "purpose": "Resolve parent through same scope before exposing specific receipt.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "assert_can_manage",
+          "line_start": 63,
+          "line_end": 65,
+          "purpose": "Require stream-specific write action.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptPresignView",
+          "line_start": 69,
+          "line_end": 97,
+          "purpose": "Declare ToBuyReceiptPresignView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptPresignView.post",
+          "line_start": 82,
+          "line_end": 97,
+          "purpose": "Validate MIME/filename then sign fresh item-bound staging key; map provider failure.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptListCreateView",
+          "line_start": 101,
+          "line_end": 161,
+          "purpose": "Declare ToBuyReceiptListCreateView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptListCreateView.get",
+          "line_start": 108,
+          "line_end": 111,
+          "purpose": "List only receipts on admitted item.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptListCreateView.post",
+          "line_start": 123,
+          "line_end": 161,
+          "purpose": "Hold storage/source exclusion, publish validated bytes outside row transaction, recheck scope/ownership then create audited metadata; no finite quota debit.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "finding-open",
+          "disposition": "Correct DOC-S01 before release; actual runtime remains pending.",
+          "findings": [
+            "DOC-S01"
+          ]
+        },
+        {
+          "owner": "ToBuyReceiptUrlView",
+          "line_start": 165,
+          "line_end": 182,
+          "purpose": "Declare ToBuyReceiptUrlView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptUrlView.get",
+          "line_start": 176,
+          "line_end": 182,
+          "purpose": "Resolve scoped receipt then mint private read URL.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptDeleteView",
+          "line_start": 186,
+          "line_end": 213,
+          "purpose": "Declare ToBuyReceiptDeleteView typed transport fields, admin policy or view permission/method configuration.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        },
+        {
+          "owner": "ToBuyReceiptDeleteView.delete",
+          "line_start": 193,
+          "line_end": 213,
+          "purpose": "Recheck receipt under lock, audit and delete using explicit cleanup guard.",
+          "runtime_boundary": "Scoped actual item stream/type and active staff protect private receipt paths; real upload quota admission is missing.",
+          "decision": "reviewed-no-finding",
+          "disposition": "Retain within the explicit caller/action/transaction boundary; no approval of unread global callers or live provider behavior.",
+          "findings": []
+        }
+      ]
+    }
+  ]
+}

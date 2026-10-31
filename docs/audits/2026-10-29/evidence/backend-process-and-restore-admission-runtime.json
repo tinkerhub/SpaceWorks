@@ -1,0 +1,187 @@
+{
+  "status": "PASS; focused current shutdown/admission delta; parent final independent review pending",
+  "problem": "Successful collectstatic left sh as PID1 with a child Gunicorn in base, production and cloud. Docker default TERM did not reach the master.",
+  "change": "Each backend command adds exactly exec before Gunicorn. Admission permits exactly legacy/new command forms with all prior literal/numeric/role/image/topology checks. Exactly one protected wrapper source digest updated after independent review and initial runtime green.",
+  "source_sha256": {
+    "docker-compose.yml": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+    "docker-compose.prod.yml": "8d303df728567f6bebe4670a4db792c0dda4294cd5ee3bcc1394e6d4027a3597",
+    "docker-compose.cloud.yml": "096f74b7432f91b14e432f8c3ad48f1d8bf166ec4d354e2dfc60c3ad2c1129ae",
+    "backend/apps/backup/host_restore_admission.py": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+    "scripts/restore.sh": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41",
+    "docs/self-hosting.md": "a561347d27612cd4bb0ce9afdff6c09fa2c08bb65ae12c2773ece0c44f11af86",
+    "backend/scripts/spaceworks_entrypoint.py": "01fb00b82a49a344c5d15d135c7a5c76d2388a2271d2ea2b4bc74f0d72669ab2",
+    "backend/tests/test_backend_compose_process.py": "ba482ab832943e2a6a9023dc5ccf4f429be27fd43c70498ff24312612851c2cc",
+    "backend/tests/backup/test_backend_exec_admission.py": "3adee10d2f00dd780d762e6b342a7d5e1d71413cac25ee75de3db68672d21f33",
+    "backend/tests/backup/recovery_compose_inheritance_support.py": "1aa2afcc12c54df208f6d0b8f734096d2b62f650d445596e8cabb922b128b0bf",
+    "backend/tests/backup/recovery_transport_support.py": "1dfa982018a5cb1fc3e0aaf9e18db8949218627e14668ce63dc15392f30eb83e",
+    "scripts/tests/backend_process_inputs.py": "b0575bd70629332fc3149e7c5c14a7339319c42e5bfe08596cb919e33d2eba9f",
+    "scripts/tests/backend_process_lifecycle.py": "e7e5a0cb2b745438e07b7742aacc0dc44a02e4d4a4558e9183db6caf09d2938e",
+    "scripts/tests/backend_process_runtime.py": "bdb4b531f3f934d5ffcd71d72a5544b74d39e6b153bdf9bed1b4c5a9ec7401c7"
+  },
+  "source_line_counts": {
+    "docker-compose.yml": 336,
+    "docker-compose.prod.yml": 357,
+    "docker-compose.cloud.yml": 293,
+    "backend/apps/backup/host_restore_admission.py": 257,
+    "scripts/restore.sh": 72,
+    "docs/self-hosting.md": 1078,
+    "backend/scripts/spaceworks_entrypoint.py": 89,
+    "backend/tests/test_backend_compose_process.py": 96,
+    "backend/tests/backup/test_backend_exec_admission.py": 112,
+    "backend/tests/backup/recovery_compose_inheritance_support.py": 184,
+    "backend/tests/backup/recovery_transport_support.py": 201,
+    "scripts/tests/backend_process_inputs.py": 128,
+    "scripts/tests/backend_process_lifecycle.py": 147,
+    "scripts/tests/backend_process_runtime.py": 189
+  },
+  "gates": {
+    "stage1": "Revised plan approved after finding and correcting exact admission compatibility blocker",
+    "stage2": "Separate CLI source author; exact delta independently read by parent and owning agent",
+    "stage3": "Separate CLI test author; independent reads before runtime",
+    "stage4": "Parent owns mandatory fresh bare background review after metadata closure; earlier round2 predates this delta"
+  },
+  "pytest": {
+    "passed": 266,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_permanent_cases": 107,
+    "existing_controls": 159,
+    "runs": [
+      {
+        "name": "functional",
+        "passed": 239,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 74.785,
+        "driver_seconds": 76.142,
+        "collection_count": 239,
+        "frozen_inputs_sha256": "ecd90c5373ac3f8198854a37f2b0cc1cbf38c5e2b9e1e9677f18756991f46c4c",
+        "source_inventory_sha256": "0b4b4944480e01bded6da4b47e5e3a977156d50e74c8fc6a9dec3774a429858e",
+        "driver_sha256": "56ec25ad8d0541d86e3c433e222bcace96d83f93c6f7433000f2759f13705231",
+        "collection_plugin_sha256": "1052bc22ae0461853aa10a013831d8b9ef83a30f9d6d76f6fb2ff80a19895a06",
+        "private_xml_sha256": "389e3a3c2cccb04affdbf46156c0a6409e9f8f564fe5f7a47df6bf27c76aa914",
+        "network": "none",
+        "docker_daemon_socket_mounted": false
+      },
+      {
+        "name": "protected_bundle",
+        "passed": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 71.207,
+        "driver_seconds": 73.527,
+        "collection_count": 25,
+        "frozen_inputs_sha256": "3ed488d8f6a52740d9949390246e5fec15642bdb090af403da0edc363cb18abd",
+        "source_inventory_sha256": "00922152294e1489b937673573dbd40946228c1330524caf68d700cded8c84b3",
+        "driver_sha256": "eaadf51b84234971b270f784fd76f44cc8b5dacbd695f6e43eeb20015625e33f",
+        "collection_plugin_sha256": "1052bc22ae0461853aa10a013831d8b9ef83a30f9d6d76f6fb2ff80a19895a06",
+        "private_xml_sha256": "789959c46fe6284eb41d2f182cb14a80ce9f4eb83b42fa489400d71a817b8333",
+        "network": "none",
+        "docker_daemon_socket_mounted": false
+      },
+      {
+        "name": "strict_preflight",
+        "passed": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 0.713,
+        "driver_seconds": 11.707,
+        "collection_count": 2,
+        "frozen_inputs_sha256": "502fc01840cb6cb3690c432ef526866aa4aafc32c7c293d0c90ba17e53f5bb59",
+        "source_inventory_sha256": "00922152294e1489b937673573dbd40946228c1330524caf68d700cded8c84b3",
+        "driver_sha256": "39010c5699b1b2a87b0c0623d05e2077439e3d9142c8e579a36cc7a12a2a10ba",
+        "collection_plugin_sha256": "1052bc22ae0461853aa10a013831d8b9ef83a30f9d6d76f6fb2ff80a19895a06",
+        "private_xml_sha256": "aa1d51c41a405b555b5f66496d598f7723d59ca8e842f6ee018feec824ef0e0f",
+        "network": "bridge; dedicated audit cache10/broker11; no Docker socket",
+        "docker_daemon_socket_mounted": false
+      }
+    ],
+    "sanitized_complete_outcomes": "backend-process-and-restore-admission-current-round1.xml",
+    "sanitized_xml_sha256": "955ef3b5bb1fd238c90ff5882fc3c6a880bf9c187b6ce664c2b69b01edb3343e"
+  },
+  "real_process": {
+    "passed_cases": 9,
+    "profiles": [
+      "base",
+      "prod",
+      "cloud"
+    ],
+    "evidence": "backend-process-lifecycle-runtime.json",
+    "evidence_sha256": "3c6b2dabf6cade3a5d606c5c9515294aab5dd268e04570da0573bafcb1154b07",
+    "image_id": "sha256:e991ff6abf3026a4522b6b8ee11e4fb804c039434b08225145ec3d80de411b6e",
+    "fixed_term_exit0_seconds": {
+      "base": 0.357,
+      "prod": 0.553,
+      "cloud": 0.491
+    },
+    "legacy_control": "All3 HTTP-ready sh PID1 variants remained running after TERM beyond2seconds; force removed ONLY those disposable negative controls",
+    "collectstatic_failure": "All3 exit23 without starting real Gunicorn",
+    "cleanup": "All9 ownership-labelled disposable containers removed; no probe containers remain",
+    "source_and_synthetic_input_hashes_unchanged": true
+  },
+  "guard_frame": {
+    "captured_file_count": 4751,
+    "checkout_before_overlay_inventory_sha256": "4b875a234b443c56556f7810ae91235d5455ce28ec83ff3d3cec48194fb19028",
+    "frozen_guard_inventory_sha256": "00922152294e1489b937673573dbd40946228c1330524caf68d700cded8c84b3",
+    "private_candidate_sha256": "ad70db08429000b377d046838ba045ab189cb4d5c08d97b20b21dee3e10246ae",
+    "overlay": {
+      "status": "UNVERIFIED RUNTIME reviewed5/5/1 candidate metadata ONLY; source/app bytes unchanged",
+      "path": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze.json",
+      "before": {
+        "sha256": "b8bf573802ba52d0ead374a2b93ced93f348d4d13cf1e8064827b0fed50079a4",
+        "mode": 420
+      },
+      "after": {
+        "sha256": "ad70db08429000b377d046838ba045ab189cb4d5c08d97b20b21dee3e10246ae",
+        "mode": 420
+      },
+      "public_metadata_untouched": true
+    },
+    "exact_changed_counts": {
+      "source65": 5,
+      "copy59": 5,
+      "guard25": 1
+    },
+    "memberships_and_installed_modes_unchanged": true,
+    "wrapper_pin_change": {
+      "path": "scripts/restore.sh",
+      "before_sha256": "85c3fe17f7edd948a76fd9510483285408ed68d68d97fdca1c11600d3beb2668",
+      "after_sha256": "d24cd677f9c03150ad71212ede7706c03fbbf1cd0fa499f8e9af0d7766a46b41",
+      "only_expected_entry": "backend/apps/backup/host_restore_admission.py",
+      "old_admission_sha256": "92629166e5f4bcb2023e2aefce1be38f19a4a626bf46eb5cde845e954c193837",
+      "new_admission_sha256": "9c5ad9f8662656bc73431f7706dceb813bccc5e061d234d5805faa4798c8937e",
+      "authorized_after": "239PASS plus final nine real process cases including cleanup PASS"
+    },
+    "public_focused_manifest_pending_restore_owner_publication": true
+  },
+  "harness_retries": [
+    {
+      "attempt": "process1",
+      "result": "No cases/containers; isolated config hid native Compose plugin; explicit local plugin-directory input added, source hash pinned"
+    },
+    {
+      "attempt": "process2",
+      "result": "All9 behavioral cases passed and were removed; final cleanup diagnostic check failed because Docker emits lowercase missing-object text; casefold exact missing-object/container diagnostics; final9 rerun fully green"
+    },
+    {
+      "attempt": "guard_initial_collection",
+      "result": "Installed preflight imports models; no-conftest isolation lacked Django setup; split25 stdlib packaging cases from2 unchanged application cases"
+    },
+    {
+      "attempt": "strict_preflight_initial",
+      "result": "Django-only no-conftest run lacked original autouse test signing keys; both cases rerun unchanged with normal original conftest and passed"
+    }
+  ],
+  "scope_limits": [
+    "Process probes use exact real Compose-decoded shell bodies and real Gunicorn with a fixed synthetic WSGI app, no init, no ports, network none, and readonly temporary source. They do not invoke application entrypoint admission or establish full application shutdown/restore correctness.",
+    "Functional239 and protected25 run Linux UID0 with network none and no Docker daemon socket; actual Compose rendering is local only.",
+    "Strict preflight2 uses normal Django/conftest, private primary environment, audit cache10/broker11. Application initialization can consult the primary database; lifecycle SQL/Docker transport is synthetic and no real restore is performed.",
+    "Public focused source metadata stays old until restore owner publishes exact reviewed/tested5/5/1 changes; original actual7 image/capture remain unchanged. No new restore performed.",
+    "No staging, commit, push or deployment."
+  ],
+  "operator_upgrade": "Unreleased docs/self-hosting.md paragraph: adopt pinned host bundle using documented installer flow, refresh trusted topology and recreate backend; ordinary image update does not fetch Compose."
+}

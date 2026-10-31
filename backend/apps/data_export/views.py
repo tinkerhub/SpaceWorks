@@ -1,3 +1,5 @@
+import logging
+
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -20,6 +22,8 @@ from apps.data_export.serializers import (
 from apps.data_export.tasks import run_data_export_task
 from apps.data_export.throttles import DataExportCreateThrottle
 from apps.makerspaces.models import Makerspace
+
+logger = logging.getLogger(__name__)
 
 
 def _authorized_makerspace(actor, makerspace_id):
@@ -57,6 +61,7 @@ class DataExportListCreateView(APIView):
             400: OpenApiResponse(description="Invalid fidelity or quota/module policy failure."),
             403: OpenApiResponse(description="MANAGE_MAKERSPACE is required."),
             429: OpenApiResponse(description="Export creation rate limit exceeded."),
+            503: OpenApiResponse(description="Export dispatch is temporarily unavailable (export_dispatch_unavailable)."),
         },
     )
     def post(self, request, makerspace_id):
@@ -64,7 +69,29 @@ class DataExportListCreateView(APIView):
         serializer = DataExportCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         job = services.create_export_job(request.user, makerspace)
-        run_data_export_task.delay(str(job.pk))
+        try:
+            run_data_export_task.delay(str(job.pk))
+        except Exception:
+            # Broker exceptions may contain credentials/URLs. Log identifiers only.
+            logger.error(
+                "data_export_dispatch_failed",
+                extra={"job_id": str(job.pk), "makerspace_id": job.makerspace_id},
+            )
+            # Delivery may have succeeded before the producer lost its reply.
+            # The failure transition leaves any worker-owned outcome untouched.
+            failed = services.fail_dispatch(job)
+            return Response(
+                {
+                    "detail": (
+                        "The export could not be queued. Please try again later."
+                        if failed else
+                        "Export dispatch could not be confirmed. Check the job status before retrying."
+                    ),
+                    "code": "export_dispatch_unavailable",
+                    "job_id": str(job.pk),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         job.refresh_from_db()
         return Response(DataExportJobSerializer(job).data, status=status.HTTP_201_CREATED)
 

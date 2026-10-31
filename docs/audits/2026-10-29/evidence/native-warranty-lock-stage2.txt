@@ -1,0 +1,14 @@
+Implemented only:
+
+- [admin.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/admin.py:53) — **178 lines**. Change POST snapshots visible `(PK, makerspace, asset, machine)` before Django’s atomic block and retains pinned tenant admission through commit. `_assert_source_gate` uses that tenant.
+- [admin_forms.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/warranty/admin_forms.py:25) — **101 lines**. Add admission uses the submitted visible makerspace; malformed input remains a form error.
+
+The locking path is source → Makerspace **NO KEY UPDATE** → concrete host filtered by PK and expected tenant → fresh visible Warranty locked without nullable joins. Complete identity mismatch or disappearance raises `Http404` before saving/auditing. Fresh actor, hidden/servable tenant, scoped host action, module and source checks run after waits.
+
+Only the `try/finally` flag around `_changeform_view()` enables locking `get_object()`. Delete lookup remains unchanged. Crafted change `_saveasnew` is refused.
+
+Parent ModelForm/model validation, ordinary full save, `AdminAuditMixin`, host readonly fields and storage-delete behavior remain intact. Metadata edits acquire no storage lifecycle guard.
+
+Traced unchanged canonical `rebind_qr_target()` → `move_asset_across_makerspaces()`: it locks the asset before updating Warranty’s tenant.
+
+**Remaining risk:** PostgreSQL blocking/FK compatibility and rollback behavior await root’s Stage 3 tests. No tests, runtime/build checks, staging or commits performed.

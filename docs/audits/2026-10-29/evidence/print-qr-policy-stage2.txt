@@ -1,0 +1,5 @@
+Added the three-line check in [services_qr_assets.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/operations/services_qr_assets.py:41), immediately after the scoped QR lock and before `_target_label`. It refreshes the actor for authorization and audit.
+
+Static checks passed: exact insertion, all other AST preserved, clean whitespace diff. File: 194 lines.
+
+No tests, runtime checks, Django imports, builds, staging, or commits performed.

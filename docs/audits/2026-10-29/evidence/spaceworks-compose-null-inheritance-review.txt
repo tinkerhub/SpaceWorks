@@ -1,0 +1,14 @@
+APPROVED.
+
+The bounded correction matches the defect in the actual source:
+
+- Missing or `null` entrypoints inherit the inspected image entrypoint. Explicit `[]`, `""`, and custom overrides must retain rejection for application roles; the exact admitted entrypoint remains supported.
+- Inventory command/entrypoint fallback must use **only missing/`None`**, preserving literal comparison for explicit values, including `[]`.
+- Application commands still require their explicit role command. Implement the planned safe null rejection before `command[:2]`, which currently raises `TypeError` for `None`.
+- Preserve image entrypoint verification, OCI digest checks, previous image identity, actual container image-ID equality, and every environment/mount/ownership check. Refresh only the admission file’s SHA in `scripts/restore.sh`.
+
+The test plan correctly requires independent image/container defaults: the existing synthetic transport echoes service values and cannot establish null inheritance by itself.
+
+Static probe assessment: construction/`validate()`, `admit_configuration()`, and `inventory()` use reads/config/inspect operations, plus in-memory admission bookkeeping. **`target_identity()` is not effects-free**: it invokes Compose `run`, creates/removes a one-off container, and cleanup can invoke `stop`/`rm`. `control()` also launches a management container. Thus the proposed complete read-only probe cannot call those roots unchanged; use the plan’s ordinary restore-entrypoint fallback for complete validation.
+
+Review was static only. No edits, imports, tests, collection, Docker, database, provider calls, or builds were performed.

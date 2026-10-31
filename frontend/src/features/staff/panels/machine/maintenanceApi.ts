@@ -1,7 +1,9 @@
+import { admitUpload, uploadBytes, type UploadGuard } from "../../../../lib/uploadProtocol";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { staffRequest } from "../../../../lib/api";
 import { machineKeys } from "../../machinesApi";
+import { useMaintenanceDocumentTask } from "./useMaintenanceDocumentTask";
 
 export type MaintenanceDocument = {
   id: number;
@@ -161,72 +163,68 @@ export function useLogMaintenance(makerspaceId: number, machineId: number) {
   });
 }
 
+type AdmittedFile = File | { file: File; guard: UploadGuard };
+type AdmittedKey = string | { key: string; guard: UploadGuard };
+type AdmittedDocument = number | { id: number; guard: UploadGuard };
+
 export function usePresignMaintenanceDocument(logId: number) {
-  return useMutation({
-    mutationFn: (file: File) => staffRequest<UploadContract>(
-      `/admin/maintenance/logs/${logId}/documents/presign/`,
-      {
+  return useMaintenanceDocumentTask(`presign:${logId}`,
+    (input: AdmittedFile) => {
+      const file = input instanceof File ? input : input.file;
+      return staffRequest<UploadContract>(`/admin/maintenance/logs/${logId}/documents/presign/`, {
         method: "POST",
-        body: JSON.stringify({
-          filename: file.name,
-          content_type: file.type || "application/octet-stream",
-        }),
-      },
-    ),
-  });
+        body: JSON.stringify({ filename: file.name, content_type: file.type || "application/octet-stream" }),
+      });
+    },
+  );
 }
 
 export function useFinalizeMaintenanceDocument(machineId: number, logId: number) {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: (objectKey: string) => staffRequest<MaintenanceDocument>(
-      `/admin/maintenance/logs/${logId}/documents/`,
-      { method: "POST", body: JSON.stringify({ object_key: objectKey }) },
-    ),
-    onSuccess: async () => {
+  return useMaintenanceDocumentTask(`finalize:${machineId}:${logId}`,
+    (input: AdmittedKey) => {
+      const key = typeof input === "string" ? input : input.key;
+      return staffRequest<MaintenanceDocument>(`/admin/maintenance/logs/${logId}/documents/`, {
+        method: "POST", body: JSON.stringify({ object_key: key }),
+      });
+    },
+    async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: maintenanceKeys.logs(machineId) }),
         client.invalidateQueries({ queryKey: maintenanceKeys.logDocuments(logId) }),
       ]);
     },
-  });
+  );
 }
 
 export function useMaintenanceDocumentUrl() {
-  return useMutation({
-    mutationFn: (id: number) => staffRequest<{ url: string }>(
-      `/admin/maintenance/log-documents/${id}/url/`,
-    ),
-    onSuccess: ({ url }) => window.open(url, "_blank", "noopener,noreferrer"),
-  });
+  return useMaintenanceDocumentTask("document-url",
+    (input: AdmittedDocument) => {
+      const id = typeof input === "number" ? input : input.id;
+      return staffRequest<{ url: string }>(`/admin/maintenance/log-documents/${id}/url/`);
+    },
+    ({ url }) => {
+      window.open(url, "_blank", "noopener,noreferrer");
+    },
+  );
 }
 
 export function useDeleteMaintenanceDocument(machineId: number, logId: number) {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => staffRequest<void>(
-      `/admin/maintenance/log-documents/${id}/`, { method: "DELETE" },
-    ),
-    onSuccess: async () => {
+  return useMaintenanceDocumentTask(`delete:${machineId}:${logId}`,
+    async (input: AdmittedDocument) => {
+      const id = typeof input === "number" ? input : input.id;
+      await staffRequest<void>(`/admin/maintenance/log-documents/${id}/`, { method: "DELETE" });
+    },
+    async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: maintenanceKeys.logs(machineId) }),
         client.invalidateQueries({ queryKey: maintenanceKeys.logDocuments(logId) }),
       ]);
     },
-  });
+  );
 }
 
-export async function uploadToContract(file: File, contract: UploadContract) {
-  if (contract.upload.method === "PUT") {
-    const response = await fetch(contract.upload.url, {
-      method: "PUT", body: file, headers: contract.upload.headers,
-    });
-    if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
-    return;
-  }
-  const body = new FormData();
-  Object.entries(contract.upload.fields ?? {}).forEach(([key, value]) => body.append(key, value));
-  body.append("file", file);
-  const response = await fetch(contract.upload.url, { method: "POST", body });
-  if (!response.ok) throw new Error(`Storage upload failed (${response.status})`);
+export async function uploadToContract(file: File, contract: UploadContract, guard: UploadGuard = admitUpload()) {
+  await uploadBytes(file, contract.upload, guard);
 }

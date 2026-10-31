@@ -10,10 +10,13 @@ export function ResetPasswordPage() {
   // Remove this branch only after the last legacy link issuance time plus
   // PASSWORD_RESET_TIMEOUT; release count is not a safe coexistence clock.
   if (hasLegacyLink) {
+    const uid = searchParams.get("uid") ?? "";
+    const token = searchParams.get("token") ?? "";
     return (
       <LegacyPasswordResetForm
-        uid={searchParams.get("uid") ?? ""}
-        token={searchParams.get("token") ?? ""}
+        key={JSON.stringify([uid, token])}
+        uid={uid}
+        token={token}
       />
     );
   }

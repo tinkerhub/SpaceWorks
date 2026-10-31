@@ -1,0 +1,482 @@
+{
+  "format": "spaceworks-backup-residual-baseline-resolution-v1",
+  "status": "all-owned-original-failures-have-current-passing-evidence",
+  "baseline": {
+    "immutable_backup_xml_sha256": "69f1176c8f324e1d60e6305dec92c94d4f21598eabaca8e00cb3e6a95d0f76ef",
+    "immutable_full_snapshot_manifest_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+    "backup_partition_cases": 3412,
+    "original_backup_failures": 55,
+    "original_backup_errors": 13,
+    "owned_backup_failures": 51,
+    "source_primitive_resolution": "source-primitive-baseline-resolution.json (4 failures and 13 setup errors; separately verified by root)"
+  },
+  "coverage": {
+    "owned_original_backup_failures": 51,
+    "resolved_owned_original_backup_failures": 51,
+    "exact_test_and_parameter_names": 47,
+    "explicit_contract_remaps": 4,
+    "missing": 0,
+    "owned_original_core_host_environment_failures": 4,
+    "resolved_owned_core_host_environment_failures": 4,
+    "class_normalization": "Only an absent tests.backup/tests prefix from --noconftest -c /dev/null runs is normalized, using unique module filename. Test names and parameter names are unchanged except the four explicit installed-contract remaps."
+  },
+  "source_and_test_integrity": {
+    "frozen_full_baseline_preserved": true,
+    "no_new_skips_xfails_test_removal_or_security_guard_relaxation": true,
+    "original_finalization_file_unchanged_and_passed_after_fixed_live_celery_proof": true,
+    "original_exact_environment_surface_test_ast_unchanged": true,
+    "source_gate_total_coverage_remains_active_with_structurally_proven_atomic_wrappers": true,
+    "source_only_policy_and_native_qr_changes_after_actual_drill_bounded_in": "actual-same-host-restore-20261030.json",
+    "final_current_suite_not_represented_as_a_fresh_full_11695_case_run": true
+  },
+  "followups": [
+    {
+      "evidence_xml": "result.xml",
+      "private_parent_label": "spaceworks-backup-residual-current-round1",
+      "sha256": "78630e0163d804258ca91d07c5a62bd405d0d992e43ebd41dc99deaad29ccf2a",
+      "cases": 5,
+      "passed": 5,
+      "failed": 0,
+      "errors": 0
+    },
+    {
+      "evidence_xml": "result.xml",
+      "private_parent_label": "spaceworks-backup-residual-current-round2",
+      "sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245",
+      "cases": 227,
+      "passed": 224,
+      "failed": 3,
+      "errors": 0
+    },
+    {
+      "evidence_xml": "spaceworks-atomic-admission-guards-no-db-round1.xml",
+      "private_parent_label": "tmp",
+      "sha256": "d5aa5147b8d4d49fbea011878cd24b7c91380cd65c29f2f7637ec26ab7abcbc7",
+      "cases": 94,
+      "passed": 94,
+      "failed": 0,
+      "errors": 0
+    },
+    {
+      "evidence_xml": "result.xml",
+      "private_parent_label": "spaceworks-host-tail-no-db-round1",
+      "sha256": "adda22ceed178c6b8570ac2e22fb994f08ae40638222d6ea15eb7a84f4ebdc1a",
+      "cases": 71,
+      "passed": 71,
+      "failed": 0,
+      "errors": 0
+    },
+    {
+      "evidence_xml": "result.xml",
+      "private_parent_label": "spaceworks-backup-residual-current-round3",
+      "sha256": "ea2a443a2323b6417f924f1e504311c6c792e485299047590ff8f843ea16b675",
+      "cases": 16,
+      "passed": 16,
+      "failed": 0,
+      "errors": 0
+    }
+  ],
+  "current_green_union": {
+    "unique_test_names_after_module_prefix_normalization": 397,
+    "passing": 397,
+    "note": "The three observed round2 adapter failures were corrected and every affected file rerun green in round3; all earlier failed evidence remains retained."
+  },
+  "backup_failure_resolution": [
+    {
+      "original_nodeid": "tests/backup/test_archive_digests.py::test_preflight_rejects_altered_declared_bundle_file",
+      "current_test_name": "test_preflight_rejects_altered_declared_bundle_file",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_digests.py::test_preflight_accepts_v1_manifest_without_content_ledger",
+      "current_test_name": "test_preflight_accepts_v1_manifest_without_content_ledger",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_security.py::test_import_rejects_missing_expected_digest_before_storage",
+      "current_test_name": "test_import_rejects_missing_expected_digest_before_storage",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_restore_handoff_e9b.py::test_compound_backup_control_reaches_validated_coordinator_handoff",
+      "current_test_name": "test_installed_compound_restore_is_typed_unsupported_before_effects[True]",
+      "same_test_and_parameter_name": false,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245",
+      "contract_remap_reason": "The installed compound launcher does not exist; complete inputs must receive the typed unsupported refusal before any effect. The injected coordinator library remains covered."
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_restore_handoff_e9b.py::test_legacy_path_refusal_names_missing_compound_handoff_inputs",
+      "current_test_name": "test_installed_compound_restore_is_typed_unsupported_before_effects[False]",
+      "same_test_and_parameter_name": false,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245",
+      "contract_remap_reason": "Missing handoff inputs do not invent installed compound support; the same typed unsupported refusal preserves all state/storage invariants."
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_format_isolation_d8.py::test_host_import_rejects_lane_d_before_storage_or_database_mutation",
+      "current_test_name": "test_host_import_rejects_lane_d_before_storage_or_database_mutation",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "ea2a443a2323b6417f924f1e504311c6c792e485299047590ff8f843ea16b675"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v3_preflight_refuses_missing_content_ledger",
+      "current_test_name": "test_v3_preflight_refuses_missing_content_ledger",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v2]",
+      "current_test_name": "test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v2]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_archive_manifest_v3.py::test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v3]",
+      "current_test_name": "test_v2_and_v3_preflight_accept_valid_content_ledgers[spaceworks-phase5a-v3]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_archive_e2.py::test_extracted_deployment_payload_stays_at_archive_root[False]",
+      "current_test_name": "test_extracted_deployment_payload_stays_at_archive_root[False]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_compound_archive_verification_e3.py::test_missing_slice_fails_before_main_exclusion_or_outer_encryption",
+      "current_test_name": "test_missing_slice_fails_before_main_exclusion_or_outer_encryption",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_not_restored_state_e7.py::test_component_state_identity_is_immutable_and_state_is_closed_enum",
+      "current_test_name": "test_component_state_identity_is_immutable_and_state_is_closed_enum",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_recovery_live_generation.py::test_real_old_queued_unacked_retry_eta_ids_never_execute_on_replacement_rows",
+      "current_test_name": "test_real_old_queued_unacked_retry_eta_ids_never_execute_on_replacement_rows",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "78630e0163d804258ca91d07c5a62bd405d0d992e43ebd41dc99deaad29ccf2a"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_host_supervisor_reprovisions_grants_before_post_restore_django",
+      "current_test_name": "test_host_supervisor_reprovisions_grants_before_post_restore_django",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_b1_host_restore_uses_a_non_routable_sibling_until_cutover",
+      "current_test_name": "test_b1_host_restore_uses_a_non_routable_sibling_until_cutover",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[before-first-reservation]",
+      "current_test_name": "test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[before-first-reservation]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-declared]",
+      "current_test_name": "test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-declared]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-installed]",
+      "current_test_name": "test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[reservation-installed]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-declared]",
+      "current_test_name": "test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-declared]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_enforcement_order_e7.py::test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-installed]",
+      "current_test_name": "test_crash_at_every_installation_boundary_fails_closed_without_a_fence_gap[fence-installed]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_import_finalization_recovery.py::test_claim_crash_sweep_waits_for_lease_expiry_and_completes",
+      "current_test_name": "test_claim_crash_sweep_waits_for_lease_expiry_and_completes",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "78630e0163d804258ca91d07c5a62bd405d0d992e43ebd41dc99deaad29ccf2a"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[backend-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[backend-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[worker-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[worker-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[beat-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[beat-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[cron-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[cron-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[migrate-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[migrate-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_entrypoint_h1a.py::test_every_marker_state_has_an_exact_role_matrix[management-restore-blocked]",
+      "current_test_name": "test_every_marker_state_has_an_exact_role_matrix[management-restore-blocked]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[not-dict]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[not-dict]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[false-validation]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[false-validation]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-protocol]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-protocol]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[wrong-protocol]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[wrong-protocol]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-digest]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-digest]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[bad-digest]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[bad-digest]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-migration]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[missing-migration]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[empty-migration]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[empty-migration]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[typed-migration]",
+      "current_test_name": "test_missing_or_malformed_actual_capability_facts_refuse_before_first_effect[typed-migration]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_forged_descriptive_status_cannot_bypass_real_capability_denial",
+      "current_test_name": "test_forged_descriptive_status_cannot_bypass_real_capability_denial",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[missing-record]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[missing-record]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[malformed-record]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[malformed-record]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[protocol]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[protocol]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[signer]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[signer]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[migration]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[migration]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_gate_acceptance_e10.py::test_installed_capability_record_checks_precede_validated_status_and_effects[writers]",
+      "current_test_name": "test_installed_capability_record_checks_precede_validated_status_and_effects[writers]",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_host_restore_order_e10.py::test_restore_grant_helper_uses_privileged_bootstrap_without_django",
+      "current_test_name": "test_restore_grant_helper_uses_privileged_bootstrap_without_django",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "ea2a443a2323b6417f924f1e504311c6c792e485299047590ff8f843ea16b675"
+    },
+    {
+      "original_nodeid": "tests/backup/test_import_backup_script_host.py::test_failing_preflight_precedes_environment_and_service_mutation",
+      "current_test_name": "test_failing_preflight_precedes_environment_and_service_mutation",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_host_surfaces_e9b.py::test_every_legacy_pg_restore_reprovisions_before_later_django_commands",
+      "current_test_name": "test_every_python_pg_restore_reprovisions_before_later_django_commands",
+      "same_test_and_parameter_name": false,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "ea2a443a2323b6417f924f1e504311c6c792e485299047590ff8f843ea16b675",
+      "contract_remap_reason": "Grant ordering now follows the installed Python controller rather than removed shell pg_restore branches."
+    },
+    {
+      "original_nodeid": "tests/backup/test_restore_host_surfaces_e9b.py::test_legacy_wrapper_validates_before_claiming_or_pausing",
+      "current_test_name": "test_controller_validates_before_claiming_or_pausing",
+      "same_test_and_parameter_name": false,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "ea2a443a2323b6417f924f1e504311c6c792e485299047590ff8f843ea16b675",
+      "contract_remap_reason": "The guarded wrapper delegates to the actual Python lifecycle; static admission precedes claim/quiesce/service mutation."
+    },
+    {
+      "original_nodeid": "tests/backup/test_semantic_reconstruction_e10.py::test_project_reconstructs_with_every_unsealed_slice_before_any_slice_is_sealed",
+      "current_test_name": "test_project_reconstructs_with_every_unsealed_slice_before_any_slice_is_sealed",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/backup/test_signed_full_preflight.py::test_prospective_continuity_is_read_only_and_installed_values_must_agree",
+      "current_test_name": "test_prospective_continuity_is_read_only_and_installed_values_must_agree",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "f29fbcf88c634528e7a72859a45aafe5626f36ed97d4cd244aa41eda4ae2e245"
+    },
+    {
+      "original_nodeid": "tests/tenant_migration/test_source_gate_guards.py::test_real_application_tree_has_total_source_gate_coverage",
+      "current_test_name": "test_real_application_tree_has_total_source_gate_coverage",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "spaceworks-atomic-admission-guards-no-db-round1.xml",
+      "evidence_xml_sha256": "d5aa5147b8d4d49fbea011878cd24b7c91380cd65c29f2f7637ec26ab7abcbc7"
+    }
+  ],
+  "core_host_environment_resolution": [
+    {
+      "original_nodeid": "tests/test_deploy_host_scripts.py::test_staged_bundle_adopts_runtime_files_and_preserves_private_state",
+      "current_test_name": "test_staged_bundle_adopts_runtime_files_and_preserves_private_state",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "adda22ceed178c6b8570ac2e22fb994f08ae40638222d6ea15eb7a84f4ebdc1a"
+    },
+    {
+      "original_nodeid": "tests/test_env_surface_drift.py::test_backup_preflight_policy_covers_the_complete_environment_surface",
+      "current_test_name": "test_backup_preflight_policy_covers_the_complete_environment_surface",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "adda22ceed178c6b8570ac2e22fb994f08ae40638222d6ea15eb7a84f4ebdc1a"
+    },
+    {
+      "original_nodeid": "tests/test_host_orchestration_surface_h1a.py::test_compose_wrapper_unsets_ambient_pointer_and_layers_pointer_last",
+      "current_test_name": "test_compose_wrapper_unsets_ambient_pointer_and_layers_pointer_last",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "adda22ceed178c6b8570ac2e22fb994f08ae40638222d6ea15eb7a84f4ebdc1a"
+    },
+    {
+      "original_nodeid": "tests/test_installer_forwarding_contract.py::test_installer_requires_the_request_access_helper_in_the_release",
+      "current_test_name": "test_installer_requires_the_request_access_helper_in_the_release",
+      "same_test_and_parameter_name": true,
+      "evidence_xml": "result.xml",
+      "evidence_xml_sha256": "adda22ceed178c6b8570ac2e22fb994f08ae40638222d6ea15eb7a84f4ebdc1a"
+    }
+  ],
+  "followup_source_manifest_sha256": {
+    "round1": "e9aa7c9310c077536e37ef956599ec8f08086aeb269e4ebdc78b37e70b9be79a",
+    "round2": "6de6b9d80f1e454c4400d0f6c23eb2194e8b7277cae68ec01acd0b10ee1b7310",
+    "round3": "7ce62cde33159c4d5499863f65401336134d1115aa625395c87c536c36617f38"
+  }
+}

@@ -24,6 +24,7 @@ class MarkerError(RuntimeError):
 
 class MarkerState(StrEnum):
     NORMAL = "normal"
+    RESTORE_BLOCKED = "restore-blocked"
     CANDIDATE_PREPARATION = "candidate-preparation"
     CANDIDATE_HEALTH = "candidate-health"
     QUARANTINED_AFTER_CUTOVER = "quarantined-after-cutover"
@@ -145,7 +146,6 @@ def _server_identity(value):
         "system_identifier": system_identifier,
     }
 
-
 def _operation(value):
     required = {"restore_id", "artifact_sha256", "capture_id", "pointer_generation"}
     if not isinstance(value, dict) or set(value) != required:
@@ -162,7 +162,6 @@ def _operation(value):
         capture_id=_uuid(value["capture_id"], "capture_id"),
         pointer_generation=generation,
     )
-
 
 def parse_marker(payload) -> HostMarker:
     if not isinstance(payload, dict) or set(payload) not in ({
@@ -219,6 +218,8 @@ def parse_marker(payload) -> HostMarker:
         state != MarkerState.CANDIDATE_PREPARATION or operation is None
     ):
         raise MarkerError("Host marker intent requires candidate preparation and operation identity.")
+    if state == MarkerState.RESTORE_BLOCKED and (database is None or database.server_identity is None or operation is None):
+        raise MarkerError("Restore-blocked requires bound target and operation identities.")
     return HostMarker(
         stage=stage, state=state,
         database=database,
@@ -228,7 +229,6 @@ def parse_marker(payload) -> HostMarker:
         not_restored=tuple(_relation_check(item, "not_restored") for item in readiness["not_restored"]),
         operation=operation,
     )
-
 
 def _assert_trusted_file(path):
     try:
@@ -243,7 +243,6 @@ def _assert_trusted_file(path):
     if file_stat.st_mode & 0o022 or directory_stat.st_mode & 0o022:
         raise MarkerError("Host marker or directory is writable by a non-root principal.")
 
-
 def read_marker(path, *, require_root_owned=True) -> HostMarker:
     path = Path(path)
     if require_root_owned:
@@ -254,7 +253,6 @@ def read_marker(path, *, require_root_owned=True) -> HostMarker:
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise MarkerError("Host marker is missing, unreadable, or malformed.") from exc
     return parse_marker(payload)
-
 
 def marker_payload(state, database, *, readiness=None, operation=None):
     state = MarkerState(state)
@@ -290,7 +288,6 @@ def marker_payload(state, database, *, readiness=None, operation=None):
             "pointer_generation": operation.pointer_generation,
         }
     return payload
-
 
 def write_marker_fsynced(path, payload, *, crash_hook=None, require_root_owned=True):
     """Root-owned atomic replacement; the caller is the privileged host helper."""

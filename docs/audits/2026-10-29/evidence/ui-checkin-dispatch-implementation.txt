@@ -1,0 +1,9 @@
+Updated `CheckinIdentityStep.tsx` mutationFn immediately before `lookupCheckin`:
+
+```ts
+if (!isCurrent(input) || latest.current.disabled) throw new Error("Check-in lookup is no longer current.");
+```
+
+All remaining source unchanged, including callbacks, pending cleanup, and fail-closed presence semantics. 249 lines. No tests/build/runtime/staging/commit performed.
+
+SHA-256: `0fa9cae53acbe94c7d5d1cbeb53f26a8d63042afb7c3bb462870a20436c7efbf`

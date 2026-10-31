@@ -1,0 +1,2621 @@
+
+> test
+> vitest run --maxWorkers=1 src/features/inventory
+
+
+ RUN  v4.1.12 /app
+
+ ❯ src/features/inventory/PublicRequestPanelAccountLess.test.tsx (15 tests | 1 failed) 1606ms
+     ✓ collects contact details and sends them with an idempotency key 186ms
+     ✓ keeps submit disabled until a name and an email are given 55ms
+     ✓ shows the request token afterwards, the only handle an account-less visitor has 42ms
+     ✓ sends the honeypot field so autofill bots get the decoy response 44ms
+     ✓ gives a signed-in member the member form even on an opted-in space 8ms
+     ✓ offers no scan tab where self-checkout cannot work 19ms
+     ✓ keeps the member scan tab on a members space with self-checkout on 36ms
+     ✓ describes an accounts-only space without membership, waiver or presence 10ms
+     ✓ asks a members-only space for no contact details and sends no key 29ms
+     ✓ keeps submit disabled while the session probe is still pending 24ms
+     ✓ drops the previous token as soon as another attempt starts 55ms
+     ✓ points a signed-out visitor at member sign-in instead of letting the submit 401 23ms
+     ✓ keeps the member rules and adds sign-in on a members space 15ms
+     ✓ sends a visitor to the desk when the space has no member accounts to sign in with 24ms
+     × restores a reloaded session from the refresh cookie and files the request under it 1034ms
+ ✓ src/features/inventory/PublicRequestPanelCheckedIn.test.tsx (14 tests) 614ms
+ ✓ src/features/inventory/PublicBorrowRequest.ownership.test.tsx (8 tests) 1640ms
+     ✓ deduplicates same-tick submissions, captures the body, reuses failed-body keys and rotates changed-body keys  557ms
+ ✓ src/features/inventory/PublicToolScanPanel.ownership.test.tsx (14 tests) 3155ms
+     ✓ checkout admits first and blocks the reverse operation in the same tick  362ms
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx (8 tests | 7 failed) 3663ms
+     × old maker success cannot render, clear fresh scans/evidence or unlock the current checkout 716ms
+     × old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout 559ms
+     × old session success cannot render, clear fresh scans/evidence or unlock the current checkout 374ms
+     × old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout 336ms
+     × captures a multi-tool body once, deduplicates same-tick submit, and blocks mode/person edits until it settles 221ms
+     × return needs a fresh photo, notes and scan; a stale checkout camera callback cannot enqueue or submit 90ms
+     × a new mode hides the previous dedicated result/error and cannot reuse evidence 1107ms
+     ✓ a new person hides the previous dedicated result/error and cannot reuse evidence 259ms
+ ✓ src/features/inventory/PublicEvidenceUpload.ownership.test.tsx (20 tests) 1825ms
+ ❯ src/features/inventory/PublicInventoryPage.ownership.test.tsx (4 tests | 1 failed) 755ms
+     ✓ reusing /m/:slug removes A cart and open details synchronously on warm A to cold B  364ms
+     ✓ same-maker sign-in preserves the public cart and open product 136ms
+     × successful borrow keeps a cart changed after admission and submits the original quantities 199ms
+     ✓ a reused inventory observer keeps same-maker placeholders but never carries warm A into cold B 55ms
+ ✓ src/features/inventory/CheckinIdentityStep.races.test.tsx (6 tests) 874ms
+ ✓ src/features/inventory/PublicToolScanPanelCheckedIn.test.tsx (7 tests) 828ms
+     ✓ gates evidence and sends the confirmed identity through checkout and return  407ms
+ ✓ src/features/inventory/PublicIdentityTenantScope.test.tsx (3 tests) 694ms
+     ✓ PublicRequestPanel immediately drops A readiness on B and submits only B's freshly confirmed mid/name  314ms
+ ✓ src/features/inventory/CheckinIdentityStep.lifecycle.test.tsx (8 tests) 556ms
+ ✓ src/features/inventory/PublicMachinesPage.test.tsx (4 tests) 386ms
+ ❯ src/features/inventory/PublicRequestPanelFlow.test.tsx (2 tests | 1 failed) 271ms
+     × ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow 187ms
+     ✓ BorrowRequestCard preserves clear, edit, submit and token/status actions without a capped selected list 83ms
+ ✓ src/features/inventory/usePublicSession.ownership.test.tsx (4 tests) 154ms
+ ❯ src/features/inventory/PublicSelfCheckoutPage.test.tsx (5 tests | 1 failed) 321ms
+     ✓ serves the roster form on a checked-in space with membership off 81ms
+     ✓ is unavailable with membership off and no check-in policy 87ms
+     ✓ serves members when the membership module is on 22ms
+     × restores a reloaded member's session before showing the form 53ms
+     ✓ asks a signed-out visitor to sign in before the form 78ms
+ ✓ src/features/inventory/PublicRequestStatusPage.test.tsx (3 tests) 261ms
+ ✓ src/features/inventory/ProductCard.test.tsx (5 tests) 184ms
+ ✓ src/features/inventory/PublicRequestHeader.test.ts (5 tests) 4ms
+ ✓ src/features/inventory/PublicEvidenceUpload.cameraOwnership.test.tsx (2 tests) 162ms
+ ✓ src/features/inventory/RequestCartBar.test.tsx (3 tests) 120ms
+ ✓ src/features/inventory/EventRegistrationForm.test.tsx (2 tests) 148ms
+ ✓ src/features/inventory/publicSelfCheckoutApi.test.ts (2 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/inventory/PublicInventoryPage.ownership.test.tsx > public inventory route and selection ownership > successful borrow keeps a cart changed after admission and submits the original quantities
+TypeError: categories.map is not a function
+ ❯ CatalogFilters src/features/inventory/PublicInventoryParts.tsx:85:21
+     83|         </Chip>
+     84|         {categories.length > 0 ? <span aria-hidden="true" className="m…
+     85|         {categories.map((category) => {
+       |                     ^
+     86|           const active = view.kind === "category" && view.slug === cat…
+     87|           return (
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:28571:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:8030:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10569:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:12205:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1048:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:19176:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:19004:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:18985:11
+ ❯ performWorkOnRoot node_modules/react-dom/cjs/react-dom-client.development.js:18094:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/features/inventory/PublicRequestPanelAccountLess.test.tsx > account-required policies with nobody signed in > restores a reloaded session from the refresh cookie and files the request under it
+Error: expect(element).toBeEnabled()
+
+Received element is not enabled:
+  <button
+  class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full"
+  disabled=""
+  type="button"
+/>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div>
+      <aside
+        class="min-w-0 space-y-4"
+      >
+        <div
+          class="min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5 shrink-0"
+        >
+          <p
+            class="text-body-ui text-ink-muted"
+          >
+            Request desk
+          </p>
+          <h2
+            class="mt-1 text-h4 text-ink"
+          >
+            Borrow at the desk
+          </h2>
+          <p
+            class="mt-2 max-w-[65ch] text-body-ui text-ink-secondary"
+          >
+            Requests here are filed under an account, and this makerspace offers no public sign-up. Ask staff at the desk to lend you what you need.
+          </p>
+        </div>
+        <div
+          class="min-w-0"
+        >
+          <div
+            id="public-request-borrow-panel"
+          >
+            <div>
+              <div
+                class="min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5"
+              >
+                <div
+                  class="flex items-start justify-between gap-4"
+                >
+                  <div
+                    class="min-w-0"
+                  >
+                    <p
+                      class="text-body-ui text-ink-muted"
+                    >
+                      Borrow request
+                    </p>
+                    <h2
+                      class="mt-1 text-h4 text-ink"
+                    >
+                      Selected equipment
+                    </h2>
+                  </div>
+                  <span
+                    class="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2.5 py-0.5 text-[13px] bg-secondary text-on-secondary tabular-nums"
+                  >
+                    <span
+                      class="min-w-0 truncate"
+                    >
+                      1
+                    </span>
+                  </span>
+                </div>
+                <div
+                  class="mt-4 space-y-2"
+                >
+                  <ul
+                    class="divide-y divide-line rounded-md border border-line"
+                  >
+                    <li
+                      class="flex items-center justify-between gap-3 px-3 py-2"
+                    >
+                      <span
+                        class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                      >
+                        Logic analyzer
+                      </span>
+                      <span
+                        class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                      >
+                        ×
+                        1
+                      </span>
+                    </li>
+                  </ul>
+                  <button
+                    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"
+                    type="button"
+                  >
+                    <span
+                      class="contents"
+                    >
+                      Clear selection
+                    </span>
+                  </button>
+                </div>
+                <div
+                  class="mt-5 space-y-4"
+                >
+                  <label
+                    aria-hidden="true"
+                    class="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
+                  >
+                    Website
+                    <input
+                      autocomplete="off"
+                      name="website"
+                      tabindex="-1"
+                      value=""
+                    />
+                  </label>
+                  <div
+                    class="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-1.5"
+                  >
+                    <label
+                      class="min-w-0"
+                      for="_r_1m_"
+                    >
+                      <span
+                        class="text-label text-ink"
+                      >
+                        Request purpose
+                      </span>
+                    </label>
+                    <textarea
+                      class="block w-full min-w-0 rounded-md border border-line-strong bg-canvas px-3.5 py-2.5 text-base leading-snug text-ink placeholder:text-ink-muted transition-colors duration-180 ease-standard hover:border-outline focus:border-focus focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-line disabled:bg-subtle disabled:text-ink-muted aria-[invalid=true]:border-danger-fg read-only:border-line read-only:bg-subtle min-h-24 resize-y"
+                      id="_r_1m_"
+                      placeholder="What do you need these items for?"
+                      rows="4"
+                    >
+                      Bench diagnostics
+                    </textarea>
+                  </div>
+                  <button
+                    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full"
+                    disabled=""
+                    type="button"
+                  >
+                    <span
+                      class="contents"
+                    >
+                      Submit request
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </body>
+</html>
+ ❯ src/features/inventory/PublicRequestPanelAccountLess.test.tsx:327:89
+    325|
+    326|     fill(/request purpose/i, "Bench diagnostics");
+    327|     await waitFor(() => expect(screen.getByRole("button", { name: /sub…
+       |                                                                                         ^
+    328|     expect(screen.getByRole("heading", { name: "Borrow with your accou…
+    329|     expect(screen.queryByRole("link", { name: "Sign in" })).toBeNull();
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/features/inventory/PublicRequestPanelFlow.test.tsx > borrow desk document flow > ordinary PublicRequestPanel keeps a long selection, contact fields, purpose, error and submit in document flow
+TestingLibraryElementError: Unable to find a label with the text of: Your name
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <aside
+      class="min-w-0 space-y-4"
+    >
+      <div
+        class="min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5 shrink-0"
+      >
+        <p
+          class="text-body-ui text-ink-muted"
+        >
+          Request desk
+        </p>
+        <h2
+          class="mt-1 text-h4 text-ink"
+        >
+          Borrow with your account
+        </h2>
+        <p
+          class="mt-2 max-w-[65ch] text-body-ui text-ink-secondary"
+        >
+          You are signed in, so this request is filed against your account. Staff review it before anything is handed over.
+        </p>
+      </div>
+      <div
+        class="min-w-0"
+      >
+        <div
+          id="public-request-borrow-panel"
+        >
+          <div>
+            <div
+              class="min-w-0 rounded-lg border border-line bg-canvas [overflow-wrap:anywhere] p-4 sm:p-5"
+            >
+              <div
+                class="flex items-start justify-between gap-4"
+              >
+                <div
+                  class="min-w-0"
+                >
+                  <p
+                    class="text-body-ui text-ink-muted"
+                  >
+                    Borrow request
+                  </p>
+                  <h2
+                    class="mt-1 text-h4 text-ink"
+                  >
+                    Selected equipment
+                  </h2>
+                </div>
+                <span
+                  class="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full font-semibold whitespace-nowrap [&_svg]:size-3.5 [&_svg]:shrink-0 px-2.5 py-0.5 text-[13px] bg-secondary text-on-secondary tabular-nums"
+                >
+                  <span
+                    class="min-w-0 truncate"
+                  >
+                    35
+                  </span>
+                </span>
+              </div>
+              <div
+                class="mt-4 space-y-2"
+              >
+                <ul
+                  class="divide-y divide-line rounded-md border border-line"
+                >
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                    >
+                      Selected equipment 1 with a long descriptive name
+                    </span>
+                    <span
+                      class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                    >
+                      ×
+                      1
+                    </span>
+                  </li>
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                    >
+                      Selected equipment 2 with a long descriptive name
+                    </span>
+                    <span
+                      class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                    >
+                      ×
+                      1
+                    </span>
+                  </li>
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                    >
+                      Selected equipment 3 with a long descriptive name
+                    </span>
+                    <span
+                      class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                    >
+                      ×
+                      1
+                    </span>
+                  </li>
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                    >
+                      Selected equipment 4 with a long descriptive name
+                    </span>
+                    <span
+                      class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                    >
+                      ×
+                      1
+                    </span>
+                  </li>
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class="min-w-0 flex-1 text-body-ui font-medium text-ink [overflow-wrap:anywhere]"
+                    >
+                      Selected equipment 5 with a long descriptive name
+                    </span>
+                    <span
+                      class="shrink-0 font-mono text-sm tabular-nums text-ink-muted"
+                    >
+                      ×
+                      1
+                    </span>
+                  </li>
+                  <li
+                    class="flex items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <span
+                      class=...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/inventory/PublicRequestPanelFlow.test.tsx:44:29
+     42|     const submit = screen.getByRole("button", { name: "Submit request"…
+     43|     expect(submit).toBeDisabled();
+     44|     fireEvent.change(screen.getByLabelText("Your name"), { target: { v…
+       |                             ^
+     45|     fireEvent.change(screen.getByLabelText("Email"), { target: { value…
+     46|     expect(submit).toBeDisabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > old maker success cannot render, clear fresh scans/evidence or unlock the current checkout
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > old maker rejection cannot render, clear fresh scans/evidence or unlock the current checkout
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  <button />
+
+  Name "Visit B":
+  <button />
+
+  Name "New session":
+  <button />
+
+  Name "Switch to dark mode":
+  <button
+    aria-label="Switch to dark mode"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+    title="Switch to dark mode"
+    type="button"
+  />
+
+  Name "Open navigation menu":
+  <button
+    aria-expanded="false"
+    aria-haspopup="dialog"
+    aria-label="Open navigation menu"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"
+    data-state="closed"
+    title="Open navigation menu"
+    type="button"
+  />
+
+  Name "Not you?":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"
+    disabled=""
+    type="button"
+  />
+
+  Name "Remove tool 1":
+  <button
+    aria-label="Remove tool 1"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"
+    disabled=""
+    type="button"
+  />
+
+  Name "Scan another":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  Name "Submitting…":
+  <button
+    aria-busy="true"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  <a
+    class="skip-link"
+    href="#main-content"
+  />
+
+  Name "Lab b home":
+  <a
+    aria-label="Lab b home"
+    class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/m/b"
+  />
+
+  Name "Inventory":
+  <a
+    aria-current="page"
+    class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+    data-discover="true"
+    href="/m/b"
+  />
+
+  Name "Staff login":
+  <a
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"
+    data-discover="true"
+    href="/admin"
+  />
+
+  Name "Open makerspace listing":
+  <a
+    aria-label="Open makerspace listing"
+    class="inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/"
+  />
+
+  Name "About":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/about"
+  />
+
+  Name "License(opens in a new tab)":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  <nav
+    aria-label="Main navigation"
+    class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+    tabindex="-1"
+  />
+
+  Name "Footer":
+  <nav
+    aria-label="Footer"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  <ul
+    class="hidden items-center gap-1 md:flex"
+  />
+
+  Name "Pending tools":
+  <ul
+    aria-label="Pending tools"
+    class="mt-3 divide-y divide-line rounded-md border border-line"
+  />
+
+  Name "":
+  <ul
+    class="flex flex-wrap gap-x-6 gap-y-2"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li />
+
+  Name "":
+  <li
+    class="flex items-center justify-between gap-3 px-3 py-2"
+  />
+
+  Name "":
+  <li />
+
+  Name "":
+  <li />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="flex min-w-0 flex-1 flex-col outline-none"
+    id="main-content"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mb-1.5 text-body-ui text-ink-muted"
+  />
+
+  Name "":
+  <p
+    class="mt-2 max-w-[640px] text-body-ui text-ink-secondary"
+  />
+
+  Name "":
+  <p
+    class="break-words text-label"
+  />
+
+  Name "":
+  <p
+    class="break-words text-caption opacity-90"
+  />
+
+  Name "":
+  <p
+    class="border-t border-line pt-5 text-caption text-ink-muted"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab b":
+  <h1
+    class="text-h1 text-ink [overflow-wrap:anywhere]"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  <div
+    aria-label="Checkout mode"
+    class="max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"
+    dir="ltr"
+    role="radiogroup"
+    style="outline: none;"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  <button
+    aria-checked="true"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="on"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  Name "Return":
+  <button
+    aria-checked="false"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="off"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <p
+    aria-live="polite"
+    class="break-words text-caption text-success-fg"
+    role="status"
+  />
+
+  Name "":
+  <div
+    aria-live="polite"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="status"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="mt-auto border-t border-line bg-canvas"
+  />
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  <img
+    alt=""
+    class="shrink-0"
+    height="24"
+    src="/favicon.png"
+    width="24"
+  />
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  <div
+    aria-live="assertive"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="alert"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <button>
+      Visit A
+    </button>
+    <button>
+      Visit B
+    </button>
+    <button>
+      New session
+    </button>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab b home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/b"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab b
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/b"
+              >
+                Inventory
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="hidden items-center...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:64:19
+     62|     expect(screen.getByLabelText("Issue photo")).toBeDisabled();
+     63|     expect(screen.getByRole("button", { name: "Submitting…" })).toBeDi…
+     64|     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+       |                   ^
+     65|     expect(screen.queryByText(/Old private tool/)).not.toBeInTheDocume…
+     66|     expect(screen.queryByText("Old dedicated failure")).not.toBeInTheD…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > old session success cannot render, clear fresh scans/evidence or unlock the current checkout
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > old session rejection cannot render, clear fresh scans/evidence or unlock the current checkout
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  <button />
+
+  Name "Visit B":
+  <button />
+
+  Name "New session":
+  <button />
+
+  Name "Switch to dark mode":
+  <button
+    aria-label="Switch to dark mode"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+    title="Switch to dark mode"
+    type="button"
+  />
+
+  Name "Open navigation menu":
+  <button
+    aria-expanded="false"
+    aria-haspopup="dialog"
+    aria-label="Open navigation menu"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"
+    data-state="closed"
+    title="Open navigation menu"
+    type="button"
+  />
+
+  Name "Not you?":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"
+    disabled=""
+    type="button"
+  />
+
+  Name "Remove tool 1":
+  <button
+    aria-label="Remove tool 1"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"
+    disabled=""
+    type="button"
+  />
+
+  Name "Scan another":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  Name "Submitting…":
+  <button
+    aria-busy="true"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  <a
+    class="skip-link"
+    href="#main-content"
+  />
+
+  Name "Lab a home":
+  <a
+    aria-label="Lab a home"
+    class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Inventory":
+  <a
+    aria-current="page"
+    class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Staff login":
+  <a
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"
+    data-discover="true"
+    href="/admin"
+  />
+
+  Name "Open makerspace listing":
+  <a
+    aria-label="Open makerspace listing"
+    class="inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/"
+  />
+
+  Name "About":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/about"
+  />
+
+  Name "License(opens in a new tab)":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  <nav
+    aria-label="Main navigation"
+    class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+    tabindex="-1"
+  />
+
+  Name "Footer":
+  <nav
+    aria-label="Footer"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  <ul
+    class="hidden items-center gap-1 md:flex"
+  />
+
+  Name "Pending tools":
+  <ul
+    aria-label="Pending tools"
+    class="mt-3 divide-y divide-line rounded-md border border-line"
+  />
+
+  Name "":
+  <ul
+    class="flex flex-wrap gap-x-6 gap-y-2"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li />
+
+  Name "":
+  <li
+    class="flex items-center justify-between gap-3 px-3 py-2"
+  />
+
+  Name "":
+  <li />
+
+  Name "":
+  <li />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="flex min-w-0 flex-1 flex-col outline-none"
+    id="main-content"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mb-1.5 text-body-ui text-ink-muted"
+  />
+
+  Name "":
+  <p
+    class="mt-2 max-w-[640px] text-body-ui text-ink-secondary"
+  />
+
+  Name "":
+  <p
+    class="break-words text-label"
+  />
+
+  Name "":
+  <p
+    class="break-words text-caption opacity-90"
+  />
+
+  Name "":
+  <p
+    class="border-t border-line pt-5 text-caption text-ink-muted"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  <h1
+    class="text-h1 text-ink [overflow-wrap:anywhere]"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  <div
+    aria-label="Checkout mode"
+    class="max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"
+    dir="ltr"
+    role="radiogroup"
+    style="outline: none;"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  <button
+    aria-checked="true"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="on"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  Name "Return":
+  <button
+    aria-checked="false"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="off"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <p
+    aria-live="polite"
+    class="break-words text-caption text-success-fg"
+    role="status"
+  />
+
+  Name "":
+  <div
+    aria-live="polite"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="status"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="mt-auto border-t border-line bg-canvas"
+  />
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  <img
+    alt=""
+    class="shrink-0"
+    height="24"
+    src="/favicon.png"
+    width="24"
+  />
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  <div
+    aria-live="assertive"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="alert"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <button>
+      Visit A
+    </button>
+    <button>
+      Visit B
+    </button>
+    <button>
+      New session
+    </button>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab a home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/a"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab a
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/a"
+              >
+                Inventory
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="hidden items-center...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:64:19
+     62|     expect(screen.getByLabelText("Issue photo")).toBeDisabled();
+     63|     expect(screen.getByRole("button", { name: "Submitting…" })).toBeDi…
+     64|     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+       |                   ^
+     65|     expect(screen.queryByText(/Old private tool/)).not.toBeInTheDocume…
+     66|     expect(screen.queryByText("Old dedicated failure")).not.toBeInTheD…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > captures a multi-tool body once, deduplicates same-tick submit, and blocks mode/person edits until it settles
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  <button />
+
+  Name "Visit B":
+  <button />
+
+  Name "New session":
+  <button />
+
+  Name "Switch to dark mode":
+  <button
+    aria-label="Switch to dark mode"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+    title="Switch to dark mode"
+    type="button"
+  />
+
+  Name "Open navigation menu":
+  <button
+    aria-expanded="false"
+    aria-haspopup="dialog"
+    aria-label="Open navigation menu"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"
+    data-state="closed"
+    title="Open navigation menu"
+    type="button"
+  />
+
+  Name "Not you?":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"
+    disabled=""
+    type="button"
+  />
+
+  Name "Remove tool 1":
+  <button
+    aria-label="Remove tool 1"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"
+    disabled=""
+    type="button"
+  />
+
+  Name "Remove tool 2":
+  <button
+    aria-label="Remove tool 2"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 text-ink-secondary underline-offset-4 hover:text-ink hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11"
+    disabled=""
+    type="button"
+  />
+
+  Name "Scan another":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  Name "Submitting…":
+  <button
+    aria-busy="true"
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  <a
+    class="skip-link"
+    href="#main-content"
+  />
+
+  Name "Lab a home":
+  <a
+    aria-label="Lab a home"
+    class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Inventory":
+  <a
+    aria-current="page"
+    class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Staff login":
+  <a
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"
+    data-discover="true"
+    href="/admin"
+  />
+
+  Name "Open makerspace listing":
+  <a
+    aria-label="Open makerspace listing"
+    class="inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/"
+  />
+
+  Name "About":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/about"
+  />
+
+  Name "License(opens in a new tab)":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  <nav
+    aria-label="Main navigation"
+    class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+    tabindex="-1"
+  />
+
+  Name "Footer":
+  <nav
+    aria-label="Footer"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  <ul
+    class="hidden items-center gap-1 md:flex"
+  />
+
+  Name "Pending tools":
+  <ul
+    aria-label="Pending tools"
+    class="mt-3 divide-y divide-line rounded-md border border-line"
+  />
+
+  Name "":
+  <ul
+    class="flex flex-wrap gap-x-6 gap-y-2"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li />
+
+  Name "":
+  <li
+    class="flex items-center justify-between gap-3 px-3 py-2"
+  />
+
+  Name "":
+  <li
+    class="flex items-center justify-between gap-3 px-3 py-2"
+  />
+
+  Name "":
+  <li />
+
+  Name "":
+  <li />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="flex min-w-0 flex-1 flex-col outline-none"
+    id="main-content"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mb-1.5 text-body-ui text-ink-muted"
+  />
+
+  Name "":
+  <p
+    class="mt-2 max-w-[640px] text-body-ui text-ink-secondary"
+  />
+
+  Name "":
+  <p
+    class="break-words text-label"
+  />
+
+  Name "":
+  <p
+    class="break-words text-caption opacity-90"
+  />
+
+  Name "":
+  <p
+    class="border-t border-line pt-5 text-caption text-ink-muted"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  <h1
+    class="text-h1 text-ink [overflow-wrap:anywhere]"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  <div
+    aria-label="Checkout mode"
+    class="max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"
+    dir="ltr"
+    role="radiogroup"
+    style="outline: none;"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  <button
+    aria-checked="true"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="on"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  Name "Return":
+  <button
+    aria-checked="false"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-disabled=""
+    data-radix-collection-item=""
+    data-state="off"
+    disabled=""
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <p
+    aria-live="polite"
+    class="break-words text-caption text-success-fg"
+    role="status"
+  />
+
+  Name "":
+  <div
+    aria-live="polite"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="status"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="mt-auto border-t border-line bg-canvas"
+  />
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  <img
+    alt=""
+    class="shrink-0"
+    height="24"
+    src="/favicon.png"
+    width="24"
+  />
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  <div
+    aria-live="assertive"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="alert"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <button>
+      Visit A
+    </button>
+    <button>
+      Visit B
+    </button>
+    <button>
+      New session
+    </button>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab a home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/a"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab a
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/a"
+              >
+                Inventory
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="hidden items-center...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:88:19
+     86|     act(() => { fireEvent.click(submit); fireEvent.click(submit); });
+     87|     await waitFor(() => expect(operations).toHaveBeenCalledTimes(1));
+     88|     expect(screen.getByRole("button", { name: "Return" })).toBeDisable…
+       |                   ^
+     89|     expect(screen.getByRole("button", { name: "Not you?" })).toBeDisab…
+     90|     const body = operations.mock.calls[0][2].body;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > return needs a fresh photo, notes and scan; a stale checkout camera callback cannot enqueue or submit
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Return"
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Visit A":
+  <button />
+
+  Name "Visit B":
+  <button />
+
+  Name "New session":
+  <button />
+
+  Name "Switch to dark mode":
+  <button
+    aria-label="Switch to dark mode"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+    title="Switch to dark mode"
+    type="button"
+  />
+
+  Name "Open navigation menu":
+  <button
+    aria-expanded="false"
+    aria-haspopup="dialog"
+    aria-label="Open navigation menu"
+    class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink md:hidden"
+    data-state="closed"
+    title="Open navigation menu"
+    type="button"
+  />
+
+  Name "Not you?":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 underline-offset-4 hover:underline disabled:text-ink-disabled disabled:no-underline min-h-9 px-1.5 text-sm pointer-coarse:min-h-11 shrink-0 text-success-fg hover:text-success-fg"
+    type="button"
+  />
+
+  Name "Scan QR":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    type="button"
+  />
+
+  Name "Check out 0 tools":
+  <button
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 bg-primary text-on-primary hover:bg-accent-bright disabled:bg-emphasis disabled:text-ink-muted min-h-11 px-[18px] py-2.5 text-[15px] w-full mt-3"
+    disabled=""
+    type="button"
+  />
+
+  Name "Read tool-a":
+  <button />
+
+  Name "Read tool-b":
+  <button />
+
+  --------------------------------------------------
+  link:
+
+  Name "Skip to main content":
+  <a
+    class="skip-link"
+    href="#main-content"
+  />
+
+  Name "Lab a home":
+  <a
+    aria-label="Lab a home"
+    class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Inventory":
+  <a
+    aria-current="page"
+    class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+    data-discover="true"
+    href="/m/a"
+  />
+
+  Name "Staff login":
+  <a
+    class="relative inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:active:scale-[0.98] disabled:cursor-not-allowed aria-disabled:pointer-events-none motion-reduce:enabled:active:scale-100 border border-line-strong bg-canvas text-ink hover:bg-subtle disabled:text-ink-muted disabled:hover:bg-canvas min-h-9 px-3.5 py-1.5 text-sm pointer-coarse:min-h-11"
+    data-discover="true"
+    href="/admin"
+  />
+
+  Name "Open makerspace listing":
+  <a
+    aria-label="Open makerspace listing"
+    class="inline-flex items-center self-start rounded-md text-ink pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/"
+  />
+
+  Name "About":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    data-discover="true"
+    href="/about"
+  />
+
+  Name "License(opens in a new tab)":
+  <a
+    class="rounded-sm text-body-ui text-ink-secondary pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center underline-offset-4 transition-colors duration-180 ease-standard hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+    href="https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
+    rel="noopener noreferrer"
+    target="_blank"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Main navigation":
+  <nav
+    aria-label="Main navigation"
+    class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+    tabindex="-1"
+  />
+
+  Name "Footer":
+  <nav
+    aria-label="Footer"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  <ul
+    class="hidden items-center gap-1 md:flex"
+  />
+
+  Name "":
+  <ul
+    class="flex flex-wrap gap-x-6 gap-y-2"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li />
+
+  Name "":
+  <li />
+
+  Name "":
+  <li />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="flex min-w-0 flex-1 flex-col outline-none"
+    id="main-content"
+    tabindex="-1"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mb-1.5 text-body-ui text-ink-muted"
+  />
+
+  Name "":
+  <p
+    class="mt-2 max-w-[640px] text-body-ui text-ink-secondary"
+  />
+
+  Name "":
+  <p
+    class="break-words text-label"
+  />
+
+  Name "":
+  <p
+    class="break-words text-caption opacity-90"
+  />
+
+  Name "":
+  <p
+    class="border-t border-line pt-5 text-caption text-ink-muted"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Lab a":
+  <h1
+    class="text-h1 text-ink [overflow-wrap:anywhere]"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "Checkout mode":
+  <div
+    aria-label="Checkout mode"
+    class="max-w-full rounded-full bg-fill p-1 grid w-full grid-cols-2"
+    dir="ltr"
+    role="radiogroup"
+    style="outline: none;"
+    tabindex="0"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Use (check out)":
+  <button
+    aria-checked="true"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-radix-collection-item=""
+    data-state="on"
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  Name "Return":
+  <button
+    aria-checked="false"
+    class="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full font-semibold text-muted transition-[background-color,color,box-shadow] duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-canvas data-[state=on]:text-ink data-[state=on]:shadow-segment [&_svg]:size-4 min-h-9 px-4 text-sm pointer-coarse:min-h-11"
+    data-radix-collection-item=""
+    data-state="off"
+    role="radio"
+    tabindex="-1"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <p
+    aria-live="polite"
+    class="break-words text-caption text-ink-muted"
+    role="status"
+  />
+
+  Name "":
+  <div
+    aria-live="polite"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="status"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="mt-auto border-t border-line bg-canvas"
+  />
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  <img
+    alt=""
+    class="shrink-0"
+    height="24"
+    src="/favicon.png"
+    width="24"
+  />
+
+  --------------------------------------------------
+  alert:
+
+  Name "":
+  <div
+    aria-live="assertive"
+    class="flex w-full max-w-[460px] justify-center sm:justify-start"
+    role="alert"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <button>
+      Visit A
+    </button>
+    <button>
+      Visit B
+    </button>
+    <button>
+      New session
+    </button>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab a home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/a"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab a
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/a"
+              >
+                Inventory
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="hidden items-center...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:108:28
+    106|     const oldScan = native.scan;
+    107|     expect(oldScan).toBeTypeOf("function");
+    108|     fireEvent.click(screen.getByRole("button", { name: "Return" }));
+       |                            ^
+    109|     expect(screen.getByRole("button", { name: "Scan QR" })).toBeDisabl…
+    110|     act(() => { oldScan!("old-checkout-tool"); });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx > dedicated public checkout page ownership > a new mode hides the previous dedicated result/error and cannot reuse evidence
+TestingLibraryElementError: Unable to find role="button" and name "Not you?"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <button>
+      Visit A
+    </button>
+    <button>
+      Visit B
+    </button>
+    <button>
+      New session
+    </button>
+    <div
+      class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+    >
+      <a
+        class="skip-link"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+      <header
+        class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+      >
+        <nav
+          aria-label="Main navigation"
+          class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+          tabindex="-1"
+        >
+          <div
+            class="min-w-0 shrink"
+          >
+            <a
+              aria-label="Lab a home"
+              class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              data-discover="true"
+              href="/m/a"
+            >
+              <span
+                class="inline-flex min-w-0 max-w-full items-center gap-3 "
+              >
+                <span
+                  class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                >
+                  Lab a
+                </span>
+              </span>
+            </a>
+          </div>
+          <ul
+            class="hidden items-center gap-1 md:flex"
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                data-discover="true"
+                href="/m/a"
+              >
+                Inventory
+              </a>
+            </li>
+          </ul>
+          <div
+            class="ml-auto flex shrink-0 items-center gap-1.5"
+          >
+            <button
+              aria-label="Switch to dark mode"
+              class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+              title="Switch to dark mode"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+                class="relative inline-flex size-[18px]"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                  />
+                  <path
+                    d="M12 2v2"
+                  />
+                  <path
+                    d="M12 20v2"
+                  />
+                  <path
+                    d="m4.93 4.93 1.41 1.41"
+                  />
+                  <path
+                    d="m17.66 17.66 1.41 1.41"
+                  />
+                  <path
+                    d="M2 12h2"
+                  />
+                  <path
+                    d="M20 12h2"
+                  />
+                  <path
+                    d="m6.34 17.66-1.41 1.41"
+                  />
+                  <path
+                    d="m19.07 4.93-1.41 1.41"
+                  />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              class="hidden items-center...
+
+Ignored nodes: comments, script, style
+<html>
+  <head>
+    <title>
+      Tool checkout · Lab a · Space Works
+    </title>
+  </head>
+  <body>
+    <div>
+      <button>
+        Visit A
+      </button>
+      <button>
+        Visit B
+      </button>
+      <button>
+        New session
+      </button>
+      <div
+        class="flex min-h-screen min-w-0 flex-col bg-bg text-ink"
+      >
+        <a
+          class="skip-link"
+          href="#main-content"
+        >
+          Skip to main content
+        </a>
+        <header
+          class="sticky top-0 z-40 border-b border-line bg-canvas/90 backdrop-blur-md"
+        >
+          <nav
+            aria-label="Main navigation"
+            class="mx-auto flex min-h-16 max-w-[var(--sw-chrome-max,1200px)] items-center gap-3 px-4 py-2 sm:px-6 md:gap-6"
+            tabindex="-1"
+          >
+            <div
+              class="min-w-0 shrink"
+            >
+              <a
+                aria-label="Lab a home"
+                class="inline-flex min-w-0 max-w-full items-center rounded-md pointer-coarse:min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                data-discover="true"
+                href="/m/a"
+              >
+                <span
+                  class="inline-flex min-w-0 max-w-full items-center gap-3 "
+                >
+                  <span
+                    class="min-w-0 font-display leading-tight text-ink [overflow-wrap:anywhere] text-base font-bold"
+                  >
+                    Lab a
+                  </span>
+                </span>
+              </a>
+            </div>
+            <ul
+              class="hidden items-center gap-1 md:flex"
+            >
+              <li>
+                <a
+                  aria-current="page"
+                  class="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3.5 pointer-coarse:min-h-11 text-label transition-colors duration-180 ease-standard hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus bg-fill font-semibold text-ink"
+                  data-discover="true"
+                  href="/m/a"
+                >
+                  Inventory
+                </a>
+              </li>
+            </ul>
+            <div
+              class="ml-auto flex shrink-0 items-center gap-1.5"
+            >
+              <button
+                aria-label="Switch to dark mode"
+                class="inline-flex shrink-0 items-center justify-center rounded-full transition-colors duration-180 ease-standard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-ink-disabled [&_svg]:size-[18px] [&_svg]:shrink-0 size-11 text-ink-secondary hover:bg-emphasis hover:text-ink"
+                title="Switch to dark mode"
+                type="button"
+              >
+                <span
+                  aria-hidden="true"
+                  class="relative inline-flex size-[18px]"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-sun absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none -rotate-90 scale-50 opacity-0"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="4"
+                    />
+                    <path
+                      d="M12 2v2"
+                    />
+                    <path
+                      d="M12 20v2"
+                    />
+                    <path
+                      d="m4.93 4.93 1.41 1.41"
+                    />
+                    <path
+                      d="m17.66 17.66 1.41 1.41"
+                    />
+                    <path
+                      d="M2 12h2"
+                    />
+                    <path
+                      d="M20 12h2"
+                    />
+                    <path
+                      d="m6.34 17.66-1.41 1.41"
+                    />
+                    <path
+                      d="m19.07 4.93-1.41 1.41"
+                    />
+                  </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-moon absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none rotate-0 scale-100 opacity-100"
+                    fill="none"
+                    height="24"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                ...
+ ❯ Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/features/inventory/PublicSelfCheckoutPage.ownership.test.tsx:128:11
+    126|     fireEvent.click(screen.getByRole("button", { name: "Check out 1 to…
+    127|     await screen.findByText(transition === "mode" ? "Issued: Logic ana…
+    128|     await waitFor(() => expect(screen.getByRole("button", { name: "Not…
+       |           ^
+    129|     if (transition === "mode") {
+    130|       fireEvent.click(screen.getByRole("button", { name: "Return" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  src/features/inventory/PublicSelfCheckoutPage.test.tsx > public self-checkout availability > restores a reloaded member's session before showing the form
+Error: expect(element).toBeInTheDocument()
+
+element could not be found in the document
+ ❯ src/features/inventory/PublicSelfCheckoutPage.test.tsx:90:82
+     88|
+     89|     await waitFor(() => expect(refreshAccessToken).toHaveBeenCalled());
+     90|     expect(await screen.findByRole("button", { name: /scan another|sca…
+       |                                                                                  ^
+     91|     expect(screen.queryByText(/sign in to continue/i)).not.toBeInTheDo…
+     92|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+
+ Test Files  5 failed | 17 passed (22)
+      Tests  11 failed | 133 passed (144)
+   Start at  19:53:39
+   Duration  48.72s (transform 1.27s, setup 3.34s, import 8.30s, tests 18.23s, environment 15.82s)
+

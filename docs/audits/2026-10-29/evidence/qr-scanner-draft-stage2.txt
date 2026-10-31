@@ -1,0 +1,5 @@
+Added `key="typed-code"` to both existing `TypedCodeForm` occurrences in [QrScanner.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/components/ui/QrScanner.tsx). No other edits.
+
+Complete final source read: **290 lines**. Whitespace check passed; index empty. No tests, runtime execution, staging, commit, or push.
+
+SHA-256: `147e1ca33768157e8a7ceac97229e717e9be1f77a574bfb12a431cdddcabc6b7`

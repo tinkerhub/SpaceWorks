@@ -1,0 +1,74 @@
+{
+  "added": [
+    [
+      "control_model",
+      "makerspaces.PurgeReceipt"
+    ],
+    [
+      "registered_task",
+      "apps.accounts.tasks.drain_password_reset_envelopes_task"
+    ],
+    [
+      "registered_task",
+      "apps.accounts.tasks.purge_auth_challenges_task"
+    ],
+    [
+      "registered_task",
+      "apps.apiclients.tasks.flush_api_client_usage_task"
+    ],
+    [
+      "registered_task",
+      "apps.audit.tasks.run_audit_attestation_task"
+    ],
+    [
+      "registered_task",
+      "apps.events.tasks.extend_event_series_task"
+    ],
+    [
+      "registered_task",
+      "apps.evidence.tasks.sweep_evidence_retention_task"
+    ],
+    [
+      "registered_task",
+      "apps.hardware_requests.tasks.send_return_reminders_task"
+    ],
+    [
+      "registered_task",
+      "apps.integrations.tasks.deliver_email_task"
+    ],
+    [
+      "registered_task",
+      "apps.integrations.tasks.deliver_notification_task"
+    ],
+    [
+      "registered_task",
+      "apps.makerspaces.tasks.refresh_github_contributions_task"
+    ],
+    [
+      "registered_task",
+      "apps.operations.tasks.finalize_report_rollups_task"
+    ]
+  ],
+  "updated_metadata": [
+    [
+      "registered_api_endpoint",
+      "DELETE /api/v1/admin/spaces/{pk}/image/"
+    ],
+    [
+      "registered_api_endpoint",
+      "POST /api/v1/admin/spaces/{pk}/image/finalize/"
+    ],
+    [
+      "registered_api_endpoint",
+      "POST /api/v1/admin/spaces/{pk}/image/presign/"
+    ]
+  ],
+  "flows": 138,
+  "backend_config_operator_rows": 1420,
+  "frontend_rows": 81,
+  "total_inventory_rows": 1501,
+  "docs_only": 4,
+  "registered_tasks": 27,
+  "control_models": 126,
+  "frontend_log_sha256": "052f18ae07cae20c5d9b437647faef9108a0ee9b9581c26e92c63eea11d56791"
+}

@@ -1,0 +1,568 @@
+{
+  "status": "Completed immutable failed baseline retained;94 core-owner failures now PASS in strict current focused resolution;9 other-owner core residuals tracked separately.",
+  "baseline": {
+    "manifest_sha256": "87e91e2f75b7b2db9927cae8884dedafc6e5e4ee74300944ce14a788e835c2c9",
+    "core": {
+      "selected": 8244,
+      "passed": 8127,
+      "failed": 103,
+      "errors": 0,
+      "skipped": 14,
+      "pytest_seconds": 8622.73,
+      "driver_seconds": 8639.84
+    },
+    "security39": {
+      "selected": 39,
+      "passed": 39,
+      "failed": 0,
+      "errors": 0,
+      "pytest_seconds": 78.98,
+      "driver_seconds": 85.11,
+      "actual_linux_cli": true,
+      "daemon_socket_mounted": false
+    }
+  },
+  "counts_by_confirmed_trace_classification": {
+    "explicit_member_origin_fixture": 10,
+    "native_save_requires_real_boundary_fixture": 3,
+    "identifier_only_receipt_scope_guard": 1,
+    "native_preflight_expected_exception_translation": 1,
+    "canonical_scan_audit_expectation": 72,
+    "safe_readonly_inline_projection": 1,
+    "deterministic_platform_origin_fixture": 1,
+    "explicit_storage_lock_mock_contract": 1,
+    "opaque_component_actual_tenant_fixture": 1,
+    "actual_locked_delegate_race_hook": 2,
+    "restore_owner_test_deploy_host_scripts": 1,
+    "restore_owner_test_env_surface_drift": 1,
+    "restore_owner_test_host_orchestration_surface_h1a": 1,
+    "restore_owner_test_installer_forwarding_contract": 1,
+    "host_git_index_runtime_requirement": 5,
+    "task_admission_requires_database_fixture": 1
+  },
+  "failures": [
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_self_registration_off_also_blocks_social_account_creation",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_a_refused_social_registration_is_audited",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_login_methods_p10.py::test_registration_off_still_lets_an_existing_identity_sign_in",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_social_login_creates_global_user_and_surface_cookie",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_verified_provider_only_auto_links_verified_local_account",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_surface_token_cannot_call_staff_api_without_origin",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_nonce_is_single_use_and_origin_bound",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_explicit_link_never_email_matches_and_last_credential_is_protected",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_member_refresh_rejects_public_api_client_origin",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/accounts/test_social_auth.py::test_apple_first_login_name_is_only_used_for_created_user",
+      "classification": "explicit_member_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/makerspaces/test_request_access.py::test_the_control_capability_matrix_audits_the_forced_policy_change",
+      "classification": "native_save_requires_real_boundary_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_admin_hidden_scope.py::test_every_registered_admin_resolves_a_makerspace_decision",
+      "classification": "identifier_only_receipt_scope_guard",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_admin_parity_actions.py::test_qr_rebind_admin_rejects_cross_makerspace_non_product_target",
+      "classification": "native_preflight_expected_exception_translation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-unit-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-unit-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-unit-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-unit-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-grandchild-unit-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[child-quantity-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[grandchild-quantity-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[hidden-child-quantity-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[disabled-grandchild-quantity-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_nested_stock_refuses_box_checkout_and_scanner[inactive-child-quantity-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_nested_guard.py::test_empty_descendants_keep_quantity_checkout_at_root_only[direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[available-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[hidden-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[checkout-disabled-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[archived-product-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[zero-aggregate-legacy-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-public-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-public-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-direct-post]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_box_qr_refuses_available_unit_without_mutation[no-active-qr-direct-put]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[issued-public]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[issued-direct]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[partially_returned-public]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_box_checkout_scan_guards.py::test_scanner_and_checkout_respect_real_reviewed_box_hold[partially_returned-direct]",
+      "classification": "canonical_scan_audit_expectation",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_control_admin_service_guards.py::test_changing_the_domain_in_control_resets_verification",
+      "classification": "native_save_requires_real_boundary_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_control_admin_service_guards.py::test_re_pasting_the_same_domain_keeps_it_verified",
+      "classification": "native_save_requires_real_boundary_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_control_admin_service_guards.py::test_print_batch_items_are_read_only",
+      "classification": "safe_readonly_inline_projection",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_platform_bootstrap.py::test_bootstrap_resolves_public_code_without_private_fields",
+      "classification": "deterministic_platform_origin_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_put_finalize.py::test_put_evidence_quota_is_charged_once",
+      "classification": "explicit_storage_lock_mock_contract",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/data_export/test_recovery_purge.py::test_existing_fanout_skips_unwritable_tenant_and_continues_other_tenants[not-restored]",
+      "classification": "opaque_component_actual_tenant_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_checkout_native_lock_races.py::test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[post]",
+      "classification": "actual_locked_delegate_race_hook",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_checkout_native_lock_races.py::test_real_rebind_scan_and_audit_fks_commit_while_checkout_holds_maker_nk[put]",
+      "classification": "actual_locked_delegate_race_hook",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    },
+    {
+      "nodeid": "tests/test_deploy_host_scripts.py::test_staged_bundle_adopts_runtime_files_and_preserves_private_state",
+      "classification": "restore_owner_test_deploy_host_scripts",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_env_surface_drift.py::test_backup_preflight_policy_covers_the_complete_environment_surface",
+      "classification": "restore_owner_test_env_surface_drift",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_host_orchestration_surface_h1a.py::test_compose_wrapper_unsets_ambient_pointer_and_layers_pointer_last",
+      "classification": "restore_owner_test_host_orchestration_surface_h1a",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_installer_forwarding_contract.py::test_installer_requires_the_request_access_helper_in_the_release",
+      "classification": "restore_owner_test_installer_forwarding_contract",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[install.sh]",
+      "classification": "host_git_index_runtime_requirement",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/import-backup.sh]",
+      "classification": "host_git_index_runtime_requirement",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/restore.sh]",
+      "classification": "host_git_index_runtime_requirement",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_privileged_script_modes.py::test_operator_entry_point_is_executable[scripts/spaceworks-compose.sh]",
+      "classification": "host_git_index_runtime_requirement",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_privileged_script_modes.py::test_no_shipped_script_directly_executes_a_non_executable_sibling",
+      "classification": "host_git_index_runtime_requirement",
+      "runtime_resolution": "pending_current_focused_verification"
+    },
+    {
+      "nodeid": "tests/test_return_reminder_task.py::test_send_return_reminders_task_runs_service_in_eager_mode",
+      "classification": "task_admission_requires_database_fixture",
+      "runtime_resolution": "PASS in269-case strict current focused selection; see core-current-residual-and-native-controls-runtime.json"
+    }
+  ],
+  "prepared_fixture_corrections": "Shared member origin and exact canonical scanner audit assertions were already prepared; actual original traces now confirm the predicted seams. No production authorization relaxed.",
+  "private_diagnostics": "Complete JUnit/logs retained privately because subprocess diagnostic environments may contain disposable credentials. No raw trace copied into this artifact.",
+  "evidence_sha256": {
+    "core.xml": "f5c635304e6036e5602f9537783bbc4540b2bc89a49e791e63a4952482001216",
+    "run-core-result.json": "c7af37cc513f91c3639b69a1af14f1091f75e3a61787674f4101ed5e8ca40a4d",
+    "security39.xml": "e7126e257f3370aa311c2ce5e98f1d64a31a50f0eb9ac7fafb1117f5c1c77aeb",
+    "run-security39-result.json": "8f57a72e49c07760bcee44eac25a627d2fc29707059ee8d11c95fa864443e14b"
+  }
+}

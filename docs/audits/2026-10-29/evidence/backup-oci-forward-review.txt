@@ -1,0 +1,7 @@
+APPROVED for the bounded forwarding and runbook change.
+
+The three shared app environment anchors omit `SPACEWORKS_OCI_DIGEST`; the producer reads it directly, and signed-full validation requires `sha256:<64 lowercase hex>`. The proposed empty-default forwarding preserves refusal.
+
+Keep actual-image restore admission checks in the parent’s approved lane. This addition supplies operator-verified metadata; it does not itself prove running-image identity or require a new attestation framework.
+
+No edits, tests, runtime operations, or credential access performed.

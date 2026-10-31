@@ -120,7 +120,7 @@ def test_default_channel_state_matches_spec():
     assert default_state(F.HARDWARE_REQUESTS, C.EMAIL) is True
     assert default_state(F.HARDWARE_REQUESTS, C.TELEGRAM) is True
     assert default_state(F.PRINTING, C.EMAIL) is True
-    assert default_state(F.PRINTING, C.TELEGRAM) is False
+    assert default_state(F.PRINTING, C.TELEGRAM) is True
     assert default_state(F.BOOKINGS, C.TELEGRAM) is True
     assert default_state(F.EVENTS, C.EMAIL) is False
     assert default_state(F.MAINTENANCE, C.EMAIL) is False

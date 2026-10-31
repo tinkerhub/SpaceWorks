@@ -1,0 +1,13 @@
+Created only [test_native_detail.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/qr_batch_projection_safety/test_native_detail.py): **126 lines**, **3 statically expanded cases** covering hidden-B, visible-B, and same-maker native GET rendering, form exclusion, preserved snapshots, and unchanged domain/audit state.
+
+AST parsing passed. No imports, collection, or runtime checks performed.
+
+Test SHA-256: `423227aa6e5d04e4f83f3cff7d5ab40e60c6ce09cf42ead0711ed25fc31a4cdc`
+
+Source remains 208 lines; SHA-256 unchanged: `b1ba899456ae32711e780a9974b9e5999e6e8190f3931b128529da0b0cd88aee`
+
+Exact command from repository root, for parent execution:
+
+```bash
+PYTHONPATH="$PWD/backend" backend/.venv/bin/python -m pytest -c backend/pytest.ini backend/tests/qr_batch_projection_safety/test_native_detail.py -q
+```

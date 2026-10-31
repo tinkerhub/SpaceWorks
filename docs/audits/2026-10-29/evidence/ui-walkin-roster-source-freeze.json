@@ -1,0 +1,17 @@
+{
+  "format": "spaceworks-ui-walkin-roster-source-freeze-v1",
+  "reviewer": "Codex /root/audit_ui_finish",
+  "status": "Complete source bodies and exact one-line field-clear delta read; separate Stage3/root runtime pending",
+  "files": [
+    {
+      "path": "frontend/src/features/staff/WalkInMemberForm.tsx",
+      "sha256": "00e692c3c04685a9e5edccd41d19630c4f70fe321995e7d8c562cc0ffe7c12f9",
+      "lines": 166
+    },
+    {
+      "path": "frontend/src/features/staff/refreshWalkInRoster.ts",
+      "sha256": "b420ded198232fe30bcd3c38af94cd266944d1738a13b71236387f995b8aaabb",
+      "lines": 97
+    }
+  ]
+}

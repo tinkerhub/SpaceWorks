@@ -192,12 +192,12 @@ def maintenance_private_key_sizes(makerspace):
     }
 
 
-def procurement_delete(makerspace, cursor):
+def procurement_delete(makerspace, cursor, *, guard):
     from apps.procurement.models import ToBuyItem, ToBuyReceipt
 
-    receipts, receipt_labels = _delete(
-        ToBuyReceipt.objects.filter(to_buy_item__makerspace=makerspace)
-    )
+    queryset = ToBuyReceipt.objects.filter(to_buy_item__makerspace=makerspace)
+    queryset._storage_guard = guard
+    receipts, receipt_labels = _delete(queryset)
     items, item_labels = _delete(ToBuyItem.objects.filter(makerspace=makerspace))
     return _counts(
         model_labels=receipt_labels | item_labels,
@@ -278,7 +278,7 @@ def membership_public_image_keys(makerspace):
     return [key for key in dict.fromkeys(keys) if key]
 
 
-def membership_delete(makerspace, cursor):
+def membership_delete(makerspace, cursor, *, guard):
     from apps.makerspaces.models import MemberProfile, MembershipRequest
 
     # `MakerspaceMembership` itself is core RBAC state and is NEVER deleted here -- the
@@ -287,9 +287,9 @@ def membership_delete(makerspace, cursor):
     # Profiles go even though the membership stays: a profile is community content the
     # module owns, not the RBAC state the module deliberately leaves behind. Projects
     # cascade from the profile.
-    profiles, profile_labels = _delete(
-        MemberProfile.objects.filter(membership__makerspace=makerspace)
-    )
+    queryset = MemberProfile.objects.filter(membership__makerspace=makerspace)
+    queryset._storage_guard = guard
+    profiles, profile_labels = _delete(queryset)
     requests, request_labels = _delete(
         MembershipRequest.objects.filter(makerspace=makerspace)
     )

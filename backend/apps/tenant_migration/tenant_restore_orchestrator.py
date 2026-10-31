@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import asdict
 
 from apps.backup.host_marker import OperationIdentity
 from apps.backup.host_supervisor import supervise_run
 
+from .tenant_restore_artifact_admission import read_selected_artifact_context
+from .tenant_restore_client_admission import validate_client_request, reissue_validated_request
+from .tenant_restore_dump_snapshot import verified_database_dump
 from .tenant_restore_activation import cutover as _cutover, start_serving
 from .tenant_restore_objects import (
     load_object,
@@ -20,6 +24,7 @@ from .tenant_restore_ledger import (
     ledger_effect as _effect,
     phase_done as _done,
     sibling_detail as _sibling_detail,
+    validate_artifact_resume_bindings,
 )
 from .tenant_restore_preflight import validate_static_preflight
 from .tenant_restore_scheduler import assert_same_fence_receipt, receipt_from_detail
@@ -30,7 +35,11 @@ from .tenant_restore_types import (
 )
 
 
-def _static_preflight(inputs, artifact, database, pointer, *, scheduler, ledger):
+def _static_preflight(inputs, artifact, database, pointer, *, scheduler, ledger, target):
+    context = read_selected_artifact_context(inputs, artifact)
+    request = validate_client_request(inputs, context, target)
+    bindings = {**context.ledger_bindings(), **request.ledger_bindings()}
+    validate_artifact_resume_bindings(ledger, bindings)
     cutover_started = _done(ledger, "activation-cutover") or (
         _incomplete(ledger, "activation-cutover") is not None
     )
@@ -50,7 +59,7 @@ def _static_preflight(inputs, artifact, database, pointer, *, scheduler, ledger)
         raise TenantRestoreRefused(
             "External scheduler topology and callback adapter declaration disagree."
         )
-    return facts
+    return facts, request, bindings, context
 
 
 def _reestablish_exclusion(ledger, inputs, preflight, writers, scheduler):
@@ -78,16 +87,17 @@ def run_target_restore(
         artifact_sha256=inputs.artifact_sha256,
         phases=phases,
         require_root_owned=require_root_owned,
-    ) as session:
+    ) as session, ExitStack() as snapshot_scope:
         ledger = session.ledger
         # Static facts are re-probed on every invocation. The first successful probe is
         # also ledgered; a resume never trusts that historical probe as current truth.
-        preflight = _static_preflight(
-            inputs, artifact, database, pointer, scheduler=scheduler, ledger=ledger
+        preflight, client_request, bindings, context = _static_preflight(
+            inputs, artifact, database, pointer, scheduler=scheduler, ledger=ledger, target=target
         )
+        dump_path = snapshot_scope.enter_context(verified_database_dump(ops_dir, artifact, context))
         _effect(
-            ledger, "static-preflight", {"target_state_created": False},
-            lambda: {"validated": True, "target_state_created": False},
+            ledger, "static-preflight", {"target_state_created": False, "artifact_bindings": bindings},
+            lambda: {"validated": True, "target_state_created": False, "artifact_bindings": bindings},
         )
         if _done(ledger, "sibling-allocation"):
             _reestablish_exclusion(ledger, inputs, preflight, writers, scheduler)
@@ -213,7 +223,7 @@ def run_target_restore(
                 }
             }
             begun = ledger.begin("database-restore", restore_detail)
-            database.restore(sibling, artifact.database_dump_path())
+            database.restore(sibling, dump_path())
             database.apply_runtime_ownership_and_grants(sibling)
             ledger.finish(begun, restore_detail)
 
@@ -236,8 +246,8 @@ def run_target_restore(
                 )
 
         _effect(
-            ledger, "api-client-reissue", {"approved": True},
-            lambda: target.reissue_api_clients(sibling, inputs),
+            ledger, "api-client-reissue", {"artifact_bindings": bindings},
+            lambda: reissue_validated_request(target, sibling, inputs, client_request, bindings),
         )
         _effect(
             ledger, "target-superadmin", {"email_supplied": bool(inputs.superadmin_email)},

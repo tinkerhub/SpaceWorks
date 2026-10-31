@@ -1,0 +1,108 @@
+{
+  "status": "independently-read-source-only-runtime-pending",
+  "files": [
+    {
+      "path": "backend/apps/document_storage_charge.py",
+      "sha256": "a49c375c706a43f7cdb30c21a5d87e085d57d427341f2dce6fbd8297854a97b3",
+      "changed_function_owners": [
+        "ChargeProof.metadata",
+        "canonical_row_time",
+        "canonical_uuid",
+        "charge_metadata",
+        "current_context",
+        "parse_charge",
+        "valid_target"
+      ],
+      "new_file": true
+    },
+    {
+      "path": "backend/apps/document_storage_quota.py",
+      "sha256": "7ce0b14b12de1f726653907ac2e4686461877f6a881bd47726e45e1b4b62e5fc",
+      "changed_function_owners": [
+        "_proven_charge",
+        "_released",
+        "charge_by_event",
+        "proven_document_charge",
+        "release_charge_once"
+      ],
+      "new_file": true,
+      "before_docstring_clarification_sha256": "b4c72f37d8a46f0a258aaeae54dfe3ffc7f1781e8e6f5aa35008f5eef6c988c7"
+    },
+    {
+      "path": "backend/apps/object_storage.py",
+      "sha256": "eb81a748ab60ef5c4e2f7989ad91dc7546dd2468c97a3bae7a1484dab40ab7dd",
+      "changed_function_owners": [
+        "_accepted_version_snapshot",
+        "delete_accepted_object_versions"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/warranty/storage.py",
+      "sha256": "cbb911ca41d06b9ae7553009d5625ba24c640c07952daa25930225c6aa553595",
+      "changed_function_owners": [
+        "delete_object"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/warranty/views_documents.py",
+      "sha256": "097b49cfbf33f9b5d19a8a5b0a10c3f4f94e42103eb375a492173aa12b1b9ff7",
+      "changed_function_owners": [
+        "WarrantyDocumentCreateView.post"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/warranty/signals.py",
+      "sha256": "ef3eaf03b853160bfbbd2708dd6d6191ad351fe284580b8197fd20b68be54d9a",
+      "changed_function_owners": [
+        "delete_warranty_document_object"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/procurement/storage.py",
+      "sha256": "2326fb3efb61ca92306dbb5a938b9e20141e426eca9809e40ef30820efcf1a9f",
+      "changed_function_owners": [
+        "delete_object"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/procurement/views_receipts.py",
+      "sha256": "5edd43306fed1630b829c125fdfca72223fb75836fad2f61e5e3d56b0b94c507",
+      "changed_function_owners": [
+        "ToBuyReceiptListCreateView.post"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/procurement/signals.py",
+      "sha256": "9a427fbf674a0b5012b221705f5f835894200e3df68da29e6f2f8beffb11e96d",
+      "changed_function_owners": [
+        "delete_to_buy_receipt_object"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/makerspaces/management/commands/recompute_storage.py",
+      "sha256": "f037327d6277a9b476fe35aede7757fa7e7db31a789bd5e277d38cc778c14b1c",
+      "changed_function_owners": [
+        "Command._recompute",
+        "Command._sum_documents"
+      ],
+      "new_file": false
+    },
+    {
+      "path": "backend/apps/tenant_migration/audit_references_meta_source_local.py",
+      "sha256": "13739a7bf6d46083fd57d0727cd87bc5053c5448a194113005a943fb5285f8fb",
+      "changed_function_owners": [],
+      "new_file": false
+    }
+  ],
+  "review": "Root read all11 scoped files. Opt-in exact data-version deletion receipt preserves strict old deletion validation/defaultNone and document defaultbool; local actual-debit proof freezes maker/target/incarnation/key/origin/event; source/storage exclusion precedes Maker lock, credit+release audit same transaction; missing proof raises through atomic and existing typed503 catches; legacy no credit; reconciliation preserves unreleased proven charges.",
+  "specific_refinement": "Use existing limits.free_storage after locked sufficient-balance check; avoid Makerspace.save settings normalization.",
+  "runtime_pending": true,
+  "docstring_clarification": "Exact old file reconstructed; only settlement precondition documentation differs between ordinary cleanup and module purge. No executable byte change."
+}

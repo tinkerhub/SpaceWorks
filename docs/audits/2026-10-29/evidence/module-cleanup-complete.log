@@ -1,0 +1,15 @@
+........................................................................ [ 37%]
+........................................................................ [ 74%]
+.................................................                        [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:98
+  /Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/.venv/lib/python3.14/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+tests/makerspaces/test_module_cleanup_admin.py: 14 warnings
+tests/makerspaces/test_module_cleanup_enable_admin.py: 2 warnings
+  /Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+193 passed, 17 warnings in 157.68s (0:02:37)

@@ -37,6 +37,8 @@ def default_branding_config():
     }
 
 
+from apps.makerspaces.models_module_purge_receipt import ModulePurgeReceipt  # noqa: E402,F401
+from apps.makerspaces.models_purge_receipt import PurgeReceipt  # noqa: E402,F401
 from apps.makerspaces.models_makerspace import Makerspace  # noqa: E402,F401
 from apps.makerspaces.models_memberships import MakerspaceMembership  # noqa: E402,F401
 from apps.makerspaces.models_roles import (  # noqa: E402,F401

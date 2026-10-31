@@ -12,7 +12,7 @@ from apps.bookings.models import BookableSpace
 from apps.evidence.image_validation import image_mime_from_bytes
 from apps.evidence.storage import StorageUnavailable
 from apps.inventory import public_image_storage as shared
-from apps.object_storage import delete_all_versions
+from apps.object_storage import delete_accepted_object_versions
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ is_safe_object_key = shared.is_safe_object_key
 staging_key = shared.staging_key
 
 
-def release_public_image_on_commit(makerspace, object_key):
+def release_public_image_on_commit(makerspace, object_key, *, guard=None):
     """Retire a space image, sizing and deleting through THIS module.
 
     A bare re-export of the shared function would resolve `object_size`/`delete_object`
@@ -31,7 +31,7 @@ def release_public_image_on_commit(makerspace, object_key):
     on this module is honoured.
     """
     shared.release_public_image_on_commit(
-        makerspace, object_key, sys.modules[__name__]
+        makerspace, object_key, sys.modules[__name__], guard=guard
     )
 
 
@@ -58,7 +58,7 @@ def copy_object(source_key, dest_key):
 
 
 def delete_object(object_key):
-    """Best-effort delete, reporting whether the object is actually gone.
+    """Best-effort delete, reporting whether the version snapshot was removed.
 
     The boolean matters: `release_public_image` frees the storage quota only on a True,
     because freeing after a silent failure is the direction that permanently hands out
@@ -67,7 +67,7 @@ def delete_object(object_key):
     if not object_key:
         return True
     try:
-        delete_all_versions(
+        delete_accepted_object_versions(
             _client(), bucket=settings.PUBLIC_IMAGE_BUCKET, key=object_key
         )
     except (BotoCoreError, ClientError):
@@ -110,24 +110,16 @@ def public_url(object_key):
 
 
 def sniff_is_valid_image(object_key):
+    from apps.inventory.public_image_publication import InvalidImage, validate_snapshot
+    from apps.object_publication import InvalidObjectSize, validate_existing
+
     try:
-        response = _client().get_object(
-            Bucket=settings.PUBLIC_IMAGE_BUCKET,
-            Key=object_key,
-        )
-        data = response['Body'].read(settings.PUBLIC_IMAGE_MAX_BYTES)
-    except ClientError as exc:
-        status = exc.response.get('ResponseMetadata', {}).get('HTTPStatusCode')
-        code = exc.response.get('Error', {}).get('Code')
-        if status == 404 or code in {'404', 'NoSuchKey', 'NotFound'}:
-            return False
-        raise StorageUnavailable from exc
-    except (BotoCoreError, OSError) as exc:
-        raise StorageUnavailable from exc
-    return bool(
-        data
-        and image_mime_from_bytes(data) in settings.PUBLIC_IMAGE_ALLOWED_MIME
-    )
+        return validate_existing(
+            _client(), settings.PUBLIC_IMAGE_BUCKET, object_key,
+            settings.PUBLIC_IMAGE_MAX_BYTES, validate_snapshot,
+        ) is not None
+    except (InvalidObjectSize, InvalidImage):
+        return False
 
 
 def build_object_key(makerspace_id, space_id, ext):
@@ -158,10 +150,8 @@ def has_allowed_extension(object_key):
     )
 
 
-def public_image_key_in_use(makerspace_id, object_key):
-    if BookableSpace.objects.filter(image_key=object_key).exists():
-        return True
-    return shared.public_image_key_in_use(makerspace_id, object_key)
+def public_image_key_in_use(makerspace_id, object_key, *, space_id=None):
+    return shared.public_image_key_in_use(makerspace_id, object_key, space_id=space_id)
 
 
 def presigned_upload(object_key, content_type):
@@ -183,7 +173,7 @@ def presigned_upload(object_key, content_type):
             }
         return _public_client().generate_presigned_post(
             Bucket=settings.PUBLIC_IMAGE_BUCKET,
-            Key=object_key,
+            Key=staging_key(object_key),
             Fields={'Content-Type': content_type},
             Conditions=[
                 {'Content-Type': content_type},
@@ -205,25 +195,7 @@ def _object_size_after_upload(object_key, attempts=10, delay_seconds=0.2):
 
 
 def finalize_upload(object_key):
-    max_bytes = settings.PUBLIC_IMAGE_MAX_BYTES
-    if settings.STORAGE_PRESIGN_METHOD != 'put':
-        return shared._finalize_result(
-            object_key,
-            _object_size_after_upload(object_key),
-        )
-    final_size = object_size(object_key)
-    if final_size is not None:
-        delete_object(staging_key(object_key))
-        return shared._finalize_result(object_key, final_size)
-    upload_staging_key = staging_key(object_key)
-    size = object_size(upload_staging_key)
-    if size is None:
-        return shared._finalize_result(object_key, None)
-    if not 1 <= size <= max_bytes:
-        return shared._finalize_result(object_key, size)
-    copy_object(upload_staging_key, object_key)
-    delete_object(upload_staging_key)
-    final_size = object_size(object_key)
-    if final_size is None or not 1 <= final_size <= max_bytes:
-        delete_object(object_key)
-    return shared._finalize_result(object_key, final_size)
+    import sys
+    from apps.inventory.public_image_publication import finalize
+
+    return finalize(sys.modules[__name__], object_key)

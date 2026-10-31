@@ -1,3 +1,4 @@
+from apps.object_storage_lifecycle import storage_lifecycle
 from django.db import IntegrityError, transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -11,7 +12,10 @@ from apps.admin_api.permissions import IsActiveStaff
 from apps.audit import services as audit
 from apps.evidence.responses import storage_unavailable_response
 from apps.evidence.storage import StorageUnavailable
-from apps.makerspaces.guards import require_module
+from apps.makerspaces import limits
+from apps.document_storage_charge import DocumentChargeProofUnavailable
+from apps.document_storage_quota import charge_metadata
+from apps.makerspaces.guards import require_module, require_module_locked
 from apps.procurement import access, storage
 from apps.procurement.models import ToBuyItem, ToBuyReceipt
 from apps.procurement.serializers import (
@@ -85,7 +89,7 @@ class ToBuyReceiptPresignView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         ext = storage.ext_for(data["content_type"], data["filename"])
-        object_key = storage.receipt_object_key(item.makerspace_id, ext)
+        object_key = storage.receipt_object_key(item.makerspace_id, item.pk, ext)
         try:
             upload = storage.presigned_upload(object_key, data["content_type"])
         except StorageUnavailable:
@@ -121,35 +125,55 @@ class ToBuyReceiptListCreateView(APIView):
     )
     def post(self, request, pk, *args, **kwargs):
         item = resolve_item(request.user, pk)
-        assert_can_manage(request.user, item)
-        serializer = ToBuyReceiptFinalizeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        object_key = serializer.validated_data["object_key"]
-        if ToBuyReceipt.objects.filter(object_key=object_key).exists():
-            raise ValidationError({"object_key": "This receipt is already attached."})
-        try:
-            storage.finalize_receipt_upload(item, object_key)
-        except StorageUnavailable:
-            return storage_unavailable_response()
-        try:
-            with transaction.atomic():
-                receipt = ToBuyReceipt.objects.create(
-                    to_buy_item=item,
-                    object_key=object_key,
-                    uploaded_by=request.user,
-                )
-        except IntegrityError as exc:
-            raise ValidationError({"object_key": "This receipt is already attached."}) from exc
-        audit.record(
-            request.user,
-            "procurement.receipt_added",
-            makerspace=item.makerspace,
-            target=receipt,
-        )
-        return Response(
-            ToBuyReceiptSerializer(receipt).data,
-            status=status.HTTP_201_CREATED,
-        )
+        with storage_lifecycle(item.makerspace_id) as guard:
+            item = resolve_item(request.user, pk)
+            guard.verify(item.makerspace_id)
+            assert_can_manage(request.user, item)
+            serializer = ToBuyReceiptFinalizeSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            object_key = serializer.validated_data["object_key"]
+            existing = ToBuyReceipt.objects.filter(to_buy_item=item, object_key=object_key).first()
+            if existing is not None:
+                return Response(ToBuyReceiptSerializer(existing).data, status=status.HTTP_201_CREATED)
+            try:
+                result = storage.finalize_receipt_upload(item, object_key)
+            except StorageUnavailable:
+                return storage_unavailable_response()
+            try:
+                guard.verify()
+                with transaction.atomic():
+                    makerspace = require_module_locked(
+                        item.makerspace_id, MODULE_KEY, no_key=True,
+                    )
+                    ToBuyItem.objects.select_for_update().get(pk=pk)
+                    item = resolve_item(request.user, pk)
+                    guard.verify(item.makerspace_id)
+                    item.makerspace = makerspace
+                    assert_can_manage(request.user, item)
+                    storage.assert_receipt_object_key_for_item(item, object_key)
+                    charged = limits.add_storage(makerspace, result.size, no_key=True)
+                    receipt = ToBuyReceipt.objects.create(
+                        to_buy_item=item,
+                        object_key=object_key,
+                        uploaded_by=request.user,
+                    )
+                    audit.record(
+                        request.user,
+                        "procurement.receipt_added",
+                        makerspace=item.makerspace,
+                        target=receipt,
+                        meta=(charge_metadata(
+                            receipt, makerspace_id=makerspace.pk, size_bytes=result.size,
+                        ) if charged is True else None),
+                    )
+            except DocumentChargeProofUnavailable:
+                return storage_unavailable_response()
+            except IntegrityError as exc:
+                raise ValidationError({"object_key": "This receipt is already attached."}) from exc
+            return Response(
+                ToBuyReceiptSerializer(receipt).data,
+                status=status.HTTP_201_CREATED,
+            )
 
 
 @extend_schema(tags=["Procurement"])
@@ -184,12 +208,21 @@ class ToBuyReceiptDeleteView(APIView):
     def delete(self, request, pk, *args, **kwargs):
         receipt = resolve_receipt(request.user, pk)
         item = receipt.to_buy_item
-        assert_can_manage(request.user, item)
-        audit.record(
-            request.user,
-            "procurement.receipt_removed",
-            makerspace=item.makerspace,
-            target=receipt,
-        )
-        receipt.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        with storage_lifecycle(item.makerspace_id) as guard:
+            assert_can_manage(request.user, item)
+            guard.verify()
+            with transaction.atomic():
+                ToBuyReceipt.objects.select_for_update().get(pk=pk)
+                receipt = resolve_receipt(request.user, pk)
+                item = receipt.to_buy_item
+                guard.verify(item.makerspace_id)
+                assert_can_manage(request.user, item)
+                audit.record(
+                    request.user,
+                    "procurement.receipt_removed",
+                    makerspace=item.makerspace,
+                    target=receipt,
+                )
+                receipt._storage_guard = guard
+                receipt.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)

@@ -152,23 +152,24 @@ def _storage(makerspace) -> int:
     return makerspace.storage_bytes_used
 
 
-def add_storage(makerspace, size_bytes, *, no_key=False) -> None:
-    """Charge managed object storage; raise when over the storage cap.
+def add_storage(makerspace, size_bytes, *, no_key=False) -> bool:
+    """Return True for an actual finite managed debit; raise over the storage cap.
 
     Opens its own ``transaction.atomic()`` so the ``select_for_update`` row lock
     works at every finalize call site regardless of whether the caller already
     holds a transaction (it degrades to a savepoint when nested). On self-host or
-    unlimited it is a no-op. Queue workflows opt into ``no_key=True`` so a
-    staff transaction can finish audit FK checks while releasing its queue lock;
+    unlimited or zero size it returns False without a debit. Queue workflows opt
+    into ``no_key=True`` so a staff transaction can finish audit FK checks while
+    releasing its queue lock;
     NO KEY UPDATE still serializes concurrent quota/storage writers.
     """
     from apps.makerspaces import limits
 
     if limits.is_self_host() or not size_bytes:
-        return
+        return False
     limit = limits.resource_limit(makerspace, "storage")
     if limit is None:
-        return
+        return False
     from django.db import transaction
     from django.db.models import F
 
@@ -179,13 +180,14 @@ def add_storage(makerspace, size_bytes, *, no_key=False) -> None:
         if locked.storage_bytes_used + size_bytes > limit:
             raise serializers.ValidationError(
                 {
-                    "limit": "You've reached the free storage limit for this space Ã¢â‚¬â€ ask the operator to raise it or self-host."
+                    "limit": "You've reached the free storage limit for this space — ask the operator to raise it or self-host."
                 },
                 code="limit_reached",
             )
         Makerspace.objects.filter(pk=makerspace.pk).update(
             storage_bytes_used=F("storage_bytes_used") + size_bytes
         )
+        return True
 
 
 def free_storage(makerspace, size_bytes) -> None:
@@ -259,7 +261,7 @@ def check_quota(makerspace, key, *, adding=1, no_key=False) -> None:
     if current + adding > limit:
         resource = RESOURCE_LABELS.get(key, key.replace("_", " "))
         message = (
-            f"You've reached the free {resource} limit for this space Ã¢â‚¬â€ "
+            f"You've reached the free {resource} limit for this space — "
             "ask the operator to raise it or self-host."
         )
         raise serializers.ValidationError(

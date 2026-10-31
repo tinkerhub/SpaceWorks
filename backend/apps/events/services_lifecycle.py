@@ -8,6 +8,7 @@ from apps.events.models import (
     EventFeedbackSurvey,
 )
 from apps.events.services_calendar import calendar_event_changed
+from apps.events.services_certificates import revoke
 from apps.makerspaces import limits
 from apps.makerspaces.guards import require_module_locked
 
@@ -62,9 +63,11 @@ def cancel(event, *, actor, notify=True):
             f"Cannot transition event from {locked.status} to {Event.Status.CANCELLED}."
         )
     survey = EventFeedbackSurvey.objects.select_for_update().filter(event=locked).first()
-    certificates = list(EventAttendanceCertificate.objects.select_for_update().filter(
-        registration__event=locked, status=EventAttendanceCertificate.Status.ACTIVE,
-    ))
+    # The event lock serializes certificate creation/activation. Let revoke take
+    # registration then certificate locks, including unactivated render claims.
+    certificates = list(EventAttendanceCertificate.objects.filter(
+        registration__event=locked,
+    ).exclude(status=EventAttendanceCertificate.Status.REVOKED).order_by("registration_id", "pk"))
     now = timezone.now()
     if survey is not None and survey.is_open:
         survey.is_open = False
@@ -75,18 +78,9 @@ def cancel(event, *, actor, notify=True):
             {"reason": "event_cancelled"},
         )
     for certificate in certificates:
-        certificate.status = EventAttendanceCertificate.Status.REVOKED
-        certificate.revoked_at = now
-        certificate.revoked_by = actor
-        certificate.revocation_reason = (
-            EventAttendanceCertificate.RevocationReason.EVENT_CANCELLED
-        )
-        certificate.save(update_fields=[
-            "status", "revoked_at", "revoked_by", "revocation_reason",
-        ])
-        services._audit(
-            locked, actor, "event.certificate_revoked", certificate,
-            {"reason": certificate.revocation_reason, "revision": certificate.revision},
+        revoke(
+            certificate, actor=actor,
+            reason=EventAttendanceCertificate.RevocationReason.EVENT_CANCELLED,
         )
     locked.status = Event.Status.CANCELLED
     locked.save(update_fields=["status", "updated_at"])

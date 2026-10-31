@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
@@ -6,7 +7,7 @@ from apps.audit import services as audit
 from apps.hardware_requests.asset_link_models import HardwareRequestItemAsset
 from apps.hardware_requests.models import HardwareRequest, PublicToolLoan
 from apps.inventory import availability
-from apps.inventory.models import InventoryAsset, InventoryProduct, TrackingMode
+from apps.inventory.models import Category, InventoryAsset, InventoryProduct, TrackingMode
 from apps.makerspaces.guards import require_module_locked_for_all
 from apps.makerspaces.models import Makerspace
 from apps.operations.models import InventoryAdjustment, StockTransfer, StockTransferLine
@@ -80,7 +81,8 @@ def _apply_intra_makerspace_line(actor, transfer, makerspace, source, destinatio
     split_created = False
     quantity = line_data.get("quantity") or 1
     if line_data.get("asset_id"):
-        asset = InventoryAsset.objects.select_for_update().select_related("product").get(
+        asset = get_object_or_404(
+            InventoryAsset.objects.select_for_update().select_related("product"),
             pk=line_data["asset_id"],
             makerspace=makerspace,
         )
@@ -100,7 +102,8 @@ def _apply_intra_makerspace_line(actor, transfer, makerspace, source, destinatio
         asset.save(update_fields=["box", "updated_at"])
         product = asset.product
     else:
-        product = InventoryProduct.objects.select_for_update().get(
+        product = get_object_or_404(
+            InventoryProduct.objects.select_for_update(),
             pk=line_data["product_id"],
             makerspace=makerspace,
         )
@@ -139,8 +142,8 @@ def _apply_cross_makerspace_line(
     """Actually move available quantity stock from one makerspace to another.
 
     Quantity is decremented on the source product and credited to a find-or-create
-    product (matched by name) in the destination makerspace. Individual-tracked
-    products / explicit asset lines are rejected: relocating serialized units also
+    product matched by name, container and local category in the destination.
+    Individual-tracked products / explicit asset lines are rejected: relocating units also
     means re-scoping their asset rows + QR codes across tenants, which is out of
     scope here — move quantity stock instead."""
     if line_data.get("asset_id"):
@@ -148,7 +151,8 @@ def _apply_cross_makerspace_line(
             {"asset_id": "Individual asset units cannot be moved across makerspaces; transfer quantity stock instead."}
         )
     quantity = line_data.get("quantity") or 1
-    src = InventoryProduct.objects.select_for_update().get(
+    src = get_object_or_404(
+        InventoryProduct.objects.select_for_update(),
         pk=line_data["product_id"],
         makerspace=source_makerspace,
     )
@@ -159,10 +163,17 @@ def _apply_cross_makerspace_line(
     if quantity > src.available_quantity:
         raise ValidationError({"quantity": "Cannot transfer more than the available stock."})
 
+    # Category primary keys are tenant-local; only a matching slug identifies a
+    # counterpart. Without one, consistently match/create uncategorized inventory.
+    dest_category_id = None
+    if src.category_id:
+        dest_category_id = Category.objects.filter(
+            makerspace_id=dest_makerspace_id, slug=src.category.slug
+        ).values_list("id", flat=True).first()
     dest_queryset = InventoryProduct.objects.select_for_update().filter(
         makerspace_id=dest_makerspace_id,
         name__iexact=src.name,
-        category_id=src.category_id,
+        category_id=dest_category_id,
         box=dest_container,
         is_archived=False,
     )
@@ -178,6 +189,7 @@ def _apply_cross_makerspace_line(
             makerspace_id=dest_makerspace_id,
             name=src.name,
             description=src.description,
+            category_id=dest_category_id,
             tracking_mode=TrackingMode.QUANTITY,
             box=dest_container,
             total_quantity=0,

@@ -14,6 +14,7 @@ from apps.tenant_migration.services_import_job import (
     cleanup_expired_import_jobs,
     scrub_terminal_job,
 )
+from tests.makerspaces.purge_test_support import arm, purge_clock, purge_store
 
 pytestmark = pytest.mark.django_db(transaction=True)
 
@@ -107,17 +108,19 @@ def test_identity_and_membership_axes_are_independent():
     assert decision.membership_disposition == "no_membership"
 
 
-def test_makerspace_purge_removes_materialized_job_and_decisions(monkeypatch):
+def test_makerspace_purge_removes_materialized_job_and_decisions(purge_store, purge_clock):
     actor = User.objects.create_superuser(username="import-purge-admin", password="pw")
     makerspace = Makerspace.objects.create(name="Purge Import", slug="purge-import")
-    job = make_job(target_makerspace=makerspace)
+    job = make_job(
+        target_makerspace=makerspace,
+        status=TenantImportJob.Status.COMPLETED,
+        terminal_at=timezone.now(),
+    )
     decision = make_decision(job, "purged-source-user", target_user=actor)
     makerspace.archived_at = timezone.now()
     makerspace.archived_by = actor
     makerspace.save(update_fields=("archived_at", "archived_by"))
-    monkeypatch.setattr(lifecycle, "_delete_storage_keys", lambda keys: None)
-    monkeypatch.setattr(lifecycle, "_delete_public_image_keys", lambda keys: None)
-
+    arm(makerspace, actor, purge_clock)
     lifecycle.purge(makerspace, actor)
 
     assert not TenantImportJob.objects.filter(pk=job.pk).exists()

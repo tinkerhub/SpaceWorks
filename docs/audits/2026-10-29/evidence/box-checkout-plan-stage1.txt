@@ -1,0 +1,26 @@
+**NOT APPROVED as written. HW002’s rejection approach is appropriate; HW003 needs a concrete lock plan.**
+
+1. **Keep the minimal HW002 behavior.** Reject box checkout when it would automatically issue eligible individual assets. Preserve quantity-only boxes, independent asset scans, selected-container direct handouts with individual scans, and the overlap guard. Both APIs already accept multiple asset QRs; supporting a scanned box plus its complete contents would additionally require completeness validation and changed overlap semantics. That is larger than this audit fix. Remove the auto-issue block and use `select_for_update(of=("self",))` in `_eligible_asset`, followed by its explicit Product lock. [Current implementation](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/self_checkout_helpers.py:79)
+
+2. **Make no-key locking transitive.** An optional `no_key=False` extension to `require_feature_locked` is justified, but insufficient alone. Add equivalent opt-in forwarding through `charge_storage_once` to the already-supported `add_storage(..., no_key=True)`. Keep defaults unchanged. Moving charging before QR/Box does **not** solve the problem: its stronger Maker lock remains held until commit. QR revoke/rebind can retain QR locks while their scan/audit inserts need Maker FK checks. [Charging](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/finalization.py:60), [storage locking](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/makerspaces/limits_usage.py:155), [QR callers](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/api_views_qr.py:245)
+
+3. **Resolve the evidence-order inversion before prescribing Maker-before-evidence.** Two actual callers run in the opposite order:
+   - Reviewed issue locks evidence, then charges Maker.
+   - Retention completion locks evidence, then updates Maker through `free_storage`.
+
+   Checkout holding Maker while waiting for that evidence can deadlock with either caller waiting for Maker. `NO KEY UPDATE` does not remove this conflict. A smaller candidate is **attachment locks → Maker NO KEY UPDATE → checkout locks**, preserving pre-finalization feature/servability checks. Alternatively, retain Maker-first only with an explicit strategy that avoids blocking on the inverted evidence edge. Neither requires changes to the parent-owned return functions. [Reviewed issue](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/handover_workflow.py:117), [retention completion](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/evidence/services_retention.py:194)
+
+4. **Account explicitly for reviewed issue’s Box-before-QR order.** It does not participate in the proposed checkout Maker serialization. Reordering direct checkout to QR-before-selected-Box therefore permits a cycle with reviewed issue using that container and an asset QR. Include a compatible serialization point in reviewed **issue**, or choose a checkout strategy that avoids that cycle. Maker-first across public/direct alone cannot establish compatibility with reviewed handover. [Box acquisition](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/handover_workflow.py:129)
+
+5. **Correct two caller-level details.**
+   - Direct issue’s entry route currently gates on `inventory.self_checkout`, permissions and borrower eligibility; it does **not** require `request_workflow`. Recheck the actual feature and servability under lock without introducing that additional module prerequisite. [Entry route](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/direct_loan_views.py:62)
+   - Update `_box_checkout_eligible`, which currently advertises checkout when eligible assets exist, and the container-only error telling staff to scan the box. Both would contradict the new rejection behavior. [Eligibility](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/boxes/api_views_eligibility.py:79), [error](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/apps/hardware_requests/direct_loan_workflow.py:104)
+
+The Stage 3 outline is sound, with these additions:
+
+- Exercise PUT in **managed mode with a finite storage limit**; otherwise the problematic Maker acquisition is skipped.
+- Cover QR revoke/rebind FK compatibility and whichever reviewed/evidence edges the revised lock strategy addresses.
+- Use deterministic PostgreSQL lock coordination, with both winner orders and bounded completion.
+- Bypass the autouse fake evidence validator for the genuine-image fixture. Finalization happens before the domain transaction, so rejected checkout may leave finalized evidence; assert no attachment or committed quota charge, rather than unchanged finalization state. [Fixture](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/conftest.py:115)
+
+No files edited; no tests, builds or migrations run. This is a bounded Stage 1 verdict, not Stage 4 or release approval.

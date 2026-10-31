@@ -1,0 +1,11 @@
+Added [CheckinIdentityStep.dispatch.test.tsx](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/frontend/src/features/inventory/CheckinIdentityStep.dispatch.test.tsx): **5 cases, 136 lines** covering queued happy dispatch, A→B, A→B→A, unmount, and disabled settlement followed by retry.
+
+Only the new test file was authored. No tests/build/runtime/staging/commit performed.
+
+Root command, using Node 20:
+
+```sh
+cd frontend && npm test -- src/features/inventory/CheckinIdentityStep.dispatch.test.tsx
+```
+
+Residual: runtime verification pending; no other issue identified during static inspection.

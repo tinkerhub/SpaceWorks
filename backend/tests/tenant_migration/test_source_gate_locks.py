@@ -8,7 +8,6 @@ from django.test import RequestFactory
 from apps.tenant_migration import gate_locks
 from apps.tenant_migration.gate_locks import (
     SOURCE_GATE_LOCK_NAMESPACE,
-    acquire_exclusive,
     acquire_shared,
     shared_boundary,
 )
@@ -45,9 +44,15 @@ def test_shared_writer_blocks_exclusive_and_exclusive_refuses_tenant_write(
         with transaction.atomic():
             acquire_shared(space.pk)
             assert _try_xact_lock(secondary, "exclusive", space.pk) is False
-        with transaction.atomic():
-            acquire_exclusive(space.pk)
-            assert _try_xact_lock(secondary, "shared", space.pk) is False
+        # Retain the exclusive xact lock on an independent backend. The main
+        # middleware caller must be outside atomic, as a real request would be.
+        secondary.set_autocommit(False)
+        with secondary.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s, %s)", [
+                SOURCE_GATE_LOCK_NAMESPACE, space.pk,
+            ])
+        assert not connection.in_atomic_block
+        try:
             response = middleware(
                 RequestFactory().post(
                     f"/api/v1/public/{space.slug}/membership-requests"
@@ -55,6 +60,9 @@ def test_shared_writer_blocks_exclusive_and_exclusive_refuses_tenant_write(
             )
             assert response.status_code == 503
             assert dispatches == []
+        finally:
+            secondary.rollback()
+            secondary.set_autocommit(True)
         assert middleware(
             RequestFactory().post(
                 f"/api/v1/public/{space.slug}/membership-requests"

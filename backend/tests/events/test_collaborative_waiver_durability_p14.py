@@ -48,6 +48,7 @@ def setup_pair(host_waiver_version=None):
 # --- the PROTECT FK must not break either purge --------------------------------------
 
 
+@pytest.mark.django_db(transaction=True)
 def test_the_membership_module_purge_keeps_visitor_waiver_evidence():
     from django.db import connection
     from apps.makerspaces.module_purge_collectors import membership_delete
@@ -61,8 +62,10 @@ def test_the_membership_module_purge_keeps_visitor_waiver_evidence():
     registration = EventRegistration.objects.get(event=event, member=member)
     assert registration.host_waiver_id == waiver.pk
 
-    with connection.cursor() as cursor:
-        membership_delete(host, cursor)
+    from apps.object_storage_lifecycle import storage_lifecycle
+
+    with storage_lifecycle(host.pk) as guard, connection.cursor() as cursor:
+        membership_delete(host, cursor, guard=guard)
 
     registration.refresh_from_db()
     assert registration.host_waiver_id == waiver.pk
@@ -71,6 +74,7 @@ def test_the_membership_module_purge_keeps_visitor_waiver_evidence():
     assert MakerspaceWaiver.objects.filter(pk=waiver.pk).exists()
 
 
+@pytest.mark.django_db(transaction=True)
 def test_membership_module_purge_keeps_cross_tenant_waiver_evidence():
     from django.db import connection
 
@@ -83,10 +87,11 @@ def test_membership_module_purge_keeps_cross_tenant_waiver_evidence():
     registration = EventRegistration.objects.get(event=event, member=member)
     assert registration.host_waiver_id == waiver.pk
 
-    with connection.cursor() as cursor:
-        from apps.makerspaces.module_purge_collectors import membership_delete
+    from apps.object_storage_lifecycle import storage_lifecycle
+    from apps.makerspaces.module_purge_collectors import membership_delete
 
-        membership_delete(host, cursor)
+    with storage_lifecycle(host.pk) as guard, connection.cursor() as cursor:
+        membership_delete(host, cursor, guard=guard)
 
     registration.refresh_from_db()
     assert registration.event.makerspace_id == host.pk

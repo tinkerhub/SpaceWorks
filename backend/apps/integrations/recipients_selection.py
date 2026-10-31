@@ -25,7 +25,8 @@ from apps.integrations.recipient_scope_matching import rule_covers as _rule_cove
 
 logger = logging.getLogger("apps.integrations.recipients")
 
-# Features whose recipients can be picked per event. The other two are mute-based.
+# Features whose recipients can be picked per event. Hardware/printing retain mutes;
+# generic machine services initially use the action-based default only.
 SELECTABLE_FEATURES = frozenset(
     {
         NotificationFeature.EVENTS,
@@ -42,6 +43,7 @@ SELECTABLE_FEATURES = frozenset(
 FEATURE_MODULES = {
     NotificationFeature.HARDWARE_REQUESTS: "request_workflow",
     NotificationFeature.PRINTING: "printing",
+    NotificationFeature.MACHINE_SERVICE: "machine_service",
     NotificationFeature.EVENTS: "events",
     NotificationFeature.BOOKINGS: "bookings",
     NotificationFeature.MAINTENANCE: "maintenance",

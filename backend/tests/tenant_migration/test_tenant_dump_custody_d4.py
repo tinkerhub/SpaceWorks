@@ -55,7 +55,7 @@ def test_actual_age_arguments_keep_outer_and_tenant_dek_recipients_separate(
     )
 
 
-def test_plaintext_content_ledger_declares_absent_tenant_dek_member(tmp_path):
+def test_legacy_v1_plaintext_content_ledger_declares_absent_tenant_dek_member(tmp_path):
     (tmp_path / "database.dump").write_bytes(b"sanitized dump")
 
     contents = build_tenant_content_ledger(tmp_path, source_pii_mode=PLAINTEXT)
@@ -93,7 +93,7 @@ def test_plaintext_content_ledger_declares_absent_tenant_dek_member(tmp_path):
         "user_closure": _closure((), (), ()).manifest(),
         "cross_tenant_lost_edges": [],
     }
-    assert verify_envelope_custody_manifest(capture, manifest) is True
+    assert verify_envelope_custody_manifest(capture, manifest, outer_version=1) is True
 
 
 def test_plaintext_scan_refuses_a_mapped_ciphertext_envelope():

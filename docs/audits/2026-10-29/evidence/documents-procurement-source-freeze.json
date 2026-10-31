@@ -1,0 +1,41 @@
+{
+  "status": "independently inspected source; runtime pending root",
+  "files": [
+    {
+      "path": "backend/apps/procurement/views_receipts.py",
+      "sha256": "5c022e3256c910500805c5d379dd67d9606b38ce6db6978d683cc85b415bed80",
+      "lines": 221
+    },
+    {
+      "path": "backend/apps/procurement/views_items.py",
+      "sha256": "1a338f6dfa4a0fecb6520c7b1e090bb81543e909af2d26e536f88174cd09990a",
+      "lines": 190
+    },
+    {
+      "path": "backend/apps/procurement/admin.py",
+      "sha256": "d18bfe1b9d92c932b97baa0ed762848447a7a53b2bc125986de03147a450cbfd",
+      "lines": 89
+    },
+    {
+      "path": "backend/apps/procurement/admin_forms.py",
+      "sha256": "0569b3ac58e57b6833751789dfab7105b2725f2d0909506aec0aa2f79bb12a01",
+      "lines": 29
+    },
+    {
+      "path": "backend/apps/warranty/views.py",
+      "sha256": "582697218ac4e2c632716688334e8c8c30b1304c624f75334126d15c5b83c7b7",
+      "lines": 191
+    },
+    {
+      "path": "backend/apps/warranty/views_documents.py",
+      "sha256": "16e3e50eb73454b51e0cdf4a7415719165c37a4e2978689eed1576499f66390b",
+      "lines": 202
+    },
+    {
+      "path": "backend/apps/warranty/admin.py",
+      "sha256": "41c2eefc2e21522abb8867f8b6cd6ab9c1e2ea871dbbfed80fddf95365e35abf",
+      "lines": 75
+    }
+  ],
+  "tradeoff": "Accepted validated documents charge managed finite quota once; legacy deletion remains conservatively uncredited until authoritative reconciliation. No new billing model. Existing canonical asset transfer still owns explicit warranty relocation."
+}

@@ -1,0 +1,15 @@
+..............................                                           [100%]
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98
+  /usr/local/lib/python3.12/site-packages/django/db/backends/utils.py:98: RuntimeWarning: Accessing the database during app initialization is discouraged. To fix this warning, avoid executing queries in AppConfig.ready() or when your app modules are imported.
+    warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+
+tests/qr_batch_projection_safety/test_detail.py: 6 warnings
+tests/qr_batch_projection_safety/test_download.py: 6 warnings
+tests/qr_batch_projection_safety/test_native_download.py: 5 warnings
+tests/test_admin_monitoring.py: 2 warnings
+  /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/backend/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+30 passed, 20 warnings in 35.65s

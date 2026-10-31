@@ -1,0 +1,21 @@
+**APPROVED — final read-only Stage 1 plan review.** The original plan plus addendum resolves all five prior amendments. No remaining plan blocker found against the current source.
+
+Minimum source scope:
+
+- Queues: `Queues.tsx`, `QueuesAssignIssueModal.tsx`, `QueuesModalShared.tsx`, `QueuesInvalidation.ts`.
+- Direct handouts: `DirectLoans.tsx`, `DirectLoanItems.tsx`, `DirectLoanBorrower.tsx`, `DirectLoanReturnModal.tsx`, `WalkInMemberForm.tsx`.
+- Small domain helpers only as needed to keep touched files under 300 lines. Reuse `useAuthActionOwner` unchanged.
+
+Implementation must preserve these accepted contracts:
+
+- Capture owner, subject, path and serialized body before queuing; recheck immediately before every request and before UI publication.
+- Distinguish session, makerspace and form visits, including A→B→A. Preserve current retry drafts, evidence and committed assignment.
+- Keep concurrent valid asset scans; retained scanner callbacks cannot acquire a newer visit.
+- Guard every edit and borrower-selection path synchronously, including delayed walk-in callbacks after refetch.
+- Refresh originating caches after committed assignment while suppressing obsolete issue dispatch and UI updates. Stale callbacks must avoid unrelated global cache invalidation.
+
+The planned regressions cover paused dispatch/body capture, stale success/error/cleanup, delayed borrower selection, native scanner callbacks, concurrent scans, assignment-only completion, retry and current happy paths.
+
+`WalkInMemberForm` currently has one production caller: `DirectLoanBorrower`. Leave `DirectLoanList`, dormant handover/`IssueDialog`, backend authority and public/member flows outside this scope.
+
+No files changed; no tests, builds, application runtime, staging or commits run. `CLAUDE.md` and `AGENTS.md` match. `codex doctor` reported DNS/reachability failures in this restricted environment.

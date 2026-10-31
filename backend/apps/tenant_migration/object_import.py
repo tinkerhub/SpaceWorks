@@ -33,6 +33,9 @@ class ObjectImportPlan:
     regenerated_keys: dict[str, str]
 
 
+from .import_boundary import import_writer
+
+@import_writer
 def prepare_import_objects(archive, job):
     records = _manifest_records(archive.root)
     target_keys = {}
@@ -96,6 +99,7 @@ def prepare_import_objects(archive, job):
     )
 
 
+@import_writer
 def rollback_import_objects(job):
     rolled_back = 0
     for row in job.import_objects.exclude(
@@ -121,6 +125,7 @@ def rollback_import_objects(job):
     return rolled_back
 
 
+@import_writer
 def delete_staging_objects(job):
     for row in job.import_objects.all().only("staging_key"):
         object_storage.delete_object("private", row.staging_key)

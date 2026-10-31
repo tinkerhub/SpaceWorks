@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import BigIntegerField, Sum, Value
+from django.db.models import BigIntegerField, F, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -81,7 +81,11 @@ def object_candidates(makerspace, *, as_of=None):
         .exclude(
             object_retention_state__status=EvidenceObjectRetentionState.Status.EXPIRED
         )
-        .order_by("created_at", "pk")
+        .order_by(
+            F("object_retention_state__updated_at").asc(nulls_first=True),
+            "created_at",
+            "pk",
+        )
     ), days, cutoff
 
 

@@ -1,0 +1,12 @@
+APPROVED, with these implementation details:
+
+- Track initialization separately from query loading. Explicit `null` is valid loaded data; `undefined` is not.
+- Gate field handlers and `submitSave` synchronously, and disable inputs/save until hydration completes. Avoid a clickable gap between query success and form initialization.
+- Preserve dirty fields during retry/refetch. Document-only changes must not hydrate metadata.
+- On a current successful save, synchronize the form directly from the returned warranty; the dirty guard must not block that synchronization.
+- Show retry for an initial load error. Background refetch errors must preserve initialized edits.
+- Keep existing owner, host and session-epoch guards.
+
+The held-GET regression must assert **no PUT**, rather than no POST: `saveWarranty` uses PUT.
+
+Read-only review complete. No edits, tests, builds, staging or commits performed.

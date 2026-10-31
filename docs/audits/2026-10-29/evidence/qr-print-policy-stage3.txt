@@ -1,0 +1,5 @@
+Added [test_fresh_policy.py](/Users/shaanshoukath/Documents/TInkerspace/SpaceWorks/backend/tests/qr_print_race_safety/test_fresh_policy.py): 208 lines, 12 negative cases and four positive controls.
+
+[Freeze manifest](/tmp/spaceworks-qr-print-policy-test-freeze.json) contains hashes, functions, static cases, and root-only commands. Runtime is pending; no collection, Django imports, builds, staging, or commits ran.
+
+Prior test files remain byte-identical. Concurrent helper-fixture and OpenAPI edits are flagged in the manifest; I left them untouched.

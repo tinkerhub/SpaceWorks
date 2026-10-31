@@ -1,0 +1,11 @@
+Approved for Stage 2. No remaining concrete revisions.
+
+The revised plan adopts every mandatory revision in `/tmp/spaceworks-qr-http-ownership-stage1.txt`:
+
+- Separate exact eight-POST API table, validating canonical callbacks/classes, actual POST implementations, URL aliases and consumed owner bindings; drift fails with typed 503.
+- Real shared P around the entire dispatch, before tenant resolution, with no early tenant N.
+- Late guard revalidates the same declaration and requires `_unscoped_writer_owned.get()`; missing P fails with typed 503.
+- Authentication, authorization, service admission, lock primitives, purge validation and ordinary route behavior remain unchanged.
+- Stage 2 touches only the three approved files; Stage 3 retains all parent acceptance requirements, including real audit/commit retention, enclosing transactions and post-wait refusals.
+
+Root retains responsibility for authority hashes. Review was static and read-only; no edits, runtime, Django imports, tests, builds or staging occurred.

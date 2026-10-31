@@ -11,6 +11,9 @@ from apps.backup.models import (
     B1RestoreOperationState,
 )
 from apps.backup.not_restored import is_not_restored
+from tests.backup.x07_installation_test_helpers import (
+    fence, finish_installation, operation, prepared,
+)
 from apps.backup.slice_merge_types import (
     BOUNDARY_FINAL,
     BOUNDARY_KEYS,
@@ -26,37 +29,26 @@ from apps.backup.slice_merge_types import (
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
-def _state():
-    operation = B1RestoreOperationState.objects.create(
-        operation_id=uuid.uuid4(), artifact_id=uuid.uuid4(), capture_id=uuid.uuid4(),
-        main_component_id=uuid.uuid4(), outer_ciphertext_sha256="a" * 64,
-        outer_manifest_sha256="b" * 64, source_proof_sha256="c" * 64,
-        sibling_database_name="e8_crash_test", sibling_database_oid=808,
-        sibling_server_identity="postgresql:e8-test",
+def _state(*, dependency_space=None):
+    ids = [uuid.uuid4()]
+    if dependency_space:
+        ids.append(uuid.uuid4())
+    components = [
+        {"component_id": str(value), "makerspace_id": space, "ciphertext_sha256": "d" * 64}
+        for value, space in zip(ids, [880008, dependency_space])
+    ]
+    case = prepared([("broad_fence", fence(
+        ids, table="inventory_inventoryproduct",
+    ))], components=components)
+    finish_installation(case)
+    current_operation = operation(case)
+    component = B1RestoreComponentState.objects.get(
+        operation_id=current_operation.pk, makerspace_id_snapshot=880008,
     )
-    for stage in (
-        B1RestoreOperationState.Stage.MAIN_RESTORED,
-        B1RestoreOperationState.Stage.ROLES_RECREATED,
-        B1RestoreOperationState.Stage.STATE_REHYDRATED,
-        B1RestoreOperationState.Stage.ENFORCEMENT_INSTALLED,
-        B1RestoreOperationState.Stage.CATALOG_VERIFIED,
-        B1RestoreOperationState.Stage.OBJECTS_VERIFIED,
-        B1RestoreOperationState.Stage.QUARANTINE_VERIFIED,
-        B1RestoreOperationState.Stage.CUTOVER_READY,
-    ):
-        B1RestoreOperationState.objects.filter(pk=operation.pk).update(stage=stage)
-    component = B1RestoreComponentState.objects.create(
-        operation_id=operation.operation_id, artifact_id=operation.artifact_id,
-        capture_id=operation.capture_id, component_id=uuid.uuid4(),
-        makerspace_id_snapshot=880008, ciphertext_sha256="d" * 64,
-        state=B1RestoreComponentState.State.PENDING,
+    reservation = B1ReservationEntry.objects.get(
+        operation_id=current_operation.pk, component_id=component.component_id,
     )
-    reservation = B1ReservationEntry.objects.create(
-        operation_id=operation.operation_id, component_id=component.component_id,
-        registry_identity="e" * 64, kind=B1ReservationEntry.Kind.NUMERIC_RANGE,
-        definition_sha256="f" * 64, safe_payload={},
-    )
-    return operation, component, reservation
+    return current_operation, component, reservation
 
 
 def _patch_pipeline(monkeypatch):
@@ -160,12 +152,9 @@ def test_only_successful_final_transaction_releases_reservations(tmp_path, monke
 
 
 def test_dependency_wait_retains_only_authenticated_component_facts(tmp_path, monkeypatch):
-    operation, component, reservation = _state()
-    dependency = B1RestoreComponentState.objects.create(
-        operation_id=operation.operation_id, artifact_id=operation.artifact_id,
-        capture_id=operation.capture_id, component_id=uuid.uuid4(),
-        makerspace_id_snapshot=880009, ciphertext_sha256="9" * 64,
-        state=B1RestoreComponentState.State.PENDING,
+    operation, component, reservation = _state(dependency_space=880009)
+    dependency = B1RestoreComponentState.objects.get(
+        operation_id=operation.operation_id, makerspace_id_snapshot=880009,
     )
     _patch_pipeline(monkeypatch)
     monkeypatch.setattr(
@@ -205,12 +194,9 @@ def test_dependency_wait_retains_only_authenticated_component_facts(tmp_path, mo
 def test_cross_linked_group_finishes_only_when_every_identity_is_supplied(
     tmp_path, monkeypatch
 ):
-    operation, component, _reservation = _state()
-    dependency = B1RestoreComponentState.objects.create(
-        operation_id=operation.operation_id, artifact_id=operation.artifact_id,
-        capture_id=operation.capture_id, component_id=uuid.uuid4(),
-        makerspace_id_snapshot=880010, ciphertext_sha256="8" * 64,
-        state=B1RestoreComponentState.State.PENDING,
+    operation, component, _reservation = _state(dependency_space=880010)
+    dependency = B1RestoreComponentState.objects.get(
+        operation_id=operation.operation_id, makerspace_id_snapshot=880010,
     )
     _patch_pipeline(monkeypatch)
 

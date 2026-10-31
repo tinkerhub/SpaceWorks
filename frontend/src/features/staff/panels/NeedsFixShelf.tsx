@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Button, Chip, ConfirmDialog, EmptyState, ErrorText, Input, SkeletonRows, Table, TBody, TD, TH, THead, TR, useToast } from "../../../components/ui";
+import { Button, Chip, ConfirmDialog, EmptyState, ErrorText, Input, Modal, SkeletonRows, Table, TBody, TD, TH, THead, TR, useToast } from "../../../components/ui";
 import { staffRequest } from "../../../lib/api";
+import { moduleEnabled } from "../../../lib/modules";
 import { invalidateInventoryViews } from "../queryInvalidation";
+import { IndividualAssets } from "./InventoryAssets";
 import { errorText, Panel, type Makerspace, useStaffGet } from "./shared";
 
 type ShelfItem = {
   id: number;
   name: string;
+  tracking_mode: "quantity" | "individual";
   needs_fix_quantity: number;
   available_quantity: number;
   total_quantity: number;
@@ -27,6 +30,14 @@ export function NeedsFixShelf({ makerspace }: { makerspace: Makerspace }) {
   );
   const [qty, setQty] = useState<Record<number, string>>({});
   const [scrapTarget, setScrapTarget] = useState<ShelfItem | null>(null);
+  const [assetTarget, setAssetTarget] = useState<ShelfItem | null>(null);
+  const assetUnitsEnabled = moduleEnabled(makerspace.enabled_modules, "asset_units");
+  const containersEnabled = moduleEnabled(makerspace.enabled_modules, "containers");
+  const refreshShelf = () => {
+    queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspace.id] });
+    // Repairs return units to available stock, so the public counts change too.
+    invalidateInventoryViews(queryClient, makerspace.id, makerspace.slug);
+  };
 
   const act = useMutation({
     mutationFn: ({ item, action, quantity }: { item: ShelfItem; action: ShelfAction; quantity: number }) =>
@@ -42,20 +53,21 @@ export function NeedsFixShelf({ makerspace }: { makerspace: Makerspace }) {
         delete next[item.id];
         return next;
       });
-      queryClient.invalidateQueries({ queryKey: ["needs-fix-shelf", makerspace.id] });
-      // Repairs return units to available stock, so the public counts change too.
-      invalidateInventoryViews(queryClient, makerspace.id, makerspace.slug);
+      refreshShelf();
     },
     onError: (error) => showToast(errorText(error, "Could not update the shelf."), { tone: "error" }),
   });
 
   const rows = shelf.data?.results ?? [];
-  const quantityFor = (item: ShelfItem) => Number(qty[item.id]) || item.needs_fix_quantity;
+  const quantityFor = (item: ShelfItem) => qty[item.id] === undefined ? item.needs_fix_quantity : Number(qty[item.id]);
   const quantityValid = (item: ShelfItem) => {
     const quantity = quantityFor(item);
     return Number.isInteger(quantity) && quantity >= 1 && quantity <= item.needs_fix_quantity;
   };
-  const run = (item: ShelfItem, action: ShelfAction) => act.mutate({ item, action, quantity: quantityFor(item) });
+  const run = (item: ShelfItem, action: ShelfAction) => {
+    if (!quantityValid(item)) return;
+    act.mutate({ item, action, quantity: quantityFor(item) });
+  };
 
   return (
     <Panel title="To-be-fixed shelf" description="Units rejected as broken at handover. Repair them back into stock, or scrap them out of inventory.">
@@ -82,7 +94,7 @@ export function NeedsFixShelf({ makerspace }: { makerspace: Makerspace }) {
                   <TD><Chip tone="warning" size="sm">{item.needs_fix_quantity} to fix</Chip></TD>
                   <TD className="whitespace-nowrap tabular-nums text-ink-secondary">{item.available_quantity} available · {item.total_quantity} total</TD>
                   <TD>
-                    <Input
+                    {item.tracking_mode === "individual" ? <span className="text-ink-secondary">Per unit</span> : <Input
                       className="w-24"
                       aria-label={`Quantity for ${item.name}`}
                       type="number"
@@ -90,20 +102,25 @@ export function NeedsFixShelf({ makerspace }: { makerspace: Makerspace }) {
                       min="1"
                       max={item.needs_fix_quantity}
                       placeholder={String(item.needs_fix_quantity)}
-                      value={qty[item.id] ?? ""}
+                      value={qty[item.id] ?? String(item.needs_fix_quantity)}
                       aria-invalid={!quantityValid(item) || undefined}
                       onChange={(event) => setQty((current) => ({ ...current, [item.id]: event.target.value }))}
-                    />
+                    />}
                   </TD>
                   <TD>
-                    <div className="flex flex-wrap justify-end gap-2">
+                    {item.tracking_mode === "individual" ? (
+                      <div className="grid justify-items-end gap-2">
+                        <Button size="sm" disabled={!assetUnitsEnabled} onClick={() => setAssetTarget(item)}>Manage units</Button>
+                        {!assetUnitsEnabled ? <p className="text-caption text-ink-secondary">Unit management is unavailable because the asset units module is disabled.</p> : null}
+                      </div>
+                    ) : <div className="flex flex-wrap justify-end gap-2">
                       <Button size="sm" variant="success" disabled={act.isPending || !quantityValid(item)} onClick={() => run(item, "repair")}>
                         Move back to inventory
                       </Button>
                       <Button size="sm" variant="danger" disabled={act.isPending || !quantityValid(item)} onClick={() => setScrapTarget(item)}>
                         Scrap…
                       </Button>
-                    </div>
+                    </div>}
                   </TD>
                 </TR>
               ))}
@@ -112,6 +129,23 @@ export function NeedsFixShelf({ makerspace }: { makerspace: Makerspace }) {
         ) : null}
         {act.error ? <ErrorText message={errorText(act.error, "Could not update the shelf.")} /> : null}
       </div>
+      <Modal
+        open={Boolean(assetTarget) && assetUnitsEnabled}
+        onClose={() => setAssetTarget(null)}
+        title={assetTarget ? `Manage units · ${assetTarget.name}` : "Manage units"}
+        size="lg"
+        footer={<div className="flex justify-end"><Button onClick={() => setAssetTarget(null)}>Close</Button></div>}
+      >
+        {assetTarget && assetUnitsEnabled ? (
+          <IndividualAssets
+            productId={assetTarget.id}
+            makerspaceId={makerspace.id}
+            refreshInventory={refreshShelf}
+            canEdit={true}
+            containersEnabled={containersEnabled}
+          />
+        ) : null}
+      </Modal>
       <ConfirmDialog
         open={Boolean(scrapTarget)}
         title={scrapTarget ? `Scrap ${quantityFor(scrapTarget)} ${scrapTarget.name}?` : "Scrap units?"}

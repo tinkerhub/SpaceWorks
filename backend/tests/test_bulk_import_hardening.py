@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from apps.inventory.models import InventoryProduct
 from tests.return_helpers import authenticated_client, make_member, make_space
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db(transaction=True)
 
 
 def import_apply_url(makerspace):

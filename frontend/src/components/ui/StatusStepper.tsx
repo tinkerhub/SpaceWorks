@@ -24,6 +24,7 @@ function statusStageIndex(status: string): number {
 
 export function statusStageLabel(status: string): string {
   if (status === "rejected") return "Rejected";
+  if (status === "cancelled") return "Cancelled";
   return STAGES[statusStageIndex(status)] ?? STAGES[0];
 }
 
@@ -52,6 +53,9 @@ function RejectedBadge() {
 }
 
 export function StatusStepper({ status }: { status: string }) {
+  if (status === "cancelled") {
+    return <nav aria-label="Request status: Cancelled" className="w-full"><StatusChip tone="neutral">Cancelled</StatusChip></nav>;
+  }
   const rejected = status === "rejected";
   const activeIndex = rejected ? 0 : statusStageIndex(status);
   // A clean fully-returned request shows the final step as DONE (green) — the
