@@ -35,6 +35,9 @@ function session(overrides: Record<string, unknown> = {}) {
     recovery: { data: undefined },
     refreshAuthUser: vi.fn(),
     restoring: false,
+    identityReady: true,
+    authorizationError: false,
+    makerspacesLoading: false,
     retryMakerspaces: vi.fn(),
     routeMakerspace: undefined,
     routeMakerspaceSlug: undefined,
@@ -88,12 +91,14 @@ describe("staff must-change-password gate", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save new password" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Current password is incorrect.");
     expect(value.setUser).not.toHaveBeenCalled();
+    expect(value.refreshAuthUser).not.toHaveBeenCalled();
 
     staffRequest.mockResolvedValueOnce({ detail: "Password updated." });
     fill("old-password", "new-password-123");
     fireEvent.click(screen.getByRole("button", { name: "Save new password" }));
 
     await waitFor(() => expect(value.setUser).toHaveBeenCalledWith({ ...user, must_change_password: false }));
+    expect(value.refreshAuthUser).toHaveBeenCalledTimes(1);
     expect(staffRequest).toHaveBeenLastCalledWith("/auth/change-password", expect.objectContaining({ method: "POST", credentials: "include" }));
   });
 

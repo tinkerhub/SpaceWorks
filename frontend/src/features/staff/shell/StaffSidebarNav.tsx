@@ -85,7 +85,7 @@ function NavGroup({ group, props, activeTypeId, open, onToggle }: NavGroupProps)
             <li key={`${tab}/${row.subPath ?? ""}`}>
               <RailTip collapsed={collapsed} label={label}>
                 <Link
-                  to={staffTabPath(tab, guestOnly, activeMakerspaceSlug, singleTenantLocked, row.subPath)}
+                  to={tab === "platform" ? "/admin/platform" : staffTabPath(tab, guestOnly, activeMakerspaceSlug, singleTenantLocked, row.subPath)}
                   onClick={() => onNavigate(tab)}
                   aria-current={active ? "page" : undefined}
                   aria-label={accessibleName}

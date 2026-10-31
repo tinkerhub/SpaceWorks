@@ -40,9 +40,9 @@ export function useTheme() {
 /** Sun/moon pair that cross-rotates, so the swap reads as one motion. */
 export function ThemeIcon({ theme }: { theme: Theme }) {
   return (
-    <span aria-hidden="true" className="relative inline-flex size-[18px]">
-      <Sun className={`absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none ${theme === "dark" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-50 opacity-0"}`} />
-      <Moon className={`absolute inset-0 transition duration-300 ease-standard motion-reduce:transition-none ${theme === "dark" ? "rotate-90 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
+    <span aria-hidden="true" className="relative inline-flex size-[18px] shrink-0">
+      <Sun className={`absolute inset-0 size-[18px] transition duration-300 ease-standard motion-reduce:transition-none ${theme === "dark" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-50 opacity-0"}`} />
+      <Moon className={`absolute inset-0 size-[18px] transition duration-300 ease-standard motion-reduce:transition-none ${theme === "dark" ? "rotate-90 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
     </span>
   );
 }

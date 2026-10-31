@@ -29,6 +29,16 @@ AuthMembershipSerializer = inline_serializer(
         "currency": serializers.CharField(),
     },
 )
+
+
+class StaffContextSerializer(serializers.Serializer):
+    scope_kind = serializers.ChoiceField(choices=["platform", "makerspace"])
+    makerspace_id = serializers.IntegerField(allow_null=True)
+    can_manage_platform = serializers.BooleanField()
+    platform_hosting = serializers.BooleanField()
+    platform_stripe_connect_available = serializers.BooleanField()
+
+
 UserPayloadSerializer = inline_serializer(
     name="AuthUserPayload",
     fields={
@@ -42,6 +52,7 @@ UserPayloadSerializer = inline_serializer(
         "is_superuser": serializers.BooleanField(),
         "must_change_password": serializers.BooleanField(),
         "makerspaces": serializers.ListField(child=AuthMembershipSerializer),
+        "staff_context": StaffContextSerializer(required=False),
     },
 )
 LoginRequestSerializer = inline_serializer(

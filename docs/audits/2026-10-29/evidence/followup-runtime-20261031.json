@@ -1,0 +1,272 @@
+{
+  "status": "Independent review passed; owner QA complete; commit and publication to dev/main authorized.",
+  "branch": "dev",
+  "base_commit": "1bcf921c5c08bdbf1b42515e80ff4e011f801615",
+  "backend": {
+    "initial": {
+      "passed": 149,
+      "failed": 8
+    },
+    "final": {
+      "passed": 157,
+      "warnings": 134,
+      "duration_seconds": 40.27
+    },
+    "corrections": [
+      "OIDC handler accepts provider slug URL keyword",
+      "managed-host fixture uses valid infrastructure host",
+      "claim refusal matrix supplies required makerspace slugs"
+    ],
+    "scope": "new staff context and domain-form cases plus password, social, device, claim, switcher and domain compatibility"
+  },
+  "deployment": {
+    "passed": 209,
+    "duration_seconds": 37.34,
+    "proof": "deployment-verification-runtime-20261031.json"
+  },
+  "compose": {
+    "existing_regressions_passed": 10,
+    "duration_seconds": 0.86,
+    "yaml_forwarding_services_checked": 11,
+    "topologies": [
+      "development",
+      "production",
+      "cloud"
+    ]
+  },
+  "frontend": {
+    "node": "20.20.2",
+    "network": "disabled",
+    "workers": 2,
+    "initial_full": {
+      "passed": 2128,
+      "failed": 2,
+      "total": 2130,
+      "failures": [
+        "ChangePasswordGate verified-session fixture",
+        "navigation acknowledgement barrier"
+      ]
+    },
+    "focused_after_corrections": {
+      "passed": 87,
+      "files": 14,
+      "duration_seconds": 28.05
+    },
+    "second_full": {
+      "passed": 2128,
+      "failed": 2,
+      "total": 2130,
+      "files_passed": 251,
+      "files_failed": 1,
+      "duration_seconds": 506.89,
+      "failure_type": "two 5000ms timeouts in unchanged PublicInventoryPage.ownership.test.tsx"
+    },
+    "unchanged_ownership_isolation": {
+      "passed": 4,
+      "test_duration_seconds": 1.06
+    },
+    "final_closeout": {
+      "passed": 10,
+      "files": 2,
+      "duration_seconds": 4.68,
+      "ownership_file_test_ms": 793,
+      "domain_file_test_ms": 321
+    },
+    "query_correction": "Semantic product/request/dialog scopes; original global leak negatives and all behavioral assertions retained; no timeout increase or application change for this correction.",
+    "typecheck_exit": 0,
+    "build_exit": 0,
+    "vite_build_seconds": 4.33,
+    "local_build_metadata": {
+      "revision": null
+    },
+    "limitation": "No third complete 2130-case green run is claimed; both second-run timeout IDs have passing final closeout coverage.",
+    "navigation_closeout": {
+      "passed": 94,
+      "files": 16,
+      "duration_seconds": 46.04,
+      "new_workspace_regressions": 3,
+      "typecheck_exit": 0,
+      "build_exit": 0,
+      "vite_build_seconds": 3.71,
+      "metadata": {
+        "revision": null
+      },
+      "source_correction": "Global Platform is ignored on reading legacy workspace history and is never persisted over the last valid workspace tab."
+    }
+  },
+  "live_verification": {
+    "site": "https://kanakkupusthakam.netlify.app",
+    "performed_by": "owner applied server configuration; agent verified browser outcome",
+    "observed_initial_running_backend_trust": false,
+    "fresh_session_makerspaces": [
+      "tinkerspace-calicut",
+      "tinkerspace-kochi"
+    ],
+    "calicut_settings_persists_after_reload": true,
+    "agent_production_data_mutations": false,
+    "screenshots": "local only; not included in synthetic gallery"
+  },
+  "repository_configuration": {
+    "PRODUCTION_FRONTEND_URL": "https://kanakkupusthakam.netlify.app",
+    "verified_after_write": true,
+    "new_workflow_executed_on_github": false
+  },
+  "browser_checks": {
+    "light_theme_svg_css_dimensions": "both 18px by 18px",
+    "dark_theme": "visually checked",
+    "platform_without_selected_makerspace": "shared forms and API-authorized list loaded",
+    "platform_to_other_makerspace": "Beta Woodshop dashboard opened",
+    "blank_domain": "current frontend public/staff links and disabled directory-hiding control verified"
+  },
+  "private_log_sha256": {
+    "backend_initial": "80f04f084a4888877ed8dccd8266b946ac10bf899b508222bd65a89eedc4a75e",
+    "backend_final": "78c890055b350d99c817d178f6efd502044f865f0b6f1f31ffebd28bd187718f",
+    "frontend_initial": "0f5677bd957c35c08e868e6a03bc79fb9eb7d0b3ab4cf499cc106da7b58e9d36",
+    "frontend_final_full": "f5bcfe7dff86f32ca14ee14292837f2bb66b1aac8d195339c9d3f62f24b86816",
+    "frontend_closeout": "e495a8d98b59e8cb5107d45f9d37f7041a0cffd2a42d26da386bf230cb251898",
+    "compose_checks": "921227038c959f3215df6f1dc93c9a0c2d4a307c065483a0beb73698b2a93b9b",
+    "navigation_closeout": "c09b6a9cbfefdd5c5a7912b6fb0508c811b1d167f6b1b38ee9e511a2f274dcd4"
+  },
+  "pre_review_source_sha256": {
+    ".github/workflows/deploy.yml": "d836ea61b05249758efb081227c957def8e82d80a5a7a83654534284c390f5ef",
+    "backend/apps/accounts/schemas_auth.py": "8c35edad4d7e267eebce6297cb23e34977c1adbab8132b9c0382cc4db1d92880",
+    "backend/apps/accounts/serializers.py": "1fcc63bd92f93f18249990e8bba59bc3a851678eeb2ae38d9b0ee3a5f5a1d1d9",
+    "backend/apps/accounts/services_staff_context.py": "4c62f4409402fda8d1842bafb6e3962d3171272fdd17f661885dbd7e501ae349",
+    "backend/apps/accounts/views_session.py": "1ad222654b4c0b7106459b462ea22b7558f7ce1144414c8ce793d2df9c6e4b26",
+    "backend/apps/accounts/views_social.py": "f7a0936526418e21fcbb38565225abe1c7ab1cab84d5584e897daeabeb77dfef",
+    "backend/apps/makerspaces/admin_capabilities.py": "369505a3651b222ba59ba7c2727169f6a42af6736977aba2f35c27f0f1a26deb",
+    "backend/tests/accounts/test_claim_session_contract_p7.py": "a03940101974ffda873e7a91a64a1b2a0d9c9e75c28293baeaf3094505e6b459",
+    "backend/tests/accounts/test_staff_context.py": "81a6a75a03641b366275f7404e1046c16f021948227ce212b71521723c4abfbf",
+    "backend/tests/accounts/test_staff_context_social.py": "eb6cd6f91b2dc0edae381045d3594fb6f8ae7a0b8c02e5feb014788f64de2140",
+    "backend/tests/deployment_verification_fakes.py": "56990cd3f5be2b3cb617058b6f92013123ea2091dfd09a71e4c7f3504f12633a",
+    "backend/tests/deployment_verification_fakes_http.py": "24924b0925b7cbb4b8da04a014954b0d74ae1777fca0cfb58ed13ca2a023b913",
+    "backend/tests/makerspaces/test_admin_domain_context.py": "734ac50a0db2f434fa620f0bcc3ecba7c8a7a2ec2579f47338dd808d7297fecc",
+    "backend/tests/test_deploy_runner.py": "02278d7f39f5d970b30dd92b823756405c0663d180a9537f796da8ff34bb536d",
+    "backend/tests/test_deployment_verification_frontend.py": "f8a617b6d372e3483e8ff1960756099c862b8f717529f244766cfc96eaf728ad",
+    "backend/tests/test_deployment_verification_http.py": "7a78ced0c77fa32970d57c84c0cc1a2e30d51a2f7867fd8800f1c59c6c89a0e6",
+    "backend/tests/test_deployment_verification_readiness.py": "06baf7159da8cd7121aedcc8e467aaa70c74ceed83224f2bfd91f07406d9aaa6",
+    "backend/tests/test_deployment_verification_server.py": "ad2544a635757155b55370c38e3902b0efd0978a223d1026ca82b2977cbfe4ae",
+    "backend/tests/test_deployment_verification_stamp.py": "fedf76a0802603b0df6b1678754f1d97c77997d1b1e1a5fda61243b3a1e55d80",
+    "backend/tests/test_deployment_verification_workflow.py": "5909b8eccca0d1f2a7997a45cc7c9303a7d0e4f7bd3180da04da80a9befb841c",
+    "docker-compose.yml": "1a934bbfb7ba2c18f1d5b227aeefa9026ad2caa868d031c6047771244572a426",
+    "frontend/openapi-schema.json": "785569c071ac0e97adbb269cf6a3659e8689f371b7ea0a3f54cf0d11b921549d",
+    "frontend/package.json": "d169d4c4cbad3b302b8a272987d1d275bf64d94b5ab3ed7caca1b81109bff31a",
+    "frontend/scripts/write-build-revision.mjs": "dade38611a180341af5b8339d70b92724f031777fbed29f50d234b1541722529",
+    "frontend/src/components/ThemeToggle.tsx": "eceff94eb152500741449d7df0018a8942237d054eb3bb72d4f089f5f5cc07ed",
+    "frontend/src/features/inventory/PublicInventoryPage.ownership.test.tsx": "be203da2f7af1782808aacede8b98eebcecf7332aa4a08bd1ab627c0caa6df3e",
+    "frontend/src/features/staff/ChangePasswordGate.test.tsx": "8f900a9207d7d1f6a008df784d7de2d167e7da7fad22d393c75aa8f52cb69992",
+    "frontend/src/features/staff/MakerspaceChoices.tsx": "4d037199a522524d7047fd5842bc134791454faf0c1353eea29813536d349d2a",
+    "frontend/src/features/staff/MakerspaceCustomDomainSettings.test.tsx": "a0a3242f275a82e9b4b0d3876ede29d9330b6d86b3ca2697899b94a032a6336f",
+    "frontend/src/features/staff/MakerspaceCustomDomainSettings.tsx": "f7c29eba2c27d28a7bb24140875424328ab8e62eb841dd2c6bcd5fa86b97f793",
+    "frontend/src/features/staff/MakerspacePicker.tsx": "214fc38233e318d4123e973f58239aced5902f4fc0f5aff519290ffd38787a60",
+    "frontend/src/features/staff/MakerspaceSettingsPanel.tsx": "5e35e04c26c49698e3c85969ac86c44c66c892136b2bc1fa796f7729f7f657cc",
+    "frontend/src/features/staff/PlatformSettingsPanels.test.tsx": "d54e4e52aa317dd32671b06726b35e6b21596e6f3b33461c959bbb84de3b0763",
+    "frontend/src/features/staff/PlatformSettingsPanels.tsx": "09715dc994831670fd98f4cf07f89464f23b0b2d80d6449f6ddf1a79dd02be9b",
+    "frontend/src/features/staff/StaffApp.tsx": "f85059871c403e8a878ef87210c0ab67e96e44514e7e2b7e362d39ad67561eb0",
+    "frontend/src/features/staff/StaffPlatformPage.tsx": "78f6981367d458dc92a2d411ca63917f4cc3c4a78dd92f946df77c3690931813",
+    "frontend/src/features/staff/StaffTabContent.test.tsx": "04fc861944d008a4f109bfcc5da8b7f639c0e87af3847ab6c2bfd33e1c445e5c",
+    "frontend/src/features/staff/StaffTabContent.tsx": "5afdf6e871b024b55e5f53945f0f78e58ac9333ded29098a738eab0efe49adf3",
+    "frontend/src/features/staff/StaffWorkspace.tsx": "ebe3f4dee838788f504b90620982d0af040d724625b5b722786167005b5e7808",
+    "frontend/src/features/staff/shell/StaffSidebarNav.tsx": "f593cd64eca6b81d420cfc732031eaea1ca0982d42d928adf819a64da69e9336",
+    "frontend/src/features/staff/shell/staffSidebarAccess.test.tsx": "9070ceb2bc850b385162562b2d95dc709373a13121f21ac6a0d75a62dc0231af",
+    "frontend/src/features/staff/staffSelection.background.test.tsx": "5aad6189ba01937cf1c9265720c05cda76d31a389b148262d51e741eff6e63dc",
+    "frontend/src/features/staff/staffSelection.cache.test.tsx": "bdb0393dd432a9dc003021b0db702e1b813f4f817eb060385318c28c315c3c71",
+    "frontend/src/features/staff/staffSelection.platform.test.tsx": "a2fab718090ccba2b846c2b2089c90c7f3a6ffc097bbef131c89f8071595d727",
+    "frontend/src/features/staff/staffSelection.platformGates.test.tsx": "ae5a0b1354a6ccb70c2ca150b8b25e3251db1e6440cb4897d320812973d72a84",
+    "frontend/src/features/staff/staffSelection.routes.test.tsx": "75ce0192de4fa9c15ee229416b122c631d30f9a9906ca1b601bce8a3f09839ff",
+    "frontend/src/features/staff/staffSelection.ts": "caa5a2a0b9e42d775cacf544d81b2b18e7e44cc49f4fb76de7aab1aa05f9431b",
+    "frontend/src/features/staff/useStaffSession.ts": "734b86cd94631113b63e4a5e8538051b0b6c2390e3262c6d1474575f496b5f6f",
+    "frontend/src/generated/api.ts": "d2b675611920772337d5682cfbaa7dd6111165f834c783c7c3e0de552c024545",
+    "frontend/src/lib/apiTypes.ts": "f570d4e9899546ab6475834f81413ced2f008b26402256a8e33a50421652b80e",
+    "frontend/src/test/platformPanelMocks.tsx": "896ba4fd0fd7b7c53f8c27ef1c616ef5041ca32f4967fc4471dcfa297ee68fb1",
+    "frontend/src/test/staffSelectionHarness.tsx": "8bbd796b044aae263150a981de20d13ab558a816c777c44d06ceac629079d97c",
+    "netlify.toml": "50c5f491e75026f010cd46cfbcd4ab6b1ff82222e649f2728f91ac3178193841",
+    "scripts/check-frontend-deployment.py": "ecb47623bdc635e2a3037fd3ab2c11d5d9ae84c62a018ab084e5872ddafa163d"
+  },
+  "review_round1": {
+    "status": "P2 finding corrected; three regressions and 94-case frontend selection passed; repeat review clean.",
+    "priority": "P2",
+    "finding": "Global Platform tab was persisted as workspace history and redirected makerspace entry links away.",
+    "proof": "followup-review-round1-20261031.txt",
+    "raw_sha256": "0233ed3cd4f8be7e43f8cd39228bf0519c49f54387730a9ab88c1d1e59a6821b",
+    "public_sha256": "8935f40013eda253816e565337e067de41eee4c1e659cd977d6e0ef507891bf8",
+    "public_transformation": "Local checkout path replaced with {repository}; finding unchanged."
+  },
+  "remote_branches": {
+    "dev": "1bcf921c5c08bdbf1b42515e80ff4e011f801615",
+    "main": "dcdfc87ba51108b4640449fa2cea6a9f862cd460",
+    "other_remote_branches": [],
+    "mutation_performed": false
+  },
+  "sha256": {
+    ".github/workflows/deploy.yml": "d836ea61b05249758efb081227c957def8e82d80a5a7a83654534284c390f5ef",
+    "backend/apps/accounts/schemas_auth.py": "8c35edad4d7e267eebce6297cb23e34977c1adbab8132b9c0382cc4db1d92880",
+    "backend/apps/accounts/serializers.py": "1fcc63bd92f93f18249990e8bba59bc3a851678eeb2ae38d9b0ee3a5f5a1d1d9",
+    "backend/apps/accounts/services_staff_context.py": "4c62f4409402fda8d1842bafb6e3962d3171272fdd17f661885dbd7e501ae349",
+    "backend/apps/accounts/views_session.py": "1ad222654b4c0b7106459b462ea22b7558f7ce1144414c8ce793d2df9c6e4b26",
+    "backend/apps/accounts/views_social.py": "f7a0936526418e21fcbb38565225abe1c7ab1cab84d5584e897daeabeb77dfef",
+    "backend/apps/makerspaces/admin_capabilities.py": "369505a3651b222ba59ba7c2727169f6a42af6736977aba2f35c27f0f1a26deb",
+    "backend/tests/accounts/test_claim_session_contract_p7.py": "a03940101974ffda873e7a91a64a1b2a0d9c9e75c28293baeaf3094505e6b459",
+    "backend/tests/accounts/test_staff_context.py": "81a6a75a03641b366275f7404e1046c16f021948227ce212b71521723c4abfbf",
+    "backend/tests/accounts/test_staff_context_social.py": "eb6cd6f91b2dc0edae381045d3594fb6f8ae7a0b8c02e5feb014788f64de2140",
+    "backend/tests/deployment_verification_fakes.py": "56990cd3f5be2b3cb617058b6f92013123ea2091dfd09a71e4c7f3504f12633a",
+    "backend/tests/deployment_verification_fakes_http.py": "24924b0925b7cbb4b8da04a014954b0d74ae1777fca0cfb58ed13ca2a023b913",
+    "backend/tests/makerspaces/test_admin_domain_context.py": "734ac50a0db2f434fa620f0bcc3ecba7c8a7a2ec2579f47338dd808d7297fecc",
+    "backend/tests/test_deploy_runner.py": "02278d7f39f5d970b30dd92b823756405c0663d180a9537f796da8ff34bb536d",
+    "backend/tests/test_deployment_verification_frontend.py": "f8a617b6d372e3483e8ff1960756099c862b8f717529f244766cfc96eaf728ad",
+    "backend/tests/test_deployment_verification_http.py": "7a78ced0c77fa32970d57c84c0cc1a2e30d51a2f7867fd8800f1c59c6c89a0e6",
+    "backend/tests/test_deployment_verification_readiness.py": "06baf7159da8cd7121aedcc8e467aaa70c74ceed83224f2bfd91f07406d9aaa6",
+    "backend/tests/test_deployment_verification_server.py": "ad2544a635757155b55370c38e3902b0efd0978a223d1026ca82b2977cbfe4ae",
+    "backend/tests/test_deployment_verification_stamp.py": "fedf76a0802603b0df6b1678754f1d97c77997d1b1e1a5fda61243b3a1e55d80",
+    "backend/tests/test_deployment_verification_workflow.py": "5909b8eccca0d1f2a7997a45cc7c9303a7d0e4f7bd3180da04da80a9befb841c",
+    "docker-compose.yml": "1a934bbfb7ba2c18f1d5b227aeefa9026ad2caa868d031c6047771244572a426",
+    "frontend/openapi-schema.json": "785569c071ac0e97adbb269cf6a3659e8689f371b7ea0a3f54cf0d11b921549d",
+    "frontend/package.json": "d169d4c4cbad3b302b8a272987d1d275bf64d94b5ab3ed7caca1b81109bff31a",
+    "frontend/scripts/write-build-revision.mjs": "dade38611a180341af5b8339d70b92724f031777fbed29f50d234b1541722529",
+    "frontend/src/components/ThemeToggle.tsx": "eceff94eb152500741449d7df0018a8942237d054eb3bb72d4f089f5f5cc07ed",
+    "frontend/src/features/inventory/PublicInventoryPage.ownership.test.tsx": "be203da2f7af1782808aacede8b98eebcecf7332aa4a08bd1ab627c0caa6df3e",
+    "frontend/src/features/staff/ChangePasswordGate.test.tsx": "8f900a9207d7d1f6a008df784d7de2d167e7da7fad22d393c75aa8f52cb69992",
+    "frontend/src/features/staff/MakerspaceChoices.tsx": "4d037199a522524d7047fd5842bc134791454faf0c1353eea29813536d349d2a",
+    "frontend/src/features/staff/MakerspaceCustomDomainSettings.test.tsx": "a0a3242f275a82e9b4b0d3876ede29d9330b6d86b3ca2697899b94a032a6336f",
+    "frontend/src/features/staff/MakerspaceCustomDomainSettings.tsx": "f7c29eba2c27d28a7bb24140875424328ab8e62eb841dd2c6bcd5fa86b97f793",
+    "frontend/src/features/staff/MakerspacePicker.tsx": "214fc38233e318d4123e973f58239aced5902f4fc0f5aff519290ffd38787a60",
+    "frontend/src/features/staff/MakerspaceSettingsPanel.tsx": "5e35e04c26c49698e3c85969ac86c44c66c892136b2bc1fa796f7729f7f657cc",
+    "frontend/src/features/staff/PlatformSettingsPanels.test.tsx": "d54e4e52aa317dd32671b06726b35e6b21596e6f3b33461c959bbb84de3b0763",
+    "frontend/src/features/staff/PlatformSettingsPanels.tsx": "09715dc994831670fd98f4cf07f89464f23b0b2d80d6449f6ddf1a79dd02be9b",
+    "frontend/src/features/staff/StaffApp.tsx": "f85059871c403e8a878ef87210c0ab67e96e44514e7e2b7e362d39ad67561eb0",
+    "frontend/src/features/staff/StaffPlatformPage.tsx": "78f6981367d458dc92a2d411ca63917f4cc3c4a78dd92f946df77c3690931813",
+    "frontend/src/features/staff/StaffTabContent.test.tsx": "04fc861944d008a4f109bfcc5da8b7f639c0e87af3847ab6c2bfd33e1c445e5c",
+    "frontend/src/features/staff/StaffTabContent.tsx": "5afdf6e871b024b55e5f53945f0f78e58ac9333ded29098a738eab0efe49adf3",
+    "frontend/src/features/staff/StaffWorkspace.tsx": "ebe3f4dee838788f504b90620982d0af040d724625b5b722786167005b5e7808",
+    "frontend/src/features/staff/shell/StaffSidebarNav.tsx": "f593cd64eca6b81d420cfc732031eaea1ca0982d42d928adf819a64da69e9336",
+    "frontend/src/features/staff/shell/staffSidebarAccess.test.tsx": "9070ceb2bc850b385162562b2d95dc709373a13121f21ac6a0d75a62dc0231af",
+    "frontend/src/features/staff/staffSelection.background.test.tsx": "5aad6189ba01937cf1c9265720c05cda76d31a389b148262d51e741eff6e63dc",
+    "frontend/src/features/staff/staffSelection.cache.test.tsx": "bdb0393dd432a9dc003021b0db702e1b813f4f817eb060385318c28c315c3c71",
+    "frontend/src/features/staff/staffSelection.platform.test.tsx": "a2fab718090ccba2b846c2b2089c90c7f3a6ffc097bbef131c89f8071595d727",
+    "frontend/src/features/staff/staffSelection.platformGates.test.tsx": "ae5a0b1354a6ccb70c2ca150b8b25e3251db1e6440cb4897d320812973d72a84",
+    "frontend/src/features/staff/staffSelection.routes.test.tsx": "75ce0192de4fa9c15ee229416b122c631d30f9a9906ca1b601bce8a3f09839ff",
+    "frontend/src/features/staff/staffSelection.ts": "caa5a2a0b9e42d775cacf544d81b2b18e7e44cc49f4fb76de7aab1aa05f9431b",
+    "frontend/src/features/staff/staffTabs.ts": "67d449311ec59b308fbf42f9185401e8298567dcad55c56643d800de9d93b110",
+    "frontend/src/features/staff/staffWorkspace.platformNavigation.test.tsx": "c9c6d01276a8e6fbb5ec22c70fa9c59a431372ccf43771d7e095b18c59bff6be",
+    "frontend/src/features/staff/useStaffSession.ts": "734b86cd94631113b63e4a5e8538051b0b6c2390e3262c6d1474575f496b5f6f",
+    "frontend/src/generated/api.ts": "d2b675611920772337d5682cfbaa7dd6111165f834c783c7c3e0de552c024545",
+    "frontend/src/lib/apiTypes.ts": "f570d4e9899546ab6475834f81413ced2f008b26402256a8e33a50421652b80e",
+    "frontend/src/test/platformPanelMocks.tsx": "896ba4fd0fd7b7c53f8c27ef1c616ef5041ca32f4967fc4471dcfa297ee68fb1",
+    "frontend/src/test/staffSelectionHarness.tsx": "8bbd796b044aae263150a981de20d13ab558a816c777c44d06ceac629079d97c",
+    "netlify.toml": "50c5f491e75026f010cd46cfbcd4ab6b1ff82222e649f2728f91ac3178193841",
+    "scripts/check-frontend-deployment.py": "ecb47623bdc635e2a3037fd3ab2c11d5d9ae84c62a018ab084e5872ddafa163d"
+  },
+  "review_round2": {
+    "status": "No actionable regressions identified",
+    "cli_exit": 0,
+    "proof": "followup-review-round2-20261031.txt",
+    "sha256": "eeb01daf5e08cbfc4b002df0ea29fedbc6f2c0dbf1037339d256bebecac14766",
+    "reviewer_runtime": {
+      "deployment_passed": 206,
+      "blocked_by_sandbox_loopback": 3,
+      "database_and_frontend_suites_run": false
+    },
+    "independent_runtime": "Root/agents separately completed 209 deployment tests, 157 auth/domain tests, 10 installer cases, and the stated frontend full/focused/build runs."
+  },
+  "owner_qa": "followup-owner-qa-approval-20261031.json"
+}

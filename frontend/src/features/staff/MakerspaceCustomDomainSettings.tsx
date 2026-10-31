@@ -11,6 +11,7 @@ type Props = {
   settings?: Makerspace;
   loading: boolean;
   isSuperadmin: boolean;
+  singleTenantLocked?: boolean;
 };
 
 type VerifyDomainResponse = {
@@ -30,7 +31,7 @@ function verifyDomainStaffPath(makerspaceId: number) {
   return VERIFY_DOMAIN_API_PATH.replace("/api/v1", "").replace("{makerspace_id}", String(makerspaceId));
 }
 
-export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, isSuperadmin }: Props) {
+export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, isSuperadmin, singleTenantLocked = false }: Props) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const [domainInput, setDomainInput] = useState("");
@@ -68,6 +69,7 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, 
     () => [`https://${trimmedDomain}/`, `https://${trimmedDomain}/admin`],
     [trimmedDomain],
   );
+  const sharedPublicUrl = `${window.location.origin}/m/${encodeURIComponent(makerspace.slug)}`;
 
   const updateCustomDomain = useMutation({
     mutationFn: () =>
@@ -127,15 +129,15 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, 
         <CardHeader
           className="mb-0"
           title={<span id="custom-domain-title">Custom domain</span>}
-          description="Route this makerspace's public and staff pages through a dedicated domain."
+          description="A dedicated hostname is optional and belongs exclusively to one makerspace. Leave the domain blank to use the shared site."
           action={(
-            <StatusChip tone={isSelfHostActive ? "success" : domainStatusTone(status)}>
-              {isSelfHostActive ? "Active" : domainStatusLabel(status)}
+            <StatusChip tone={!hasDomainInput ? "neutral" : isSelfHostActive ? "success" : domainStatusTone(status)}>
+              {!hasDomainInput ? "Shared site" : isSelfHostActive ? "Active" : domainStatusLabel(status)}
             </StatusChip>
           )}
         />
 
-        <SettingsRow title="Address" description="Staff use it at /admin; the public site lives at its root.">
+        <SettingsRow title="Address" description="For a dedicated domain, staff use /admin and the public site lives at its root. Do not enter the shared portal's hostname here.">
           <div className="grid min-w-0 max-w-xl gap-4">
             <Field
               label="Domain"
@@ -207,7 +209,19 @@ export function MakerspaceCustomDomainSettings({ makerspace, settings, loading, 
               {verifyDetail ? <p className="text-body-ui text-ink" role="status">{verifyDetail}</p> : null}
             </div>
           </SettingsRow>
-        ) : null}
+        ) : (
+          <SettingsRow title="Use shared site" description="Multiple makerspaces share one portal through their own paths; no domain duplication is needed.">
+            {singleTenantLocked ? (
+              <p className="text-body-ui text-ink-secondary">This site is bound to one makerspace. Ask the operator for the shared portal address before using /m/{makerspace.slug} and /m/{makerspace.slug}/admin; those paths do not switch makerspaces on this dedicated site.</p>
+            ) : (
+              <div className="grid min-w-0 gap-2 text-body-ui text-ink-secondary">
+                <p>With no custom domain, use these addresses on the current shared frontend:</p>
+                <a className="break-all underline" href={sharedPublicUrl}>Public: {sharedPublicUrl}</a>
+                <a className="break-all underline" href={`${sharedPublicUrl}/admin`}>Staff: {sharedPublicUrl}/admin</a>
+              </div>
+            )}
+          </SettingsRow>
+        )}
 
         <div className="grid gap-2">
           <ErrorText message={updateCustomDomain.error?.message} />

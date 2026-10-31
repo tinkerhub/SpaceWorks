@@ -45,6 +45,14 @@ export type StaffAuthUser = {
   role: string;
   is_superuser: boolean;
   must_change_password: boolean;
+  /** Server discovery for a validated browser staff session; absent means unavailable. */
+  staff_context?: {
+    scope_kind: "platform" | "makerspace";
+    makerspace_id: number | null;
+    can_manage_platform: boolean;
+    platform_hosting: boolean;
+    platform_stripe_connect_available: boolean;
+  };
   makerspaces: {
     id: number;
     slug: string;

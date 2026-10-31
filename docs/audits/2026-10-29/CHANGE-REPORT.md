@@ -182,3 +182,58 @@ A final one-line copy correction gives the public badge correct singular/plural 
 The local browser now shows the account Requests tab without a community membership, account-free My requests and staff cancellation confirmation. The [latest preview and gallery record](evidence/final-request-status-gallery-20261031.json) records four actual new captures and successful local application of hardware0026, encryption0009 and integrations0025. The backend was restarted on the same local QA database, preserving all original 77 environment values; no production database or request was changed. The [earlier preview record](evidence/final-local-preview-verification-round5.json) and [check-in capture](evidence/final-checkin-account-free-preview-round5.jpg) retain their historical source bounds. The host-run developer preview has no installed host marker, so its strict readiness probe correctly refuses with 503; installed-host readiness and restore are verified separately by the isolated drill. No production setting was changed.
 
 The README, contribution/development guides, About page and footer consistently distinguish the official general-use project from this TinkerHub edition. The version, documentation and screenshot work improve onboarding; they do not substitute for independent review, owner QA or deployment-specific verification.
+
+## October 31 follow-up: shared portal, Platform settings and deployment status
+
+The earlier audit batch was committed to `dev` as `1bcf921c` and merged to `main` through
+[PR 22](https://github.com/tinkerhub/SpaceWorks/pull/22), merge `dcdfc87b`. The follow-up below is a
+separate batch prepared on `dev`. Final independent review passed with no actionable regressions,
+and the owner confirmed QA complete and authorized publication to `dev` and `main`. Git/GitHub record
+the delivery commit and merge; production deployment remains a separate outcome.
+[QA approval](evidence/followup-owner-qa-approval-20261031.json),
+[bounded runtime record](evidence/followup-runtime-20261031.json).
+
+| Change | Reason and verification |
+| --- | --- |
+| Live makerspace switching | The running server did not receive the shared portal's `PLATFORM_STAFF_ORIGINS` value. The owner added its forwarding entry to the installed Compose configuration, refreshed orchestration and recreated the application containers. After a fresh staff sign-in, the live chooser listed **Kochi and Calicut**. Opening Calicut's settings and reloading kept the Calicut URL and settings. The agent made no production settings or request-data writes. This live fix is separate from the local source batch. |
+| Global Platform settings | `/admin/platform` lists the API-authorized makerspaces and shared settings without requiring a selected makerspace. Authenticated browser staff receive optional server-derived context; active global authority and explicit platform-origin trust enable the controls. Missing context and dedicated-site sessions withhold them. Identity refresh fences stale authority independently of allowed-list errors, while ordinary background refresh preserves mounted forms. The navigation acknowledgement barrier remains enforced. |
+| Shared and dedicated domains | Blank domains show public/staff links on the current frontend. Dedicated sites explain the shared-portal requirement instead of offering misleading switch links. The control form explains optional exclusive hostnames and returns a friendly field error for duplicates, retaining database uniqueness. Directory hiding remains a separate option, not a privacy control. A valid shared-site default uses a neutral badge. Development Compose now forwards the explicit platform-origin setting too; all **11 Django service entries** across development, production and cloud were checked. |
+| Theme icons | Both sun and moon SVGs have explicit **18px** dimensions and a nonshrinking wrapper. The chooser and account menu were checked in the browser; both themes were visually verified, and computed light-button SVG dimensions were 18px × 18px. |
+| OIDC sign-in | Regression testing found a real HTTP 500: DRF passed the provider `slug` to a handler that accepted no URL keywords. The shared handler now accepts them, allowing the existing provider, nonce and session checks to run. Real staff and member OIDC test flows pass; the separate member-only authorization-code callback remains context-free. |
+| Server and Netlify deployment checks | Actions resolves the actual released SHA, verifies the installed marker/backend OCI revision/private readiness against one container, and checks Netlify's small public revision document independently. Redirects, stale revisions, HTML fallbacks, bounded failures and skipped states are handled explicitly. The whole deployment is called verified only when both checks succeed. `PRODUCTION_FRONTEND_URL` was configured and read back, but the new workflow has **not run on GitHub** because this source batch is still local. [209-case proof](evidence/deployment-verification-runtime-20261031.json). |
+| API and operator documentation | OpenAPI and TypeScript artifacts include the optional staff context; schema generation had **0 errors, 35 existing warnings and 469 unchanged paths**. Deployment guides explain shared-origin trust, Compose forwarding, fresh sessions and deployment verification. Source-map and invariants documentation moved with the implementation. |
+| Screenshot refresh | The gallery now has **77 captures**. The chooser and global Platform images were refreshed, and a complete blank-domain settings view was added. All image lengths and SHA-256 digests match the manifest. New images contain no JPEG EXIF/IPTC/comment blocks and use synthetic local data; live production captures are kept outside the gallery. |
+
+Runtime results for this follow-up are deliberately bounded:
+
+- **157 backend cases passed** in the complete selected auth/domain/switcher batch. Its initial
+  149 passes/eight failures are retained: two genuine OIDC handler failures, two managed-host fixture
+  failures and four claim-refusal matrix URL-construction failures. All eight passed after narrow fixes.
+- **209 deployment/runner cases passed**, plus **10 existing installer/configuration cases**.
+  These are selected checks, not a new complete backend-suite run.
+- The first **2,130-case frontend run** recorded 2,128 passes/two failures. The navigation barrier was
+  corrected and the verified-session fixture updated; **87 focused cases passed** afterward.
+- The second complete frontend run recorded **2,128 passes and two 5-second timeouts** in the unchanged
+  inventory ownership file. That file had passed all four cases in the first run and again unchanged
+  in isolation. Its test queries now search semantic product/request/dialog regions, preserving all
+  original global leak checks and behavioral assertions without raising the timeout. The final
+  **10-case ownership/domain closeout passed**, including both timeout IDs. No third complete green
+  2,130-case run is claimed.
+- Final **Node 20 type-check and production build passed**, including generation and validation of
+  the local `{"revision":null}` metadata. The existing bundle-size advisory remains. No production
+  revision is invented for an uncommitted local build.
+
+The [first independent follow-up review](evidence/followup-review-round1-20261031.txt) found one P2:
+remembering Platform as the last workspace tab redirected a later makerspace entry away from its
+requested space. The persistence helpers now preserve the last valid workspace tab and ignore legacy
+saved `platform` values. Three new tests exercise the real workspace/sidebar/router path; the final
+**94-case frontend selection passed**, followed by another successful type-check/build and metadata
+check. The [repeat independent review](evidence/followup-review-round2-20261031.txt) identified no
+actionable regressions. Its separate deployment selection had 206 passes and three sandbox-blocked
+loopback cases; the full 209-case run passed outside that sandbox. The reviewer did not rerun the
+database or frontend suites; their independent runtime proofs are recorded above.
+A fresh remote branch read found only `main` and `dev`;
+no additional merged feature branch remained to delete.
+
+The earlier full-audit restore and backend-suite bounds remain as documented above. These follow-up
+checks do not establish a new production restore drill or certify every external integration.

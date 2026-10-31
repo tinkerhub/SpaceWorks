@@ -15,12 +15,12 @@ const base: Makerspace = {
   frontend_domain: "forge.example.org", hidden_from_central_directory: false,
 };
 
-function renderDomain(isSuperadmin: boolean, platformHosting?: boolean) {
-  const makerspace = { ...base, platform_hosting: platformHosting };
+function renderDomain(isSuperadmin: boolean, platformHosting?: boolean, extra: Partial<Makerspace> = {}, singleTenantLocked = false) {
+  const makerspace = { ...base, platform_hosting: platformHosting, ...extra };
   const client = new QueryClient();
   render(
     <QueryClientProvider client={client}>
-      <MakerspaceCustomDomainSettings makerspace={makerspace} settings={makerspace} loading={false} isSuperadmin={isSuperadmin} />
+      <MakerspaceCustomDomainSettings makerspace={makerspace} settings={makerspace} loading={false} isSuperadmin={isSuperadmin} singleTenantLocked={singleTenantLocked} />
     </QueryClientProvider>,
   );
   return screen.getByLabelText("Domain");
@@ -42,5 +42,19 @@ describe("custom domain form", () => {
 
   it("stays editable for a space manager on managed hosting", () => {
     expect(renderDomain(false, true)).not.toHaveAttribute("readonly");
+  });
+
+  it("uses the current frontend origin for blank-domain shared public and staff links", () => {
+    renderDomain(true, true, { frontend_domain: null });
+    expect(screen.getByRole("link", { name: /^Public:/ })).toHaveAttribute("href", `${window.location.origin}/m/forge`);
+    expect(screen.getByRole("link", { name: /^Staff:/ })).toHaveAttribute("href", `${window.location.origin}/m/forge/admin`);
+    expect(screen.getByLabelText("Domain")).toHaveValue("");
+    expect(screen.getByRole("checkbox", { name: /Hide from central directory/ })).toBeDisabled();
+  });
+
+  it("explains a locked site's shared-portal requirement without fake cross-maker links", () => {
+    renderDomain(true, true, { frontend_domain: null }, true);
+    expect(screen.getByText(/Ask the operator for the shared portal address/)).toBeVisible();
+    expect(screen.queryByRole("link", { name: /^Public:|^Staff:/ })).not.toBeInTheDocument();
   });
 });

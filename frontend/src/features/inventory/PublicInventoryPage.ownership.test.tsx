@@ -16,6 +16,8 @@ import { publicInventoryKey } from "./api";
 import { usePublicInventory } from "./usePublicInventory";
 
 const inventory = { count: 1, next: null, previous: null, results: [publicProduct()] };
+const productCard = () => within(screen.getByRole("article"));
+const requestDesk = () => within(screen.getByRole("complementary"));
 type Paint = { slug: string; cart: boolean; details: boolean; oldProduct: boolean };
 function InventoryPaintProbe({ onPaint }: { onPaint: (paint: Paint) => void }) {
   const { slug = "" } = useParams();
@@ -51,9 +53,9 @@ describe("public inventory route and selection ownership", () => {
     client.setQueryData(publicInventoryKey("a", 1, ""), inventory);
     const paint = vi.fn();
     mountLending(<InventoryPaintProbe onPaint={paint} />, client);
-    fireEvent.click(screen.getByRole("button", { name: "Add Logic analyzer" }));
-    expect(screen.getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Open details for Logic analyzer" }));
+    fireEvent.click(productCard().getByRole("button", { name: "Add Logic analyzer" }));
+    expect(requestDesk().getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
+    fireEvent.click(productCard().getByRole("button", { name: "Open details for Logic analyzer" }));
     expect(screen.getByRole("dialog", { name: "Logic analyzer" })).toBeInTheDocument();
     // Navigation is outside the modal; invoke the actual route without a keyed test wrapper.
     fireEvent.click(screen.getByText("Visit B"));
@@ -63,7 +65,8 @@ describe("public inventory route and selection ownership", () => {
     expect(screen.queryByRole("button", { name: "Add Logic analyzer" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Request purpose")).toHaveValue("");
     await act(async () => { held.resolve({ ...inventory, results: [publicProduct(8, "B drill")] }); });
-    expect(await screen.findByRole("button", { name: "Add B drill" })).toBeInTheDocument();
+    const bCard = within(await screen.findByRole("article"));
+    expect(await bCard.findByRole("button", { name: "Add B drill" })).toBeInTheDocument();
     expect(screen.queryByText("Logic analyzer")).not.toBeInTheDocument();
   });
 
@@ -71,13 +74,14 @@ describe("public inventory route and selection ownership", () => {
     const client = lendingClient();
     client.setQueryData(publicInventoryKey("a", 1, ""), inventory);
     mountLending(<SigningInventory />, client);
-    fireEvent.click(screen.getByRole("button", { name: "Add Logic analyzer" }));
-    fireEvent.click(screen.getByRole("button", { name: "Open details for Logic analyzer" }));
+    fireEvent.click(productCard().getByRole("button", { name: "Add Logic analyzer" }));
+    fireEvent.click(productCard().getByRole("button", { name: "Open details for Logic analyzer" }));
     fireEvent.click(screen.getByText("Sign in", { selector: "button" }));
-    expect(screen.getByRole("dialog", { name: "Logic analyzer" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
-    expect(screen.getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
-    expect(within(screen.getByRole("group", { name: "Quantity of Logic analyzer" })).getByText("1")).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog", { name: "Logic analyzer" });
+    expect(dialog).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    expect(requestDesk().getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
+    expect(within(productCard().getByRole("group", { name: "Quantity of Logic analyzer" })).getByText("1")).toBeInTheDocument();
   });
 
   it("successful borrow keeps a cart changed after admission and submits the original quantities", async () => {
@@ -86,15 +90,15 @@ describe("public inventory route and selection ownership", () => {
     const client = lendingClient();
     client.setQueryData(publicInventoryKey("a", 1, ""), inventory);
     mountLending(<PublicInventoryPage />, client);
-    fireEvent.click(screen.getByRole("button", { name: "Add Logic analyzer" }));
+    fireEvent.click(productCard().getByRole("button", { name: "Add Logic analyzer" }));
     fillContact();
-    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+    fireEvent.click(requestDesk().getByRole("button", { name: "Submit request" }));
     await waitFor(() => expect(tenantPublicRequest).toHaveBeenCalledTimes(1));
-    fireEvent.click(screen.getByRole("button", { name: "Add Logic analyzer" }));
+    fireEvent.click(productCard().getByRole("button", { name: "Add Logic analyzer" }));
     await act(async () => { held.resolve({ public_token: "captured-cart-reference", status: "pending_approval" }); });
     expect(await screen.findByText("captured-cart-reference")).toBeInTheDocument();
-    expect(within(screen.getByRole("group", { name: "Quantity of Logic analyzer" })).getByText("2")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
+    expect(within(productCard().getByRole("group", { name: "Quantity of Logic analyzer" })).getByText("2")).toBeInTheDocument();
+    expect(requestDesk().getByRole("button", { name: "Clear selection" })).toBeInTheDocument();
     expect(JSON.parse(tenantPublicRequest.mock.calls[0][2].body).items).toEqual([{ product_id: 7, quantity: 1 }]);
   });
 

@@ -143,7 +143,7 @@ export function MakerspaceSettingsPanel({ makerspace, isSuperadmin, canManageMak
         {settings.data?.platform_hosting === true ? (
           <MakerspaceSubdomainSettings makerspace={makerspace} settings={settings.data} />
         ) : null}
-        <MakerspaceCustomDomainSettings {...shared} isSuperadmin={isSuperadmin} />
+        <MakerspaceCustomDomainSettings {...shared} isSuperadmin={isSuperadmin} singleTenantLocked={singleTenantLocked} />
         {/* Destructive: always last on the page (it renders the danger zone). */}
         <MakerspaceArchiveRequestPanel makerspaceId={makerspace.id} canManageMakerspace={canManageMakerspace} />
       </>

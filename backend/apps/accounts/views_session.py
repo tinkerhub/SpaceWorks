@@ -297,4 +297,4 @@ class MeView(APIView):
         },
     )
     def get(self, request, *args, **kwargs):
-        return Response(user_payload(request.user, request=request))
+        return Response(user_payload(request.user, request=request, staff_surface=request.auth.get("surface") if hasattr(request.auth, "get") else None))

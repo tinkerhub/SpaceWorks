@@ -1,13 +1,16 @@
 import { SpaceWorksBadge } from "../../components/SpaceWorksLogo";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { Button, EmptyState, Loader } from "../../components/ui";
 import { ChangePasswordGate } from "./ChangePasswordGate";
 import { LoginPanel } from "./LoginPanel";
 import { MakerspacePicker } from "./MakerspacePicker";
 import { StaffAccessDenied } from "./StaffAccessDenied";
 import { StaffWorkspace } from "./StaffWorkspace";
+import { StaffPlatformPage } from "./StaffPlatformPage";
 import { RecoveryQuarantinePanel } from "./RecoveryQuarantinePanel";
 import { useStaffSession } from "./useStaffSession";
-import { hasOperationalOverride, isGlobalStaffAdmin } from "./staffSelection";
+import { canManagePlatform, hasOperationalOverride, isGlobalStaffAdmin } from "./staffSelection";
+import { tabFromStaffPath } from "./staffTabs";
 
 // Route-level wait: the mark and a loader centred on the page, with the reason in words.
 function StaffLoading({ message }: { message: string }) {
@@ -23,6 +26,7 @@ function StaffLoading({ message }: { message: string }) {
 }
 
 export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
+  const location = useLocation();
   const {
     activeMakerspace,
     chooseMakerspace,
@@ -32,6 +36,9 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     recovery,
     refreshAuthUser,
     restoring,
+    identityReady,
+    authorizationError,
+    makerspacesLoading,
     retryMakerspaces,
     selection,
     sessionNotice,
@@ -70,6 +77,7 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
           // console opens with fresh data instead of a stale 403.
           queryClient.invalidateQueries({ queryKey: ["staff", "makerspaces"] });
           setUser({ ...user, must_change_password: false });
+          refreshAuthUser();
         }}
         onSignOut={signOut}
       />
@@ -90,7 +98,41 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     );
   }
 
-  if (selection.kind === "loading") {
+  if (!identityReady) {
+    if (!authorizationError) return <StaffLoading message="Checking account access…" />;
+    return (
+      <main className="grid min-h-dvh place-items-center bg-subtle px-4 text-ink">
+        <EmptyState title="Could not verify account access" description="Retry to check your current permissions before opening staff pages."
+          action={<div className="flex flex-wrap justify-center gap-2">
+            <Button variant="primary" onClick={refreshAuthUser}>Retry account access</Button>
+            <Button variant="secondary" onClick={signOut}>Sign out</Button>
+          </div>} />
+      </main>
+    );
+  }
+
+  const platformAvailable = canManagePlatform(user, singleTenantLocked);
+  const originLocked = singleTenantLocked || user.staff_context?.scope_kind === "makerspace";
+  if (!guestOnly && tabFromStaffPath(location.pathname, false) === "platform") {
+    if (location.pathname !== "/admin/platform") return <Navigate replace to="/admin/platform" />;
+    if (!platformAvailable) return (
+      <main className="grid min-h-dvh place-items-center bg-subtle px-4 text-ink">
+        <EmptyState title="Platform settings unavailable" description={originLocked
+          ? "This site's staff session is pinned to its makerspace. Sign in through the operator-configured shared portal for platform settings."
+          : "This session does not have verified platform management access. Sign in through a trusted platform portal with a permitted global account."}
+          action={<div className="flex flex-wrap justify-center gap-2">
+            <Button asChild variant="primary"><Link to="/admin">Staff console</Link></Button>
+            <Button variant="secondary" onClick={signOut}>Sign out</Button>
+          </div>} />
+      </main>
+    );
+    return <StaffPlatformPage user={user} onSignOut={signOut} makerspaces={makerspaces.data ?? []}
+      loading={makerspacesLoading} error={makerspaces.isError}
+      onRetry={retryMakerspaces} onSelect={chooseMakerspace} />;
+  }
+
+  const globalPicker = !guestOnly && !singleTenantLocked && isSuperadmin && location.pathname.replace(/\/+$/, "") === "/admin";
+  if (selection.kind === "loading" && !(globalPicker && makerspacesLoading)) {
     return <StaffLoading message="Checking makerspace access…" />;
   }
 
@@ -122,10 +164,12 @@ export function StaffApp({ guestOnly = false }: { guestOnly?: boolean }) {
     return (
       <MakerspacePicker
         makerspaces={makerspaces.data ?? []}
-        loading={false}
+        loading={makerspacesLoading}
         error={selection.kind === "error"}
         unavailable={selection.kind === "unavailable"}
         globalAdmin={isSuperadmin}
+        platformAvailable={!guestOnly && platformAvailable}
+        originLocked={originLocked}
         onRetry={retryMakerspaces}
         username={user.username}
         onSelect={chooseMakerspace}

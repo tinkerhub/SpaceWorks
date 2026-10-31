@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "passed": 209,
+  "duration_seconds": 37.34,
+  "database": "unreachable dummy URL; no DB tests",
+  "log": "deployment-verification-pytest-20261031.txt",
+  "command": "from backend/: env PYTHONDONTWRITEBYTECODE=1 DEBUG=True TRUSTED_PROXY_COUNT=0 SECRET_KEY=<synthetic-local-test-key> DATABASE_URL=postgres://unused:unused@127.0.0.1:1/no_database .venv/bin/python -m pytest -q tests/test_deploy_runner.py tests/test_deployment_verification_*.py",
+  "sha256": {
+    ".github/workflows/deploy.yml": "d836ea61b05249758efb081227c957def8e82d80a5a7a83654534284c390f5ef",
+    "scripts/check-frontend-deployment.py": "ecb47623bdc635e2a3037fd3ab2c11d5d9ae84c62a018ab084e5872ddafa163d",
+    "frontend/scripts/write-build-revision.mjs": "dade38611a180341af5b8339d70b92724f031777fbed29f50d234b1541722529",
+    "frontend/package.json": "d169d4c4cbad3b302b8a272987d1d275bf64d94b5ab3ed7caca1b81109bff31a",
+    "netlify.toml": "50c5f491e75026f010cd46cfbcd4ab6b1ff82222e649f2728f91ac3178193841",
+    "backend/tests/test_deploy_runner.py": "02278d7f39f5d970b30dd92b823756405c0663d180a9537f796da8ff34bb536d",
+    "backend/tests/deployment_verification_fakes.py": "56990cd3f5be2b3cb617058b6f92013123ea2091dfd09a71e4c7f3504f12633a",
+    "backend/tests/deployment_verification_fakes_http.py": "24924b0925b7cbb4b8da04a014954b0d74ae1777fca0cfb58ed13ca2a023b913",
+    "backend/tests/test_deployment_verification_frontend.py": "f8a617b6d372e3483e8ff1960756099c862b8f717529f244766cfc96eaf728ad",
+    "backend/tests/test_deployment_verification_http.py": "7a78ced0c77fa32970d57c84c0cc1a2e30d51a2f7867fd8800f1c59c6c89a0e6",
+    "backend/tests/test_deployment_verification_readiness.py": "06baf7159da8cd7121aedcc8e467aaa70c74ceed83224f2bfd91f07406d9aaa6",
+    "backend/tests/test_deployment_verification_server.py": "ad2544a635757155b55370c38e3902b0efd0978a223d1026ca82b2977cbfe4ae",
+    "backend/tests/test_deployment_verification_stamp.py": "fedf76a0802603b0df6b1678754f1d97c77997d1b1e1a5fda61243b3a1e55d80",
+    "backend/tests/test_deployment_verification_workflow.py": "5909b8eccca0d1f2a7997a45cc7c9303a7d0e4f7bd3180da04da80a9befb841c"
+  },
+  "scope_note": "Existing runner tests and new deployment verification cases; not a full backend suite or live deployment run."
+}

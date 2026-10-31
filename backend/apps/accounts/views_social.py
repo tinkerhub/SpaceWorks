@@ -97,7 +97,7 @@ class SocialLoginView(APIView):
 
     @extend_schema(tags=["Social auth"], auth=[], request=SocialLoginSerializer,
         responses={200: SocialLoginResponseSerializer, 401: OpenApiResponse(ErrorSerializer), 403: OpenApiResponse(ErrorSerializer), 404: OpenApiResponse(ErrorSerializer), 409: OpenApiResponse(ErrorSerializer, description="Includes `social_device_restart_required` when burned pre-grant inputs must be replaced."), 429: OpenApiResponse(ErrorSerializer)})
-    def post(self, request):
+    def post(self, request, **kwargs):
         serializer = SocialLoginSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -194,7 +194,7 @@ class SocialLoginView(APIView):
             return _error(exc.code, exc.status_code)
         audit_events.record_auth_event(user, "auth.social_login_succeeded", target=user,
             meta=social_audit_meta(self.provider, outcome, claims["sub"]))
-        payload = {"access": tokens["access"], "user": user_payload(user, request=request), "outcome": outcome}
+        payload = {"access": tokens["access"], "user": user_payload(user, request=request, staff_surface=data["surface"] if data["delivery"] == "web" else None), "outcome": outcome}
         if data["delivery"] == "device":
             payload.update({"refresh": tokens["refresh"], "device_grant": DeviceGrantSerializer(tokens["device_grant"]).data})
             return Response(payload)

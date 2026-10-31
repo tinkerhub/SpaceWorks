@@ -28,6 +28,28 @@ deploy after changing one.
 
 Do not put any secret in a `VITE_` variable: everything in it ships in the JavaScript bundle.
 
+### Deployment status in Actions
+
+Set Netlify's production branch to `main`. In GitHub **Settings → Secrets and variables → Actions →
+Variables**, set `PRODUCTION_FRONTEND_URL` to this site's production HTTPS address, for example
+`https://tools.example.org`. Use the final canonical address: redirects, credentials, query strings
+and fragments are rejected. The server's `SPACEWORKS_DEPLOY_RUNNER` setting remains independent.
+
+After each successful Continuous Release, **Production Deploy** waits for Netlify's asynchronous
+build and checks `/deployment.json` against the exact released commit. `npm run build` writes this
+small public file using Netlify's automatic `COMMIT_REF`; it contains only the commit revision and
+has a `no-store` cache header. Do not override `COMMIT_REF`. Other build systems may supply
+`SPACEWORKS_BUILD_REVISION`, a full 40-character lowercase hexadecimal commit SHA. If both are supplied,
+they must agree; malformed or conflicting values fail the build. Local builds with neither write
+`{"revision":null}`, which cannot pass a production verification check.
+
+No Netlify API token is required. A `200` response containing the SPA, an old revision, an HTTP error
+or a redirect does not pass. The check has a bounded retry budget; inspect Netlify's build logs if it
+times out. Configure the GitHub variable only after adopting a build that publishes this file. An empty
+variable is reported as **Not configured / not verified**. The final Actions report calls the entire
+deployment **Verified** only when both server and frontend checks succeed. This verifies the revision
+served at check time; keep the browser checks in section 5 for functional behaviour.
+
 ## 2. Server `.env`
 
 Start from a working install with the TLS overlay (see [self-hosting.md](self-hosting.md#https--security-hardening)),
@@ -119,6 +141,21 @@ configure deployment trust, then coherently remove that shared host from the mak
 the makerspace to its dedicated host with the matching frontend binding. Otherwise public
 origin-bootstrap can still resolve the shared portal as that one makerspace and put the app in
 single mode even without `VITE_TENANT_TOKEN`. Reload after applying the coordinated changes.
+
+Start a fresh staff session after changing origin trust. On a trusted shared portal, a superadmin's
+`/admin` chooser offers **Platform settings** at `/admin/platform`, with the accessible makerspaces
+and shared deployment settings. It does not require a selected makerspace. The API supplies the staff
+context that enables this entry; a missing context or a dedicated makerspace origin withholds it.
+Leaving a makerspace's frontend domain blank uses the shared site's `/m/<slug>` and
+`/m/<slug>/admin` addresses. Setting a dedicated domain does not automatically hide its public
+directory entry; **Hide from central directory** is a separate option and is not an inventory privacy
+control.
+
+On an older install, confirm `docker-compose.prod.yml` forwards `PLATFORM_STAFF_ORIGINS` in the
+backend's shared environment anchor; current production, cloud and development Compose files do.
+An `.env` value alone cannot reach Django when that forwarding entry is missing. After updating an
+installed Compose file, rerun orchestration initialization and recreate the application containers.
+Check the running backend's setting before removing a tenant's old domain binding.
 
 `staff_origin_scope` gives `PLATFORM_STAFF_ORIGINS` precedence over makerspace domain matches.
 This is privileged operator policy, never a client hint: do not add a dedicated makerspace origin to

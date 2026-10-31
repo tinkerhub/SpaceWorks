@@ -928,6 +928,7 @@ export type AuthUserPayload = {
   "is_superuser": boolean;
   "must_change_password": boolean;
   "makerspaces": Array<AuthMembership>;
+  "staff_context"?: StaffContext;
 };
 
 export type AvailabilityEnum = "Available" | "Limited" | "Full";
@@ -5845,6 +5846,8 @@ export type RoleMachineScopeWrite = {
 
 export type ScopeEnum = "deployment" | "makerspace";
 
+export type ScopeKindEnum = "platform" | "makerspace";
+
 export type ScopeModeEnum = "machine" | "full";
 
 export type SeriesCollaborationInbox = {
@@ -6064,6 +6067,14 @@ export type SpaceImageUpload = {
   "headers"?: {
   [key: string]: unknown;
 };
+};
+
+export type StaffContext = {
+  "scope_kind": ScopeKindEnum;
+  "makerspace_id": number | null;
+  "can_manage_platform": boolean;
+  "platform_hosting": boolean;
+  "platform_stripe_connect_available": boolean;
 };
 
 export type StaffMembership = {

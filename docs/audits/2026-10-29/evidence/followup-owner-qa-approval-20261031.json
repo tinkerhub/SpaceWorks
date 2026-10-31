@@ -1,0 +1,12 @@
+{
+  "status": "Owner QA complete; local dev commit and publication to dev/main authorized.",
+  "qa_message": "QA complete — commit locally to dev",
+  "publication_messages": [
+    "push to main",
+    "and dev too"
+  ],
+  "scope": "October 31 shared-portal, Platform, theme, OIDC and deployment-verification follow-up",
+  "approved_branch": "dev",
+  "test_and_review_record": "followup-runtime-20261031.json",
+  "delivery_note": "Commit, pull-request and merge identities are recorded in Git/GitHub. Production deployment is a separate outcome."
+}

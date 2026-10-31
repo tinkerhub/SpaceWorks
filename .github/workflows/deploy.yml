@@ -14,12 +14,179 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    name: Resolve published revision
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions: {}
+    timeout-minutes: 2
+    outputs:
+      sha: ${{ steps.revision.outputs.sha }}
+    steps:
+      - name: Resolve the published revision
+        id: revision
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TITLE: ${{ github.event.workflow_run.display_title }}
+          MANUAL_SHA: ${{ github.sha }}
+          MANUAL_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == workflow_run && "$RELEASE_TITLE" =~ ^Release\ main@([0-9a-f]{40})$ ]]; then
+            sha="${BASH_REMATCH[1]}"
+          elif [[ "$EVENT_NAME" == workflow_dispatch && "$MANUAL_REF" == refs/heads/main && "$MANUAL_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            sha="$MANUAL_SHA"
+          else
+            echo "::error::Cannot resolve an exact published main revision."
+            echo "Revision preparation failed: invalid release title or manual revision." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
   deploy:
+    name: Production server
+    needs: prepare
     if: vars.SPACEWORKS_DEPLOY_RUNNER == 'true' && ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success')
     runs-on: [self-hosted, spaceworks-prod]
+    permissions: {}
     timeout-minutes: 90
     steps:
       - name: Update installed production stack
         env:
           SPACEWORKS_DEPLOY_WAIT: "1"
         run: bash "$SPACEWORKS_INSTALL_DIR/scripts/update.sh" --no-module-changes
+
+      # Installed tooling only: no checkout, repository helper or host installation.
+      - name: Verify installed revision and private readiness
+        timeout-minutes: 6
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ needs.prepare.outputs.sha }}
+        run: |
+          set -euo pipefail
+          fail() {
+            echo "::error::Production verification failed: $1."
+            echo "Production server: Failed — $1." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "invalid expected revision"
+          [[ -n "${SPACEWORKS_INSTALL_DIR:-}" ]] || fail "missing installed path"
+          command -v timeout >/dev/null 2>&1 || fail "bounded command runner unavailable"
+          marker_file="$SPACEWORKS_INSTALL_DIR/.spaceworks-version"
+          [[ -f "$marker_file" && -r "$marker_file" ]] || fail "installed version marker unavailable"
+          marker="$(<"$marker_file")" 2>/dev/null || fail "cannot read installed version marker"
+          [[ "$marker" =~ ^[0-9]+\.[0-9]+\.[0-9]+-main\.[0-9]+\.([0-9a-f]{12})$ ]] || fail "invalid installed version marker"
+          [[ "${BASH_REMATCH[1]}" == "${EXPECTED_SHA:0:12}" ]] || fail "installed release revision mismatch"
+          backend_id() {
+            timeout --kill-after=5s 20s "$SPACEWORKS_INSTALL_DIR/scripts/spaceworks-compose.sh" bundled ps -q backend 2>/dev/null
+          }
+          revision() {
+            timeout --kill-after=5s 20s docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$1" 2>/dev/null
+          }
+          container="$(backend_id)" || fail "cannot resolve installed backend container"
+          [[ "$container" =~ ^[0-9a-f]{64}$ ]] || fail "invalid or ambiguous backend container"
+          observed="$(revision "$container")" || fail "cannot inspect backend revision"
+          [[ "$observed" =~ ^[0-9a-f]{40}$ && "$observed" == "$EXPECTED_SHA" ]] || fail "backend image revision mismatch"
+          ready=false
+          for attempt in {1..12}; do
+            if timeout --kill-after=5s 10s docker exec "$container" python -c '
+          import sys
+          import urllib.request
+          class RefuseRedirects(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          try:
+              opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), RefuseRedirects())
+              with opener.open("http://localhost:8000/api/v1/health/readiness/", timeout=3) as response:
+                  sys.exit(0 if response.status == 200 else 1)
+          except Exception:
+              sys.exit(1)
+          ' >/dev/null 2>&1; then
+              ready=true
+              break
+            fi
+            if (( attempt < 12 )); then sleep 3; fi
+          done
+          [[ "$ready" == true ]] || fail "private readiness did not return HTTP 200"
+          current_container="$(backend_id)" || fail "cannot recheck backend container"
+          [[ "$current_container" == "$container" ]] || fail "backend container changed during verification"
+          [[ -f "$marker_file" && -r "$marker_file" ]] || fail "installed version marker disappeared"
+          current_marker="$(<"$marker_file")" 2>/dev/null || fail "cannot recheck installed version marker"
+          [[ "$current_marker" == "$marker" ]] || fail "installed version changed during verification"
+          current_revision="$(revision "$container")" || fail "cannot recheck backend revision"
+          [[ "$current_revision" == "$EXPECTED_SHA" ]] || fail "backend revision changed during verification"
+          echo "Production server: Verified — installed marker, backend revision and private readiness matched." >> "$GITHUB_STEP_SUMMARY"
+
+  frontend:
+    name: Netlify frontend
+    needs: prepare
+    if: vars.PRODUCTION_FRONTEND_URL != '' && ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - name: Verify public frontend revision
+        env:
+          EXPECTED_SHA: ${{ needs.prepare.outputs.sha }}
+          PRODUCTION_FRONTEND_URL: ${{ vars.PRODUCTION_FRONTEND_URL }}
+        run: python3 scripts/check-frontend-deployment.py --expected-revision "$EXPECTED_SHA" --url "$PRODUCTION_FRONTEND_URL"
+
+  report:
+    name: Deployment report
+    if: always()
+    needs: [prepare, deploy, frontend]
+    runs-on: ubuntu-latest
+    permissions: {}
+    timeout-minutes: 2
+    steps:
+      - name: Report deployment verification
+        shell: bash
+        env:
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          SERVER_RESULT: ${{ needs.deploy.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+          SERVER_CONFIGURED: ${{ vars.SPACEWORKS_DEPLOY_RUNNER == 'true' }}
+          FRONTEND_CONFIGURED: ${{ vars.PRODUCTION_FRONTEND_URL != '' }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          failed=false
+          label() {
+            case "$1" in
+              success) if [[ "$2" == true ]]; then echo Verified; else echo 'Not configured / not verified'; fi ;;
+              failure) echo Failed ;;
+              cancelled) echo 'Failed (cancelled)' ;;
+              skipped) if [[ "$2" == true ]]; then echo 'Skipped / not verified'; else echo 'Not configured / not verified'; fi ;;
+              *) echo 'Failed (unknown result)' ;;
+            esac
+          }
+          for result in "$PREPARE_RESULT" "$SERVER_RESULT" "$FRONTEND_RESULT"; do
+            case "$result" in
+              success|skipped) ;;
+              *) failed=true ;;
+            esac
+          done
+          server="$(label "$SERVER_RESULT" "$SERVER_CONFIGURED")"
+          frontend="$(label "$FRONTEND_RESULT" "$FRONTEND_CONFIGURED")"
+          overall='Not verified'
+          if [[ "$failed" == true ]]; then
+            overall=Failed
+          elif [[ "$PREPARE_RESULT" == success && "$SERVER_CONFIGURED" == true && "$FRONTEND_CONFIGURED" == true && "$SERVER_RESULT" == success && "$FRONTEND_RESULT" == success ]]; then
+            overall=Verified
+          fi
+          {
+            echo "Deployment: $overall"
+            echo
+            echo "Production server: $server"
+            echo
+            echo "Netlify frontend: $frontend"
+            echo
+            echo "[Workflow run]($RUN_URL)"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [[ "$failed" == false ]]

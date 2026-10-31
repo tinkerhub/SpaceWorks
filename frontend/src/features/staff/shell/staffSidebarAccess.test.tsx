@@ -22,11 +22,13 @@ function space(modules: string[]): Makerspace {
   };
 }
 
-function renderWorkspace({ actions, superadmin = false, modules }: { actions: string[]; superadmin?: boolean; modules: string[] }) {
+function renderWorkspace({ actions, superadmin = false, modules, context = true }: { actions: string[]; superadmin?: boolean; modules: string[]; context?: boolean }) {
   const makerspace = space(modules);
   const user: StaffAuthUser = {
     username: "operator", email_verified: true, role: superadmin ? "superadmin" : "staff", is_superuser: superadmin,
     must_change_password: false,
+    staff_context: context ? { scope_kind: "platform", makerspace_id: null, can_manage_platform: superadmin,
+      platform_hosting: false, platform_stripe_connect_available: false } : undefined,
     makerspaces: superadmin ? [] : [{ id: 7, slug: "forge", role_name: "Inventory Manager", actions } as unknown as StaffAuthUser["makerspaces"][number]],
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -86,5 +88,15 @@ describe("staff sidebar gating", () => {
     expect(nav.queryByRole("link", { name: /organi[sz]ation|organized events/i, hidden: true })).not.toBeInTheDocument();
     expect(nav.getByRole("link", { name: "Events" })).toBeInTheDocument();
     expect(nav.getByRole("link", { name: "Machines" })).toBeInTheDocument();
+  });
+
+  it("links verified global authority directly to the global Platform route", () => {
+    const nav = renderWorkspace({ actions: [], superadmin: true, modules: CORE });
+    expect(nav.getByRole("link", { name: "Platform settings", hidden: true })).toHaveAttribute("href", "/admin/platform");
+  });
+
+  it("does not infer Platform authority from a global role without context", () => {
+    const nav = renderWorkspace({ actions: [], superadmin: true, modules: CORE, context: false });
+    expect(nav.queryByRole("link", { name: "Platform settings", hidden: true })).not.toBeInTheDocument();
   });
 });

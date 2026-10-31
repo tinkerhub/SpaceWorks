@@ -15,7 +15,7 @@ import {
 } from "./staffTabs";
 import type { StaffAuthUser } from "../../lib/api";
 import type { Makerspace } from "./panels/shared";
-import { isGlobalStaffAdmin } from "./staffSelection";
+import { canManagePlatform, isGlobalStaffAdmin } from "./staffSelection";
 
 export function StaffWorkspace({
   activeMakerspace,
@@ -77,7 +77,9 @@ export function StaffWorkspace({
     singleTenantLocked && activeMakerspace
       ? [activeMakerspace]
       : makerspaces;
-  const moduleAllowedTabs = filterTabsByEnabledModules(allowedTabs, activeMakerspace);
+  const platformAvailable = !guestOnly && canManagePlatform(user, singleTenantLocked);
+  const scopedTabs = filterTabsByEnabledModules(allowedTabs, activeMakerspace).filter((tab) => tab !== "platform");
+  const moduleAllowedTabs = platformAvailable ? [...scopedTabs, "platform"] : scopedTabs;
   const routeTab = tabFromStaffPath(location.pathname, guestOnly);
   const routeTabDenied =
     !!routeTab && STAFF_TAB_KEYS.includes(routeTab) && !moduleAllowedTabs.includes(routeTab);

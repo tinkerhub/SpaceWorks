@@ -22,10 +22,12 @@ def test_only_the_release_deploy_workflow_can_target_the_production_runner():
     }
     assert document["permissions"] == {}
     assert document["concurrency"] == {"group": "production-deploy", "cancel-in-progress": False}
-    assert set(document["jobs"]) == {"deploy"}
+    assert set(document["jobs"]) == {"prepare", "deploy", "frontend", "report"}
     job = document["jobs"]["deploy"]
     assert job["runs-on"] == ["self-hosted", "spaceworks-prod"]
     assert job["timeout-minutes"] == 90
+    assert job["permissions"] == {}
+    assert job["needs"] == "prepare"
     condition = job["if"]
     assert " ".join(condition.removeprefix("${{").removesuffix("}}").split()) == (
         "vars.SPACEWORKS_DEPLOY_RUNNER == 'true' && ((github.event_name == 'workflow_dispatch' "
@@ -34,14 +36,28 @@ def test_only_the_release_deploy_workflow_can_target_the_production_runner():
     for required in ("vars.SPACEWORKS_DEPLOY_RUNNER == 'true'", "github.event_name == 'workflow_dispatch'",
                      "github.ref == 'refs/heads/main'", "github.event.workflow_run.conclusion == 'success'"):
         assert required in condition
-    assert len(job["steps"]) == 1
+    assert len(job["steps"]) == 2
+    assert [step["name"] for step in job["steps"]] == [
+        "Update installed production stack", "Verify installed revision and private readiness",
+    ]
     step = job["steps"][0]
     assert "uses" not in step
     assert step["run"].strip() == 'bash "$SPACEWORKS_INSTALL_DIR/scripts/update.sh" --no-module-changes'
     environment = {**document.get("env", {}), **job.get("env", {}), **step.get("env", {})}
     assert str(environment["SPACEWORKS_DEPLOY_WAIT"]) == "1"
     assert "SPACEWORKS_INSTALL_DIR" not in environment
-    assert "uses:" not in workflow
+    verification = job["steps"][1]
+    assert verification["env"] == {"EXPECTED_SHA": "${{ needs.prepare.outputs.sha }}"}
+    assert verification["shell"] == "bash" and verification["timeout-minutes"] == 6
+    privileged = yaml.safe_dump(job)
+    assert "uses:" not in privileged
+    assert "checkout" not in privileged.lower()
+    assert "github.workspace" not in privileged.lower()
+    assert "$GITHUB_WORKSPACE" not in privileged
+    assert "scripts/check-frontend-deployment.py" not in privileged
+    assert '"$SPACEWORKS_INSTALL_DIR/scripts/spaceworks-compose.sh" bundled ps -q backend' in verification["run"]
+    for other in ("prepare", "frontend", "report"):
+        assert document["jobs"][other]["runs-on"] == "ubuntu-latest"
     for path in (ROOT / ".github/workflows").iterdir():
         if path.name != "deploy.yml" and path.suffix in {".yml", ".yaml"}:
             source = path.read_text()

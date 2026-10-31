@@ -285,8 +285,8 @@
     },
     {
       "file": "staff-makerspace-chooser.jpg",
-      "bytes": 41112,
-      "sha256": "acba45d69d6e61e13f6f2bcb9f57bfd4c533c0f493721589fa61d3bec11e0063"
+      "bytes": 46422,
+      "sha256": "4197b15e9f20bcba6e728ac9a7ea969d3ea851a602ee57b66dda3d97e583d84c"
     },
     {
       "file": "staff-members.jpg",
@@ -310,8 +310,8 @@
     },
     {
       "file": "staff-platform.jpg",
-      "bytes": 135041,
-      "sha256": "0ef1c878516f3a53d7fe42d457506b74505177f6faa18c6117fdb7aa9856daae"
+      "bytes": 151628,
+      "sha256": "9a3c8aa87860d0cbcd47ae6e171355540dee0cae84a6084c07732b9d8b03ad11"
     },
     {
       "file": "staff-qr-tools.jpg",
@@ -342,6 +342,11 @@
       "file": "staff-settings.jpg",
       "bytes": 372841,
       "sha256": "cc0031fe6abda2c84807854ed1f36409f1ecc8fee82d51e885246ac3d3383917"
+    },
+    {
+      "file": "staff-shared-domain.jpg",
+      "bytes": 175560,
+      "sha256": "ea40909a6ef6b265e1fc9dedd3298c9014b124c935c33fa20e26881d2d71492f"
     },
     {
       "file": "staff-sign-in.jpg",
