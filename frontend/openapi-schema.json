@@ -44434,6 +44434,9 @@
                         "items": {
                             "$ref": "#/components/schemas/AuthMembership"
                         }
+                    },
+                    "staff_context": {
+                        "$ref": "#/components/schemas/StaffContext"
                     }
                 },
                 "required": [
@@ -64420,6 +64423,14 @@
                 "type": "string",
                 "description": "* `deployment` - Full deployment\n* `makerspace` - Makerspace"
             },
+            "ScopeKindEnum": {
+                "enum": [
+                    "platform",
+                    "makerspace"
+                ],
+                "type": "string",
+                "description": "* `platform` - platform\n* `makerspace` - makerspace"
+            },
             "ScopeModeEnum": {
                 "enum": [
                     "machine",
@@ -65209,6 +65220,34 @@
                 },
                 "required": [
                     "url"
+                ]
+            },
+            "StaffContext": {
+                "type": "object",
+                "properties": {
+                    "scope_kind": {
+                        "$ref": "#/components/schemas/ScopeKindEnum"
+                    },
+                    "makerspace_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "can_manage_platform": {
+                        "type": "boolean"
+                    },
+                    "platform_hosting": {
+                        "type": "boolean"
+                    },
+                    "platform_stripe_connect_available": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "can_manage_platform",
+                    "makerspace_id",
+                    "platform_hosting",
+                    "platform_stripe_connect_available",
+                    "scope_kind"
                 ]
             },
             "StaffMembership": {

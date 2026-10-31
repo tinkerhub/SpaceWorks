@@ -64,6 +64,8 @@ def test_refresh_rotation_preserves_one_absolute_expiry_forever():
 
 
 ROUTE_KWARGS = {
+    "hardware_requests:own-requests": {"makerspace_slug": "claim_slug"},
+    "public-own-machine-service-requests": {"makerspace_slug": "claim_slug"},
     "social-oidc": {"slug": "example"},
     "social-provider-detail": {"provider": "google"},
     "device-grant-detail": {"grant_id": UUID(int=1)},
@@ -98,7 +100,7 @@ REFUSED_KEYS = sorted(
 def test_every_refused_matrix_entry_returns_403(view_name, method):
     harness = redeemed_claim(f"refused-{REFUSED_KEYS.index((view_name, method))}")
     kwargs = {
-        key: harness.space.pk if value == "claim" else value
+        key: harness.space.pk if value == "claim" else harness.space.slug if value == "claim_slug" else value
         for key, value in ROUTE_KWARGS.get(view_name, {}).items()
     }
     url = reverse(view_name, kwargs=kwargs or None)

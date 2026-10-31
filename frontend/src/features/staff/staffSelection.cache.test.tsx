@@ -83,21 +83,22 @@ describe("staff authorization refresh waits for identity and allowed rows", () =
     expect(leaves).toEqual([]);
   });
 
-  it.each(["identity", "list"])("authorization %s refresh errors fail closed and Retry rechecks both before restoring a panel", async (phase) => {
+  it.each(["identity", "list"])("authorization %s refresh errors fail closed and retry rechecks the failed authority", async (phase) => {
     mountStaff("/m/calicut/admin/settings");
     await panelIs(calicut.id);
     const path = phase === "identity" ? "/auth/me" : "/admin/makerspaces";
     transport.routes.set(path, () => json({ detail: "Temporarily unavailable" }, 503));
     fireEvent.click(screen.getByRole("button", { name: "Refresh identity and access" }));
-    await screen.findByText(/Could not check makerspace access\. Retry/);
+    if (phase === "identity") await screen.findByRole("heading", { name: "Could not verify account access" });
+    else await screen.findByText(/Could not check makerspace access\. Retry/);
     noPanel();
     const identityCalls = transport.calls.filter(({ path }) => path === "/auth/me").length;
     transport.routes.delete(path);
     transport.user = staff({ username: "verified-again" });
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: phase === "identity" ? "Retry account access" : "Retry makerspaces" }));
     await panelIs(calicut.id, "settings");
-    expect(screen.getByTestId("leaf-user")).toHaveTextContent("verified-again");
-    expect(transport.calls.filter(({ path }) => path === "/auth/me")).toHaveLength(identityCalls + 1);
+    expect(screen.getByTestId("leaf-user")).toHaveTextContent(phase === "identity" ? "verified-again" : "global-admin");
+    expect(transport.calls.filter(({ path }) => path === "/auth/me")).toHaveLength(identityCalls + (phase === "identity" ? 1 : 0));
   });
 
   it("withdrawn explicit guest choice becomes unavailable without falling back or staying in a loader", async () => {

@@ -34,6 +34,8 @@
   `claim_transition_gate.py` admits the identity's complete membership makerspace set in order
   before identity row locks and refuses scope growth. Native password and bound OIDC adapters
   retain that admission through their transition commits.
+  `services_staff_context.py` adds minimal trusted-browser staff discovery to validated
+  password/social issuance and authenticated `/auth/me`; member/native/claim issuers omit it.
 - `backend/apps/makerspaces/` — `Makerspace` model (tenant root; unique `slug`; `frontend_domain`, module
   flags, `resource_limit_overrides`, `archived_at`, `superadmin_access_enabled`), bootstrap views, dynamic
   CORS, module guards, `module_registry.py` (canonical module definitions — all module lists derive from
@@ -363,6 +365,9 @@
   `staffAccess.ts` `TAB_GROUPS`, which does sidebar grouping AND permission derivation (**not**
   `StaffApp.tsx`; module gating and routing are the separate `staffTabs.ts`); capabilities from
   action-based `staffAccess.ts`; payment reconciliation and platform credential panels.
+  `useStaffSession.ts` verifies identity separately from allowed-makerspace loading;
+  `StaffPlatformPage.tsx` opens global `/admin/platform` using trusted staff context,
+  with shared `PlatformSettingsPanels.tsx` and API-authorized `MakerspaceChoices.tsx`.
   `frontend/src/features/auth/` + `members/MemberAuthPanel.tsx` — provider-config-driven social/member auth.
   `frontend/src/features/account/ChangePasswordForm.tsx` — the one self-service change-password form, shared
   by the staff `ChangePasswordGate`, the staff `AccountDialog` (opened from the username in `StaffHeader`)

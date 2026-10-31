@@ -4,7 +4,7 @@ These actual browser captures show the local **0.9.0 development application** w
 demonstration data. No production borrower, member or payment information was used. A screenshot
 shows the rendered page; it does not prove that every visible action was executed.
 
-The refresh currently contains **76 captures**. The page and dialog coverage below is an inventory of
+The refresh currently contains **77 captures**. The page and dialog coverage below is an inventory of
 saved images, not a claim that every workflow state is illustrated. Additional public account/detail
 and recovery states are outside this gallery; runtime verification is recorded separately in the audit
 report. Older images outside `2026-10/` are historical and are no longer used by the main README.
@@ -76,13 +76,14 @@ restoring the synthetic machine to its original Idle status.
 | Modules | [View](2026-10/staff-modules.jpg) |
 | Notifications | [View](2026-10/staff-notifications.jpg) |
 | Payments | [View](2026-10/staff-payments.jpg) |
-| Platform | [View](2026-10/staff-platform.jpg) |
+| Global Platform settings and allowed makerspaces | [View](2026-10/staff-platform.jpg) |
 | QR tools | [View](2026-10/staff-qr-tools.jpg) |
 | Reports | [View](2026-10/staff-reports.jpg) |
 | Requests | [View](2026-10/staff-requests.jpg) |
 | Cancel an accepted request before handover (confirmation only) | [View](2026-10/staff-request-cancellation.jpg) |
 | Scanner | [View](2026-10/staff-scanner.jpg) |
 | Settings | [View](2026-10/staff-settings.jpg) |
+| Shared-site links with a blank custom domain | [View](2026-10/staff-shared-domain.jpg) |
 | Staff sign-in | [View](2026-10/staff-sign-in.jpg) |
 | Stocktake | [View](2026-10/staff-stocktake.jpg) |
 | Tenant migration | [View](2026-10/staff-tenant-migration.jpg) |

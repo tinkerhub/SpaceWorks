@@ -22,6 +22,13 @@ issue/return remain React-only. Superadmin monitoring surfaces (QR ZIP, inline Q
 downloads) are read-only and guard storage failures. Design spec:
 `docs/superpowers/specs/2026-06-13-superadmin-admin-control-plane-design.md`.
 
+The React staff console also has a global **Platform settings** entry at `/admin/platform` for an
+active superadmin using an explicitly trusted shared portal. It lists API-authorized makerspaces and
+shared email/sign-in settings without requiring a selected makerspace; managed Stripe controls require
+the payments runtime. A dedicated makerspace origin cannot operate global settings. Auth payloads
+report this distinction through optional `staff_context`, and missing context withholds the controls.
+Blank custom domains use shared portal paths; a custom hostname stays exclusive to one makerspace.
+
 **U-SEC:** django-axes admin-login lockout, scoped `login`/`public_request_submit` throttles + write-only
 `website` honeypot on public submit, production-gated security headers, always-on CSP via django-csp 4, and
 a `pip-audit` CI job. The global CSP `script-src` omits `'unsafe-eval'`; a tiny
@@ -53,7 +60,12 @@ Releases now run through `release.yml`'s `workflow_run` only after CI (including
 for a main push; manual dispatch requires `main` and successful push CI for the exact SHA.
 Hosts can follow a fork with `SPACEWORKS_REPOSITORY` and matching image overrides. `deploy.yml`
 runs after successful Continuous Release completion on `main`, or manual dispatch on `main`, through
-an install-owner self-hosted Actions runner. It has no checkout and invokes only installed `update.sh`.
+an install-owner self-hosted Actions runner. That privileged job has no checkout: it invokes installed
+`update.sh`, then verifies the installed marker, backend OCI revision and private readiness in the same
+container. A separate hosted job verifies Netlify's public build revision when
+`PRODUCTION_FRONTEND_URL` is configured; the final report distinguishes verified, failed, skipped and
+unconfigured checks. Both must pass before the complete deployment is reported verified. These are
+observations at check time, not a replacement for functional browser QA.
 Setup prints registration instructions after startup; no deployment secret is saved in `.env`.
 The runner installer retires old polling and checks fork PR approval policy when `gh` is available;
 deploy jobs require `SPACEWORKS_DEPLOY_RUNNER=true` in repository variables. Public repositories retain a fork-PR

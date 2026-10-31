@@ -11,6 +11,12 @@ export function isGlobalStaffAdmin(user: StaffAuthUser) {
   return user.is_superuser || user.role === "superadmin";
 }
 
+export function canManagePlatform(user: StaffAuthUser, singleTenantLocked = false) {
+  const context = user.staff_context;
+  return !singleTenantLocked && !user.must_change_password && isGlobalStaffAdmin(user) && context?.scope_kind === "platform" &&
+    context.makerspace_id === null && context.can_manage_platform === true;
+}
+
 export function hasOperationalOverride(user: StaffAuthUser, space?: Makerspace) {
   return isGlobalStaffAdmin(user) && space?.superadmin_access_enabled === true;
 }
@@ -56,7 +62,9 @@ export function staffChoicePath(space: Makerspace, user: StaffAuthUser, guestOnl
   const membership = user.makerspaces.find((item) => item.id === space.id);
   const access = getStaffAccess(membership?.actions ?? [], hasOperationalOverride(user, space), false, membership?.is_machine_only);
   const tabs = filterTabsByEnabledModules(access.allowedTabs, space);
-  const hint = tabFromStaffPath(pathname, guestOnly);
+  // Global settings are not a target-space preference. Enter the allowed default.
+  const routeHint = tabFromStaffPath(pathname, guestOnly);
+  const hint = routeHint === "platform" ? "" : routeHint;
   const tab = tabs.includes(hint) ? hint : tabs.includes(access.defaultTab) ? access.defaultTab : tabs[0] ?? "";
   return staffTabPath(tab, guestOnly, guestOnly ? undefined : space.slug);
 }

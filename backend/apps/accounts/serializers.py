@@ -9,6 +9,7 @@ from apps.accounts.org_payload import (
     organization_makerspace_entries,
 )
 from apps.accounts.services_refresh_tokens import rotate_refresh_token
+from apps.accounts.services_staff_context import with_staff_context
 from apps.accounts.tokens import SpaceWorksRefreshToken, validate_auth_generation
 from apps.accounts.models_social import SocialSurface
 
@@ -17,7 +18,7 @@ VERIFICATION_ONLY_SURFACE = "verification_only"
 DEVICE_REFRESH_CLAIMS = ("device_grant_id", "device_family_id")
 
 
-def user_payload(user, request=None):
+def user_payload(user, request=None, *, staff_surface=None):
     from apps.accounts import rbac
     from apps.makerspaces.origin_scope import origin_scoped_makerspace_id
 
@@ -143,7 +144,7 @@ def user_payload(user, request=None):
         if makerspace_id not in membership_space_ids
     ]
 
-    return {
+    return with_staff_context({
         "id": user.id,
         "username": user.username,
         "email": user.email,
@@ -154,7 +155,7 @@ def user_payload(user, request=None):
         "is_superuser": user.is_superuser,
         "must_change_password": user.must_change_password,
         "makerspaces": membership_entries + org_only_entries,
-    }
+    }, user, request, staff_surface)
 
 
 class LoginSerializer(TokenObtainPairSerializer):
@@ -239,7 +240,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         data["refresh"] = str(refresh)
         data["access"] = str(refresh.access_token)
         data["surface"] = surface
-        data["user"] = user_payload(self.user, request=request)
+        data["user"] = user_payload(self.user, request=request, staff_surface=surface)
         return data
 
 

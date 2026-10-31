@@ -56,7 +56,7 @@ describe("staff chooser exact route authorization", () => {
     expect(leaves).toEqual([]);
     await routeIs("/m/calicut/admin/settings");
     transport.routes.delete("/admin/makerspaces");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retry makerspaces" }));
     await panelIs(calicut.id, "settings");
     expect(listCalls()).toHaveLength(2);
   });

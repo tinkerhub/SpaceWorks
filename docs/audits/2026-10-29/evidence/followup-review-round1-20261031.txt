@@ -1,0 +1,6 @@
+The global Platform route introduces a navigation regression: remembering it as a workspace tab redirects makerspace entry links away from their requested makerspace.
+
+Review comment:
+
+- [P2] Exclude Platform from the remembered makerspace tab — {repository}/frontend/src/features/staff/StaffWorkspace.tsx:80-82
+  After a superadmin clicks Platform settings in the sidebar, `onNavigate("platform")` still persists it as the last staff tab. Subsequently opening `/m/kochi/admin` makes `StaffWorkspace` select that stored tab and redirect to `/m/kochi/admin/platform`, which `StaffApp` redirects to `/admin/platform`. The documented makerspace entry URL therefore leaves the requested workspace. Exclude Platform from the stored-tab fallback and persistence so these links continue entering their makerspace ([shared-route invariant](docs/INVARIANTS.md#L96-L98)).

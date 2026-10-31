@@ -5,6 +5,7 @@ import type { StaffAuthUser } from "../../lib/api";
 import { featureEnabled } from "../../lib/features";
 import { moduleEnabled } from "../../lib/modules";
 import { Panel, type Makerspace } from "./panels/shared";
+import { PlatformSettingsPanels } from "./PlatformSettingsPanels";
 import { StaffPanelErrorBoundary } from "./StaffPanelErrorBoundary";
 
 const DashboardPanel = lazy(() => import("./panels/DashboardPanel").then((m) => ({ default: m.DashboardPanel })));
@@ -34,9 +35,6 @@ const AccountabilityPanel = lazy(() => import("./panels/AccountabilityPanel").th
 const Categories = lazy(() => import("./panels/Categories").then((m) => ({ default: m.Categories })));
 const NeedsFixShelf = lazy(() => import("./panels/NeedsFixShelf").then((m) => ({ default: m.NeedsFixShelf })));
 const ApiClientsPanel = lazy(() => import("./ApiClientsPanel").then((m) => ({ default: m.ApiClientsPanel })));
-const PlatformEmailPanel = lazy(() => import("./PlatformEmailPanel").then((m) => ({ default: m.PlatformEmailPanel })));
-const PlatformStripeConnectPanel = lazy(() => import("./PlatformStripeConnectPanel").then((m) => ({ default: m.PlatformStripeConnectPanel })));
-const PlatformSocialAuthPanel = lazy(() => import("./PlatformSocialAuthPanel").then((m) => ({ default: m.PlatformSocialAuthPanel })));
 const MakerspaceSettingsPanel = lazy(() => import("./MakerspaceSettingsPanel").then((m) => ({ default: m.MakerspaceSettingsPanel })));
 const ModulesPanel = lazy(() => import("./ModulesPanel").then((m) => ({ default: m.ModulesPanel })));
 const PaymentsPanel = lazy(() => import("./PaymentsPanel").then((m) => ({ default: m.PaymentsPanel })));
@@ -265,18 +263,7 @@ export function StaffTabContent({
       {activeTab === "modules" && isSuperadmin ? (
         <ModulesPanel key={makerspaceKey} makerspaceId={activeMakerspace.id} makerspaceSlug={activeMakerspace.slug} />
       ) : null}
-      {activeTab === "platform" ? (
-        <Panel
-          title="Platform settings"
-          description={`Email delivery${activeMakerspace.platform_hosting ? ", sign-in providers and payouts" : " and sign-in providers"} shared by every makerspace on this deployment.`}
-        >
-          <div className="grid min-w-0 gap-6">
-            <PlatformEmailPanel />
-            <PlatformSocialAuthPanel />
-            {activeMakerspace.platform_hosting ? <PlatformStripeConnectPanel /> : null}
-          </div>
-        </Panel>
-      ) : null}
+      {activeTab === "platform" ? <PlatformSettingsPanels user={currentUser} singleTenantLocked={singleTenantLocked} /> : null}
       {activeTab === "users" && canManageMakerspace ? (
         <Users key={makerspaceKey} makerspaces={[activeMakerspace]} isSuperadmin={isSuperadmin} currentUser={currentUser} onAuthRefresh={onAuthRefresh} />
       ) : null}

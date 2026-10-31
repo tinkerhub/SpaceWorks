@@ -55,6 +55,11 @@ class MakerspaceAdminForm(ImageMakerspaceAdminForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["frontend_domain"].help_text = (
+            "Optional: leave blank to use the shared site at /m/your-space and "
+            "/m/your-space/admin. Set a unique hostname only for an exclusive branded "
+            "site; the same shared hostname must not be assigned to multiple makerspaces."
+        )
         # Sourced from the registry, not "defaults + keys already on the row". That old
         # rule meant a module absent from the defaults could never be offered on a new
         # makerspace -- which is why `notifications` was enforced but unreachable.
@@ -98,6 +103,13 @@ class MakerspaceAdminForm(ImageMakerspaceAdminForm):
         domain = normalize_frontend_domain(raw)
         if (domain is None and (raw or "").strip()) or (domain and not _HOSTNAME_RE.match(domain)):
             raise forms.ValidationError("Enter a valid domain, e.g. alphamakerspace.com.")
+        if domain and self._meta.model.objects.filter(
+            frontend_domain__iexact=domain,
+        ).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError(
+                "This hostname belongs to another makerspace. Leave this field blank "
+                "to use the shared site, or choose a different dedicated hostname."
+            )
         return domain
 
     def clean_capabilities(self):

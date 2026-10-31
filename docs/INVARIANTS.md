@@ -83,6 +83,24 @@ sets are recognized **only** in `request_route_targets` (origin/native checks), 
 `admin-asset-warranty` is an ordinary `MODEL_LOOKUPS` entry on `InventoryAsset`. All of these were
 blocked until D4, which made every QR handover flow a 403 on a tenant-origin production site.
 
+**Shared portal discovery never grants origin trust.** Browser staff auth payloads may include a
+server-derived `staff_context` only after validated staff-session issuance, or on `/auth/me` for a
+staff token. Global Platform controls require an active global identity and explicit
+`PLATFORM_STAFF_ORIGINS` trust; an unregistered origin that happens to resolve to no tenant is not
+platform authority. Missing context fails closed. `/admin/platform` is independent of a selected
+makerspace, while its makerspace list still uses the existing RBAC, origin and servability filters.
+Identity refresh fences stale controls separately from makerspace-list loading or failure. Stripe
+Connect additionally requires managed hosting and an active payments runtime. Member, native,
+claim and member-only OIDC callback responses do not gain staff context.
+Platform is a global destination, never a remembered makerspace tab: visiting it preserves the
+last valid workspace tab, and legacy stored `platform` values cannot redirect a makerspace entry away.
+
+A blank `frontend_domain` uses the shared frontend's `/m/<slug>` and `/m/<slug>/admin` routes; a
+dedicated domain remains optional and exclusive. Dedicated frontend bindings do not offer those
+paths as a way to escape their makerspace. `hidden_from_central_directory` controls public directory
+listing, not privacy or global staff authority. Register shared-host operator trust before clearing
+an old tenant binding, and start a fresh staff session after changing that trust.
+
 **Superadmin access is a HARD block, not a soft hide.** `Makerspace.superadmin_access_enabled=False`
 excludes the space for a GLOBAL superadmin across `rbac.can`/`scope_by_action`/`makerspaces_for_action(s)`
 etc. (a superadmin with an explicit membership keeps only that role's actions). Status contract: hidden
@@ -3141,11 +3159,31 @@ No other `.github/workflows` file may contain `self-hosted` or `spaceworks-prod`
 successful Continuous Release `workflow_run` completion on `main` and manual dispatch on `main` as
 deployment paths; it must never gain PR or push triggers. The repository variable
 `SPACEWORKS_DEPLOY_RUNNER == 'true'` gates the job, which has `permissions: {}`, serial concurrency,
-no checkout, no `uses:` steps and no execution of repository code. Its sole command invokes the
+no checkout, no `uses:` steps and no execution of checked-out repository code. Its update command invokes the
 already installed `scripts/update.sh --no-module-changes` (never `--force`) with
 `SPACEWORKS_DEPLOY_WAIT=1`. The install path comes from the runner's own `.env`, never workflow input.
 Continuous Release has promoted latest before deployment starts; `update.sh` independently selects
 the eligible GitHub release.
+
+**Deployment verification must identify the release, not just a responding site.** A permissionless
+hosted preparation job resolves the published SHA from the strict Continuous Release run title
+`Release main@<40 lowercase hex characters>`; `workflow_run.head_sha` can name a different default-branch
+revision. Manual main dispatch uses its own exact SHA. After the installed updater, the production job
+may execute fixed, read-only verification commands: read the installed version marker, obtain the backend
+container through the installed Compose wrapper, inspect its OCI revision label and probe loopback
+readiness with `docker exec` against that same container. External commands and HTTP calls are bounded,
+redirects and environment proxies are disabled for the probe, and container identity, marker and revision
+are rechecked before reporting success. This also covers the updater's already-current fast path.
+The verifier never installs tooling, executes a checked-out helper, forces a deployment or rolls back.
+
+Frontend verification runs separately on a hosted runner and checks a small `deployment.json` document
+against that same released SHA, rejecting redirects, SPA HTML fallbacks, oversized responses and stale
+revisions. Netlify's `COMMIT_REF` is authoritative build metadata; an explicit
+`SPACEWORKS_BUILD_REVISION` must be valid and agree when both are present. Local builds with neither
+record `null`, never an invented revision. The endpoint exposes only the revision and is served with
+`Cache-Control: no-store`. The report job distinguishes failed, skipped and unconfigured checks: it may
+say the whole deployment is verified only when both configured checks succeeded. Verification records
+observations at check time; a superseded run may fail revision matching without triggering a rollback.
 
 **Fork PR approval is a human boundary, not runner isolation.** Public-repository fork workflows can
 target a repository-level production runner once approved. Require approval for all outside

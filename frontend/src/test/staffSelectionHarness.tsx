@@ -60,6 +60,10 @@ export function staff(extra: Partial<StaffAuthUser> = {}): StaffAuthUser {
   return { username: "global-admin", email_verified: true, role: "superadmin", is_superuser: true,
     must_change_password: false, makerspaces: [], ...extra };
 }
+export function platformStaff(extra: Partial<StaffAuthUser> = {}): StaffAuthUser {
+  return staff({ staff_context: { scope_kind: "platform", makerspace_id: null,
+    can_manage_platform: true, platform_hosting: false, platform_stripe_connect_available: false }, ...extra });
+}
 export function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason?: unknown) => void;

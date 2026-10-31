@@ -6,9 +6,9 @@
 # BUILD time, so redeploy after changing one:
 #   VITE_API_URL=https://api.example.org/api       (required)
 #   VITE_TENANT_TOKEN=<makerspace public code>      (optional: one-makerspace site, clean routes)
-# The backend needs matching CORS/CSRF/cookie/storage settings and the site host saved as the
-# makerspace's custom domain, or staff are signed out on every reload. Full checklist and a
-# preflight curl to verify it: docs/deploy-netlify.md.
+# The backend needs matching CORS/CSRF/cookie/storage settings and staff-origin trust:
+# PLATFORM_STAFF_ORIGINS for a shared portal, or a verified custom domain for a dedicated site.
+# Full checklist and a preflight curl to verify it: docs/deploy-netlify.md.
 
 [build]
   base = "frontend"
@@ -20,6 +20,11 @@
   # Vite 8 requires Node 20.19+ / 22.12+. Netlify's build image can default to an older
   # Node, which fails the build with an error that does not mention the Node version.
   NODE_VERSION = "22"
+
+[[headers]]
+  for = "/deployment.json"
+  [headers.values]
+    Cache-Control = "no-store"
 
 # Client-side routing. Every deep link -- /m/<slug>, /admin/*, /member,
 # /event-check-in/<stationToken>, /o/<organizationSlug> -- is a React route, not a file

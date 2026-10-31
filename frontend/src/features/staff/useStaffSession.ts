@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -7,7 +7,7 @@ import {
   logout as logoutStaff, refreshAccessToken, setAccessToken, staffRequest,
   type PasswordLoginRequest, type PasswordLoginResponse, type StaffAuthUser,
 } from "../../lib/api";
-import { LogoutIncompleteError } from "../../lib/apiSession";
+import { getSessionRevision, LogoutIncompleteError, subscribeSession } from "../../lib/apiSession";
 import type { SocialLoginResult } from "../auth/socialSdk";
 import type { RecoveryState } from "./RecoveryQuarantinePanel";
 import { persistSelectedMakerspace, persistStaffTab, readStoredMakerspace, staffBasePath } from "./staffTabs";
@@ -26,6 +26,7 @@ type SelectionIntent = {
 };
 
 export function useStaffSession(guestOnly: boolean) {
+  useSyncExternalStore(subscribeSession, getSessionRevision, getSessionRevision);
   const tenant = useTenant();
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -34,7 +35,9 @@ export function useStaffSession(guestOnly: boolean) {
   const [hint, setHint] = useState(readStoredMakerspace);
   const [restoring, setRestoring] = useState(true);
   const [refreshingAuth, setRefreshingAuth] = useState(false);
+  const [refreshingMakerspaces, setRefreshingMakerspaces] = useState(false);
   const [authorizationError, setAuthorizationError] = useState(false);
+  const [identityGeneration, setIdentityGeneration] = useState<number | null>(null);
   const [sessionNotice, setSessionNotice] = useState("");
   const [intent, setIntent] = useState<SelectionIntent | null>(null);
   const mounted = useRef(false);
@@ -47,6 +50,7 @@ export function useStaffSession(guestOnly: boolean) {
     mounted.current && authLifetime.current === lifetime && getSessionGeneration() === authGeneration, []);
   const hydrateUser = useCallback((next: StaffAuthUser) => {
     setUser(next);
+    setIdentityGeneration(getSessionGeneration());
     queryClient.setQueryData(staffMeKey, next);
   }, [queryClient]);
   const clearLocalSession = useCallback(() => {
@@ -56,6 +60,8 @@ export function useStaffSession(guestOnly: boolean) {
     setHint(null);
     setIntent(null);
     setRefreshingAuth(false);
+    setRefreshingMakerspaces(false);
+    setIdentityGeneration(null);
     setAuthorizationError(false);
     setRestoring(false);
     persistSelectedMakerspace(null);
@@ -94,12 +100,18 @@ export function useStaffSession(guestOnly: boolean) {
   }, [current, hydrateUser]);
 
   const makerspaces = useStaffMakerspaces(Boolean(user) && !user?.must_change_password);
-  // Hide operational panels while BOTH identity actions and the allowed list refresh.
+  // Keep mounted forms during ordinary background refetches. Explicit identity/access
+  // refreshes still fence panels until their refreshed allowed list settles.
+  const makerspacesLoading = refreshingMakerspaces || makerspaces.isPending;
+  const identityReady = Boolean(user) && !restoring && !refreshingAuth && !authorizationError &&
+    identityGeneration === generation;
+  // Fence old authority first; publish the verified identity independently of list success.
   const refreshAuthUser = useCallback(() => {
     if (!mounted.current || generation !== getSessionGeneration()) return;
     const lifetime = ++authLifetime.current;
     const authGeneration = getSessionGeneration();
     setRefreshingAuth(true);
+    setRefreshingMakerspaces(true);
     setAuthorizationError(false);
     setIntent(null);
     void (async () => {
@@ -108,15 +120,26 @@ export function useStaffSession(guestOnly: boolean) {
         if (!current(lifetime, authGeneration)) return;
         const next = await fetchMe();
         if (!current(lifetime, authGeneration)) return;
-        await queryClient.resetQueries({ queryKey: ["staff", "makerspaces"] }, { throwOnError: true });
-        if (current(lifetime, authGeneration)) hydrateUser(next);
+        hydrateUser(next);
+        setRefreshingAuth(false);
+        try {
+          await queryClient.resetQueries({ queryKey: ["staff", "makerspaces"] }, { throwOnError: true });
+        } catch { /* The allowed-list query owns its error; the identity remains verified. */ }
       } catch {
         if (current(lifetime, authGeneration)) setAuthorizationError(true);
       } finally {
-        if (current(lifetime, authGeneration)) setRefreshingAuth(false);
+        if (current(lifetime, authGeneration)) {
+          setRefreshingAuth(false);
+          setRefreshingMakerspaces(false);
+        }
       }
     })();
   }, [current, generation, hydrateUser, queryClient]);
+  // Password rotation installs a new session generation. Verify it before reopening
+  // panels; stale completions still cannot publish across the lifetime/generation guard.
+  useEffect(() => {
+    if (user && identityGeneration !== null && identityGeneration !== generation) refreshAuthUser();
+  }, [generation, identityGeneration, refreshAuthUser, user]);
 
   const beginChoice = useCallback((id: number | null, targetPath: string) => {
     const sequence = ++choiceSequence.current;
@@ -136,6 +159,7 @@ export function useStaffSession(guestOnly: boolean) {
     setSessionNotice("");
     setAuthorizationError(false);
     setRefreshingAuth(false);
+    setRefreshingMakerspaces(false);
     setRestoring(false);
     setIntent(null);
     hydrateUser(next);
@@ -174,7 +198,7 @@ export function useStaffSession(guestOnly: boolean) {
   const recovery = useQuery({
     queryKey: ["deployment-recovery-state"],
     queryFn: () => staffRequest<RecoveryState>("/recovery"),
-    enabled: Boolean(user && isGlobalStaffAdmin(user)), retry: false,
+    enabled: Boolean(identityReady && user && isGlobalStaffAdmin(user)), retry: false,
   });
   const pending = intent && intent.sequence === renderedChoice && intent.generation === generation &&
     intent.sourceKey === location.key && intent.targetPath !== location.pathname &&
@@ -185,7 +209,7 @@ export function useStaffSession(guestOnly: boolean) {
   }, [intent, pending]);
   const routeState = location.state as { staffPicker?: boolean; staffMakerspaceId?: number } | null;
   let selection: StaffSelection = resolveStaffSelection({
-    spaces: makerspaces.data ?? [], loading: refreshingAuth || makerspaces.isPending,
+    spaces: makerspaces.data ?? [], loading: !identityReady || makerspacesLoading,
     error: authorizationError || makerspaces.isError, pathname: location.pathname, guestOnly,
     lockedId: singleTenantLocked ? tenant.makerspaceId : null,
     globalAdmin: Boolean(user && isGlobalStaffAdmin(user)),
@@ -210,10 +234,10 @@ export function useStaffSession(guestOnly: boolean) {
     if (!mounted.current || singleTenantLocked || !user || generation !== getSessionGeneration() ||
       renderedChoice !== choiceSequence.current || pending) return;
     if (id === null) { beginChoice(null, staffBasePath(guestOnly)); return; }
-    if (makerspaces.isError || refreshingAuth || authorizationError) return;
+    if (makerspaces.isError || !identityReady || makerspacesLoading || authorizationError) return;
     const space = makerspaces.data?.find((item) => item.id === id);
     if (space) beginChoice(id, staffChoicePath(space, user, guestOnly, location.pathname));
-  }, [authorizationError, beginChoice, generation, guestOnly, location.pathname, makerspaces.data, makerspaces.isError, pending, refreshingAuth, renderedChoice, singleTenantLocked, user]);
+  }, [authorizationError, beginChoice, generation, guestOnly, identityReady, location.pathname, makerspaces.data, makerspaces.isError, makerspacesLoading, pending, renderedChoice, singleTenantLocked, user]);
 
   const signOut = async () => {
     const logout = logoutStaff(); // Synchronously clears token and bumps generation before its first await.
@@ -230,6 +254,7 @@ export function useStaffSession(guestOnly: boolean) {
   return {
     activeMakerspace, chooseMakerspace, login, makerspaces, queryClient, recovery,
     refreshAuthUser, restoring, selected, selection, setTab: persistStaffTab, setUser,
+    identityReady, authorizationError, makerspacesLoading,
     sessionNotice, signOut, singleTenantLocked, socialLoginSucceeded, tenant, user,
     retryMakerspaces: () => { if (authorizationError) refreshAuthUser(); else void makerspaces.refetch(); },
   };

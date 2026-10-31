@@ -153,10 +153,33 @@ For unattended use, export `RUNNER_TOKEN` instead (for example
 `RUNNER_TOKEN="$(gh api -X POST repos/tinkerhub/SpaceWorks/actions/runners/registration-token --jq .token)"`).
 The token reaches runner configuration only through `ACTIONS_RUNNER_INPUT_TOKEN`, never argv, files or
 output. The runner's `.env` supplies `SPACEWORKS_INSTALL_DIR`; the workflow does not choose the path.
-`deploy.yml` never checks out or runs repository code: it runs installed `update.sh --no-module-changes`
-after successful Continuous Release on `main`, or manual dispatch on `main`, and waits for the update lock.
+The production runner job never checks out repository code: it runs installed
+`update.sh --no-module-changes` after successful Continuous Release on `main`, or manual dispatch on
+`main`, and waits for the update lock. It then verifies the installed version marker, the backend
+container's OCI revision and private readiness against the exact released commit. The probe uses that
+same container and checks for a concurrent replacement before reporting success, including when the
+updater finds the release already installed.
 Confirm the runner is **Idle** in GitHub's runner settings. Rerun the installer without a token to repair
 the same-repository configured runner; it refreshes the path and restarts without extraction or registration.
+
+### Deployment status in Actions
+
+Open **Actions → Production Deploy → Deployment report** after a release. The summary reports the
+server and Netlify frontend independently; a skipped or unconfigured check is explicitly **not verified**.
+The whole deployment is **Verified** only when both checks succeed. A server verification failure does
+not prevent the frontend check from running, or the reverse.
+
+The server requires the existing runner configuration above and GNU `timeout` (included in Ubuntu's
+coreutils). For Netlify, also set the repository variable `PRODUCTION_FRONTEND_URL` to the production
+site's HTTPS address, for example `https://tools.example.org`, and set its production branch to `main`.
+See [frontend deployment verification](deploy-netlify.md#deployment-status-in-actions). No Netlify API
+token is needed. Leaving the variable empty skips that check; it does not claim a successful frontend
+deployment.
+
+These checks observe the released revision and readiness at check time. A later release can supersede
+an older queued run and cause a revision mismatch; inspect the newer run instead of forcing or rolling
+back a healthy newer release. Readiness does not replace the browser checks for sign-in, storage and
+request submission below.
 
 ## Enabling the modules and Telegram
 

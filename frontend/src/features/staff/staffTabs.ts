@@ -110,7 +110,8 @@ export function readStoredMakerspace() {
 }
 
 export function readStoredStaffTab() {
-  return pathToTab(readStorage(STAFF_ACTIVE_TAB_KEY));
+  const tab = pathToTab(readStorage(STAFF_ACTIVE_TAB_KEY));
+  return tab === "platform" ? "" : tab;
 }
 
 export function persistSelectedMakerspace(value: number | null) {
@@ -119,6 +120,7 @@ export function persistSelectedMakerspace(value: number | null) {
 }
 
 export function persistStaffTab(tab: string) {
+  if (tab === "platform") return;
   if (tab) writeStorage(STAFF_ACTIVE_TAB_KEY, tab);
   else removeStorage(STAFF_ACTIVE_TAB_KEY);
 }
