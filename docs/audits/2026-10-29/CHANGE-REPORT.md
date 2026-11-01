@@ -1,6 +1,10 @@
 # SpaceWorks 0.9.0 — audit change report
 
-**Status: local fixes and affected-source verification are complete; final independent review passed. Owner QA was confirmed on **2026-10-31**, with explicit authorization to commit and push `dev`, then merge to `main` after required checks pass. [Owner approval](evidence/owner-qa-approval-20261031.json).** Version **0.9.0** is local on `dev`, based on `1aadf475`. The latest complete frontend run recorded **2,099 passes/four failures out of 2,103**; all four later passed unchanged in bounded diagnostics. All 112 new UI cases passed, and the final TypeScript/production build exited 0. No fresh 2,103-case green run is claimed. All 171 original failed/error backend cases have explicit passing-resolution evidence. The actual seventh same-host signed FULL restore passed. Later shutdown, payment, concurrency, installer and document-quota corrections have separate verification; the quota follow-up retains its 517-case history and all 61 final affected checks passed. The review-four corrections passed 76 migration-fingerprint checks, 49 host image-provisioning checks and 25 strict copied-runtime checks. The backend image-identity group initially recorded 62 passes / three failures; its unchanged retry of those three live-storage cases now passed with all source-closure checks. No fresh all-green complete backend run, fresh 65-case pass, closed original 65-case driver, application-code push, release approval or production deployment is claimed.
+**Latest queue-navigation follow-up:** **478 targeted case identities have passing coverage**, with the current runtime production build and Node 20 type-check passing. This combines a complete targeted run with affected-file reruns, not a single all-green 478-case invocation. Final independent review passed with no actionable regressions. Owner QA was confirmed on **November 1, 2026**, authorizing a local commit to `dev` only. [QA approval](evidence/owner-qa-approval-20261101.json).
+
+**Earlier November 1 audit verification, before the queue-navigation follow-up:** All **2,219 frontend tests**, type-check and build passed. All **13,044 current backend case identities have passing coverage**: 6,100 against current frozen inputs and 6,944 retained baseline passes. Every reported failure has a passing resolution, and all 14 earlier skips executed successfully. This is baseline plus current affected-source/partition/replay evidence, **not a fresh wholly green monolithic backend run**. The final independent review passed with no actionable regressions. The earlier release is deployed; this follow-up remains local and uncommitted on `dev`. Current SMTP delivery and live worker liveness remain deployment-specific verification conditions. The November 1 section below gives the changes, proof and limits.
+
+**Historical October 29–31 audit status:** Local fixes and affected-source verification were complete; that batch’s final independent review passed. Owner QA was confirmed on **2026-10-31**, with explicit authorization to commit and push `dev`, then merge to `main` after required checks pass. [Owner approval](evidence/owner-qa-approval-20261031.json). Version **0.9.0** is local on `dev`, based on `1aadf475`. The latest complete frontend run recorded **2,099 passes/four failures out of 2,103**; all four later passed unchanged in bounded diagnostics. All 112 new UI cases passed, and the final TypeScript/production build exited 0. No fresh 2,103-case green run is claimed. All 171 original failed/error backend cases have explicit passing-resolution evidence. The actual seventh same-host signed FULL restore passed. Later shutdown, payment, concurrency, installer and document-quota corrections have separate verification; the quota follow-up retains its 517-case history and all 61 final affected checks passed. The review-four corrections passed 76 migration-fingerprint checks, 49 host image-provisioning checks and 25 strict copied-runtime checks. The backend image-identity group initially recorded 62 passes / three failures; its unchanged retry of those three live-storage cases now passed with all source-closure checks. No fresh all-green complete backend run, fresh 65-case pass, closed original 65-case driver, application-code push, release approval or production deployment is claimed.
 
 This report explains resulting behavior, the reason for each change and the available proof. Focused runs overlap; their counts must not be added into an invented unique-test total. The [coverage report](README.md), domain reports and adjacent evidence retain the detailed denominator and earlier failures.
 
@@ -237,3 +241,234 @@ no additional merged feature branch remained to delete.
 
 The earlier full-audit restore and backend-suite bounds remain as documented above. These follow-up
 checks do not establish a new production restore drill or certify every external integration.
+
+## November 1 verification follow-up
+
+The deployed October 31 batch is present on both protected branches: `dev` at `7bbf266f`
+and remote `main` at `87471f5a` have the same committed tree. Production CI, release and deployment
+runs succeeded for that exact main revision. The deployment workflow actually executed both
+the server revision/readiness check and the Netlify revision check; neither was skipped.
+Fresh read-only browser checks listed Kochi and Calicut, exposed the authorized global Platform
+settings and retained Calicut's settings URL after reload. The new corrections below are local,
+uncommitted changes on `dev`; they have not been deployed.
+[Deployed revision and both Actions checks](evidence/verification-deployed-main-20261101.json).
+
+A fresh signed-in production check also found the original Arduino's **one registered unit
+marked Available**, matching the inventory total and availability of one. No stock or request
+was changed. The live console retains **seven historical failed emails**, two to three days
+old, all classified `SMTPServerDisconnected`, and no sent emails in that log. Both the tenant
+and platform SMTP hosts are blank, so the actual sender comes from Django's environment
+configuration; the platform form's default port/TLS values do not describe that fallback.
+The SMTP “OK” indicator does not test transport or delivery. Similarly, worker “last seen”
+tracks notification-task activity, not a periodic heartbeat; its 11-hour stale warning does
+not establish an outage. The live Calicut cover image actually decoded at **5836 × 3396**
+pixels, and the brand image at **220 × 220**; this verifies image reads, not upload CORS.
+Read-only server service-status and Celery ping output has been
+requested from the owner. No provider message was sent or retried, and current external
+delivery/liveness remain unverified. [Live inventory and health bounds](evidence/verification-live-inventory-health-20261101.json).
+
+| Local correction | Behavior protected |
+| --- | --- |
+| Recorded machine hours | A shared Django query adds manual hours and actual terminal service minutes, without counting the same linked run twice. Staff lists/details, public machine views, public statistics and operations reports use the same calculation. Estimates do not become usage. Report windows and makerspace scope remain explicit. |
+| Queue allocation policy | Staff API responses expose the queue's read-only allocation policy. A staff-select queue requires a machine; an automatic queue may assign an idle machine. Public/requester projections retain their restricted fields. |
+| Automatic printer stock | Starting an automatic job can select compatible type-wide consumables before the server assigns its machine. Machine-bound and incompatible pools are excluded from that automatic choice. The server remains responsible for assignment and reservation. |
+| Service form state | Each job/action opens a fresh draft. Starting preserves the accepted minute estimate; generic minute-based services display minute fields. Async mutations and TanStack Query invalidation respect the current form owner and refresh open machine details. |
+| Narrow capability forms | A Django form that omits `frontend_domain` no longer crashes while adding that field's help text. Existing capability-save authorization remains enforced. |
+| Portable privacy coverage | The all-mapped-values fixture now supplies the newly mapped cancellation reason and explicitly requires nonempty fixture values. Every original ciphertext, no-plaintext, encryption-metadata and plaintext-rejection assertion remains. Application encryption/export behavior is unchanged. |
+| Responsive page headers | Actions stack below the title and description until the existing 1200px breakpoint, so inventory export buttons cannot squeeze the description into a narrow column. Browser checks at 380px, 681px and 1440px found no horizontal page overflow; desktop actions remain beside the title. |
+| Regression coverage | New tests cover usage accounting, report projections, allocation, stock selection, form drafts and async cache ownership. Existing UI tests use scoped controls; migration tests activate the actual tabs before exercising their forms. The notification feature matrix includes the already-shipped machine-service feature; its separate legacy email catalog retains hardware and printing streams. |
+| Optional-module contracts | Seven real primary API probes replace all 14 existing ON/OFF skips. They check encrypted chat configuration, local email dispatch, payment settings, account availability and real mobile grant/token issuance. Authentication retains generic error messages; disabled modules cannot mint the protected records. |
+| Recovery verification metadata | The active copied-runtime descriptor now includes the already-committed shared-portal environment forwarding line. Only one file fingerprint changed; all 65 source paths, 60 copied paths, installed modes and 25 protected restore dependencies remain verified. The previous descriptor is preserved byte-for-byte, and historical restore evidence is unchanged. All 28 affected installer cases passed their replay. |
+| Cancellation email coverage | The registry expectation includes the two already-shipped cancellation templates, with explicit requester/staff cancellation keys and the original exact send-key-set assertion retained. No delivery logic changed. |
+
+Browser verification used synthetic local records and stock. Quantity-tracked hardware completed
+submission, acceptance, cancellation before handover, a second issue without a container and a
+photo/remark-backed return. Reservation release and final public availability were both one.
+Issue/return evidence previews and a public product image actually decoded; the private shelf
+location was absent from the public page. The check-in name field retained its rounded corners
+at mobile width, with no horizontal page overflow or nested borrow-panel scrolling.
+An individually tracked synthetic item started at zero; registering one unit through QR Tools
+made it available publicly. Its request was accepted without an insufficient-assets error,
+then cancelled before handover. The cancelled history row remained and availability returned
+to one, with zero issued, damaged or lost units. Saved item images and list thumbnails still
+decoded after navigating away and reopening the item.
+
+Both printer allocation modes completed acceptance, start, completion and collection in the
+browser. Each reserved 12 grams and consumed 10; the synthetic pool finished at **80/100 grams**.
+Two eight-minute runs produced **0.27 recorded hours**, and the printer returned to Idle.
+A generic laser service also completed its lifecycle with correct minute labels and usage.
+These are bounded smoke tests, not proof of every UI branch. The synthetic check-in fixture
+has no upstream roster configured; successful live roster lookup and external mail/Telegram/
+payment delivery were not exercised.
+
+The affected backend selection collected **211 cases without duplicates** and finished with
+**210 passes, one failed test expectation, no errors and no skips**. All **71 new accounting
+and allocation cases passed**, as did both capability-boundary cases. The failure distinguished
+two existing notification surfaces: the feature matrix includes machine services, while the
+legacy email event catalog contains only hardware and printing. After correcting that exact
+catalog expectation, its single-case retry passed. The frozen application source and dependency
+volumes verified before and after both runs; the retry bound the changed test file separately.
+This is 210 initial passes plus one corrected passing retry, not a fresh all-green 211-case run.
+[Affected-backend runtime proof](evidence/verification-backend-affected-20261101.json).
+
+The full run exposed one additional portable-privacy fixture failure. Its unchanged isolated
+reproduction failed at `is_envelope("")`: the fixture had not populated the newly mapped
+cancellation reason. After the two-line fixture/coverage correction, the **complete two-case
+file passed**, including rejection of nonempty plaintext exports. The source and overlay
+verified before and after both executions.
+[Privacy reproduction and passing replay](evidence/verification-portable-pii-20261101.json).
+
+The [browser record](evidence/verification-browser-20261101.json) binds the observed workflows
+and layout measurements. Two synthetic captures show the corrected
+[tablet inventory header](evidence/verification-inventory-tablet-20261101.jpg) and
+[completed automatic printer flow](evidence/verification-automatic-printer-20261101.jpg).
+The [documentation and gallery record](evidence/verification-docs-images-20261101.json)
+retains the version, 77-image manifest and selected-link checks.
+
+The final complete frontend run **passed all 2,219 tests in 261 files**, including all **86 new
+regression cases**, in 784.37 seconds of Vitest execution. Node 20 type-check, Vite production
+build and local revision stamping also passed. Source and dependency hashes matched before
+and after execution, and the current frontend matches that frozen snapshot. Earlier failed,
+cancelled and seeded-but-unexecuted attempts remain in the
+[complete frontend runtime record](evidence/verification-frontend-complete-20261101.json).
+The local build correctly declares a null revision for uncommitted source.
+
+The 13 finished frontend verification containers were removed after their logs and exact
+outcomes were preserved privately. Removal used neither force nor volume deletion. All
+63 existing volumes, unrelated containers and the two running backend workers remained.
+[Bounded frontend-container cleanup](evidence/verification-finished-frontend-cleanup-20261101.json).
+
+The first complete 2,586-case continuation finished with **2,552 passes and 34 failures**,
+no errors or skips, in 2,065.23 seconds. Source and dependency checks passed before and after.
+It exposed **28 recovery-fixture failures** before installer execution:
+the shared `copy_bundle()` helper refused the stale `docker-compose.yml` fingerprint. A direct
+portable reproduction confirmed that exact refusal. The mismatch came from commit `7bbf266f`'s
+single `PLATFORM_STAFF_ORIGINS` forwarding line; the other 59 copy fingerprints matched. The
+active descriptor was synchronized after independent review, preserving its previous bytes
+and every historical refresh record. The strict 25-dependency checker also passed. A separate
+email-registry expectation still counted 75 templates instead of the 77 already shipped; its
+count and explicit cancellation coverage were corrected. A fresh **34-case replay passed**
+all 28 installer cases and the complete six-case email registry file, with no failures,
+errors or skips, in 72.12 seconds. Both read-only overlays and the frozen application and
+dependencies verified before and after. [Recovery and registry replay](evidence/verification-recovery-registry-20261101.json).
+
+The five other failures were unchanged Git-index mode checks: the cached Linux image has
+no Git executable and deliberately carries no `.git` directory. Their exact **five-case
+host replay passed**, in 0.97 seconds, using real Git and the actual index. All 222 relevant
+source/script files and the index verified before and after; assertions were unchanged.
+This source-only run disabled unrelated conftest/plugin loading and used no Django setup,
+database or provider configuration. [Real Git/index verification](evidence/verification-host-git-modes-20261101.json).
+All 34 initial failures therefore have concrete passing observations. Their original failed
+results remain recorded; no fresh green 2,586-case run is claimed.
+
+The original 12,973-case backend run was checkpointed with one interrupt after **7,179 passes,
+four failures and 14 skips**; its exit code was 2 and it was not a completed suite. The four
+failures have the passing corrected observations described above. Its isolated **6,048-case
+continuation** was checkpointed after **876 passes, no failures, errors or skips**. Both
+interrupted attempts retain their actual JUnit outcomes and verified frozen source. Their
+passing union contains **7,858 unique identities**. Two disjoint **2,586-case batches** now
+cover the unfinished selection on separate databases, with all 14 missing module probes
+reserved for their updated tests. The ledger reconciles these selections against all
+**13,044 current case identities** without double counting or treating progress as a pass.
+The updated **complete 51-case module matrix passed with no failures, errors or skips**, in
+22.44 seconds of driver execution. All 14 previously skipped identities actually executed
+against real local API views; controlled DNS, email transport and attestation/phone service
+boundaries prevented external delivery. The three changed test files and complete directory
+overlay verified before and after execution; application code was unchanged for this coverage
+closure. [Module-contract runtime proof](evidence/verification-module-contracts-20261101.json).
+The second continuation finished with **2,586 passes, no failures, errors or skips**, in
+2,167.60 seconds, with complete selection and source/dependency verification. The final
+identity ledger contains exactly **13,044 unique cases and zero unresolved identities**:
+**6,100 current-frozen passes and 6,944 baseline-only passes**. All 38 earlier failure events
+and 14 skips remain in their histories; later strict passing observations close them.
+No progress marker or skip was credited as passing. The entire current application/frontend
+source subset—**2,769 files**—matches the frozen candidate; later changes affect tests or
+verification documentation. [Final backend case ledger and bounds](evidence/verification-backend-case-ledger-20261101.json).
+
+The final independent Codex review completed successfully with **no actionable regressions**.
+It passed frontend type-checking; database configuration and Docker access were unavailable
+in its sandbox, so the separate real runtime evidence above supplies backend verification.
+Root's post-review check confirmed **2,813 runtime/frontend/script/deployment files** still
+match the frozen candidate in bytes and modes, the tested closing overlays are unchanged,
+and the Git index is unchanged. [Final review and source closure](evidence/verification-final-review-20261101.json).
+No fresh wholly green monolithic backend run or blanket production-readiness claim is made
+here. A separate finite database-storage experiment timed
+out before completing any case and is explicitly incomplete. A nonblocking diagnostic located
+the long-running backend work in Django historical-model rendering during migration reversal;
+it found CPU work rather than a database lock wait and made no application changes.
+Dependency audits found no known npm vulnerabilities, and all 77 screenshot manifest entries
+and 121 checked local documentation links verified. Final counts, receipts and remaining limits
+are bound in the linked receipts.
+
+After review, the five remaining disposable test services each received normal SIGTERM,
+exited 0 and were removed without force or volume deletion. Together with the 13 completed
+frontend containers removed earlier, **18 verification containers were cleaned up**. All
+**26 unrelated/preview containers**, **63 volumes**, **35 images** and bind directories were
+preserved. Travel/eSIM/SEO services and data were untouched; raw logs remain private.
+[Final test-infrastructure cleanup](evidence/verification-final-infra-cleanup-20261101.json).
+
+Final hygiene checks verified version **0.9.0**, all **77 gallery images**, **248 local links**
+across the README, this report and gallery index, and matching `AGENTS.md`/`CLAUDE.md` bytes.
+All 22 changed frontend source/test files stay within 300 lines. Fifteen new public receipts
+and both current/preserved recovery descriptors parsed and passed the bounded credential-pattern
+check. [Final hygiene and branch checks](evidence/verification-final-hygiene-20261101.json).
+
+A new local commit still requires owner QA confirmation. No commit, push, merge or deployment
+of this follow-up was performed. The live server-status/ping output and fresh external
+notification delivery remain unverified; historical failures are not silently cleared or
+treated as current successful delivery.
+
+## Queue navigation follow-up — 2026-11-01, review and owner QA passed
+
+Each server-reachable machine type now has a **Type requests** sidebar link, including a named icon
+on the collapsed rail and a link in the mobile menu. Its ID-based `/queue` route opens requests first;
+**Machines & stock** keeps equipment, creation, drawers and consumables one click away. Machine scope,
+management authority and module gates remain enforced; the global printer also needs `printing`.
+
+- Refresh reloads jobs, eligible machines and stock without clearing action/manual drafts. Errors keep
+  existing rows; failed unresolved catalogs retain their URL and offer Retry instead of endless Loading.
+- Staff can inspect the requester, actual assigned machine, brief, source and attached filenames. File
+  reads use the existing scoped API on demand, accept HTTP(S), and cannot publish after a different
+  account, makerspace, job, attachment set or route visit takes ownership. Signed URLs stay transient.
+- Start offers active idle machines only. Stale saved choices cannot submit or silently become automatic;
+  explicit first-idle queues need an eligible candidate. The backend remains allocation authority.
+- Equipment navigation retains drafts while revoking old operation ownership. Returning reloads the
+  typed queue even with a fresh cache. Initial loads suppress temporary fallback action forms; this
+  fixes the race found by the retained two-dispatch ownership regressions. Handover displays the actual
+  assigned machine before any legacy bucket machine. Payment and collection policy are unchanged.
+
+The review also caught two compatibility issues, now corrected: attachment URLs are obtained with
+**Get file link**, then opened through a native **Open file** link so browser popup blocking cannot
+silently discard a successful read; and printer manual usage/history remains on **Machines & stock**
+when `machine_service` is enabled but printing requests are disabled. Stock consumption and prices
+remain available under the existing management permission. Disabled queues remain inaccessible.
+
+**Verification:** **478 case identities across 60 files have passing coverage**, with no skipped credit.
+This consists of 413 unaffected passes from the complete targeted run, 52 current affected panel/printer
+passes, a clean three-case manual-usage file rerun and a clean ten-case public-submission file rerun.
+It is **not a fresh wholly green 478-case run**. The current runtime production build and Node 20
+type-check passed. The only file changed after that build is the new manual-usage test.
+
+The retained history includes the first 444-pass/22-failure run, its clean 466-case correction,
+the attachment notice-selector corrections, and the later 473-pass/two-failure 475-case run. The
+public submission file passed all ten cases on replay; the queue ownership test now waits for the real
+query lifecycle before asserting rendered actions. The final manual tests corrected an early history
+assertion and the expected existing printer-specific **Print logged** notification. Default test and
+assertion timeouts were not increased. No uncollected worker tests receive passing credit.
+[Final case coverage, source bounds and failure history](evidence/verification-machine-queue-final-20261101.json) ·
+[Earlier 466-case runtime](evidence/verification-machine-queue-tests-20261101.json).
+
+Browser checks verified desktop/mobile/rail entry, equipment switching, unfinished values surviving
+navigation and Refresh, expandable project brief, reload survival and no horizontal overflow at mobile
+width. Existing synthetic jobs were only read; no request was approved or stock changed. Attachment
+reads were tested at the real frontend HTTP boundary, not through a live storage provider.
+[Browser verification](evidence/verification-machine-queue-browser-20261101.json) ·
+[Updated requests-page screenshot](evidence/verification-machine-queue-sidebar-20261101.png).
+
+All **1,973 backend runtime files** still match the previously verified freeze. No API/schema change,
+new backend run, fresh full frontend run, provider-delivery probe, staging, commit, push or deployment
+is claimed. Earlier full-suite/restore receipts retain their original source bounds. Independent review
+passed with no actionable regressions. Owner QA is now confirmed, authorizing a local commit on `dev`;
+no push, merge or deployment is authorized by this approval. [QA approval](evidence/owner-qa-approval-20261101.json).
+Eleven owned stopped test containers were removed; unrelated services, all volumes, images and networks
+were preserved. [Cleanup receipt](evidence/verification-machine-queue-cleanup-20261101.json).

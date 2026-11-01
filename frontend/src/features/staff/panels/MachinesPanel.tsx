@@ -3,14 +3,17 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
-import { Callout, PageHeader, SectionHeading, Skeleton, buttonClasses } from "../../../components/ui";
+import { Button, Callout, EmptyState, PageHeader, SectionHeading, Skeleton, buttonClasses } from "../../../components/ui";
 import type { PrinterPool } from "../../../generated/api";
-import { collectionResults, getMachines, getMachineTypes, machineKeys, type MachineType } from "../machinesApi";
-import { machineTypeSegment, parseMachineTypeSegment, staffSubPathFromPath, staffTabPath } from "../staffTabs";
+import { collectionResults, getMachines, getMachineTypes, isBuiltinPrinterType, machineKeys, type MachineType } from "../machinesApi";
+import { machineTypeSegment, staffSubPathFromPath, staffTabPath } from "../staffTabs";
+import { machineTypeQueueSegment, machineTypeRoute } from "../machineTypeRoutes";
 import { MachineDrawer } from "./machine/MachineDrawer";
 import { MachineTypeCards } from "./machine/MachineTypeCards";
 import { MachineCreateDialog } from "./machine/MachineCreateDialog";
 import { MachineTypePage, type StatusFilter } from "./machine/MachineTypePage";
+import { MachineServiceConsole } from "./machine/MachineServiceConsole";
+import { PrinterServiceConsole } from "./machine/PrinterServiceConsole";
 import { poolPath, poolQueryKey } from "./machine/servicePools";
 import { useServiceDrafts } from "./machine/serviceDrafts";
 import { MachineTypesPanel } from "./MachineTypesPanel";
@@ -45,6 +48,7 @@ export function MachinesPanel({
   singleTenantLocked = false,
 }: Props) {
   const location = useLocation();
+  const { typeId: requestedTypeId, queue: queueView } = machineTypeRoute(staffSubPathFromPath(location.pathname, guestOnly));
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   // Lives HERE, in the container that survives index-to-type navigation, not in
@@ -55,18 +59,8 @@ export function MachinesPanel({
 
   const machines = useQuery({ queryKey: machineKeys.list(makerspaceId), queryFn: () => getMachines(makerspaceId) });
   const machineTypes = useQuery({ queryKey: machineKeys.types(makerspaceId), queryFn: () => getMachineTypes(makerspaceId) });
-  const poolQuery = useStaffGet<PrinterPool[]>(
-    poolQueryKey(makerspaceId),
-    poolPath(makerspaceId),
-    canManage && machineServiceEnabled,
-  );
   const types = collectionResults(machineTypes.data);
   const allMachines = machines.data?.results ?? [];
-  const pools = canManage && machineServiceEnabled ? poolQuery.data ?? [] : [];
-  const legacyPools = useMemo(
-    () => pools.filter((pool) => pool.machine_id === null && pool.machine_type_id === null),
-    [pools],
-  );
 
   // The machine and machine-type requests are independent, so the type response can fail, go
   // stale, or omit a type while machines of it loaded fine. Building the index from `types`
@@ -89,7 +83,6 @@ export function MachinesPanel({
     staffTabPath("machines", guestOnly, makerspaceSlug, singleTenantLocked, machineTypeSegment(machineType));
   const indexHref = staffTabPath("machines", guestOnly, makerspaceSlug, singleTenantLocked);
 
-  const requestedTypeId = parseMachineTypeSegment(staffSubPathFromPath(location.pathname, guestOnly));
   // Both server-scoped sources must have SETTLED SUCCESSFULLY before an id can be called
   // unreachable. Judging on the type query alone would bounce a type known only through the
   // nested fallback; judging while either is loading would bounce every direct link on first
@@ -108,6 +101,13 @@ export function MachinesPanel({
   // redirect loop and the flash-redirect at the same time.
   const soleType = reachableTypes.length === 1 ? reachableTypes[0] : null;
   const shownType = selectedType ?? (requestedTypeId === null ? soleType : null);
+  const queueEnabled = canManage && machineServiceEnabled && !!shownType &&
+    (!isBuiltinPrinterType(shownType) || printingEnabled);
+  const poolsEnabled = canManage && machineServiceEnabled && (!queueView || queueEnabled);
+  const poolQuery = useStaffGet<PrinterPool[]>(poolQueryKey(makerspaceId), poolPath(makerspaceId), poolsEnabled);
+  const pools = poolsEnabled ? poolQuery.data ?? [] : [];
+  const legacyPools = pools.filter((pool) => pool.machine_id === null && pool.machine_type_id === null);
+  const queueHref = shownType ? staffTabPath("machines", guestOnly, makerspaceSlug, singleTenantLocked, machineTypeQueueSegment(shownType)) : indexHref;
 
   // Normalise an unknown or unreachable type id back to the index -- the console's existing
   // behaviour for a stale deep link, rather than a dead denial page. `replace` so the bad
@@ -122,11 +122,19 @@ export function MachinesPanel({
   // an honest "still resolving", which is also what stops the redirect above from firing
   // early.
   if (requestedTypeId !== null && !selectedType && !sourcesSettled) {
+    const failed = machineTypes.isError || machines.isError;
     return (
-      <section className="grid gap-6" aria-busy="true">
+      <section className="grid gap-6" aria-busy={failed ? undefined : true}>
         <PageHeader title="Machines" />
-        <Skeleton className="h-40 w-full rounded-lg" />
-        <span className="sr-only" role="status">Loading machine type</span>
+        {failed ? (
+          <Callout tone="danger" role="alert" title="Could not load machine type">
+            <p>The machine catalog could not be loaded. Your requested page has been kept.</p>
+            <Button size="sm" onClick={() => { void machineTypes.refetch(); void machines.refetch(); }}>Retry machine data</Button>
+          </Callout>
+        ) : <>
+          <Skeleton className="h-40 w-full rounded-lg" />
+          <span className="sr-only" role="status">Loading machine type</span>
+        </>}
       </section>
     );
   }
@@ -144,7 +152,7 @@ export function MachinesPanel({
     machineTypes.error instanceof Error ? `Machine types: ${machineTypes.error.message}` : null,
     machines.error instanceof Error ? `Machines: ${machines.error.message}` : null,
     // Pool failures also affect job forms, so surface them at panel level.
-    canManage && machineServiceEnabled && poolQuery.error instanceof Error ? `Consumable pools could not be loaded: ${poolQuery.error.message}` : null,
+    poolsEnabled && poolQuery.error instanceof Error ? `Consumable pools could not be loaded: ${poolQuery.error.message}` : null,
   ].filter((message): message is string => message !== null);
   const total = machines.data?.count;
 
@@ -158,14 +166,20 @@ export function MachinesPanel({
           </Link>
         ) : null}
         <PageHeader
-          title={shownType ? `${shownType.icon ? `${shownType.icon} ` : ""}${shownType.name}` : "Machines"}
+          title={shownType ? queueView ? `${shownType.name} requests` : `${shownType.icon ? `${shownType.icon} ` : ""}${shownType.name}` : "Machines"}
           description={shownType
-            ? `Machines, consumables and the service queue for ${shownType.name}.`
+            ? queueView ? "Review requests, run jobs and log manual usage." : `Machines and consumables for ${shownType.name}.`
             : `Shared equipment, operators, usage, documents and operating status.${total !== undefined ? ` ${total} ${total === 1 ? "machine" : "machines"} in total.` : ""}`}
-          actions={shownType && canManage && shownType.can_create_machine === true ? (
+          actions={!queueView && shownType && canManage && shownType.can_create_machine === true ? (
             <MachineCreateDialog makerspaceId={makerspaceId} machineType={shownType} onCreated={setSelectedId} />
           ) : null}
         />
+        {shownType ? (
+          <nav aria-label={`${shownType.name} views`} className="flex flex-wrap gap-2">
+            {queueEnabled ? <Link to={queueHref} aria-current={queueView ? "page" : undefined} className={buttonClasses({ variant: queueView ? "secondary" : "quiet", size: "sm" })}>Requests</Link> : null}
+            <Link to={hrefFor(shownType)} aria-current={!queueView ? "page" : undefined} className={buttonClasses({ variant: !queueView ? "secondary" : "quiet", size: "sm" })}>Machines &amp; stock</Link>
+          </nav>
+        ) : null}
       </div>
 
       {loadErrors.length ? (
@@ -174,27 +188,30 @@ export function MachinesPanel({
         </Callout>
       ) : null}
 
-      {shownType ? (
+      {shownType && queueView ? (
+        !queueEnabled ? (
+          <EmptyState title="Requests unavailable" description="Managing requests requires machine management access and the service module. The built-in printer also requires printing to be enabled." action={<Link className={buttonClasses({ variant: "secondary" })} to={hrefFor(shownType)}>Machines &amp; stock</Link>} />
+        ) : isBuiltinPrinterType(shownType) ? (
+          <PrinterServiceConsole key={shownType.id} makerspaceId={makerspaceId} canManage={canManage} printingEnabled={printingEnabled} reportsEnabled={reportsEnabled} machineType={shownType} machines={typeMachines} pools={[...legacyPools, ...typePools]} draft={draftFor(shownType.id)} setDraft={(update) => setDraft(shownType.id, update)} />
+        ) : (
+          <MachineServiceConsole key={shownType.id} makerspaceId={makerspaceId} canManage={canManage} machineType={shownType} machines={typeMachines} pools={[...legacyPools, ...typePools]} draft={draftFor(shownType.id)} setDraft={(update) => setDraft(shownType.id, update)} />
+        )
+      ) : shownType ? (
         <MachineTypePage
           key={shownType.id}
           makerspaceId={makerspaceId}
           canManage={canManage}
           machineServiceEnabled={machineServiceEnabled}
-          printingEnabled={printingEnabled}
-          reportsEnabled={reportsEnabled}
           machineType={shownType}
           allMachines={typeMachines}
           visibleMachines={typeMachines.filter((machine) => statusFilter === "all" || machine.status === statusFilter)}
           statusFilter={statusFilter}
           onStatusFilter={setStatusFilter}
           typePools={typePools}
-          formPools={[...legacyPools, ...typePools]}
           existingPools={pools}
           machinesLoading={machines.isLoading}
           machinesFailed={machines.isError}
           onSelectMachine={setSelectedId}
-          draft={draftFor(shownType.id)}
-          setDraft={(update) => setDraft(shownType.id, update)}
         />
       ) : (
         <MachineTypeCards
@@ -207,6 +224,11 @@ export function MachinesPanel({
           hrefFor={hrefFor}
         />
       )}
+
+      {/* Manual runs belong to machine_service, even when printer requests are disabled. */}
+      {shownType && !queueView && canManage && machineServiceEnabled && !printingEnabled && isBuiltinPrinterType(shownType) ? (
+        <PrinterServiceConsole key={`manual-${shownType.id}`} makerspaceId={makerspaceId} canManage={canManage} printingEnabled={false} reportsEnabled={false} machineType={shownType} machines={typeMachines} pools={[...legacyPools, ...typePools]} draft={draftFor(shownType.id)} setDraft={(update) => setDraft(shownType.id, update)} />
+      ) : null}
 
       {/* The settings block. Rendered on the index AND beneath a sole type's page, which is
           what makes "land straight on my type" safe: none of these controls can become

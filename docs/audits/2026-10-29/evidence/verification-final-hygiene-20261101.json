@@ -1,0 +1,28 @@
+{
+  "checked_utc": "2026-11-01T01:09:42.544877+00:00",
+  "version_from_authoritative_version_file_and_openapi": "0.9.0",
+  "matching_agents_claude_sha256": "e547b982d5e1153a73a444fa71eb6fb0b8ebb0cef292843743ee49972f858ca0",
+  "gallery_manifest_entries_verified": 77,
+  "gallery_byte_counts_and_sha256_match": true,
+  "gallery_manifest_sha256": "68235d01bd1e79f901a5762ea064faa6694e0556ce990a31c5af3b668d3e5ba6",
+  "openapi_paths": 469,
+  "current_branch": "dev",
+  "staged_files": 0,
+  "local_commits_ahead_of_origin_dev": 0,
+  "new_changes_are_uncommitted": true,
+  "required_diff_whitespace_check_passed": true,
+  "changed_frontend_source_and_test_files_checked": 22,
+  "all_checked_frontend_files_within_300_lines": true,
+  "public_receipts_checked_including_this_one": 15,
+  "additional_current_and_preserved_recovery_descriptors_checked": 2,
+  "credential_pattern_matches": 0,
+  "pattern_check_scope": "JWTs, password hashes, private-key headers, signed-S3 query strings, credential URLs and private status token query strings; no raw private logs published.",
+  "local_markdown_links_checked": 248,
+  "remote_heads_verified_separately": {
+    "dev": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+    "main": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+    "only_main_and_dev_exist": true
+  },
+  "application_source_post_review_closure": "verification-final-review-20261101.json",
+  "code_review_passed_owner_qa_pending": true
+}

@@ -37,7 +37,9 @@ def test_registry_declares_all_send_path_keys():
         },
     }
 
-    assert len(REGISTRY) == 27 + 48
+    assert len(REGISTRY) == 29 + 48
+    assert ("hardware", "requester", "request_cancelled") in expected
+    assert ("hardware", "staff", "cancelled") in expected
     assert all_send_keys() == expected
 
 

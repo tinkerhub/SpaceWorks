@@ -46,8 +46,21 @@ export function usablePools(
   machineId: string,
   machines: Machine[],
   makerspaceId: number,
+  automaticTypeId?: number,
 ) {
   if (!unit) return [];
+  if (!machineId) {
+    if (automaticTypeId === undefined || !machines.some((machine) =>
+      machine.makerspace === makerspaceId && machine.machine_type.id === automaticTypeId,
+    )) return [];
+    return pools.filter((pool) =>
+      poolHasUnit(pool, unit) &&
+      pool.is_active === true &&
+      Number(pool.remaining_grams) > 0 &&
+      pool.machine_id === null &&
+      (pool.machine_type_id === null || pool.machine_type_id === automaticTypeId),
+    );
+  }
   const selectedId = Number(machineId);
   const machine = machines.find((candidate) => candidate.id === selectedId && candidate.makerspace === makerspaceId);
   if (!machine) return [];

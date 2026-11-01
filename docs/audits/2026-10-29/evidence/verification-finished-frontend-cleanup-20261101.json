@@ -1,0 +1,94 @@
+{
+  "finished_utc": "2026-11-01T00:17:39.382712+00:00",
+  "removed_count": 13,
+  "only_stopped_verified_owned_frontend_containers": true,
+  "logs_preserved_privately": true,
+  "force_used": false,
+  "volume_deletion_used": false,
+  "all_existing_volumes_preserved": true,
+  "volume_count": 63,
+  "all_unrelated_containers_preserved": true,
+  "protected_container_count": 31,
+  "backend_workers_not_changed": true,
+  "production_mutations": false,
+  "removed_containers": [
+    {
+      "id": "5106b36fadcd69dd1fca1da9f40e5e0beaab1b4da6acc542d3784a5e80335448",
+      "name": "spaceworks-frontverify-732b9414-0d15-4ee1-90d6-c33f784ee784-seed-verification",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "9bf0204c0c5e6f73f3755e9621873d9e5954cdbbd788475d674e8be8cbbe7d6d",
+      "name": "spaceworks-frontverify-732b9414-0d15-4ee1-90d6-c33f784ee784-before",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "e6b312be8a39d3786531248004e80f60bdfd609856ced9e317db354fd4ed10e8",
+      "name": "spaceworks-frontverify-732b9414-0d15-4ee1-90d6-c33f784ee784-run",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "683b268f245dc9f51f9d2d0f1a7157f3c3f30f5491c643e27e32805d8570e1d1",
+      "name": "spaceworks-frontverify-732b9414-0d15-4ee1-90d6-c33f784ee784-after",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "c7d55dee37e46d6a55ad6ea735ebcdb3becf34e348ea8c7cd8bf7cc7cc6f4a54",
+      "name": "spaceworks-frontverify-20882874-62d7-4983-9f48-68bc2eb10d17-seed-verification",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "9915c28f3b264f1c0be2868ec11a53b8ed3595d53fa03c859f483d92ab6c451b",
+      "name": "spaceworks-frontverify-20882874-62d7-4983-9f48-68bc2eb10d17-before",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "0c73da95733d48280ec62935ae01104be020c98593e15310efba38ad72e594ef",
+      "name": "spaceworks-frontverify-20882874-62d7-4983-9f48-68bc2eb10d17-run",
+      "exit_code": 137,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "fcba0084034c1fbb6540caa24a992dd700661a723811280e7c658027df7b36cf",
+      "name": "spaceworks-frontverify-20882874-62d7-4983-9f48-68bc2eb10d17-after",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "1289c0acdc69442a3acca9cda5da6f0ef238fb42bf98790edbb20bde01490385",
+      "name": "spaceworks-frontverify-449d6df7-5304-4a74-8e15-94bbae1df967-seed-verification",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "9f0a3c406244ea19ebf286bc83ac1daf4fac3e2efbed09c8ef40cae92d119447",
+      "name": "spaceworks-frontverify-449d6df7-5304-4a74-8e15-94bbae1df967-before",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "52a1ab837b8261e7bf42fd90b844f065b259ed4654001910381078a426e2e7ee",
+      "name": "spaceworks-frontverify-449d6df7-5304-4a74-8e15-94bbae1df967-run",
+      "exit_code": 2,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "1eae7d49c588bbcdd99857ea26ac1545a1cf268b7652e982f8407b4e8b054fba",
+      "name": "spaceworks-frontverify-449d6df7-5304-4a74-8e15-94bbae1df967-after",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    },
+    {
+      "id": "a4e53ea51ad61e9d1b739dbec21ed70c3de8096a0bf18998d66b3f065cefa2a2",
+      "name": "spaceworks-frontverify-48c910dc-cd38-420b-a415-626d34b00224-seed-verification",
+      "exit_code": 0,
+      "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5"
+    }
+  ]
+}

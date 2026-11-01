@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { installLiveMatchMedia } from "../../../test/liveMatchMedia";
 import { RegressionProviders, regressionClient } from "../../../test/uiRegressionHarness";
+import { machineKeys } from "../machinesApi";
+import { serviceType } from "../../../test/staffServiceOwnershipHarness";
 import type { Makerspace } from "../panels/shared";
 import { StaffShell, type StaffShellProps } from "./StaffShell";
 import { SIDEBAR_COLLAPSED_KEY } from "./useSidebarCollapsed";
@@ -19,10 +21,10 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.removeItem(SIDEBAR_COLLAPSED_KEY); });
 
-function mountShell() {
+function mountShell(nav: Partial<StaffShellProps["nav"]> = {}) {
   const onSelectTab = vi.fn();
   const props: StaffShellProps = {
-    nav: { activeMakerspaceSlug: makerspace.slug, activeTab: "inventory", allowedTabs: ["inventory", "qr"], guestOnly: false, singleTenantLocked: false },
+    nav: { activeMakerspaceSlug: makerspace.slug, activeTab: "inventory", allowedTabs: ["inventory", "qr"], guestOnly: false, singleTenantLocked: false, ...nav },
     account: {
       username: "space-manager", roleName: "Space Manager", activeMakerspaceName: makerspace.name,
       makerspaces: [makerspace], selected: 7, canSwitchMakerspace: false, canPickMakerspace: false,
@@ -32,7 +34,9 @@ function mountShell() {
     user: { username: "space-manager", email_verified: true, role: "staff", is_superuser: false, must_change_password: false, makerspaces: [] },
     onPasswordChanged: vi.fn(), onSelectTab, children: <button>Panel action</button>,
   };
-  render(<RegressionProviders client={regressionClient()} path="/m/community-lab/admin/inventory">
+  const client = regressionClient();
+  client.setQueryData(machineKeys.types(7), [{ ...serviceType("generic", 12), makerspace: 7 }]);
+  render(<RegressionProviders client={client} path="/m/community-lab/admin/inventory">
     <StaffShell {...props} />
   </RegressionProviders>);
   return { onSelectTab };
@@ -104,4 +108,16 @@ describe("StaffShell responsive modal lifecycle", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open navigation menu" }));
     expect(await screen.findByRole("dialog", { name: "Navigation" })).toBeInTheDocument();
   });
+});
+
+it("mobile sheet exposes the same type-specific request link and closes on navigation", async () => {
+  const { onSelectTab } = mountShell({ activeTab: "machines", allowedTabs: ["machines"],
+    canManageMachines: true, machineServiceEnabled: true, printingEnabled: true });
+  fireEvent.click(screen.getByRole("button", { name: "Open navigation menu" }));
+  const sheet = within(await screen.findByRole("dialog", { name: "Navigation" }));
+  const queue = sheet.getByRole("link", { name: "Presses requests" });
+  expect(queue).toHaveAttribute("href", "/m/community-lab/admin/machines/12-press/queue");
+  fireEvent.click(queue);
+  await waitFor(() => expect(screen.queryByRole("dialog", { name: "Navigation" })).not.toBeInTheDocument());
+  expect(onSelectTab).toHaveBeenCalledWith("machines");
 });

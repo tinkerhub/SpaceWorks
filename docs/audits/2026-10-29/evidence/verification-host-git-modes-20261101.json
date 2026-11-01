@@ -1,0 +1,36 @@
+{
+  "scope": "The exact five shipped-script executable-mode guards run against actual host Git/current index.",
+  "actual_result": {
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 0.97,
+    "cases": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "actual_collection_count": 5,
+    "actual_duplicates": 0
+  },
+  "original_failure": "Cached Linux verification image has no git executable and source snapshots deliberately omit.git; all five earlier failures were FileNotFoundError before mode assertions.",
+  "real_git_version": "git version 2.55.0",
+  "git_index_sha256": "d262041d800a82e260d43421d0ffa708f6a21b8bf70ddcbc163b706568dcb6b5",
+  "integrity": {
+    "source_files_checked": 222,
+    "source_and_git_index_verified_before_after": true,
+    "assertions_unchanged": true,
+    "no_fake_git_or_git_directory_graft": true
+  },
+  "source_only_execution": {
+    "isolated_pytest_config": true,
+    "unrelated_conftest_and_plugin_autoload_disabled": true,
+    "no_django_setup_database_or_provider_configuration": true,
+    "database_application_test_claim": false
+  },
+  "evidence_sha256": {
+    "receipt": "279692f25f231bb4cc5e84a94082b3d3d09fc319e3a552193a70af76cb4e13a8",
+    "junit": "2ada8d7e2c3c8d21fa848b16798c2788c8bc4f1867c6468ad8d8a15789e90568",
+    "plan": "2268ea6a9ecac6aa533306d35f3e068d772c91346cc8fc4ed69c43fbafb36102",
+    "driver": "55856f3be7a2b39e7faf4e9fbea65f30d5fb32053d14416edf14bad5aeff522e"
+  },
+  "staged_or_committed_changes": false
+}

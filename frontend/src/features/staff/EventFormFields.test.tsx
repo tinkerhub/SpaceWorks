@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -23,8 +23,14 @@ describe("EventFields registration policy", () => {
   it("keeps the two cutoff modes mutually exclusive", () => {
     render(<Harness />);
     const pick = (name: string) => {
-      fireEvent.click(screen.getByRole("combobox", { name: "Registration cutoff" }));
-      fireEvent.click(screen.getByRole("option", { name }));
+      const trigger = screen.getByLabelText("Registration cutoff", { selector: "button" });
+      expect(trigger).toBeVisible();
+      expect(trigger).toHaveRole("combobox");
+      expect(trigger).toHaveAccessibleName("Registration cutoff");
+      fireEvent.click(trigger);
+      const option = within(screen.getByRole("listbox")).getByRole("option", { name });
+      expect(option).toBeVisible();
+      fireEvent.click(option);
     };
 
     pick("Before the event starts");

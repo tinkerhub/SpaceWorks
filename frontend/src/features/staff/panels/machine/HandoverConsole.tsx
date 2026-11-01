@@ -98,6 +98,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                 row.status === "completed" && row.payment?.status === "pending"
                   ? row.payment
                   : null;
+              const machineName = row.assigned_machine?.name ?? row.machine?.name;
               const busy = (collect.isPending && collect.variables?.id === row.id) || (recordPayment.isPending && recordPayment.variables?.id === row.id);
               return (
                 <TR key={row.id}>
@@ -105,7 +106,7 @@ export function HandoverConsole({ makerspaceId, enabled }: Props) {
                     <p className="font-semibold text-ink">{row.title}</p>
                     <p className="text-caption text-ink-muted">
                       {row.requester_name || row.requester?.username || "Unknown requester"}
-                      {row.machine?.name ? ` · ${row.machine.name}` : ""}
+                      {machineName ? ` · ${machineName}` : ""}
                     </p>
                   </TD>
                   <TD className="whitespace-nowrap text-ink-secondary">{row.completed_at ? <When value={row.completed_at} /> : "—"}</TD>

@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-01",
+  "timezone": "Asia/Calcutta",
+  "owner_answer": "QA complete \u2014 commit locally to dev",
+  "approved_scope": "Reviewed current local audit batch including machine queue sidebar/navigation, queue actions and refresh, Machines & stock, file opening and updated change report.",
+  "authorization": "Create a local commit on dev.",
+  "push_merge_or_deploy_authorized_by_this_approval": false,
+  "question_item_id": "call_0910b2a1f52a4b2cba0dbae7ab28016f",
+  "review_evidence": "verification-machine-queue-final-20261101.json"
+}

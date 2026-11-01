@@ -5,6 +5,8 @@ dependencies. Each negative case keeps those dependencies but removes the module
 itself, so a refusal cannot be blamed on an unrelated optional prerequisite.
 """
 
+from functools import partial
+
 import pytest
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +19,16 @@ from apps.makerspaces.module_registry import (
     core_module_keys,
     with_dependencies,
 )
+from tests.modules.module_contract_identity_probes import (
+    AUTH_DENIALS,
+    member_accounts,
+    mobile,
+)
+from tests.modules.module_contract_probes import (
+    email_test,
+    payment_settings,
+    webhook_destination,
+)
 from tests.modules.test_offstate_inventory import _exercise_surface
 from tests.modules.test_offstate_machines import _machine, _printer_queue
 
@@ -28,12 +40,15 @@ OPTIONAL = tuple(sorted(set(BY_KEY) - CORE))
 
 def _space(module_key, state, modules):
     label = module_key.replace("_", "-")
-    return Makerspace.objects.create(
+    space = Makerspace.objects.create(
         name=f"contract-{label}-{state}",
         slug=f"contract-{label}-{state}",
         enabled_modules=sorted(modules),
         public_inventory_enabled=True,
     )
+    space.refresh_from_db()
+    assert set(space.enabled_modules) == modules
+    return space
 
 
 def _actor(module_key, state):
@@ -131,51 +146,59 @@ def _telegram(space, client):
     )
 
 
-# A None value is intentional: it keeps an unverified surface visible as a per-module
-# skip instead of silently pretending the registry entry has a contract probe.
 PROBES = {
     "asset_units": _inventory_probe("asset_units"),
     "bookings": _bookings,
     "bulk_import": _inventory_probe("bulk_import"),
     "containers": _inventory_probe("containers"),
-    "discord": None,
-    "email": None,
+    "discord": partial(webhook_destination, channel="discord"),
+    "email": email_test,
     "events": _events,
     "guest_handover": _guest_handover,
     "machine_service": _machine_service,
     "machines": _machines,
     "maintenance": _maintenance,
-    "mattermost": None,
-    "member_accounts": None,
+    "mattermost": partial(webhook_destination, channel="mattermost"),
+    "member_accounts": member_accounts,
     "membership": _membership,
-    "mobile": None,
+    "mobile": mobile,
     "notifications": _notifications,
-    "payments": None,
+    "payments": payment_settings,
     "printing": _printing,
     "procurement": _inventory_probe("procurement"),
     "qr_print_batches": _qr_print_batches,
     "reports": _reports,
-    "slack": None,
+    "slack": partial(webhook_destination, channel="slack"),
     "stock_transfers": _inventory_probe("stock_transfers"),
     "stocktake": _inventory_probe("stocktake"),
     "telegram": _telegram,
 }
 
 
-def _probe_or_skip(module_key):
+def _probe(module_key, monkeypatch, settings, actor):
     probe = PROBES[module_key]
-    if probe is None:
-        pytest.skip(f"{module_key}: no cheap verified primary-surface probe yet")
+    if module_key in {"discord", "mattermost", "slack", "email", "payments"}:
+        probe = partial(probe, actor=actor)
+    # Bind fixture context only for new helpers; the original probes stay two-arg.
+    if module_key in {"discord", "mattermost", "slack", "mobile"}:
+        return partial(probe, monkeypatch=monkeypatch, settings=settings)
+    if module_key == "email":
+        return partial(probe, settings=settings)
+    if module_key == "member_accounts":
+        return partial(probe, monkeypatch=monkeypatch)
     return probe
 
 
 @pytest.mark.parametrize("module_key", OPTIONAL)
-def test_optional_module_primary_surface_works_with_only_its_dependencies(module_key):
-    probe = _probe_or_skip(module_key)
+def test_optional_module_primary_surface_works_with_only_its_dependencies(
+    module_key, monkeypatch, settings
+):
     modules = CORE | with_dependencies({module_key})
     space = _space(module_key, "on", modules)
+    actor = _actor(module_key, "on")
+    probe = _probe(module_key, monkeypatch, settings, actor)
 
-    response = probe(space, _client(_actor(module_key, "on")))
+    response = probe(space, _client(actor))
 
     assert 200 <= response.status_code < 300, (
         f"{module_key} positive probe: {response.status_code} {response.data}"
@@ -183,20 +206,30 @@ def test_optional_module_primary_surface_works_with_only_its_dependencies(module
 
 
 @pytest.mark.parametrize("module_key", OPTIONAL)
-def test_optional_module_primary_surface_refuses_when_only_its_key_is_absent(module_key):
-    probe = _probe_or_skip(module_key)
+def test_optional_module_primary_surface_refuses_when_only_its_key_is_absent(
+    module_key, monkeypatch, settings
+):
     modules = CORE | (with_dependencies({module_key}) - {module_key})
     space = _space(module_key, "off", modules)
+    actor = _actor(module_key, "off")
+    probe = _probe(module_key, monkeypatch, settings, actor)
 
-    response = probe(space, _client(_actor(module_key, "off")))
+    response = probe(space, _client(actor))
 
     assert response.status_code >= 400, (
         f"{module_key} negative probe unexpectedly returned {response.status_code}"
     )
-    assert module_key in str(response.data), (
-        f"{module_key} surface refused without naming its own key: {response.data}"
-    )
+    if module_key in AUTH_DENIALS:
+        # Deployment-wide anonymous auth uses generic bodies, not tenant module keys.
+        expected_status, expected_body = AUTH_DENIALS[module_key]
+        assert response.status_code == expected_status
+        assert response.data == expected_body
+    else:
+        assert module_key in str(response.data), (
+            f"{module_key} surface refused without naming its own key: {response.data}"
+        )
 
 
 def test_probe_registry_covers_every_optional_module_key():
     assert set(PROBES) == set(OPTIONAL)
+    assert all(callable(probe) for probe in PROBES.values())

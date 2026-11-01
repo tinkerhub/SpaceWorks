@@ -171,12 +171,21 @@ def _booking_rows(ids, date_range, now):
 
 
 def _machine_rows(ids, date_range):
-    period = _period_q("machines__usage_entries__created_at", date_range)
+    from apps.machines.models import Machine
+    from apps.machines.usage_totals import annotate_machine_usage
+
+    machines = annotate_machine_usage(
+        Machine.objects.filter(makerspace_id__in=ids), date_range=date_range
+    )
+    hours = {
+        row["makerspace_id"]: row["hours"]
+        for row in machines.order_by().values("makerspace_id").annotate(hours=Sum("usage_total"))
+    }
+    # Start from makerspaces to retain zero-filled rows even without machines.
     rows = list(Makerspace.objects.filter(id__in=ids).values("id").annotate(
         active=Count("machines", filter=Q(machines__is_active=True), distinct=True),
-        hours=Coalesce(Sum("machines__usage_entries__hours", filter=period), Value(Decimal("0.00")), output_field=DecimalField(max_digits=20, decimal_places=2)),
     ))
-    return [{"makerspace_id": row["id"], "machines_active": row["active"], "machines_usage_hours": row["hours"]} for row in rows]
+    return [{"makerspace_id": row["id"], "machines_active": row["active"], "machines_usage_hours": hours.get(row["id"], Decimal("0.00"))} for row in rows]
 
 
 def _maintenance_rows(ids, date_range, today):

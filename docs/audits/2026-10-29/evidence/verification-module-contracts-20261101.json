@@ -1,0 +1,72 @@
+{
+  "scope": "Complete optional-module primary-surface ON/OFF matrix; all 25 optional keys and callable registry guard.",
+  "actual_result": {
+    "collected": 51,
+    "passed": 51,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "driver_seconds": 22.44,
+    "timed_out": false
+  },
+  "previous_skips_closed": {
+    "count": 14,
+    "modules": [
+      "discord",
+      "email",
+      "mattermost",
+      "member_accounts",
+      "mobile",
+      "payments",
+      "slack"
+    ],
+    "both_enabled_and_disabled_executed": true
+  },
+  "controls": {
+    "frozen_application_source_unchanged": true,
+    "source_and_dependencies_verified_before_after": true,
+    "complete_test_directory_overlay_verified_before_after": true,
+    "read_only_overlay_files": 19,
+    "no_create_db": true,
+    "isolated_owned_test_database": true,
+    "postgres_durability_flags_on": true,
+    "no_production_writes": true
+  },
+  "assertions": {
+    "chat": "Real destination validation, encrypted persistence and scoped audit; deterministic public DNS response, no delivery.",
+    "email": "Real dispatch through local-memory transport, SENT log, recipient/body and scoped audit; no SMTP delivery.",
+    "payments": "Real settings GET/PATCH/readback and module refusal; no payment or provider onboarding created.",
+    "member_accounts": "Real anonymous phone-start gate with explicit platform phone switch; downstream OTP/account lookup/delivery boundary controlled.",
+    "mobile": "Real challenge, attested login, password, grant, family and signed token bindings; provider attestation HTTP controlled; OFF creates no grants/tokens."
+  },
+  "test_files": [
+    {
+      "path": "backend/tests/modules/test_module_contract_matrix.py",
+      "sha256": "9eb384a5709a71ebb15165c7a9d34402bc8c554456ff84dbe77705e958e7d2e3",
+      "lines": 235
+    },
+    {
+      "path": "backend/tests/modules/module_contract_probes.py",
+      "sha256": "0dfb41a7e859e3855d2963df3fa4133c04ffe6ecbb7080909ca1f03f2f51e5be",
+      "lines": 170
+    },
+    {
+      "path": "backend/tests/modules/module_contract_identity_probes.py",
+      "sha256": "22b668ada02bca3cd0c922e05b4094e9e0a527fcb49e643eb8b7757148c99d45",
+      "lines": 141
+    }
+  ],
+  "evidence_sha256": {
+    "receipt": "72294412260bf6f0e1fbc62d978d260338b86199849e72eba869f4ab5c7e6882",
+    "junit": "4795de1016b39fc1ff458c3f75a467ea509c27af73fc6fc46d6cf9235c309fc3",
+    "manifest": "60270161cda5e25d1c9276ac9e98fe250d3cc0eeec0e2320575645200f67f81d",
+    "selection": "0f94d58e9be734be68ca660536a51953533af0d68e11d8bd5fbb68bc5878bbb5",
+    "overlay_authority": "0b7f95c3ced62b6f081c39cf5f746d46f6aa24b56d5a138e64a4148d71e637df"
+  },
+  "coverage_limits": [
+    "One primary API surface per module; this record does not certify every endpoint or live external provider.",
+    "No fresh monolithic complete backend-suite claim."
+  ],
+  "new_test_identities_added": 0
+}

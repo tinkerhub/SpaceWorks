@@ -1,0 +1,273 @@
+{
+  "status": "EVERY_CURRENT_COLLECTED_ID_HAS_AN_ACTUAL_PASS_ON_BOUND_FROZEN_INPUTS",
+  "current_collected_unique": 13044,
+  "ledger_counts": {
+    "baseline-frozen-pass-only": 6944,
+    "current-frozen-pass": 6100
+  },
+  "unresolved_count": 0,
+  "private_ledger_sha256": "6eb1539a3305ce92062e96f2fdfbdc679d706a00aa18ac400f9efd7d19b0010b",
+  "private_ledger_mode": "0600",
+  "private_identity_ledger_not_for_publication": true,
+  "source_and_dependency_integrity_required_before_credit": true,
+  "no_skips_or_markers_credited_as_pass": true,
+  "single_wholly_green_current_monolithic_invocation": false,
+  "all_owned_test_runtime_containers_absent": {
+    "spaceworks-full-backend-20261101": true,
+    "spaceworks-parallel-tail-20261101": true,
+    "spaceworks-disjoint-worker-a-20261101": true,
+    "spaceworks-disjoint-worker-b-20261101": true,
+    "spaceworks-module-contract-runtime-20261101": true,
+    "spaceworks-recovery-registry34-20261101": true
+  },
+  "no_further_pytest_planned": true,
+  "historical_failures_retained_and_strict_closures_bound": true,
+  "bounded_run_evidence_bindings": [
+    {
+      "label": "original-interrupted-baseline",
+      "scope": "original7bbf baseline; interrupted, not a full pass",
+      "evidence_sha256": {
+        "collection": "4d499f7dfb53f200fba4de55b4de12e4a27b071a911cb7c69858159e5541a311",
+        "junit": "e2b38897cd7b15b91a65fc2b90a9a56d149a9fa41918e60da0377503c0caad9f",
+        "receipt": "80327fe95d096b6970e748813fa87b82bf3bf79cb60ad9f1042d7c5524eed540",
+        "source_manifest": "2c4a3645624b67f570bbc56dc485d2312dd206ccad668bd1aab208d4e93fad2e"
+      },
+      "actual_outcome_counts": {
+        "passed": 7179,
+        "skipped": 14,
+        "failed": 4
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 2,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-tail6048",
+      "scope": "CURRENT dirty/untracked snapshot6048 selected cases",
+      "evidence_sha256": {
+        "collection": "1d495a27fe3b4127f6fb26d09030d343447e48cf21711b2c90c5dee1173f0864",
+        "junit": "0dab73974a846b17d357320be91592d56815002c5acc792c1616daa27d731e7c",
+        "receipt": "9f8313cd8afc0a54e843c9cad02edb44fc22669bc54298fe4980cde5c4a25cb2",
+        "source_manifest": "4084cd07359293482b73785300f9dea6a5ae8d1b0f703c518200de326a2456e0"
+      },
+      "actual_outcome_counts": {
+        "passed": 876
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 2,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-disjoint-worker-a",
+      "scope": "Frozen current app/source snapshot4084cd; actualall2586including34retained historical failures",
+      "evidence_sha256": {
+        "collection": "faa0da24d538881742f5163d36253dd39fa018eef48e995adc178dc0244decce",
+        "junit": "a6ac78c21d631c7072bdb75128799f1eec8c78b6f5173e309955f4af807a55cb",
+        "receipt": "16745afcbb6409540fa980093d39c42fafe50cf5cdd1e705dd490d9a4a6a8e99",
+        "source_manifest": "265b6213eec3063db29975ac65e160358920c97d78bc54d019a01cb9c49d7122"
+      },
+      "actual_outcome_counts": {
+        "passed": 2552,
+        "failed": 34
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 1,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-disjoint-worker-b",
+      "scope": "Frozen app/source snapshot4084cd; all2586actualpasses; effective primary S3 bindings are runtime.env, inherited manifest bucket metadata non-effective as hash-bound supplement states",
+      "evidence_sha256": {
+        "collection": "f189d4c443cfc95b76549a1033b0ae2755bca328fe5adc87c4c2482b84c0775f",
+        "junit": "fe48d540c02cfbb088963b1da20b9284264f2d437da277aa57bedfc41c3918ce",
+        "receipt": "59d639049707ea405618bc970a7057e4db202d0d64f60aeb079b4dd92cadd90a",
+        "source_manifest": "ba4c9a326a1014a37983eb1c8738a92c51e7de145359cabe8abba9f28379aa9e"
+      },
+      "actual_outcome_counts": {
+        "passed": 2586
+      },
+      "descriptor_bound_extra_evidence_sha256": {
+        "effective_storage_bindings": "f1d647218b8f6fb26f93133db2cfb667d6e43656cb728c2a83bab5164a4c6277"
+      },
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-module-matrix51-closes14",
+      "scope": "Frozen backend app source4084cd plus complete tests/modules19-file RO overlay with3 approved current test files; actual51same identities incl14closed gaps",
+      "evidence_sha256": {
+        "collection": "0f94d58e9be734be68ca660536a51953533af0d68e11d8bd5fbb68bc5878bbb5",
+        "junit": "4795de1016b39fc1ff458c3f75a467ea509c27af73fc6fc46d6cf9235c309fc3",
+        "receipt": "72294412260bf6f0e1fbc62d978d260338b86199849e72eba869f4ab5c7e6882",
+        "source_manifest": "60270161cda5e25d1c9276ac9e98fe250d3cc0eeec0e2320575645200f67f81d"
+      },
+      "actual_outcome_counts": {
+        "passed": 51
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-corrected-recovery-registry34",
+      "scope": "Same frozen app/tests exceptstrengthened registryfixtureec158f and reviewedmetadata95b780; all34existingIDs",
+      "evidence_sha256": {
+        "collection": "69ca9d909e528697cd53af353333fe5031a4814cc498b229fae46a8e7f150579",
+        "junit": "b5883a44a4fc98f5981df4b7bb5849e1434fde0244f5b3f4a9f3f7ec125561ad",
+        "receipt": "f883008241b84d43cdd5f18392d12e572e1e72a29fd0b53b41d390d715da59aa",
+        "source_manifest": "78e23ad1d1e9c5dbb86e739d384d282c32903d0327d32b5fff2c632d996c38cb"
+      },
+      "actual_outcome_counts": {
+        "passed": 34
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "unchanged-host-real-git-five",
+      "scope": "Sameunchanged5source-only tests against real hostGit index; noDjango/DB/providerconfiguration; source/indexbeforeafterverified",
+      "evidence_sha256": {
+        "collection": "b5556377cfd158706c26bf92e2efccc7da17f98e733ffdb5ee79ad432c13b95e",
+        "junit": "2ada8d7e2c3c8d21fa848b16798c2788c8bc4f1867c6468ad8d8a15789e90568",
+        "receipt": "279692f25f231bb4cc5e84a94082b3d3d09fc319e3a552193a70af76cb4e13a8",
+        "source_manifest": "2268ea6a9ecac6aa533306d35f3e068d772c91346cc8fc4ed69c43fbafb36102"
+      },
+      "actual_outcome_counts": {
+        "passed": 5
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    }
+  ],
+  "live_runtime_source_match_proof": "live-runtime-source-final-match.json",
+  "actual_run_histories": [
+    {
+      "label": "original-interrupted-baseline",
+      "scope": "original7bbf baseline; interrupted, not a full pass",
+      "evidence_sha256": {
+        "collection": "4d499f7dfb53f200fba4de55b4de12e4a27b071a911cb7c69858159e5541a311",
+        "junit": "e2b38897cd7b15b91a65fc2b90a9a56d149a9fa41918e60da0377503c0caad9f",
+        "receipt": "80327fe95d096b6970e748813fa87b82bf3bf79cb60ad9f1042d7c5524eed540",
+        "source_manifest": "2c4a3645624b67f570bbc56dc485d2312dd206ccad668bd1aab208d4e93fad2e"
+      },
+      "actual_outcome_counts": {
+        "passed": 7179,
+        "skipped": 14,
+        "failed": 4
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 2,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-tail6048",
+      "scope": "CURRENT dirty/untracked snapshot6048 selected cases",
+      "evidence_sha256": {
+        "collection": "1d495a27fe3b4127f6fb26d09030d343447e48cf21711b2c90c5dee1173f0864",
+        "junit": "0dab73974a846b17d357320be91592d56815002c5acc792c1616daa27d731e7c",
+        "receipt": "9f8313cd8afc0a54e843c9cad02edb44fc22669bc54298fe4980cde5c4a25cb2",
+        "source_manifest": "4084cd07359293482b73785300f9dea6a5ae8d1b0f703c518200de326a2456e0"
+      },
+      "actual_outcome_counts": {
+        "passed": 876
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 2,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-disjoint-worker-a",
+      "scope": "Frozen current app/source snapshot4084cd; actualall2586including34retained historical failures",
+      "evidence_sha256": {
+        "collection": "faa0da24d538881742f5163d36253dd39fa018eef48e995adc178dc0244decce",
+        "junit": "a6ac78c21d631c7072bdb75128799f1eec8c78b6f5173e309955f4af807a55cb",
+        "receipt": "16745afcbb6409540fa980093d39c42fafe50cf5cdd1e705dd490d9a4a6a8e99",
+        "source_manifest": "265b6213eec3063db29975ac65e160358920c97d78bc54d019a01cb9c49d7122"
+      },
+      "actual_outcome_counts": {
+        "passed": 2552,
+        "failed": 34
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 1,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-disjoint-worker-b",
+      "scope": "Frozen app/source snapshot4084cd; all2586actualpasses; effective primary S3 bindings are runtime.env, inherited manifest bucket metadata non-effective as hash-bound supplement states",
+      "evidence_sha256": {
+        "collection": "f189d4c443cfc95b76549a1033b0ae2755bca328fe5adc87c4c2482b84c0775f",
+        "junit": "fe48d540c02cfbb088963b1da20b9284264f2d437da277aa57bedfc41c3918ce",
+        "receipt": "59d639049707ea405618bc970a7057e4db202d0d64f60aeb079b4dd92cadd90a",
+        "source_manifest": "ba4c9a326a1014a37983eb1c8738a92c51e7de145359cabe8abba9f28379aa9e"
+      },
+      "actual_outcome_counts": {
+        "passed": 2586
+      },
+      "descriptor_bound_extra_evidence_sha256": {
+        "effective_storage_bindings": "f1d647218b8f6fb26f93133db2cfb667d6e43656cb728c2a83bab5164a4c6277"
+      },
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-module-matrix51-closes14",
+      "scope": "Frozen backend app source4084cd plus complete tests/modules19-file RO overlay with3 approved current test files; actual51same identities incl14closed gaps",
+      "evidence_sha256": {
+        "collection": "0f94d58e9be734be68ca660536a51953533af0d68e11d8bd5fbb68bc5878bbb5",
+        "junit": "4795de1016b39fc1ff458c3f75a467ea509c27af73fc6fc46d6cf9235c309fc3",
+        "receipt": "72294412260bf6f0e1fbc62d978d260338b86199849e72eba869f4ab5c7e6882",
+        "source_manifest": "60270161cda5e25d1c9276ac9e98fe250d3cc0eeec0e2320575645200f67f81d"
+      },
+      "actual_outcome_counts": {
+        "passed": 51
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "current-corrected-recovery-registry34",
+      "scope": "Same frozen app/tests exceptstrengthened registryfixtureec158f and reviewedmetadata95b780; all34existingIDs",
+      "evidence_sha256": {
+        "collection": "69ca9d909e528697cd53af353333fe5031a4814cc498b229fae46a8e7f150579",
+        "junit": "b5883a44a4fc98f5981df4b7bb5849e1434fde0244f5b3f4a9f3f7ec125561ad",
+        "receipt": "f883008241b84d43cdd5f18392d12e572e1e72a29fd0b53b41d390d715da59aa",
+        "source_manifest": "78e23ad1d1e9c5dbb86e739d384d282c32903d0327d32b5fff2c632d996c38cb"
+      },
+      "actual_outcome_counts": {
+        "passed": 34
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    },
+    {
+      "label": "unchanged-host-real-git-five",
+      "scope": "Sameunchanged5source-only tests against real hostGit index; noDjango/DB/providerconfiguration; source/indexbeforeafterverified",
+      "evidence_sha256": {
+        "collection": "b5556377cfd158706c26bf92e2efccc7da17f98e733ffdb5ee79ad432c13b95e",
+        "junit": "2ada8d7e2c3c8d21fa848b16798c2788c8bc4f1867c6468ad8d8a15789e90568",
+        "receipt": "279692f25f231bb4cc5e84a94082b3d3d09fc319e3a552193a70af76cb4e13a8",
+        "source_manifest": "2268ea6a9ecac6aa533306d35f3e068d772c91346cc8fc4ed69c43fbafb36102"
+      },
+      "actual_outcome_counts": {
+        "passed": 5
+      },
+      "descriptor_bound_extra_evidence_sha256": {},
+      "receipt_exit_code": 0,
+      "receipt_timed_out": false
+    }
+  ],
+  "current_application_source_closure": {
+    "production_source_and_entire_frontend_source_match_current_frozen_backend_candidate": true,
+    "file_count": 2769,
+    "frozen_manifest_sha256": "4084cd07359293482b73785300f9dea6a5ae8d1b0f703c518200de326a2456e0",
+    "no_new_unaccounted_application_files": true,
+    "later_changes_are_test_or_evidence_documentation_only": true
+  },
+  "interpretation": "Baseline plus current affected-source/partition/replay coverage. Every current identity has an observed pass; this is not a fresh wholly green monolithic current-source run.",
+  "no_production_settings_inventory_or_request_mutations": true
+}

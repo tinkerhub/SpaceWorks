@@ -1,7 +1,7 @@
 import { useServiceOperation } from "./useServiceOperation";
 import { PublicPrinterQueueSetup } from "./PublicPrinterQueueSetup";
 import { useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { MachineServiceRequest, MachineTypeAccess, PrinterPool, PrinterServiceReport, TypedManualUsageResponse } from "../../../../generated/api";
 import { EmptyState, ErrorBlock, SectionHeading, Skeleton } from "../../../../components/ui";
@@ -11,6 +11,7 @@ import type { Machine, MachineType } from "../../machinesApi";
 import { invalidatePaymentViews } from "../../paymentsApi";
 import { useStaffGet } from "../shared";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
+import { invalidateMachineDetails } from "./invalidateMachineDetails";
 import { manualPriceCell, useManualPrice } from "./manualPrice";
 import { useNotify } from "./machineUi";
 import { SERVICE_ACTION_COPY, ServiceQueue } from "./ServiceQueue";
@@ -40,11 +41,13 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
   // global/tenant split, so a makerspace-local type sharing a built-in's slug would pull in
   // the other type's jobs and let a manager mutate them from the wrong section.
   const typeFilter = `machine_type_id=${machineType.id}`;
-  const requests = useStaffGet<MachineServiceRequest[]>(
-    ["machine-service-requests", makerspaceId, machineType.id],
-    `/admin/makerspaces/${makerspaceId}/machine-service/requests?${typeFilter}`,
-    canManage && printingEnabled,
-  );
+  const requests = useQuery({
+    queryKey: ["machine-service-requests", makerspaceId, machineType.id],
+    queryFn: () => staffRequest<MachineServiceRequest[]>(`/admin/makerspaces/${makerspaceId}/machine-service/requests?${typeFilter}`),
+    enabled: canManage && printingEnabled,
+    // Returning from equipment starts a new action lifetime and reads authoritative jobs.
+    refetchOnMount: "always",
+  });
   const manualUsage = useStaffGet<TypedManualUsageResponse[]>(
     ["machine-service-manual", makerspaceId, machineType.id],
     `/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage?${typeFilter}`,
@@ -64,7 +67,11 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
     () => (manualUsage.data ?? []).filter((entry) => entry.metering_unit === "weight"),
     [manualUsage.data],
   );
-  const actionPools = usablePools(pools, "grams", draft.actionValues.machine_id, machines, makerspaceId);
+  const activeRequest = requests.data?.find((request) => request.id === draft.action?.id);
+  const automaticTypeId = draft.action?.name === "start" &&
+    activeRequest?.allocation_policy === "first_idle" && !draft.actionValues.machine_id
+    ? machineType.id : undefined;
+  const actionPools = usablePools(pools, "grams", draft.actionValues.machine_id, machines, makerspaceId, automaticTypeId);
   const manualPools = usablePools(pools, "grams", draft.manual.machine_id, machines, makerspaceId);
 
   const invalidate = () => void Promise.all([
@@ -89,7 +96,9 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
       method: "POST",
       body,
     }),
-    success: ({ composition }, isCurrent) => {
+    success: async ({ composition }, isCurrent) => {
+      await invalidateMachineDetails(queryClient, isCurrent);
+      if (!isCurrent()) return;
       notify.success("Print logged");
       setDraft((current) => isCurrent() && JSON.stringify(current.manual) === composition ? { ...current, manual: blankManualUsage } : current);
       invalidate();
@@ -102,7 +111,9 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
         method: "POST",
         body: action.body,
       }),
-    success: (action, isCurrent) => {
+    success: async (action, isCurrent) => {
+      await invalidateMachineDetails(queryClient, isCurrent);
+      if (!isCurrent()) return;
       notify.success(SERVICE_ACTION_COPY[action.name].done);
       setDraft((current) => isCurrent() && JSON.stringify([current.action, current.actionValues]) === action.composition ? clearedActionDraft(current) : current);
       invalidate();
@@ -122,6 +133,13 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
             makerspaceId={makerspaceId}
             requests={requests.data}
             loading={requests.isLoading}
+            error={requests.error}
+            fetching={requests.isFetching}
+            onRefresh={() => {
+              void requests.refetch();
+              void queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) });
+              void queryClient.invalidateQueries({ queryKey: poolQueryKey(makerspaceId) });
+            }}
             draft={draft}
             setDraft={setDraft}
             machines={machines}
@@ -194,7 +212,7 @@ export function PrinterServiceConsole({ makerspaceId, canManage, printingEnabled
           ) : null}
         </section>
       ) : null}
-      <ErrorBlock error={[requests.error, manualUsage.error, report.error, submitManual.error, runAction.error].find((item) => item instanceof Error)} />
+      <ErrorBlock error={[manualUsage.error, report.error, submitManual.error, runAction.error].find((item) => item instanceof Error)} />
     </div>
   );
 }

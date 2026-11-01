@@ -1,5 +1,5 @@
 import { useServiceOperation } from "./useServiceOperation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { MachineServiceRequest, PrinterPool, TypedManualUsageResponse } from "../../../../generated/api";
 import { ErrorBlock, SectionHeading } from "../../../../components/ui";
@@ -9,6 +9,7 @@ import type { Machine, MachineType } from "../../machinesApi";
 import { invalidatePaymentViews } from "../../paymentsApi";
 import { useStaffGet } from "../shared";
 import { ManualUsage, blankManualUsage } from "./ManualUsage";
+import { invalidateMachineDetails } from "./invalidateMachineDetails";
 import { manualPriceCell, useManualPrice } from "./manualPrice";
 import { useNotify } from "./machineUi";
 import { SERVICE_ACTION_COPY, ServiceQueue } from "./ServiceQueue";
@@ -39,17 +40,23 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
   // global/tenant split, so a makerspace-local type sharing a built-in's slug would pull in
   // the other type's jobs and let a manager mutate them from the wrong section.
   const machineTypeFilter = `machine_type_id=${machineType.id}`;
-  const requests = useStaffGet<MachineServiceRequest[]>(
-    ["machine-service-requests", makerspaceId, machineType.id],
-    `/admin/makerspaces/${makerspaceId}/machine-service/requests?${machineTypeFilter}`,
-    canManage,
-  );
+  const requests = useQuery({
+    queryKey: ["machine-service-requests", makerspaceId, machineType.id],
+    queryFn: () => staffRequest<MachineServiceRequest[]>(`/admin/makerspaces/${makerspaceId}/machine-service/requests?${machineTypeFilter}`),
+    enabled: canManage,
+    // Returning from equipment starts a new action lifetime and reads authoritative jobs.
+    refetchOnMount: "always",
+  });
   const manualUsage = useStaffGet<TypedManualUsageResponse[]>(
     ["machine-service-manual", makerspaceId, machineType.id],
     `/admin/makerspaces/${makerspaceId}/machine-service/typed-manual-usage?${machineTypeFilter}`,
     canManage,
   );
-  const actionPools = usablePools(pools, poolUnit, draft.actionValues.machine_id, machines, makerspaceId);
+  const activeRequest = requests.data?.find((request) => request.id === draft.action?.id);
+  const automaticTypeId = draft.action?.name === "start" &&
+    activeRequest?.allocation_policy === "first_idle" && !draft.actionValues.machine_id
+    ? machineType.id : undefined;
+  const actionPools = usablePools(pools, poolUnit, draft.actionValues.machine_id, machines, makerspaceId, automaticTypeId);
   const manualPools = usablePools(pools, poolUnit, draft.manual.machine_id, machines, makerspaceId);
 
   const invalidate = () => void Promise.all([
@@ -74,7 +81,9 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
       method: "POST",
       body,
     }),
-    success: ({ composition }, isCurrent) => {
+    success: async ({ composition }, isCurrent) => {
+      await invalidateMachineDetails(queryClient, isCurrent);
+      if (!isCurrent()) return;
       notify.success("Usage logged");
       setDraft((current) => isCurrent() && JSON.stringify(current.manual) === composition ? { ...current, manual: blankManualUsage } : current);
       invalidate();
@@ -87,7 +96,9 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
         method: "POST",
         body: action.body,
       }),
-    success: (action, isCurrent) => {
+    success: async (action, isCurrent) => {
+      await invalidateMachineDetails(queryClient, isCurrent);
+      if (!isCurrent()) return;
       notify.success(SERVICE_ACTION_COPY[action.name].done);
       setDraft((current) => isCurrent() && JSON.stringify([current.action, current.actionValues]) === action.composition ? clearedActionDraft(current) : current);
       invalidate();
@@ -102,12 +113,19 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
       <section className="grid gap-4">
         <SectionHeading
           title="Service queue"
-          description={`This type is metered in ${unitLabel}. ${poolUnit ? "Choose a machine before selecting its consumable pool." : "This type does not use consumable pools."}`}
+          description={`This type is metered in ${unitLabel}. ${poolUnit ? "Choose a compatible consumable pool when starting a job." : "This type does not use consumable pools."}`}
         />
         <ServiceQueue
           makerspaceId={makerspaceId}
           requests={requests.data}
           loading={requests.isLoading}
+          error={requests.error}
+          fetching={requests.isFetching}
+          onRefresh={() => {
+            void requests.refetch();
+            void queryClient.invalidateQueries({ queryKey: machineKeys.list(makerspaceId) });
+            void queryClient.invalidateQueries({ queryKey: poolQueryKey(makerspaceId) });
+          }}
           draft={draft}
           setDraft={setDraft}
           machines={machines}
@@ -115,7 +133,11 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           machineNoun="Machine"
           unitLabel={quantityLabel}
           hasPool={!!poolUnit}
-          meta={(request) => `Planned ${request.planned_quantity ?? "0"} ${unitLabel} · actual ${request.actual_consumed_quantity ?? "0"} ${unitLabel}`}
+          meta={(request) => {
+            const planned = meteringUnit === "minutes" ? request.estimated_minutes : request.planned_quantity;
+            const actual = meteringUnit === "minutes" ? request.actual_minutes : request.actual_consumed_quantity;
+            return `Planned ${planned ?? "0"} ${unitLabel} · actual ${actual ?? "0"} ${unitLabel}`;
+          }}
           pending={runAction.pending}
           canEdit={runAction.canEdit}
           onSubmit={(action) => runAction.submit({ ...action, body: JSON.stringify(actionBody(action.name, draft.actionValues, !!poolUnit, !!quantityLabel)), composition: JSON.stringify([draft.action, draft.actionValues]) })}
@@ -159,7 +181,7 @@ export function MachineServiceConsole({ makerspaceId, canManage, machineType, ma
           price={manualPrice}
         />
       </section>
-      <ErrorBlock error={[requests.error, manualUsage.error, submitManual.error, runAction.error].find((item) => item instanceof Error)} />
+      <ErrorBlock error={[manualUsage.error, submitManual.error, runAction.error].find((item) => item instanceof Error)} />
     </div>
   );
 }

@@ -45,6 +45,7 @@ describe("MachinesPanel creation, consumables and service workflows", () => {
       pool(5, "Printer-only PLA", null, "millimeters", printerType.id),
     ];
     renderPanel({ machines: rows, pools, requests: { laser: [{ id: 10, title: "Cut acrylic", status: "accepted", planned_quantity: "20", actual_consumed_quantity: "0" }] } });
+    fireEvent.click(await screen.findByRole("link", { name: "Requests" }));
     fireEvent.click(await screen.findByRole("button", { name: "Start" }));
     pick("Machine", "Laser One");
 
@@ -124,7 +125,7 @@ describe("MachinesPanel creation, consumables and service workflows", () => {
     renderPanel(
       { types: [laserType, printerType], requests: { laser: [{ id: 10, title: "Cut acrylic", status: "in_progress", planned_quantity: "20", actual_consumed_quantity: "0" }] } },
       {},
-      "/admin/machines/1-laser",
+      "/admin/machines/1-laser/queue",
     );
     fireEvent.click(await screen.findByRole("button", { name: "Complete" }));
     fireEvent.change(screen.getByLabelText("Actual minutes"), { target: { value: "37" } });
@@ -132,6 +133,7 @@ describe("MachinesPanel creation, consumables and service workflows", () => {
     fireEvent.click(screen.getByRole("link", { name: /All machine types/ }));
     expect(screen.queryByLabelText("Actual minutes")).not.toBeInTheDocument();
     fireEvent.click(await screen.findByRole("link", { name: /Laser cutters/ }));
+    fireEvent.click(await screen.findByRole("link", { name: "Requests" }));
 
     expect(await screen.findByLabelText("Actual minutes")).toHaveValue("37");
   });

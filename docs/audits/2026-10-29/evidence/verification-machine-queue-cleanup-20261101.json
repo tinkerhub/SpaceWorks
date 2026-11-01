@@ -1,0 +1,12 @@
+{
+  "removed_owned_stopped_test_containers": 11,
+  "force": false,
+  "volumes_deleted": 0,
+  "unrelated_container_ids_preserved": true,
+  "remaining_containers": 26,
+  "all_volumes_preserved": true,
+  "all_images_preserved": true,
+  "all_networks_preserved": true,
+  "test_inputs_results_retained": true,
+  "final_cleanup_removed": 9
+}

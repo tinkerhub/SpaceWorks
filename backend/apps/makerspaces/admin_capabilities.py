@@ -55,11 +55,12 @@ class MakerspaceAdminForm(ImageMakerspaceAdminForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["frontend_domain"].help_text = (
-            "Optional: leave blank to use the shared site at /m/your-space and "
-            "/m/your-space/admin. Set a unique hostname only for an exclusive branded "
-            "site; the same shared hostname must not be assigned to multiple makerspaces."
-        )
+        if "frontend_domain" in self.fields:
+            self.fields["frontend_domain"].help_text = (
+                "Optional: leave blank to use the shared site at /m/your-space and "
+                "/m/your-space/admin. Set a unique hostname only for an exclusive branded "
+                "site; the same shared hostname must not be assigned to multiple makerspaces."
+            )
         # Sourced from the registry, not "defaults + keys already on the row". That old
         # rule meant a module absent from the defaults could never be offered on a new
         # makerspace -- which is why `notifications` was enforced but unreachable.

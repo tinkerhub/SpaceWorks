@@ -5,7 +5,7 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.machines.models import MachineServiceRequest
+from apps.machines.models import MachineServiceRequest, ServiceQueue
 from apps.payments.models import Payment
 from apps.payments.serializers import StaffPaymentSerializer
 
@@ -52,6 +52,12 @@ class MachineServiceRequestSerializer(serializers.ModelSerializer):
     requester = ServiceRequesterSerializer(read_only=True)
     bucket_id = serializers.IntegerField(read_only=True)
     queue_id = serializers.IntegerField(read_only=True)
+    allocation_policy = serializers.ChoiceField(
+        choices=ServiceQueue.AllocationPolicy.choices,
+        source="queue.allocation_policy",
+        default=ServiceQueue.AllocationPolicy.STAFF_SELECT,
+        read_only=True,
+    )
     machine_type = serializers.SerializerMethodField()
     capability_payload = serializers.JSONField(read_only=True)
     metering_unit = serializers.CharField(read_only=True, allow_null=True)
@@ -74,6 +80,7 @@ class MachineServiceRequestSerializer(serializers.ModelSerializer):
         model = MachineServiceRequest
         fields = (
             "id", "bucket_id", "queue_id", "machine_type", "machine", "assigned_machine", "requester",
+            "allocation_policy",
             "requester_name", "contact_email", "contact_phone", "title",
             "description", "source_link", "status", "reason", "estimated_minutes",
             "actual_minutes", "fail_percent_complete", "accepted_at", "started_at",

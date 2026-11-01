@@ -1,14 +1,10 @@
 import { Button, Card, EmptyState, FilterChip, SectionHeading, SkeletonRows, Table, TBody, TD, TH, THead, TR } from "../../../../components/ui";
 import { ImageThumbnail } from "../../../../components/ui/ImageThumbnail";
 import type { PrinterPool } from "../../../../generated/api";
-import { isBuiltinPrinterType } from "../../machinesApi";
 import type { Machine, MachineStatus, MachineType } from "../../machinesApi";
-import { MachineServiceConsole } from "./MachineServiceConsole";
-import { PrinterServiceConsole } from "./PrinterServiceConsole";
 import { ConsumablePoolCreateForm } from "./ConsumablePoolCreateForm";
 import { ConsumablePoolList } from "./ConsumablePoolList";
 import { MACHINE_STATUSES, MachineStatusChip, machineStatusLabel } from "./machineUi";
-import type { ServiceDraft } from "./serviceDrafts";
 import { typePoolUnit } from "./typeConfig";
 
 export type StatusFilter = "all" | MachineStatus;
@@ -17,27 +13,22 @@ type Props = {
   makerspaceId: number;
   canManage: boolean;
   machineServiceEnabled: boolean;
-  printingEnabled: boolean;
-  reportsEnabled?: boolean;
   machineType: MachineType;
   allMachines: Machine[];
   visibleMachines: Machine[];
   statusFilter: StatusFilter;
   onStatusFilter: (filter: StatusFilter) => void;
   typePools: PrinterPool[];
-  formPools: PrinterPool[];
   existingPools: PrinterPool[];
   machinesLoading: boolean;
   machinesFailed: boolean;
   onSelectMachine: (machineId: number) => void;
-  draft: ServiceDraft;
-  setDraft: (update: (draft: ServiceDraft) => ServiceDraft) => void;
 };
 
-/** One machine type's whole world: its machines, its bound consumables, its service queue.
+/** One machine type's equipment and bound consumables. Service work has its own route.
  *
  * This replaces the collapsible `MachineTypeSection`. Every content rule that section
- * carried is preserved verbatim, because each was a bug someone already hit:
+ * carried for equipment is preserved, because each was a bug someone already hit:
  * both empty states require a SUCCESSFUL load, and `type_payload.model` is displayed for
  * any type that records one -- the retired printer roster was the only place it was ever
  * shown, and `run_machine_model` reads it.
@@ -46,21 +37,16 @@ export function MachineTypePage({
   makerspaceId,
   canManage,
   machineServiceEnabled,
-  printingEnabled,
-  reportsEnabled = true,
   machineType,
   allMachines,
   visibleMachines,
   statusFilter,
   onStatusFilter,
   typePools,
-  formPools,
   existingPools,
   machinesLoading,
   machinesFailed,
   onSelectMachine,
-  draft,
-  setDraft,
 }: Props) {
   const canCreate = canManage && machineType.can_create_machine === true;
   const loaded = !machinesLoading && !machinesFailed;
@@ -138,27 +124,20 @@ export function MachineTypePage({
         ) : null}
       </section>
 
-      {machineServiceEnabled && canManage ? (
-        <>
-          {usesConsumables ? <section className="grid gap-4" aria-labelledby={`consumables-${machineType.id}`}>
-            <div>
-              <h2 className="text-h4 text-ink" id={`consumables-${machineType.id}`}>Consumables</h2>
-              <p className="mt-1 text-body-ui text-ink-muted">Stock used by this machine type and any pools reserved for one of its machines.</p>
-            </div>
-            <Card>
-              <ConsumablePoolCreateForm makerspaceId={makerspaceId} machineType={machineType} existingPools={existingPools} />
-            </Card>
-            <div className="grid gap-3">
-              <h3 className="text-title text-ink">Stock</h3>
-              <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} canManage={canManage} />
-            </div>
-          </section> : null}
-          {isBuiltinPrinterType(machineType) ? (
-            <PrinterServiceConsole makerspaceId={makerspaceId} canManage={canManage} printingEnabled={printingEnabled} reportsEnabled={reportsEnabled} machineType={machineType} machines={allMachines} pools={formPools} draft={draft} setDraft={setDraft} />
-          ) : (
-            <MachineServiceConsole makerspaceId={makerspaceId} canManage={canManage} machineType={machineType} machines={allMachines} pools={formPools} draft={draft} setDraft={setDraft} />
-          )}
-        </>
+      {machineServiceEnabled && canManage && usesConsumables ? (
+        <section className="grid gap-4" aria-labelledby={`consumables-${machineType.id}`}>
+          <div>
+            <h2 className="text-h4 text-ink" id={`consumables-${machineType.id}`}>Consumables</h2>
+            <p className="mt-1 text-body-ui text-ink-muted">Stock used by this machine type and any pools reserved for one of its machines.</p>
+          </div>
+          <Card>
+            <ConsumablePoolCreateForm makerspaceId={makerspaceId} machineType={machineType} existingPools={existingPools} />
+          </Card>
+          <div className="grid gap-3">
+            <h3 className="text-title text-ink">Stock</h3>
+            <ConsumablePoolList makerspaceId={makerspaceId} pools={typePools} canManage={canManage} />
+          </div>
+        </section>
       ) : null}
     </div>
   );

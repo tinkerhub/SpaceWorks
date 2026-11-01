@@ -50,6 +50,7 @@ def create_mapped_rows(makerspace, actor):
         requester_contact_phone="PII-HARDWARE-PHONE",
         checkin_project_name="PII Hardware Project",
         requested_for="Portable export test",
+        cancellation_reason="PII Hardware Cancellation",
     )
     checkin_identity = CheckinIdentity.objects.create(
         makerspace=makerspace, user=actor, mid="PII-CHECKIN-MID",
@@ -127,6 +128,7 @@ def test_portable_archive_keeps_every_mapped_value_encrypted_and_records_aad():
             exported = csv_rows(files, DATASET_PATHS[label])
             assert len(exported) == 1
             for field_name in mapped_field_names(label):
+                assert getattr(row, field_name), f"Populate fixture: {label}.{field_name}"
                 assert exported[0][field_name] not in plaintext
                 assert is_envelope(exported[0][field_name])
 

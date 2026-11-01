@@ -15,7 +15,7 @@ type PageHeaderProps = {
 /** Page title pattern: kicker, h1, one-line description, actions on the right. */
 export function PageHeader({ kicker, title, description, actions, className }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between", className)}>
       <div className="min-w-0">
         {kicker ? <p className="mb-1.5 text-body-ui text-ink-muted">{kicker}</p> : null}
         <h1 className="text-h1 text-ink [overflow-wrap:anywhere]">{title}</h1>

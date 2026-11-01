@@ -1,0 +1,55 @@
+{
+  "status": "PASSED_NO_ACTIONABLE_REGRESSIONS_IDENTIFIED",
+  "review_command": "codex exec review --uncommitted -m gpt-6.1-sol -c model_reasoning_effort=high",
+  "process_exit_code": 0,
+  "cli_version": "0.160.1",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "background_review": true,
+  "scope": "All staged, unstaged and untracked current changes; index remained unchanged.",
+  "result": "No actionable regressions were identified in the staged, unstaged, or untracked changes. Frontend type-checking passed; backend tests could not run because database configuration and Docker access were unavailable.",
+  "reviewer_runtime_limits": [
+    "Reviewer frontend type-check passed.",
+    "Reviewer sandbox lacked DB configuration and Docker access; separate complete/focused runtime receipts carry those results."
+  ],
+  "root_independent_notes": {
+    "created_utc": "2026-11-01T00:58:16.588352+00:00",
+    "scope": "Current uncommitted application/test/documentation delta; runtime results are separately bound.",
+    "confirmed_code_regressions_from_root_review": [],
+    "maintainability_notes": [
+      "Keep usage_totals as the single machine-hour projection for future registry/public/operations consumers; preserve separate pricing and printer analytics contracts.",
+      "Keep allocation_policy read-only and treat missing/unknown policy conservatively; server-side assignment and stock validation remain authoritative.",
+      "Keep awaited cancellation and action-owner checks together before detail invalidation so delayed work cannot refresh a replacement session."
+    ],
+    "operational_followup": [
+      "Current external SMTP delivery is unverified; historical SMTPServerDisconnected records are retained. Blank platform SMTP form uses environment configuration.",
+      "Worker last seen measures notification-task activity; owner service-status/ping output is still pending.",
+      "The historical seventh signed FULL restore remains a bounded historical drill; new strict installer replay does not establish a new production restore."
+    ],
+    "commit_gate": "Final independent review must pass, then owner QA is required before a local dev commit."
+  },
+  "source_after_review": {
+    "file_count": 2813,
+    "prefixes": [
+      "backend/apps/",
+      "backend/config/",
+      "frontend/src/",
+      "scripts/",
+      "deploy/"
+    ],
+    "all_bytes_and_modes_match_frozen_candidate": true,
+    "no_unaccounted_runtime_files": true,
+    "closing_test_and_artifact_overlays_match_their_tested_hashes": true,
+    "git_index_unchanged": true
+  },
+  "evidence_sha256": {
+    "result": "c5cc8802eb0e61383b3757d33f335cd795fb39f746e3daafb5d5539e845bb82e",
+    "raw_private_review_log": "43acbc0a8f6647d67b02bc16960852ab8045d174f1558f992cd46ddcc4ddafdb",
+    "root_notes": "bde882b1f9ed31ba2d54b2900fb984c36c6ce665eacdda6b6560b607d863b48d"
+  },
+  "qa_and_delivery": {
+    "owner_qa_for_new_batch_pending": true,
+    "local_commit_created": false,
+    "push_or_merge_performed": false
+  }
+}

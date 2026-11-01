@@ -1,10 +1,6 @@
 """Audited workflow services for machine mutations."""
 
-from apps.object_storage_lifecycle import storage_lifecycle
-from decimal import Decimal
-
 from django.db import transaction
-from django.db.models import Sum
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from apps.audit.services import record
@@ -13,8 +9,10 @@ from apps.machines import access, storage
 from apps.machines.models import (
     Machine, MachineDocument, MachineErrorLog, MachineOperator, MachineUsageEntry,
 )
+from apps.machines.usage_totals import machine_usage_total
 from apps.makerspaces import limits
 from apps.makerspaces.guards import require_module, require_module_locked
+from apps.object_storage_lifecycle import storage_lifecycle
 
 
 def _retired(machine):
@@ -59,10 +57,6 @@ def log_usage(machine, actor, hours, note=""):
     )
     _audit(machine, actor, "machine.usage_logged", {"hours": str(hours), "note": note})
     return entry
-
-
-def machine_usage_total(machine):
-    return machine.usage_entries.aggregate(total=Sum("hours"))["total"] or Decimal("0")
 
 
 def update_image(machine, actor, object_key, *, size_bytes=None, guard=None):

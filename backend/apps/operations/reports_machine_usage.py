@@ -1,9 +1,9 @@
 from decimal import Decimal
 
-from django.db.models import Count, DecimalField, Q, Sum, Value
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Q
 
 from apps.machines.models import Machine
+from apps.machines.usage_totals import annotate_machine_usage
 from apps.operations.report_registry import ReportResult
 from apps.operations.report_scope import scoped_ids
 
@@ -18,15 +18,15 @@ def build_machine_usage(makerspace_id, *, limit=None, date_range=None):
     aggregate = makerspace_id is None
     period = _period_q("usage_entries__created_at", date_range)
     queryset = (
-        Machine.objects.filter(makerspace_id__in=scoped_ids(makerspace_id, "machines"))
-        .values("id", "makerspace_id", "name", "machine_type__name", "is_active")
+        annotate_machine_usage(
+            Machine.objects.filter(makerspace_id__in=scoped_ids(makerspace_id, "machines")),
+            date_range=date_range,
+        )
+        .values("id", "makerspace_id", "name", "machine_type__name", "is_active", "usage_total")
         .annotate(
+            # This field counts manual ledger rows, not service runs.
             entry_count=Count("usage_entries", filter=period),
-            hours=Coalesce(
-                Sum("usage_entries__hours", filter=period),
-                Value(Decimal("0.00")),
-                output_field=DecimalField(max_digits=20, decimal_places=2),
-            ),
+            hours=F("usage_total"),
         )
     )
     ordering = ("makerspace_id", "-hours", "name", "id") if aggregate else ("-hours", "name", "id")
