@@ -46,21 +46,25 @@ describe("MachinesPanel index and per-type subpages", () => {
     expect(screen.queryByRole("button", { name: /Shared consumables/ })).not.toBeInTheDocument();
   });
 
-  it("renders a zero-machine reachable type and its service queue", async () => {
+  it("opens a zero-machine reachable type queue from its equipment page", async () => {
     renderPanel({ requests: { laser: [{ id: 10, title: "Cut acrylic", status: "pending", planned_quantity: "20", actual_consumed_quantity: "0" }] } });
 
     expect(await screen.findByText("No machines are registered for this type.")).toBeVisible();
+    fireEvent.click(screen.getByRole("link", { name: "Requests" }));
     expect(await screen.findByText("Cut acrylic")).toBeVisible();
   });
 
-  it("keeps service content mounted when the status filter removes every row", async () => {
+  it("keeps the type queue reachable when the equipment status filter removes every row", async () => {
     renderPanel({ machines: [machine(1, "Laser One")], requests: { laser: [{ id: 10, title: "Cut acrylic", status: "pending", planned_quantity: "20", actual_consumed_quantity: "0" }] } });
-    expect(await screen.findByText("Cut acrylic")).toBeVisible();
+    await screen.findByText("Laser One", { selector: "strong" });
 
     fireEvent.click(within(screen.getByRole("group", { name: "Filter by status" })).getByRole("button", { name: "Offline" }));
 
     expect(screen.getByText("No machines match the selected status.")).toBeVisible();
-    expect(screen.getByText("Cut acrylic")).toBeVisible();
+    fireEvent.click(screen.getByRole("link", { name: "Requests" }));
+    expect(await screen.findByText("Cut acrylic")).toBeVisible();
+    fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
+    expect(screen.getByText("No machines match the selected status.")).toBeVisible();
   });
 
   it("shows a bound pool only on its machine's type page", async () => {
@@ -106,7 +110,7 @@ describe("MachinesPanel index and per-type subpages", () => {
   });
 
   it("fetches pools once and service data only for the open type", async () => {
-    renderPanel({ types: [laserType, printerType] }, {}, "/admin/machines/1-laser");
+    renderPanel({ types: [laserType, printerType] }, {}, "/admin/machines/1-laser/queue");
     await screen.findByText("Service queue");
     await waitFor(() => expect(staffRequest.mock.calls.some(([path]) => String(path).includes("typed-manual-usage"))).toBe(true));
     const paths = staffRequest.mock.calls.map(([path]) => String(path));
@@ -122,7 +126,7 @@ describe("MachinesPanel index and per-type subpages", () => {
   // the slug alone mounts the printer console for a generic service.
   it("does not treat a makerspace-local type slugged 3d_printer as the built-in printer", async () => {
     const impostor: MachineType = { ...printerType, id: 3, makerspace: 1, name: "Shop printers", is_builtin: false };
-    renderPanel({ types: [impostor], machines: [machine(1, "Shop A", impostor)] });
+    renderPanel({ types: [impostor], machines: [machine(1, "Shop A", impostor)] }, {}, "/admin/machines/3-3d_printer/queue");
 
     expect(await screen.findByText("Service queue")).toBeVisible();
     expect(screen.queryByText("3D-printer queue")).not.toBeInTheDocument();

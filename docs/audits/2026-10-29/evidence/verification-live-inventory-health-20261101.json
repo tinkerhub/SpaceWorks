@@ -1,0 +1,82 @@
+{
+  "scope": "Read-only browser observations in the signed-in production console on November 1; no settings, inventory or request writes.",
+  "makerspace_navigation": {
+    "chooser": [
+      "Tinkerspace Calicut",
+      "Tinkerspace Kochi"
+    ],
+    "both_authorized_makerspaces_visible": true,
+    "kochi_inventory_opened_after_switch": true
+  },
+  "original_individual_inventory_issue": {
+    "product": "Arduino Uno R3",
+    "displayed_tracking": "Individual",
+    "displayed_total": 1,
+    "displayed_available": 1,
+    "registered_unit_rows": 1,
+    "registered_unit_status": "Available",
+    "registration_or_repair_performed_in_this_verification": false,
+    "qr_values_and_storage_location_omitted": true,
+    "no_real_request_accepted_cancelled_or_issued": true
+  },
+  "historical_email_records": {
+    "total_rows": 7,
+    "sent_rows": 0,
+    "failed_rows": 7,
+    "age_display": "2\u20133 days ago",
+    "error_category": "SMTPServerDisconnected",
+    "events": [
+      "hardware submission",
+      "hardware acceptance",
+      "tenant exit custody alarm"
+    ],
+    "recipient_details_omitted": true,
+    "establishes_current_delivery_failure": false
+  },
+  "current_configuration_observations": {
+    "tenant_smtp_host": "blank/fallback",
+    "platform_smtp_host": "blank/fallback",
+    "settled_platform_form_editable": true,
+    "effective_fallback": "Django environment EMAIL_BACKEND/EMAIL_HOST/EMAIL_PORT and related settings",
+    "unused_platform_form_defaults_are_not_effective_fallback_transport": true,
+    "passwords_or_tokens_revealed": false
+  },
+  "health_limits": {
+    "smtp_ok_is_configuration_not_live_transport_test": true,
+    "worker_last_seen_display": "11 hours ago",
+    "worker_marker_source": "Last start of either email-delivery or notification-delivery task; not a periodic worker heartbeat.",
+    "idle_worker_can_display_stale": true,
+    "actual_worker_liveness_established": false,
+    "telegram_display": "Configured; last alert sent 11 hours ago",
+    "telegram_fresh_provider_delivery_tested": false,
+    "pending_email_count_displayed": 0,
+    "stalled_email_count_displayed": 0
+  },
+  "operator_followup": {
+    "status": "Read-only service-status and Celery ping output requested from owner; no server SSH attempted.",
+    "secrets_or_raw_logs_requested": false,
+    "provider_notifications_sent_or_retried": false
+  },
+  "source_references": [
+    "backend/apps/integrations/health.py",
+    "backend/apps/integrations/tasks.py",
+    "backend/apps/integrations/email.py",
+    "docs/notifications-setup.md"
+  ],
+  "production_branding_image_read": {
+    "makerspace": "Tinkerspace Calicut",
+    "cover": {
+      "complete": true,
+      "natural_width": 5836,
+      "natural_height": 3396
+    },
+    "brand": {
+      "complete": true,
+      "natural_width": 220,
+      "natural_height": 220
+    },
+    "observation": "Actual DOM image decode properties after opening the live Settings page. No image URL or presign is recorded.",
+    "upload_or_settings_write_performed": false,
+    "proves_upload_cors": false
+  }
+}

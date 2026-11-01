@@ -1,0 +1,43 @@
+{
+  "scope": "Portable ciphertext/AAD and plaintext-rejection regression verification.",
+  "pre_fix": {
+    "exit_code": 1,
+    "seconds": 15.56,
+    "timed_out": false,
+    "capacity_refused": false,
+    "cases": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "no_create_db": true,
+    "same_owned_test_database": "test_spaceworks_final_focus_3c4355dd",
+    "source_volumes_before_after_verified": true,
+    "overlay_before_after_verified": true,
+    "overlay_sha256": "d0ba6b2cd356f501c90ac3f4eb26cf2c6d39fe28e47807bb51f890623b4792dd",
+    "original_full_untouched": true
+  },
+  "pre_fix_junit_sha256": "650d3ccbfe372025263669af271089d51a6e4419124b250335c2d935e3498b97",
+  "actual_failure": "The every-mapped-value fixture omitted newly mapped HardwareRequest.cancellation_reason; the existing assertion reached is_envelope(\"\") and failed.",
+  "blank_value_contract": "Mapped optional empty values intentionally remain empty; nonempty plaintext is rejected by portable export.",
+  "fixture_correction": "Populate cancellation_reason and assert every mapped fixture value is nonempty. All existing ciphertext, no-plaintext, AAD metadata and plaintext-rejection assertions remain.",
+  "post_fix": {
+    "exit_code": 0,
+    "seconds": 18.32,
+    "timed_out": false,
+    "capacity_refused": false,
+    "cases": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "no_create_db": true,
+    "same_owned_test_database": "test_spaceworks_final_focus_3c4355dd",
+    "source_volumes_before_after_verified": true,
+    "overlay_before_after_verified": true,
+    "overlay_sha256": "d2503756d135840a3090601b0b821f661f95e4734d3d30436a3fa44a89385a8e",
+    "original_full_untouched": true
+  },
+  "post_fix_junit_sha256": "ec6783ce868e71d7e99e74cdbf05ecdb09ee910773a389f80fde2ba7e77a0f54",
+  "backend_application_logic_changed_for_this_fix": false,
+  "production_data_mutations": false,
+  "fresh_complete_backend_suite_claimed": false
+}

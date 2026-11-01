@@ -1,0 +1,147 @@
+{
+  "observed_at_utc": "2026-10-31T20:03:11.774904+00:00",
+  "expected_main": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+  "public_endpoints": {
+    "frontend_revision": {
+      "url": "https://kanakkupusthakam.netlify.app/deployment.json",
+      "http_status": 200,
+      "content": {
+        "revision": "87471f5a2d23109ef0c9f32839c9166d435f3014"
+      },
+      "body_length": 56,
+      "curl_exit": 0,
+      "matches_expected_revision": true
+    },
+    "api_liveness": {
+      "url": "https://api.osmm.me/api/v1/health/",
+      "http_status": 200,
+      "content": {
+        "status": "ok"
+      },
+      "body_length": 15,
+      "curl_exit": 0,
+      "expected_status": true
+    },
+    "public_readiness_boundary": {
+      "url": "https://api.osmm.me/api/v1/health/readiness/",
+      "http_status": 403,
+      "content": null,
+      "body_length": 0,
+      "curl_exit": 0,
+      "expected_denial": true
+    }
+  },
+  "actions": {
+    "runs": [
+      {
+        "id": 41226167234,
+        "name": "CI",
+        "display_title": "Merge pull request #23 from tinkerhub/dev",
+        "head_sha": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "head_branch": "main",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-31T17:46:45Z",
+        "updated_at": "2026-10-31T17:47:08Z",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226167234"
+      },
+      {
+        "id": 41226201116,
+        "name": "Release main@87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "display_title": "Release main@87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "head_sha": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "head_branch": "main",
+        "event": "workflow_run",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-31T17:47:10Z",
+        "updated_at": "2026-10-31T17:49:40Z",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226201116"
+      },
+      {
+        "id": 41226403471,
+        "name": "Production Deploy",
+        "display_title": "Production Deploy",
+        "head_sha": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "head_branch": "main",
+        "event": "workflow_run",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-31T17:49:42Z",
+        "updated_at": "2026-10-31T17:51:09Z",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226403471"
+      }
+    ],
+    "jobs": [
+      {
+        "id": 124611354360,
+        "name": "Resolve published revision",
+        "conclusion": "success",
+        "verified_step": "Resolve the published revision",
+        "step_conclusion": "success",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226403471/job/124611354360"
+      },
+      {
+        "id": 124611377037,
+        "name": "Netlify frontend",
+        "conclusion": "success",
+        "verified_step": "Verify public frontend revision",
+        "step_conclusion": "success",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226403471/job/124611377037"
+      },
+      {
+        "id": 124611377081,
+        "name": "Production server",
+        "conclusion": "success",
+        "verified_step": "Verify installed revision and private readiness",
+        "step_conclusion": "success",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226403471/job/124611377081"
+      },
+      {
+        "id": 124611687529,
+        "name": "Deployment report",
+        "conclusion": "success",
+        "verified_step": "Report deployment verification",
+        "step_conclusion": "success",
+        "url": "https://github.com/tinkerhub/SpaceWorks/actions/runs/41226403471/job/124611687529"
+      }
+    ],
+    "report_runtime_inputs": {
+      "PREPARE_RESULT": "success",
+      "SERVER_RESULT": "success",
+      "FRONTEND_RESULT": "success",
+      "SERVER_CONFIGURED": "true",
+      "FRONTEND_CONFIGURED": "true"
+    },
+    "verified_components": [
+      "production_server",
+      "netlify_frontend"
+    ],
+    "logs": {
+      "124611354360": [
+        "2026-10-31T17:49:45.6944561Z   RELEASE_TITLE: Release main@87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "2026-10-31T17:49:45.6945144Z   MANUAL_SHA: 87471f5a2d23109ef0c9f32839c9166d435f3014"
+      ],
+      "124611377037": [
+        "2026-10-31T17:49:53.5070153Z   EXPECTED_SHA: 87471f5a2d23109ef0c9f32839c9166d435f3014",
+        "2026-10-31T17:49:53.6228095Z Frontend deployment verified at the released revision."
+      ],
+      "124611377081": [
+        "2026-10-31T17:50:58.1884732Z [Space Works updater] Update complete: 0.9.0-main.23.87471f5a2d23.",
+        "2026-10-31T17:50:58.2300519Z   EXPECTED_SHA: 87471f5a2d23109ef0c9f32839c9166d435f3014"
+      ],
+      "124611687529": [
+        "2026-10-31T17:51:07.1496092Z   PREPARE_RESULT: success",
+        "2026-10-31T17:51:07.1496974Z   SERVER_RESULT: success",
+        "2026-10-31T17:51:07.1497829Z   FRONTEND_RESULT: success",
+        "2026-10-31T17:51:07.1498693Z   SERVER_CONFIGURED: true",
+        "2026-10-31T17:51:07.1499648Z   FRONTEND_CONFIGURED: true"
+      ]
+    },
+    "limitations": [
+      "Server private readiness was verified by the deployed Actions run at deployment time; this read-only audit made fresh public liveness and frontend revision requests only.",
+      "GitHub check-run output.summary is null; both-Verified conclusion follows successful real verification steps plus the report job's recorded configured/result inputs."
+    ]
+  }
+}

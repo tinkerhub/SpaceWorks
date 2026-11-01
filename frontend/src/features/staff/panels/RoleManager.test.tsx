@@ -58,17 +58,24 @@ describe("capabilitiesPath", () => {
 describe("RoleManager capability catalog", () => {
   it("edits an existing role against its role-scoped catalog, keeping off-module grants visible", async () => {
     renderManager();
-    fireEvent.click(await screen.findByRole("button", { name: "Edit" }));
+    expect(await screen.findByText("Events crew", { exact: true })).toBeVisible();
+    const edit = within(screen.getByRole("table")).getByRole("button", { name: "Edit" });
+    expect(edit).toHaveRole("button");
+    expect(edit).toHaveAccessibleName("Edit");
+    expect(edit).toBeVisible();
+    fireEvent.click(edit);
 
     const dialog = await screen.findByRole("dialog", { name: "Edit Events crew" });
-    const offModule = await within(dialog).findByRole("checkbox", { name: /Manage events/ });
+    expect(await within(dialog).findByText("Manage events", { exact: true })).toBeVisible();
+    const offModule = within(dialog).getByRole("checkbox", { name: /Manage events/ });
+    expect(offModule).toBeVisible();
     expect(offModule).toHaveAttribute("aria-checked", "true");
     expect(requestedPaths()).toContain("/admin/makerspaces/7/roles/capabilities?role_id=5");
   });
 
   it("creates a new role from the plain catalog", async () => {
     renderManager();
-    await screen.findByRole("button", { name: "Edit" });
+    expect(await screen.findByText("Events crew", { exact: true })).toBeVisible();
     fireEvent.click(screen.getAllByRole("button", { name: "New role" })[0]);
 
     const dialog = await screen.findByRole("dialog", { name: "New role" });

@@ -1592,17 +1592,22 @@ unchanged.
     transport cannot catch this — the existing report test answered regardless of query string, so
     the regression test asserts on the **request URL**.
 
-**Staff Machines console is organised as machine type → everything of that type, on PER-TYPE
-SUBPAGES.** `MachinesPanel` is the container: it owns the queries (machines, types, and ONE
-canonical pool query), the status filter, the service drafts, the create form and the drawer, and
-routes between an index of type cards (`MachineTypeCards`) and one type's page (`MachineTypePage`,
-which replaced the collapsible `MachineTypeSection`). Consumable creation is per type; there is no Shared console section.
+**Staff Machines console has per-type equipment and requests pages.** `MachinesPanel` owns the
+machines/types queries, ONE permission-gated canonical pool query, the status filter, service drafts,
+creation and drawer. It routes between type cards (`MachineTypeCards`), equipment/stock
+(`MachineTypePage`) and the existing printer or generic service console. Consumable creation is per type.
 - **The URL is `/admin/machines/<id>-<slug>` and THE ID IS AUTHORITATIVE.** Machine-type slug
   uniqueness is only *scoped* (`uniq_global_machinetype_slug` / `uniq_lab_machinetype_slug`), so a
   makerspace may legally own a local type carrying a global built-in's slug and both appear in one
   console — three shipped surfaces have already served one type's jobs under another by keying on
   the slug. `parseMachineTypeSegment` reads the leading integer; a malformed segment is "no
   selection" (the index), never a silent fall-through to a default type.
+- **Requests use `/admin/machines/<id>-<slug>/queue`**, also under `/m/<space>/admin`.
+  `machineTypeRoutes.ts` distinguishes equipment from requests without changing the ID parser.
+  The sidebar uses the same server-scoped type cache and explicit `MANAGE_MACHINES`,
+  `machine_service` and global-printer `printing` gates. Type visibility alone grants no queue
+  authority. Queue links remain actionable on the collapsed rail; current-page matching uses both
+  type ID and view. Unavailable queue URLs retain a working equipment link and make no queue/pool calls.
 - **`StaffWorkspace` canonicalizes the URL to the active tab's path, so the subpath had to be
   threaded through it** (`keptStaffSubPath`) — otherwise the redirect fires on every load and strips
   the segment, and no per-type link can survive its first render. Subpaths are opt-in per tab
@@ -1618,13 +1623,28 @@ which replaced the collapsible `MachineTypeSection`). Consumable creation is per
 - **An unknown or unreachable id normalises to the index, and only once BOTH server-scoped sources
   have settled successfully.** Judging on the types query alone contradicts the navigable nested
   fallback; judging while loading bounces every direct link; judging after a failure turns a network
-  blip into an apparent permission revocation.
+  blip into an apparent permission revocation. A failed unresolved catalog shows a retryable error,
+  keeps the requested URL and never stays falsely busy on a loading skeleton.
 - **The machines query walks EVERY page** (`?page=N`, never DRF's absolute `next`, which
   `staffRequest` would prefix with the API base into a malformed URL). The cards state a count and a
   status roll-up as fact, so a first-page-only read prints a wrong number rather than an obviously
   truncated list.
 - **`useServiceDrafts` lives in the container, not the page.** Only one type is mounted at a time
   now, so a hook inside the page would discard a half-typed service form on every navigation.
+  Active queue consoles mount only on Requests; leaving for equipment revokes their pending action
+  owners while preserving drafts. With `printing` off, the printer's manual-only console remains on
+  Machines & stock under `machine_service`, without mounting request or printer-report reads.
+  Returning to Requests refetches the typed request query even inside its stale
+  window. Explicit Refresh preserves action/manual drafts and refreshes machines and consumable pools
+  for current start eligibility and stock.
+  An initial scoped queue load must not mount a temporary orphan action form; only a settled queue
+  can render that retained draft. Background refreshes keep the current row and draft available.
+- **Service file viewing owns one makerspace/request/session/attachment-membership/route visit.**
+  `ServiceRequestDetails` fetches the existing staff file URL only on demand through
+  `useAuthActionOwner`; revoked owners cannot publish a ready link or late error/state change.
+  A real user-clickable link opens the prepared URL, rather than an automatic popup after awaiting
+  the API. Its click still checks current ownership. Source and file links allow HTTP(S) only.
+  Signed file URLs live only in the mounted visit, never in persistent storage or a query cache.
 
 Load-bearing console details:
 - **Consumables are type-first.** Console creation requires a machine type and sends its id.
@@ -1643,6 +1663,15 @@ Load-bearing console details:
   space or is global. The built-in printer also requires `printing`, including legacy machine-id
   submissions. Never publish private hardware as a side effect. Catalog GET never writes; only
   type id/name/icon, printer flag, safe file policy and compatible public material choices leave it.
+- **The staff start form follows the request's server-reported `allocation_policy`.** Only an
+  explicit `first_idle` permits a blank machine for either printers or other types. Staff selection,
+  legacy buckets, unknown/missing policy and drafts whose row left the list require a specific
+  machine. This read-only staff field never enters public/token status projections. The backend
+  retains its locked allocation and compatibility checks. A newly opened action gets fresh values;
+  Start seeds only that request's stored estimate, and repeating the same open action preserves edits.
+  Only active idle machines appear as start candidates. A saved selection that is no longer eligible
+  blocks submission even for `first_idle`; a blank automatic selection requires a current candidate.
+  Completion and manual history keep the full machine list. Missing candidates do not erase drafts.
 - **Automatic public queue setup happens only on an authorized real upload/submission POST.**
   Recheck public type eligibility and modules under the makerspace lock; prefer an active same-type
   queue in deterministic name/id order. With no queues, create and audit `Public Requests - type <id>`.
@@ -1693,6 +1722,20 @@ Load-bearing console details:
   `clearedActionDraft` resets the values with it.
 - **Service transitions must invalidate `machineKeys.list`**, not just service queries: they change
   the assigned machine's status and usage hours, and the integrated row would otherwise stay stale.
+  They also cancel and invalidate exact canonical detail keys, including an initial read without
+  cached data. Await cancellation and recheck action ownership before launching the fresh detail
+  read; launch it before clearing the action draft. Settlement awaits this success processing,
+  so draft clearing cannot revoke the action's own refresh, and an old session cannot refresh a
+  replacement session's views. Detail network completion does not block settlement.
+- **Recorded machine hours have one projection owner: `machines/usage_totals.py`.** Staff/public
+  machine lists and details, public machine stats and general operations reports combine independent
+  manual ledger hours with completed/collected/failed service actual minutes. Never use estimates or
+  apply the failure progress percentage to elapsed time. Exact machine and makerspace identity must
+  match. A positive terminal run supersedes its matching linked ledger hours before date filtering,
+  so moving between report periods cannot count that run twice. Separate correlated sums avoid join
+  multiplication; sum minutes before converting and round the combined per-machine total once.
+  Aggregate displays sum those rounded machine totals. Manual ledger row counts retain their meaning;
+  no historical rows are rewritten and separate printer/service analytics keep their own contracts.
 - **Two service implementations, never three** — `MachineServiceConsole` takes a fixed
   `machineType` prop; the printer console keeps its genuine differences (planned/actual grams,
   reprint, printer reports) and **lost its duplicate roster/create panel**, which meant restoring

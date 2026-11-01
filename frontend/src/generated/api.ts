@@ -663,6 +663,8 @@ export type AdminRequestItem = {
   "issued_assets": Array<unknown>;
 };
 
+export type AllocationPolicyEnum = "first_idle" | "staff_select";
+
 export type AnalyticsReportResponse = AnalyticsSummary | TakenItemsReport | ActiveLoansReport | ReturnsReport | DamagedMissingReport | DamagedLostReport | QrScansReport | MostLentReport | TopBorrowersReport | RecentlyAddedReport | MachineUsageReport | EventAttendanceReport | BookingUtilizationReport | MaintenanceActivityReport | MemberActivityReport | FabLabHealthReport | PaymentReconciliationReport | GenericAnalyticsReport;
 
 export type AnalyticsSummary = {
@@ -2771,6 +2773,7 @@ export type MachineServiceRequest = {
   "machine": ServiceMachine;
   "assigned_machine": ServiceMachine;
   "requester": ServiceRequester;
+  "allocation_policy": AllocationPolicyEnum;
   "requester_name": string;
   "contact_email": string;
   "contact_phone": string;

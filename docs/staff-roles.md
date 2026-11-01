@@ -75,6 +75,15 @@ must already include it. For "this person runs only the lasers", give them a Mac
 no types ticked and tick Laser for them. The built-in Machine Manager role starts linked to every
 built-in type, so it already covers all of them. A Space Manager always covers every machine.
 
+The Machines sidebar lists each reachable type and, for machine managers with `machine_service`
+enabled, a **Type requests** link. Built-in printer requests also require `printing`. Requests
+opens the job queue first, with Refresh, project details and attached files; manual usage and printer
+reports remain on that page. Use **Machines & stock** for equipment and consumables. Both views link
+to each other, and unfinished service drafts survive switching views. Collapsed navigation keeps
+a requests icon for each eligible type. Operators and collection-only staff gain no management access.
+When `printing` is disabled but machine services remain enabled, printer manual usage and its history
+remain under **Machines & stock**; the requests queue stays unavailable.
+
 ## Front-desk (handover) roles
 
 There is no built-in Guest Admin. Create a custom role under **Users → Roles** and give it only the

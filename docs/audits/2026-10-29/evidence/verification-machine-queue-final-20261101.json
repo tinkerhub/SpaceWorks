@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-01",
+  "scope": "Local machine/navigation/public-service frontend follow-up",
+  "final_case_coverage": {
+    "declared_cases": 478,
+    "files": 60,
+    "passed_coverage": 478,
+    "unresolved": 0,
+    "skipped_credit": 0,
+    "fresh_fully_green_478_case_run": false,
+    "unaffected_passes_from_complete_run": 413,
+    "current_affected_panel_and_printer_passes": 52,
+    "complete_manual_usage_file_replay_passes": 3,
+    "complete_public_submission_file_replay_passes": 10,
+    "method": "Whole-file replacement by file/fullName/declaration occurrence; no overlapping counts. Current runtime build plus current affected cases, retained unaffected passes and unchanged public-submission replay.",
+    "case_ledger_sha256": "aebce26d34b5b1e444f623ccef4a24bcce655101b0343d092e0f9a0a0ba6d12d"
+  },
+  "source": {
+    "final_frontend_sha256": "6684cccb90dace2858eb34866ae712971573f5beef758442519db1c35b71d5b2",
+    "frontend_files": 830,
+    "runtime_guard_before_after": true,
+    "live_source_matches": true,
+    "production_build_source": "3f482fee8692c03030bea7d349c4c95208411022733bcf3963dec7ad1e7afbbe",
+    "only_test_files_differ_from_successful_build": [
+      "src/features/staff/panels/MachinesPanel.printerManual.test.tsx"
+    ],
+    "production_build": "passed",
+    "node20_typecheck_after_final_test_change": "passed",
+    "backend_runtime_files_unchanged_from_prior_verified_freeze": 1973
+  },
+  "runs": [
+    {
+      "phase": "first queue candidate",
+      "total": 466,
+      "passed": 444,
+      "failed": 22
+    },
+    {
+      "phase": "first serial correction",
+      "total": 466,
+      "passed": 466,
+      "failed": 0
+    },
+    {
+      "phase": "popup correction before notice-query correction",
+      "total": 475,
+      "passed": 448,
+      "failed": 27,
+      "cause": "All27 failed assertions queried global role=status rather than the file-ready message; product unchanged by the selector correction."
+    },
+    {
+      "phase": "notice correction plus complete subset",
+      "total": 475,
+      "passed": 473,
+      "failed": 2,
+      "attachments_checkpoint_passed": 39
+    },
+    {
+      "phase": "two-file carrier retry",
+      "executed_passes": 4,
+      "file_not_collected": "ServiceSubmissionContracts.test.tsx",
+      "carrier_exit": 1,
+      "cause": "Vitest forks worker did not respond. No credit given for the uncollected file."
+    },
+    {
+      "phase": "fresh public-submission file",
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "exit": 0
+    },
+    {
+      "phase": "ownership cold-DOM diagnostic",
+      "total": 4,
+      "passed": 3,
+      "failed": 1
+    },
+    {
+      "phase": "current query-readiness ownership file",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "exit": 0
+    },
+    {
+      "phase": "printing-disabled manual compatibility correction with affected panel/printer scope",
+      "total": 55,
+      "passed": 54,
+      "failed": 1,
+      "production_build_exit": 0,
+      "cause": "New positive test queried history before query observer rendered; corrected to await real history."
+    },
+    {
+      "phase": "manual-only complete file diagnostic",
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "cause": "New test expected generic Usage logged instead of existing printer-specific Print logged. POST body assertions passed; corrected expected existing success copy."
+    },
+    {
+      "phase": "final complete manual usage file",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "exit": 0,
+      "typecheck_exit": 0
+    }
+  ],
+  "controls": {
+    "node_major": 20,
+    "default_test_and_assertion_timeouts_unchanged": true,
+    "no_provider_calls_or_backend_database_tests": true,
+    "no_excluded_case_credit": true
+  },
+  "corrections": [
+    "Hide retained fallback action form during initial scoped queue loading",
+    "Use the active Handover section in the collect-only navigation fixture",
+    "Use Get file link then a native user-clickable Open file anchor instead of awaited window.open",
+    "Scope ready-notice assertions to actual file-ready text",
+    "Wait for the real query cache success/error event before starting DOM/action assertions; no sleeps, pre-seeded data, fake transport or timeout increase",
+    "Preserve manual printer usage/history, filament consumption and pricing on equipment when printing requests are disabled; machine_service and management gates still apply.",
+    "Assert the existing printer-specific Print logged success notification."
+  ],
+  "review": {
+    "round1": "P2 awaited popup found and fixed",
+    "round2": "No actionable regressions; reviewer runtime unavailable",
+    "round3_after_test_readiness_change": "P2 printing-disabled manual usage inaccessible; fixed with module/authority-gated equipment fallback and three compatibility cases.",
+    "round4_after_manual_compatibility_correction": "PASSED_NO_ACTIONABLE_REGRESSIONS_IDENTIFIED",
+    "subagent": "No actionable correctness/security regression found in read-only final manual-fallback and authority/module gate audit.",
+    "final_result": "No actionable regressions were identified in the working-tree changes. TypeScript checking passed; targeted frontend tests could not start because the installed dependencies lack a native Rolldown binding, and backend runtime tests were not run.",
+    "process_exit_code": 0,
+    "command": "codex exec review --uncommitted -m gpt-6.1-sol -c model_reasoning_effort=high",
+    "background": true,
+    "reviewer_runtime_limits": [
+      "Reviewer typecheck passed; host native Rolldown binding unavailable, so no reviewer frontend runtime pass is counted.",
+      "No reviewer backend runtime tests; current frontend Node20 isolated runtime proof and unchanged prior backend freeze are separate."
+    ],
+    "sha256": {
+      "result": "d5446bcb17c3604fa1d665ec6765079163320606888aed9edcdd27f79b05c451",
+      "raw_private_log": "35d91b172098cbee92a5efba2958db3b9a074863a78180b89266355f6da5ee89",
+      "root_notes": "950dc85ce532cb6efb4af75fc8829a529adccf1d2d4efca875a1e395b77b1597"
+    }
+  },
+  "limits": [
+    "Affected-source 478-case coverage, not a fresh complete application frontend/backend suite or single fully green 478-case invocation.",
+    "A host Vitest attempt could not start because its native Rolldown binding was missing; no host runtime pass counted",
+    "No browser storage-provider attachment download or live notification/payment probe",
+    "Owner QA required; current changes local/uncommitted dev; no push or deployment"
+  ],
+  "final_hygiene": {
+    "branch": "dev",
+    "staged_files": 0,
+    "backend_runtime_matches_previous_verified_manifest": 1973,
+    "current_frontend_frozen_files_match": 830,
+    "matching_agents_claude_sha256": "e547b982d5e1153a73a444fa71eb6fb0b8ebb0cef292843743ee49972f858ca0",
+    "changed_frontend_files_within_300_lines": 48,
+    "whitespace_check_passed": true,
+    "public_receipt_json_valid": 4,
+    "credential_pattern_matches": 0,
+    "checked_relative_markdown_links": 141,
+    "no_commit_push_or_deploy": true
+  },
+  "owner_qa": {
+    "confirmed": true,
+    "answer": "QA complete \u2014 commit locally to dev",
+    "evidence": "owner-qa-approval-20261101.json",
+    "scope": "Local dev commit only; no push, merge or deployment."
+  }
+}

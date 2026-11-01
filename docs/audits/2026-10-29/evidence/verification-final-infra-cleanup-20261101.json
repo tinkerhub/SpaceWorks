@@ -1,0 +1,110 @@
+{
+  "started_utc": "2026-11-01T01:04:09.141114+00:00",
+  "complete": true,
+  "actions": [
+    {
+      "name": "spaceworks-full-test-s3-20261101",
+      "id": "f433d8a77ce96e200dbc3b89ffad6e82a15aa5af6c7b233c3dd6a9a9d0b085cc",
+      "image_id": "sha256:635197cb9f36d01bee221d34d1c7d7960f6a95c48b0b6c01d99cd13bdae51a46",
+      "signal": "SIGTERM",
+      "signal_utc": "2026-11-01T01:04:09.241530+00:00",
+      "removed": true,
+      "actual_exit_state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "Error": "",
+        "StartedAt": "2026-10-31T20:07:25.056749169Z",
+        "FinishedAt": "2026-11-01T01:04:09.37392596Z"
+      }
+    },
+    {
+      "name": "spaceworks-full-test-redis-20261101",
+      "id": "600b028e2f99b2325e023618a097d0c1acd8e08f301e61e9fc5180260653770a",
+      "image_id": "sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541",
+      "signal": "SIGTERM",
+      "signal_utc": "2026-11-01T01:04:10.132559+00:00",
+      "removed": true,
+      "actual_exit_state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "Error": "",
+        "StartedAt": "2026-10-31T20:07:24.440397169Z",
+        "FinishedAt": "2026-11-01T01:04:10.299748085Z"
+      }
+    },
+    {
+      "name": "spaceworks-tmpfs-probe-s3-20261101",
+      "id": "b4ce43fdedf6e25ec90d5f82e154b948d2905de825b5df1df03b307587c7816b",
+      "image_id": "sha256:635197cb9f36d01bee221d34d1c7d7960f6a95c48b0b6c01d99cd13bdae51a46",
+      "signal": "SIGTERM",
+      "signal_utc": "2026-11-01T01:04:10.823373+00:00",
+      "removed": true,
+      "actual_exit_state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "Error": "",
+        "StartedAt": "2026-10-31T21:33:23.772603091Z",
+        "FinishedAt": "2026-11-01T01:04:10.930003919Z"
+      }
+    },
+    {
+      "name": "spaceworks-tmpfs-probe-redis-20261101",
+      "id": "af867c2215410c114750e98b2036f63941551cebed6ff314e91c27b4b6ee466b",
+      "image_id": "sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541",
+      "signal": "SIGTERM",
+      "signal_utc": "2026-11-01T01:04:11.382570+00:00",
+      "removed": true,
+      "actual_exit_state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "Error": "",
+        "StartedAt": "2026-10-31T21:33:20.378216298Z",
+        "FinishedAt": "2026-11-01T01:04:11.525187086Z"
+      }
+    },
+    {
+      "name": "spaceworks-tmpfs-probe-pg-20261101",
+      "id": "1e28aed7b893c4f29a256d056ee16266d2bc4e0597dcf07bfdd8ed92659d2058",
+      "image_id": "sha256:f4610795587492cd4fb887c2dc3de301b813278bb6f616992061141b5f15ac36",
+      "signal": "SIGTERM",
+      "signal_utc": "2026-11-01T01:04:11.908594+00:00",
+      "removed": true,
+      "actual_exit_state": {
+        "Status": "exited",
+        "Running": false,
+        "ExitCode": 0,
+        "OOMKilled": false,
+        "Error": "",
+        "StartedAt": "2026-10-31T21:33:16.695320213Z",
+        "FinishedAt": "2026-11-01T01:04:12.499573211Z"
+      }
+    }
+  ],
+  "only_root_authorized_exact_ids": true,
+  "no_prune_no_volume_image_network_binddir_removals": true,
+  "normal_signal_only": "SIGTERM",
+  "logs_private_not_for_publication": true,
+  "finished_utc": "2026-11-01T01:04:14.107735+00:00",
+  "owned_removed_count": 5,
+  "unrelated_containers_retained": 26,
+  "unrelated_identity_and_mounts_unchanged": true,
+  "unrelated_state_changes": [],
+  "volumes_before": 63,
+  "volumes_after": 63,
+  "all_original_volumes_retained": true,
+  "images_before": 35,
+  "images_after": 35,
+  "all_original_images_retained": true,
+  "remaining_container_count": 26,
+  "no_commands_operated_on_bind_directories": true,
+  "private_raw_receipt_sha256": "1fdce7b5738ab134a85328d6d90f49f7548b89be7e447042cdb2ffc64aed2fed",
+  "raw_logs_published": false
+}

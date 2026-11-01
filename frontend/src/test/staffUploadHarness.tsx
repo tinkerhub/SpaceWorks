@@ -58,10 +58,9 @@ export function imageContract(method = "PUT") {
 export function evidenceContract(method = "PUT", id = 51) {
   return { ...imageContract(method), evidence_id: id, upload_url: storageUrl };
 }
-export function mountStaff(ui: ReactNode) {
-  const client = new QueryClient({ defaultOptions: {
+export function mountStaff(ui: ReactNode, client = new QueryClient({ defaultOptions: {
     queries: { retry: false, gcTime: 0 }, mutations: { retry: false, gcTime: 0 },
-  } });
+  } })) {
   function Wrapper({ children }: { children: ReactNode }) {
     return <QueryClientProvider client={client}><ToastProvider>{children}</ToastProvider></QueryClientProvider>;
   }

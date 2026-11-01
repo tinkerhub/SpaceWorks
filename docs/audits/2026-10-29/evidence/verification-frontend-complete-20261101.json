@@ -1,0 +1,83 @@
+{
+  "status": "PASSED",
+  "observed_at_utc": "2026-10-31T22:43:06.298290+00:00",
+  "driver": "/tmp/spaceworks-linux-frontend-serial-driver.py",
+  "driver_sha256": "fe76f85833bfa254933a27827d9bc45ae08980029c28995dfc03ca3d4bf6ff2f",
+  "command": "npm run build && npm test -- --maxWorkers=1",
+  "limits": {
+    "max_workers": 1,
+    "cpus": 4,
+    "network": "none",
+    "command_timeout_seconds": 3600
+  },
+  "image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5",
+  "container_id": "e6b312be8a39d3786531248004e80f60bdfd609856ced9e317db354fd4ed10e8",
+  "actual_container_exit": 0,
+  "driver_command_exit": 0,
+  "oom_killed": false,
+  "timeout": false,
+  "build": {
+    "passed": true,
+    "vite_seconds": 24.47,
+    "includes": [
+      "tsc -b",
+      "vite build",
+      "node scripts/write-build-revision.mjs"
+    ]
+  },
+  "vitest": {
+    "passed_files": 261,
+    "total_files": 261,
+    "passed_tests": 2219,
+    "total_tests": 2219,
+    "failures": 0,
+    "skips": 0,
+    "duration_seconds": 784.37,
+    "new_regression_cases_passed": 86,
+    "reporter": "standard Vitest stdout; no JUnit XML configured"
+  },
+  "preverification_exit": 0,
+  "postverification_exit": 0,
+  "source_manifest_sha256": "617bd27da9e761a60697e8d13ade61a700c393b7dd406b23732afb9008610785",
+  "current_host_source_manifest_sha256": "617bd27da9e761a60697e8d13ade61a700c393b7dd406b23732afb9008610785",
+  "dependency_manifest_sha256": "19c0a402066371dc06199d8b0129471feac61afa601c421a965191e9b2434d7b",
+  "source_entries": 816,
+  "source_bytes": 6765118,
+  "dependency_entries": 11369,
+  "verified_file_bytes": 185326465,
+  "total_driver_seconds": 1089.562,
+  "receipt": "/tmp/spaceworks-frontverify-ype66ztu/receipt.json",
+  "log": "/tmp/spaceworks-frontverify-ype66ztu/full-frontend.log",
+  "log_sha256": "2026dba9147519656d3e21e6fa1d4593aa43462312ed209e926fa84e47dbca63",
+  "prior_attempts": [
+    {
+      "path": "/tmp/spaceworks-frontverify-ji693jb4",
+      "status": "FAILED_BUILD_TEST_OPTIONS",
+      "tests_started": false
+    },
+    {
+      "path": "/tmp/spaceworks-frontverify-4jejxthl",
+      "status": "CANCELLED_INCOMPLETE",
+      "not_a_pass": true
+    },
+    {
+      "path": "/tmp/spaceworks-frontverify-2l_4nh6d",
+      "status": "SEEDED_NEVER_EXECUTED_OBSOLETE_PAGEHEADER"
+    }
+  ],
+  "local_build_revision": null,
+  "runtime_node_major": 20,
+  "prior_complete_baseline": {
+    "total_tests": 2133,
+    "passed_tests": 2130,
+    "failed_tests": 3,
+    "duration_seconds": 2019.9,
+    "failed_files": [
+      "src/features/staff/EventFormFields.test.tsx",
+      "src/features/staff/MakerspacePaymentSettings.test.tsx",
+      "src/features/staff/panels/RoleManager.test.tsx"
+    ],
+    "resolution": "Scoped control queries preserve behavioral assertions and original timeouts. All three files pass in the final complete run."
+  },
+  "final_receipt_sha256": "33d698c6ce9ee92887f60dd7974bf063a473bb10108b81b8da0fa7a874eef14b"
+}

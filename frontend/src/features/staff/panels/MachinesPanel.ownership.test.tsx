@@ -13,10 +13,10 @@ beforeEach(() => { resetUploadSession(); });
 afterEach(() => { cleanUploadSession(); });
 function RouterControls() {
   const navigate = useNavigate();
-  return <><button onClick={() => navigate("/admin/machines/1-press")}>Visit A directly</button><button onClick={() => navigate("/admin/machines/3-press")}>Visit B directly</button></>;
+  return <><button onClick={() => navigate("/admin/machines/1-press/queue")}>Visit A directly</button><button onClick={() => navigate("/admin/machines/3-press/queue")}>Visit B directly</button></>;
 }
 function panel() {
-  return <MemoryRouter initialEntries={["/admin/machines/1-press"]}>
+  return <MemoryRouter initialEntries={["/admin/machines/1-press/queue"]}>
     <RouterControls />
     <MachinesPanel makerspaceId={1} canManage canConfigureMachineTypes={false} maintenanceEnabled={false}
       machineServiceEnabled printingEnabled reportsEnabled={false} delegatedRecipientRulesEnabled={false} />
@@ -39,28 +39,35 @@ it("direct type A→B→A navigation preserves container service drafts and rese
   fireEvent.click(await screen.findByRole("button", { name: "Complete" }));
   setValue("Actual minutes", "37");
   setValue("Manual usage note", "A unfinished manual note");
+  fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
   setValue("Material", "A stock"); setValue("Brand", "A brand"); setValue("Initial quantity", "100");
   fireEvent.click(screen.getByRole("button", { name: "Add pool" }));
   await screen.findByText("A pool failed");
   expect(net.writes()[0].body).toMatchObject({ machine_type_id: 1, material: "A stock", unit: "count" });
   fireEvent.click(screen.getByRole("button", { name: "Visit B directly" }));
   await screen.findByText("Job B");
+  expect(screen.queryByLabelText("Actual minutes")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
   expect(screen.getByLabelText("Material")).toHaveValue("");
   expect(screen.getByLabelText("Brand")).toHaveValue("");
   expect(screen.getByLabelText("Initial quantity")).toHaveValue(null);
   expect(screen.queryByText("A pool failed")).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Actual minutes")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("link", { name: "Requests" }));
   expect(screen.getByLabelText("Manual usage note")).toHaveValue("");
-  fireEvent.click(screen.getByRole("button", { name: "Complete" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Complete" }));
   setValue("Actual minutes", "51"); setValue("Manual usage note", "B unfinished note");
+  fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
   setValue("Material", "B stock"); setValue("Initial quantity", "200");
   fireEvent.click(screen.getByRole("button", { name: "Visit A directly" }));
   expect(await screen.findByLabelText("Actual minutes")).toHaveValue("37");
   expect(screen.getByLabelText("Manual usage note")).toHaveValue("A unfinished manual note");
+  fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
   expect(screen.getByLabelText("Material")).toHaveValue("");
   fireEvent.click(screen.getByRole("button", { name: "Visit B directly" }));
   expect(await screen.findByLabelText("Actual minutes")).toHaveValue("51");
   expect(screen.getByLabelText("Manual usage note")).toHaveValue("B unfinished note");
+  fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
   expect(screen.getByLabelText("Material")).toHaveValue("");
 });
 

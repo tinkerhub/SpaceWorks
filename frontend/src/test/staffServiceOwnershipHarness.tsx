@@ -34,7 +34,7 @@ export function filledServiceDraft(id = 4): ServiceDraft {
 }
 export function serviceJob(id = 4, kind: ConsoleKind = "generic"): MachineServiceRequest {
   return {
-    id, bucket_id: 1, queue_id: 1, machine_type: kind === "printer" ? "3d_printer" : "press", machine: { id: 11, name: "Machine 11", status: "running" },
+    id, bucket_id: 1, queue_id: 1, allocation_policy: "staff_select", machine_type: kind === "printer" ? "3d_printer" : "press", machine: { id: 11, name: "Machine 11", status: "running" },
     assigned_machine: { id: 11, name: "Machine 11", status: "running" }, requester: { id: 1, username: "maker", display: "Maker" },
     requester_name: "Maker", contact_email: "maker@example.test", contact_phone: "", title: id === 4 ? "Job A" : "Job B",
     description: "Fixture job", source_link: "", status: "in_progress", reason: "", estimated_minutes: 60,
@@ -45,8 +45,8 @@ export function serviceJob(id = 4, kind: ConsoleKind = "generic"): MachineServic
     files: [], consumptions: [],
   };
 }
-export function servicePool(type: MachineType): PrinterPool {
-  return { id: 31, machine_id: 11, machine_type_id: type.id, material: "PLA", color: "", brand: "", unit: "grams",
+export function servicePool(_type: MachineType): PrinterPool {
+  return { id: 31, machine_id: 11, machine_type_id: null, material: "PLA", color: "", brand: "", unit: "grams",
     initial_grams: "1000", remaining_grams: "800", is_active: true, created_at: "", updated_at: "" };
 }
 

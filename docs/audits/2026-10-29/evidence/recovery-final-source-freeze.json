@@ -360,8 +360,8 @@
     },
     {
       "path": "docker-compose.yml",
-      "lines": 336,
-      "sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff"
+      "lines": 337,
+      "sha256": "1a934bbfb7ba2c18f1d5b227aeefa9026ad2caa868d031c6047771244572a426"
     },
     {
       "path": "install.sh",
@@ -473,8 +473,8 @@
     },
     {
       "path": "docker-compose.yml",
-      "lines": 336,
-      "sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+      "lines": 337,
+      "sha256": "1a934bbfb7ba2c18f1d5b227aeefa9026ad2caa868d031c6047771244572a426",
       "installed_mode": "0644"
     },
     {
@@ -986,7 +986,7 @@
     "proof": "docs/audits/2026-10-29/evidence/restore-actual-readonly-admission-proof.json",
     "next": "Fresh complete64source build/image/install/backup/normal-entrypoint restore drill remains required."
   },
-  "current_runtime_copy_digest": "c46e4791e341d98fc0c41e351052d2b31720ce1a710a70738716e0b052e9a761",
+  "current_runtime_copy_digest": "06b18bb29570c4f67843b01951e6a3a6d43f120bf5e406a8a93795cac1043558",
   "probe_host_address_refresh": {
     "verified_at_utc": "2026-10-30T04:55:39+00:00",
     "prior_manifest": "docs/audits/2026-10-29/evidence/recovery-final-source-freeze-before-probe-host-address.json",
@@ -1305,5 +1305,32 @@
     "evidence_sha256": "50b219933e909994ec39f81ecbade92590dc5ce0cce981dd3dbe4c6840d21223",
     "coverage": "six current cases resolved via initial four passing plus unchanged exact two retry; no fresh full-six claim",
     "actual_seventh_restore_image_unchanged": true
+  },
+  "platform_staff_origin_forwarding_refresh": {
+    "status": "Reviewed descriptor synchronization; runtime results are recorded separately.",
+    "previous_manifest": "recovery-final-source-freeze.before-platform-staff-origin-forwarding-20261101.json",
+    "previous_manifest_sha256": "c88b5933e00ec6356ddd39fa72b032e2e95dd4ba8866ca5cf3dde90c73fc4935",
+    "origin_commit": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+    "changes": [
+      {
+        "path": "docker-compose.yml",
+        "before_sha256": "561432e01b29788ef20bfe9f174d534f7181201f270e195cd179f73bacfe29ff",
+        "after_sha256": "1a934bbfb7ba2c18f1d5b227aeefa9026ad2caa868d031c6047771244572a426",
+        "before_lines": 336,
+        "after_lines": 337,
+        "reason": "One existing Compose backend environment forwarding line for PLATFORM_STAFF_ORIGINS; no restore host code or copy-membership change."
+      }
+    ],
+    "active_sections_refreshed": [
+      "source_files",
+      "pinned_runtime_copy_files"
+    ],
+    "previous_copy_digest": "c46e4791e341d98fc0c41e351052d2b31720ce1a710a70738716e0b052e9a761",
+    "current_copy_digest": "06b18bb29570c4f67843b01951e6a3a6d43f120bf5e406a8a93795cac1043558",
+    "source65_copy60_memberships_and_installed_modes_unchanged": true,
+    "guard25_and_wrapper_unchanged": true,
+    "historical_freeze_and_prior_refresh_and_seventh_drill_provenance_unchanged": true,
+    "pre_fix_reproduction": "Actual portable recovery_bundle_support.copy_bundle raised AssertionError: docker-compose.yml before installer invocation.",
+    "runtime": "Strict replay of the same28 installed-layout/bundle/fresh-install cases must verify this descriptor. This metadata alone is not a host restore or production recovery claim."
   }
 }

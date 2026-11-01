@@ -1,0 +1,60 @@
+{
+  "scope": "Affected machine accounting/allocation/report/scope/notification regressions; not a new complete backend run.",
+  "baseline_dev": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+  "frozen_manifest_sha256": "74919dab84fb814d8d74f85dbc1233cf8ecb59da41e0b962d83b47839a7ce423",
+  "selection_sha256": "95d82de442601859d8a63393aafe7d958c464ca62e7a6ef5bb36658388e8e9db",
+  "first_run": {
+    "exit_code": 1,
+    "seconds": 1011.6,
+    "timed_out": false,
+    "capacity_refused": false,
+    "actual_collected": 211,
+    "duplicates": 0,
+    "all_selected_cases_executed": true,
+    "source_volume_verified_before_after": true,
+    "source_file_count": 4989,
+    "current_dirty_untracked_included": true,
+    "original_full_untouched": true,
+    "manifest_sha256": "74919dab84fb814d8d74f85dbc1233cf8ecb59da41e0b962d83b47839a7ce423",
+    "source": "/tmp/spaceworks-backend-current-linux-20261101/manifest.json",
+    "no_skips_added": true,
+    "durability_flags_on": true,
+    "max_tmpfs_percent": 12,
+    "junit": {
+      "cases": 211,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "first_junit_sha256": "31fc46d9f9ce65ac3116a8066fe8253b79794f7617e8de82f9fd2d11da3ae50d",
+  "new_cases_passed": {
+    "usage_accounting": 57,
+    "allocation_policy": 14
+  },
+  "exact_failed_id": "tests/test_integrations_checkin_setup.py::test_rules_matrix_offers_only_on_module_features_and_channels",
+  "failure": "Test mistakenly expected legacy email catalog to contain four streams; actual catalog has hardware and printing. The separate four-feature matrix assertion passed.",
+  "corrected_retry": {
+    "exit_code": 0,
+    "seconds": 70.31,
+    "timed_out": false,
+    "capacity_refused": false,
+    "cases": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "no_create_db": true,
+    "same_owned_test_database": "test_spaceworks_final_focus_3c4355dd",
+    "source_volumes_before_after_verified": true,
+    "overlay_before_after_verified": true,
+    "overlay_sha256": "15c938a3ac9f6fd9827cf361e35219cff68a254a5a2bdd48226d9b7b0976031d",
+    "original_full_untouched": true
+  },
+  "retry_junit_sha256": "737c3d7e19a89e51ddee009ef06139389223bb708e2b8ec9912ef2224abcb966",
+  "all_211_unique_cases_have_passing_coverage": true,
+  "fresh_211_case_green_run_claimed": false,
+  "only_backend_delta_for_retry": "Exact legacy-catalog expectation in one test file.",
+  "production_mutations": false,
+  "backend_application_source_changed_for_retry": false,
+  "separate_frontend_delta": "A later mechanical PageHeader breakpoint change has its own browser checks and frontend snapshot."
+}

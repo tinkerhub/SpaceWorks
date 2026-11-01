@@ -1,0 +1,94 @@
+{
+  "version": {
+    "root": "0.9.0",
+    "openapi": "0.9.0",
+    "frontend_package_declares_version": false,
+    "frontend_lock_root_declares_version": false
+  },
+  "manifest_images": 77,
+  "actual_images": 77,
+  "total_bytes": 8956196,
+  "manifest_failures": [],
+  "actual_without_manifest": [],
+  "manifest_without_actual": [],
+  "local_links_checked": 121,
+  "broken_local_links": [],
+  "twins_identical": true,
+  "decoded_images": 77,
+  "image_formats": [
+    "JPEG"
+  ],
+  "smallest_dimensions": [
+    310,
+    813
+  ],
+  "largest_dimensions": [
+    1280,
+    1172
+  ],
+  "gallery_unique_images": 77,
+  "manifest_images_absent_from_gallery": [],
+  "gallery_images_absent_from_manifest": [],
+  "git_refs": {
+    "dev": {
+      "commit": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+      "tree": "f7de5fd50ca29f78bd19785dae1dd29992c4f8ad"
+    },
+    "main": {
+      "commit": "86ac8b5f60b5c3ba5b8f1bed85ddb23cb707b0fb",
+      "tree": "d74a0dd4778666ed3b5e178df833d02dfb2b5b46"
+    },
+    "origin/dev": {
+      "commit": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+      "tree": "f7de5fd50ca29f78bd19785dae1dd29992c4f8ad"
+    },
+    "origin/main": {
+      "commit": "87471f5a2d23109ef0c9f32839c9166d435f3014",
+      "tree": "f7de5fd50ca29f78bd19785dae1dd29992c4f8ad"
+    }
+  },
+  "dev_matches_origin_main_tree": true,
+  "local_main_matches_origin_main_tree": false,
+  "twins_sha256": "e547b982d5e1153a73a444fa71eb6fb0b8ebb0cef292843743ee49972f858ca0",
+  "screenshot_manifest_version": "0.9.0",
+  "source_links": {
+    "README_general_use": "https://github.com/SpaceWorks-Labs/SpaceWorks",
+    "README_customized_contributions": "https://github.com/tinkerhub/SpaceWorks",
+    "About_general_use": "https://github.com/SpaceWorks-Labs/SpaceWorks",
+    "About_customized_contributions": "https://github.com/tinkerhub/SpaceWorks",
+    "About_and_footer_license": "https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE"
+  },
+  "public_link_status": {
+    "https://github.com/SpaceWorks-Labs/SpaceWorks": 200,
+    "https://github.com/SpaceWorks-Labs/SpaceWorks/blob/main/LICENSE": 200,
+    "https://github.com/tinkerhub/SpaceWorks": 200
+  },
+  "notes": [
+    "Frontend package and root lock metadata intentionally have no package version field; application release series is declared by VERSION and OpenAPI.",
+    "Local main is stale at86ac8b5f; dev,origin/dev andorigin/main share exacttreef7de5fd50ca29f78bd19785dae1dd29992c4f8ad. No refs were changed.",
+    "Screenshots are explicitly synthetic rendered views, not proof of every action/workflow state."
+  ],
+  "README_release_wording_reconciled_after_verification": true,
+  "audit_proof_images_added_separately_from_gallery": 2,
+  "new_audit_report_links_verified": 8,
+  "new_public_json_receipts_sensitive_patterns_checked": 6,
+  "new_public_json_receipts_sensitive_pattern_hits": 0,
+  "npm_known_vulnerabilities": {
+    "production": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "all_including_dev": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  }
+}

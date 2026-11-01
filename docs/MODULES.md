@@ -251,6 +251,9 @@ thirteen modules under it are optional.
   also carries a hex swatch for the staff console and its own public/private flag. A public pool appears
   in the public printing form as material and colour name only — never the hex value, the lot code or
   the remaining grams — and only while it is active with stock left.
+  Machine hours include actual time from completed, collected and failed service runs, plus independent
+  manual usage. Linked records for the same run count once. The Usage tab retains the manual ledger;
+  general usage reports count its rows separately from total recorded hours.
 - **Without it** — the whole machine side of the product disappears: no registry, no service queue
   (which needs machines to point at), no maintenance schedules, no per-machine consumables. A pure tool
   library runs exactly like this — see the `lending` profile.
@@ -264,7 +267,12 @@ Required by `printing`.
 
 - **What it is** — the service/job queue: a member asks for work on a machine, staff run it.
 - **What it adds** — the `machine_service_requests` workflow: request intake, the staff queue, file
-  uploads, consumption ledgers and the usage entries a finished job produces. Public intake chooses
+  uploads, consumption ledgers and recorded run timings. Machine managers open **Type requests**
+  directly from the sidebar, including its collapsed rail. The per-type Requests page contains the
+  queue, manual usage and printer reports; **Machines & stock** opens equipment and consumables.
+  Refresh keeps unfinished forms, and job details include requester, assigned machine, project
+  description and private file links opened on demand. Built-in printer requests also need `printing`.
+  Public intake chooses
   a **machine type**; staff assign a specific machine later. The paginated type catalog requires
   public inventory plus `machines` and `machine_service`, and at least one active, explicitly
   published machine of that type in idle, running or reserved state. Private hardware stays private.
@@ -276,11 +284,16 @@ Required by `printing`.
   returns 409 for staff to resolve. Uploaded files pin the exact queue, even if queue ordering changes;
   deactivating it causes a conflict. The existing staff printer setup action remains available for
   deliberate creation/reactivation of `Public Requests`.
+  Before starting an accepted job, choose a specific machine when its queue uses staff assignment.
+  Queues configured to pick the first idle machine keep that automatic option for both printers and
+  other machine types while an active idle candidate exists. The picker lists only active idle
+  machines; an unavailable saved selection must be changed before starting. The saved estimate
+  pre-fills the start form; completion records actual minutes.
 - **Without it** — machines are a registry you look at, not a queue you work. Jobs are arranged in person
   or by message; nothing records who ran what, on which machine, using how much material. `printing`
   cannot be installed while this is off.
-- **Data** — purgeable: service requests, queues, uploads, consumption ledgers and the usage entries they
-  produced. Consumable pools stay — they belong to `machines`.
+- **Data** — purgeable: service requests, queues, uploads, consumption ledgers and service-linked usage
+  entries. Consumable pools stay — they belong to `machines`.
 
 ### printing
 
@@ -289,8 +302,9 @@ Required by `printing`.
 - **What it is** — 3D printing as a machine type on top of the service queue.
 - **What it adds** — the `printing_requests` workflow: print-specific intake, print files, and the
   printer-facing view of the queue.
-- **Without it** — 3D printers can still be registered and staff can manage their ordinary service
-  jobs. Public printer intake is disabled, including requests through the machine-type form or the
+- **Without it** — 3D printers can still be registered. With `machine_service` enabled, staff retain
+  manual usage/history, filament consumption and logged prices under **Machines & stock**; the printer
+  requests queue stays unavailable. Public printer intake is disabled, including the machine-type form or the
   legacy machine-id API. You also lose the print-specific handling around them, including the
   public print-status page (an old status link answers like an unknown one), the printing email
   templates and the print counters on the dashboard.

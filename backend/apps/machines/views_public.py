@@ -1,7 +1,3 @@
-from decimal import Decimal
-
-from django.db.models import DecimalField, Sum
-from django.db.models.functions import Coalesce
 from django.http import Http404
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.generics import ListAPIView
@@ -10,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from apps.apiclients.throttling import ClientTierRateThrottle
 from apps.machines.models import Machine
 from apps.machines.serializers_public_machines import PublicMachineSerializer
+from apps.machines.usage_totals import annotate_machine_usage
 from apps.makerspaces.lookup import get_public_makerspace
 from apps.makerspaces.platform import module_enabled
 from apps.openapi import PUBLIC_API_AUTH_PARAMETERS
@@ -42,19 +39,12 @@ class PublicMachineListView(ListAPIView):
             makerspace, 'machines'
         ):
             raise Http404
-        return (
+        return annotate_machine_usage(
             Machine.objects.select_related('machine_type')
             .filter(
                 makerspace=makerspace,
                 is_public=True,
                 is_active=True,
-            )
-            .annotate(
-                usage_total=Coalesce(
-                    Sum('usage_entries__hours'),
-                    Decimal('0'),
-                    output_field=DecimalField(max_digits=12, decimal_places=2),
-                )
             )
             .order_by('name', 'id')
         )

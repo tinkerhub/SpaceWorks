@@ -1,8 +1,5 @@
-from decimal import Decimal
-
 from django.db import transaction
-from django.db.models import Q, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -17,6 +14,7 @@ from apps.audit import services as audit
 from apps.machines import access
 from apps.machines.models import Machine, MachineType
 from apps.machines.serializers import MachineListResponseSerializer, MachineSerializer
+from apps.machines.usage_totals import annotate_machine_usage
 from apps.makerspaces import limits
 from apps.makerspaces.guards import require_module, require_module_locked
 
@@ -58,18 +56,13 @@ class MachineListCreateView(APIView):
             request.user,
             Machine.objects.select_related('makerspace', 'machine_type', 'warranty')
             .filter(makerspace_id=makerspace_id)
-            .annotate(
-                usage_total=Coalesce(
-                    Sum('usage_entries__hours'),
-                    Decimal('0'),
-                )
-            )
             # `Machine` declares no `Meta.ordering`, so this paginated list had no ORDER BY
             # at all: Postgres may return rows in any order per page, which lets a row
             # repeat on one page and vanish from another. `pk` is the tiebreaker -- ordering
             # by name alone is still unstable wherever two machines share one.
             .order_by('machine_type__name', 'name', 'pk'),
         )
+        queryset = annotate_machine_usage(queryset)
         paginator = _MachinePagination()
         page = paginator.paginate_queryset(queryset, request, view=self)
         capabilities = access.capabilities_for_machines(request.user, page)

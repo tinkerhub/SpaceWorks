@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StructuredApiError } from "../../lib/api";
 import { TenantMigrationPanel } from "./TenantMigrationPanel";
+import { cancelMigrationAction, chooseMigrationOption, findMigrationButton, migrationDialog, selectMigrationStep } from "./tenantMigrationTestQueries";
 
 const { staffRequest } = vi.hoisted(() => ({ staffRequest: vi.fn() }));
 vi.mock("../../lib/api", async () => {
@@ -102,12 +103,13 @@ describe("TenantMigrationPanel disclosure", () => {
   it("renders the exact closure and approves its exact digest and per-person decision", async () => {
     installApi({ post: () => Promise.resolve({ id: "approval", closure_digest: digest, identity_count: "1", approved_count: "1", approved_at: "now" }) });
     renderPanel();
-
-    expect(await screen.findByText("Ada Maker")).toBeVisible();
-    expect(screen.getByTestId("closure-digest")).toHaveTextContent(digest);
-    fireEvent.click(screen.getByRole("checkbox", { name: /Ada Maker/i }));
-    fireEvent.click(screen.getByRole("checkbox", { name: /I reviewed every person/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Approve exact closure" }));
+    const source = selectMigrationStep("Source export");
+    const disclosure = within(source.getByRole("region", { name: "Disclosure closure review" }));
+    expect(await disclosure.findByText("Ada Maker")).toBeVisible();
+    expect(disclosure.getByTestId("closure-digest")).toHaveTextContent(digest);
+    fireEvent.click(disclosure.getByRole("checkbox", { name: /Ada Maker/i }));
+    fireEvent.click(disclosure.getByRole("checkbox", { name: /I reviewed every person/i }));
+    fireEvent.click(disclosure.getByRole("button", { name: "Approve exact closure" }));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/makerspace/7/tenant-migration/disclosure-approvals",
@@ -118,10 +120,10 @@ describe("TenantMigrationPanel disclosure", () => {
   it("marks a non-revoked approval void when the closure digest changed", async () => {
     installApi({ approvals: [{ id: "old", closure_digest: oldDigest, identity_count: "1", approved_count: "1", approved_at: "now", revoked_at: null }] });
     renderPanel();
-
-    expect(await screen.findByText(/VOID — disclosure closure changed/i)).toBeVisible();
-    expect(screen.getByText("Review required")).toBeVisible();
-    expect(screen.queryByText("Approved")).not.toBeInTheDocument();
+    const source = selectMigrationStep("Source export");
+    expect(await source.findByText(/VOID — disclosure closure changed/i)).toBeVisible();
+    expect(source.getByText("Review required")).toBeVisible();
+    expect(source.queryByText("Approved")).not.toBeInTheDocument();
   });
 
   it("reads a field error from StructuredApiError.body", async () => {
@@ -129,10 +131,12 @@ describe("TenantMigrationPanel disclosure", () => {
       detail: "Validation failed.", digest: ["Review the newly computed digest."],
     })) });
     renderPanel();
-    await screen.findByText("Ada Maker");
-    fireEvent.click(screen.getByRole("checkbox", { name: /I reviewed every person/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Approve exact closure" }));
-    expect(await screen.findByText("Review the newly computed digest.")).toHaveAttribute("role", "alert");
+    const source = selectMigrationStep("Source export");
+    const disclosure = within(source.getByRole("region", { name: "Disclosure closure review" }));
+    await disclosure.findByText("Ada Maker");
+    fireEvent.click(disclosure.getByRole("checkbox", { name: /I reviewed every person/i }));
+    fireEvent.click(disclosure.getByRole("button", { name: "Approve exact closure" }));
+    expect(await disclosure.findByText("Review the newly computed digest.")).toHaveAttribute("role", "alert");
   });
 });
 
@@ -141,12 +145,13 @@ describe("TenantMigrationPanel identity decisions", () => {
     const job = { ...baseJob, status: "awaiting_identity" };
     installApi({ imports: [job], post: (path) => path.endsWith("/identity-decisions") ? Promise.resolve({ ...job, status: "ready" }) : undefined });
     renderPanel();
-    fireEvent.click(await screen.findByRole("combobox", { name: "Identity resolution for Ada Maker" }));
-    fireEvent.click(screen.getByRole("option", { name: "Link existing account" }));
-    fireEvent.change(screen.getByRole("spinbutton", { name: "Target user ID for Ada Maker" }), { target: { value: "42" } });
-    fireEvent.click(screen.getByRole("combobox", { name: "Membership for Ada Maker" }));
-    fireEvent.click(screen.getByRole("option", { name: "Do not import membership" }));
-    fireEvent.click(screen.getByRole("button", { name: "Submit all identity decisions" }));
+    const target = selectMigrationStep("Target import");
+    expect(await target.findByText("Ada Maker")).toBeVisible();
+    const decisions = within(target.getByRole("region", { name: "Per-person identity decisions" }));
+    await chooseMigrationOption(decisions, "Identity resolution for Ada Maker", "Link existing account");
+    fireEvent.change(decisions.getByRole("spinbutton", { name: "Target user ID for Ada Maker" }), { target: { value: "42" } });
+    await chooseMigrationOption(decisions, "Membership for Ada Maker", "Do not import membership");
+    fireEvent.click(await findMigrationButton(decisions, "Submit all identity decisions"));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       `/admin/platform/tenant-migrations/imports/${baseJob.id}/identity-decisions`,
@@ -159,19 +164,20 @@ describe("TenantMigrationPanel deployment pairing", () => {
   it("submits the prefilled target identity unchanged without age_recipient", async () => {
     installApi({ post: (path) => path.endsWith("/pairings") ? Promise.resolve(pairing) : undefined });
     renderPanel();
-
-    await screen.findByText(/This deployment: target-deployment/);
-    fireEvent.click(screen.getByRole("button", { name: "Use this deployment as source" }));
-    const sourceInput = screen.getByLabelText("Source deployment identity JSON");
+    const step = selectMigrationStep("Deployment pairing");
+    const form = within(step.getByRole("region", { name: "Pin source and target identities" }));
+    await form.findByText(/This deployment: target-deployment/);
+    fireEvent.click(form.getByRole("button", { name: "Use this deployment as source" }));
+    const sourceInput = form.getByLabelText("Source deployment identity JSON");
     expect(JSON.parse((sourceInput as HTMLTextAreaElement).value)).not.toHaveProperty("age_recipient");
     fireEvent.change(sourceInput, { target: { value: JSON.stringify({
       algorithm: "ed25519", deployment_id: "source-deployment", public_key: "source-key",
       fingerprint: "s".repeat(64),
     }) } });
-    fireEvent.change(screen.getByLabelText("Migration/import job ID"), { target: { value: baseJob.id } });
-    fireEvent.change(screen.getByLabelText("Source tenant ID"), { target: { value: "7" } });
-    fireEvent.change(screen.getByLabelText("Archive digest"), { target: { value: digest } });
-    fireEvent.click(screen.getByRole("button", { name: "Pin this deployment pairing" }));
+    fireEvent.change(form.getByLabelText("Migration/import job ID"), { target: { value: baseJob.id } });
+    fireEvent.change(form.getByLabelText("Source tenant ID"), { target: { value: "7" } });
+    fireEvent.change(form.getByLabelText("Archive digest"), { target: { value: digest } });
+    fireEvent.click(form.getByRole("button", { name: "Pin this deployment pairing" }));
 
     await waitFor(() => expect(staffRequest).toHaveBeenCalledWith(
       "/admin/platform/tenant-migrations/pairings",
@@ -208,28 +214,25 @@ describe("TenantMigrationPanel cutover", () => {
     async (status) => {
     installApi({ imports: [{ ...baseJob, status }] });
     renderPanel();
-    expect(await screen.findByText("Importing")).toBeVisible();
-    expect(screen.getByText(/Import finalization is still running/)).toBeVisible();
-    expect(screen.getAllByText(/archives are outside the purge guarantee/i).length).toBeGreaterThan(0);
+    const target = selectMigrationStep("Target import");
+    expect(await target.findByText("Importing")).toBeVisible();
+    expect(target.getByText(/Import finalization is still running/)).toBeVisible();
+    expect(target.getAllByText(/archives are outside the purge guarantee/i).length).toBeGreaterThan(0);
   });
 
   it("requires tenant-naming confirmations for every destructive cutover action", async () => {
     installApi({ imports: [completed], exports: [exportJob], pairings: [pairing] });
     renderPanel();
-    const cancelled = async (button: string, title: RegExp) => {
-      fireEvent.click(screen.getByRole("button", { name: button }));
-      const dialog = await screen.findByRole("alertdialog");
-      expect(within(dialog).getByRole("heading", { name: title })).toBeVisible();
-      fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
-      await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
-    };
-    await screen.findByRole("button", { name: "Quiesce Forge…" });
-    await cancelled("Quiesce Forge…", /^Quiesce Forge\?$/);
-    await cancelled("Archive source Forge…", /^Archive Forge\?$/);
-    fireEvent.change(await screen.findByLabelText("Source cutover receipt"), { target: { value: JSON.stringify(receipt) } });
-    await screen.findByText(/Target makerspace 99/);
-    await cancelled("Activate target Forge…", /^Activate Forge\?$/);
-    await cancelled("Abort target Forge…", /^Abort Forge\?$/);
+    const source = selectMigrationStep("Source export");
+    const exports = within(source.getByRole("region", { name: "Encrypted migration exports" }));
+    await cancelMigrationAction(exports, "Quiesce Forge…", /^Quiesce Forge\?$/);
+    await cancelMigrationAction(exports, "Archive source Forge…", /^Archive Forge\?$/);
+    const target = selectMigrationStep("Target import");
+    fireEvent.change(await target.findByLabelText("Source cutover receipt"), { target: { value: JSON.stringify(receipt) } });
+    await target.findByText(/Target makerspace 99/);
+    const cutover = within(target.getByRole("region", { name: "One-way target cutover" }));
+    await cancelMigrationAction(cutover, "Activate target Forge…", /^Activate Forge\?$/);
+    await cancelMigrationAction(cutover, "Abort target Forge…", /^Abort Forge\?$/);
 
     expect(staffRequest.mock.calls.filter(([, options]) => options?.method === "POST")).toHaveLength(0);
   });
@@ -237,8 +240,10 @@ describe("TenantMigrationPanel cutover", () => {
   it("quiesces only after the dialog is confirmed", async () => {
     installApi({ exports: [exportJob], post: (path) => path.endsWith("/quiesce") ? Promise.resolve({}) : undefined });
     renderPanel();
-    fireEvent.click(await screen.findByRole("button", { name: "Quiesce Forge…" }));
-    fireEvent.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Quiesce Forge" }));
+    const source = selectMigrationStep("Source export");
+    const exports = within(source.getByRole("region", { name: "Encrypted migration exports" }));
+    fireEvent.click(await findMigrationButton(exports, "Quiesce Forge…"));
+    fireEvent.click((await migrationDialog(/^Quiesce Forge\?$/)).getByRole("button", { name: "Quiesce Forge" }));
     await waitFor(() => expect(staffRequest.mock.calls.some(([path, options]) => (path as string).endsWith("/quiesce") && options?.method === "POST")).toBe(true));
   });
 
@@ -250,18 +255,19 @@ describe("TenantMigrationPanel cutover", () => {
       return Promise.resolve({ message: "active", receipt });
     } });
     renderPanel();
-    expect(await screen.findByText("Importing")).toBeVisible();
-    await screen.findByText("Imported");
-    expect(screen.getByRole("region", { name: "Import verification report" })).toHaveTextContent("Imported");
-    fireEvent.change(await screen.findByLabelText("Source cutover receipt"), { target: { value: JSON.stringify(receipt) } });
-    fireEvent.click(screen.getByRole("button", { name: "Activate target Forge…" }));
-    const dialog = await screen.findByRole("alertdialog");
-    const confirmButton = within(dialog).getByRole("button", { name: "Activate Forge" });
+    const target = selectMigrationStep("Target import");
+    expect(await target.findByText("Importing")).toBeVisible();
+    await target.findByText("Imported");
+    expect(target.getByRole("region", { name: "Import verification report" })).toHaveTextContent("Imported");
+    fireEvent.change(await target.findByLabelText("Source cutover receipt"), { target: { value: JSON.stringify(receipt) } });
+    fireEvent.click(await findMigrationButton(target, "Activate target Forge…"));
+    const dialog = await migrationDialog(/^Activate Forge\?$/);
+    const confirmButton = dialog.getByRole("button", { name: "Activate Forge" });
     expect(confirmButton).toBeDisabled();
-    fireEvent.change(within(dialog).getByLabelText(/Type Forge to confirm/), { target: { value: "Forge" } });
+    fireEvent.change(dialog.getByLabelText(/Type Forge to confirm/), { target: { value: "Forge" } });
     fireEvent.click(confirmButton);
-    expect(await screen.findByText("Active")).toBeVisible();
-    expect(screen.queryByText("Importing")).not.toBeInTheDocument();
+    expect(await target.findByText("Active")).toBeVisible();
+    expect(target.queryByText("Importing")).not.toBeInTheDocument();
   });
 
   it("shows Aborted distinctly and exposes the target abort receipt", async () => {
@@ -272,10 +278,11 @@ describe("TenantMigrationPanel cutover", () => {
       return Promise.resolve({ message: "aborted", receipt });
     } });
     renderPanel();
-    fireEvent.click(await screen.findByRole("button", { name: "Abort target Forge…" }));
-    fireEvent.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "Abort Forge" }));
-    expect(await screen.findByText("Aborted")).toBeVisible();
-    expect(screen.getByLabelText(/Target abort receipt/)).toHaveValue(JSON.stringify(receipt, null, 2));
+    const target = selectMigrationStep("Target import");
+    fireEvent.click(await findMigrationButton(target, "Abort target Forge…"));
+    fireEvent.click((await migrationDialog(/^Abort Forge\?$/)).getByRole("button", { name: "Abort Forge" }));
+    expect(await target.findByText("Aborted")).toBeVisible();
+    expect(target.getByLabelText(/Target abort receipt/)).toHaveValue(JSON.stringify(receipt, null, 2));
   });
 
   it("uses persisted active state after reload and hides one-way cutover actions", async () => {
@@ -284,9 +291,9 @@ describe("TenantMigrationPanel cutover", () => {
       pairings: [pairing],
     });
     renderPanel();
-
-    expect(await screen.findByText("Active")).toBeVisible();
-    expect(screen.queryByRole("button", { name: /Activate target/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Abort target/ })).not.toBeInTheDocument();
+    const target = selectMigrationStep("Target import");
+    expect(await target.findByText("Active")).toBeVisible();
+    expect(target.queryByRole("button", { name: /Activate target/ })).not.toBeInTheDocument();
+    expect(target.queryByRole("button", { name: /Abort target/ })).not.toBeInTheDocument();
   });
 });

@@ -54,9 +54,11 @@ describe("MakerspacePaymentSettings", () => {
   it("disables payment actions while settings are loading", () => {
     renderSettings(false, false, true);
 
-    expect(
-      screen.getByRole("button", { name: /save payment settings/i }),
-    ).toBeDisabled();
+    const save = screen.getByText("Save payment settings", { exact: true }).closest("button");
+    expect(save).toHaveRole("button");
+    expect(save).toHaveAccessibleName("Save payment settings");
+    expect(save).toBeVisible();
+    expect(save).toBeDisabled();
   });
 
   it("keeps self-host raw-only and shows managed Connect onboarding", () => {

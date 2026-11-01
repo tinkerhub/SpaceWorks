@@ -16,6 +16,7 @@ import {
 import type { StaffAuthUser } from "../../lib/api";
 import type { Makerspace } from "./panels/shared";
 import { canManagePlatform, isGlobalStaffAdmin } from "./staffSelection";
+import { moduleEnabled } from "../../lib/modules";
 
 export function StaffWorkspace({
   activeMakerspace,
@@ -133,6 +134,9 @@ export function StaffWorkspace({
         allowedTabs: moduleAllowedTabs,
         guestOnly,
         singleTenantLocked,
+        canManageMachines,
+        machineServiceEnabled: moduleEnabled(activeMakerspace?.enabled_modules, "machine_service"),
+        printingEnabled: moduleEnabled(activeMakerspace?.enabled_modules, "printing"),
       }}
       account={{
         username: user.username,

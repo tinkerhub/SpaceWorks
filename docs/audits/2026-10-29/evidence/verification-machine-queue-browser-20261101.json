@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-01",
+  "environment": "Local synthetic Service Request QA makerspace via localhost preview",
+  "observed": [
+    "Printer requests navigates directly from the mobile sidebar to /machines/1-3d_printer/queue",
+    "Queue header and request rows precede manual usage/reports, without equipment/stock creation forms",
+    "Machines & stock opens equipment, stock and Add machine",
+    "Unsubmitted estimate17/planned9 survive queue-to-equipment-to-queue navigation and explicit Refresh",
+    "Collapsed rail Laser Cutter requests opens generic service queue",
+    "Project brief expands on a real local synthetic laser job",
+    "Laser queue deep link survives reload and staff session restoration",
+    "Exactly one sidebar current-page link: 3D Printer requests",
+    "Requested380px viewport: document clientWidth370 equals scrollWidth370; no horizontal overflow",
+    "Mobile queue selection closes navigation sheet; temporary viewport override reset and sidebar expanded preference restored"
+  ],
+  "not_performed": [
+    "No production mutations, new physical units, request approvals, handovers or stock changes",
+    "No real design attachment downloaded; those reads covered at the staffRequest boundary by automated tests"
+  ],
+  "screenshot": {
+    "file": "verification-machine-queue-sidebar-20261101.png",
+    "sha256": "91256f89650566158a405df8901df4afb7d068419c338dcdd0dc66cf197465d8",
+    "bytes": 69036,
+    "synthetic_data_only": true
+  },
+  "backend_preview": "Existing local API process was absent and restarted with its preserved configuration; no configuration or migrations changed"
+}

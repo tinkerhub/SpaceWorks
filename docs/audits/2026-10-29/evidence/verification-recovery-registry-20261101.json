@@ -1,0 +1,65 @@
+{
+  "scope": "All28 strict recovery installer/layout cases plus the complete6-case email template registry file.",
+  "actual_result": {
+    "collected": 34,
+    "passed": 34,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "driver_seconds": 72.12,
+    "timed_out": false
+  },
+  "original_failures": {
+    "recovery_cases": 28,
+    "reason": "copy_bundle refused stale docker-compose.yml fingerprint before installer execution.",
+    "portable_helper_reproduction": {
+      "status": "DETERMINISTIC_PRE_FIX_FAILURE_REPRODUCED",
+      "actual_function": "tests.backup.recovery_bundle_support.copy_bundle",
+      "error": "AssertionError: docker-compose.yml",
+      "copied_before_refusal": [
+        "docker-compose.cloud.yml",
+        "docker-compose.prod.yml",
+        "install.sh",
+        "setup.ps1",
+        "setup.sh"
+      ],
+      "fixture_source_sha256": "46029ac6e5e06179c5260591e1eb8d5828ba324a1d832049e3cd7d32b48c2dc8",
+      "descriptor_sha256": "c88b5933e00ec6356ddd39fa72b032e2e95dd4ba8866ca5cf3dde90c73fc4935",
+      "limitations": "Host portable fixture copy only; no pytest, DB, Django setup, Linux-root installer, production recovery or staged script execution. Temporary owned destination automatically removed."
+    },
+    "registry_cases": 1,
+    "registry_reason": "Old75 count omitted two already-shipped hardware cancellation templates; actual registry77."
+  },
+  "corrections": {
+    "production_code_changed": false,
+    "descriptor": "One docker-compose.yml fingerprint and line count in two active sections; canonical digest updated; prior bytes and historical metadata preserved.",
+    "origin_commit": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+    "guarded_dependencies": 25,
+    "source_paths": 65,
+    "copied_paths": 60,
+    "membership_and_installed_modes_unchanged": true,
+    "registry": "Expected29 hardware/printing plus48 FabLab entries; explicit cancellation keys and exact set assertion retained."
+  },
+  "integrity": {
+    "frozen_base_source_and_dependencies_verified_before_after": true,
+    "artifact_overlay_verified_before_after": true,
+    "registry_overlay_verified_before_after": true,
+    "read_only_document_aliases": 2,
+    "read_only_test_aliases": 3,
+    "current_artifact_sha256": "95b7805f939bceadb64cd7f69ea4e07eece35e0f3ff0319e357a0faebba93f07",
+    "prior_artifact_sha256": "c88b5933e00ec6356ddd39fa72b032e2e95dd4ba8866ca5cf3dde90c73fc4935",
+    "registry_test_sha256": "ec158f5cc817492185d019a7bdbdcfdc5d2cbfe294c7b5be12dd2d863b499637"
+  },
+  "evidence_sha256": {
+    "receipt": "f883008241b84d43cdd5f18392d12e572e1e72a29fd0b53b41d390d715da59aa",
+    "junit": "b5883a44a4fc98f5981df4b7bb5849e1434fde0244f5b3f4a9f3f7ec125561ad",
+    "manifest": "78e23ad1d1e9c5dbb86e739d384d282c32903d0327d32b5fff2c632d996c38cb",
+    "selection": "69ca9d909e528697cd53af353333fe5031a4814cc498b229fae46a8e7f150579"
+  },
+  "limits": [
+    "Not a fresh2586-case green run.",
+    "Historical seventh same-host restore proof unchanged; this replay is not a new host restore or production recovery."
+  ],
+  "production_domain_mutations": false
+}

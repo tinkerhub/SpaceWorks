@@ -89,8 +89,8 @@ export function staffTabLabel(tab: string) {
   return TAB_LABELS[tab] ?? tab;
 }
 
-/** A link nested under a tab: one per reachable machine type under Machines. */
-export type StaffNavSubLink = { label: string; subPath: string };
+/** Equipment and eligible requests links nested under Machines. */
+export type StaffNavSubLink = { label: string; subPath: string; queue?: boolean };
 
 export type StaffNavRow = {
   tab: string;
@@ -108,13 +108,14 @@ export type StaffNavGroup = {
   showHeading: boolean;
 };
 
-function tabRows(tab: string, machineTypeLinks: readonly StaffNavSubLink[]): StaffNavRow[] {
+function tabRows(tab: string, machineTypeLinks: readonly StaffNavSubLink[], collapsed: boolean): StaffNavRow[] {
   if (tab !== "machines" || !machineTypeLinks.length) {
     return [{ tab, label: staffTabLabel(tab), icon: staffTabIcon(tab) }];
   }
   return [
-    { tab, label: "All machine types", icon: LayoutGrid, subPath: "" },
-    ...machineTypeLinks.map((link) => ({ tab, label: link.label, icon: staffTabIcon(tab), subPath: link.subPath })),
+    collapsed ? { tab, label: staffTabLabel(tab), icon: staffTabIcon(tab) }
+      : { tab, label: "All machine types", icon: LayoutGrid, subPath: "" },
+    ...machineTypeLinks.filter((link) => !collapsed || link.queue).map((link) => ({ tab, label: link.label, icon: link.queue ? Inbox : staffTabIcon(tab), subPath: link.subPath })),
   ];
 }
 
@@ -122,11 +123,11 @@ function tabRows(tab: string, machineTypeLinks: readonly StaffNavSubLink[]): Sta
  * The sidebar's groups: `TAB_GROUPS` narrowed to the tabs this actor may open, empties
  * dropped. Machines unfolds into one row per type in `machineTypeLinks` when there are any.
  */
-export function staffNavGroups(allowedTabs: readonly string[], machineTypeLinks: readonly StaffNavSubLink[] = []): StaffNavGroup[] {
+export function staffNavGroups(allowedTabs: readonly string[], machineTypeLinks: readonly StaffNavSubLink[] = [], collapsed = false): StaffNavGroup[] {
   return TAB_GROUPS
     .map((group) => {
       const tabs = group.tabs.filter((tab) => allowedTabs.includes(tab));
-      const rows = tabs.flatMap((tab) => tabRows(tab, machineTypeLinks));
+      const rows = tabs.flatMap((tab) => tabRows(tab, machineTypeLinks, collapsed));
       return { label: group.label, tabs, rows, showHeading: !(rows.length === 1 && rows[0].label === group.label) };
     })
     .filter((group) => group.tabs.length > 0);

@@ -363,8 +363,8 @@ def test_rules_matrix_offers_only_on_module_features_and_channels():
     body = client.get(f"/api/v1/admin/makerspace/{space.id}/notification-rules").data
 
     assert [c["key"] for c in body["channels"]] == ["email", "telegram"]
-    assert {f["key"] for f in body["features"]} == {"hardware_requests", "printing", "maintenance"}
-    assert {entry["stream"] for entry in body["catalog"]} <= {"hardware", "printing", "maintenance"}
+    assert {f["key"] for f in body["features"]} == {"hardware_requests", "printing", "maintenance", "machine_service"}
+    assert {entry["stream"] for entry in body["catalog"]} == {"hardware", "printing"}
     assert {cell["channel"] for cell in body["preferences"]} == {"email", "telegram"}
     refused = client.patch(
         f"/api/v1/admin/makerspace/{space.id}/notification-rules",

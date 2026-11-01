@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-01",
+  "scope": "Local frontend machine queue navigation/process follow-up; not a complete fresh application suite or production deployment",
+  "node": "20",
+  "runtime_image": "sha256:8f693eaa7e0a8e71560c9a82b55fd54c2ae920a2ba5d2cde28bac7d1c01c9ba5",
+  "source_sha256": "4a47bbd059ff80c5fe823bf93475fb1f7059605b3b0ab06a20ff8e02832d913c",
+  "source_files": 829,
+  "source_unchanged_before_after": true,
+  "build_and_typecheck": "passed",
+  "final_run": {
+    "test_files": 59,
+    "total": 466,
+    "passed": 466,
+    "failed": 0,
+    "skipped": 0,
+    "same_case_identity_set_as_first_run": true,
+    "original_failed_cases": 22,
+    "all_original_failures_pass_final": true,
+    "new_focused_files": 9,
+    "new_focused_case_count": 78,
+    "new_files": [
+      {
+        "file": "frontend/src/features/staff/machineTypeRoutes.test.ts",
+        "passed": 4
+      },
+      {
+        "file": "frontend/src/features/staff/shell/StaffSidebarNav.queues.test.tsx",
+        "passed": 9
+      },
+      {
+        "file": "frontend/src/features/staff/panels/MachinesPanel.queueOwnership.test.tsx",
+        "passed": 4
+      },
+      {
+        "file": "frontend/src/features/staff/panels/MachinesPanel.queues.test.tsx",
+        "passed": 14
+      },
+      {
+        "file": "frontend/src/features/staff/panels/MachinesPanel.refresh.test.tsx",
+        "passed": 4
+      },
+      {
+        "file": "frontend/src/features/staff/panels/machine/HandoverConsole.assignment.test.tsx",
+        "passed": 1
+      },
+      {
+        "file": "frontend/src/features/staff/panels/machine/ServiceFlowEligibility.test.tsx",
+        "passed": 12
+      },
+      {
+        "file": "frontend/src/features/staff/panels/machine/ServiceRequestDetails.ownership.test.tsx",
+        "passed": 14
+      },
+      {
+        "file": "frontend/src/features/staff/panels/machine/ServiceRequestDetails.test.tsx",
+        "passed": 16
+      }
+    ],
+    "unique_case_identities_with_same_name_occurrence": 466,
+    "repeated_human_case_labels": 3,
+    "identity_method": "file + fullName + declaration-order occurrence for repeated parameterized labels",
+    "container_exit": 0,
+    "driver_exit": 0,
+    "oom": false,
+    "timed_out": false,
+    "wall_seconds": 236.57,
+    "vitest_sha256": "c688600734465738cbda21c33c40508d030d41d8aebf98b1fe9fbcc93175bb55",
+    "log_sha256": "ea8f38c7602f8708829b2728818b6ed8571b10b0ecdf741432328b1be37dee93"
+  },
+  "first_run": {
+    "source_sha256": "55d6a9049bbcf2cc988ae7cc2f791a4a3e5ae614c0218cf3d94fbc13ef9e5581",
+    "numTotalTests": 466,
+    "numPassedTests": 444,
+    "numFailedTests": 22,
+    "numPendingTests": 0,
+    "container_exit": 1,
+    "seconds": 701.58,
+    "vitest_sha256": "88b25314816ff9aecb4be9b1f609619608ac7b497eadb4792a44937518661019"
+  },
+  "replay_controls": {
+    "first_workers": 2,
+    "first_cpu_quota": 2,
+    "final_workers": 1,
+    "final_cpu_quota": "none",
+    "test_and_assertion_timeouts": "unchanged defaults",
+    "excluded_tests": 0,
+    "source_changes_between_runs": [
+      "ServiceQueue: suppress temporary fallback action form while scoped queue initially loads",
+      "StaffSidebarNav collect-only fixture: select its actual active Handover section"
+    ]
+  },
+  "failure_resolution": "All 22 original failed declared case occurrences passed in the final complete 466-case replay; no waiver or skipped-case credit. Two ownership failures exposed a loading-form regression; one sidebar assertion used a folded group. Other first-run failures did not recur in serial verification with unchanged test/assertion timeouts. No stronger environmental cause is asserted.",
+  "backend_runtime": {
+    "backend_runtime_files": 1973,
+    "changed": [],
+    "new": [],
+    "matches_prior_verified_freeze": true
+  },
+  "limits": [
+    "Existing full frontend 2219-case evidence predates this queue delta; this run is the complete selected 466-case machine/navigation/public-service subset",
+    "No new backend runtime changes or backend suite run",
+    "No live SMTP, Telegram, payment or object-storage provider probe; browser file download not exercised",
+    "Owner QA pending; no staging, commit, push or deployment"
+  ]
+}

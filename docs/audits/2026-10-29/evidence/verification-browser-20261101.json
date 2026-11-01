@@ -1,0 +1,250 @@
+{
+  "observed_at_utc": "2026-10-31T22:17:10.416750+00:00",
+  "scope": "Synthetic local browser workflows; production navigation read-only. No physical assets moved.",
+  "base_dev_commit": "7bbf266f19e526f8c6b31c56277eb1d09225b75d",
+  "local_machine_service": {
+    "workspace": "service-request-qa",
+    "request_id": 54,
+    "machine_type": "Laser Cutter",
+    "requester_mode_tested": "authenticated account",
+    "states_observed": [
+      "pending",
+      "accepted",
+      "in_progress",
+      "completed",
+      "collected"
+    ],
+    "estimated_minutes_entered": 10,
+    "actual_minutes_entered": 8,
+    "machine_states_observed": [
+      "idle",
+      "running",
+      "idle"
+    ],
+    "staff_notifications_observed": [
+      "submitted",
+      "accepted",
+      "started",
+      "completed",
+      "collected"
+    ],
+    "defects_observed": [
+      "Default Any idle machine rejected by staff-select queue; explicit assignment succeeds.",
+      "Generic minute summary reads quantity fields and displays zero.",
+      "Start draft reverts accepted estimate to default 60.",
+      "Machine lifetime hours omit completed service duration."
+    ],
+    "corrected_backend_manual_verification": {
+      "hours": 0.13,
+      "staff_list": true,
+      "staff_detail": true,
+      "staff_public_preview": true,
+      "public_list": true,
+      "scope": "New local backend usage_totals implementation; source not committed or deployed."
+    }
+  },
+  "local_hardware": {
+    "workspace": "service-request-qa",
+    "product_id": 29,
+    "tracking_mode": "quantity",
+    "physical_count": 1,
+    "public_count_display": "exact; 1 limited",
+    "public_storage_location_absent": true,
+    "cancelled_request_id": 11,
+    "cancelled_states_observed": [
+      "pending_approval",
+      "accepted",
+      "cancelled"
+    ],
+    "reservation_released_available_count": 1,
+    "returned_request_id": 12,
+    "returned_states_observed": [
+      "pending_approval",
+      "accepted",
+      "issued",
+      "returned"
+    ],
+    "container_used": false,
+    "issue_without_photo": "blocked by form validation",
+    "return_without_photo": "blocked by form validation",
+    "evidence_files": "repository favicon.png synthetic evidence for both stages",
+    "return_remark_supplied": true,
+    "after_return_available_count": 1,
+    "private_evidence_previews": {
+      "issue": {
+        "decoded": true,
+        "natural_width": 220,
+        "natural_height": 220
+      },
+      "return": {
+        "decoded": true,
+        "natural_width": 220,
+        "natural_height": 220
+      },
+      "signed_urls_not_recorded": true
+    },
+    "public_product_image": {
+      "decoded": true,
+      "natural_width": 220,
+      "natural_height": 220,
+      "staff_preview_decoded": true,
+      "private_shelf_visible_in_public_main": false,
+      "staff_list_thumbnail_decoded_after_navigation": true,
+      "saved_photo_decoded_after_reopening_item": true
+    }
+  },
+  "local_layout": {
+    "workspace": "showcase-checkin",
+    "request_policy": "checked_in",
+    "account_or_2fa_prompt_present": false,
+    "upstream_lookup": "not attempted; synthetic fixture intentionally unconfigured",
+    "mobile_document_client_width": 380,
+    "mobile_document_scroll_width": 380,
+    "name_input_bounds": {
+      "left": 16,
+      "right": 263.8203125,
+      "radius_px": 12
+    },
+    "borrow_panel_height": 699,
+    "borrow_panel_scroll_height": 699,
+    "borrow_panel_overflow_y": "visible",
+    "theme_svg_css_dimensions_px": [
+      18,
+      18
+    ],
+    "temporary_viewport_reset": true,
+    "inventory_header_responsive": {
+      "mechanical_change": "Shared PageHeader stacks actions below the description until the existing lg breakpoint (1200px).",
+      "observations": [
+        {
+          "client_width": 380,
+          "header_direction": "column",
+          "actions_height": 98.5,
+          "horizontal_page_overflow": false
+        },
+        {
+          "client_width": 681,
+          "header_direction": "column",
+          "text_width": 633,
+          "actions_width": 633,
+          "horizontal_page_overflow": false
+        },
+        {
+          "client_width": 1440,
+          "header_direction": "row",
+          "text_width": 610.0234375,
+          "actions_width": 438.1484375,
+          "horizontal_page_overflow": false
+        }
+      ],
+      "temporary_viewport_reset": true
+    }
+  },
+  "production_read_only_browser": {
+    "chooser_lists": [
+      "Tinkerspace Calicut",
+      "Tinkerspace Kochi"
+    ],
+    "fresh_reload_platform_settings_accessible": true,
+    "global_platform_email_and_social_sections_accessible": true,
+    "final_url": "https://kanakkupusthakam.netlify.app/m/tinkerspace-calicut/admin/settings",
+    "settings_mutations": false
+  },
+  "limitations": [
+    "This is a bounded browser smoke test, not exhaustive proof of every UI branch.",
+    "No live Telegram, email or payment delivery was triggered.",
+    "Check-in successful upstream lookup not proven by this browser fixture.",
+    "Automated suites and final fixes remain in progress."
+  ],
+  "local_printer_services": {
+    "workspace": "service-request-qa",
+    "machine": "QA 3D Printer",
+    "staff_select": {
+      "title": "Verification audit \u2014 printer consumption",
+      "explicit_printer_required": true,
+      "start_disabled_before_selection": true,
+      "saved_estimate_minutes": 10,
+      "states_observed": [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed",
+        "collected"
+      ],
+      "planned_grams": 12,
+      "actual_minutes": 8,
+      "actual_grams": 10,
+      "stock_after_start": 88,
+      "stock_after_completion": 90,
+      "lifetime_hours_after_completion": "0.13"
+    },
+    "first_idle": {
+      "request_id": 56,
+      "queue_id": 28,
+      "title": "Verification audit \u2014 automatic printer",
+      "default_option": "Any idle printer",
+      "type_wide_pool_offered_without_explicit_machine": true,
+      "saved_estimate_minutes": 10,
+      "states_observed": [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed",
+        "collected"
+      ],
+      "planned_grams": 12,
+      "actual_minutes": 8,
+      "actual_grams": 10,
+      "stock_before_start": 90,
+      "stock_after_start": 78,
+      "stock_after_completion": 80,
+      "lifetime_hours_after_completion": "0.27",
+      "printer_final_state": "idle"
+    },
+    "public_filament_selector": "PLA \u00b7 Black; no private stock balance or brand exposed",
+    "final_printer_report": "0.27h complete \u00b7 0h failed \u00b7 0h manual \u00b7 20.00g used",
+    "source_scope": "Uncommitted local corrections; synthetic stock and jobs only."
+  },
+  "local_individual_hardware": {
+    "workspace": "service-request-qa",
+    "product_id": 30,
+    "asset_id": 19,
+    "request_id": 13,
+    "synthetic": true,
+    "initial_stock_after_product_creation": 0,
+    "units_generated_through_qr_tools": 1,
+    "available_after_registration": 1,
+    "public_availability_after_registration": "Limited; exact count hidden as configured",
+    "public_request_submitted": true,
+    "states_observed": [
+      "pending_approval",
+      "accepted",
+      "cancelled"
+    ],
+    "acceptance_without_insufficient_asset_error": true,
+    "cancelled_before_handover": true,
+    "cancelled_history_row_retained": true,
+    "final_total": 1,
+    "final_available": 1,
+    "final_issued": 0,
+    "final_damaged": 0,
+    "final_lost": 0,
+    "qr_values_and_private_request_tokens_not_recorded": true
+  },
+  "screenshots": [
+    {
+      "path": "verification-inventory-tablet-20261101.jpg",
+      "bytes": 42497,
+      "sha256": "5716a2d2398f6019991324ad93a970d07389255d6cb2a3a8c84d1ea772803e19",
+      "jpeg_sensitive_metadata_markers_absent": true
+    },
+    {
+      "path": "verification-automatic-printer-20261101.jpg",
+      "bytes": 154597,
+      "sha256": "757c396c7bc6a09b9e528c334428dd55e8522eb812eea9a9c3f56ea5a56f4726",
+      "jpeg_sensitive_metadata_markers_absent": true
+    }
+  ],
+  "additional_private_capture_count": 9,
+  "published_capture_scope": "Only independently viewed synthetic inventory/printer screenshots; private status-link views are not published."
+}

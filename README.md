@@ -24,10 +24,9 @@ stock counts, evidence and an audit history.
 A deployment can serve multiple makerspaces. Each has its own inventory, staff permissions, public pages,
 branding, machine types and enabled modules.
 
-The current development version is **0.9.0**. The ongoing
-[production-readiness audit](docs/audits/2026-10-29/CHANGE-REPORT.md) records completed fixes, verification
-and outstanding work; the version number alone does not indicate that this unreleased batch is approved
-for production.
+The current version is **0.9.0**. The
+[production-readiness audit](docs/audits/2026-10-29/CHANGE-REPORT.md) records fixes, test coverage,
+deployment verification and remaining verification limits.
 
 ## See it
 

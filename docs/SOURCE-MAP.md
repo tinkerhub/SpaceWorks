@@ -313,6 +313,9 @@
   `type_settings.py` is the only place a type's metering unit,
   booking flag and consumables flag are read: it resolves a global built-in's per-makerspace overrides
   (nullable columns on `MakerspaceMachineTypePricing`), and `type_settings_service.py` writes them.
+  `usage_totals.py` owns recorded machine-hour projections for the registry, public machine pages and
+  general operations reports. It combines terminal service actual minutes and independent manual
+  hours without counting a service-linked ledger entry twice; callers retain their existing scope.
 - `backend/apps/events/` — the separable events module. `models.py` is the stable explicit re-export barrel
   over `models_event.py`, `models_registration.py`, `models_attendance.py`, `models_feedback.py`,
   `models_certificates.py`, `models_series.py`, `models_calendar.py`, `models_collaborators.py` and
@@ -338,6 +341,13 @@
 - `frontend/src/features/staff/panels/machine/ConsumablePoolList.tsx` renders stock controls;
   `MachineTypeConsumables.tsx` reuses the canonical pool query in authorized machine drawers.
   `PublicPrinterQueueSetup.tsx` exposes explicit queue enablement on the printer type's console.
+  `staff/machineTypeRoutes.ts` distinguishes ID-authoritative equipment and `/queue` routes;
+  `shell/useMachineTypeNavLinks.ts` shares the scoped type cache for equipment/requests navigation.
+  `MachinesPanel.tsx` preserves service drafts while selecting one console for Requests (or the
+  printer's manual-only equipment view when `printing` is off);
+  `MachineTypePage.tsx` renders equipment/stock. `ServiceQueue.tsx` owns refresh presentation and
+  active-idle start selection. `ServiceRequestDetails.tsx` renders job context and owns guarded,
+  on-demand private file reads through the existing staff URL endpoint.
 - `backend/apps/inventory/availability_manual_adjustments.py` — locked manual-quantity guard;
   `availability.py` explicitly re-exports it alongside asset-backed quantity primitives.
 - `backend/apps/object_publication.py` — bounded single-read snapshots and conditional final PUT,

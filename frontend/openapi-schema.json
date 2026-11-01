@@ -43330,6 +43330,14 @@
                     "tracking_mode"
                 ]
             },
+            "AllocationPolicyEnum": {
+                "enum": [
+                    "first_idle",
+                    "staff_select"
+                ],
+                "type": "string",
+                "description": "* `first_idle` - First compatible idle machine\n* `staff_select` - Staff selects machine"
+            },
             "AnalyticsReportResponse": {
                 "oneOf": [
                     {
@@ -51951,6 +51959,15 @@
                         ],
                         "readOnly": true
                     },
+                    "allocation_policy": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/AllocationPolicyEnum"
+                            }
+                        ],
+                        "readOnly": true,
+                        "default": "staff_select"
+                    },
                     "requester_name": {
                         "type": "string",
                         "readOnly": true
@@ -52137,6 +52154,7 @@
                     "actual_consumed_grams",
                     "actual_consumed_quantity",
                     "actual_minutes",
+                    "allocation_policy",
                     "assigned_machine",
                     "bucket_id",
                     "capability_payload",

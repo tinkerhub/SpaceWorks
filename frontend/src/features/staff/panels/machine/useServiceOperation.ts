@@ -6,7 +6,7 @@ type Submission<T> = { action: AuthAction; input: T };
 // Queue and manual usage call this separately: their pending ownership is independent.
 export function useServiceOperation<T>(scope: string, options: {
   dispatch: (input: T) => Promise<unknown>;
-  success: (input: T, isCurrent: () => boolean) => void;
+  success: (input: T, isCurrent: () => boolean) => void | Promise<void>;
   failure: (error: Error, input: T) => void;
 }) {
   const owner = useAuthActionOwner(scope);
@@ -15,8 +15,8 @@ export function useServiceOperation<T>(scope: string, options: {
       if (!owner.isCurrent(action)) throw new Error("This service action is no longer current.");
       return options.dispatch(input);
     },
-    onSuccess: (_result, { action, input }) => {
-      if (owner.isCurrent(action)) options.success(input, () => owner.isCurrent(action));
+    onSuccess: async (_result, { action, input }) => {
+      if (owner.isCurrent(action)) await options.success(input, () => owner.isCurrent(action));
     },
     onError: (error, { action, input }) => {
       if (owner.isCurrent(action)) options.failure(error, input);

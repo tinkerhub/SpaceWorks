@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 
-import { Button, Chip, Dropdown, EmptyState, Field, Input, Skeleton, type ChipTone } from "../../../../components/ui";
+import { Button, Chip, Dropdown, EmptyState, ErrorBlock, Field, Input, Skeleton, type ChipTone } from "../../../../components/ui";
 import type { MachineServiceRequest, PrinterPool } from "../../../../generated/api";
 import type { Machine } from "../../machinesApi";
 import { formatMoney } from "../../paymentsApi";
 import { ServiceStatusChip } from "./machineUi";
+import { blankServiceDraft, clearedActionDraft } from "./serviceDrafts";
 import type { ServiceActionName, ServiceDraft } from "./serviceDrafts";
 import { paymentState } from "./servicePaymentState";
 import { poolLabel } from "./servicePools";
 import { useConsoleModule } from "./useConsoleModule";
+import { ServiceRequestDetails } from "./ServiceRequestDetails";
 
 /** Button, confirm and toast copy for each service transition. */
 export const SERVICE_ACTION_COPY: Record<ServiceActionName, { confirm: string; done: string; failed: string; danger?: boolean }> = {
@@ -52,6 +54,9 @@ type Props = Options & {
   makerspaceId: number;
   requests: MachineServiceRequest[] | undefined;
   loading: boolean;
+  error?: unknown;
+  fetching?: boolean;
+  onRefresh?: () => void;
   draft: ServiceDraft;
   setDraft: (update: (draft: ServiceDraft) => ServiceDraft) => void;
   machines: Machine[];
@@ -62,16 +67,23 @@ type Props = Options & {
   onSubmit: (action: NonNullable<ServiceDraft["action"]>) => void;
 };
 
-export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft, machines, pools, meta, pending, canEdit = () => !pending, onSubmit, ...options }: Props) {
+export function ServiceQueue({ makerspaceId, requests, loading, error, fetching = false, onRefresh, draft, setDraft, machines, pools, meta, pending, canEdit = () => !pending, onSubmit, ...options }: Props) {
   const edit: Props["setDraft"] = (update) => {
     if (canEdit()) setDraft((current) => canEdit() ? update(current) : current);
   };
   const paymentsOn = useConsoleModule(makerspaceId, "payments");
   const choose = (request: MachineServiceRequest, name: ServiceActionName) =>
-    edit((current) => ({ ...current, action: { id: request.id, name } }));
+    edit((current) => {
+      if (current.action?.id === request.id && current.action.name === name) return current;
+      const actionValues = blankServiceDraft().actionValues;
+      if (name === "start") actionValues.estimated_minutes = String(request.estimated_minutes ?? actionValues.estimated_minutes);
+      return { ...current, action: { id: request.id, name }, actionValues };
+    });
+  const activeRequest = requests?.find((request) => request.id === draft.action?.id);
   const form = draft.action ? (
     <ServiceActionForm
       {...options}
+      requireMachineSelection={activeRequest?.allocation_policy !== "first_idle"}
       action={draft.action}
       values={draft.actionValues}
       setValues={(actionValues) => edit((current) => ({ ...current, actionValues }))}
@@ -79,22 +91,22 @@ export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft,
       pools={pools}
       pending={pending}
       onSubmit={onSubmit}
-      onCancel={() => edit((current) => ({ ...current, action: null }))}
+      onCancel={() => edit(clearedActionDraft)}
     />
   ) : null;
-  const formIsInline = Boolean(draft.action && requests?.some((request) => request.id === draft.action?.id));
+  const formIsInline = Boolean(activeRequest);
 
-  if (loading) {
-    return (
-      <div className="grid gap-2" role="status" aria-label="Loading service queue">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-      </div>
-    );
-  }
   return (
     <div className="grid gap-2">
-      {requests && !requests.length ? (
+      {onRefresh ? <Button size="sm" className="justify-self-start" disabled={fetching} onClick={onRefresh}>Refresh requests</Button> : null}
+      <ErrorBlock error={error} />
+      {loading ? (
+        <div className="grid gap-2" role="status" aria-label="Loading service queue">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      ) : null}
+      {!loading && !error && requests && !requests.length ? (
         <EmptyState title="The queue is clear" description="New service requests show up here." />
       ) : null}
       {requests?.map((request) => (
@@ -107,6 +119,7 @@ export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft,
             </span>
           </div>
           <p className="text-caption text-ink-muted">{meta(request)}</p>
+          <ServiceRequestDetails makerspaceId={makerspaceId} request={request} />
           <fieldset disabled={pending} className="flex flex-wrap gap-2">
             <ServiceActions request={request} allowReprint={options.allowReprint} onAction={(name) => choose(request, name)} />
           </fieldset>
@@ -114,7 +127,7 @@ export function ServiceQueue({ makerspaceId, requests, loading, draft, setDraft,
         </article>
       ))}
       {/* A draft whose job left the list (it moved on elsewhere) still shows, so typing is not lost. */}
-      {form && !formIsInline ? form : null}
+      {!loading && form && !formIsInline ? form : null}
     </div>
   );
 }
@@ -134,7 +147,8 @@ function ServiceActions({ request, allowReprint, onAction }: { request: MachineS
   return allowReprint && request.status === "failed" ? <Button size="sm" onClick={() => onAction("reprint")}>Reprint</Button> : null;
 }
 
-function ServiceActionForm({ action, values, setValues, machines, pools, machineNoun, unitLabel, hasPool, plannedOnAccept, pending, onSubmit, onCancel }: Options & {
+function ServiceActionForm({ action, values, setValues, machines, pools, machineNoun, requireMachineSelection, unitLabel, hasPool, plannedOnAccept, pending, onSubmit, onCancel }: Options & {
+  requireMachineSelection: boolean;
   action: NonNullable<ServiceDraft["action"]>;
   values: ServiceDraft["actionValues"];
   setValues: (values: ServiceDraft["actionValues"]) => void;
@@ -151,24 +165,30 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
     </Field>
   );
   const name = action.name;
+  const idleMachines = machines.filter((machine) => machine.is_active && machine.status === "idle");
+  const staleMachine = !!values.machine_id && !idleMachines.some((machine) => String(machine.id) === values.machine_id);
+  const missingMachine = name === "start" && (staleMachine || (values.machine_id === "" && (requireMachineSelection || !idleMachines.length)));
   const planned = unitLabel ? input("planned_quantity", `Planned quantity (${unitLabel})`) : null;
   return (
     <form
       className="grid gap-3 rounded-lg border border-line bg-subtle p-4"
-      onSubmit={(event) => { event.preventDefault(); onSubmit(action); }}
+      onSubmit={(event) => { event.preventDefault(); if (!missingMachine) onSubmit(action); }}
     >
       <fieldset disabled={pending} className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {name === "accept" ? <>{input("estimated_minutes", "Estimated minutes")}{plannedOnAccept ? planned : null}</> : null}
         {name === "start" ? (
           <>
             <Field label={machineNoun}>
-              <Dropdown aria-label={machineNoun} value={values.machine_id} onChange={(event) => setValues({ ...values, machine_id: event.target.value, consumable_pool_id: "" })}>
-                <option value="">Any idle {machineNoun.toLowerCase()}</option>
-                {machines.map((machine) => <option key={machine.id} value={String(machine.id)}>{machine.name}</option>)}
+              <Dropdown aria-label={machineNoun} required={requireMachineSelection} value={values.machine_id} onChange={(event) => setValues({ ...values, machine_id: event.target.value, consumable_pool_id: "" })}>
+                <option value="">{requireMachineSelection ? "Choose a" : "Any idle"} {machineNoun.toLowerCase()}</option>
+                {staleMachine ? <option value={values.machine_id} disabled>Previously selected {machineNoun.toLowerCase()} is unavailable</option> : null}
+                {idleMachines.map((machine) => <option key={machine.id} value={String(machine.id)}>{machine.name}</option>)}
               </Dropdown>
             </Field>
             {hasPool ? (
-              <Field label="Pool" helperText={values.machine_id ? undefined : `Choose a ${machineNoun.toLowerCase()} to see its pools.`}>
+              <Field label="Pool" helperText={values.machine_id ? undefined : requireMachineSelection
+                ? `Choose a ${machineNoun.toLowerCase()} to see its pools.`
+                : "Choose stock for this machine type."}>
                 <Dropdown aria-label="Pool" value={values.consumable_pool_id} onChange={(event) => setValues({ ...values, consumable_pool_id: event.target.value })}>
                   <option value="">No pool</option>
                   {pools.map((pool) => <option key={pool.id} value={String(pool.id)}>{poolLabel(pool)}</option>)}
@@ -188,13 +208,15 @@ function ServiceActionForm({ action, values, setValues, machines, pools, machine
         ) : null}
         {name === "reject" ? input("reason", "Reason", false) : null}
       </fieldset>
+      {name === "start" && !idleMachines.length ? <p role="status" className="text-body-ui text-ink-muted">No active idle {machineNoun.toLowerCase()} is available. Refresh requests or wait for a machine to become idle; your draft is kept.</p> : null}
+      {name === "start" && staleMachine ? <p role="alert" className="text-body-ui text-danger-fg">The selected {machineNoun.toLowerCase()} is no longer eligible. Choose an active idle machine{requireMachineSelection ? "." : " or Any idle."}</p> : null}
       {name === "record-manual-payment" || name === "collect" || name === "reprint" ? (
         <p className="text-body-ui text-ink-secondary">
           {name === "collect" ? "Confirm the requester has their finished job." : name === "reprint" ? "This creates a new, already accepted copy of the job, ready to start." : "Confirm the payment was taken at the desk."}
         </p>
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant={copy.danger ? "danger" : "primary"} size="sm" loading={pending} loadingLabel="Saving…">{copy.confirm}</Button>
+        <Button type="submit" variant={copy.danger ? "danger" : "primary"} size="sm" disabled={missingMachine} loading={pending} loadingLabel="Saving…">{copy.confirm}</Button>
         <Button size="sm" variant="quiet" onClick={onCancel} disabled={pending}>Cancel</Button>
       </div>
     </form>
