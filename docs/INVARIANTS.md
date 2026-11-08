@@ -530,7 +530,7 @@ purpose: credential validation reaches Stripe, and external I/O must never run u
 
 **Off means absent, in catalogs and counters too (D3).** The dashboard OMITS (does not zero) the counters
 of an uninstalled module (`views_dashboard_counts.COUNTER_MODULES`); the role-capability catalog hides
-the Machines/Printing/Events/Bookings groups for an off module but keeps any action the role being
+the Machines/Events/Bookings groups for an off module but keeps any editable action the role being
 edited (`?role_id=`) already holds, so its grant stays visible and removable (the seeded Space Manager
 holds every action, so "any role in the space" would have hidden nothing); the notification-rules matrix omits features
 and email streams of off modules and refuses a preference for one; `notify_lifecycle` sends nothing for a
@@ -1421,9 +1421,10 @@ is deliberately the exact six the built-in granted. The `guest-admin/` **URL pat
 `hardware_requests/urls.py` are untouched: they are the handover API surface (module key
 `guest_handover`), not the role, and renaming them would break clients.
 
-**Print Manager is retired too** — migration `makerspaces/0046` reassigned its memberships to Machine
-Manager, whose `MANAGE_MACHINES` implies `MANAGE_PRINTING`. The string survives only in
-`_MEMBERSHIP_ROLE_ACTIONS` as the frozen legacy fallback for a null-FK membership.
+**Print Manager is retired too** — migration `makerspaces/0046` historically reassigned its memberships
+to Machine Manager, whose `MANAGE_MACHINES` implies the internal `MANAGE_PRINTING` alias. Migration
+`machines/0026` now binds remaining null-FK `print_manager` memberships to a newly created bounded
+local machine role. The frozen fallback string remains for compatibility, not as a new role grant.
 
 ## Separability and tombstoning
 
@@ -1541,8 +1542,37 @@ not module keys** (one app can own several keys — `printing`/`machines`/`machi
 
 ## Machine scoping — `MANAGE_MACHINES` is per role, and fails CLOSED
 
-Moved here from "Hard Rules", where it had been appended and had grown to ~430 lines. Content is
-unchanged.
+Moved here from "Hard Rules", where it had been appended and had grown to ~430 lines.
+
+- **One editable LOCAL machine capability: `MANAGE_MACHINES`, including printing.** The catalog and
+  presets no longer offer `manage_printing`; local role create/update rejects that stored action with
+  a `granted_actions` validation error directing the caller to `manage_machines` plus scope. Keep the
+  internal implied alias, `ALL_ACTIONS` / `ROLE_GRANTABLE_ACTIONS`, and organization compatibility
+  readers: adding the alias to global forbidden actions would revoke unrelated organization authority.
+  Module switches remain independent: machine authority never enables the printing feature by itself.
+  Role scope applies to everyone holding the role; personal **Users → People → Machine types** links
+  supplement a machine-capable role only. Save/reopen before selecting scope for a new role or after
+  enabling the capability. The default Inventory Manager is unchanged; combine inventory actions with
+  `manage_machines` in a custom role for one inventory/printing staffer.
+  - **Migration `machines/0026` converts LOCAL grants only.** Replace `manage_printing` with
+    `manage_machines`, preserve other actions and role identity/protection/assignments, and union
+    existing type scope with IDs of global or same-makerspace types whose managing action was printing,
+    including the actual global built-in printer. Never match a local type by bare `3d_printer` slug.
+    Space Managers remain exempt; individual-machine and personal links stay untouched. Corrupt non-list
+    action values remain inert. Null-role legacy print memberships receive a collision-safe new bounded
+    role with exactly `manage_machines` and eligible printer type links; reuse only a role created by this
+    migration invocation, never an edited default. Organization memberships are neither converted nor
+    mirrored. Its reverse is a deliberate data no-op: original scope provenance cannot be reconstructed
+    safely, and schema rollback must not guess or remove permissions. Exact undo requires a backup. Historical
+    audit rows remain untouched; the versioned migration records the upgrade without runtime services
+    or invented staff audit events.
+  - **Former local printing bypasses are now compatibility readers.** Converted roles no longer store
+    the direct alias, so printer queues/materials, procurement, dashboards and inbox eligibility follow
+    existing machine scope. Printing-only scoped managers lose the broad inbox; mixed inventory roles
+    retain their independent inventory authority. Unassigned legacy printing procurement remains with
+    scope-exempt administrators (including Space Managers), never a guessed type. Collection-only and
+    organization authority keep their independent boundaries. The historical exceptions below describe
+    retained readers, not a permission administrators can grant anew.
 
 - **`MANAGE_MACHINES` is scoped per role, and the scoping fails CLOSED.** `machines/role_scope.py`
   narrows **tier 1** of `access.py` using two link tables (`RoleMachineTypeScope`,
@@ -1567,9 +1597,10 @@ unchanged.
     feature nearly worthless: `IMPLIED_ACTIONS[MANAGE_MACHINES]` contains `MANAGE_PRINTING`, and the
     built-in `3d_printer` type's `managing_action` **is** `manage_printing` — so a role scoped to
     lasers alone still satisfied the type-manager check for every 3D printer in the lab, straight
-    through tier 1's links. A real Print Manager holds `manage_printing` outright and keeps its
-    unscoped type authority; a `MANAGE_MACHINES` holder gets printer authority through tier 1, where
-    the links apply. `rbac.can` is untouched, so nothing outside `machines/` changes. The object
+    through tier 1's links. Historically a direct Print Manager grant kept unscoped type authority;
+    migration `0026` removes that stored LOCAL bypass and grants eligible type links instead.
+    Tier 2 remains for historical/custom managing actions; canonical local printer authority uses
+    tier 1's links. `rbac.can` and the internal implication remain unchanged. The object
     check and the list filter **must stay in step** — disagreeing is how a row lists and then 403s
     on click, which is why `capabilities_for_machines`' `_type_mgr` carries the same check.
   - **Tier 3 (per-machine operators) is untouched** — an operator row already names one machine.
@@ -2000,7 +2031,8 @@ Load-bearing console details:
   superadmins and null-`assigned_role` legacy Machine Managers are excluded); and holds neither
   `VIEW_INVENTORY` nor `MANAGE_MAKERSPACE`. `MANAGE_PRINTING` deliberately does not count —
   `MANAGE_MACHINES` implies it, so asking `rbac.can` would make the answer always False and the
-  whole predicate inert. A role that **stores** `manage_printing` is exempt, read through
+  whole predicate inert. The historical compatibility reader exempts a role that **stores**
+  `manage_printing` (converted away for local roles by `0026`), read through
   `role_grants_directly` — same distinction, and the same reason, as
   `procurement.access.machine_type_scope`. The batched copy in `accounts/serializers.py` must read
   the stored grant too: its `actions` set is the *expanded* one, where the implication is always
@@ -2041,10 +2073,10 @@ Load-bearing console details:
   - **`access.machine_type_scope` returns `None` for "not narrowed" and an EMPTY SET for "narrowed
     and reaches nothing".** Callers must test `is None`; conflating them makes a role with no links
     fail *open*. Three exits, in this order: no `MANAGE_MACHINES`; scope-EXEMPT; or the role
-    **stores** `MANAGE_PRINTING`. The last one matters because only the *implied* grant is the leak
-    — a role whose `granted_actions` really lists `manage_printing` was given that stream
-    deliberately, and revoking it because the role also gained machine duties is the mixed-role
-    mistake from the dashboard. EXEMPT is checked first, or a legacy null-role membership's frozen
+    **stores** `MANAGE_PRINTING`. That last exit is retained compatibility code: historically a
+    direct grant deliberately owned the broad stream. Migration `0026` now removes the stored LOCAL
+    bypass, so converted roles follow selected types, including mixed inventory/printing roles
+    (their independent hardware stream survives). EXEMPT is checked first, or a legacy null-role membership's frozen
     action set would answer that question instead. Read with `role_grants_directly`.
   - **Use the linked TYPE ids only, never types derived from per-machine links.** A machine link
     granted one machine, not authority to procure for its whole kind; a role holding only machine

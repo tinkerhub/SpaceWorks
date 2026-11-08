@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button, Callout, CheckboxCard, Field, FilterChip, Input, Modal, Skeleton, useToast } from "../../../components/ui";
 import { StructuredApiError } from "../../../lib/api";
@@ -8,7 +8,7 @@ import { RoleMachineScopeEditor } from "./RoleMachineScopeEditor";
 import { errorText } from "./shared";
 
 const presets: { label: string; actions: string[] }[] = [
-  { label: "Space Manager", actions: ["view_inventory", "edit_inventory", "manage_qr", "accept_request", "reject_request", "assign_box", "issue_request", "issue_direct_loan", "return_request", "upload_evidence", "manage_printing", "manage_machines", "view_audit", "manage_events", "manage_bookings", "manage_makerspace"] },
+  { label: "Space Manager", actions: ["view_inventory", "edit_inventory", "manage_qr", "accept_request", "reject_request", "assign_box", "issue_request", "issue_direct_loan", "return_request", "upload_evidence", "manage_machines", "view_audit", "manage_events", "manage_bookings", "manage_makerspace"] },
   { label: "Inventory Manager", actions: ["view_inventory", "edit_inventory", "manage_qr", "accept_request", "reject_request", "assign_box", "issue_request", "issue_direct_loan", "return_request", "upload_evidence", "view_audit"] },
   { label: "Machine Manager", actions: ["manage_machines"] },
   { label: "Front Desk", actions: ["view_inventory", "assign_box", "issue_request", "issue_direct_loan", "return_request", "upload_evidence"] },
@@ -26,6 +26,7 @@ export function RoleEditor({ msId, role, capabilities, loading = false, actorAct
   onSaved: () => void;
 }) {
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [preset, setPreset] = useState("");
@@ -52,7 +53,9 @@ export function RoleEditor({ msId, role, capabilities, loading = false, actorAct
       const granted_actions = capabilities.filter((item) => item.grantable && checked.has(item.value)).map((item) => item.value);
       return createRole(msId, { name: name.trim(), granted_actions });
     },
-    onSuccess: () => {
+    onSuccess: (savedRole) => {
+      void queryClient.invalidateQueries({ queryKey: ["staff", "role-machine-scope", msId, savedRole.id] });
+      void queryClient.invalidateQueries({ queryKey: ["staff", "member-machine-scope", msId] });
       showToast(role ? "Role saved" : "Role created", { tone: "success" });
       onSaved();
     },
@@ -141,12 +144,14 @@ export function RoleEditor({ msId, role, capabilities, loading = false, actorAct
             </div>
           </fieldset>
         ))}
-        {role ? (
-          <RoleMachineScopeEditor msId={msId} roleId={role.id} />
-        ) : checked.has("manage_machines") ? (
-          <Callout tone="info" title="Machine access is set per role">
-            Save this role, then reopen it to choose which machines it can manage. Until then it can manage none.
+        {checked.has("manage_machines") && !role?.granted_actions.includes("manage_machines") && !checked.has("manage_makerspace") ? (
+          <Callout tone="info" title="Save, then choose machine scope">
+            Save this role, then reopen it to select machine types (including 3D Printer) or individual machines
+            for everyone with this role. Personal types can be added under Users → People → Machine types;
+            they only supplement a role with Manage machines. Without either selection, this role manages no machines.
           </Callout>
+        ) : role ? (
+          <RoleMachineScopeEditor msId={msId} roleId={role.id} />
         ) : null}
         {save.error && !nameError && !actionsError ? <p className="text-caption text-danger-fg" role="alert">{save.error.message}</p> : null}
       </div>

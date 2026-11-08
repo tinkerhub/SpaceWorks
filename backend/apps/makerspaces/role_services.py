@@ -121,6 +121,11 @@ def _clean_actions(actions):
 
 def _validate_actions(actor, makerspace, actions, role=None):
     values = _clean_actions(actions)
+    if rbac.Action.MANAGE_PRINTING in values:
+        raise ValidationError({"granted_actions": (
+            "Use manage_machines plus Machine scope instead of manage_printing. "
+            "Personal machine types require a machine-capable role."
+        )})
     is_superadmin = _superadmin(actor)
     actor_actions = _locked_actor_actions(actor, makerspace)
     if rbac.Action.MANAGE_MAKERSPACE not in actor_actions:

@@ -5,6 +5,12 @@ from rest_framework import serializers
 from apps.makerspaces.models import MakerspaceRole
 
 
+LOCAL_GRANTS_HELP = (
+    "Editable local role actions. Use manage_machines with machine/type scope for "
+    "printing; manage_printing is rejected. Personal types supplement a machine-capable role."
+)
+
+
 class RoleSerializer(serializers.ModelSerializer):
     makerspace_id = serializers.IntegerField(read_only=True)
     granted_actions = serializers.SerializerMethodField()
@@ -25,7 +31,9 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class RoleWriteSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=80, trim_whitespace=True, required=False)
-    granted_actions = serializers.ListField(child=serializers.CharField(), required=False)
+    granted_actions = serializers.ListField(
+        child=serializers.CharField(), required=False, help_text=LOCAL_GRANTS_HELP,
+    )
 
     def validate(self, attrs):
         if not attrs:
@@ -37,7 +45,7 @@ class RoleWriteSerializer(serializers.Serializer):
 
 class RoleCreateSerializer(RoleWriteSerializer):
     name = serializers.CharField(max_length=80, trim_whitespace=True)
-    granted_actions = serializers.ListField(child=serializers.CharField())
+    granted_actions = serializers.ListField(child=serializers.CharField(), help_text=LOCAL_GRANTS_HELP)
 
 
 class MachineScopeOptionSerializer(serializers.Serializer):

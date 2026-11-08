@@ -24962,7 +24962,7 @@
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "Role being edited: its existing grants stay listed even when their module is off."
+                        "description": "Role being edited: existing editable grants stay listed even when their module is off. Manage machines includes scoped printing; manage_printing is no longer an editable local grant."
                     }
                 ],
                 "tags": [
@@ -59025,7 +59025,8 @@
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "description": "Editable local role actions. Use manage_machines with machine/type scope for printing; manage_printing is rejected. Personal types supplement a machine-capable role."
                     }
                 }
             },
@@ -64350,7 +64351,8 @@
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "description": "Editable local role actions. Use manage_machines with machine/type scope for printing; manage_printing is rejected. Personal types supplement a machine-capable role."
                     }
                 },
                 "required": [

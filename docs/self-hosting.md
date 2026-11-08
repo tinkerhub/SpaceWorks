@@ -413,6 +413,35 @@ fingerprints only `.env` and the selected Compose files.
 
 ### Upgrade notes: manual steps per release
 
+**2026-11: one local machine-management permission (unreleased).** Deploy the matching frontend and
+backend and run migration `machines/0026_consolidate_local_printing_roles` through the normal update
+flow. It depends on machines `0025` and makerspaces `0076`. **Manage machines** now covers selected
+machines/types, including printing; the `printing` module remains a separate feature switch. Save
+and reopen a role before editing **Machine scope**. Personal scope is under **Users → People →
+Machine types** and only supplements a machine-capable role. To give one Inventory Manager printer
+access, create a custom inventory/machine role and select **3D Printer** on that role or person;
+the default Inventory Manager is unchanged. See [staff roles](staff-roles.md#which-machines-a-person-manages).
+
+The migration replaces stored local `manage_printing` with `manage_machines`, unioning existing role
+scope with global or same-makerspace types previously managed by printing (including the actual global
+built-in printer). Local same-slug types without that managing action are not added. Space Managers
+remain exempt; individual-machine and personal links are untouched. Null-assigned-role legacy
+`print_manager` memberships receive a newly created bounded local role, never an edited Machine Manager
+default. Malformed non-list grants remain inert. Organization grants are unchanged and never mirrored
+locally; their legacy printing alias still confers no machine/type-manager authority.
+
+Local role create/update requests containing `manage_printing` now return a `granted_actions` validation
+error: send `manage_machines` and configure scope instead. The internal implied alias and organization
+compatibility readers remain. Converted printing roles' procurement and dashboard access follows scope;
+printing-only scoped managers lose the broad notification inbox, while mixed inventory roles retain
+inventory access. Unassigned legacy printing procurement remains visible to exempt Space Managers and
+other exempt administrators; no type is guessed. Review staff scope after upgrading, including dormant
+roles under disabled modules. Reversing the migration deliberately **retains the converted data** so
+older schema migrations remain usable. Restore a pre-upgrade backup for exact data rollback: reversing
+cannot safely reconstruct original grants or distinguish pre-existing scope links.
+Existing append-only audit history is preserved; the versioned migration records this upgrade without
+fabricating staff audit events or importing runtime services.
+
 **2026-10: migration-package capability fingerprint (unreleased).** The producer capability now
 includes source/data files within installed migration packages, including extracted SQL helpers and
 nested helper modules; compiler caches are excluded. An upgraded image can require capability

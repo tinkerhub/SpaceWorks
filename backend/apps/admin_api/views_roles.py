@@ -28,8 +28,7 @@ ERRORS = {400: ErrorSerializer, 401: ErrorSerializer, 403: ErrorSerializer, 404:
 _CATALOG = (
     ("Inventory", (("view_inventory", "Inventory and outstanding-loans ledger visibility."), ("edit_inventory", "Catalog, stock, needs-fix, stocktake, asset warranty, procurement, and containers."), ("manage_qr", "QR printing, scanner, and QR management."))),
     ("Requests / Handover", (("accept_request", "Review hardware requests."), ("reject_request", "Reject hardware requests."), ("assign_box", "Assign physical handover boxes."), ("issue_request", "Issue accepted requests."), ("issue_direct_loan", "Create direct loans."), ("return_request", "Process returns."), ("upload_evidence", "Upload required handover evidence."), ("collect_service_request", "Hand finished machine jobs to their requester, without machine management."))),
-    ("Machines", (("manage_machines", "Machines, warranty, maintenance, documents, operators, usage, and reports."),)),
-    ("Printing", (("manage_printing", "Print queue, printers, materials, warranty, reports, and printer-type machines."),)),
+    ("Machines", (("manage_machines", "Manage selected machines and types, including printing job queues, materials, warranty, maintenance, documents, operators, usage, and reports. Printing requires its module."),)),
     ("Events", (("manage_events", "Event administration and attendance."),)),
     ("Bookings", (("manage_bookings", "Bookable-space and booking operations."),)),
     ("Reports / Audit", (("view_audit", "Analytics, accountability, audit log, timelines, history, and exports."),)),
@@ -42,7 +41,6 @@ _CATALOG = (
 # editor must still show it, or a Space Manager could neither see nor remove that grant.
 _GROUP_MODULES = {
     "Machines": "machines",
-    "Printing": "printing",
     "Events": "events",
     "Bookings": "bookings",
 }
@@ -135,7 +133,7 @@ class CapabilityCatalogView(APIView):
         tags=["Admin roles"],
         parameters=[OpenApiParameter(
             "role_id", int, OpenApiParameter.QUERY, required=False,
-            description="Role being edited: its existing grants stay listed even when their module is off.",
+            description="Role being edited: existing editable grants stay listed even when their module is off. Manage machines includes scoped printing; manage_printing is no longer an editable local grant.",
         )],
         responses={200: CapabilitySerializer(many=True), **ERRORS},
     )

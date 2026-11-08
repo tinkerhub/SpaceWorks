@@ -79,8 +79,8 @@ function ScopeBody({ scope, selected, onToggle }: { scope: MemberMachineScope; s
   }
   if (!scope.scoping_applies) {
     return (
-      <Callout tone="warning" title="Their role has no Machines capability">
-        Personal machine types only work on top of a role that includes Machines. Give them such a role first.
+      <Callout tone="warning" title="Their role has no Manage machines capability">
+        Personal machine types only work on top of a role that includes Manage machines. Give them such a role first.
       </Callout>
     );
   }

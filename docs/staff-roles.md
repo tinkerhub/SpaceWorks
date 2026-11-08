@@ -45,7 +45,7 @@ Every makerspace starts with four protected roles. They can be renamed and narro
 |---|---|---|
 | **Space Manager** | Everything grantable: requests, handouts, returns, evidence, inventory, QR, machines, printing, events, bookings, audit, `manage_makerspace` | Everything for the makerspace, including Users and Settings. Not Platform settings, Modules or Tenant migration (superadmin only) |
 | **Inventory Manager** | Full hardware lifecycle (`accept_request`, `reject_request`, `assign_box`, `issue_request`, `issue_direct_loan`, `return_request`, `upload_evidence`), `edit_inventory`, `view_inventory`, `manage_qr`, `view_audit` | Dashboard, Notifications, Requests, Direct handout, Ledger, Transfers, Stocktake, To Buy, Inventory, Categories, To-be-fixed, Containers, Bulk import, QR tools, Scanner, Reports, Accountability, Warranties, Audit log, Email templates. **No** Machines, Users, Settings, Members |
-| **Machine Manager** | `manage_machines`, which implies `manage_printing` and `collect_service_request` | Dashboard, Job handover, To Buy, Machines (including pricing and the free threshold for the machine types it manages; online payment stays with the Space Manager), Warranties, Email templates |
+| **Machine Manager** | Manage machines (`manage_machines`), including scoped printing and job handover | Dashboard, Job handover, To Buy, Machines (including pricing and the free threshold for the machine types it manages; online payment stays with the Space Manager), Warranties, Email templates |
 | **Member** | None | None. A role with no actions is a community membership |
 
 On top of the role, **a section whose module is off is not shown at all** (for example no Machines
@@ -67,13 +67,34 @@ audit history records who cancelled, when, and that a reason was recorded, witho
 
 ## Which machines a person manages
 
-A role with the Machines capability manages only the machine types ticked for it: under
-**Users → Roles**, reopen the role and use **Machine scope**. To give one person extra types
-without a role per person, use **Users → Machine types** on their row. Their reach is the role's
-types **plus** their own; personal types never grant the Machines capability itself, so the role
-must already include it. For "this person runs only the lasers", give them a Machines role with
-no types ticked and tick Laser for them. The built-in Machine Manager role starts linked to every
-built-in type, so it already covers all of them. A Space Manager always covers every machine.
+**Manage machines** is the single role permission for machines and printing. Under **Users → Roles**,
+save a new role (or save an existing role after enabling this permission), then reopen it and use
+**Machine scope**. Select types such as **3D Printer** or individual machines. Role selections apply
+to everyone holding that role; a type selection also covers machines of that type added later.
+
+To give one person extra types, use **Users → People → Machine types** on their row. Their reach is
+the role's types/machines **plus** their personal types. Personal types require a role that already
+includes **Manage machines**; they never grant the permission themselves. With neither role nor
+personal scope selected, a scoped manager manages nothing. The built-in Machine Manager starts
+linked to every built-in type. A Space Manager always covers every machine, including future types.
+
+For **one Inventory Manager who also handles printing**, create a custom role starting from the
+Inventory Manager preset and enable **Manage machines**. Save and reopen it, then select **3D Printer**
+in Machine scope if everyone holding this custom role should manage printers. Alternatively leave its
+shared scope empty, assign it to that person, and select **3D Printer** under their **People → Machine
+types** action. The default Inventory Manager and everyone still assigned to it stay unchanged.
+
+New or updated local `granted_actions` must not contain `manage_printing`: the API returns a field
+validation error directing callers to `manage_machines` plus machine scope. The internal alias remains
+implied for existing consumers. Migration `machines/0026` converts stored local printing grants and
+binds null-role legacy print memberships to a bounded role; existing role, individual-machine and
+personal selections are retained. Organization legacy grants stay unchanged and confer no machine
+or machine-type manager authority; they are not translated into local roles.
+
+Converted printing roles now follow the selected-type boundary for procurement and dashboard access.
+A printing-only scoped manager no longer receives the broad notification inbox; a mixed inventory role
+keeps its independent inventory access. Unassigned legacy printing procurement stays with scope-exempt
+Space Managers (and other exempt administrators), rather than being assigned to a guessed type.
 
 The Machines sidebar lists each reachable type and, for machine managers with `machine_service`
 enabled, a **Type requests** link. Built-in printer requests also require `printing`. Requests

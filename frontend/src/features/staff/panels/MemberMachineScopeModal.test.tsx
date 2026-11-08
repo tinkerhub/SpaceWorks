@@ -79,7 +79,7 @@ describe("MemberMachineScopeModal", () => {
     staffRequest.mockResolvedValue(scope({ scoping_applies: false }));
     renderModal();
 
-    expect(await screen.findByText("Their role has no Machines capability")).toBeInTheDocument();
+    expect(await screen.findByText("Their role has no Manage machines capability")).toBeInTheDocument();
     expect(screen.queryByRole("checkbox")).toBeNull();
     expect(screen.queryByRole("button", { name: "Save machine types" })).toBeNull();
   });

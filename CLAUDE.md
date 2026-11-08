@@ -59,7 +59,10 @@ channel only. Two architectural rules are load-bearing and easy to violate if yo
 - **Auth & RBAC** — enforces the role/action matrix AND makerspace scoping on every query. Super Admin is
   global; every other role is a per-makerspace membership resolved through an editable `MakerspaceRole` row,
   action-based. `roles.DEFAULT_ROLE_DEFINITIONS` + `MEMBER_ROLE_DEFINITION` seed **four** protected defaults
-  per makerspace — Space Manager, Inventory Manager, Machine Manager, Member. **Guest Admin and Print
+  per makerspace — Space Manager, Inventory Manager, Machine Manager, Member. **Manage machines** is the
+  single editable local capability for selected machines/types, including printing; personal types only
+  supplement a machine-capable role. `manage_printing` remains an internal implied/organization compatibility
+  action and is rejected on local role grant writes. **Guest Admin and Print
   Manager are both retired** — handover is a custom role, and `print_manager` survives only as the frozen
   legacy fallback in `_MEMBERSHIP_ROLE_ACTIONS` (migrations and enum archaeology under **Handover roles**
   in `docs/INVARIANTS.md`). Inventory Manager is membership-only and covers the full hardware lifecycle but
