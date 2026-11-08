@@ -166,9 +166,9 @@ export function MachinesPanel({
           </Link>
         ) : null}
         <PageHeader
-          title={shownType ? queueView ? `${shownType.name} requests` : `${shownType.icon ? `${shownType.icon} ` : ""}${shownType.name}` : "Machines"}
+          title={shownType ? `${shownType.icon ? `${shownType.icon} ` : ""}${shownType.name}` : "Machines"}
           description={shownType
-            ? queueView ? "Review requests, run jobs and log manual usage." : `Machines and consumables for ${shownType.name}.`
+            ? queueEnabled ? `Machines, stock and requests for ${shownType.name}.` : `Machines and stock for ${shownType.name}.`
             : `Shared equipment, operators, usage, documents and operating status.${total !== undefined ? ` ${total} ${total === 1 ? "machine" : "machines"} in total.` : ""}`}
           actions={!queueView && shownType && canManage && shownType.can_create_machine === true ? (
             <MachineCreateDialog makerspaceId={makerspaceId} machineType={shownType} onCreated={setSelectedId} />
@@ -176,8 +176,8 @@ export function MachinesPanel({
         />
         {shownType ? (
           <nav aria-label={`${shownType.name} views`} className="flex flex-wrap gap-2">
-            {queueEnabled ? <Link to={queueHref} aria-current={queueView ? "page" : undefined} className={buttonClasses({ variant: queueView ? "secondary" : "quiet", size: "sm" })}>Requests</Link> : null}
-            <Link to={hrefFor(shownType)} aria-current={!queueView ? "page" : undefined} className={buttonClasses({ variant: !queueView ? "secondary" : "quiet", size: "sm" })}>Machines &amp; stock</Link>
+            {queueEnabled ? <Link to={queueHref} aria-current={queueView ? "page" : undefined} className={buttonClasses({ variant: queueView ? "primary" : "quiet", size: "sm" })}>Requests</Link> : null}
+            <Link to={hrefFor(shownType)} aria-current={!queueView ? "page" : undefined} className={buttonClasses({ variant: !queueView ? "primary" : "quiet", size: "sm" })}>Machines &amp; stock</Link>
           </nav>
         ) : null}
       </div>

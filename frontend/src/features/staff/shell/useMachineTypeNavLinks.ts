@@ -1,9 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { collectionResults, getMachineTypes, isBuiltinPrinterType, machineKeys } from "../machinesApi";
+import { collectionResults, getMachineTypes, machineKeys } from "../machinesApi";
 import { machineTypeSegment } from "../staffTabs";
-import { machineTypeQueueSegment } from "../machineTypeRoutes";
 import type { StaffNavSubLink } from "./staffNavItems";
 
 /**
@@ -14,9 +13,6 @@ import type { StaffNavSubLink } from "./staffNavItems";
 export function useMachineTypeNavLinks(
   makerspaceId: number | undefined,
   enabled: boolean,
-  canManageMachines = false,
-  machineServiceEnabled = false,
-  printingEnabled = false,
 ): StaffNavSubLink[] {
   const machineTypes = useQuery({
     queryKey: machineKeys.types(makerspaceId ?? 0),
@@ -24,12 +20,9 @@ export function useMachineTypeNavLinks(
     enabled: enabled && makerspaceId !== undefined,
   });
   return useMemo(
-    () => collectionResults(machineTypes.data).flatMap((type) => [
-      { label: type.name, subPath: machineTypeSegment(type) },
-      ...(canManageMachines && machineServiceEnabled && (!isBuiltinPrinterType(type) || printingEnabled)
-        ? [{ label: `${type.name} requests`, subPath: machineTypeQueueSegment(type), queue: true }]
-        : []),
-    ]),
-    [machineTypes.data, canManageMachines, machineServiceEnabled, printingEnabled],
+    () => collectionResults(machineTypes.data).map((type) => (
+      { label: type.name, subPath: machineTypeSegment(type) }
+    )),
+    [machineTypes.data],
   );
 }
