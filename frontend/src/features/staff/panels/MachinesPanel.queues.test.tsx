@@ -8,19 +8,37 @@ import { mountQueuePanel, queueRead, queueTypes } from "./queueNavigationTestHar
 beforeEach(() => resetUploadSession());
 afterEach(() => cleanUploadSession());
 
-describe("separate equipment and request pages", () => {
-  it.each(["/admin", "/m/forge/admin"])("opens queue first and navigates back to equipment and its drawer under %s", async (base) => {
-    http(queueRead);
+function expectWorkspaceView(title: string, activeName: "Requests" | "Machines & stock") {
+  expect(screen.getByRole("heading", { level: 1, name: title })).toBeVisible();
+  expect(screen.getByText("Machines, stock and requests for Presses.")).toBeVisible();
+  const views = within(screen.getByRole("navigation", { name: "Presses views" }));
+  const active = views.getByRole("link", { name: activeName });
+  expect(views.getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page")).toEqual([active]);
+  expect(active).toHaveClass("bg-primary", "text-on-primary");
+  const inactive = views.getByRole("link", { name: activeName === "Requests" ? "Machines & stock" : "Requests" });
+  expect(inactive).not.toHaveAttribute("aria-current");
+  expect(inactive).toHaveClass("text-ink-secondary");
+  expect(inactive).not.toHaveClass("bg-primary");
+}
+
+describe("equipment and requests in one machine workspace", () => {
+  it.each([
+    { base: "/admin", icon: "", title: "Presses" },
+    { base: "/m/forge/admin", icon: "⚙", title: "⚙ Presses" },
+  ])("shares its header across views and keeps equipment and its drawer reachable under $base", async ({ base, icon, title }) => {
+    http((call) => call.path.endsWith("/machine-types")
+      ? json([{ ...queueTypes[0], icon }, queueTypes[1]]) : queueRead(call));
     mountQueuePanel(`${base}/machines/1-press/queue`, { makerspaceSlug: base === "/admin" ? null : "forge" });
     await screen.findByText("Job A", { exact: true });
-    expect(screen.getAllByRole("heading")[0]).toHaveTextContent("Presses requests");
-    expect(screen.getAllByRole("heading")[1]).toHaveTextContent("Service queue");
+    expectWorkspaceView(title, "Requests");
+    expect(screen.getByRole("heading", { name: "Service queue" })).toBeVisible();
     expect(screen.queryByRole("table", { name: "Machine list" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Add machine" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Material")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Initial quantity")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("link", { name: "Machines & stock" }));
     expect(await screen.findByRole("button", { name: "Machine 11" })).toBeVisible();
+    expectWorkspaceView(title, "Machines & stock");
     expect(screen.getByLabelText("Material")).toBeVisible();
     expect(screen.queryByText("Job A", { exact: true })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Add machine" }));
@@ -40,10 +58,14 @@ describe("separate equipment and request pages", () => {
     const net = http(queueRead);
     mountQueuePanel(`/admin/machines/${type.id}-${type.slug}/queue`, gates);
     expect(await screen.findByText("Requests unavailable")).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(type.name);
+    expect(screen.getByText(`Machines and stock for ${type.name}.`)).toBeVisible();
     expect(screen.queryByRole("link", { name: "Requests" })).not.toBeInTheDocument();
     expect(net.calls.filter((call) => /machine-service|typed-manual-usage/.test(call.path))).toEqual([]);
     fireEvent.click(screen.getAllByRole("link", { name: "Machines & stock" })[0]);
     expect(await screen.findByRole("button", { name: `Machine ${printer ? 12 : 11}` })).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(type.name);
+    expect(screen.getByText(`Machines and stock for ${type.name}.`)).toBeVisible();
     expect(screen.queryByRole("link", { name: "Requests" })).not.toBeInTheDocument();
     if (!printer) expect(net.calls.filter((call) => /machine-service|typed-manual-usage/.test(call.path))).toEqual([]);
   });

@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); localStorage.removeItem(SIDEBAR_COLLAPSED_KEY); });
 
-function mountShell(nav: Partial<StaffShellProps["nav"]> = {}) {
+function mountShell(nav: Partial<StaffShellProps["nav"]> = {}, path = "/m/community-lab/admin/inventory") {
   const onSelectTab = vi.fn();
   const props: StaffShellProps = {
     nav: { activeMakerspaceSlug: makerspace.slug, activeTab: "inventory", allowedTabs: ["inventory", "qr"], guestOnly: false, singleTenantLocked: false, ...nav },
@@ -36,7 +36,7 @@ function mountShell(nav: Partial<StaffShellProps["nav"]> = {}) {
   };
   const client = regressionClient();
   client.setQueryData(machineKeys.types(7), [{ ...serviceType("generic", 12), makerspace: 7 }]);
-  render(<RegressionProviders client={client} path="/m/community-lab/admin/inventory">
+  render(<RegressionProviders client={client} path={path}>
     <StaffShell {...props} />
   </RegressionProviders>);
   return { onSelectTab };
@@ -110,14 +110,18 @@ describe("StaffShell responsive modal lifecycle", () => {
   });
 });
 
-it("mobile sheet exposes the same type-specific request link and closes on navigation", async () => {
+it("mobile queue deep link selects the unified type row and closes the sheet on navigation", async () => {
   const { onSelectTab } = mountShell({ activeTab: "machines", allowedTabs: ["machines"],
-    canManageMachines: true, machineServiceEnabled: true, printingEnabled: true });
+    canManageMachines: true, machineServiceEnabled: true, printingEnabled: true },
+  "/m/community-lab/admin/machines/12-stale-slug/queue");
   fireEvent.click(screen.getByRole("button", { name: "Open navigation menu" }));
   const sheet = within(await screen.findByRole("dialog", { name: "Navigation" }));
-  const queue = sheet.getByRole("link", { name: "Presses requests" });
-  expect(queue).toHaveAttribute("href", "/m/community-lab/admin/machines/12-press/queue");
-  fireEvent.click(queue);
+  const group = within(sheet.getByRole("group", { name: "Machines" }));
+  const type = group.getByRole("link", { name: "Presses" });
+  expect(group.getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page")).toEqual([type]);
+  expect(sheet.queryByRole("link", { name: /requests$/ })).not.toBeInTheDocument();
+  expect(type).toHaveAttribute("href", "/m/community-lab/admin/machines/12-press");
+  fireEvent.click(type);
   await waitFor(() => expect(screen.queryByRole("dialog", { name: "Navigation" })).not.toBeInTheDocument());
   expect(onSelectTab).toHaveBeenCalledWith("machines");
 });

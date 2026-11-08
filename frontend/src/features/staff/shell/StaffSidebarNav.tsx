@@ -46,22 +46,20 @@ type NavGroupProps = {
   group: StaffNavGroup;
   props: StaffNavProps;
   activeTypeId: number | null;
-  activeQueue: boolean;
   open: boolean;
   onToggle: () => void;
 };
 
-function rowActive(row: StaffNavRow, activeTab: string, activeTypeId: number | null, activeQueue: boolean) {
-  // A row under a tab with sub-links matches on the type in the URL too; "" (the index)
-  // parses to null, so "All machine types" is the current page only when no type is open.
+function rowActive(row: StaffNavRow, activeTab: string, activeTypeId: number | null) {
+  // Each type row owns both equipment and requests by ID. "" parses to null, so
+  // "All machine types" is current only at the index; the collapsed row owns the whole tab.
   if (row.tab !== activeTab) return false;
   if (row.tab !== "machines") return true;
-  if (row.subPath === undefined) return !activeQueue;
-  const route = machineTypeRoute(row.subPath);
-  return route.typeId === activeTypeId && route.queue === activeQueue;
+  if (row.subPath === undefined) return true;
+  return machineTypeRoute(row.subPath).typeId === activeTypeId;
 }
 
-function NavGroup({ group, props, activeTypeId, activeQueue, open, onToggle }: NavGroupProps) {
+function NavGroup({ group, props, activeTypeId, open, onToggle }: NavGroupProps) {
   const headingId = useId();
   const listId = useId();
   const { activeMakerspaceSlug, activeTab, collapsed, guestOnly, singleTenantLocked, unreadCount, onNavigate } = props;
@@ -86,7 +84,7 @@ function NavGroup({ group, props, activeTypeId, activeQueue, open, onToggle }: N
       <ul id={listId} hidden={!expanded} className="flex flex-col gap-0.5">
         {group.rows.map((row) => {
           const { tab, label, icon: Icon } = row;
-          const active = rowActive(row, activeTab, activeTypeId, activeQueue);
+          const active = rowActive(row, activeTab, activeTypeId);
           const unread = tab === "notifications" ? unreadCount : 0;
           // The visible label leads the accessible name; the unread count is folded in after it.
           const accessibleName = unread > 0 ? `${label}, ${unread} unread` : collapsed ? label : undefined;
@@ -122,7 +120,6 @@ export function StaffSidebarNav(props: StaffNavProps) {
   const location = useLocation();
   const machineTypeLinks = useMachineTypeNavLinks(
     props.activeMakerspaceId, props.allowedTabs.includes("machines"),
-    props.canManageMachines, props.machineServiceEnabled, props.printingEnabled,
   );
   const groups = staffNavGroups(props.allowedTabs, machineTypeLinks, props.collapsed);
   const activeRoute = machineTypeRoute(staffSubPathFromPath(location.pathname, props.guestOnly));
@@ -141,7 +138,6 @@ export function StaffSidebarNav(props: StaffNavProps) {
             group={group}
             props={props}
             activeTypeId={activeTypeId}
-            activeQueue={props.activeTab === "machines" && activeRoute.queue}
             open={openGroups.has(group.label)}
             onToggle={() => setGroupOpen(group.label, !openGroups.has(group.label))}
           />

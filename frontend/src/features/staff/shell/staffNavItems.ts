@@ -89,8 +89,8 @@ export function staffTabLabel(tab: string) {
   return TAB_LABELS[tab] ?? tab;
 }
 
-/** Equipment and eligible requests links nested under Machines. */
-export type StaffNavSubLink = { label: string; subPath: string; queue?: boolean };
+/** One workspace link per server-scoped machine type nested under Machines. */
+export type StaffNavSubLink = { label: string; subPath: string };
 
 export type StaffNavRow = {
   tab: string;
@@ -109,13 +109,12 @@ export type StaffNavGroup = {
 };
 
 function tabRows(tab: string, machineTypeLinks: readonly StaffNavSubLink[], collapsed: boolean): StaffNavRow[] {
-  if (tab !== "machines" || !machineTypeLinks.length) {
+  if (tab !== "machines" || !machineTypeLinks.length || collapsed) {
     return [{ tab, label: staffTabLabel(tab), icon: staffTabIcon(tab) }];
   }
   return [
-    collapsed ? { tab, label: staffTabLabel(tab), icon: staffTabIcon(tab) }
-      : { tab, label: "All machine types", icon: LayoutGrid, subPath: "" },
-    ...machineTypeLinks.filter((link) => !collapsed || link.queue).map((link) => ({ tab, label: link.label, icon: link.queue ? Inbox : staffTabIcon(tab), subPath: link.subPath })),
+    { tab, label: "All machine types", icon: LayoutGrid, subPath: "" },
+    ...machineTypeLinks.map((link) => ({ tab, label: link.label, icon: staffTabIcon(tab), subPath: link.subPath })),
   ];
 }
 

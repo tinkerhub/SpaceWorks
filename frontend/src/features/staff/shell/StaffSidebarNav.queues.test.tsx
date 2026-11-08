@@ -26,57 +26,69 @@ function mount(props: Partial<StaffNavProps> = {}, route = path) {
 }
 beforeEach(() => localStorage.clear());
 
-describe("type request navigation authority", () => {
-  it("uses only scoped server types and navigates to the ID-specific queue", () => {
-    const onNavigate = mount();
+describe("unified machine workspace navigation", () => {
+  it.each(["/admin", "/m/forge/admin"])("uses one row per scoped server type and navigates by ID under %s", (base) => {
+    const onNavigate = mount({ activeMakerspaceSlug: base === "/admin" ? undefined : "forge" }, `${base}/machines/12-decorative/queue`);
+    const group = within(screen.getByRole("group", { name: "Machines" }));
+    expect(group.getAllByRole("link").map((link) => link.textContent))
+      .toEqual(["All machine types", "Presses", "Printers", "Tenant printer"]);
     expect(screen.queryByRole("link", { name: /Foreign router/ })).not.toBeInTheDocument();
-    const link = screen.getByRole("link", { name: "Presses requests" });
-    expect(link).toHaveAttribute("href", "/m/forge/admin/machines/12-press/queue");
+    expect(group.getByRole("link", { name: "All machine types" })).toHaveAttribute("href", `${base}/machines`);
+    expect(group.getByRole("link", { name: "Printers" })).toHaveAttribute("href", `${base}/machines/2-3d_printer`);
+    expect(group.getByRole("link", { name: "Tenant printer" })).toHaveAttribute("href", `${base}/machines/13-3d_printer`);
+    const link = group.getByRole("link", { name: "Presses" });
+    expect(link).toHaveAttribute("href", `${base}/machines/12-press`);
     fireEvent.click(link);
-    expect(screen.getByLabelText("Current path")).toHaveTextContent("/m/forge/admin/machines/12-press/queue");
+    expect(screen.getByLabelText("Current path")).toHaveTextContent(`${base}/machines/12-press`);
     expect(onNavigate).toHaveBeenCalledWith("machines");
   });
 
   it.each([
-    { canManageMachines: false }, { machineServiceEnabled: false },
+    ...[false, true].flatMap((canManageMachines) => [false, true].flatMap((machineServiceEnabled) =>
+      [false, true].map((printingEnabled) => ({ canManageMachines, machineServiceEnabled, printingEnabled })))),
     { canManageMachines: undefined, machineServiceEnabled: undefined, printingEnabled: undefined },
-  ])("withholds queues while leaving operator equipment links usable: %j", (gates) => {
+  ])("keeps one workspace row per type without requests duplicates for gates %j", (gates) => {
     mount(gates);
+    const group = within(screen.getByRole("group", { name: "Machines" }));
+    expect(group.getAllByRole("link").map((link) => link.textContent))
+      .toEqual(["All machine types", "Presses", "Printers", "Tenant printer"]);
     expect(screen.queryByRole("link", { name: /requests$/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Presses" })).toHaveAttribute("href", "/m/forge/admin/machines/12-press");
+    expect(group.getAllByRole("link").every((link) => !link.getAttribute("href")?.endsWith("/queue"))).toBe(true);
   });
 
-  it("does not grant queues to a collect-only console", () => {
+  it("does not expose machine workspaces to a collect-only console", () => {
     mount({ allowedTabs: ["handover"], activeTab: "handover", canManageMachines: false });
     expect(screen.queryByRole("link", { name: /requests$/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Presses" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Job handover" })).toBeVisible();
   });
 
-  it("printing gates only the global printer even when tenant and global slugs match", () => {
-    mount({ printingEnabled: false });
-    expect(screen.queryByRole("link", { name: "Printers requests" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Tenant printer requests" })).toHaveAttribute("href", "/m/forge/admin/machines/13-3d_printer/queue");
-    expect(screen.getByRole("link", { name: "Presses requests" })).toBeVisible();
-  });
-
-  it.each([false, true])("marks exactly one current row for queue=%s", (queue) => {
-    mount({}, `/m/forge/admin/machines/12-wrong-slug${queue ? "/queue" : ""}`);
+  it.each([
+    { segment: "12-wrong-slug", name: "Presses" },
+    { segment: "12-wrong-slug/queue", name: "Presses" },
+    { segment: "2-3d_printer/queue", name: "Printers" },
+    { segment: "13-3d_printer/queue", name: "Tenant printer" },
+  ])("marks exactly one type row by ID at $segment", ({ segment, name }) => {
+    mount({}, `/m/forge/admin/machines/${segment}`);
     const group = within(screen.getByRole("group", { name: "Machines" }));
     const current = group.getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page");
     expect(current).toHaveLength(1);
-    expect(current[0]).toHaveTextContent(queue ? "Presses requests" : "Presses");
-    expect(group.getByRole("link", { name: queue ? "Presses" : "Presses requests" })).not.toHaveAttribute("aria-current");
+    expect(current[0]).toBe(group.getByRole("link", { name }));
   });
 
-  it("keeps actionable, named queue links on the collapsed rail", () => {
-    mount({ collapsed: true });
-    const link = screen.getByRole("link", { name: "Presses requests" });
+  it.each(["", "/12-press", "/12-press/queue"])("keeps one actionable, named Machines rail link current at machines%s", (suffix) => {
+    const onNavigate = mount({ collapsed: true }, `/m/forge/admin/machines${suffix}`);
+    const group = within(screen.getByRole("group", { name: "Machines" }));
+    const link = group.getByRole("link", { name: "Machines" });
+    expect(group.getAllByRole("link")).toEqual([link]);
+    expect(link).toHaveAttribute("href", "/m/forge/admin/machines");
     expect(link).toHaveAttribute("aria-current", "page");
+    expect(link.tabIndex).toBe(0);
     link.focus();
     expect(link).toHaveFocus();
     fireEvent.click(link);
-    expect(screen.getByLabelText("Current path")).toHaveTextContent("/m/forge/admin/machines/12-press/queue");
+    expect(screen.getByLabelText("Current path")).toHaveTextContent(/^\/m\/forge\/admin\/machines$/);
+    expect(onNavigate).toHaveBeenCalledWith("machines");
     expect(screen.queryByRole("button", { name: "Machines" })).not.toBeInTheDocument();
   });
 });

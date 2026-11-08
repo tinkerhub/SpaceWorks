@@ -1592,7 +1592,7 @@ unchanged.
     transport cannot catch this — the existing report test answered regardless of query string, so
     the regression test asserts on the **request URL**.
 
-**Staff Machines console has per-type equipment and requests pages.** `MachinesPanel` owns the
+**Staff Machines console has one workspace per type, with equipment and requests views.** `MachinesPanel` owns the
 machines/types queries, ONE permission-gated canonical pool query, the status filter, service drafts,
 creation and drawer. It routes between type cards (`MachineTypeCards`), equipment/stock
 (`MachineTypePage`) and the existing printer or generic service console. Consumable creation is per type.
@@ -1604,10 +1604,15 @@ creation and drawer. It routes between type cards (`MachineTypeCards`), equipmen
   selection" (the index), never a silent fall-through to a default type.
 - **Requests use `/admin/machines/<id>-<slug>/queue`**, also under `/m/<space>/admin`.
   `machineTypeRoutes.ts` distinguishes equipment from requests without changing the ID parser.
-  The sidebar uses the same server-scoped type cache and explicit `MANAGE_MACHINES`,
-  `machine_service` and global-printer `printing` gates. Type visibility alone grants no queue
-  authority. Queue links remain actionable on the collapsed rail; current-page matching uses both
-  type ID and view. Unavailable queue URLs retain a working equipment link and make no queue/pool calls.
+  The expanded sidebar uses the same server-scoped type cache for one row per type, targeting its
+  equipment URL with no separate requests row. That row stays current across both views by type ID;
+  the collapsed rail has one Machines row, current for every Machines route. Within the workspace,
+  both views share the type name and configured icon as their title and the same description:
+  machines, stock and requests when requests are enabled, otherwise machines and stock only.
+  The existing Requests and Machines & stock links use the staff primary accent for the active view
+  and quiet styling for the inactive view. Requests still require explicit `MANAGE_MACHINES`,
+  `machine_service` and global-printer `printing` gates; type visibility alone grants no queue
+  authority. Unavailable queue URLs retain a working equipment link and make no queue/pool calls.
 - **`StaffWorkspace` canonicalizes the URL to the active tab's path, so the subpath had to be
   threaded through it** (`keptStaffSubPath`) — otherwise the redirect fires on every load and strips
   the segment, and no per-type link can survive its first render. Subpaths are opt-in per tab
