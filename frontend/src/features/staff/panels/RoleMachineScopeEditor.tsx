@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button, Callout, CheckboxField, ErrorText, Skeleton, useToast } from "../../../components/ui";
 import { getRoleMachineScope, setRoleMachineScope, type MachineScopeOption } from "./rolesApi";
@@ -17,6 +17,7 @@ import { errorText } from "./shared";
  * does not exist yet has nothing to link to.
  */
 export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId: number }) {
+  const queryClient = useQueryClient();
   const scope = useQuery({
     queryKey: ["staff", "role-machine-scope", msId, roleId],
     queryFn: () => getRoleMachineScope(msId, roleId),
@@ -41,6 +42,7 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
       setSaved(true);
       showToast("Machine scope saved", { tone: "success" });
       void scope.refetch();
+      void queryClient.invalidateQueries({ queryKey: ["staff", "member-machine-scope", msId] });
     },
     onError: (error) => showToast(errorText(error, "Couldn't save the machine scope"), { tone: "error" }),
   });
@@ -61,8 +63,8 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
       <section className="grid gap-1 rounded-lg border border-line bg-subtle p-4">
         <h3 className="text-title text-ink">Machine scope</h3>
         <p className="text-body-ui text-ink-muted">
-          This role either administers the whole makerspace or grants no machine capability,
-          so it is not limited to particular machines.
+          Makerspace administrators cover every machine. Other roles need a saved Manage machines
+          capability before scope can grant access; save and reopen after enabling it.
         </p>
       </section>
     );
@@ -81,12 +83,13 @@ export function RoleMachineScopeEditor({ msId, roleId }: { msId: number; roleId:
       <div className="grid gap-1">
         <h3 className="text-title text-ink">Machine scope</h3>
         <p className="text-body-ui text-ink-muted">
-          This role can only manage the machine types and machines ticked here. Ticking a
-          type also covers machines of that type added later.
+          These selections apply to everyone with this role, including printing jobs for selected printer types.
+          Ticking a type also covers machines of that type added later. Add personal types under
+          Users → People → Machine types; they require Manage machines and supplement this scope.
         </p>
       </div>
       {nothingSelected ? (
-        <Callout tone="warning" title="Nothing selected">This role currently can't manage any machine.</Callout>
+        <Callout tone="warning" title="Nothing selected">No shared machine scope is selected. People with this role can still manage any personal types assigned to them.</Callout>
       ) : null}
       <OptionList
         title="Machine types"

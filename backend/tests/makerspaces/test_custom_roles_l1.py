@@ -20,6 +20,12 @@ HISTORICAL_ROLE_VALUES = [
     MakerspaceMembership.Role.PRINT_MANAGER,
     "guest_admin",
 ]
+# Freeze 0039's seed contract: later runtime defaults must not rewrite history.
+HISTORICAL_CORE_ROLE_DEFINITIONS = (
+    ("space_manager", "Space Manager", ["accept_request", "assign_box", "edit_inventory", "issue_direct_loan", "issue_request", "manage_bookings", "manage_events", "manage_machines", "manage_makerspace", "manage_printing", "manage_qr", "reject_request", "return_request", "upload_evidence", "view_audit", "view_inventory"]),
+    ("inventory_manager", "Inventory Manager", ["accept_request", "assign_box", "edit_inventory", "issue_direct_loan", "issue_request", "manage_qr", "reject_request", "return_request", "upload_evidence", "view_audit", "view_inventory"]),
+    ("machine_manager", "Machine Manager", ["manage_machines"]),
+)
 
 
 def make_user(username):
@@ -113,7 +119,7 @@ def test_seed_and_backfill_migration_round_trip():
         }
         assert set(seeded) == set(HISTORICAL_ROLE_VALUES)
         assert seeded[MakerspaceMembership.Role.PRINT_MANAGER].granted_actions == ["manage_printing"]
-        for legacy_role, name, granted_actions in roles.DEFAULT_ROLE_DEFINITIONS:
+        for legacy_role, name, granted_actions in HISTORICAL_CORE_ROLE_DEFINITIONS:
             role = seeded[legacy_role]
             assert role.name == name
             assert role.slug == legacy_role
